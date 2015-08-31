@@ -66,6 +66,11 @@
     </dependency>
 
     <dependency>
+      <groupId>com.helger</groupId>
+      <artifactId>peppol-yellow-pages-api</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>jul-to-slf4j</artifactId>
     </dependency>

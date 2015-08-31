@@ -64,6 +64,11 @@
       <groupId>com.helger</groupId>
       <artifactId>ph-commons</artifactId>
     </dependency>
+    
+    <dependency>
+      <groupId>com.helger</groupId>
+      <artifactId>peppol-yellow-pages-api</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>org.slf4j</groupId>
