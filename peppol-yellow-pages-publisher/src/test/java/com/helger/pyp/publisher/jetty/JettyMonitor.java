@@ -41,8 +41,6 @@ public final class JettyMonitor extends Thread
     setDaemon (true);
     setName ("JettyStopMonitor");
     m_aServerSocket = new ServerSocket (m_nPort, 1, InetAddress.getByName (null));
-    if (m_aServerSocket == null)
-      s_aLogger.error ("WARN: Not listening on monitor port: " + m_nPort);
   }
 
   @Override
