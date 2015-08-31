@@ -53,16 +53,97 @@
     </developer>
   </developers>
   
+  <properties>
+    <m2e.jaxrs.activation>false</m2e.jaxrs.activation>
+    <m2e.jpa.activation>false</m2e.jpa.activation>
+    <m2e.jsf.activation>false</m2e.jsf.activation>
+  </properties>
+  
   <dependencies>
     <dependency>
       <groupId>com.helger</groupId>
       <artifactId>ph-commons</artifactId>
     </dependency>
-  
+
     <dependency>
       <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-simple</artifactId>
+      <artifactId>jul-to-slf4j</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-slf4j-impl</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-web</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-webapp</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-annotations</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
+  
+  <build>
+    <resources>
+      <resource>
+        <directory>${basedir}/src/main/resources</directory>
+        <targetPath>${project.build.directory}/classes</targetPath>
+      </resource>
+      <resource>
+        <directory>${basedir}/src/main/webapp</directory>
+        <targetPath>${project.build.directory}/webapp-classes</targetPath>
+      </resource>
+      <resource>
+        <directory>${basedir}/src/test/resources</directory>
+        <targetPath>${project.build.directory}/test-classes</targetPath>
+      </resource>
+    </resources>
+    
+    <plugins>
+      <plugin>
+        <groupId>com.helger.maven</groupId>
+        <artifactId>ph-jscompress-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>jscompress</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <forceCreation>false</forceCreation>
+          <sourceDirectory>${basedir}/src/main/webapp</sourceDirectory>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>com.helger.maven</groupId>
+        <artifactId>ph-csscompress-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>csscompress</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <forceCompress>false</forceCompress>
+          <removeUnnecessaryCode>true</removeUnnecessaryCode>
+          <quoteURLs>true</quoteURLs>
+          <verbose>true</verbose>
+          <sourceDirectory>${basedir}/src/main/webapp</sourceDirectory>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>

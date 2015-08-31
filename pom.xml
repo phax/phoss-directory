@@ -61,6 +61,13 @@
     </developer>
   </developers>
   
+  <properties>
+    <slf4j.version>1.7.12</slf4j.version>
+    <log4j.version>2.3</log4j.version>
+    <ph-oton.version>6.0.0-SNAPSHOT</ph-oton.version>
+    <jetty.version>9.2.13.v20150730</jetty.version>
+  </properties>
+  
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -70,8 +77,45 @@
       </dependency>
       <dependency>
         <groupId>com.helger</groupId>
+        <artifactId>ph-settings</artifactId>
+        <version>2.0.0</version>
+      </dependency>
+      <dependency>
+        <groupId>com.helger</groupId>
         <artifactId>ph-oton-basic</artifactId>
-        <version>6.0.0-SNAPSHOT</version>
+        <version>${ph-oton.version}</version>
+      </dependency>
+  
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-webapp</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-annotations</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
+  
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>jul-to-slf4j</artifactId>
+        <version>${slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-core</artifactId>
+        <version>${log4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-slf4j-impl</artifactId>
+        <version>${log4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-web</artifactId>
+        <version>${log4j.version}</version>
       </dependency>
   
       <dependency>
