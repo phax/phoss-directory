@@ -26,7 +26,7 @@ import com.helger.commons.io.resource.ClassPathResource;
 import com.helger.commons.io.resource.IReadableResource;
 
 /**
- * Constants for the handling of Business Card XML documents
+ * Constants for the handling of Business Information XML documents
  *
  * @author Philip Helger
  */
