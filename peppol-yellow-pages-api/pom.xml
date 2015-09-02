@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (C) 2014-2015 Philip Helger (www.helger.com)
+    Copyright (C) 2015 Philip Helger (www.helger.com)
     philip[at]helger[dot]com
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -58,6 +58,10 @@
       <groupId>com.helger</groupId>
       <artifactId>ph-commons</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.helger</groupId>
+      <artifactId>ph-jaxb</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>org.apache.lucene</groupId>
@@ -94,6 +98,55 @@
             </Import-Package>
           </instructions>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.jvnet.jaxb2.maven2</groupId>
+        <artifactId>maven-jaxb2-plugin</artifactId>
+        <version>0.12.3</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <bindingDirectory>${basedir}/src/main/jaxb</bindingDirectory>
+          <schemaDirectory>${basedir}/src/main/resources/schemas</schemaDirectory>
+          <extension>true</extension>
+          <specVersion>2.1</specVersion>
+          <args>
+            <arg>-no-header</arg>
+            <arg>-Xph-default-locale</arg>
+            <arg>en_US</arg>
+            <arg>-Xph-annotate</arg>
+            <arg>-Xph-fields-private</arg>
+            <arg>-Xph-code-quality</arg>
+            <arg>-Xph-implements</arg>
+            <arg>java.io.Serializable</arg>
+            <arg>-Xph-equalshashcode</arg>
+            <arg>-Xph-tostring</arg>
+            <arg>-Xph-list-extension</arg>
+            <arg>-Xph-csu</arg>
+          </args>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+            <version>2.2.11</version>
+          </dependency>
+          <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-xjc</artifactId>
+            <version>2.2.11</version>
+          </dependency>
+          <dependency>
+            <groupId>com.helger</groupId>
+            <artifactId>ph-jaxb22-plugin</artifactId>
+            <version>2.2.11.6</version>
+          </dependency>
+        </dependencies>
       </plugin>
     </plugins>
   </build>
