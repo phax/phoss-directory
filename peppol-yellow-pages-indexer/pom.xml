@@ -64,10 +64,21 @@
       <groupId>com.helger</groupId>
       <artifactId>ph-commons</artifactId>
     </dependency>
-    
+    <dependency>
+      <groupId>com.helger</groupId>
+      <artifactId>ph-settings</artifactId>
+    </dependency>
     <dependency>
       <groupId>com.helger</groupId>
       <artifactId>peppol-yellow-pages-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.helger</groupId>
+      <artifactId>ph-oton-bootstrap3-stub</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.jersey.containers</groupId>
+      <artifactId>jersey-container-servlet</artifactId>
     </dependency>
 
     <dependency>
