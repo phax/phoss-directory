@@ -1,12 +1,13 @@
 package com.helger.pyp.indexer.rest;
 
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
 
 import com.helger.pyp.indexer.ClientCertificateValidator;
 
@@ -18,10 +19,21 @@ import com.helger.pyp.indexer.ClientCertificateValidator;
 @Path ("1.0")
 public class IndexerResource
 {
+  // Jersey will inject proxy of Security Context
+  @Context
+  private SecurityContext securityContext;
+
   @Context
   private HttpServletRequest m_aServletRequest;
 
-  private void _checkClientCertificate ()
+  /**
+   * Check if the current request contains a client certificate.
+   * 
+   * @return A non-<code>null</code> error {@link Response} if no valid client
+   *         certificate is present, <code>null</code> if everything is fine.
+   */
+  @Nullable
+  private Response _checkClientCertificate ()
   {
     boolean bValid = false;
     try
@@ -32,14 +44,19 @@ public class IndexerResource
     {}
 
     if (!bValid)
-    {}
+      return Response.status (Response.Status.FORBIDDEN).build ();
+
+    return null;
   }
 
   @GET
   @Path ("{participantID}")
-  @Produces (MediaType.TEXT_PLAIN)
-  public String createOrUpdateParticipant (@PathParam ("participantID") final String sParticipantID)
+  public Response createOrUpdateParticipant (@PathParam ("participantID") final String sParticipantID)
   {
-    return "Got it: '" + sParticipantID + "'";
+    final Response aResponse = _checkClientCertificate ();
+    if (aResponse != null)
+      return aResponse;
+
+    return Response.ok ().entity ("Got it: '" + sParticipantID + "'").build ();
   }
 }
