@@ -89,8 +89,8 @@
       </dependency>
       <dependency>
         <groupId>com.helger</groupId>
-        <artifactId>ph-oton-basic</artifactId>
-        <version>${ph-oton.version}</version>
+        <artifactId>peppol-commons</artifactId>
+        <version>4.0.1</version>
       </dependency>
       <dependency>
         <groupId>com.helger</groupId>
@@ -185,6 +185,21 @@
   </modules>
   
   <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>com.helger.maven</groupId>
+          <artifactId>ph-jscompress-maven-plugin</artifactId>
+          <version>2.1.0</version>
+        </plugin>
+        <plugin>
+          <groupId>com.helger.maven</groupId>
+          <artifactId>ph-csscompress-maven-plugin</artifactId>
+          <version>1.4.0</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+    
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
