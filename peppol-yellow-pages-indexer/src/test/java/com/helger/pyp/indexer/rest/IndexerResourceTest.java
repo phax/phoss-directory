@@ -2,6 +2,11 @@ package com.helger.pyp.indexer.rest;
 
 import static org.junit.Assert.assertEquals;
 
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
@@ -10,6 +15,11 @@ import org.glassfish.grizzly.http.server.HttpServer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.bridge.SLF4JBridgeHandler;
+
+import com.helger.commons.random.VerySecureRandom;
+import com.helger.web.https.DoNothingTrustManager;
+import com.helger.web.https.HostnameVerifierAlwaysTrue;
 
 /**
  * Test class for class {@link IndexerResource}.
@@ -18,19 +28,45 @@ import org.junit.Test;
  */
 public final class IndexerResourceTest
 {
+  static
+  {
+    SLF4JBridgeHandler.removeHandlersForRootLogger ();
+    SLF4JBridgeHandler.install ();
+  }
+
   private HttpServer m_aServer;
   private WebTarget m_aTarget;
 
   @Before
-  public void setUp () throws Exception
+  public void setUp () throws NoSuchAlgorithmException, KeyManagementException
   {
-    m_aServer = Main.startServer ();
-    final Client aClient = ClientBuilder.newClient ();
-    m_aTarget = aClient.target (Main.BASE_URI);
+    if (true)
+    {
+      // https
+      m_aServer = Main.startSecureServer ();
+
+      final SSLContext aSSLContext = SSLContext.getInstance ("TLS");
+      aSSLContext.init (null,
+                        new TrustManager [] { new DoNothingTrustManager (false) },
+                        VerySecureRandom.getInstance ());
+      final Client aClient = ClientBuilder.newBuilder ()
+                                          .sslContext (aSSLContext)
+                                          .hostnameVerifier (new HostnameVerifierAlwaysTrue (false))
+                                          .build ();
+      m_aTarget = aClient.target (Main.BASE_URI);
+    }
+    else
+    {
+      // http
+      m_aServer = Main.startRegularServer ();
+
+      final Client aClient = ClientBuilder.newClient ();
+      m_aTarget = aClient.target (Main.BASE_URI);
+    }
   }
 
   @After
-  public void tearDown () throws Exception
+  public void tearDown ()
   {
     m_aServer.shutdownNow ();
   }

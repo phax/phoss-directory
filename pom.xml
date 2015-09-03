@@ -89,13 +89,18 @@
       </dependency>
       <dependency>
         <groupId>com.helger</groupId>
-        <artifactId>peppol-commons</artifactId>
-        <version>4.0.1</version>
+        <artifactId>ph-web</artifactId>
+        <version>7.0.0</version>
       </dependency>
       <dependency>
         <groupId>com.helger</groupId>
         <artifactId>ph-oton-bootstrap3-stub</artifactId>
         <version>${ph-oton.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.helger</groupId>
+        <artifactId>peppol-commons</artifactId>
+        <version>4.0.1</version>
       </dependency>
       
       <dependency>
@@ -175,6 +180,10 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jul-to-slf4j</artifactId>
     </dependency>
   </dependencies>
   
