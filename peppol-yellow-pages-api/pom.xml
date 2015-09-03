@@ -62,6 +62,14 @@
       <groupId>com.helger</groupId>
       <artifactId>ph-jaxb</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.helger</groupId>
+      <artifactId>ph-settings</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.helger</groupId>
+      <artifactId>peppol-commons</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>org.apache.lucene</groupId>
