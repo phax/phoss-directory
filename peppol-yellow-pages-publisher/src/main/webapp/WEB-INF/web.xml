@@ -21,8 +21,8 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
          version="3.0">
-  <display-name>peppol-yellow-pages-indexer</display-name>
-  <description>Peppol Yellow Pages Indexer</description>
+  <display-name>peppol-yellow-pages-publisher</display-name>
+  <description>Peppol Yellow Pages Publisher</description>
   
   <session-config>
     <session-timeout>60</session-timeout>
@@ -30,27 +30,17 @@
   
   <!-- The welcome file is only required for the initial redirect -->
   <welcome-file-list>
-    <welcome-file>index.jsp</welcome-file>
+    <welcome-file>secure</welcome-file>
   </welcome-file-list>
   
-  <!-- In case of page not found - goto error page
-       This is relative to the web application context.
-   -->
-  <error-page>
-    <error-code>404</error-code>
-    <location>/error404.jsp</location>
-  </error-page>
- 
-  
   <!-- Application specific stuff -->  
-
   <listener>
-    <listener-class>com.helger.photon.bootstrap.demo.servlet.AppWebAppListener</listener-class>
+    <listener-class>com.jelger.pyp.publisher.servlet.AppWebAppListener</listener-class>
   </listener>
   
   <filter>
     <filter-name>SecureLoginFilter</filter-name>
-    <filter-class>com.helger.photon.bootstrap.demo.servlet.SecureLoginFilter</filter-class>
+    <filter-class>com.jelger.pyp.publisher.servlet.SecureLoginFilter</filter-class>
   </filter>
   <filter-mapping>
     <filter-name>SecureLoginFilter</filter-name>
@@ -67,7 +57,7 @@
   
   <servlet>
     <servlet-name>SecureApplicationServlet</servlet-name>
-    <servlet-class>com.helger.photon.bootstrap.demo.servlet.SecureApplicationServlet</servlet-class>
+    <servlet-class>com.jelger.pyp.publisher.servlet.SecureApplicationServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>SecureApplicationServlet</servlet-name>
@@ -76,10 +66,34 @@
   
   <servlet>
     <servlet-name>PublicApplicationServlet</servlet-name>
-    <servlet-class>com.helger.photon.bootstrap.demo.servlet.PublicApplicationServlet</servlet-class>
+    <servlet-class>com.jelger.pyp.publisher.servlet.PublicApplicationServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>PublicApplicationServlet</servlet-name>
     <url-pattern>/public/*</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>AppRootServlet</servlet-name>
+    <servlet-class>com.jelger.pyp.publisher.servlet.AppRootServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>AppRootServlet</servlet-name>
+    <url-pattern></url-pattern>
+  </servlet-mapping>
+
+  <!-- Jersey stuff -->
+  <servlet>
+    <servlet-name>Jersey Web Application</servlet-name>
+    <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
+    <init-param>
+      <param-name>jersey.config.server.provider.packages</param-name>
+      <param-value>com.jelger.pyp.indexer.rest</param-value>
+    </init-param>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Jersey Web Application</servlet-name>
+    <url-pattern>/indexer/*</url-pattern>
   </servlet-mapping>
 </web-app>
