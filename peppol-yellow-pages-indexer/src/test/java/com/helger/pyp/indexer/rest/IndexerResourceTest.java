@@ -2,9 +2,12 @@ package com.helger.pyp.indexer.rest;
 
 import static org.junit.Assert.assertEquals;
 
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
+import java.io.File;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.security.KeyStore;
 
+import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.ws.rs.client.Client;
@@ -18,6 +21,7 @@ import org.junit.Test;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import com.helger.commons.random.VerySecureRandom;
+import com.helger.peppol.utils.KeyStoreHelper;
 import com.helger.web.https.DoNothingTrustManager;
 import com.helger.web.https.HostnameVerifierAlwaysTrue;
 
@@ -38,15 +42,22 @@ public final class IndexerResourceTest
   private WebTarget m_aTarget;
 
   @Before
-  public void setUp () throws NoSuchAlgorithmException, KeyManagementException
+  public void setUp () throws GeneralSecurityException, IOException
   {
-    if (true)
+    final File aTestClientCertificateKeyStore = new File ("src/test/resources/smp.pilot.jks");
+    if (aTestClientCertificateKeyStore.exists ())
     {
       // https
       m_aServer = Main.startSecureServer ();
 
+      final KeyStore aKeyStore = KeyStoreHelper.loadKeyStore (aTestClientCertificateKeyStore.getAbsolutePath (),
+                                                              "peppol");
+      // Try to create the socket factory from the provided key store
+      final KeyManagerFactory aKeyManagerFactory = KeyManagerFactory.getInstance ("SunX509");
+      aKeyManagerFactory.init (aKeyStore, "peppol".toCharArray ());
+
       final SSLContext aSSLContext = SSLContext.getInstance ("TLS");
-      aSSLContext.init (null,
+      aSSLContext.init (aKeyManagerFactory.getKeyManagers (),
                         new TrustManager [] { new DoNothingTrustManager (false) },
                         VerySecureRandom.getInstance ());
       final Client aClient = ClientBuilder.newBuilder ()

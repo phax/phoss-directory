@@ -85,7 +85,7 @@
     </dependency>
     <dependency>
       <groupId>org.glassfish.jersey.containers</groupId>
-      <artifactId>jersey-container-grizzly2-http</artifactId>
+      <artifactId>jersey-container-grizzly2-servlet</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
