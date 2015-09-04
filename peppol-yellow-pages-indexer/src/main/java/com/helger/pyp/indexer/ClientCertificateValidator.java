@@ -245,7 +245,8 @@ public final class ClientCertificateValidator
   {
     // Workaround from Grizzly 2.3.22
     // First fetch this attribute so that the X509Certificate attribute gets set
-    aHttpRequest.getAttribute ("org.apache.coyote.request.X509Certificate");
+    if (false)
+      aHttpRequest.getAttribute ("org.apache.coyote.request.X509Certificate");
 
     // This is how to get client certificate from request
     final Object aValue = aHttpRequest.getAttribute ("javax.servlet.request.X509Certificate");

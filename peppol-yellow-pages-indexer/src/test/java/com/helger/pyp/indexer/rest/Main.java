@@ -1,6 +1,5 @@
 package com.helger.pyp.indexer.rest;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,6 +16,10 @@ import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpContainer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.glassfish.jersey.uri.UriComponent;
+
+import com.helger.commons.io.resource.ClassPathResource;
+import com.helger.commons.io.stream.StreamHelper;
+import com.helger.peppol.utils.KeyStoreHelper;
 
 /**
  * Main class.
@@ -74,9 +77,8 @@ final class Main
    * application.
    *
    * @return Grizzly HTTP server.
-   * @throws IOException
    */
-  public static HttpServer startRegularServer () throws IOException
+  public static HttpServer startRegularServer ()
   {
     final WebappContext aContext = _createContext ();
 
@@ -104,17 +106,28 @@ final class Main
     sslCon.setKeyStoreFile ("src/test/resources/test-https-keystore.jks");
     sslCon.setKeyStorePass ("password");
     sslCon.setKeyStoreType ("JKS");
+    sslCon.setTrustStoreBytes (StreamHelper.getAllBytes (new ClassPathResource (KeyStoreHelper.TRUSTSTORE_COMPLETE_CLASSPATH)));
+    sslCon.setTrustStorePass (KeyStoreHelper.TRUSTSTORE_PASSWORD);
+    sslCon.setTrustStoreType ("JKS");
+    sslCon.setSecurityProtocol ("TLSv1.2");
+
+    final SSLEngineConfigurator sslEngineConfigurator = new SSLEngineConfigurator (sslCon);
+    sslEngineConfigurator.setClientMode (false);
+    sslEngineConfigurator.setNeedClientAuth (true);
+    sslEngineConfigurator.setEnabledCipherSuites (new String [] { "TLS_RSA_WITH_AES_128_CBC_SHA",
+                                                                  "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256",
+                                                                  "TLS_RSA_WITH_AES_128_CBC_SHA256",
+                                                                  "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
+                                                                  "TLS_RSA_WITH_AES_128_CBC_SHA" });
 
     // create and start a new instance of grizzly https server
     // exposing the Jersey application at BASE_URI
     final HttpServer ret = GrizzlyHttpServerFactory.createHttpServer (URI.create (BASE_URI),
                                                                       (GrizzlyHttpContainer) null,
                                                                       true,
-                                                                      new SSLEngineConfigurator (sslCon,
-                                                                                                 false,
-                                                                                                 false,
-                                                                                                 false),
+                                                                      sslEngineConfigurator,
                                                                       true);
+
     aContext.deploy (ret);
     return ret;
   }
