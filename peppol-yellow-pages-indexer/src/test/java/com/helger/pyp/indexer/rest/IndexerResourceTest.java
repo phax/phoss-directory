@@ -34,8 +34,11 @@ public final class IndexerResourceTest
 {
   static
   {
-    SLF4JBridgeHandler.removeHandlersForRootLogger ();
-    SLF4JBridgeHandler.install ();
+    if (true)
+    {
+      SLF4JBridgeHandler.removeHandlersForRootLogger ();
+      SLF4JBridgeHandler.install ();
+    }
   }
 
   private HttpServer m_aServer;

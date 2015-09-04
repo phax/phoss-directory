@@ -102,32 +102,31 @@ final class Main
 
     final WebappContext aContext = _createContext ();
 
-    final SSLContextConfigurator sslCon = new SSLContextConfigurator ();
-    sslCon.setKeyStoreFile ("src/test/resources/test-https-keystore.jks");
-    sslCon.setKeyStorePass ("password");
-    sslCon.setKeyStoreType ("JKS");
-    sslCon.setTrustStoreBytes (StreamHelper.getAllBytes (new ClassPathResource (KeyStoreHelper.TRUSTSTORE_COMPLETE_CLASSPATH)));
-    sslCon.setTrustStorePass (KeyStoreHelper.TRUSTSTORE_PASSWORD);
-    sslCon.setTrustStoreType ("JKS");
-    sslCon.setSecurityProtocol ("TLSv1.2");
+    final SSLContextConfigurator aSSLContext = new SSLContextConfigurator ();
+    aSSLContext.setKeyStoreFile ("src/test/resources/test-https-keystore.jks");
+    aSSLContext.setKeyStorePass ("password");
+    aSSLContext.setKeyStoreType ("JKS");
+    aSSLContext.setTrustStoreBytes (StreamHelper.getAllBytes (new ClassPathResource (KeyStoreHelper.TRUSTSTORE_COMPLETE_CLASSPATH)));
+    aSSLContext.setTrustStorePass (KeyStoreHelper.TRUSTSTORE_PASSWORD);
+    aSSLContext.setTrustStoreType ("JKS");
+    aSSLContext.setSecurityProtocol ("TLSv1.2");
 
-    final SSLEngineConfigurator sslEngineConfigurator = new SSLEngineConfigurator (sslCon);
-    sslEngineConfigurator.setClientMode (false);
-    sslEngineConfigurator.setNeedClientAuth (true);
-    sslEngineConfigurator.setEnabledCipherSuites (new String [] { "TLS_RSA_WITH_AES_128_CBC_SHA",
-                                                                  "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256",
-                                                                  "TLS_RSA_WITH_AES_128_CBC_SHA256",
-                                                                  "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
-                                                                  "TLS_RSA_WITH_AES_128_CBC_SHA" });
+    final SSLEngineConfigurator aSSLEngine = new SSLEngineConfigurator (aSSLContext);
+    aSSLEngine.setClientMode (false);
+    aSSLEngine.setNeedClientAuth (true);
+    aSSLEngine.setEnabledCipherSuites (new String [] { "TLS_RSA_WITH_AES_128_CBC_SHA",
+                                                       "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256",
+                                                       "TLS_RSA_WITH_AES_128_CBC_SHA256",
+                                                       "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
+                                                       "TLS_RSA_WITH_AES_128_CBC_SHA" });
 
     // create and start a new instance of grizzly https server
     // exposing the Jersey application at BASE_URI
     final HttpServer ret = GrizzlyHttpServerFactory.createHttpServer (URI.create (BASE_URI),
                                                                       (GrizzlyHttpContainer) null,
                                                                       true,
-                                                                      sslEngineConfigurator,
+                                                                      aSSLEngine,
                                                                       true);
-
     aContext.deploy (ret);
     return ret;
   }
