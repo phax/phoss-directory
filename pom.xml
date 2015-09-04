@@ -102,6 +102,16 @@
         <artifactId>peppol-commons</artifactId>
         <version>4.0.1</version>
       </dependency>
+      <dependency>
+        <groupId>com.helger</groupId>
+        <artifactId>peppol-smp-client</artifactId>
+        <version>4.0.0</version>
+      </dependency>
+      <dependency>
+        <groupId>com.helger</groupId>
+        <artifactId>peppol-sml-client</artifactId>
+        <version>4.0.0</version>
+      </dependency>
       
       <dependency>
         <groupId>org.apache.lucene</groupId>
