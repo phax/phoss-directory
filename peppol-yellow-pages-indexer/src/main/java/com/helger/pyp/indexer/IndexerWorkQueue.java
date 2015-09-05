@@ -16,7 +16,9 @@
  */
 package com.helger.pyp.indexer;
 
+import java.util.List;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -34,16 +36,7 @@ import com.helger.peppol.identifier.IParticipantIdentifier;
 
 public class IndexerWorkQueue extends AbstractGlobalSingleton
 {
-  private static final class IndexerCollector extends ConcurrentCollectorSingle <IndexerWorkItem>
-  {
-    public IndexerCollector ()
-    {
-      super (1_000_000);
-      setPerformer (IndexerWorkQueue.getInstance ()::_fetchParticipantData);
-    }
-  }
-
-  private final IndexerCollector m_aCollector = new IndexerCollector ();
+  private final ConcurrentCollectorSingle <IndexerWorkItem> m_aCollector;
   private final ThreadFactory m_aThreadFactory = new ExtendedDefaultThreadFactory ("IndexerWorkQueue");
   private final ExecutorService m_aSenderThreadPool = new ThreadPoolExecutor (1,
                                                                               1,
@@ -56,6 +49,9 @@ public class IndexerWorkQueue extends AbstractGlobalSingleton
   @UsedViaReflection
   public IndexerWorkQueue ()
   {
+    m_aCollector = new ConcurrentCollectorSingle <IndexerWorkItem> (new LinkedBlockingDeque <> ());
+    m_aCollector.setPerformer (this::_fetchParticipantData);
+
     // Start the collector
     m_aSenderThreadPool.submit (m_aCollector);
   }
@@ -72,6 +68,12 @@ public class IndexerWorkQueue extends AbstractGlobalSingleton
     // don't take any more actions
     m_aSenderThreadPool.shutdown ();
     m_aCollector.stopQueuingNewObjects ();
+
+    // Get all remaining objects and save them for late reuse
+    final List <IndexerWorkItem> aRemainingItems = m_aCollector.drainQueue ();
+    // TODO save
+
+    // Shutdown the thread pool
     ManagedExecutorService.shutdownAndWaitUntilAllTasksAreFinished (m_aSenderThreadPool);
   }
 
@@ -82,7 +84,9 @@ public class IndexerWorkQueue extends AbstractGlobalSingleton
    *        The item to be fetched. Never <code>null</code>.
    */
   private void _fetchParticipantData (@Nonnull final IndexerWorkItem aItem)
-  {}
+  {
+    // TODO Perform SMP queries etc.
+  }
 
   public void queueObject (@Nonnull final IParticipantIdentifier aParticipantID,
                            @Nonnull final EIndexerWorkItemType eType)
