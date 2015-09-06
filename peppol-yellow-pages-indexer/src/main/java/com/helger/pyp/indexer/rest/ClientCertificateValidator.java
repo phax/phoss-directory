@@ -34,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.commons.annotation.PresentForCodeCoverage;
+import com.helger.commons.annotation.VisibleForTesting;
 import com.helger.commons.collection.ArrayHelper;
 import com.helger.commons.exception.InitializationException;
 import com.helger.commons.string.StringHelper;
@@ -54,11 +55,18 @@ public final class ClientCertificateValidator
   @PresentForCodeCoverage
   private static final ClientCertificateValidator s_aInstance = new ClientCertificateValidator ();
 
+  private static boolean s_bAllowAllForTests = false;
   private static X509Certificate s_aPeppolSMPRootCert;
   private static X509Certificate s_aPeppolSMPRootCertAlternative;
 
   /** Sorted list with all issuers we're accepting. Never empty. */
   private static List <X500Principal> s_aSearchIssuers = new ArrayList <> ();
+
+  @VisibleForTesting
+  public static void allowAllForTests (final boolean bAllowAll)
+  {
+    s_bAllowAllForTests = bAllowAll;
+  }
 
   private static void _initCertificateIssuers ()
   {
@@ -222,6 +230,12 @@ public final class ClientCertificateValidator
    */
   public static boolean isClientCertificateValid (@Nonnull final HttpServletRequest aHttpRequest)
   {
+    if (s_bAllowAllForTests)
+    {
+      s_aLogger.warn ("Client certificate is considered valid because the 'allow all' for tests is set!");
+      return true;
+    }
+
     // This is how to get client certificate from request
     final Object aValue = aHttpRequest.getAttribute ("javax.servlet.request.X509Certificate");
     if (aValue == null)

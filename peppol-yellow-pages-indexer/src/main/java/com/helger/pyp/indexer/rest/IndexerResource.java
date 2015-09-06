@@ -21,7 +21,6 @@ import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
@@ -63,9 +62,8 @@ public class IndexerResource
   }
 
   @PUT
-  @Path ("{participantID}")
   public Response createOrUpdateParticipant (@Context @Nonnull final HttpServletRequest aHttpServletRequest,
-                                             @PathParam ("participantID") @Nonnull final String sParticipantID)
+                                             @Nonnull final String sParticipantID)
   {
     final Response aResponse = _checkClientCertificate (aHttpServletRequest);
     if (aResponse != null)

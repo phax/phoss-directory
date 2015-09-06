@@ -43,7 +43,8 @@ import com.helger.peppol.utils.KeyStoreHelper;
 final class MockServer
 {
   // Base URI the Grizzly HTTP server will listen on
-  public static final String BASE_URI = "https://localhost:9090/unittest/";
+  public static final String BASE_URI_HTTP = "http://localhost:9090/unittest/";
+  public static final String BASE_URI_HTTPS = "https://localhost:9090/unittest/";
 
   @Nonnull
   private static WebappContext _createContext (final URI u,
@@ -80,12 +81,12 @@ final class MockServer
   }
 
   @Nonnull
-  private static WebappContext _createContext ()
+  private static WebappContext _createContext (final String sURI)
   {
     final Map <String, String> aInitParams = new HashMap <String, String> ();
     aInitParams.put ("jersey.config.server.provider.packages",
                      com.helger.pyp.indexer.rest.IndexerResource.class.getPackage ().getName ());
-    return _createContext (URI.create (BASE_URI), ServletContainer.class, null, aInitParams, null);
+    return _createContext (URI.create (sURI), ServletContainer.class, null, aInitParams, null);
   }
 
   /**
@@ -94,13 +95,14 @@ final class MockServer
    *
    * @return Grizzly HTTP server.
    */
+  @Nonnull
   public static HttpServer startRegularServer ()
   {
-    final WebappContext aContext = _createContext ();
+    final WebappContext aContext = _createContext (BASE_URI_HTTP);
 
     // create and start a new instance of grizzly http server
     // exposing the Jersey application at BASE_URI
-    final HttpServer ret = GrizzlyHttpServerFactory.createHttpServer (URI.create (BASE_URI));
+    final HttpServer ret = GrizzlyHttpServerFactory.createHttpServer (URI.create (BASE_URI_HTTP));
     aContext.deploy (ret);
     return ret;
   }
@@ -116,7 +118,7 @@ final class MockServer
     if (false)
       System.setProperty ("javax.net.debug", "all");
 
-    final WebappContext aContext = _createContext ();
+    final WebappContext aContext = _createContext (BASE_URI_HTTPS);
 
     final SSLContextConfigurator aSSLContext = new SSLContextConfigurator ();
     aSSLContext.setKeyStoreFile ("src/test/resources/test-https-keystore.jks");
@@ -138,7 +140,7 @@ final class MockServer
 
     // create and start a new instance of grizzly https server
     // exposing the Jersey application at BASE_URI
-    final HttpServer ret = GrizzlyHttpServerFactory.createHttpServer (URI.create (BASE_URI),
+    final HttpServer ret = GrizzlyHttpServerFactory.createHttpServer (URI.create (BASE_URI_HTTPS),
                                                                       (GrizzlyHttpContainer) null,
                                                                       true,
                                                                       aSSLEngine,

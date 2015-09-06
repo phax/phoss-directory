@@ -16,6 +16,7 @@
  */
 package com.helger.pyp.settings;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -130,5 +131,30 @@ public class PYPSettings extends AbstractGlobalSingleton
   public static String getTruststoreAliasAlternative ()
   {
     return s_aSettings.getStringValue ("truststore-alt.alias", KeyStoreHelper.TRUSTSTORE_PILOT_ALIAS_SMP);
+  }
+
+  /**
+   * @return The maximum number of hours a retry will happen. If not provided 24
+   *         hours is the default value.
+   */
+  @Nonnegative
+  public static int getReIndexMaxRetryHours ()
+  {
+    final int ret = s_aSettings.getIntValue ("reindex.maxretryhours", 24);
+    if (ret < 0)
+      throw new IllegalStateException ("The reindex.maxretryhours property must be >= 0!");
+    return ret;
+  }
+
+  /**
+   * @return The number of minutes between retries. Defaults to 5.
+   */
+  @Nonnegative
+  public static int getReIndexRetryMinutes ()
+  {
+    final int ret = s_aSettings.getIntValue ("reindex.retryminutes", 5);
+    if (ret <= 0)
+      throw new IllegalStateException ("The reindex.retryminutes property must be > 0!");
+    return ret;
   }
 }

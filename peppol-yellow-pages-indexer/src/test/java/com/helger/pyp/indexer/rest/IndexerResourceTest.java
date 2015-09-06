@@ -28,16 +28,21 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import com.helger.commons.random.VerySecureRandom;
 import com.helger.peppol.utils.KeyStoreHelper;
+import com.helger.photon.basic.mock.PhotonBasicWebTestRule;
 import com.helger.web.https.DoNothingTrustManager;
 import com.helger.web.https.HostnameVerifierAlwaysTrue;
 
@@ -50,12 +55,14 @@ public final class IndexerResourceTest
 {
   static
   {
-    if (true)
-    {
-      SLF4JBridgeHandler.removeHandlersForRootLogger ();
-      SLF4JBridgeHandler.install ();
-    }
+    SLF4JBridgeHandler.removeHandlersForRootLogger ();
+    SLF4JBridgeHandler.install ();
   }
+
+  private static final Logger s_aLogger = LoggerFactory.getLogger (IndexerResourceTest.class);
+
+  @Rule
+  public final PhotonBasicWebTestRule m_aRule = new PhotonBasicWebTestRule ();
 
   private HttpServer m_aServer;
   private WebTarget m_aTarget;
@@ -83,15 +90,18 @@ public final class IndexerResourceTest
                                           .sslContext (aSSLContext)
                                           .hostnameVerifier (new HostnameVerifierAlwaysTrue (false))
                                           .build ();
-      m_aTarget = aClient.target (MockServer.BASE_URI);
+      m_aTarget = aClient.target (MockServer.BASE_URI_HTTPS);
     }
     else
     {
-      // http
+      // http only
+      s_aLogger.warn ("The SMP pilot keystore is missing for the tests! Client certificate handling will not be tested!");
+      ClientCertificateValidator.allowAllForTests (true);
+
       m_aServer = MockServer.startRegularServer ();
 
       final Client aClient = ClientBuilder.newClient ();
-      m_aTarget = aClient.target (MockServer.BASE_URI);
+      m_aTarget = aClient.target (MockServer.BASE_URI_HTTP);
     }
   }
 
@@ -104,7 +114,8 @@ public final class IndexerResourceTest
   @Test
   public void testCreateOrUpdateParticipant ()
   {
-    final String sResponseMsg = m_aTarget.path ("1.0").path ("9915:test").request ().get (String.class);
-    assertEquals ("Got it: '9915:test'", sResponseMsg);
+    final String sResponseMsg = m_aTarget.path ("1.0").request ().put (Entity.text ("iso6523-actorid-upis::9915:test"),
+                                                                       String.class);
+    assertEquals ("", sResponseMsg);
   }
 }
