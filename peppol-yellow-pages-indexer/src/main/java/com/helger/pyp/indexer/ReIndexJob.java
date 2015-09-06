@@ -30,13 +30,17 @@ public class ReIndexJob extends AbstractPhotonJob
 
   @Override
   protected void onExecute (@Nonnull final JobExecutionContext aContext) throws JobExecutionException
-  {}
+  {
+    // First expire all old entries
+    ReIndexWorkQueue.getInstance ().expireOldEntries ();
+    // TODO
+  }
 
   /**
    * @param aScheduleBuilder
    *        The schedule builder to be used. May not be <code>null</code>.
    *        Example:
-   *        <code>SimpleScheduleBuilder.repeatMinutelyForever (10)</code>
+   *        <code>SimpleScheduleBuilder.repeatMinutelyForever (1)</code>
    * @param sApplicationID
    *        The internal application ID to be used. May neither be
    *        <code>null</code> nor empty.

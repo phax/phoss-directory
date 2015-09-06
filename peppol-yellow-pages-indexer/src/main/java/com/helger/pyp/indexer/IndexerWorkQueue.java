@@ -42,10 +42,18 @@ import com.helger.commons.microdom.serialize.MicroReader;
 import com.helger.commons.microdom.serialize.MicroWriter;
 import com.helger.commons.scope.IScope;
 import com.helger.commons.scope.singleton.AbstractGlobalSingleton;
+import com.helger.commons.state.ESuccess;
 import com.helger.peppol.identifier.IParticipantIdentifier;
 import com.helger.photon.basic.app.io.WebFileIO;
 
-public class IndexerWorkQueue extends AbstractGlobalSingleton
+/**
+ * The global indexer queue that holds all items to be indexed initially. If
+ * indexing fails, items are shifted to the re-index queue where graceful
+ * retries will happen.
+ *
+ * @author Philip Helger
+ */
+public final class IndexerWorkQueue extends AbstractGlobalSingleton
 {
   private static final String ELEMENT_ROOT = "root";
   private static final String ELEMENT_ITEM = "item";
@@ -126,10 +134,20 @@ public class IndexerWorkQueue extends AbstractGlobalSingleton
    *
    * @param aItem
    *        The item to be fetched. Never <code>null</code>.
+   * @return {@link ESuccess}.
    */
-  private void _fetchParticipantData (@Nonnull final IndexerWorkItem aItem)
+  @Nonnull
+  private ESuccess _fetchParticipantData (@Nonnull final IndexerWorkItem aItem)
   {
+    final boolean bSuccess = false;
     // TODO Perform SMP queries etc.
+
+    if (bSuccess)
+      return ESuccess.SUCCESS;
+
+    // Failed to fetch participant data - add to re-index queue
+    ReIndexWorkQueue.getInstance ().addItem (new ReIndexWorkItem (aItem));
+    return ESuccess.FAILURE;
   }
 
   public void queueObject (@Nonnull final IParticipantIdentifier aParticipantID,

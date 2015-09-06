@@ -38,6 +38,6 @@ public final class IndexerInitialization
     // Initialize work queue
     IndexerWorkQueue.getInstance ();
     // Schedule re-index job
-    ReIndexJob.schedule (SimpleScheduleBuilder.repeatMinutelyForever (10), CApplication.APP_ID_SECURE);
+    ReIndexJob.schedule (SimpleScheduleBuilder.repeatMinutelyForever (1), CApplication.APP_ID_SECURE);
   }
 }
