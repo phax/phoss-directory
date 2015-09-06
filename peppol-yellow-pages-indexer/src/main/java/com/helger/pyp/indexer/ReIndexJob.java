@@ -36,7 +36,7 @@ public class ReIndexJob extends AbstractPhotonJob
    * @param aScheduleBuilder
    *        The schedule builder to be used. May not be <code>null</code>.
    *        Example:
-   *        <code>SimpleScheduleBuilder.repeatMinutelyForever (60)</code>
+   *        <code>SimpleScheduleBuilder.repeatMinutelyForever (10)</code>
    * @param sApplicationID
    *        The internal application ID to be used. May neither be
    *        <code>null</code> nor empty.

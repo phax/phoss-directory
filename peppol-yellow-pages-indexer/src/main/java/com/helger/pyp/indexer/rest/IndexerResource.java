@@ -26,7 +26,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
 import com.helger.peppol.identifier.participant.SimpleParticipantIdentifier;
-import com.helger.pyp.indexer.ClientCertificateValidator;
 import com.helger.pyp.indexer.EIndexerWorkItemType;
 import com.helger.pyp.indexer.IndexerWorkQueue;
 

@@ -26,6 +26,7 @@ import com.helger.commons.hashcode.HashCodeGenerator;
 import com.helger.commons.string.ToStringGenerator;
 import com.helger.datetime.PDTFactory;
 import com.helger.peppol.identifier.IParticipantIdentifier;
+import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
 import com.helger.peppol.identifier.participant.SimpleParticipantIdentifier;
 
 /**
@@ -37,7 +38,7 @@ import com.helger.peppol.identifier.participant.SimpleParticipantIdentifier;
 public final class IndexerWorkItem
 {
   private final LocalDateTime m_aCreationDT;
-  private final IParticipantIdentifier m_aParticpantID;
+  private final IPeppolParticipantIdentifier m_aParticpantID;
   private final EIndexerWorkItemType m_eType;
 
   public IndexerWorkItem (@Nonnull final IParticipantIdentifier aParticpantID,
@@ -73,7 +74,7 @@ public final class IndexerWorkItem
    * @return The participant identifier it is all about.
    */
   @Nonnull
-  public IParticipantIdentifier getParticipantID ()
+  public IPeppolParticipantIdentifier getParticipantID ()
   {
     return m_aParticpantID;
   }

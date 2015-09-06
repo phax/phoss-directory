@@ -16,13 +16,40 @@
  */
 package com.helger.pyp.indexer;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import com.helger.commons.annotation.Nonempty;
+import com.helger.commons.id.IHasID;
+import com.helger.commons.lang.EnumHelper;
+
 /**
  * The work item action types to use.
- * 
+ *
  * @author Philip Helger
  */
-public enum EIndexerWorkItemType
+public enum EIndexerWorkItemType implements IHasID <String>
 {
- CREATE_UPDATE,
- DELETE;
+ CREATE_UPDATE ("create"),
+ DELETE ("delete");
+
+  private final String m_sID;
+
+  private EIndexerWorkItemType (@Nonnull @Nonempty final String sID)
+  {
+    m_sID = sID;
+  }
+
+  @Nonnull
+  @Nonempty
+  public String getID ()
+  {
+    return m_sID;
+  }
+
+  @Nullable
+  public static EIndexerWorkItemType getFromIDOrNull (@Nullable final String sID)
+  {
+    return EnumHelper.getFromIDOrNull (EIndexerWorkItemType.class, sID);
+  }
 }
