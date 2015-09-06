@@ -32,7 +32,8 @@ public class ReIndexJob extends AbstractPhotonJob
   protected void onExecute (@Nonnull final JobExecutionContext aContext) throws JobExecutionException
   {
     // First expire all old entries
-    ReIndexWorkQueue.getInstance ().expireOldEntries ();
+    IndexerManager.getInstance ().expireOldEntries ();
+
     // TODO
   }
 

@@ -1,5 +1,6 @@
 package com.helger.pyp.indexer;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
@@ -70,5 +71,42 @@ public class ReIndexWorkItem
     m_nRetries++;
     m_aPreviousRetryDT = PDTFactory.getCurrentLocalDateTime ();
     m_aNextRetryDT = m_aPreviousRetryDT.plusMinutes (PYPSettings.getReIndexRetryMinutes ());
+  }
+
+  /**
+   * @return The original work item. Never <code>null</code>.
+   */
+  @Nonnull
+  public IndexerWorkItem getWorkItem ()
+  {
+    return m_aWorkItem;
+  }
+
+  /**
+   * @return The maximum date and time until which the retry of this item
+   *         occurs.
+   */
+  @Nonnull
+  public LocalDateTime getMaxRetryDT ()
+  {
+    return m_aMaxRetryDT;
+  }
+
+  @Nonnegative
+  public int getRetryCount ()
+  {
+    return m_nRetries;
+  }
+
+  @Nullable
+  public LocalDateTime getPreviousRetryDT ()
+  {
+    return m_aPreviousRetryDT;
+  }
+
+  @Nonnull
+  public LocalDateTime getNextRetryDT ()
+  {
+    return m_aNextRetryDT;
   }
 }

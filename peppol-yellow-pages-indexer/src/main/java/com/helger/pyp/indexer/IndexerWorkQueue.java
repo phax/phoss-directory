@@ -28,10 +28,10 @@ import javax.annotation.Nonnull;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.ReturnsMutableCopy;
+import com.helger.commons.callback.IThrowingRunnableWithParameter;
 import com.helger.commons.concurrent.ExtendedDefaultThreadFactory;
 import com.helger.commons.concurrent.ManagedExecutorService;
 import com.helger.commons.concurrent.collector.ConcurrentCollectorSingle;
-import com.helger.commons.state.ESuccess;
 
 /**
  * The indexer queue that holds all items to be indexed initially. If indexing
@@ -51,10 +51,10 @@ final class IndexerWorkQueue
                                                                               new SynchronousQueue <Runnable> (),
                                                                               m_aThreadFactory);
 
-  public IndexerWorkQueue ()
+  public IndexerWorkQueue (@Nonnull final IThrowingRunnableWithParameter <IndexerWorkItem> aPerformer)
   {
     m_aImmediateCollector = new ConcurrentCollectorSingle <> (new LinkedBlockingQueue <> ());
-    m_aImmediateCollector.setPerformer (this::_fetchParticipantData);
+    m_aImmediateCollector.setPerformer (aPerformer);
 
     // Start the collector
     m_aSenderThreadPool.submit (m_aImmediateCollector);
@@ -81,27 +81,6 @@ final class IndexerWorkQueue
     ManagedExecutorService.shutdownAndWaitUntilAllTasksAreFinished (m_aSenderThreadPool);
 
     return aRemainingItems;
-  }
-
-  /**
-   * This is the main method to perform the operation on the SMP.
-   *
-   * @param aItem
-   *        The item to be fetched. Never <code>null</code>.
-   * @return {@link ESuccess}.
-   */
-  @Nonnull
-  private ESuccess _fetchParticipantData (@Nonnull final IndexerWorkItem aItem)
-  {
-    final boolean bSuccess = false;
-    // TODO Perform SMP queries etc.
-
-    if (bSuccess)
-      return ESuccess.SUCCESS;
-
-    // Failed to fetch participant data - add to re-index queue
-    ReIndexWorkQueue.getInstance ().addItem (new ReIndexWorkItem (aItem));
-    return ESuccess.FAILURE;
   }
 
   public void queueObject (@Nonnull final IndexerWorkItem aItem)

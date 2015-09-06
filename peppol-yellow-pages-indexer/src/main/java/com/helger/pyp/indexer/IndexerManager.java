@@ -19,6 +19,8 @@ import com.helger.commons.microdom.serialize.MicroReader;
 import com.helger.commons.microdom.serialize.MicroWriter;
 import com.helger.commons.scope.IScope;
 import com.helger.commons.scope.singleton.AbstractGlobalSingleton;
+import com.helger.commons.state.EChange;
+import com.helger.commons.state.ESuccess;
 import com.helger.peppol.identifier.IParticipantIdentifier;
 import com.helger.photon.basic.app.io.WebFileIO;
 
@@ -35,7 +37,8 @@ public final class IndexerManager extends AbstractGlobalSingleton
   private static final String ELEMENT_ITEM = "item";
 
   private final Set <IndexerWorkItem> m_aUniqueItems = new HashSet <> ();
-  private final IndexerWorkQueue m_aIndexerWorkQueue = new IndexerWorkQueue ();
+  private final ReIndexWorkQueue m_aReIndexList = new ReIndexWorkQueue ();
+  private final IndexerWorkQueue m_aIndexerWorkQueue = new IndexerWorkQueue (this::_fetchParticipantData);
 
   @Deprecated
   @UsedViaReflection
@@ -86,8 +89,9 @@ public final class IndexerManager extends AbstractGlobalSingleton
     _write (aRemainingItems);
   }
 
-  public void queueObject (@Nonnull final IParticipantIdentifier aParticipantID,
-                           @Nonnull final EIndexerWorkItemType eType)
+  @Nonnull
+  public EChange queueObject (@Nonnull final IParticipantIdentifier aParticipantID,
+                              @Nonnull final EIndexerWorkItemType eType)
   {
     final IndexerWorkItem aItem = new IndexerWorkItem (aParticipantID, eType);
 
@@ -97,7 +101,7 @@ public final class IndexerManager extends AbstractGlobalSingleton
       if (!m_aUniqueItems.add (aItem))
       {
         s_aLogger.info ("Ignoring item " + aItem + " because it is already in the queue!");
-        return;
+        return EChange.UNCHANGED;
       }
     }
     finally
@@ -106,5 +110,41 @@ public final class IndexerManager extends AbstractGlobalSingleton
     }
 
     m_aIndexerWorkQueue.queueObject (aItem);
+    return EChange.CHANGED;
+  }
+
+  /**
+   * This is the main method to perform the operation on the SMP.
+   *
+   * @param aItem
+   *        The item to be fetched. Never <code>null</code>.
+   * @return {@link ESuccess}.
+   */
+  @Nonnull
+  private ESuccess _fetchParticipantData (@Nonnull final IndexerWorkItem aItem)
+  {
+    final boolean bSuccess = false;
+    // TODO Perform SMP queries etc.
+
+    if (bSuccess)
+      return ESuccess.SUCCESS;
+
+    // Failed to fetch participant data - add to re-index queue
+    m_aReIndexList.addItem (new ReIndexWorkItem (aItem));
+    return ESuccess.FAILURE;
+  }
+
+  public void expireOldEntries ()
+  {
+    m_aRWLock.writeLock ().lock ();
+    try
+    {
+      // Expire old entries and remove them from the overall list
+      m_aReIndexList.expireOldEntries ().stream ().forEach (aItem -> m_aUniqueItems.remove (aItem.getWorkItem ()));
+    }
+    finally
+    {
+      m_aRWLock.writeLock ().unlock ();
+    }
   }
 }
