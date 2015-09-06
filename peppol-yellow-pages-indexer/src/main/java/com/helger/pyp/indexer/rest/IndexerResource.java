@@ -26,7 +26,7 @@ import javax.ws.rs.core.Response;
 
 import com.helger.peppol.identifier.participant.SimpleParticipantIdentifier;
 import com.helger.pyp.indexer.EIndexerWorkItemType;
-import com.helger.pyp.indexer.IndexerWorkQueue;
+import com.helger.pyp.indexer.IndexerManager;
 
 /**
  * Indexer resource (exposed at "1.0" path)
@@ -73,7 +73,7 @@ public class IndexerResource
     final SimpleParticipantIdentifier aPI = SimpleParticipantIdentifier.createFromURIPart (sParticipantID);
 
     // Queue for handling
-    IndexerWorkQueue.getInstance ().queueObject (aPI, EIndexerWorkItemType.CREATE_UPDATE);
+    IndexerManager.getInstance ().queueObject (aPI, EIndexerWorkItemType.CREATE_UPDATE);
 
     // And done
     return Response.noContent ().build ();

@@ -36,7 +36,7 @@ public final class IndexerInitialization
     // Ensure the network system properties are assigned
     SMPClientConfiguration.getConfigFile ().applyAllNetworkSystemProperties ();
     // Initialize work queue
-    IndexerWorkQueue.getInstance ();
+    IndexerManager.getInstance ();
     // Schedule re-index job
     ReIndexJob.schedule (SimpleScheduleBuilder.repeatMinutelyForever (1), CApplication.APP_ID_SECURE);
   }

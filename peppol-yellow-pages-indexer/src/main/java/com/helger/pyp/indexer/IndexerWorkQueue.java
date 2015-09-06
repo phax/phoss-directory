@@ -16,7 +16,6 @@
  */
 package com.helger.pyp.indexer;
 
-import java.io.File;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -27,38 +26,22 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nonnull;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.helger.commons.annotation.UsedViaReflection;
+import com.helger.commons.ValueEnforcer;
+import com.helger.commons.annotation.ReturnsMutableCopy;
 import com.helger.commons.concurrent.ExtendedDefaultThreadFactory;
 import com.helger.commons.concurrent.ManagedExecutorService;
 import com.helger.commons.concurrent.collector.ConcurrentCollectorSingle;
-import com.helger.commons.microdom.IMicroDocument;
-import com.helger.commons.microdom.IMicroElement;
-import com.helger.commons.microdom.MicroDocument;
-import com.helger.commons.microdom.convert.MicroTypeConverter;
-import com.helger.commons.microdom.serialize.MicroReader;
-import com.helger.commons.microdom.serialize.MicroWriter;
-import com.helger.commons.scope.IScope;
-import com.helger.commons.scope.singleton.AbstractGlobalSingleton;
 import com.helger.commons.state.ESuccess;
-import com.helger.peppol.identifier.IParticipantIdentifier;
-import com.helger.photon.basic.app.io.WebFileIO;
 
 /**
- * The global indexer queue that holds all items to be indexed initially. If
- * indexing fails, items are shifted to the re-index queue where graceful
- * retries will happen.
+ * The indexer queue that holds all items to be indexed initially. If indexing
+ * fails, items are shifted to the re-index queue where graceful retries will
+ * happen.
  *
  * @author Philip Helger
  */
-public final class IndexerWorkQueue extends AbstractGlobalSingleton
+final class IndexerWorkQueue
 {
-  private static final String ELEMENT_ROOT = "root";
-  private static final String ELEMENT_ITEM = "item";
-  private static final Logger s_aLogger = LoggerFactory.getLogger (IndexerWorkQueue.class);
-
   private final ConcurrentCollectorSingle <IndexerWorkItem> m_aImmediateCollector;
   private final ThreadFactory m_aThreadFactory = new ExtendedDefaultThreadFactory ("IndexerWorkQueue");
   private final ExecutorService m_aSenderThreadPool = new ThreadPoolExecutor (1,
@@ -68,54 +51,24 @@ public final class IndexerWorkQueue extends AbstractGlobalSingleton
                                                                               new SynchronousQueue <Runnable> (),
                                                                               m_aThreadFactory);
 
-  @Nonnull
-  private static File _getFile ()
-  {
-    return WebFileIO.getDataIO ().getFile ("indexer-work-queue.xml");
-  }
-
-  @Deprecated
-  @UsedViaReflection
   public IndexerWorkQueue ()
   {
-    m_aImmediateCollector = new ConcurrentCollectorSingle <IndexerWorkItem> (new LinkedBlockingQueue <> ());
+    m_aImmediateCollector = new ConcurrentCollectorSingle <> (new LinkedBlockingQueue <> ());
     m_aImmediateCollector.setPerformer (this::_fetchParticipantData);
-
-    // Read an eventually existing serialized element
-    final IMicroDocument aDoc = MicroReader.readMicroXML (_getFile ());
-    if (aDoc != null)
-      for (final IMicroElement eItem : aDoc.getDocumentElement ().getAllChildElements (ELEMENT_ITEM))
-      {
-        final IndexerWorkItem aItem = MicroTypeConverter.convertToNative (eItem, IndexerWorkItem.class);
-        m_aImmediateCollector.queueObject (aItem);
-      }
 
     // Start the collector
     m_aSenderThreadPool.submit (m_aImmediateCollector);
   }
 
+  /**
+   * Stop the indexer work queue immediately.
+   *
+   * @return The list of all remaining objects in the queue. Never
+   *         <code>null</code>.
+   */
   @Nonnull
-  public static IndexerWorkQueue getInstance ()
-  {
-    return getGlobalSingleton (IndexerWorkQueue.class);
-  }
-
-  private static void _write (@Nonnull final List <IndexerWorkItem> aItems)
-  {
-    if (!aItems.isEmpty ())
-    {
-      s_aLogger.info ("Persisting " + aItems.size () + " items");
-      final IMicroDocument aDoc = new MicroDocument ();
-      final IMicroElement eRoot = aDoc.appendElement (ELEMENT_ROOT);
-      for (final IndexerWorkItem aItem : aItems)
-        eRoot.appendChild (MicroTypeConverter.convertToMicroElement (aItem, ELEMENT_ITEM));
-      if (MicroWriter.writeToFile (aDoc, _getFile ()).isFailure ())
-        throw new IllegalStateException ("Failed to write IndexerWorkItems to " + _getFile ());
-    }
-  }
-
-  @Override
-  protected void onBeforeDestroy (@Nonnull final IScope aScopeToBeDestroyed)
+  @ReturnsMutableCopy
+  public List <IndexerWorkItem> stop ()
   {
     // don't take any more actions
     m_aSenderThreadPool.shutdown ();
@@ -123,10 +76,11 @@ public final class IndexerWorkQueue extends AbstractGlobalSingleton
 
     // Get all remaining objects and save them for late reuse
     final List <IndexerWorkItem> aRemainingItems = m_aImmediateCollector.drainQueue ();
-    _write (aRemainingItems);
 
     // Shutdown the thread pool
     ManagedExecutorService.shutdownAndWaitUntilAllTasksAreFinished (m_aSenderThreadPool);
+
+    return aRemainingItems;
   }
 
   /**
@@ -150,10 +104,9 @@ public final class IndexerWorkQueue extends AbstractGlobalSingleton
     return ESuccess.FAILURE;
   }
 
-  public void queueObject (@Nonnull final IParticipantIdentifier aParticipantID,
-                           @Nonnull final EIndexerWorkItemType eType)
+  public void queueObject (@Nonnull final IndexerWorkItem aItem)
   {
-    final IndexerWorkItem aItem = new IndexerWorkItem (aParticipantID, eType);
+    ValueEnforcer.notNull (aItem, "Item");
     m_aImmediateCollector.queueObject (aItem);
   }
 }
