@@ -22,6 +22,8 @@ import javax.annotation.concurrent.Immutable;
 import org.joda.time.LocalDateTime;
 
 import com.helger.commons.ValueEnforcer;
+import com.helger.commons.hashcode.HashCodeGenerator;
+import com.helger.commons.string.ToStringGenerator;
 import com.helger.datetime.PDTFactory;
 import com.helger.peppol.identifier.IParticipantIdentifier;
 import com.helger.peppol.identifier.participant.SimpleParticipantIdentifier;
@@ -41,11 +43,21 @@ public final class IndexerWorkItem
   public IndexerWorkItem (@Nonnull final IParticipantIdentifier aParticpantID,
                           @Nonnull final EIndexerWorkItemType eType)
   {
+    this (PDTFactory.getCurrentLocalDateTime (), aParticpantID, eType);
+  }
+
+  IndexerWorkItem (@Nonnull final LocalDateTime aCreationDT,
+                   @Nonnull final IParticipantIdentifier aParticpantID,
+                   @Nonnull final EIndexerWorkItemType eType)
+  {
+    ValueEnforcer.notNull (aCreationDT, "CreationDT");
     ValueEnforcer.notNull (aParticpantID, "ParticpantID");
-    m_aCreationDT = PDTFactory.getCurrentLocalDateTime ();
+    ValueEnforcer.notNull (eType, "Type");
+
+    m_aCreationDT = aCreationDT;
     // Ensure all objects have the same type
     m_aParticpantID = new SimpleParticipantIdentifier (aParticpantID);
-    m_eType = ValueEnforcer.notNull (eType, "Type");
+    m_eType = eType;
   }
 
   /**
@@ -73,5 +85,31 @@ public final class IndexerWorkItem
   public EIndexerWorkItemType getType ()
   {
     return m_eType;
+  }
+
+  @Override
+  public boolean equals (final Object o)
+  {
+    if (o == this)
+      return true;
+    if (o == null || !getClass ().equals (o.getClass ()))
+      return false;
+    final IndexerWorkItem rhs = (IndexerWorkItem) o;
+    return m_aParticpantID.equals (rhs.m_aParticpantID) && m_eType.equals (rhs.m_eType);
+  }
+
+  @Override
+  public int hashCode ()
+  {
+    return new HashCodeGenerator (this).append (m_aParticpantID).append (m_eType).getHashCode ();
+  }
+
+  @Override
+  public String toString ()
+  {
+    return new ToStringGenerator (this).append ("CreationDT", m_aCreationDT)
+                                       .append ("ParticipantID", m_aParticpantID)
+                                       .append ("Type", m_eType)
+                                       .toString ();
   }
 }

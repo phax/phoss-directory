@@ -94,6 +94,16 @@
       </dependency>
       <dependency>
         <groupId>com.helger</groupId>
+        <artifactId>ph-schedule</artifactId>
+        <version>2.1.0</version>
+      </dependency>
+      <dependency>
+        <groupId>com.helger</groupId>
+        <artifactId>ph-oton-core</artifactId>
+        <version>${ph-oton.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.helger</groupId>
         <artifactId>ph-oton-bootstrap3-stub</artifactId>
         <version>${ph-oton.version}</version>
       </dependency>

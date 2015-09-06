@@ -18,7 +18,7 @@ package com.helger.pyp.indexer;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -36,7 +36,7 @@ import com.helger.peppol.identifier.IParticipantIdentifier;
 
 public class IndexerWorkQueue extends AbstractGlobalSingleton
 {
-  private final ConcurrentCollectorSingle <IndexerWorkItem> m_aCollector;
+  private final ConcurrentCollectorSingle <IndexerWorkItem> m_aImmediateCollector;
   private final ThreadFactory m_aThreadFactory = new ExtendedDefaultThreadFactory ("IndexerWorkQueue");
   private final ExecutorService m_aSenderThreadPool = new ThreadPoolExecutor (1,
                                                                               1,
@@ -49,11 +49,11 @@ public class IndexerWorkQueue extends AbstractGlobalSingleton
   @UsedViaReflection
   public IndexerWorkQueue ()
   {
-    m_aCollector = new ConcurrentCollectorSingle <IndexerWorkItem> (new LinkedBlockingDeque <> ());
-    m_aCollector.setPerformer (this::_fetchParticipantData);
+    m_aImmediateCollector = new ConcurrentCollectorSingle <IndexerWorkItem> (new LinkedBlockingQueue <> ());
+    m_aImmediateCollector.setPerformer (this::_fetchParticipantData);
 
     // Start the collector
-    m_aSenderThreadPool.submit (m_aCollector);
+    m_aSenderThreadPool.submit (m_aImmediateCollector);
   }
 
   @Nonnull
@@ -63,14 +63,14 @@ public class IndexerWorkQueue extends AbstractGlobalSingleton
   }
 
   @Override
-  protected void onDestroy (@Nonnull final IScope aScopeInDestruction)
+  protected void onBeforeDestroy (@Nonnull final IScope aScopeToBeDestroyed)
   {
     // don't take any more actions
     m_aSenderThreadPool.shutdown ();
-    m_aCollector.stopQueuingNewObjects ();
+    m_aImmediateCollector.stopQueuingNewObjects ();
 
     // Get all remaining objects and save them for late reuse
-    final List <IndexerWorkItem> aRemainingItems = m_aCollector.drainQueue ();
+    final List <IndexerWorkItem> aRemainingItems = m_aImmediateCollector.drainQueue ();
     // TODO save
 
     // Shutdown the thread pool
@@ -92,6 +92,6 @@ public class IndexerWorkQueue extends AbstractGlobalSingleton
                            @Nonnull final EIndexerWorkItemType eType)
   {
     final IndexerWorkItem aItem = new IndexerWorkItem (aParticipantID, eType);
-    m_aCollector.queueObject (aItem);
+    m_aImmediateCollector.queueObject (aItem);
   }
 }
