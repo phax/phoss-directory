@@ -42,7 +42,7 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import com.helger.commons.random.VerySecureRandom;
 import com.helger.peppol.utils.KeyStoreHelper;
-import com.helger.photon.basic.mock.PhotonBasicWebTestRule;
+import com.helger.pyp.indexer.PYPTestRule;
 import com.helger.web.https.DoNothingTrustManager;
 import com.helger.web.https.HostnameVerifierAlwaysTrue;
 
@@ -62,7 +62,7 @@ public final class IndexerResourceTest
   private static final Logger s_aLogger = LoggerFactory.getLogger (IndexerResourceTest.class);
 
   @Rule
-  public final PhotonBasicWebTestRule m_aRule = new PhotonBasicWebTestRule ();
+  public final PYPTestRule m_aRule = new PYPTestRule ();
 
   private HttpServer m_aServer;
   private WebTarget m_aTarget;

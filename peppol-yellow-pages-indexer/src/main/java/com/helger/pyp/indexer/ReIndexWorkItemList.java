@@ -1,70 +1,197 @@
 package com.helger.pyp.indexer;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 import javax.annotation.Nonnull;
-import javax.annotation.concurrent.NotThreadSafe;
+import javax.annotation.concurrent.ThreadSafe;
 
 import org.joda.time.LocalDateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.helger.commons.ValueEnforcer;
+import com.helger.commons.annotation.ELockType;
+import com.helger.commons.annotation.MustBeLocked;
 import com.helger.commons.annotation.ReturnsMutableCopy;
 import com.helger.commons.collection.CollectionHelper;
+import com.helger.commons.microdom.IMicroDocument;
+import com.helger.commons.microdom.IMicroElement;
+import com.helger.commons.microdom.MicroDocument;
+import com.helger.commons.microdom.convert.MicroTypeConverter;
+import com.helger.commons.state.EChange;
 import com.helger.commons.string.ToStringGenerator;
+import com.helger.photon.basic.app.dao.impl.AbstractWALDAO;
+import com.helger.photon.basic.app.dao.impl.DAOException;
+import com.helger.photon.basic.app.dao.impl.EDAOActionType;
 
 /**
  * This is the global re-index work queue.
  *
  * @author Philip Helger
  */
-@NotThreadSafe
-final class ReIndexWorkItemList
+@ThreadSafe
+final class ReIndexWorkItemList extends AbstractWALDAO <ReIndexWorkItem>
 {
-  private final List <ReIndexWorkItem> m_aList = new ArrayList <> ();
+  private static final Logger s_aLogger = LoggerFactory.getLogger (ReIndexWorkItemList.class);
+  private static final String ELEMENT_ROOT = "root";
+  private static final String ELEMENT_ITEM = "item";
 
-  public ReIndexWorkItemList ()
-  {}
+  private final Map <String, ReIndexWorkItem> m_aMap = new HashMap <> ();
 
-  public void addItem (@Nonnull final ReIndexWorkItem aItem)
+  public ReIndexWorkItemList () throws DAOException
+  {
+    super (ReIndexWorkItem.class, "reindex-work-items.xml");
+    initialRead ();
+  }
+
+  @Override
+  protected void onRecoveryCreate (@Nonnull final ReIndexWorkItem aElement)
+  {
+    m_aMap.put (aElement.getID (), aElement);
+  }
+
+  @Override
+  protected void onRecoveryUpdate (@Nonnull final ReIndexWorkItem aElement)
+  {
+    m_aMap.put (aElement.getID (), aElement);
+  }
+
+  @Override
+  protected void onRecoveryDelete (@Nonnull final ReIndexWorkItem aElement)
+  {
+    m_aMap.remove (aElement.getID ());
+  }
+
+  @Override
+  @Nonnull
+  protected EChange onRead (@Nonnull final IMicroDocument aDoc)
+  {
+    for (final IMicroElement aItem : aDoc.getDocumentElement ().getAllChildElements (ELEMENT_ITEM))
+      _addItem (MicroTypeConverter.convertToNative (aItem, ReIndexWorkItem.class));
+    return EChange.UNCHANGED;
+  }
+
+  @Override
+  @Nonnull
+  @MustBeLocked (ELockType.WRITE)
+  protected IMicroDocument createWriteData ()
+  {
+    final IMicroDocument aDoc = new MicroDocument ();
+    final IMicroElement aRoot = aDoc.appendElement (ELEMENT_ROOT);
+    for (final ReIndexWorkItem aWorkItem : CollectionHelper.getSortedByKey (m_aMap).values ())
+      aRoot.appendChild (MicroTypeConverter.convertToMicroElement (aWorkItem, ELEMENT_ITEM));
+    return aDoc;
+  }
+
+  @MustBeLocked (ELockType.WRITE)
+  private void _addItem (@Nonnull final ReIndexWorkItem aItem)
   {
     ValueEnforcer.notNull (aItem, "Item");
 
-    m_aList.add (aItem);
+    final String sID = aItem.getID ();
+    if (m_aMap.containsKey (sID))
+      throw new IllegalStateException ("Work item with ID '" + sID + "' is already contained!");
+    m_aMap.put (sID, aItem);
+  }
+
+  public void addItem (@Nonnull final ReIndexWorkItem aItem)
+  {
+    m_aRWLock.writeLock ().lock ();
+    try
+    {
+      _addItem (aItem);
+      markAsChanged (aItem, EDAOActionType.CREATE);
+    }
+    finally
+    {
+      m_aRWLock.writeLock ().unlock ();
+    }
+    s_aLogger.info ("Added " + aItem.getLogText () + " to re-try list for retry #" + (aItem.getRetryCount () + 1));
+  }
+
+  public void incRetryCountAndAddItem (@Nonnull final ReIndexWorkItem aItem)
+  {
+    m_aRWLock.writeLock ().lock ();
+    try
+    {
+      aItem.incRetryCount ();
+    }
+    finally
+    {
+      m_aRWLock.writeLock ().unlock ();
+    }
+    addItem (aItem);
   }
 
   @Nonnull
   @ReturnsMutableCopy
   public List <ReIndexWorkItem> getAndRemoveAllExpiredEntries ()
   {
-    final Predicate <ReIndexWorkItem> aPredicate = i -> i.isExpired ();
-    final List <ReIndexWorkItem> ret = m_aList.stream ().filter (aPredicate).collect (Collectors.toList ());
-    m_aList.remove (aPredicate);
-    return ret;
+    m_aRWLock.writeLock ().lock ();
+    try
+    {
+      final List <ReIndexWorkItem> ret = new ArrayList <> ();
+      // Operate on a copy for removal!
+      for (final ReIndexWorkItem aWorkItem : CollectionHelper.newList (m_aMap.values ()))
+        if (aWorkItem.isExpired ())
+        {
+          ret.add (aWorkItem);
+          m_aMap.remove (aWorkItem.getID ());
+          markAsChanged (aWorkItem, EDAOActionType.DELETE);
+        }
+      return ret;
+    }
+    finally
+    {
+      m_aRWLock.writeLock ().unlock ();
+    }
   }
 
   @Nonnull
   @ReturnsMutableCopy
   public List <ReIndexWorkItem> getAndRemoveAllItemsForReIndex (@Nonnull final LocalDateTime aDT)
   {
-    final Predicate <ReIndexWorkItem> aPredicate = i -> i.isRetryPossible (aDT);
-    final List <ReIndexWorkItem> ret = m_aList.stream ().filter (aPredicate).collect (Collectors.toList ());
-    m_aList.removeIf (aPredicate);
-    return ret;
+    m_aRWLock.writeLock ().lock ();
+    try
+    {
+      final List <ReIndexWorkItem> ret = new ArrayList <> ();
+      // Operate on a copy for removal!
+      for (final ReIndexWorkItem aWorkItem : CollectionHelper.newList (m_aMap.values ()))
+        if (aWorkItem.isRetryPossible (aDT))
+        {
+          ret.add (aWorkItem);
+          m_aMap.remove (aWorkItem.getID ());
+          markAsChanged (aWorkItem, EDAOActionType.DELETE);
+        }
+      return ret;
+    }
+    finally
+    {
+      m_aRWLock.writeLock ().unlock ();
+    }
   }
 
   @Nonnull
   @ReturnsMutableCopy
   public List <ReIndexWorkItem> getAllItems ()
   {
-    return CollectionHelper.newList (m_aList);
+    m_aRWLock.readLock ().lock ();
+    try
+    {
+      return CollectionHelper.newList (m_aMap.values ());
+    }
+    finally
+    {
+      m_aRWLock.readLock ().unlock ();
+    }
   }
 
   @Override
   public String toString ()
   {
-    return new ToStringGenerator (this).append ("List", m_aList).toString ();
+    return ToStringGenerator.getDerived (super.toString ()).append ("Map", m_aMap).toString ();
   }
 }

@@ -13,6 +13,7 @@ import org.quartz.TriggerKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.UsedViaReflection;
 import com.helger.commons.microdom.IMicroDocument;
 import com.helger.commons.microdom.IMicroElement;
@@ -28,6 +29,7 @@ import com.helger.commons.string.ToStringGenerator;
 import com.helger.datetime.PDTFactory;
 import com.helger.peppol.identifier.IParticipantIdentifier;
 import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
+import com.helger.photon.basic.app.dao.impl.DAOException;
 import com.helger.photon.basic.app.io.WebFileIO;
 import com.helger.photon.core.app.CApplication;
 import com.helger.schedule.quartz.GlobalQuartzScheduler;
@@ -46,10 +48,12 @@ public final class IndexerManager extends AbstractGlobalSingleton
 
   @GuardedBy ("m_aRWLock")
   private final Set <IndexerWorkItem> m_aUniqueItems = new HashSet <> ();
-  @GuardedBy ("m_aRWLock")
-  private final ReIndexWorkItemList m_aReIndexList = new ReIndexWorkItemList ();
+  private final ReIndexWorkItemList m_aReIndexList;
   private final IndexerWorkItemQueue m_aIndexerWorkQueue = new IndexerWorkItemQueue (this::_asyncFetchParticipantData);
   private final TriggerKey m_aTriggerKey;
+
+  // Status vars
+  private final GlobalQuartzScheduler m_aScheduler;
 
   @Nonnull
   private static File _getIndexerWorkItemFile ()
@@ -57,16 +61,12 @@ public final class IndexerManager extends AbstractGlobalSingleton
     return WebFileIO.getDataIO ().getFile ("indexer-work-items.xml");
   }
 
-  @Nonnull
-  private static File _getReIndexWorkItemFile ()
-  {
-    return WebFileIO.getDataIO ().getFile ("reindex-work-items.xml");
-  }
-
   @Deprecated
   @UsedViaReflection
-  public IndexerManager ()
+  public IndexerManager () throws DAOException
   {
+    m_aReIndexList = new ReIndexWorkItemList ();
+
     // Read existing work item file
     final File aIndexerWorkItemFile = _getIndexerWorkItemFile ();
     {
@@ -77,24 +77,20 @@ public final class IndexerManager extends AbstractGlobalSingleton
           s_aLogger.debug ("Reading persisted indexer work items from " + aIndexerWorkItemFile);
         for (final IMicroElement eItem : aDoc.getDocumentElement ().getAllChildElements (ELEMENT_ITEM))
         {
-          final IndexerWorkItem aItem = MicroTypeConverter.convertToNative (eItem, IndexerWorkItem.class);
-          m_aUniqueItems.add (aItem);
-          m_aIndexerWorkQueue.queueObject (aItem);
+          final IndexerWorkItem aWorkItem = MicroTypeConverter.convertToNative (eItem, IndexerWorkItem.class);
+          _queueWorkItem (aWorkItem);
         }
       }
-    }
 
-    final File aReIndexWorkItemFile = _getReIndexWorkItemFile ();
-    {
-      // TODO read re-index work items from file
+      // Delete the files to ensure they are not read again next startup time
+      WebFileIO.getFileOpMgr ().deleteFileIfExisting (aIndexerWorkItemFile);
     }
-
-    // Delete the files to ensure they are not read again next startup time
-    WebFileIO.getFileOpMgr ().deleteFileIfExisting (aIndexerWorkItemFile);
-    WebFileIO.getFileOpMgr ().deleteFile (aReIndexWorkItemFile);
 
     // Schedule re-index job
     m_aTriggerKey = ReIndexJob.schedule (SimpleScheduleBuilder.repeatMinutelyForever (1), CApplication.APP_ID_SECURE);
+
+    // remember here
+    m_aScheduler = GlobalQuartzScheduler.getInstance ();
   }
 
   /**
@@ -127,25 +123,24 @@ public final class IndexerManager extends AbstractGlobalSingleton
     final List <IndexerWorkItem> aRemainingWorkItems = m_aIndexerWorkQueue.stop ();
     _writeWorkItems (aRemainingWorkItems);
 
-    // Pause re-index job
-    GlobalQuartzScheduler.getInstance ().pauseJob (m_aTriggerKey);
-    // TODO wrie re-index work items
+    // Unschedule the job to avoid problems on shutdown. Use the saved instance
+    // because GlobalQuartzScheduler.getInstance() would fail because the global
+    // scope is already in desctruction.
+    m_aScheduler.unscheduleJob (m_aTriggerKey);
   }
 
   @Nonnull
-  public EChange queueObject (@Nonnull final IParticipantIdentifier aParticipantID,
-                              @Nonnull final EIndexerWorkItemType eType)
+  private EChange _queueWorkItem (@Nonnull final IndexerWorkItem aWorkItem)
   {
-    // Build item
-    final IndexerWorkItem aItem = new IndexerWorkItem (aParticipantID, eType);
+    ValueEnforcer.notNull (aWorkItem, "WorkItem");
 
     // Check for duplicate
     m_aRWLock.writeLock ().lock ();
     try
     {
-      if (!m_aUniqueItems.add (aItem))
+      if (!m_aUniqueItems.add (aWorkItem))
       {
-        s_aLogger.info ("Ignoring item " + aItem + " because it is already in the queue!");
+        s_aLogger.info ("Ignoring work item " + aWorkItem + " because it is already in the queue!");
         return EChange.UNCHANGED;
       }
     }
@@ -155,8 +150,18 @@ public final class IndexerManager extends AbstractGlobalSingleton
     }
 
     // Queue it
-    m_aIndexerWorkQueue.queueObject (aItem);
+    m_aIndexerWorkQueue.queueObject (aWorkItem);
     return EChange.CHANGED;
+  }
+
+  @Nonnull
+  public EChange queueWorkItem (@Nonnull final IParticipantIdentifier aParticipantID,
+                                @Nonnull final EIndexerWorkItemType eType)
+  {
+    // Build item
+    final IndexerWorkItem aWorkItem = new IndexerWorkItem (aParticipantID, eType);
+    // And queue it
+    return _queueWorkItem (aWorkItem);
   }
 
   private void _removeFromOverallList (@Nonnull final IndexerWorkItem aItem)
@@ -214,24 +219,6 @@ public final class IndexerManager extends AbstractGlobalSingleton
     return ESuccess.FAILURE;
   }
 
-  private void _addToReIndexList (@Nonnull final ReIndexWorkItem aReIndexItem)
-  {
-    m_aRWLock.writeLock ().lock ();
-    try
-    {
-      m_aReIndexList.addItem (aReIndexItem);
-    }
-    finally
-    {
-      m_aRWLock.writeLock ().unlock ();
-    }
-    s_aLogger.info ("Added " +
-                    aReIndexItem.getWorkItem ().getType () +
-                    " of " +
-                    aReIndexItem.getWorkItem ().getParticipantID ().getURIEncoded () +
-                    " to re-try list");
-  }
-
   /**
    * This is the performer for the direct data fetching.
    *
@@ -248,66 +235,49 @@ public final class IndexerManager extends AbstractGlobalSingleton
     {
       // Failed to fetch participant data - add to re-index queue and leave in
       // the overall list
-      _addToReIndexList (new ReIndexWorkItem (aItem));
+      m_aReIndexList.addItem (new ReIndexWorkItem (aItem));
     }
     return eSuccess;
   }
 
   /**
-   * Expire all re-index entries that are in the list for a too long time
+   * Expire all re-index entries that are in the list for a too long time.
    */
   public void expireOldEntries ()
   {
-    m_aRWLock.writeLock ().lock ();
-    try
+    // Expire old entries
+    final List <ReIndexWorkItem> aExpiredItems = m_aReIndexList.getAndRemoveAllExpiredEntries ();
+    if (!aExpiredItems.isEmpty ())
     {
-      // Expire old entries
-      final List <ReIndexWorkItem> aExpiredItems = m_aReIndexList.getAndRemoveAllExpiredEntries ();
-      if (!aExpiredItems.isEmpty ())
-      {
-        s_aLogger.info ("Expired " + aExpiredItems.size () + " re-index work items");
+      s_aLogger.info ("Expired " + aExpiredItems.size () + " re-index work items");
 
+      m_aRWLock.writeLock ().lock ();
+      try
+      {
         // remove them from the overall list
         aExpiredItems.stream ().forEach (aItem -> m_aUniqueItems.remove (aItem.getWorkItem ()));
       }
-    }
-    finally
-    {
-      m_aRWLock.writeLock ().unlock ();
+      finally
+      {
+        m_aRWLock.writeLock ().unlock ();
+      }
     }
   }
 
   public void reIndexParticipantData ()
   {
-    List <ReIndexWorkItem> aReIndexNowItems;
-    m_aRWLock.writeLock ().lock ();
-    try
-    {
-      // Get and remove all items to re-index "now"
-      aReIndexNowItems = m_aReIndexList.getAndRemoveAllItemsForReIndex (PDTFactory.getCurrentLocalDateTime ());
-    }
-    finally
-    {
-      m_aRWLock.writeLock ().unlock ();
-    }
+    // Get and remove all items to re-index "now"
+    final List <ReIndexWorkItem> aReIndexNowItems = m_aReIndexList.getAndRemoveAllItemsForReIndex (PDTFactory.getCurrentLocalDateTime ());
 
     for (final ReIndexWorkItem aReIndexItem : aReIndexNowItems)
+    {
+      s_aLogger.info ("Try to perform " + aReIndexItem.getLogText ());
       if (_fetchParticipantData0 (aReIndexItem.getWorkItem ()).isFailure ())
       {
-        // Still no success
-        m_aRWLock.writeLock ().lock ();
-        try
-        {
-          aReIndexItem.incRetryCount ();
-        }
-        finally
-        {
-          m_aRWLock.writeLock ().unlock ();
-        }
-
-        // Add again to the retry list
-        _addToReIndexList (aReIndexItem);
+        // Still no success. Add again to the retry list
+        m_aReIndexList.incRetryCountAndAddItem (aReIndexItem);
       }
+    }
   }
 
   @Override

@@ -73,7 +73,7 @@ public class IndexerResource
     final SimpleParticipantIdentifier aPI = SimpleParticipantIdentifier.createFromURIPart (sParticipantID);
 
     // Queue for handling
-    IndexerManager.getInstance ().queueObject (aPI, EIndexerWorkItemType.CREATE_UPDATE);
+    IndexerManager.getInstance ().queueWorkItem (aPI, EIndexerWorkItemType.CREATE_UPDATE);
 
     // And done
     return Response.noContent ().build ();
