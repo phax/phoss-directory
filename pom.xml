@@ -104,6 +104,11 @@
       </dependency>
       <dependency>
         <groupId>com.helger</groupId>
+        <artifactId>ph-oton-basic</artifactId>
+        <version>${ph-oton.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.helger</groupId>
         <artifactId>ph-oton-core</artifactId>
         <version>${ph-oton.version}</version>
       </dependency>
