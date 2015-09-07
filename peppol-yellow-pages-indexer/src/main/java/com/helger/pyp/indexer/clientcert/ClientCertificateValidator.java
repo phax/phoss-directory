@@ -130,7 +130,10 @@ public final class ClientCertificateValidator
                     sTrustStorePath +
                     "' with alias '" +
                     sTrustStoreAlias +
-                    "'");
+                    "'; root certificate serial=" +
+                    s_aPeppolSMPRootCert.getSerialNumber ().toString (16) +
+                    "; root certficate issuer=" +
+                    s_aPeppolSMPRootCert.getIssuerX500Principal ().getName ());
   }
 
   private static void _initRootCertAlternative ()
@@ -166,7 +169,10 @@ public final class ClientCertificateValidator
                       sTrustStorePath +
                       "' with alias '" +
                       sTrustStoreAlias +
-                      "'");
+                      "'; root certificate serial=" +
+                      s_aPeppolSMPRootCertAlternative.getSerialNumber ().toString (16) +
+                      "; root certficate issuer=" +
+                      s_aPeppolSMPRootCertAlternative.getIssuerX500Principal ().getName ());
     }
   }
 
@@ -351,15 +357,10 @@ public final class ClientCertificateValidator
         return ClientCertificateValidationResult.createSuccess (sClientID);
       }
 
-      sVerifyErrorMsg = sVerifyErrorMsg + ' ' + sPeppolVerifyMsgAlternative;
+      sVerifyErrorMsg += ' ' + sPeppolVerifyMsgAlternative;
     }
 
-    s_aLogger.warn ("Client certificate is invalid: " +
-                    sVerifyErrorMsg +
-                    "; root certificate serial=" +
-                    s_aPeppolSMPRootCert.getSerialNumber ().toString (16) +
-                    "; root certficate issuer=" +
-                    s_aPeppolSMPRootCert.getIssuerX500Principal ().getName ());
+    s_aLogger.warn ("Client certificate is invalid: " + sVerifyErrorMsg);
     return ClientCertificateValidationResult.createFailure ();
   }
 }
