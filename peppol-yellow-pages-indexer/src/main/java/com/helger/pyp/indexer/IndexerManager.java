@@ -6,8 +6,11 @@ import java.util.List;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 
+import org.busdox.servicemetadata.publishing._1.ExtensionType;
+import org.busdox.servicemetadata.publishing._1.ServiceGroupType;
 import org.quartz.SimpleScheduleBuilder;
 import org.quartz.TriggerKey;
 import org.slf4j.Logger;
@@ -18,21 +21,30 @@ import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.annotation.UsedViaReflection;
 import com.helger.commons.microdom.IMicroDocument;
 import com.helger.commons.microdom.IMicroElement;
+import com.helger.commons.microdom.IMicroNode;
 import com.helger.commons.microdom.MicroDocument;
 import com.helger.commons.microdom.convert.MicroTypeConverter;
 import com.helger.commons.microdom.serialize.MicroReader;
 import com.helger.commons.microdom.serialize.MicroWriter;
+import com.helger.commons.microdom.util.MicroHelper;
 import com.helger.commons.scope.IScope;
 import com.helger.commons.scope.singleton.AbstractGlobalSingleton;
 import com.helger.commons.state.EChange;
 import com.helger.commons.state.ESuccess;
 import com.helger.commons.string.ToStringGenerator;
+import com.helger.commons.xml.XMLDebug;
 import com.helger.datetime.PDTFactory;
 import com.helger.peppol.identifier.IParticipantIdentifier;
 import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
+import com.helger.peppol.smpclient.SMPClientReadOnly;
+import com.helger.peppol.smpclient.exception.SMPClientException;
 import com.helger.photon.basic.app.dao.impl.DAOException;
 import com.helger.photon.basic.app.io.WebFileIO;
 import com.helger.photon.core.app.CApplication;
+import com.helger.pyp.businessinformation.BusinessInformationType;
+import com.helger.pyp.businessinformation.PYPBusinessInformationMarshaller;
+import com.helger.pyp.settings.PYPSettings;
+import com.helger.pyp.storage.PYPStorageManager;
 import com.helger.schedule.quartz.GlobalQuartzScheduler;
 
 /**
@@ -183,20 +195,91 @@ public final class IndexerManager extends AbstractGlobalSingleton
     }
   }
 
+  @Nullable
+  private static BusinessInformationType _extractBusinessInformation (@Nullable final ExtensionType aExtension)
+  {
+    if (aExtension != null && aExtension.getAny () != null)
+    {
+      final IMicroNode aExtensionContainer = MicroHelper.convertToMicroNode (aExtension.getAny ());
+      if (aExtensionContainer instanceof IMicroElement)
+      {
+        final IMicroElement eExtensionContainer = (IMicroElement) aExtensionContainer;
+        if ("ExtensionContainer".equals (eExtensionContainer.getTagName ()))
+        {
+          for (final IMicroElement eExtensionElement : eExtensionContainer.getAllChildElements ("ExtensionElement"))
+            if ("business information".equals (eExtensionElement.getAttributeValue ("type")))
+            {
+              final IMicroElement eBussinessInfo = eExtensionElement.getFirstChildElement ("BusinessInformation");
+              if (eBussinessInfo != null)
+              {
+                final String sBusinessInfo = MicroWriter.getXMLString (eBussinessInfo);
+                final BusinessInformationType aBI = new PYPBusinessInformationMarshaller ().read (sBusinessInfo);
+                if (aBI != null)
+                {
+                  // Finally we're done
+                  return aBI;
+                }
+                s_aLogger.warn ("Failed to parse business information data:\n" + sBusinessInfo);
+              }
+              else
+                s_aLogger.warn ("The 'ExtensionElement' for business information does not contain a 'BusinessInformation' child element");
+              break;
+            }
+          s_aLogger.warn ("'ExtensionContainer' does not contain an 'ExtensionElement' with @type 'business information'");
+        }
+        else
+        {
+          s_aLogger.warn ("Extension content is expected to be an 'ExtensionContainer' but it is a '" +
+                          eExtensionContainer.getTagName () +
+                          "'");
+        }
+      }
+      else
+      {
+        s_aLogger.warn ("Extension content is not an element but a " +
+                        XMLDebug.getNodeTypeAsString (aExtension.getAny ().getNodeType ()));
+      }
+    }
+
+    return null;
+  }
+
   @Nonnull
   private ESuccess _onCreateOrUpdate (@Nonnull final IPeppolParticipantIdentifier aParticipantID)
   {
     s_aLogger.info ("On participant create/update: " + aParticipantID.getURIEncoded ());
-    // TODO fetch data and add to index
-    return ESuccess.FAILURE;
+
+    // Fetch data
+    final SMPClientReadOnly aSMPClient = new SMPClientReadOnly (aParticipantID, PYPSettings.getSMLToUse ());
+    ServiceGroupType aServiceGroup;
+    try
+    {
+      aServiceGroup = aSMPClient.getServiceGroup (aParticipantID);
+    }
+    catch (final SMPClientException ex)
+    {
+      s_aLogger.error ("Error querying SMP", ex);
+      return ESuccess.FAILURE;
+    }
+
+    final BusinessInformationType aBI = _extractBusinessInformation (aServiceGroup.getExtension ());
+    if (aBI == null)
+    {
+      // No extension present - no need to try again
+      return ESuccess.SUCCESS;
+    }
+
+    PYPStorageManager.getInstance ().createOrUpdateEntry (aParticipantID, aBI);
+    return ESuccess.SUCCESS;
   }
 
   @Nonnull
   private ESuccess _onDelete (@Nonnull final IPeppolParticipantIdentifier aParticipantID)
   {
     s_aLogger.info ("On participant delete: " + aParticipantID.getURIEncoded ());
-    // TODO delete from index
-    return ESuccess.FAILURE;
+
+    PYPStorageManager.getInstance ().deleteEntry (aParticipantID);
+    return ESuccess.SUCCESS;
   }
 
   @Nonnull

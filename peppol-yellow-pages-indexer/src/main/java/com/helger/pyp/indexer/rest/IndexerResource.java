@@ -33,6 +33,7 @@ import com.helger.pyp.indexer.EIndexerWorkItemType;
 import com.helger.pyp.indexer.IndexerManager;
 import com.helger.pyp.indexer.clientcert.ClientCertificateValidationResult;
 import com.helger.pyp.indexer.clientcert.ClientCertificateValidator;
+import com.helger.pyp.storage.PYPStorageManager;
 
 /**
  * Indexer resource (exposed at "1.0" path)
@@ -94,6 +95,10 @@ public class IndexerResource
 
     // Parse identifier
     final SimpleParticipantIdentifier aPI = SimpleParticipantIdentifier.createFromURIPart (sParticipantID);
+
+    // Check if PI exists
+    if (!PYPStorageManager.getInstance ().containsEntry (aPI))
+      return Response.status (Response.Status.NOT_FOUND).build ();
 
     // Queue for handling
     IndexerManager.getInstance ().queueWorkItem (aPI, EIndexerWorkItemType.DELETE, aResult.getClientID ());
