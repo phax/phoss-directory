@@ -24,6 +24,8 @@ import com.helger.commons.microdom.convert.IMicroTypeConverterRegistrarSPI;
 import com.helger.commons.microdom.convert.IMicroTypeConverterRegistry;
 import com.helger.pyp.indexer.IndexerWorkItem;
 import com.helger.pyp.indexer.IndexerWorkItemMicroTypeConverter;
+import com.helger.pyp.indexer.ReIndexWorkItem;
+import com.helger.pyp.indexer.ReIndexWorkItemMicroTypeConverter;
 
 /**
  * Implementation of {@link IMicroTypeConverterRegistrarSPI} for indexer types
@@ -37,5 +39,6 @@ public final class IndexerMicroTypeConverterRegistrar implements IMicroTypeConve
   public void registerMicroTypeConverter (@Nonnull final IMicroTypeConverterRegistry aRegistry)
   {
     aRegistry.registerMicroElementTypeConverter (IndexerWorkItem.class, new IndexerWorkItemMicroTypeConverter ());
+    aRegistry.registerMicroElementTypeConverter (ReIndexWorkItem.class, new ReIndexWorkItemMicroTypeConverter ());
   }
 }
