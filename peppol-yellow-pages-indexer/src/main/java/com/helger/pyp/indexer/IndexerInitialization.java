@@ -16,10 +16,7 @@
  */
 package com.helger.pyp.indexer;
 
-import org.quartz.SimpleScheduleBuilder;
-
 import com.helger.peppol.smpclient.SMPClientConfiguration;
-import com.helger.photon.core.app.CApplication;
 
 /**
  * Initialize every necessary to get the PYP Indexer up and running
@@ -37,7 +34,5 @@ public final class IndexerInitialization
     SMPClientConfiguration.getConfigFile ().applyAllNetworkSystemProperties ();
     // Initialize work queue
     IndexerManager.getInstance ();
-    // Schedule re-index job
-    ReIndexJob.schedule (SimpleScheduleBuilder.repeatMinutelyForever (1), CApplication.APP_ID_SECURE);
   }
 }

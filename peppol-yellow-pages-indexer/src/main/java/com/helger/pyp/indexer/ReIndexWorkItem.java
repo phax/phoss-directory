@@ -31,18 +31,20 @@ public class ReIndexWorkItem
   {
     // The next retry happens from now in the configured number of minutes
     this (aWorkItem,
+          aWorkItem.getCreationDT ().plusHours (PYPSettings.getReIndexMaxRetryHours ()),
           0,
           (LocalDateTime) null,
           PDTFactory.getCurrentLocalDateTime ().plusMinutes (PYPSettings.getReIndexRetryMinutes ()));
   }
 
   ReIndexWorkItem (@Nonnull final IndexerWorkItem aWorkItem,
+                   @Nonnull final LocalDateTime aMaxRetryDT,
                    final int nRetries,
                    @Nullable final LocalDateTime aPreviousRetryDT,
-                   @Nullable final LocalDateTime aNextRetryDT)
+                   @Nonnull final LocalDateTime aNextRetryDT)
   {
     m_aWorkItem = ValueEnforcer.notNull (aWorkItem, "WorkItem");
-    m_aMaxRetryDT = aWorkItem.getCreationDT ().plusHours (PYPSettings.getReIndexMaxRetryHours ());
+    m_aMaxRetryDT = ValueEnforcer.notNull (aMaxRetryDT, "MaxRetryDT");
     m_nRetries = ValueEnforcer.isGE0 (nRetries, "Retries");
     m_aPreviousRetryDT = aPreviousRetryDT;
     if (nRetries > 0)

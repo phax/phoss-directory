@@ -8,6 +8,8 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 
+import org.quartz.SimpleScheduleBuilder;
+import org.quartz.TriggerKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +29,8 @@ import com.helger.datetime.PDTFactory;
 import com.helger.peppol.identifier.IParticipantIdentifier;
 import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
 import com.helger.photon.basic.app.io.WebFileIO;
+import com.helger.photon.core.app.CApplication;
+import com.helger.schedule.quartz.GlobalQuartzScheduler;
 
 /**
  * The global indexer manager that takes an item for queuing and maintains the
@@ -44,31 +48,53 @@ public final class IndexerManager extends AbstractGlobalSingleton
   private final Set <IndexerWorkItem> m_aUniqueItems = new HashSet <> ();
   @GuardedBy ("m_aRWLock")
   private final ReIndexWorkQueue m_aReIndexList = new ReIndexWorkQueue ();
-  private final IndexerWorkQueue m_aIndexerWorkQueue = new IndexerWorkQueue (this::_fetchParticipantDataSynchronously);
+  private final IndexerWorkQueue m_aIndexerWorkQueue = new IndexerWorkQueue (this::_asyncFetchParticipantData);
+  private final TriggerKey m_aTriggerKey;
 
   @Nonnull
   private static File _getIndexerWorkItemFile ()
   {
-    return WebFileIO.getDataIO ().getFile ("indexer-work-queue.xml");
+    return WebFileIO.getDataIO ().getFile ("indexer-work-items.xml");
+  }
+
+  @Nonnull
+  private static File _getReIndexWorkItemFile ()
+  {
+    return WebFileIO.getDataIO ().getFile ("reindex-work-items.xml");
   }
 
   @Deprecated
   @UsedViaReflection
   public IndexerManager ()
   {
-    // Read an eventually existing serialized element
-    final IMicroDocument aDoc = MicroReader.readMicroXML (_getIndexerWorkItemFile ());
-    if (aDoc != null)
+    // Read existing work item file
+    final File aIndexerWorkItemFile = _getIndexerWorkItemFile ();
     {
-      if (s_aLogger.isDebugEnabled ())
-        s_aLogger.debug ("Reading persisted indexer work items from " + _getIndexerWorkItemFile ());
-      for (final IMicroElement eItem : aDoc.getDocumentElement ().getAllChildElements (ELEMENT_ITEM))
+      final IMicroDocument aDoc = MicroReader.readMicroXML (aIndexerWorkItemFile);
+      if (aDoc != null)
       {
-        final IndexerWorkItem aItem = MicroTypeConverter.convertToNative (eItem, IndexerWorkItem.class);
-        m_aUniqueItems.add (aItem);
-        m_aIndexerWorkQueue.queueObject (aItem);
+        if (s_aLogger.isDebugEnabled ())
+          s_aLogger.debug ("Reading persisted indexer work items from " + aIndexerWorkItemFile);
+        for (final IMicroElement eItem : aDoc.getDocumentElement ().getAllChildElements (ELEMENT_ITEM))
+        {
+          final IndexerWorkItem aItem = MicroTypeConverter.convertToNative (eItem, IndexerWorkItem.class);
+          m_aUniqueItems.add (aItem);
+          m_aIndexerWorkQueue.queueObject (aItem);
+        }
       }
     }
+
+    final File aReIndexWorkItemFile = _getReIndexWorkItemFile ();
+    {
+      // TODO read re-index work items from file
+    }
+
+    // Delete the files to ensure they are not read again next startup time
+    WebFileIO.getFileOpMgr ().deleteFileIfExisting (aIndexerWorkItemFile);
+    WebFileIO.getFileOpMgr ().deleteFile (aReIndexWorkItemFile);
+
+    // Schedule re-index job
+    m_aTriggerKey = ReIndexJob.schedule (SimpleScheduleBuilder.repeatMinutelyForever (1), CApplication.APP_ID_SECURE);
   }
 
   /**
@@ -80,7 +106,7 @@ public final class IndexerManager extends AbstractGlobalSingleton
     return getGlobalSingleton (IndexerManager.class);
   }
 
-  private static void _write (@Nonnull final List <IndexerWorkItem> aItems)
+  private static void _writeWorkItems (@Nonnull final List <IndexerWorkItem> aItems)
   {
     if (!aItems.isEmpty ())
     {
@@ -98,8 +124,12 @@ public final class IndexerManager extends AbstractGlobalSingleton
   protected void onBeforeDestroy (@Nonnull final IScope aScopeToBeDestroyed)
   {
     // Get all remaining objects and save them for late reuse
-    final List <IndexerWorkItem> aRemainingItems = m_aIndexerWorkQueue.stop ();
-    _write (aRemainingItems);
+    final List <IndexerWorkItem> aRemainingWorkItems = m_aIndexerWorkQueue.stop ();
+    _writeWorkItems (aRemainingWorkItems);
+
+    // Pause re-index job
+    GlobalQuartzScheduler.getInstance ().pauseJob (m_aTriggerKey);
+    // TODO wrie re-index work items
   }
 
   @Nonnull
@@ -146,7 +176,7 @@ public final class IndexerManager extends AbstractGlobalSingleton
   private ESuccess _onCreateOrUpdate (@Nonnull final IPeppolParticipantIdentifier aParticipantID)
   {
     s_aLogger.info ("On participant create/update: " + aParticipantID.getURIEncoded ());
-    // TODO
+    // TODO fetch data and add to index
     return ESuccess.FAILURE;
   }
 
@@ -154,7 +184,7 @@ public final class IndexerManager extends AbstractGlobalSingleton
   private ESuccess _onDelete (@Nonnull final IPeppolParticipantIdentifier aParticipantID)
   {
     s_aLogger.info ("On participant delete: " + aParticipantID.getURIEncoded ());
-    // TODO
+    // TODO delete from index
     return ESuccess.FAILURE;
   }
 
@@ -203,14 +233,14 @@ public final class IndexerManager extends AbstractGlobalSingleton
   }
 
   /**
-   * This is the main method to perform the operation on the SMP.
+   * This is the performer for the direct data fetching.
    *
    * @param aItem
    *        The item to be fetched. Never <code>null</code>.
    * @return {@link ESuccess}.
    */
   @Nonnull
-  private ESuccess _fetchParticipantDataSynchronously (@Nonnull final IndexerWorkItem aItem)
+  private ESuccess _asyncFetchParticipantData (@Nonnull final IndexerWorkItem aItem)
   {
     final ESuccess eSuccess = _fetchParticipantData0 (aItem);
 
@@ -223,6 +253,9 @@ public final class IndexerManager extends AbstractGlobalSingleton
     return eSuccess;
   }
 
+  /**
+   * Expire all re-index entries that are in the list for a too long time
+   */
   public void expireOldEntries ()
   {
     m_aRWLock.writeLock ().lock ();
@@ -261,10 +294,10 @@ public final class IndexerManager extends AbstractGlobalSingleton
     for (final ReIndexWorkItem aReIndexItem : aReIndexNowItems)
       if (_fetchParticipantData0 (aReIndexItem.getWorkItem ()).isFailure ())
       {
+        // Still no success
         m_aRWLock.writeLock ().lock ();
         try
         {
-          // Still no success
           aReIndexItem.incRetryCount ();
         }
         finally
@@ -283,6 +316,7 @@ public final class IndexerManager extends AbstractGlobalSingleton
     return new ToStringGenerator (super.toString ()).append ("UniqueItems", m_aUniqueItems)
                                                     .append ("ReIndexList", m_aReIndexList)
                                                     .append ("IndexerWorkQueue", m_aIndexerWorkQueue)
+                                                    .append ("TriggerKey", m_aTriggerKey)
                                                     .toString ();
   }
 }
