@@ -114,18 +114,29 @@ public class ReIndexWorkItem implements IHasID <String>, Serializable
     return m_aMaxRetryDT;
   }
 
+  /**
+   * @return The number of retries performed so far. This counter does NOT
+   *         include the original try!
+   */
   @Nonnegative
   public int getRetryCount ()
   {
     return m_nRetries;
   }
 
+  /**
+   * @return The previous retry date time. If no retry happened so far, this
+   *         will be <code>null</code>.
+   */
   @Nullable
   public LocalDateTime getPreviousRetryDT ()
   {
     return m_aPreviousRetryDT;
   }
 
+  /**
+   * @return The next retry date time. Never <code>null</code>.
+   */
   @Nonnull
   public LocalDateTime getNextRetryDT ()
   {
@@ -136,7 +147,7 @@ public class ReIndexWorkItem implements IHasID <String>, Serializable
   @Nonempty
   public String getLogText ()
   {
-    return m_aWorkItem.getType () + "[" + m_aWorkItem.getParticipantID ().getURIEncoded () + "]";
+    return m_aWorkItem.getLogText () + " " + m_nRetries + " retries so far";
   }
 
   @Override

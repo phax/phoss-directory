@@ -106,6 +106,13 @@ public final class IndexerWorkItem implements Serializable
     return m_sOwnerID;
   }
 
+  @Nonnull
+  @Nonempty
+  public String getLogText ()
+  {
+    return m_sOwnerID + "@" + m_eType + "[" + m_aParticpantID.getURIEncoded () + "]";
+  }
+
   @Override
   public boolean equals (final Object o)
   {

@@ -141,7 +141,7 @@ public final class IndexerManager extends AbstractGlobalSingleton
     {
       if (!m_aUniqueItems.add (aWorkItem))
       {
-        s_aLogger.info ("Ignoring work item " + aWorkItem + " because it is already in the queue!");
+        s_aLogger.info ("Ignoring work item " + aWorkItem.getLogText () + " because it is already in the queue!");
         return EChange.UNCHANGED;
       }
     }
@@ -152,6 +152,10 @@ public final class IndexerManager extends AbstractGlobalSingleton
 
     // Queue it
     m_aIndexerWorkQueue.queueObject (aWorkItem);
+
+    if (s_aLogger.isDebugEnabled ())
+      s_aLogger.debug ("Queued work item " + aWorkItem.getLogText ());
+
     return EChange.CHANGED;
   }
 
