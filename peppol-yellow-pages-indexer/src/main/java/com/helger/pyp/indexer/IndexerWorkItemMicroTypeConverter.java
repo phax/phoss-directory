@@ -16,6 +16,7 @@ public final class IndexerWorkItemMicroTypeConverter implements IMicroTypeConver
   private static final String ATTR_CREATION_DATE_TIME = "creationdt";
   private static final String ATTR_PARTICIPANT_ID = "participantid";
   private static final String ATTR_TYPE = "type";
+  private static final String ATTR_OWNER_ID = "ownerid";
 
   @Nullable
   public IMicroElement convertToMicroElement (@Nonnull final Object aObject,
@@ -27,6 +28,7 @@ public final class IndexerWorkItemMicroTypeConverter implements IMicroTypeConver
     aElement.setAttributeWithConversion (ATTR_CREATION_DATE_TIME, aValue.getCreationDT ());
     aElement.setAttribute (ATTR_PARTICIPANT_ID, aValue.getParticipantID ().getURIEncoded ());
     aElement.setAttribute (ATTR_TYPE, aValue.getType ().getID ());
+    aElement.setAttribute (ATTR_OWNER_ID, aValue.getOwnerID ());
     return aElement;
   }
 
@@ -45,7 +47,9 @@ public final class IndexerWorkItemMicroTypeConverter implements IMicroTypeConver
     if (eType == null)
       throw new IllegalStateException ("Failed to parse type ID '" + sTypeID + "'");
 
-    return new IndexerWorkItem (aCreationDT, aParticipantID, eType);
+    final String sOwnerID = aElement.getAttributeValue (ATTR_OWNER_ID);
+
+    return new IndexerWorkItem (aCreationDT, aParticipantID, eType, sOwnerID);
   }
 
 }

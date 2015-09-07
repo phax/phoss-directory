@@ -161,7 +161,7 @@ public final class IndexerManager extends AbstractGlobalSingleton
                                 @Nonnull @Nonempty final String sOwnerID)
   {
     // Build item
-    final IndexerWorkItem aWorkItem = new IndexerWorkItem (aParticipantID, eType);
+    final IndexerWorkItem aWorkItem = new IndexerWorkItem (aParticipantID, eType, sOwnerID);
     // And queue it
     return _queueWorkItem (aWorkItem);
   }

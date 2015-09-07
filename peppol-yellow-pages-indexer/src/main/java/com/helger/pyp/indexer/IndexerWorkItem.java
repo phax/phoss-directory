@@ -24,6 +24,7 @@ import javax.annotation.concurrent.Immutable;
 import org.joda.time.LocalDateTime;
 
 import com.helger.commons.ValueEnforcer;
+import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.hashcode.HashCodeGenerator;
 import com.helger.commons.string.ToStringGenerator;
 import com.helger.datetime.PDTFactory;
@@ -42,25 +43,30 @@ public final class IndexerWorkItem implements Serializable
   private final LocalDateTime m_aCreationDT;
   private final IPeppolParticipantIdentifier m_aParticpantID;
   private final EIndexerWorkItemType m_eType;
+  private final String m_sOwnerID;
 
   public IndexerWorkItem (@Nonnull final IParticipantIdentifier aParticpantID,
-                          @Nonnull final EIndexerWorkItemType eType)
+                          @Nonnull final EIndexerWorkItemType eType,
+                          @Nonnull @Nonempty final String sOwnerID)
   {
-    this (PDTFactory.getCurrentLocalDateTime (), aParticpantID, eType);
+    this (PDTFactory.getCurrentLocalDateTime (), aParticpantID, eType, sOwnerID);
   }
 
   IndexerWorkItem (@Nonnull final LocalDateTime aCreationDT,
                    @Nonnull final IParticipantIdentifier aParticpantID,
-                   @Nonnull final EIndexerWorkItemType eType)
+                   @Nonnull final EIndexerWorkItemType eType,
+                   @Nonnull @Nonempty final String sOwnerID)
   {
     ValueEnforcer.notNull (aCreationDT, "CreationDT");
     ValueEnforcer.notNull (aParticpantID, "ParticpantID");
     ValueEnforcer.notNull (eType, "Type");
+    ValueEnforcer.notNull (sOwnerID, "OwnerID");
 
     m_aCreationDT = aCreationDT;
     // Ensure all objects have the same type
     m_aParticpantID = new SimpleParticipantIdentifier (aParticpantID);
     m_eType = eType;
+    m_sOwnerID = sOwnerID;
   }
 
   /**
@@ -90,6 +96,16 @@ public final class IndexerWorkItem implements Serializable
     return m_eType;
   }
 
+  /**
+   * @return The ID of the client (based on the provided certificate) that
+   *         requested this action. Never <code>null</code>.
+   */
+  @Nonnull
+  public String getOwnerID ()
+  {
+    return m_sOwnerID;
+  }
+
   @Override
   public boolean equals (final Object o)
   {
@@ -113,6 +129,7 @@ public final class IndexerWorkItem implements Serializable
     return new ToStringGenerator (this).append ("CreationDT", m_aCreationDT)
                                        .append ("ParticipantID", m_aParticpantID)
                                        .append ("Type", m_eType)
+                                       .append ("OwnerID", m_sOwnerID)
                                        .toString ();
   }
 }
