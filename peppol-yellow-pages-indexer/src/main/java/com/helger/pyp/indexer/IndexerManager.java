@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
+import javax.annotation.concurrent.GuardedBy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,7 @@ import com.helger.commons.scope.IScope;
 import com.helger.commons.scope.singleton.AbstractGlobalSingleton;
 import com.helger.commons.state.EChange;
 import com.helger.commons.state.ESuccess;
+import com.helger.commons.string.ToStringGenerator;
 import com.helger.datetime.PDTFactory;
 import com.helger.peppol.identifier.IParticipantIdentifier;
 import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
@@ -38,9 +40,11 @@ public final class IndexerManager extends AbstractGlobalSingleton
   private static final String ELEMENT_ROOT = "root";
   private static final String ELEMENT_ITEM = "item";
 
+  @GuardedBy ("m_aRWLock")
   private final Set <IndexerWorkItem> m_aUniqueItems = new HashSet <> ();
+  @GuardedBy ("m_aRWLock")
   private final ReIndexWorkQueue m_aReIndexList = new ReIndexWorkQueue ();
-  private final IndexerWorkQueue m_aIndexerWorkQueue = new IndexerWorkQueue (this::_fetchParticipantData);
+  private final IndexerWorkQueue m_aIndexerWorkQueue = new IndexerWorkQueue (this::_fetchParticipantDataSynchronously);
 
   @Nonnull
   private static File _getIndexerWorkItemFile ()
@@ -141,6 +145,7 @@ public final class IndexerManager extends AbstractGlobalSingleton
   @Nonnull
   private ESuccess _onCreateOrUpdate (@Nonnull final IPeppolParticipantIdentifier aParticipantID)
   {
+    s_aLogger.info ("On participant create/update: " + aParticipantID.getURIEncoded ());
     // TODO
     return ESuccess.FAILURE;
   }
@@ -148,19 +153,13 @@ public final class IndexerManager extends AbstractGlobalSingleton
   @Nonnull
   private ESuccess _onDelete (@Nonnull final IPeppolParticipantIdentifier aParticipantID)
   {
+    s_aLogger.info ("On participant delete: " + aParticipantID.getURIEncoded ());
     // TODO
     return ESuccess.FAILURE;
   }
 
-  /**
-   * This is the main method to perform the operation on the SMP.
-   *
-   * @param aItem
-   *        The item to be fetched. Never <code>null</code>.
-   * @return {@link ESuccess}.
-   */
   @Nonnull
-  private ESuccess _fetchParticipantData (@Nonnull final IndexerWorkItem aItem)
+  private ESuccess _fetchParticipantData0 (@Nonnull final IndexerWorkItem aItem)
   {
     ESuccess eSuccess;
     switch (aItem.getType ())
@@ -182,10 +181,46 @@ public final class IndexerManager extends AbstractGlobalSingleton
       return ESuccess.SUCCESS;
     }
 
-    // Failed to fetch participant data - add to re-index queue and leave in the
-    // overall list
-    m_aReIndexList.addItem (new ReIndexWorkItem (aItem));
     return ESuccess.FAILURE;
+  }
+
+  private void _addToReIndexList (@Nonnull final ReIndexWorkItem aReIndexItem)
+  {
+    m_aRWLock.writeLock ().lock ();
+    try
+    {
+      m_aReIndexList.addItem (aReIndexItem);
+    }
+    finally
+    {
+      m_aRWLock.writeLock ().unlock ();
+    }
+    s_aLogger.info ("Added " +
+                    aReIndexItem.getWorkItem ().getType () +
+                    " of " +
+                    aReIndexItem.getWorkItem ().getParticipantID ().getURIEncoded () +
+                    " to re-try list");
+  }
+
+  /**
+   * This is the main method to perform the operation on the SMP.
+   *
+   * @param aItem
+   *        The item to be fetched. Never <code>null</code>.
+   * @return {@link ESuccess}.
+   */
+  @Nonnull
+  private ESuccess _fetchParticipantDataSynchronously (@Nonnull final IndexerWorkItem aItem)
+  {
+    final ESuccess eSuccess = _fetchParticipantData0 (aItem);
+
+    if (eSuccess.isFailure ())
+    {
+      // Failed to fetch participant data - add to re-index queue and leave in
+      // the overall list
+      _addToReIndexList (new ReIndexWorkItem (aItem));
+    }
+    return eSuccess;
   }
 
   public void expireOldEntries ()
@@ -193,8 +228,15 @@ public final class IndexerManager extends AbstractGlobalSingleton
     m_aRWLock.writeLock ().lock ();
     try
     {
-      // Expire old entries and remove them from the overall list
-      m_aReIndexList.expireOldEntries ().stream ().forEach (aItem -> m_aUniqueItems.remove (aItem.getWorkItem ()));
+      // Expire old entries
+      final List <ReIndexWorkItem> aExpiredItems = m_aReIndexList.getAndRemoveAllExpiredEntries ();
+      if (!aExpiredItems.isEmpty ())
+      {
+        s_aLogger.info ("Expired " + aExpiredItems.size () + " re-index work items");
+
+        // remove them from the overall list
+        aExpiredItems.stream ().forEach (aItem -> m_aUniqueItems.remove (aItem.getWorkItem ()));
+      }
     }
     finally
     {
@@ -204,14 +246,43 @@ public final class IndexerManager extends AbstractGlobalSingleton
 
   public void reIndexParticipantData ()
   {
-    m_aRWLock.readLock ().lock ();
+    List <ReIndexWorkItem> aReIndexNowItems;
+    m_aRWLock.writeLock ().lock ();
     try
     {
-      m_aReIndexList.getAllItemsForReIndex (PDTFactory.getCurrentLocalDateTime ());
+      // Get and remove all items to re-index "now"
+      aReIndexNowItems = m_aReIndexList.getAndRemoveAllItemsForReIndex (PDTFactory.getCurrentLocalDateTime ());
     }
     finally
     {
-      m_aRWLock.readLock ().unlock ();
+      m_aRWLock.writeLock ().unlock ();
     }
+
+    for (final ReIndexWorkItem aReIndexItem : aReIndexNowItems)
+      if (_fetchParticipantData0 (aReIndexItem.getWorkItem ()).isFailure ())
+      {
+        m_aRWLock.writeLock ().lock ();
+        try
+        {
+          // Still no success
+          aReIndexItem.incRetryCount ();
+        }
+        finally
+        {
+          m_aRWLock.writeLock ().unlock ();
+        }
+
+        // Add again to the retry list
+        _addToReIndexList (aReIndexItem);
+      }
+  }
+
+  @Override
+  public String toString ()
+  {
+    return new ToStringGenerator (super.toString ()).append ("UniqueItems", m_aUniqueItems)
+                                                    .append ("ReIndexList", m_aReIndexList)
+                                                    .append ("IndexerWorkQueue", m_aIndexerWorkQueue)
+                                                    .toString ();
   }
 }

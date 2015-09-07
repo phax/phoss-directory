@@ -8,6 +8,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.joda.time.LocalDateTime;
 
 import com.helger.commons.ValueEnforcer;
+import com.helger.commons.string.ToStringGenerator;
 import com.helger.datetime.PDTFactory;
 import com.helger.pyp.settings.PYPSettings;
 
@@ -110,5 +111,16 @@ public class ReIndexWorkItem
   public LocalDateTime getNextRetryDT ()
   {
     return m_aNextRetryDT;
+  }
+
+  @Override
+  public String toString ()
+  {
+    return new ToStringGenerator (this).append ("WorkItem", m_aWorkItem)
+                                       .append ("MaxRetryDT", m_aMaxRetryDT)
+                                       .append ("Retries", m_nRetries)
+                                       .append ("PreviousRetryDT", m_aPreviousRetryDT)
+                                       .append ("NextRetryDT", m_aNextRetryDT)
+                                       .toString ();
   }
 }
