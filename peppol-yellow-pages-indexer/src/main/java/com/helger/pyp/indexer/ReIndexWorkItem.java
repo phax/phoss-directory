@@ -1,5 +1,7 @@
 package com.helger.pyp.indexer;
 
+import java.io.Serializable;
+
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -19,7 +21,7 @@ import com.helger.pyp.settings.PYPSettings;
  * @author Philip Helger
  */
 @NotThreadSafe
-public class ReIndexWorkItem
+public class ReIndexWorkItem implements Serializable
 {
   private final IndexerWorkItem m_aWorkItem;
   private final LocalDateTime m_aMaxRetryDT;

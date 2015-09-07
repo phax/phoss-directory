@@ -16,6 +16,8 @@
  */
 package com.helger.pyp.indexer;
 
+import java.io.Serializable;
+
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 
@@ -35,7 +37,7 @@ import com.helger.peppol.identifier.participant.SimpleParticipantIdentifier;
  * @author Philip Helger
  */
 @Immutable
-public final class IndexerWorkItem
+public final class IndexerWorkItem implements Serializable
 {
   private final LocalDateTime m_aCreationDT;
   private final IPeppolParticipantIdentifier m_aParticpantID;
