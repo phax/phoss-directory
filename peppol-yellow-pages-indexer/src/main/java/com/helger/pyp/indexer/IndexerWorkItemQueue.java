@@ -40,7 +40,7 @@ import com.helger.commons.concurrent.collector.ConcurrentCollectorSingle;
  *
  * @author Philip Helger
  */
-final class IndexerWorkQueue
+final class IndexerWorkItemQueue
 {
   private final ConcurrentCollectorSingle <IndexerWorkItem> m_aImmediateCollector;
   private final ThreadFactory m_aThreadFactory = new ExtendedDefaultThreadFactory ("IndexerWorkQueue");
@@ -51,7 +51,7 @@ final class IndexerWorkQueue
                                                                               new SynchronousQueue <Runnable> (),
                                                                               m_aThreadFactory);
 
-  public IndexerWorkQueue (@Nonnull final IThrowingRunnableWithParameter <IndexerWorkItem> aPerformer)
+  public IndexerWorkItemQueue (@Nonnull final IThrowingRunnableWithParameter <IndexerWorkItem> aPerformer)
   {
     m_aImmediateCollector = new ConcurrentCollectorSingle <> (new LinkedBlockingQueue <> ());
     m_aImmediateCollector.setPerformer (aPerformer);

@@ -47,8 +47,8 @@ public final class IndexerManager extends AbstractGlobalSingleton
   @GuardedBy ("m_aRWLock")
   private final Set <IndexerWorkItem> m_aUniqueItems = new HashSet <> ();
   @GuardedBy ("m_aRWLock")
-  private final ReIndexWorkQueue m_aReIndexList = new ReIndexWorkQueue ();
-  private final IndexerWorkQueue m_aIndexerWorkQueue = new IndexerWorkQueue (this::_asyncFetchParticipantData);
+  private final ReIndexWorkItemList m_aReIndexList = new ReIndexWorkItemList ();
+  private final IndexerWorkItemQueue m_aIndexerWorkQueue = new IndexerWorkItemQueue (this::_asyncFetchParticipantData);
   private final TriggerKey m_aTriggerKey;
 
   @Nonnull
