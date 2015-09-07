@@ -118,4 +118,14 @@ public final class IndexerResourceTest
                                                                        String.class);
     assertEquals ("", sResponseMsg);
   }
+
+  @Test
+  public void testDeleteParticipant ()
+  {
+    final String sResponseMsg = m_aTarget.path ("1.0")
+                                         .path ("iso6523-actorid-upis::9915:test")
+                                         .request ()
+                                         .delete (String.class);
+    assertEquals ("", sResponseMsg);
+  }
 }

@@ -71,13 +71,12 @@ final class IndexerWorkItemQueue
   public List <IndexerWorkItem> stop ()
   {
     // don't take any more actions
-    m_aSenderThreadPool.shutdown ();
     m_aImmediateCollector.stopQueuingNewObjects ();
 
     // Get all remaining objects and save them for late reuse
     final List <IndexerWorkItem> aRemainingItems = m_aImmediateCollector.drainQueue ();
 
-    // Shutdown the thread pool
+    // Shutdown the thread pool afterwards
     ManagedExecutorService.shutdownAndWaitUntilAllTasksAreFinished (m_aSenderThreadPool);
 
     return aRemainingItems;

@@ -19,8 +19,10 @@ package com.helger.pyp.indexer.rest;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
@@ -74,6 +76,25 @@ public class IndexerResource
 
     // Queue for handling
     IndexerManager.getInstance ().queueWorkItem (aPI, EIndexerWorkItemType.CREATE_UPDATE);
+
+    // And done
+    return Response.noContent ().build ();
+  }
+
+  @DELETE
+  @Path ("{participantID}")
+  public Response deleteParticipant (@Context @Nonnull final HttpServletRequest aHttpServletRequest,
+                                     @PathParam ("participantID") @Nonnull final String sParticipantID)
+  {
+    final Response aResponse = _checkClientCertificate (aHttpServletRequest);
+    if (aResponse != null)
+      return aResponse;
+
+    // Parse identifier
+    final SimpleParticipantIdentifier aPI = SimpleParticipantIdentifier.createFromURIPart (sParticipantID);
+
+    // Queue for handling
+    IndexerManager.getInstance ().queueWorkItem (aPI, EIndexerWorkItemType.DELETE);
 
     // And done
     return Response.noContent ().build ();
