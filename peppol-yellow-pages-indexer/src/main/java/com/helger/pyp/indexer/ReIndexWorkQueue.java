@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 
+import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,5 +50,12 @@ final class ReIndexWorkQueue
       s_aLogger.info ("Expired " + aExpiredItems.size () + " items");
     }
     return aExpiredItems;
+  }
+
+  @Nonnull
+  @ReturnsMutableCopy
+  public List <ReIndexWorkItem> getAllItemsForReIndex (@Nonnull final LocalDateTime aDT)
+  {
+    return m_aList.stream ().filter (i -> i.isRetryPossible (aDT)).collect (Collectors.toList ());
   }
 }

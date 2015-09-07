@@ -59,11 +59,13 @@ public class ReIndexWorkItem
   }
 
   /**
+   * @param aDT
+   *        The date time to check
    * @return <code>true</code> if the time for the next retry is here.
    */
-  public boolean isRetryPossible ()
+  public boolean isRetryPossible (@Nonnull final LocalDateTime aDT)
   {
-    return PDTFactory.getCurrentLocalDateTime ().isAfter (m_aNextRetryDT);
+    return m_aNextRetryDT.isBefore (aDT);
   }
 
   public void incRetryCount ()

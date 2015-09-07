@@ -9,19 +9,21 @@ import org.quartz.ScheduleBuilder;
 import org.quartz.SimpleTrigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
 import com.helger.photon.core.job.AbstractPhotonJob;
 import com.helger.schedule.quartz.GlobalQuartzScheduler;
 
+/**
+ * A Quartz job that is scheduled to re-index existing entries that failed to
+ * re-index previously.
+ * 
+ * @author Philip Helger
+ */
 @DisallowConcurrentExecution
 public class ReIndexJob extends AbstractPhotonJob
 {
-  private static final Logger s_aLogger = LoggerFactory.getLogger (ReIndexJob.class);
-
   /**
    * Public no argument constructor must be available.
    */
@@ -34,7 +36,8 @@ public class ReIndexJob extends AbstractPhotonJob
     // First expire all old entries
     IndexerManager.getInstance ().expireOldEntries ();
 
-    // TODO
+    // Re-index all items now
+    IndexerManager.getInstance ().reIndexParticipantData ();
   }
 
   /**
