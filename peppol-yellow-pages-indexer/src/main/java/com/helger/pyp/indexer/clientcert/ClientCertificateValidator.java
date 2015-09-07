@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pyp.indexer.rest;
+package com.helger.pyp.indexer.clientcert;
 
 import java.security.KeyStore;
 import java.security.cert.CRL;
@@ -22,11 +22,15 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+import javax.naming.ldap.LdapName;
+import javax.naming.ldap.Rdn;
 import javax.security.auth.x500.X500Principal;
 import javax.servlet.http.HttpServletRequest;
 
@@ -36,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import com.helger.commons.annotation.PresentForCodeCoverage;
 import com.helger.commons.annotation.VisibleForTesting;
 import com.helger.commons.collection.ArrayHelper;
+import com.helger.commons.collection.CollectionHelper;
 import com.helger.commons.exception.InitializationException;
 import com.helger.commons.string.StringHelper;
 import com.helger.peppol.utils.KeyStoreHelper;
@@ -62,6 +67,15 @@ public final class ClientCertificateValidator
   /** Sorted list with all issuers we're accepting. Never empty. */
   private static List <X500Principal> s_aSearchIssuers = new ArrayList <> ();
 
+  /**
+   * This method is only for testing purposes to disable the complete client
+   * certificate check, so that the tests can be performed, even if no SMP
+   * certificate for testing is present.
+   *
+   * @param bAllowAll
+   *        <code>true</code> to always return <code>true</code> for the client
+   *        certificate check
+   */
   @VisibleForTesting
   public static void allowAllForTests (final boolean bAllowAll)
   {
@@ -221,19 +235,49 @@ public final class ClientCertificateValidator
     return null;
   }
 
+  @Nullable
+  static String getClientUniqueID (@Nonnull final X509Certificate aCert)
+  {
+    try
+    {
+      // subject principal name must be in the order CN=XX,O=YY,C=ZZ
+      // In some JDK versions it is O=YY,CN=XX,C=ZZ instead (e.g. 1.6.0_45)
+      final LdapName aLdapName = new LdapName (aCert.getSubjectX500Principal ().getName ());
+
+      // Make a map from type to name
+      final Map <String, Rdn> aParts = new HashMap <String, Rdn> ();
+      for (final Rdn aRdn : aLdapName.getRdns ())
+        aParts.put (aRdn.getType (), aRdn);
+
+      // Re-order - least important item comes first (=reverse order)!
+      final String sSubjectName = new LdapName (CollectionHelper.newList (aParts.get ("C"),
+                                                                          aParts.get ("O"),
+                                                                          aParts.get ("CN"))).toString ();
+
+      // subject-name + ":" + serial number hexstring
+      return sSubjectName + ':' + aCert.getSerialNumber ().toString (16);
+    }
+    catch (final Exception ex)
+    {
+      s_aLogger.error ("Failed to parse '" + aCert.getSubjectX500Principal ().getName () + "'", ex);
+      return null;
+    }
+  }
+
   /**
    * Extract certificates from request and validate them.
    *
    * @param aHttpRequest
    *        The HTTP request to use.
-   * @return <code>true</code> if valid, <code>false</code> otherwise.
+   * @return Never <code>null</code>.
    */
-  public static boolean isClientCertificateValid (@Nonnull final HttpServletRequest aHttpRequest)
+  @Nonnull
+  public static ClientCertificateValidationResult isClientCertificateValid (@Nonnull final HttpServletRequest aHttpRequest)
   {
     if (s_bAllowAllForTests)
     {
       s_aLogger.warn ("Client certificate is considered valid because the 'allow all' for tests is set!");
-      return true;
+      return ClientCertificateValidationResult.createSuccess ("insecure-debug-client");
     }
 
     // This is how to get client certificate from request
@@ -241,7 +285,7 @@ public final class ClientCertificateValidator
     if (aValue == null)
     {
       s_aLogger.warn ("No client certificates present in the request");
-      return false;
+      return ClientCertificateValidationResult.createFailure ();
     }
 
     // type check
@@ -249,16 +293,12 @@ public final class ClientCertificateValidator
       throw new IllegalStateException ("Request value is not of type X509Certificate[] but of " + aValue.getClass ());
 
     // Main checking
-    return isClientCertificateValid ((X509Certificate []) aValue);
-  }
-
-  public static boolean isClientCertificateValid (@Nullable final X509Certificate [] aRequestCerts)
-  {
+    final X509Certificate [] aRequestCerts = (X509Certificate []) aValue;
     if (ArrayHelper.isEmpty (aRequestCerts))
     {
       // Empty array
       s_aLogger.warn ("No client certificates passed for validation");
-      return false;
+      return ClientCertificateValidationResult.createFailure ();
     }
 
     // OK, we have a non-empty, type checked Certificate array
@@ -287,13 +327,15 @@ public final class ClientCertificateValidator
         throw new IllegalStateException ("Found no client certificate that was issued by one of the required issuers.");
     }
 
+    final String sClientID = getClientUniqueID (aClientCertToVerify);
+
     // This is the main verification process against the PEPPOL SMP root
     // certificate
     String sVerifyErrorMsg = _verifyCertificate (aClientCertToVerify, s_aPeppolSMPRootCert, aCRLs, aVerificationDate);
     if (sVerifyErrorMsg == null)
     {
       s_aLogger.info ("  Passed client certificate is valid");
-      return true;
+      return ClientCertificateValidationResult.createSuccess (sClientID);
     }
 
     // try alternative (if present)
@@ -306,7 +348,7 @@ public final class ClientCertificateValidator
       if (sPeppolVerifyMsgAlternative == null)
       {
         s_aLogger.info ("  Passed client certificate is valid (alternative)");
-        return true;
+        return ClientCertificateValidationResult.createSuccess (sClientID);
       }
 
       sVerifyErrorMsg = sVerifyErrorMsg + ' ' + sPeppolVerifyMsgAlternative;
@@ -318,6 +360,6 @@ public final class ClientCertificateValidator
                     s_aPeppolSMPRootCert.getSerialNumber ().toString (16) +
                     "; root certficate issuer=" +
                     s_aPeppolSMPRootCert.getIssuerX500Principal ().getName ());
-    return false;
+    return ClientCertificateValidationResult.createFailure ();
   }
 }

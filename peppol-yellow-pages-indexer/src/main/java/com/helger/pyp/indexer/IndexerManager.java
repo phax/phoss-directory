@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.commons.ValueEnforcer;
+import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.annotation.UsedViaReflection;
 import com.helger.commons.microdom.IMicroDocument;
 import com.helger.commons.microdom.IMicroElement;
@@ -156,7 +157,8 @@ public final class IndexerManager extends AbstractGlobalSingleton
 
   @Nonnull
   public EChange queueWorkItem (@Nonnull final IParticipantIdentifier aParticipantID,
-                                @Nonnull final EIndexerWorkItemType eType)
+                                @Nonnull final EIndexerWorkItemType eType,
+                                @Nonnull @Nonempty final String sOwnerID)
   {
     // Build item
     final IndexerWorkItem aWorkItem = new IndexerWorkItem (aParticipantID, eType);

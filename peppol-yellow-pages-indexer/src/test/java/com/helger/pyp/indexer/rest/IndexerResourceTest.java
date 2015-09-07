@@ -43,6 +43,7 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 import com.helger.commons.random.VerySecureRandom;
 import com.helger.peppol.utils.KeyStoreHelper;
 import com.helger.pyp.indexer.PYPTestRule;
+import com.helger.pyp.indexer.clientcert.ClientCertificateValidator;
 import com.helger.web.https.DoNothingTrustManager;
 import com.helger.web.https.HostnameVerifierAlwaysTrue;
 

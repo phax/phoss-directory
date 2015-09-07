@@ -17,7 +17,6 @@
 package com.helger.pyp.indexer.rest;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.PUT;
@@ -26,9 +25,14 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.helger.peppol.identifier.participant.SimpleParticipantIdentifier;
 import com.helger.pyp.indexer.EIndexerWorkItemType;
 import com.helger.pyp.indexer.IndexerManager;
+import com.helger.pyp.indexer.clientcert.ClientCertificateValidationResult;
+import com.helger.pyp.indexer.clientcert.ClientCertificateValidator;
 
 /**
  * Indexer resource (exposed at "1.0" path)
@@ -38,44 +42,42 @@ import com.helger.pyp.indexer.IndexerManager;
 @Path ("1.0")
 public class IndexerResource
 {
+  private static final Logger s_aLogger = LoggerFactory.getLogger (IndexerResource.class);
+
   /**
    * Check if the current request contains a client certificate.
    *
    * @param aHttpServletRequest
    *        The current servlet request.
-   * @return A non-<code>null</code> error {@link Response} if no valid client
-   *         certificate is present, <code>null</code> if everything is fine.
+   * @return The validation result
    */
-  @Nullable
-  private static Response _checkClientCertificate (@Nonnull final HttpServletRequest aHttpServletRequest)
+  @Nonnull
+  private static ClientCertificateValidationResult _checkClientCertificate (@Nonnull final HttpServletRequest aHttpServletRequest)
   {
-    boolean bValid = false;
     try
     {
-      bValid = ClientCertificateValidator.isClientCertificateValid (aHttpServletRequest);
+      return ClientCertificateValidator.isClientCertificateValid (aHttpServletRequest);
     }
     catch (final RuntimeException ex)
-    {}
-
-    if (!bValid)
-      return Response.status (Response.Status.FORBIDDEN).build ();
-
-    return null;
+    {
+      s_aLogger.warn ("Error validating client certificate", ex);
+    }
+    return ClientCertificateValidationResult.createFailure ();
   }
 
   @PUT
   public Response createOrUpdateParticipant (@Context @Nonnull final HttpServletRequest aHttpServletRequest,
                                              @Nonnull final String sParticipantID)
   {
-    final Response aResponse = _checkClientCertificate (aHttpServletRequest);
-    if (aResponse != null)
-      return aResponse;
+    final ClientCertificateValidationResult aResult = _checkClientCertificate (aHttpServletRequest);
+    if (aResult.isFailure ())
+      return Response.status (Response.Status.FORBIDDEN).build ();
 
     // Parse identifier
     final SimpleParticipantIdentifier aPI = SimpleParticipantIdentifier.createFromURIPart (sParticipantID);
 
     // Queue for handling
-    IndexerManager.getInstance ().queueWorkItem (aPI, EIndexerWorkItemType.CREATE_UPDATE);
+    IndexerManager.getInstance ().queueWorkItem (aPI, EIndexerWorkItemType.CREATE_UPDATE, aResult.getClientID ());
 
     // And done
     return Response.noContent ().build ();
@@ -86,15 +88,15 @@ public class IndexerResource
   public Response deleteParticipant (@Context @Nonnull final HttpServletRequest aHttpServletRequest,
                                      @PathParam ("participantID") @Nonnull final String sParticipantID)
   {
-    final Response aResponse = _checkClientCertificate (aHttpServletRequest);
-    if (aResponse != null)
-      return aResponse;
+    final ClientCertificateValidationResult aResult = _checkClientCertificate (aHttpServletRequest);
+    if (aResult.isFailure ())
+      return Response.status (Response.Status.FORBIDDEN).build ();
 
     // Parse identifier
     final SimpleParticipantIdentifier aPI = SimpleParticipantIdentifier.createFromURIPart (sParticipantID);
 
     // Queue for handling
-    IndexerManager.getInstance ().queueWorkItem (aPI, EIndexerWorkItemType.DELETE);
+    IndexerManager.getInstance ().queueWorkItem (aPI, EIndexerWorkItemType.DELETE, aResult.getClientID ());
 
     // And done
     return Response.noContent ().build ();
