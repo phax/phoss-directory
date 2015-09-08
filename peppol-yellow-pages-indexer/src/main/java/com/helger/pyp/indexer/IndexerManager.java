@@ -1,6 +1,7 @@
 package com.helger.pyp.indexer;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -245,9 +246,9 @@ public final class IndexerManager extends AbstractGlobalSingleton
   }
 
   @Nonnull
-  private ESuccess _onCreateOrUpdate (@Nonnull final IPeppolParticipantIdentifier aParticipantID)
+  private ESuccess _onCreateOrUpdate (@Nonnull final IndexerWorkItem aItem) throws IOException
   {
-    s_aLogger.info ("On participant create/update: " + aParticipantID.getURIEncoded ());
+    final IPeppolParticipantIdentifier aParticipantID = aItem.getParticipantID ();
 
     // Fetch data
     final SMPClientReadOnly aSMPClient = new SMPClientReadOnly (aParticipantID, PYPSettings.getSMLToUse ());
@@ -269,14 +270,14 @@ public final class IndexerManager extends AbstractGlobalSingleton
       return ESuccess.SUCCESS;
     }
 
-    PYPStorageManager.getInstance ().createOrUpdateEntry (aParticipantID, aBI);
+    PYPStorageManager.getInstance ().createOrUpdateEntry (aParticipantID, aBI, aItem.getOwnerID ());
     return ESuccess.SUCCESS;
   }
 
   @Nonnull
-  private ESuccess _onDelete (@Nonnull final IPeppolParticipantIdentifier aParticipantID)
+  private ESuccess _onDelete (@Nonnull final IndexerWorkItem aItem) throws IOException
   {
-    s_aLogger.info ("On participant delete: " + aParticipantID.getURIEncoded ());
+    final IPeppolParticipantIdentifier aParticipantID = aItem.getParticipantID ();
 
     PYPStorageManager.getInstance ().deleteEntry (aParticipantID);
     return ESuccess.SUCCESS;
@@ -285,24 +286,34 @@ public final class IndexerManager extends AbstractGlobalSingleton
   @Nonnull
   private ESuccess _fetchParticipantData0 (@Nonnull final IndexerWorkItem aItem)
   {
-    ESuccess eSuccess;
-    switch (aItem.getType ())
-    {
-      case CREATE_UPDATE:
-        eSuccess = _onCreateOrUpdate (aItem.getParticipantID ());
-        break;
-      case DELETE:
-        eSuccess = _onDelete (aItem.getParticipantID ());
-        break;
-      default:
-        throw new IllegalStateException ("Unsupported item type: " + aItem);
-    }
+    s_aLogger.info ("On " + aItem.getLogText ());
 
-    if (eSuccess.isSuccess ())
+    try
     {
-      // Item handled - remove from overall list
-      _removeFromOverallList (aItem);
-      return ESuccess.SUCCESS;
+      ESuccess eSuccess;
+      switch (aItem.getType ())
+      {
+        case CREATE_UPDATE:
+          eSuccess = _onCreateOrUpdate (aItem);
+          break;
+        case DELETE:
+          eSuccess = _onDelete (aItem);
+          break;
+        default:
+          throw new IllegalStateException ("Unsupported item type: " + aItem);
+      }
+
+      if (eSuccess.isSuccess ())
+      {
+        // Item handled - remove from overall list
+        _removeFromOverallList (aItem);
+        return ESuccess.SUCCESS;
+      }
+    }
+    catch (final IOException ex)
+    {
+      s_aLogger.error ("Error in storage handling", ex);
+      // Fall through
     }
 
     return ESuccess.FAILURE;
@@ -372,10 +383,11 @@ public final class IndexerManager extends AbstractGlobalSingleton
   @Override
   public String toString ()
   {
-    return new ToStringGenerator (super.toString ()).append ("UniqueItems", m_aUniqueItems)
-                                                    .append ("ReIndexList", m_aReIndexList)
-                                                    .append ("IndexerWorkQueue", m_aIndexerWorkQueue)
-                                                    .append ("TriggerKey", m_aTriggerKey)
-                                                    .toString ();
+    return ToStringGenerator.getDerived (super.toString ())
+                            .append ("UniqueItems", m_aUniqueItems)
+                            .append ("ReIndexList", m_aReIndexList)
+                            .append ("IndexerWorkQueue", m_aIndexerWorkQueue)
+                            .append ("TriggerKey", m_aTriggerKey)
+                            .toString ();
   }
 }

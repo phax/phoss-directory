@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -77,39 +78,47 @@ public class PYPLucene extends AbstractGlobalSingleton
   }
 
   @Nonnull
-  public Analyzer getAnalyzer ()
+  public static Analyzer getAnalyzer ()
   {
-    return m_aAnalyzer;
+    return getInstance ().m_aAnalyzer;
   }
 
   @Nonnull
-  public IndexReader getReader ()
+  public static IndexReader getReader ()
   {
-    return m_aIndexReader;
+    return getInstance ().m_aIndexReader;
   }
 
   @Nonnull
-  public IndexWriter getWriter ()
+  public static IndexWriter getWriter ()
   {
-    return m_aIndexWriter;
+    return getInstance ().m_aIndexWriter;
   }
 
-  @Nonnull
+  @Nullable
   public IndexSearcher getSearcher () throws IOException
   {
-    final DirectoryReader aNewReader = m_aIndexReader != null ? DirectoryReader.openIfChanged (m_aIndexReader)
-                                                              : DirectoryReader.open (m_aDir);
-    if (aNewReader != null)
+    try
     {
-      // Something changed in the index
-      m_aIndexReader = aNewReader;
-      m_aSearcher = null;
+      final DirectoryReader aNewReader = m_aIndexReader != null ? DirectoryReader.openIfChanged (m_aIndexReader)
+                                                                : DirectoryReader.open (m_aDir);
+      if (aNewReader != null)
+      {
+        // Something changed in the index
+        m_aIndexReader = aNewReader;
+        m_aSearcher = null;
 
-      if (s_aLogger.isDebugEnabled ())
-        s_aLogger.debug ("Contents of index changed. Creating new searcher");
+        if (s_aLogger.isDebugEnabled ())
+          s_aLogger.debug ("Contents of index changed. Creating new searcher");
+      }
+      if (m_aSearcher == null)
+        m_aSearcher = new IndexSearcher (m_aIndexReader);
+      return m_aSearcher;
     }
-    if (m_aSearcher == null)
-      m_aSearcher = new IndexSearcher (m_aIndexReader);
-    return m_aSearcher;
+    catch (final IndexNotFoundException ex)
+    {
+      // No such index
+      return null;
+    }
   }
 }
