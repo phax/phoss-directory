@@ -78,19 +78,32 @@ public final class IndexerResourceTest
   private static BusinessInformationType _createMockBI (@Nonnull final IPeppolParticipantIdentifier aParticipantID)
   {
     final BusinessInformationType ret = new BusinessInformationType ();
-    final EntityType aEntity = new EntityType ();
-    aEntity.setCountryCode ("AT");
-    aEntity.setName ("Philip's mock PEPPOL receiver");
-    IdentifierType aID = new IdentifierType ();
-    aID.setType ("mock");
-    aID.setValue ("12345678");
-    aEntity.addIdentifier (aID);
-    aID = new IdentifierType ();
-    aID.setType ("provided");
-    aID.setValue (aParticipantID.getURIEncoded ());
-    aEntity.addIdentifier (aID);
-    aEntity.setFreeText ("This is a mock entry for testing purposes only");
-    ret.addEntity (aEntity);
+    {
+      final EntityType aEntity = new EntityType ();
+      aEntity.setCountryCode ("AT");
+      aEntity.setName ("Philip's mock PEPPOL receiver");
+      IdentifierType aID = new IdentifierType ();
+      aID.setType ("mock");
+      aID.setValue ("12345678");
+      aEntity.addIdentifier (aID);
+      aID = new IdentifierType ();
+      aID.setType ("provided");
+      aID.setValue (aParticipantID.getURIEncoded ());
+      aEntity.addIdentifier (aID);
+      aEntity.setFreeText ("This is a mock entry for testing purposes only");
+      ret.addEntity (aEntity);
+    }
+    {
+      final EntityType aEntity = new EntityType ();
+      aEntity.setCountryCode ("NO");
+      aEntity.setName ("Philip's mock PEPPOL receiver 2");
+      final IdentifierType aID = new IdentifierType ();
+      aID.setType ("mock");
+      aID.setValue ("abcdefgh");
+      aEntity.addIdentifier (aID);
+      aEntity.setFreeText ("This is another mock entry for testing purposes only");
+      ret.addEntity (aEntity);
+    }
     return ret;
   }
 

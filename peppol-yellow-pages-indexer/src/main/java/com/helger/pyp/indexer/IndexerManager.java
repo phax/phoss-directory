@@ -57,6 +57,7 @@ public final class IndexerManager extends AbstractGlobalSingleton
   private final IndexerWorkItemQueue m_aIndexerWorkQueue = new IndexerWorkItemQueue (this::_asyncFetchParticipantData);
   private final TriggerKey m_aTriggerKey;
   private IPYPBusinessInformationProvider m_aBIProvider = new SMPBusinessInformationProvider ();
+  private PYPStorageManager m_aStorageMgr;
 
   // Status vars
   private final GlobalQuartzScheduler m_aScheduler;
@@ -106,6 +107,13 @@ public final class IndexerManager extends AbstractGlobalSingleton
   public static IndexerManager getInstance ()
   {
     return getGlobalSingleton (IndexerManager.class);
+  }
+
+  @Override
+  protected void onAfterInstantiation (@Nonnull final IScope aScope)
+  {
+    // Remember here for timing issues
+    m_aStorageMgr = PYPStorageManager.getInstance ();
   }
 
   private static void _writeWorkItems (@Nonnull final List <IndexerWorkItem> aItems)
@@ -215,7 +223,7 @@ public final class IndexerManager extends AbstractGlobalSingleton
     }
 
     // Got data - put in storage
-    PYPStorageManager.getInstance ().createOrUpdateEntry (aParticipantID, aBI, aItem.getOwnerID ());
+    m_aStorageMgr.createOrUpdateEntry (aParticipantID, aBI, aItem.getOwnerID ());
     return ESuccess.SUCCESS;
   }
 
@@ -224,7 +232,7 @@ public final class IndexerManager extends AbstractGlobalSingleton
   {
     final IPeppolParticipantIdentifier aParticipantID = aItem.getParticipantID ();
 
-    PYPStorageManager.getInstance ().deleteEntry (aParticipantID);
+    m_aStorageMgr.deleteEntry (aParticipantID);
     return ESuccess.SUCCESS;
   }
 

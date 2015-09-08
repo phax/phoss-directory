@@ -25,5 +25,6 @@ public class PYPTestRule extends PhotonBasicWebTestRule
   {
     super.before ();
     GlobalIDFactory.setPersistentIntIDFactory (new WebIOIntIDFactory ("pyp-ids.dat"));
+    IndexerInitialization.initIndexer ();
   }
 }

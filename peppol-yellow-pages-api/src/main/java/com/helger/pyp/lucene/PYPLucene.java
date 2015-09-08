@@ -78,8 +78,11 @@ public final class PYPLucene extends AbstractGlobalSingleton
   protected void onDestroy (@Nonnull final IScope aScopeInDestructions) throws IOException
   {
     StreamHelper.close (m_aIndexReader);
+    if (m_aIndexWriter != null)
+      m_aIndexWriter.commit ();
     StreamHelper.close (m_aIndexWriter);
     StreamHelper.close (m_aDir);
+    s_aLogger.info ("Closed Lucene reader/writer/directory");
   }
 
   @Nonnull
