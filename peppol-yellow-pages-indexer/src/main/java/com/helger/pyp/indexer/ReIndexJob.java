@@ -1,5 +1,7 @@
 package com.helger.pyp.indexer;
 
+import java.util.Date;
+
 import javax.annotation.Nonnull;
 
 import org.quartz.DisallowConcurrentExecution;
@@ -18,7 +20,7 @@ import com.helger.schedule.quartz.GlobalQuartzScheduler;
 /**
  * A Quartz job that is scheduled to re-index existing entries that failed to
  * re-index previously.
- * 
+ *
  * @author Philip Helger
  */
 @DisallowConcurrentExecution
@@ -59,7 +61,8 @@ public class ReIndexJob extends AbstractPhotonJob
     setApplicationScopeID (sApplicationID);
     return GlobalQuartzScheduler.getInstance ().scheduleJob (ReIndexJob.class.getName (),
                                                              TriggerBuilder.newTrigger ()
-                                                                           .startNow ()
+                                                                           .startAt (new Date (new Date ().getTime () +
+                                                                                               5000))
                                                                            .withSchedule (aScheduleBuilder),
                                                              ReIndexJob.class,
                                                              null);

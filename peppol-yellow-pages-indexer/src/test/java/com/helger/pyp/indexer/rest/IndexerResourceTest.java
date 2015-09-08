@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 
+import javax.annotation.Nonnull;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -41,7 +42,12 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import com.helger.commons.random.VerySecureRandom;
+import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
 import com.helger.peppol.utils.KeyStoreHelper;
+import com.helger.pyp.businessinformation.BusinessInformationType;
+import com.helger.pyp.businessinformation.EntityType;
+import com.helger.pyp.businessinformation.IdentifierType;
+import com.helger.pyp.indexer.IndexerManager;
 import com.helger.pyp.indexer.PYPTestRule;
 import com.helger.pyp.indexer.clientcert.ClientCertificateValidator;
 import com.helger.web.https.DoNothingTrustManager;
@@ -67,6 +73,26 @@ public final class IndexerResourceTest
 
   private HttpServer m_aServer;
   private WebTarget m_aTarget;
+
+  @Nonnull
+  private static BusinessInformationType _createMockBI (@Nonnull final IPeppolParticipantIdentifier aParticipantID)
+  {
+    final BusinessInformationType ret = new BusinessInformationType ();
+    final EntityType aEntity = new EntityType ();
+    aEntity.setCountryCode ("AT");
+    aEntity.setName ("Philip's mock PEPPOL receiver");
+    IdentifierType aID = new IdentifierType ();
+    aID.setType ("mock");
+    aID.setValue ("12345678");
+    aEntity.addIdentifier (aID);
+    aID = new IdentifierType ();
+    aID.setType ("provided");
+    aID.setValue (aParticipantID.getURIEncoded ());
+    aEntity.addIdentifier (aID);
+    aEntity.setFreeText ("This is a mock entry for testing purposes only");
+    ret.addEntity (aEntity);
+    return ret;
+  }
 
   @Before
   public void setUp () throws GeneralSecurityException, IOException
@@ -115,6 +141,9 @@ public final class IndexerResourceTest
   @Test
   public void testCreateOrUpdateParticipant ()
   {
+    // Set test BI provider
+    IndexerManager.getInstance ().setBusinessInformationProvider (aParticipantID -> _createMockBI (aParticipantID));
+
     final String sResponseMsg = m_aTarget.path ("1.0").request ().put (Entity.text ("iso6523-actorid-upis::9915:test"),
                                                                        String.class);
     assertEquals ("", sResponseMsg);

@@ -26,7 +26,12 @@ import com.helger.commons.scope.IScope;
 import com.helger.commons.scope.singleton.AbstractGlobalSingleton;
 import com.helger.photon.basic.app.io.WebFileIO;
 
-public class PYPLucene extends AbstractGlobalSingleton
+/**
+ * The singleton wrapper around the Lucene index to be used in PYP.
+ *
+ * @author Philip Helger
+ */
+public final class PYPLucene extends AbstractGlobalSingleton
 {
   private static final Logger s_aLogger = LoggerFactory.getLogger (PYPLucene.class);
 
@@ -78,21 +83,21 @@ public class PYPLucene extends AbstractGlobalSingleton
   }
 
   @Nonnull
-  public static Analyzer getAnalyzer ()
+  public Analyzer getAnalyzer ()
   {
-    return getInstance ().m_aAnalyzer;
+    return m_aAnalyzer;
   }
 
   @Nonnull
-  public static IndexReader getReader ()
+  public IndexReader getReader ()
   {
-    return getInstance ().m_aIndexReader;
+    return m_aIndexReader;
   }
 
   @Nonnull
-  public static IndexWriter getWriter ()
+  public IndexWriter getWriter ()
   {
-    return getInstance ().m_aIndexWriter;
+    return m_aIndexWriter;
   }
 
   @Nullable

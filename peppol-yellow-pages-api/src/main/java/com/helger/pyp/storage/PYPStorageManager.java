@@ -16,10 +16,13 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.SimpleCollector;
 import org.apache.lucene.search.TermQuery;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.annotation.UsedViaReflection;
+import com.helger.commons.scope.IScope;
 import com.helger.commons.scope.singleton.AbstractGlobalSingleton;
 import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
 import com.helger.pyp.businessinformation.BusinessInformationType;
@@ -34,6 +37,8 @@ import com.helger.pyp.lucene.PYPLucene;
  */
 public final class PYPStorageManager extends AbstractGlobalSingleton
 {
+  private static final Logger s_aLogger = LoggerFactory.getLogger (PYPStorageManager.class);
+
   private static final String FIELD_PARTICIPANTID = "participantid";
   private static final String FIELD_OWNERID = "ownerid";
   private static final String FIELD_COUNTRY = "country";
@@ -46,10 +51,20 @@ public final class PYPStorageManager extends AbstractGlobalSingleton
   private static final IntField FIELD_VALUE_DELETED = new IntField (FIELD_DELETED, 1, Store.NO);
   private static final IntField FIELD_VALUE_NOT_DELETED = new IntField (FIELD_DELETED, 0, Store.NO);
 
+  private PYPLucene m_aLucene;
+
   @Deprecated
   @UsedViaReflection
   public PYPStorageManager ()
   {}
+
+  @Override
+  protected void onAfterInstantiation (@Nonnull final IScope aScope)
+  {
+    // Remember once to work safely even if this happens in parallel to global
+    // shutdown
+    m_aLucene = PYPLucene.getInstance ();
+  }
 
   /**
    * @return The one and only instance of this class. Never <code>null</code>.
@@ -79,7 +94,7 @@ public final class PYPStorageManager extends AbstractGlobalSingleton
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
 
     final List <Document> aDocuments = new ArrayList <> ();
-    final IndexSearcher aSearcher = PYPLucene.getInstance ().getSearcher ();
+    final IndexSearcher aSearcher = m_aLucene.getSearcher ();
     if (aSearcher != null)
     {
       aSearcher.search (new TermQuery (_createTerm (aParticipantID)), new SimpleCollector ()
@@ -92,7 +107,7 @@ public final class PYPStorageManager extends AbstractGlobalSingleton
         @Override
         public void collect (final int doc) throws IOException
         {
-          final Document aDoc = PYPLucene.getReader ().document (doc);
+          final Document aDoc = m_aLucene.getReader ().document (doc);
           aDocuments.add (aDoc);
         }
       });
@@ -104,9 +119,11 @@ public final class PYPStorageManager extends AbstractGlobalSingleton
       {
         aDocument.add (FIELD_VALUE_DELETED);
       }
-      PYPLucene.getWriter ().updateDocuments (_createTerm (aParticipantID), aDocuments);
-      PYPLucene.getWriter ().commit ();
+      m_aLucene.getWriter ().updateDocuments (_createTerm (aParticipantID), aDocuments);
+      m_aLucene.getWriter ().commit ();
     }
+
+    s_aLogger.info ("Marked " + aDocuments.size () + " Lucene documents as deleted");
   }
 
   public void createOrUpdateEntry (@Nonnull final IPeppolParticipantIdentifier aParticipantID,
@@ -116,7 +133,7 @@ public final class PYPStorageManager extends AbstractGlobalSingleton
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
 
     // Delete all existing documents of the participant ID
-    PYPLucene.getWriter ().deleteDocuments (_createTerm (aParticipantID));
+    m_aLucene.getWriter ().deleteDocuments (_createTerm (aParticipantID));
 
     for (final EntityType aEntity : aBI.getEntity ())
     {
@@ -148,10 +165,12 @@ public final class PYPStorageManager extends AbstractGlobalSingleton
         aDoc.add (new TextField (FIELD_FREETEXT, aEntity.getFreeText (), Store.YES));
 
       // Add to index
-      PYPLucene.getWriter ().addDocument (aDoc);
+      m_aLucene.getWriter ().addDocument (aDoc);
     }
 
     // Finally commit
-    PYPLucene.getWriter ().commit ();
+    m_aLucene.getWriter ().commit ();
+
+    s_aLogger.info ("Added " + aBI.getEntityCount () + " Lucene documents");
   }
 }
