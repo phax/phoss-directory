@@ -1,3 +1,19 @@
+/**
+ * Copyright (C) 2015 Philip Helger (www.helger.com)
+ * philip[at]helger[dot]com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.helger.pyp.storage;
 
 import java.io.Closeable;
@@ -65,16 +81,7 @@ public final class PYPStorageManager implements Closeable
 
   private static final Logger s_aLogger = LoggerFactory.getLogger (PYPStorageManager.class);
 
-  private static final String FIELD_PARTICIPANTID = "participantid";
-  private static final String FIELD_OWNERID = "ownerid";
-  private static final String FIELD_COUNTRY = "country";
-  private static final String FIELD_NAME = "name";
-  private static final String FIELD_GEOINFO = "geoinfo";
-  private static final String FIELD_IDENTIFIERS = "identifiers";
-  private static final String FIELD_FREETEXT = "freetext";
-  private static final String FIELD_DELETED = "deleted";
-
-  private static final IntField FIELD_VALUE_DELETED = new IntField (FIELD_DELETED, 1, Store.NO);
+  private static final IntField FIELD_VALUE_DELETED = new IntField (CPYPStorage.FIELD_DELETED, 1, Store.NO);
 
   private final PYPLucene m_aLucene;
 
@@ -91,7 +98,7 @@ public final class PYPStorageManager implements Closeable
   @Nonnull
   private static Term _createTerm (@Nonnull final IPeppolParticipantIdentifier aParticipantID)
   {
-    return new Term (FIELD_PARTICIPANTID, aParticipantID.getURIEncoded ());
+    return new Term (CPYPStorage.FIELD_PARTICIPANTID, aParticipantID.getURIEncoded ());
   }
 
   public boolean containsEntry (@Nullable final IPeppolParticipantIdentifier aParticipantID) throws IOException
@@ -104,10 +111,10 @@ public final class PYPStorageManager implements Closeable
       if (aSearcher != null)
       {
         // Search only documents that do not have the deleted field
-        final TopDocs aTopDocs = aSearcher.search (new BooleanQuery.Builder ().add (new TermQuery (new Term (FIELD_PARTICIPANTID,
+        final TopDocs aTopDocs = aSearcher.search (new BooleanQuery.Builder ().add (new TermQuery (new Term (CPYPStorage.FIELD_PARTICIPANTID,
                                                                                                              aParticipantID.getURIEncoded ())),
                                                                                     Occur.MUST)
-                                                                              .add (new TermQuery (new Term (FIELD_DELETED)),
+                                                                              .add (new TermQuery (new Term (CPYPStorage.FIELD_DELETED)),
                                                                                     Occur.MUST_NOT)
                                                                               .build (),
                                                    1);
@@ -169,21 +176,22 @@ public final class PYPStorageManager implements Closeable
       {
         // Convert entity to Lucene document
         final Document aDoc = new Document ();
-        aDoc.add (new StringField (FIELD_PARTICIPANTID, aParticipantID.getURIEncoded (), Store.YES));
-        aDoc.add (new StringField (FIELD_OWNERID, sOwnerID, Store.YES));
+        aDoc.add (new StringField (CPYPStorage.FIELD_PARTICIPANTID, aParticipantID.getURIEncoded (), Store.YES));
+        aDoc.add (new StringField (CPYPStorage.FIELD_OWNERID, sOwnerID, Store.YES));
         if (aEntity.getCountryCode () != null)
-          aDoc.add (new StringField (FIELD_COUNTRY, aEntity.getCountryCode (), Store.YES));
+          aDoc.add (new StringField (CPYPStorage.FIELD_COUNTRY, aEntity.getCountryCode (), Store.YES));
         if (aEntity.getName () != null)
-          aDoc.add (new TextField (FIELD_NAME, aEntity.getName (), Store.YES));
+          aDoc.add (new TextField (CPYPStorage.FIELD_NAME, aEntity.getName (), Store.YES));
         if (aEntity.getGeoInfo () != null)
-          aDoc.add (new TextField (FIELD_GEOINFO, aEntity.getGeoInfo (), Store.YES));
+          aDoc.add (new TextField (CPYPStorage.FIELD_GEOINFO, aEntity.getGeoInfo (), Store.YES));
 
         for (final IdentifierType aIdentifier : aEntity.getIdentifier ())
-          aDoc.add (new TextField (FIELD_IDENTIFIERS,
-                                   aIdentifier.getType () + ' ' + aIdentifier.getValue (),
-                                   Store.YES));
+        {
+          aDoc.add (new TextField (CPYPStorage.FIELD_IDENTIFIER_TYPE, aIdentifier.getType (), Store.YES));
+          aDoc.add (new TextField (CPYPStorage.FIELD_IDENTIFIER, aIdentifier.getValue (), Store.YES));
+        }
         if (aEntity.getFreeText () != null)
-          aDoc.add (new TextField (FIELD_FREETEXT, aEntity.getFreeText (), Store.YES));
+          aDoc.add (new TextField (CPYPStorage.FIELD_FREETEXT, aEntity.getFreeText (), Store.YES));
 
         // Add to index
         aWriter.addDocument (aDoc);
