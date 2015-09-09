@@ -16,6 +16,8 @@
  */
 package com.helger.pyp.indexer.rest;
 
+import java.io.IOException;
+
 import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DELETE;
@@ -86,7 +88,7 @@ public class IndexerResource
   @DELETE
   @Path ("{participantID}")
   public Response deleteParticipant (@Context @Nonnull final HttpServletRequest aHttpServletRequest,
-                                     @PathParam ("participantID") @Nonnull final String sParticipantID)
+                                     @PathParam ("participantID") @Nonnull final String sParticipantID) throws IOException
   {
     final ClientCertificateValidationResult aResult = _checkClientCertificate (aHttpServletRequest);
     if (aResult.isFailure ())

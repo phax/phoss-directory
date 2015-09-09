@@ -15,9 +15,12 @@ import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.search.BooleanClause.Occur;
+import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.SimpleCollector;
 import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.TopDocs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +40,28 @@ import com.helger.pyp.lucene.PYPLucene;
  */
 public final class PYPStorageManager implements Closeable
 {
+  public final class AllDocumentsCollector extends SimpleCollector
+  {
+    private final List <Document> m_aTarget;
+
+    public AllDocumentsCollector (final List <Document> aTargetList)
+    {
+      m_aTarget = aTargetList;
+    }
+
+    public boolean needsScores ()
+    {
+      return false;
+    }
+
+    @Override
+    public void collect (final int doc) throws IOException
+    {
+      final Document aDoc = m_aLucene.getReader ().document (doc);
+      m_aTarget.add (aDoc);
+    }
+  }
+
   private static final Logger s_aLogger = LoggerFactory.getLogger (PYPStorageManager.class);
 
   private static final String FIELD_PARTICIPANTID = "participantid";
@@ -49,7 +74,6 @@ public final class PYPStorageManager implements Closeable
   private static final String FIELD_DELETED = "deleted";
 
   private static final IntField FIELD_VALUE_DELETED = new IntField (FIELD_DELETED, 1, Store.NO);
-  private static final IntField FIELD_VALUE_NOT_DELETED = new IntField (FIELD_DELETED, 0, Store.NO);
 
   private final PYPLucene m_aLucene;
 
@@ -69,56 +93,57 @@ public final class PYPStorageManager implements Closeable
     return new Term (FIELD_PARTICIPANTID, aParticipantID.getURIEncoded ());
   }
 
-  public boolean containsEntry (@Nullable final IPeppolParticipantIdentifier aParticipantID)
+  public boolean containsEntry (@Nullable final IPeppolParticipantIdentifier aParticipantID) throws IOException
   {
     if (aParticipantID == null)
       return false;
 
-    return true;
+    return m_aLucene.runAtomic ( () -> {
+      final IndexSearcher aSearcher = m_aLucene.getSearcher ();
+      if (aSearcher != null)
+      {
+        // Search only documents that do not have the deleted field
+        final TopDocs aTopDocs = aSearcher.search (new BooleanQuery.Builder ().add (new TermQuery (new Term (FIELD_PARTICIPANTID,
+                                                                                                             aParticipantID.getURIEncoded ())),
+                                                                                    Occur.MUST)
+                                                                              .add (new TermQuery (new Term (FIELD_DELETED)),
+                                                                                    Occur.MUST_NOT)
+                                                                              .build (),
+                                                   1);
+        if (aTopDocs.totalHits > 0)
+          return Boolean.TRUE;
+      }
+      return Boolean.FALSE;
+    }).booleanValue ();
   }
 
+  @Nonnull
   public ESuccess deleteEntry (@Nonnull final IPeppolParticipantIdentifier aParticipantID) throws IOException
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
 
-    // Get all documents to be marked as deleted
-    final List <Document> aDocuments = new ArrayList <> ();
-    final IndexSearcher aSearcher = m_aLucene.getSearcher ();
-    if (aSearcher != null)
-    {
-      aSearcher.search (new TermQuery (_createTerm (aParticipantID)), new SimpleCollector ()
+    return m_aLucene.runAtomic ( () -> {
+      final List <Document> aDocuments = new ArrayList <> ();
+
+      // Get all documents to be marked as deleted
+      final IndexSearcher aSearcher = m_aLucene.getSearcher ();
+      if (aSearcher != null)
+        aSearcher.search (new TermQuery (_createTerm (aParticipantID)), new AllDocumentsCollector (aDocuments));
+
+      if (!aDocuments.isEmpty ())
       {
-        public boolean needsScores ()
-        {
-          return false;
-        }
+        // Mark document as deleted
+        for (final Document aDocument : aDocuments)
+          aDocument.add (FIELD_VALUE_DELETED);
 
-        @Override
-        public void collect (final int doc) throws IOException
-        {
-          final Document aDoc = m_aLucene.getReader ().document (doc);
-          aDocuments.add (aDoc);
-        }
-      });
-    }
-
-    if (!aDocuments.isEmpty ())
-    {
-      // Mark document as deleted
-      for (final Document aDocument : aDocuments)
-        aDocument.add (FIELD_VALUE_DELETED);
-
-      // Update the documents
-      if (m_aLucene.runLocked ( () -> {
+        // Update the documents
         final IndexWriter aWriter = m_aLucene.getWriter ();
         aWriter.updateDocuments (_createTerm (aParticipantID), aDocuments);
         aWriter.commit ();
-      }).isFailure ())
-        return ESuccess.FAILURE;
-    }
+      }
 
-    s_aLogger.info ("Marked " + aDocuments.size () + " Lucene documents as deleted");
-    return ESuccess.SUCCESS;
+      s_aLogger.info ("Marked " + aDocuments.size () + " Lucene documents as deleted");
+    });
   }
 
   @Nonnull
@@ -128,7 +153,7 @@ public final class PYPStorageManager implements Closeable
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
 
-    return m_aLucene.runLocked ( () -> {
+    return m_aLucene.runAtomic ( () -> {
       final IndexWriter aWriter = m_aLucene.getWriter ();
 
       // Delete all existing documents of the participant ID
@@ -147,19 +172,10 @@ public final class PYPStorageManager implements Closeable
         if (aEntity.getGeoInfo () != null)
           aDoc.add (new TextField (FIELD_GEOINFO, aEntity.getGeoInfo (), Store.YES));
 
-        {
-          // Combine all identifiers into a single text field
-          final StringBuilder aIdentifierTexts = new StringBuilder ();
-          for (final IdentifierType aIdentifier : aEntity.getIdentifier ())
-          {
-            if (aIdentifierTexts.length () > 0)
-              aIdentifierTexts.append ('\n');
-            aIdentifierTexts.append (aIdentifier.getType ()).append ('\n').append (aIdentifier.getValue ());
-          }
-          if (aIdentifierTexts.length () > 0)
-            aDoc.add (new TextField (FIELD_IDENTIFIERS, aIdentifierTexts.toString (), Store.YES));
-          aDoc.add (FIELD_VALUE_NOT_DELETED);
-        }
+        for (final IdentifierType aIdentifier : aEntity.getIdentifier ())
+          aDoc.add (new TextField (FIELD_IDENTIFIERS,
+                                   aIdentifier.getType () + ' ' + aIdentifier.getValue (),
+                                   Store.YES));
         if (aEntity.getFreeText () != null)
           aDoc.add (new TextField (FIELD_FREETEXT, aEntity.getFreeText (), Store.YES));
 

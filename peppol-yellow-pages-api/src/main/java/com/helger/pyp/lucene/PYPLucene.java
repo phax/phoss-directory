@@ -24,6 +24,7 @@ import org.apache.lucene.store.FSDirectory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.helger.commons.callback.IThrowingCallable;
 import com.helger.commons.callback.IThrowingRunnable;
 import com.helger.commons.io.stream.StreamHelper;
 import com.helger.commons.state.ESuccess;
@@ -154,8 +155,15 @@ public final class PYPLucene implements Closeable
     }
   }
 
+  /**
+   * @param aRunnable
+   *        Callback to be executed
+   * @return {@link ESuccess#FAILURE} if the index is just closing
+   * @throws IOException
+   *         may be thrown by the callback
+   */
   @Nonnull
-  public ESuccess runLocked (@Nonnull final IThrowingRunnable <IOException> aRunnable) throws IOException
+  public ESuccess runAtomic (@Nonnull final IThrowingRunnable <IOException> aRunnable) throws IOException
   {
     m_aLock.lock ();
     try
@@ -169,5 +177,28 @@ public final class PYPLucene implements Closeable
       m_aLock.unlock ();
     }
     return ESuccess.SUCCESS;
+  }
+
+  /**
+   * @param aRunnable
+   *        Callback to be executed
+   * @return <code>null</code> if the index is just closing
+   * @throws IOException
+   *         may be thrown by the callback
+   */
+  @Nonnull
+  public <T> T runAtomic (@Nonnull final IThrowingCallable <T, IOException> aRunnable) throws IOException
+  {
+    m_aLock.lock ();
+    try
+    {
+      if (isClosing ())
+        return null;
+      return aRunnable.call ();
+    }
+    finally
+    {
+      m_aLock.unlock ();
+    }
   }
 }

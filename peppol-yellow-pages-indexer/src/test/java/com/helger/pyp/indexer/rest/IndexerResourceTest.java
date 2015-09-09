@@ -17,6 +17,8 @@
 package com.helger.pyp.indexer.rest;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,7 +44,9 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import com.helger.commons.random.VerySecureRandom;
+import com.helger.commons.thread.ThreadHelper;
 import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
+import com.helger.peppol.identifier.participant.SimpleParticipantIdentifier;
 import com.helger.peppol.utils.KeyStoreHelper;
 import com.helger.pyp.businessinformation.BusinessInformationType;
 import com.helger.pyp.businessinformation.EntityType;
@@ -152,23 +156,25 @@ public final class IndexerResourceTest
   }
 
   @Test
-  public void testCreateOrUpdateParticipant ()
+  public void testCreateAndDeleteParticipant () throws IOException
   {
     // Set test BI provider
     PYPMetaManager.getIndexerMgr ().setBusinessInformationProvider (aParticipantID -> _createMockBI (aParticipantID));
 
-    final String sResponseMsg = m_aTarget.path ("1.0").request ().put (Entity.text ("iso6523-actorid-upis::9915:test"),
-                                                                       String.class);
-    assertEquals ("", sResponseMsg);
-  }
+    final SimpleParticipantIdentifier aPI = SimpleParticipantIdentifier.createWithDefaultScheme ("9915:test");
 
-  @Test
-  public void testDeleteParticipant ()
-  {
-    final String sResponseMsg = m_aTarget.path ("1.0")
-                                         .path ("iso6523-actorid-upis::9915:test")
-                                         .request ()
-                                         .delete (String.class);
+    // Create
+    String sResponseMsg = m_aTarget.path ("1.0").request ().put (Entity.text (aPI.getURIEncoded ()), String.class);
     assertEquals ("", sResponseMsg);
+
+    ThreadHelper.sleep (500);
+    assertTrue (PYPMetaManager.getStorageMgr ().containsEntry (aPI));
+
+    // Delete
+    sResponseMsg = m_aTarget.path ("1.0").path (aPI.getURIEncoded ()).request ().delete (String.class);
+    assertEquals ("", sResponseMsg);
+
+    ThreadHelper.sleep (500);
+    assertFalse (PYPMetaManager.getStorageMgr ().containsEntry (aPI));
   }
 }
