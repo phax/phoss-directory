@@ -85,6 +85,17 @@ public final class IndexerManager implements Closeable
     m_aScheduler = GlobalQuartzScheduler.getInstance ();
   }
 
+  /**
+   * Read all work items persisted to disk. This happens when the application is
+   * shutdown while elements are still in the queue. This should be called
+   * directly after the constructor. But please note that the queuing of the
+   * items might directly trigger the usage of the
+   * {@link #getBusinessInformationProvider()} so make sure to call
+   * {@link #setBusinessInformationProvider(IPYPBusinessInformationProvider)}
+   * before calling this method.
+   *
+   * @return this for chaining
+   */
   @Nonnull
   public IndexerManager readAndQueueInitialData ()
   {
@@ -106,6 +117,13 @@ public final class IndexerManager implements Closeable
     return this;
   }
 
+  /**
+   * Write all work items to a file.
+   *
+   * @param aItems
+   *        The items to be written. May not be <code>null</code> but maybe
+   *        empty.
+   */
   private void _writeWorkItems (@Nonnull final List <IndexerWorkItem> aItems)
   {
     if (!aItems.isEmpty ())
@@ -239,7 +257,7 @@ public final class IndexerManager implements Closeable
   {
     final IPeppolParticipantIdentifier aParticipantID = aItem.getParticipantID ();
 
-    return m_aStorageMgr.deleteEntry (aParticipantID);
+    return m_aStorageMgr.deleteEntry (aParticipantID, aItem.getOwnerID ());
   }
 
   @Nonnull

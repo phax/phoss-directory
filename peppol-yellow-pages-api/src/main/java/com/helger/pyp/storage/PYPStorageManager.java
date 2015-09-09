@@ -28,6 +28,7 @@ import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.state.ESuccess;
 import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
+import com.helger.photon.basic.security.audit.AuditHelper;
 import com.helger.pyp.businessinformation.BusinessInformationType;
 import com.helger.pyp.businessinformation.EntityType;
 import com.helger.pyp.businessinformation.IdentifierType;
@@ -118,7 +119,8 @@ public final class PYPStorageManager implements Closeable
   }
 
   @Nonnull
-  public ESuccess deleteEntry (@Nonnull final IPeppolParticipantIdentifier aParticipantID) throws IOException
+  public ESuccess deleteEntry (@Nonnull final IPeppolParticipantIdentifier aParticipantID,
+                               @Nonnull @Nonempty final String sOwnerID) throws IOException
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
 
@@ -143,6 +145,10 @@ public final class PYPStorageManager implements Closeable
       }
 
       s_aLogger.info ("Marked " + aDocuments.size () + " Lucene documents as deleted");
+      AuditHelper.onAuditExecuteSuccess ("pyp-indexer-delete",
+                                         aParticipantID.getURIEncoded (),
+                                         Integer.valueOf (aDocuments.size ()),
+                                         sOwnerID);
     });
   }
 
@@ -187,6 +193,10 @@ public final class PYPStorageManager implements Closeable
       aWriter.commit ();
 
       s_aLogger.info ("Added " + aBI.getEntityCount () + " Lucene documents");
+      AuditHelper.onAuditExecuteSuccess ("pyp-indxer-create",
+                                         aParticipantID.getURIEncoded (),
+                                         Integer.valueOf (aBI.getEntityCount ()),
+                                         sOwnerID);
     });
   }
 }
