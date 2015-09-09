@@ -206,8 +206,7 @@ public final class IndexerManager implements Closeable
     }
 
     // Got data - put in storage
-    m_aStorageMgr.createOrUpdateEntry (aParticipantID, aBI, aItem.getOwnerID ());
-    return ESuccess.SUCCESS;
+    return m_aStorageMgr.createOrUpdateEntry (aParticipantID, aBI, aItem.getOwnerID ());
   }
 
   @Nonnull
@@ -215,8 +214,7 @@ public final class IndexerManager implements Closeable
   {
     final IPeppolParticipantIdentifier aParticipantID = aItem.getParticipantID ();
 
-    m_aStorageMgr.deleteEntry (aParticipantID);
-    return ESuccess.SUCCESS;
+    return m_aStorageMgr.deleteEntry (aParticipantID);
   }
 
   @Nonnull
@@ -269,6 +267,7 @@ public final class IndexerManager implements Closeable
 
     if (eSuccess.isFailure ())
     {
+      s_aLogger.warn ("Error fetching " + aItem.getLogText ());
       // Failed to fetch participant data - add to re-index queue and leave in
       // the overall list
       m_aReIndexList.addItem (new ReIndexWorkItem (aItem));

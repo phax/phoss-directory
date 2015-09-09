@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.commons.callback.IThrowingRunnable;
 import com.helger.commons.io.stream.StreamHelper;
+import com.helger.commons.state.ESuccess;
 import com.helger.photon.basic.app.io.WebFileIO;
 
 /**
@@ -150,16 +151,20 @@ public final class PYPLucene implements Closeable
     }
   }
 
-  public void runLocked (@Nonnull final IThrowingRunnable <IOException> aRunnable) throws IOException
+  @Nonnull
+  public ESuccess runLocked (@Nonnull final IThrowingRunnable <IOException> aRunnable) throws IOException
   {
     m_aLock.lock ();
     try
     {
+      if (isClosing ())
+        return ESuccess.FAILURE;
       aRunnable.run ();
     }
     finally
     {
       m_aLock.unlock ();
     }
+    return ESuccess.SUCCESS;
   }
 }

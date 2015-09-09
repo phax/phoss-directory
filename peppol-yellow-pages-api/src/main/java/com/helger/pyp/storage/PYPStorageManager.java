@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
+import com.helger.commons.state.ESuccess;
 import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
 import com.helger.pyp.businessinformation.BusinessInformationType;
 import com.helger.pyp.businessinformation.EntityType;
@@ -70,10 +71,11 @@ public final class PYPStorageManager
     return true;
   }
 
-  public void deleteEntry (@Nonnull final IPeppolParticipantIdentifier aParticipantID) throws IOException
+  public ESuccess deleteEntry (@Nonnull final IPeppolParticipantIdentifier aParticipantID) throws IOException
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
 
+    // Get all documents to be marked as deleted
     final List <Document> aDocuments = new ArrayList <> ();
     final IndexSearcher aSearcher = m_aLucene.getSearcher ();
     if (aSearcher != null)
@@ -96,68 +98,73 @@ public final class PYPStorageManager
 
     if (!aDocuments.isEmpty ())
     {
+      // Mark document as deleted
       for (final Document aDocument : aDocuments)
-      {
         aDocument.add (FIELD_VALUE_DELETED);
-      }
 
-      m_aLucene.runLocked ( () -> {
+      // Update the documents
+      if (m_aLucene.runLocked ( () -> {
         final IndexWriter aWriter = m_aLucene.getWriter ();
         aWriter.updateDocuments (_createTerm (aParticipantID), aDocuments);
         aWriter.commit ();
-      });
+      }).isFailure ())
+        return ESuccess.FAILURE;
     }
 
     s_aLogger.info ("Marked " + aDocuments.size () + " Lucene documents as deleted");
+    return ESuccess.SUCCESS;
   }
 
-  public void createOrUpdateEntry (@Nonnull final IPeppolParticipantIdentifier aParticipantID,
-                                   @Nonnull final BusinessInformationType aBI,
-                                   @Nonnull @Nonempty final String sOwnerID) throws IOException
+  @Nonnull
+  public ESuccess createOrUpdateEntry (@Nonnull final IPeppolParticipantIdentifier aParticipantID,
+                                       @Nonnull final BusinessInformationType aBI,
+                                       @Nonnull @Nonempty final String sOwnerID) throws IOException
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
 
-    final IndexWriter aWriter = m_aLucene.getWriter ();
+    return m_aLucene.runLocked ( () -> {
+      final IndexWriter aWriter = m_aLucene.getWriter ();
 
-    // Delete all existing documents of the participant ID
-    aWriter.deleteDocuments (_createTerm (aParticipantID));
+      // Delete all existing documents of the participant ID
+      aWriter.deleteDocuments (_createTerm (aParticipantID));
 
-    for (final EntityType aEntity : aBI.getEntity ())
-    {
-      // Convert entity to Lucene document
-      final Document aDoc = new Document ();
-      aDoc.add (new StringField (FIELD_PARTICIPANTID, aParticipantID.getURIEncoded (), Store.YES));
-      aDoc.add (new StringField (FIELD_OWNERID, sOwnerID, Store.YES));
-      if (aEntity.getCountryCode () != null)
-        aDoc.add (new StringField (FIELD_COUNTRY, aEntity.getCountryCode (), Store.YES));
-      if (aEntity.getName () != null)
-        aDoc.add (new TextField (FIELD_NAME, aEntity.getName (), Store.YES));
-      if (aEntity.getGeoInfo () != null)
-        aDoc.add (new TextField (FIELD_GEOINFO, aEntity.getGeoInfo (), Store.YES));
-
+      for (final EntityType aEntity : aBI.getEntity ())
       {
-        // Combine all identifiers into a single text field
-        final StringBuilder aIdentifierTexts = new StringBuilder ();
-        for (final IdentifierType aIdentifier : aEntity.getIdentifier ())
+        // Convert entity to Lucene document
+        final Document aDoc = new Document ();
+        aDoc.add (new StringField (FIELD_PARTICIPANTID, aParticipantID.getURIEncoded (), Store.YES));
+        aDoc.add (new StringField (FIELD_OWNERID, sOwnerID, Store.YES));
+        if (aEntity.getCountryCode () != null)
+          aDoc.add (new StringField (FIELD_COUNTRY, aEntity.getCountryCode (), Store.YES));
+        if (aEntity.getName () != null)
+          aDoc.add (new TextField (FIELD_NAME, aEntity.getName (), Store.YES));
+        if (aEntity.getGeoInfo () != null)
+          aDoc.add (new TextField (FIELD_GEOINFO, aEntity.getGeoInfo (), Store.YES));
+
         {
+          // Combine all identifiers into a single text field
+          final StringBuilder aIdentifierTexts = new StringBuilder ();
+          for (final IdentifierType aIdentifier : aEntity.getIdentifier ())
+          {
+            if (aIdentifierTexts.length () > 0)
+              aIdentifierTexts.append ('\n');
+            aIdentifierTexts.append (aIdentifier.getType ()).append ('\n').append (aIdentifier.getValue ());
+          }
           if (aIdentifierTexts.length () > 0)
-            aIdentifierTexts.append ('\n');
-          aIdentifierTexts.append (aIdentifier.getType ()).append ('\n').append (aIdentifier.getValue ());
+            aDoc.add (new TextField (FIELD_IDENTIFIERS, aIdentifierTexts.toString (), Store.YES));
+          aDoc.add (FIELD_VALUE_NOT_DELETED);
         }
-        if (aIdentifierTexts.length () > 0)
-          aDoc.add (new TextField (FIELD_IDENTIFIERS, aIdentifierTexts.toString (), Store.YES));
-        aDoc.add (FIELD_VALUE_NOT_DELETED);
+        if (aEntity.getFreeText () != null)
+          aDoc.add (new TextField (FIELD_FREETEXT, aEntity.getFreeText (), Store.YES));
+
+        // Add to index
+        aWriter.addDocument (aDoc);
       }
-      if (aEntity.getFreeText () != null)
-        aDoc.add (new TextField (FIELD_FREETEXT, aEntity.getFreeText (), Store.YES));
 
-      // Add to index
-      aWriter.addDocument (aDoc);
-    }
+      // Finally commit
+      aWriter.commit ();
 
-    // Finally commit
-    aWriter.commit ();
-
-    s_aLogger.info ("Added " + aBI.getEntityCount () + " Lucene documents");
+      s_aLogger.info ("Added " + aBI.getEntityCount () + " Lucene documents");
+    });
   }
 }
