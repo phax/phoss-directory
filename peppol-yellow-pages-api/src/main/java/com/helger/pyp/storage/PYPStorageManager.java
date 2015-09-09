@@ -193,7 +193,7 @@ public final class PYPStorageManager implements Closeable
       aWriter.commit ();
 
       s_aLogger.info ("Added " + aBI.getEntityCount () + " Lucene documents");
-      AuditHelper.onAuditExecuteSuccess ("pyp-indxer-create",
+      AuditHelper.onAuditExecuteSuccess ("pyp-indexer-create",
                                          aParticipantID.getURIEncoded (),
                                          Integer.valueOf (aBI.getEntityCount ()),
                                          sOwnerID);
