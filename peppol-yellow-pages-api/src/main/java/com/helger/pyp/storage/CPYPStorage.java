@@ -23,7 +23,7 @@ public final class CPYPStorage
 {
   static final String FIELD_PARTICIPANTID = "participantid";
   static final String FIELD_OWNERID = "ownerid";
-  static final String FIELD_COUNTRY = "country";
+  static final String FIELD_COUNTRY_CODE = "country";
   static final String FIELD_NAME = "name";
   static final String FIELD_GEOINFO = "geoinfo";
   static final String FIELD_IDENTIFIER_TYPE = "identifiertype";

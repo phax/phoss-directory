@@ -166,7 +166,7 @@ public class StoredDocument
     final StoredDocument ret = new StoredDocument ();
     ret.setParticipantID (aDoc.get (CPYPStorage.FIELD_PARTICIPANTID));
     ret.setOwnerID (aDoc.get (CPYPStorage.FIELD_OWNERID));
-    ret.setCountryCode (aDoc.get (CPYPStorage.FIELD_COUNTRY));
+    ret.setCountryCode (aDoc.get (CPYPStorage.FIELD_COUNTRY_CODE));
     ret.setName (aDoc.get (CPYPStorage.FIELD_NAME));
     ret.setGeoInfo (aDoc.get (CPYPStorage.FIELD_GEOINFO));
     final String [] aIDTypes = aDoc.getValues (CPYPStorage.FIELD_IDENTIFIER_TYPE);

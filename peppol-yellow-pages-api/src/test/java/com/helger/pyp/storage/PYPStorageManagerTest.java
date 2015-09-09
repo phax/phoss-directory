@@ -68,7 +68,7 @@ public final class PYPStorageManagerTest
   }
 
   @Test
-  public void testBasic () throws IOException
+  public void testGetAllDocumentsOfParticipant () throws IOException
   {
     final SimpleParticipantIdentifier aParticipantID = SimpleParticipantIdentifier.createWithDefaultScheme ("0088:test");
     final String sOwnerID = "junit-test";
@@ -91,6 +91,29 @@ public final class PYPStorageManagerTest
       }
       assertEquals ("This is another mock entry for testing purposes only", aDoc1.getFreeText ());
       assertFalse (aDoc1.isDeleted ());
+
+      // Finally delete the entry again
+      aMgr.deleteEntry (aParticipantID, sOwnerID);
+    }
+  }
+
+  @Test
+  public void testGetAllDocumentsOfCountryCode () throws IOException
+  {
+    final SimpleParticipantIdentifier aParticipantID = SimpleParticipantIdentifier.createWithDefaultScheme ("0088:test");
+    final String sOwnerID = "junit-test";
+    try (PYPStorageManager aMgr = new PYPStorageManager (new PYPLucene ()))
+    {
+      aMgr.createOrUpdateEntry (aParticipantID, _createMockBI (aParticipantID), sOwnerID);
+      List <StoredDocument> aDocs = aMgr.getAllDocumentsOfCountryCode ("");
+      assertEquals (0, aDocs.size ());
+
+      aDocs = aMgr.getAllDocumentsOfCountryCode ("NO");
+      assertEquals (1, aDocs.size ());
+      final StoredDocument aDoc = aDocs.get (0);
+      assertEquals (aParticipantID.getURIEncoded (), aDoc.getParticipantID ());
+      assertEquals (sOwnerID, aDoc.getOwnerID ());
+      assertEquals ("NO", aDoc.getCountryCode ());
 
       // Finally delete the entry again
       aMgr.deleteEntry (aParticipantID, sOwnerID);

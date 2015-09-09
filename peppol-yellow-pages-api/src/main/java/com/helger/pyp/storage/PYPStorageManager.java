@@ -180,7 +180,7 @@ public final class PYPStorageManager implements Closeable
         aDoc.add (new StringField (CPYPStorage.FIELD_PARTICIPANTID, aParticipantID.getURIEncoded (), Store.YES));
         aDoc.add (new StringField (CPYPStorage.FIELD_OWNERID, sOwnerID, Store.YES));
         if (aEntity.getCountryCode () != null)
-          aDoc.add (new StringField (CPYPStorage.FIELD_COUNTRY, aEntity.getCountryCode (), Store.YES));
+          aDoc.add (new StringField (CPYPStorage.FIELD_COUNTRY_CODE, aEntity.getCountryCode (), Store.YES));
         if (aEntity.getName () != null)
           aDoc.add (new TextField (CPYPStorage.FIELD_NAME, aEntity.getName (), Store.YES));
         if (aEntity.getGeoInfo () != null)
@@ -210,7 +210,7 @@ public final class PYPStorageManager implements Closeable
   }
 
   @Nonnull
-  public final List <StoredDocument> getAllDocumentsOfParticipant (@Nonnull final IPeppolParticipantIdentifier aParticipantID) throws IOException
+  public final List <StoredDocument> getAllDocuments (@Nonnull final Term aTerm) throws IOException
   {
     return m_aLucene.runAtomic ( () -> {
       final IndexSearcher aSearcher = m_aLucene.getSearcher ();
@@ -218,11 +218,23 @@ public final class PYPStorageManager implements Closeable
       {
         // Search only documents that do not have the deleted field
         final List <Document> aTargetList = new ArrayList <> ();
-        aSearcher.search (new TermQuery (new Term (CPYPStorage.FIELD_PARTICIPANTID, aParticipantID.getURIEncoded ())),
-                          new AllDocumentsCollector (aTargetList));
+        aSearcher.search (new TermQuery (aTerm), new AllDocumentsCollector (aTargetList));
         return aTargetList.stream ().map (d -> StoredDocument.create (d)).collect (Collectors.toList ());
       }
       return new ArrayList <> ();
     });
+  }
+
+  @Nonnull
+  public final List <StoredDocument> getAllDocumentsOfParticipant (@Nonnull final IPeppolParticipantIdentifier aParticipantID) throws IOException
+  {
+    return getAllDocuments (new Term (CPYPStorage.FIELD_PARTICIPANTID, aParticipantID.getURIEncoded ()));
+  }
+
+  @Nonnull
+  public final List <StoredDocument> getAllDocumentsOfCountryCode (@Nonnull final String sCountryCode) throws IOException
+  {
+    ValueEnforcer.notNull (sCountryCode, "CountryCode");
+    return getAllDocuments (new Term (CPYPStorage.FIELD_COUNTRY_CODE, sCountryCode));
   }
 }
