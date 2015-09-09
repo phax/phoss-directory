@@ -1,5 +1,6 @@
 package com.helger.pyp.storage;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +35,7 @@ import com.helger.pyp.lucene.PYPLucene;
  *
  * @author Philip Helger
  */
-public final class PYPStorageManager
+public final class PYPStorageManager implements Closeable
 {
   private static final Logger s_aLogger = LoggerFactory.getLogger (PYPStorageManager.class);
 
@@ -55,6 +56,11 @@ public final class PYPStorageManager
   public PYPStorageManager (@Nonnull final PYPLucene aLucene)
   {
     m_aLucene = ValueEnforcer.notNull (aLucene, "Lucene");
+  }
+
+  public void close () throws IOException
+  {
+    m_aLucene.close ();
   }
 
   @Nonnull

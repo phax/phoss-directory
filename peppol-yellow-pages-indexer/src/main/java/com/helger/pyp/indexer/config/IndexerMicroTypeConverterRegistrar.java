@@ -22,10 +22,10 @@ import javax.annotation.concurrent.Immutable;
 import com.helger.commons.annotation.IsSPIImplementation;
 import com.helger.commons.microdom.convert.IMicroTypeConverterRegistrarSPI;
 import com.helger.commons.microdom.convert.IMicroTypeConverterRegistry;
-import com.helger.pyp.indexer.IndexerWorkItem;
-import com.helger.pyp.indexer.IndexerWorkItemMicroTypeConverter;
-import com.helger.pyp.indexer.ReIndexWorkItem;
-import com.helger.pyp.indexer.ReIndexWorkItemMicroTypeConverter;
+import com.helger.pyp.indexer.domain.IndexerWorkItem;
+import com.helger.pyp.indexer.domain.IndexerWorkItemMicroTypeConverter;
+import com.helger.pyp.indexer.domain.ReIndexWorkItem;
+import com.helger.pyp.indexer.domain.ReIndexWorkItemMicroTypeConverter;
 
 /**
  * Implementation of {@link IMicroTypeConverterRegistrarSPI} for indexer types

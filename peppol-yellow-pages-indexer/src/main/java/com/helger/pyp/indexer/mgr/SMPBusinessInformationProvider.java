@@ -1,4 +1,4 @@
-package com.helger.pyp.indexer;
+package com.helger.pyp.indexer.mgr;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

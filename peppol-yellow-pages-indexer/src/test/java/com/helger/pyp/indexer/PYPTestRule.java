@@ -4,8 +4,10 @@ import java.io.File;
 
 import com.helger.commons.id.factory.GlobalIDFactory;
 import com.helger.commons.scope.mock.ScopeTestRule;
+import com.helger.peppol.smpclient.SMPClientConfiguration;
 import com.helger.photon.basic.app.io.WebIOIntIDFactory;
 import com.helger.photon.basic.mock.PhotonBasicWebTestRule;
+import com.helger.pyp.indexer.mgr.PYPMetaManager;
 import com.helger.pyp.settings.PYPSettings;
 
 /**
@@ -25,6 +27,9 @@ public class PYPTestRule extends PhotonBasicWebTestRule
   {
     super.before ();
     GlobalIDFactory.setPersistentIntIDFactory (new WebIOIntIDFactory ("pyp-ids.dat"));
-    IndexerInitialization.initIndexer ();
+    // Ensure the network system properties are assigned
+    SMPClientConfiguration.getConfigFile ().applyAllNetworkSystemProperties ();
+    // Initialize managers
+    PYPMetaManager.getInstance ();
   }
 }

@@ -1,4 +1,4 @@
-package com.helger.pyp.indexer;
+package com.helger.pyp.indexer.job;
 
 import java.util.Date;
 
@@ -15,6 +15,7 @@ import org.quartz.TriggerKey;
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
 import com.helger.photon.core.job.AbstractPhotonJob;
+import com.helger.pyp.indexer.mgr.IndexerManager;
 import com.helger.pyp.indexer.mgr.PYPMetaManager;
 import com.helger.schedule.quartz.GlobalQuartzScheduler;
 

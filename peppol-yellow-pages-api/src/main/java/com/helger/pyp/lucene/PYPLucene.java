@@ -73,21 +73,24 @@ public final class PYPLucene implements Closeable
 
   public void close () throws IOException
   {
-    m_aClosing.set (true);
-    m_aLock.lock ();
-    try
+    // Avoid double closing
+    if (!m_aClosing.getAndSet (true))
     {
-      // Start closing
-      StreamHelper.close (m_aIndexReader);
-      if (m_aIndexWriter != null)
-        m_aIndexWriter.commit ();
-      StreamHelper.close (m_aIndexWriter);
-      StreamHelper.close (m_aDir);
-      s_aLogger.info ("Closed Lucene reader/writer/directory");
-    }
-    finally
-    {
-      m_aLock.unlock ();
+      m_aLock.lock ();
+      try
+      {
+        // Start closing
+        StreamHelper.close (m_aIndexReader);
+        if (m_aIndexWriter != null && m_aIndexWriter.isOpen ())
+          m_aIndexWriter.commit ();
+        StreamHelper.close (m_aIndexWriter);
+        StreamHelper.close (m_aDir);
+        s_aLogger.info ("Closed Lucene reader/writer/directory");
+      }
+      finally
+      {
+        m_aLock.unlock ();
+      }
     }
   }
 

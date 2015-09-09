@@ -1,4 +1,4 @@
-package com.helger.pyp.indexer;
+package com.helger.pyp.indexer.mgr;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,6 +26,7 @@ import com.helger.commons.string.ToStringGenerator;
 import com.helger.photon.basic.app.dao.impl.AbstractWALDAO;
 import com.helger.photon.basic.app.dao.impl.DAOException;
 import com.helger.photon.basic.app.dao.impl.EDAOActionType;
+import com.helger.pyp.indexer.domain.ReIndexWorkItem;
 
 /**
  * This is the global re-index work queue.

@@ -27,7 +27,6 @@ import com.helger.commons.io.stream.StreamHelper;
 import com.helger.commons.lang.ClassHelper;
 import com.helger.commons.scope.IScope;
 import com.helger.commons.scope.singleton.AbstractGlobalSingleton;
-import com.helger.pyp.indexer.IndexerManager;
 import com.helger.pyp.lucene.PYPLucene;
 import com.helger.pyp.storage.PYPStorageManager;
 
@@ -65,6 +64,7 @@ public final class PYPMetaManager extends AbstractGlobalSingleton
   protected void onDestroy (@Nonnull final IScope aScopeInDestruction)
   {
     StreamHelper.close (m_aLucene);
+    StreamHelper.close (m_aStorageMgr);
     StreamHelper.close (m_aIndexerMgr);
   }
 

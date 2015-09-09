@@ -29,9 +29,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.peppol.identifier.participant.SimpleParticipantIdentifier;
-import com.helger.pyp.indexer.EIndexerWorkItemType;
 import com.helger.pyp.indexer.clientcert.ClientCertificateValidationResult;
 import com.helger.pyp.indexer.clientcert.ClientCertificateValidator;
+import com.helger.pyp.indexer.domain.EIndexerWorkItemType;
 import com.helger.pyp.indexer.mgr.PYPMetaManager;
 
 /**

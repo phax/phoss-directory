@@ -1,4 +1,4 @@
-package com.helger.pyp.indexer;
+package com.helger.pyp.indexer.domain;
 
 import java.io.Serializable;
 

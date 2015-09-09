@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pyp.indexer;
+package com.helger.pyp.indexer.mgr;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -32,6 +32,7 @@ import com.helger.commons.callback.IThrowingRunnableWithParameter;
 import com.helger.commons.concurrent.ExtendedDefaultThreadFactory;
 import com.helger.commons.concurrent.ManagedExecutorService;
 import com.helger.commons.concurrent.collector.ConcurrentCollectorSingle;
+import com.helger.pyp.indexer.domain.IndexerWorkItem;
 
 /**
  * The indexer queue that holds all items to be indexed initially. If indexing

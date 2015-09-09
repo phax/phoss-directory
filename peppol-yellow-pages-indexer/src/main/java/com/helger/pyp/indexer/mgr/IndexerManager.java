@@ -1,4 +1,4 @@
-package com.helger.pyp.indexer;
+package com.helger.pyp.indexer.mgr;
 
 import java.io.Closeable;
 import java.io.File;
@@ -36,6 +36,10 @@ import com.helger.photon.basic.app.io.WebFileIO;
 import com.helger.photon.core.app.CApplication;
 import com.helger.pyp.businessinformation.BusinessInformationType;
 import com.helger.pyp.businessinformation.IPYPBusinessInformationProvider;
+import com.helger.pyp.indexer.domain.EIndexerWorkItemType;
+import com.helger.pyp.indexer.domain.IndexerWorkItem;
+import com.helger.pyp.indexer.domain.ReIndexWorkItem;
+import com.helger.pyp.indexer.job.ReIndexJob;
 import com.helger.pyp.storage.PYPStorageManager;
 import com.helger.schedule.quartz.GlobalQuartzScheduler;
 
@@ -114,7 +118,7 @@ public final class IndexerManager implements Closeable
     }
   }
 
-  public void close ()
+  public void close () throws IOException
   {
     // Get all remaining objects and save them for late reuse
     final List <IndexerWorkItem> aRemainingWorkItems = m_aIndexerWorkQueue.stop ();
@@ -124,6 +128,8 @@ public final class IndexerManager implements Closeable
     // because GlobalQuartzScheduler.getInstance() would fail because the global
     // scope is already in desctruction.
     m_aScheduler.unscheduleJob (m_aTriggerKey);
+
+    m_aStorageMgr.close ();
   }
 
   @Nonnull
@@ -323,6 +329,7 @@ public final class IndexerManager implements Closeable
                             .append ("ReIndexList", m_aReIndexList)
                             .append ("IndexerWorkQueue", m_aIndexerWorkQueue)
                             .append ("TriggerKey", m_aTriggerKey)
+                            .append ("BIProvider", m_aBIProvider)
                             .toString ();
   }
 }
