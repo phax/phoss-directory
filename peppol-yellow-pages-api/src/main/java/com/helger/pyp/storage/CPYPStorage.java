@@ -14,18 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pyp.publisher.app;
+package com.helger.pyp.storage;
 
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
-public final class CMenuPublic
+public final class CPYPStorage
 {
-  public static final String MENU_LOGIN = "login";
+  static final String FIELD_PARTICIPANTID = "participantid";
+  static final String FIELD_OWNERID = "ownerid";
+  static final String FIELD_COUNTRY = "country";
+  static final String FIELD_NAME = "name";
+  static final String FIELD_GEOINFO = "geoinfo";
+  static final String FIELD_IDENTIFIER_TYPE = "identifiertype";
+  static final String FIELD_IDENTIFIER = "identifier";
+  static final String FIELD_FREETEXT = "freetext";
+  static final String FIELD_DELETED = "deleted";
 
-  // flags
-  public static final String FLAG_FOOTER = "footer";
-
-  private CMenuPublic ()
+  private CPYPStorage ()
   {}
 }

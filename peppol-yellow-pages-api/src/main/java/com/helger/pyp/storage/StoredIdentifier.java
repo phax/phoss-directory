@@ -14,32 +14,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pyp.publisher.app;
+package com.helger.pyp.storage;
 
 import javax.annotation.Nonnull;
-import javax.annotation.concurrent.Immutable;
 
-import com.helger.html.jscode.JSExpr;
-import com.helger.html.jscode.JSInvocation;
-import com.helger.html.jscode.JSRef;
+import com.helger.commons.ValueEnforcer;
+import com.helger.commons.annotation.Nonempty;
 
-@Immutable
-public final class CAppJS
+/**
+ * This class represents a single identifier as stored by Lucene consisting of
+ * a type and a value.
+ *
+ * @author Philip Helger
+ */
+public final class StoredIdentifier
 {
-  private CAppJS ()
-  {}
+  private final String m_sType;
+  private final String m_sValue;
 
-  @Nonnull
-  public static JSRef getApp ()
+  public StoredIdentifier (@Nonnull @Nonempty final String sType, @Nonnull @Nonempty final String sValue)
   {
-    // Match the JS file in src/main/webapp/js
-    return JSExpr.ref ("App");
+    m_sType = ValueEnforcer.notEmpty (sType, "Type");
+    m_sValue = ValueEnforcer.notEmpty (sValue, "Value");
   }
 
   @Nonnull
-  public static JSInvocation viewLogin ()
+  @Nonempty
+  public String getType ()
   {
-    // Invoke the JS function "viewLogin" on the object
-    return getApp ().invoke ("viewLogin");
+    return m_sType;
+  }
+
+  @Nonnull
+  @Nonempty
+  public String getValue ()
+  {
+    return m_sValue;
   }
 }
