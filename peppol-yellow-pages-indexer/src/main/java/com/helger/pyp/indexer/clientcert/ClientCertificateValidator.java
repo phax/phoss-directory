@@ -282,7 +282,8 @@ public final class ClientCertificateValidator
   {
     if (s_bAllowAllForTests)
     {
-      s_aLogger.warn ("Client certificate is considered valid because the 'allow all' for tests is set!");
+      if (s_aLogger.isDebugEnabled ())
+        s_aLogger.debug ("Client certificate is considered valid because the 'allow all' for tests is set!");
       return ClientCertificateValidationResult.createSuccess ("insecure-debug-client");
     }
 

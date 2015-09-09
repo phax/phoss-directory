@@ -16,8 +16,6 @@
  */
 package com.helger.pyp.indexer.rest;
 
-import java.io.IOException;
-
 import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DELETE;
@@ -88,7 +86,7 @@ public class IndexerResource
   @DELETE
   @Path ("{participantID}")
   public Response deleteParticipant (@Context @Nonnull final HttpServletRequest aHttpServletRequest,
-                                     @PathParam ("participantID") @Nonnull final String sParticipantID) throws IOException
+                                     @PathParam ("participantID") @Nonnull final String sParticipantID)
   {
     final ClientCertificateValidationResult aResult = _checkClientCertificate (aHttpServletRequest);
     if (aResult.isFailure ())
@@ -97,9 +95,8 @@ public class IndexerResource
     // Parse identifier
     final SimpleParticipantIdentifier aPI = SimpleParticipantIdentifier.createFromURIPart (sParticipantID);
 
-    // Check if PI exists
-    if (!PYPMetaManager.getStorageMgr ().containsEntry (aPI))
-      return Response.status (Response.Status.NOT_FOUND).build ();
+    // Don't check for existence of the PI as it might be in the queue for
+    // creation
 
     // Queue for handling
     PYPMetaManager.getIndexerMgr ().queueWorkItem (aPI, EIndexerWorkItemType.DELETE, aResult.getClientID ());

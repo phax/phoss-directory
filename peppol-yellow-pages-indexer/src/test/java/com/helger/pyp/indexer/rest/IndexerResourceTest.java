@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.Nonnull;
 import javax.net.ssl.KeyManagerFactory;
@@ -43,6 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
+import com.helger.commons.mock.CommonsTestHelper;
 import com.helger.commons.random.VerySecureRandom;
 import com.helger.commons.thread.ThreadHelper;
 import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
@@ -161,20 +163,33 @@ public final class IndexerResourceTest
     // Set test BI provider
     PYPMetaManager.getIndexerMgr ().setBusinessInformationProvider (aParticipantID -> _createMockBI (aParticipantID));
 
-    final SimpleParticipantIdentifier aPI = SimpleParticipantIdentifier.createWithDefaultScheme ("9915:test");
+    final AtomicInteger aIndex = new AtomicInteger (0);
+    final SimpleParticipantIdentifier aPI_0 = SimpleParticipantIdentifier.createWithDefaultScheme ("9915:test0");
 
-    // Create
-    String sResponseMsg = m_aTarget.path ("1.0").request ().put (Entity.text (aPI.getURIEncoded ()), String.class);
-    assertEquals ("", sResponseMsg);
+    CommonsTestHelper.testInParallel (1000, (Runnable) () -> {
+      // Create
+      final SimpleParticipantIdentifier aPI = SimpleParticipantIdentifier.createWithDefaultScheme ("9915:test" +
+                                                                                                   aIndex.getAndIncrement ());
+
+      final String sResponseMsg = m_aTarget.path ("1.0").request ().put (Entity.text (aPI.getURIEncoded ()),
+                                                                         String.class);
+      assertEquals ("", sResponseMsg);
+    });
 
     ThreadHelper.sleep (500);
-    assertTrue (PYPMetaManager.getStorageMgr ().containsEntry (aPI));
+    assertTrue (PYPMetaManager.getStorageMgr ().containsEntry (aPI_0));
 
-    // Delete
-    sResponseMsg = m_aTarget.path ("1.0").path (aPI.getURIEncoded ()).request ().delete (String.class);
-    assertEquals ("", sResponseMsg);
+    aIndex.set (0);
+    CommonsTestHelper.testInParallel (1000, (Runnable) () -> {
+      // Delete
+      final SimpleParticipantIdentifier aPI = SimpleParticipantIdentifier.createWithDefaultScheme ("9915:test" +
+                                                                                                   aIndex.getAndIncrement ());
+
+      final String sResponseMsg = m_aTarget.path ("1.0").path (aPI.getURIEncoded ()).request ().delete (String.class);
+      assertEquals ("", sResponseMsg);
+    });
 
     ThreadHelper.sleep (500);
-    assertFalse (PYPMetaManager.getStorageMgr ().containsEntry (aPI));
+    assertFalse (PYPMetaManager.getStorageMgr ().containsEntry (aPI_0));
   }
 }

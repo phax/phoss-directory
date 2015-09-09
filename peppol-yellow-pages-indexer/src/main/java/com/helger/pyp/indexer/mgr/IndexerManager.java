@@ -66,12 +66,7 @@ public final class IndexerManager implements Closeable
 
   // Status vars
   private final GlobalQuartzScheduler m_aScheduler;
-
-  @Nonnull
-  private static File _getIndexerWorkItemFile ()
-  {
-    return WebFileIO.getDataIO ().getFile ("indexer-work-items.xml");
-  }
+  private final File m_aIndexerWorkItemFile;
 
   public IndexerManager (@Nonnull final PYPStorageManager aStorageMgr) throws DAOException
   {
@@ -79,13 +74,13 @@ public final class IndexerManager implements Closeable
     m_aReIndexList = new ReIndexWorkItemList ();
 
     // Read existing work item file
-    final File aIndexerWorkItemFile = _getIndexerWorkItemFile ();
+    m_aIndexerWorkItemFile = WebFileIO.getDataIO ().getFile ("indexer-work-items.xml");
     {
-      final IMicroDocument aDoc = MicroReader.readMicroXML (aIndexerWorkItemFile);
+      final IMicroDocument aDoc = MicroReader.readMicroXML (m_aIndexerWorkItemFile);
       if (aDoc != null)
       {
         if (s_aLogger.isDebugEnabled ())
-          s_aLogger.debug ("Reading persisted indexer work items from " + aIndexerWorkItemFile);
+          s_aLogger.debug ("Reading persisted indexer work items from " + m_aIndexerWorkItemFile);
         for (final IMicroElement eItem : aDoc.getDocumentElement ().getAllChildElements (ELEMENT_ITEM))
         {
           final IndexerWorkItem aWorkItem = MicroTypeConverter.convertToNative (eItem, IndexerWorkItem.class);
@@ -94,7 +89,7 @@ public final class IndexerManager implements Closeable
       }
 
       // Delete the files to ensure they are not read again next startup time
-      WebFileIO.getFileOpMgr ().deleteFileIfExisting (aIndexerWorkItemFile);
+      WebFileIO.getFileOpMgr ().deleteFileIfExisting (m_aIndexerWorkItemFile);
     }
 
     // Schedule re-index job
@@ -104,7 +99,7 @@ public final class IndexerManager implements Closeable
     m_aScheduler = GlobalQuartzScheduler.getInstance ();
   }
 
-  private static void _writeWorkItems (@Nonnull final List <IndexerWorkItem> aItems)
+  private void _writeWorkItems (@Nonnull final List <IndexerWorkItem> aItems)
   {
     if (!aItems.isEmpty ())
     {
@@ -113,8 +108,8 @@ public final class IndexerManager implements Closeable
       final IMicroElement eRoot = aDoc.appendElement (ELEMENT_ROOT);
       for (final IndexerWorkItem aItem : aItems)
         eRoot.appendChild (MicroTypeConverter.convertToMicroElement (aItem, ELEMENT_ITEM));
-      if (MicroWriter.writeToFile (aDoc, _getIndexerWorkItemFile ()).isFailure ())
-        throw new IllegalStateException ("Failed to write IndexerWorkItems to " + _getIndexerWorkItemFile ());
+      if (MicroWriter.writeToFile (aDoc, m_aIndexerWorkItemFile).isFailure ())
+        throw new IllegalStateException ("Failed to write IndexerWorkItems to " + m_aIndexerWorkItemFile);
     }
   }
 
