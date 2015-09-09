@@ -15,6 +15,7 @@ import org.quartz.TriggerKey;
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
 import com.helger.photon.core.job.AbstractPhotonJob;
+import com.helger.pyp.indexer.mgr.PYPMetaManager;
 import com.helger.schedule.quartz.GlobalQuartzScheduler;
 
 /**
@@ -35,11 +36,13 @@ public class ReIndexJob extends AbstractPhotonJob
   @Override
   protected void onExecute (@Nonnull final JobExecutionContext aContext) throws JobExecutionException
   {
+    final IndexerManager aIndexerMgr = PYPMetaManager.getIndexerMgr ();
+
     // First expire all old entries
-    IndexerManager.getInstance ().expireOldEntries ();
+    aIndexerMgr.expireOldEntries ();
 
     // Re-index all items now
-    IndexerManager.getInstance ().reIndexParticipantData ();
+    aIndexerMgr.reIndexParticipantData ();
   }
 
   /**

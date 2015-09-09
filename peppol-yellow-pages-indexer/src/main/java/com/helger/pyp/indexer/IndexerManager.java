@@ -1,10 +1,13 @@
 package com.helger.pyp.indexer;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
@@ -16,15 +19,12 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.annotation.UsedViaReflection;
 import com.helger.commons.microdom.IMicroDocument;
 import com.helger.commons.microdom.IMicroElement;
 import com.helger.commons.microdom.MicroDocument;
 import com.helger.commons.microdom.convert.MicroTypeConverter;
 import com.helger.commons.microdom.serialize.MicroReader;
 import com.helger.commons.microdom.serialize.MicroWriter;
-import com.helger.commons.scope.IScope;
-import com.helger.commons.scope.singleton.AbstractGlobalSingleton;
 import com.helger.commons.state.EChange;
 import com.helger.commons.state.ESuccess;
 import com.helger.commons.string.ToStringGenerator;
@@ -45,19 +45,20 @@ import com.helger.schedule.quartz.GlobalQuartzScheduler;
  *
  * @author Philip Helger
  */
-public final class IndexerManager extends AbstractGlobalSingleton
+public final class IndexerManager implements Closeable
 {
   private static final Logger s_aLogger = LoggerFactory.getLogger (IndexerManager.class);
   private static final String ELEMENT_ROOT = "root";
   private static final String ELEMENT_ITEM = "item";
 
+  private final PYPStorageManager m_aStorageMgr;
+  private final ReadWriteLock m_aRWLock = new ReentrantReadWriteLock ();
   @GuardedBy ("m_aRWLock")
   private final Set <IndexerWorkItem> m_aUniqueItems = new HashSet <> ();
   private final ReIndexWorkItemList m_aReIndexList;
   private final IndexerWorkItemQueue m_aIndexerWorkQueue = new IndexerWorkItemQueue (this::_asyncFetchParticipantData);
   private final TriggerKey m_aTriggerKey;
   private IPYPBusinessInformationProvider m_aBIProvider = new SMPBusinessInformationProvider ();
-  private PYPStorageManager m_aStorageMgr;
 
   // Status vars
   private final GlobalQuartzScheduler m_aScheduler;
@@ -68,10 +69,9 @@ public final class IndexerManager extends AbstractGlobalSingleton
     return WebFileIO.getDataIO ().getFile ("indexer-work-items.xml");
   }
 
-  @Deprecated
-  @UsedViaReflection
-  public IndexerManager () throws DAOException
+  public IndexerManager (@Nonnull final PYPStorageManager aStorageMgr) throws DAOException
   {
+    m_aStorageMgr = ValueEnforcer.notNull (aStorageMgr, "StorageMgr");
     m_aReIndexList = new ReIndexWorkItemList ();
 
     // Read existing work item file
@@ -100,22 +100,6 @@ public final class IndexerManager extends AbstractGlobalSingleton
     m_aScheduler = GlobalQuartzScheduler.getInstance ();
   }
 
-  /**
-   * @return The global instance of this class. Never <code>null</code>.
-   */
-  @Nonnull
-  public static IndexerManager getInstance ()
-  {
-    return getGlobalSingleton (IndexerManager.class);
-  }
-
-  @Override
-  protected void onAfterInstantiation (@Nonnull final IScope aScope)
-  {
-    // Remember here for timing issues
-    m_aStorageMgr = PYPStorageManager.getInstance ();
-  }
-
   private static void _writeWorkItems (@Nonnull final List <IndexerWorkItem> aItems)
   {
     if (!aItems.isEmpty ())
@@ -130,8 +114,7 @@ public final class IndexerManager extends AbstractGlobalSingleton
     }
   }
 
-  @Override
-  protected void onBeforeDestroy (@Nonnull final IScope aScopeToBeDestroyed)
+  public void close ()
   {
     // Get all remaining objects and save them for late reuse
     final List <IndexerWorkItem> aRemainingWorkItems = m_aIndexerWorkQueue.stop ();

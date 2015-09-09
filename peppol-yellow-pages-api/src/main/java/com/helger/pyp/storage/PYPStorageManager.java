@@ -12,6 +12,7 @@ import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.IntField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
+import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.SimpleCollector;
@@ -21,9 +22,6 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.annotation.UsedViaReflection;
-import com.helger.commons.scope.IScope;
-import com.helger.commons.scope.singleton.AbstractGlobalSingleton;
 import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
 import com.helger.pyp.businessinformation.BusinessInformationType;
 import com.helger.pyp.businessinformation.EntityType;
@@ -35,7 +33,7 @@ import com.helger.pyp.lucene.PYPLucene;
  *
  * @author Philip Helger
  */
-public final class PYPStorageManager extends AbstractGlobalSingleton
+public final class PYPStorageManager
 {
   private static final Logger s_aLogger = LoggerFactory.getLogger (PYPStorageManager.class);
 
@@ -51,28 +49,11 @@ public final class PYPStorageManager extends AbstractGlobalSingleton
   private static final IntField FIELD_VALUE_DELETED = new IntField (FIELD_DELETED, 1, Store.NO);
   private static final IntField FIELD_VALUE_NOT_DELETED = new IntField (FIELD_DELETED, 0, Store.NO);
 
-  private PYPLucene m_aLucene;
+  private final PYPLucene m_aLucene;
 
-  @Deprecated
-  @UsedViaReflection
-  public PYPStorageManager ()
-  {}
-
-  @Override
-  protected void onAfterInstantiation (@Nonnull final IScope aScope)
+  public PYPStorageManager (@Nonnull final PYPLucene aLucene)
   {
-    // Remember once to work safely even if this happens in parallel to global
-    // shutdown
-    m_aLucene = PYPLucene.getInstance ();
-  }
-
-  /**
-   * @return The one and only instance of this class. Never <code>null</code>.
-   */
-  @Nonnull
-  public static PYPStorageManager getInstance ()
-  {
-    return getGlobalSingleton (PYPStorageManager.class);
+    m_aLucene = ValueEnforcer.notNull (aLucene, "Lucene");
   }
 
   @Nonnull
@@ -119,8 +100,12 @@ public final class PYPStorageManager extends AbstractGlobalSingleton
       {
         aDocument.add (FIELD_VALUE_DELETED);
       }
-      m_aLucene.getWriter ().updateDocuments (_createTerm (aParticipantID), aDocuments);
-      m_aLucene.getWriter ().commit ();
+
+      m_aLucene.runLocked ( () -> {
+        final IndexWriter aWriter = m_aLucene.getWriter ();
+        aWriter.updateDocuments (_createTerm (aParticipantID), aDocuments);
+        aWriter.commit ();
+      });
     }
 
     s_aLogger.info ("Marked " + aDocuments.size () + " Lucene documents as deleted");
@@ -132,8 +117,10 @@ public final class PYPStorageManager extends AbstractGlobalSingleton
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
 
+    final IndexWriter aWriter = m_aLucene.getWriter ();
+
     // Delete all existing documents of the participant ID
-    m_aLucene.getWriter ().deleteDocuments (_createTerm (aParticipantID));
+    aWriter.deleteDocuments (_createTerm (aParticipantID));
 
     for (final EntityType aEntity : aBI.getEntity ())
     {
@@ -165,11 +152,11 @@ public final class PYPStorageManager extends AbstractGlobalSingleton
         aDoc.add (new TextField (FIELD_FREETEXT, aEntity.getFreeText (), Store.YES));
 
       // Add to index
-      m_aLucene.getWriter ().addDocument (aDoc);
+      aWriter.addDocument (aDoc);
     }
 
     // Finally commit
-    m_aLucene.getWriter ().commit ();
+    aWriter.commit ();
 
     s_aLogger.info ("Added " + aBI.getEntityCount () + " Lucene documents");
   }

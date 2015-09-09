@@ -51,7 +51,7 @@ final class IndexerWorkItemQueue
                                                                               new SynchronousQueue <Runnable> (),
                                                                               m_aThreadFactory);
 
-  public IndexerWorkItemQueue (@Nonnull final IThrowingRunnableWithParameter <IndexerWorkItem> aPerformer)
+  public IndexerWorkItemQueue (@Nonnull final IThrowingRunnableWithParameter <IndexerWorkItem, Exception> aPerformer)
   {
     m_aImmediateCollector = new ConcurrentCollectorSingle <> (new LinkedBlockingQueue <> ());
     m_aImmediateCollector.setPerformer (aPerformer);

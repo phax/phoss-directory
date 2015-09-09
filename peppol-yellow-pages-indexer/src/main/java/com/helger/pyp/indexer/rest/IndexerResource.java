@@ -30,10 +30,9 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.peppol.identifier.participant.SimpleParticipantIdentifier;
 import com.helger.pyp.indexer.EIndexerWorkItemType;
-import com.helger.pyp.indexer.IndexerManager;
 import com.helger.pyp.indexer.clientcert.ClientCertificateValidationResult;
 import com.helger.pyp.indexer.clientcert.ClientCertificateValidator;
-import com.helger.pyp.storage.PYPStorageManager;
+import com.helger.pyp.indexer.mgr.PYPMetaManager;
 
 /**
  * Indexer resource (exposed at "1.0" path)
@@ -78,7 +77,7 @@ public class IndexerResource
     final SimpleParticipantIdentifier aPI = SimpleParticipantIdentifier.createFromURIPart (sParticipantID);
 
     // Queue for handling
-    IndexerManager.getInstance ().queueWorkItem (aPI, EIndexerWorkItemType.CREATE_UPDATE, aResult.getClientID ());
+    PYPMetaManager.getIndexerMgr ().queueWorkItem (aPI, EIndexerWorkItemType.CREATE_UPDATE, aResult.getClientID ());
 
     // And done
     return Response.noContent ().build ();
@@ -97,11 +96,11 @@ public class IndexerResource
     final SimpleParticipantIdentifier aPI = SimpleParticipantIdentifier.createFromURIPart (sParticipantID);
 
     // Check if PI exists
-    if (!PYPStorageManager.getInstance ().containsEntry (aPI))
+    if (!PYPMetaManager.getStorageMgr ().containsEntry (aPI))
       return Response.status (Response.Status.NOT_FOUND).build ();
 
     // Queue for handling
-    IndexerManager.getInstance ().queueWorkItem (aPI, EIndexerWorkItemType.DELETE, aResult.getClientID ());
+    PYPMetaManager.getIndexerMgr ().queueWorkItem (aPI, EIndexerWorkItemType.DELETE, aResult.getClientID ());
 
     // And done
     return Response.noContent ().build ();

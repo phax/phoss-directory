@@ -47,9 +47,9 @@ import com.helger.peppol.utils.KeyStoreHelper;
 import com.helger.pyp.businessinformation.BusinessInformationType;
 import com.helger.pyp.businessinformation.EntityType;
 import com.helger.pyp.businessinformation.IdentifierType;
-import com.helger.pyp.indexer.IndexerManager;
 import com.helger.pyp.indexer.PYPTestRule;
 import com.helger.pyp.indexer.clientcert.ClientCertificateValidator;
+import com.helger.pyp.indexer.mgr.PYPMetaManager;
 import com.helger.web.https.DoNothingTrustManager;
 import com.helger.web.https.HostnameVerifierAlwaysTrue;
 
@@ -155,7 +155,7 @@ public final class IndexerResourceTest
   public void testCreateOrUpdateParticipant ()
   {
     // Set test BI provider
-    IndexerManager.getInstance ().setBusinessInformationProvider (aParticipantID -> _createMockBI (aParticipantID));
+    PYPMetaManager.getIndexerMgr ().setBusinessInformationProvider (aParticipantID -> _createMockBI (aParticipantID));
 
     final String sResponseMsg = m_aTarget.path ("1.0").request ().put (Entity.text ("iso6523-actorid-upis::9915:test"),
                                                                        String.class);

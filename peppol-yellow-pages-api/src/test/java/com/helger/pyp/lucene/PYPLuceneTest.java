@@ -18,7 +18,6 @@ import org.apache.lucene.document.LongField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TermQuery;
@@ -65,36 +64,42 @@ public final class PYPLuceneTest
                                                                        StandardCharsets.UTF_8))));
 
     // Existing index
-    PYPLucene.getInstance ().getWriter ().updateDocument (new Term ("id", "Apache Lucene 5.0.0"), doc);
-    PYPLucene.getInstance ().getWriter ().commit ();
+    try (final PYPLucene aLucene = new PYPLucene ())
+    {
+      aLucene.getWriter ().updateDocument (new Term ("id", "Apache Lucene 5.0.0"), doc);
+      aLucene.getWriter ().commit ();
+    }
   }
 
   @Nullable
   private static Document _searchBest (final Query aQuery) throws IOException
   {
-    // Find top 5 hits
-    final TopDocs results = PYPLucene.getInstance ().getSearcher ().search (aQuery, 5);
+    try (final PYPLucene aLucene = new PYPLucene ())
+    {
+      // Find top 5 hits
+      final TopDocs results = aLucene.getSearcher ().search (aQuery, 5);
 
-    // Get results
-    final ScoreDoc [] aHits = results.scoreDocs;
-    if (aHits.length == 0)
-      return null;
+      // Get results
+      final ScoreDoc [] aHits = results.scoreDocs;
+      if (aHits.length == 0)
+        return null;
 
-    final int numTotalHits = results.totalHits;
-    System.out.println (numTotalHits + " total matching documents");
+      final int numTotalHits = results.totalHits;
+      System.out.println (numTotalHits + " total matching documents");
 
-    /*
-     * Matching score for the first document
-     */
-    System.out.println ("Matching score for first document: " + aHits[0].score);
+      /*
+       * Matching score for the first document
+       */
+      System.out.println ("Matching score for first document: " + aHits[0].score);
 
-    final Document doc = PYPLucene.getInstance ().getReader ().document (aHits[0].doc);
-    System.out.println ("Id of the document: " + doc.get ("id"));
-    return doc;
+      final Document doc = aLucene.getReader ().document (aHits[0].doc);
+      System.out.println ("Id of the document: " + doc.get ("id"));
+      return doc;
+    }
   }
 
   @Test
-  public void testBasic () throws IOException, ParseException
+  public void testBasic () throws IOException
   {
     _doIndex ();
     final Document aDoc = _searchBest (new TermQuery (new Term ("id", "Apache Lucene 5.0.0")));

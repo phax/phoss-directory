@@ -17,7 +17,7 @@
 package com.helger.pyp.indexer;
 
 import com.helger.peppol.smpclient.SMPClientConfiguration;
-import com.helger.pyp.storage.PYPStorageManager;
+import com.helger.pyp.indexer.mgr.PYPMetaManager;
 
 /**
  * Initialize every necessary to get the PYP Indexer up and running
@@ -34,7 +34,6 @@ public final class IndexerInitialization
     // Ensure the network system properties are assigned
     SMPClientConfiguration.getConfigFile ().applyAllNetworkSystemProperties ();
     // Initialize managers
-    IndexerManager.getInstance ();
-    PYPStorageManager.getInstance ();
+    PYPMetaManager.getInstance ();
   }
 }

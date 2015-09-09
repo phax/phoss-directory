@@ -1,7 +1,11 @@
 package com.helger.pyp.lucene;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -20,10 +24,8 @@ import org.apache.lucene.store.FSDirectory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.commons.annotation.UsedViaReflection;
+import com.helger.commons.callback.IThrowingRunnable;
 import com.helger.commons.io.stream.StreamHelper;
-import com.helger.commons.scope.IScope;
-import com.helger.commons.scope.singleton.AbstractGlobalSingleton;
 import com.helger.photon.basic.app.io.WebFileIO;
 
 /**
@@ -31,18 +33,18 @@ import com.helger.photon.basic.app.io.WebFileIO;
  *
  * @author Philip Helger
  */
-public final class PYPLucene extends AbstractGlobalSingleton
+public final class PYPLucene implements Closeable
 {
   private static final Logger s_aLogger = LoggerFactory.getLogger (PYPLucene.class);
 
+  private final Lock m_aLock = new ReentrantLock ();
   private final Directory m_aDir;
   private final Analyzer m_aAnalyzer;
   private final IndexWriter m_aIndexWriter;
   private DirectoryReader m_aIndexReader;
   private IndexSearcher m_aSearcher;
+  private final AtomicBoolean m_aClosing = new AtomicBoolean (false);
 
-  @Deprecated
-  @UsedViaReflection
   public PYPLucene () throws IOException
   {
     // Where to store the index files
@@ -68,44 +70,62 @@ public final class PYPLucene extends AbstractGlobalSingleton
     s_aLogger.info ("Lucene index operating on " + aPath);
   }
 
-  @Nonnull
-  public static PYPLucene getInstance ()
+  public void close () throws IOException
   {
-    return getGlobalSingleton (PYPLucene.class);
+    m_aClosing.set (true);
+    m_aLock.lock ();
+    try
+    {
+      // Start closing
+      StreamHelper.close (m_aIndexReader);
+      if (m_aIndexWriter != null)
+        m_aIndexWriter.commit ();
+      StreamHelper.close (m_aIndexWriter);
+      StreamHelper.close (m_aDir);
+      s_aLogger.info ("Closed Lucene reader/writer/directory");
+    }
+    finally
+    {
+      m_aLock.unlock ();
+    }
   }
 
-  @Override
-  protected void onDestroy (@Nonnull final IScope aScopeInDestructions) throws IOException
+  public boolean isClosing ()
   {
-    StreamHelper.close (m_aIndexReader);
-    if (m_aIndexWriter != null)
-      m_aIndexWriter.commit ();
-    StreamHelper.close (m_aIndexWriter);
-    StreamHelper.close (m_aDir);
-    s_aLogger.info ("Closed Lucene reader/writer/directory");
+    return m_aClosing.get ();
+  }
+
+  private void _checkClosing ()
+  {
+    if (isClosing ())
+      throw new IllegalStateException ("The Lucene index is shutting down so no access is possible");
   }
 
   @Nonnull
   public Analyzer getAnalyzer ()
   {
+    _checkClosing ();
     return m_aAnalyzer;
   }
 
   @Nonnull
   public IndexReader getReader ()
   {
+    _checkClosing ();
     return m_aIndexReader;
   }
 
   @Nonnull
   public IndexWriter getWriter ()
   {
+    _checkClosing ();
     return m_aIndexWriter;
   }
 
   @Nullable
   public IndexSearcher getSearcher () throws IOException
   {
+    _checkClosing ();
     try
     {
       final DirectoryReader aNewReader = m_aIndexReader != null ? DirectoryReader.openIfChanged (m_aIndexReader)
@@ -127,6 +147,19 @@ public final class PYPLucene extends AbstractGlobalSingleton
     {
       // No such index
       return null;
+    }
+  }
+
+  public void runLocked (@Nonnull final IThrowingRunnable <IOException> aRunnable) throws IOException
+  {
+    m_aLock.lock ();
+    try
+    {
+      aRunnable.run ();
+    }
+    finally
+    {
+      m_aLock.unlock ();
     }
   }
 }
