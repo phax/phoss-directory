@@ -20,6 +20,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -205,6 +206,23 @@ public final class PYPStorageManager implements Closeable
                                          aParticipantID.getURIEncoded (),
                                          Integer.valueOf (aBI.getEntityCount ()),
                                          sOwnerID);
+    });
+  }
+
+  @Nonnull
+  public final List <StoredDocument> getAllDocumentsOfParticipant (@Nonnull final IPeppolParticipantIdentifier aParticipantID) throws IOException
+  {
+    return m_aLucene.runAtomic ( () -> {
+      final IndexSearcher aSearcher = m_aLucene.getSearcher ();
+      if (aSearcher != null)
+      {
+        // Search only documents that do not have the deleted field
+        final List <Document> aTargetList = new ArrayList <> ();
+        aSearcher.search (new TermQuery (new Term (CPYPStorage.FIELD_PARTICIPANTID, aParticipantID.getURIEncoded ())),
+                          new AllDocumentsCollector (aTargetList));
+        return aTargetList.stream ().map (d -> StoredDocument.create (d)).collect (Collectors.toList ());
+      }
+      return new ArrayList <> ();
     });
   }
 }

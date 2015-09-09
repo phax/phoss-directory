@@ -17,16 +17,18 @@
 package com.helger.pyp.storage;
 
 import javax.annotation.Nonnull;
+import javax.annotation.concurrent.Immutable;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
 
 /**
- * This class represents a single identifier as stored by Lucene consisting of
- * a type and a value.
+ * This class represents a single identifier as stored by Lucene consisting of a
+ * type and a value.
  *
  * @author Philip Helger
  */
+@Immutable
 public final class StoredIdentifier
 {
   private final String m_sType;

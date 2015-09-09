@@ -14,34 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pyp.indexer;
+package com.helger.pyp.indexer.mock;
 
-import java.io.File;
-
-import com.helger.commons.id.factory.GlobalIDFactory;
-import com.helger.commons.scope.mock.ScopeTestRule;
 import com.helger.peppol.smpclient.SMPClientConfiguration;
-import com.helger.photon.basic.app.io.WebIOIntIDFactory;
-import com.helger.photon.basic.mock.PhotonBasicWebTestRule;
-import com.helger.pyp.settings.PYPSettings;
+import com.helger.pyp.mock.PYPAPITestRule;
 
 /**
  * Special PYP test rule with the correct data path from the settings file.
  *
  * @author Philip Helger
  */
-public class PYPTestRule extends PhotonBasicWebTestRule
+public class PYPIndexerTestRule extends PYPAPITestRule
 {
-  public PYPTestRule ()
-  {
-    super (new File (PYPSettings.getDataPath ()), ScopeTestRule.STORAGE_PATH);
-  }
+  public PYPIndexerTestRule ()
+  {}
 
   @Override
   public void before ()
   {
     super.before ();
-    GlobalIDFactory.setPersistentIntIDFactory (new WebIOIntIDFactory ("pyp-ids.dat"));
     // Ensure the network system properties are assigned
     SMPClientConfiguration.getConfigFile ().applyAllNetworkSystemProperties ();
   }

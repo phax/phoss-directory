@@ -40,6 +40,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
@@ -53,10 +54,10 @@ import com.helger.peppol.utils.KeyStoreHelper;
 import com.helger.pyp.businessinformation.BusinessInformationType;
 import com.helger.pyp.businessinformation.EntityType;
 import com.helger.pyp.businessinformation.IdentifierType;
-import com.helger.pyp.indexer.PYPTestRule;
 import com.helger.pyp.indexer.clientcert.ClientCertificateValidator;
 import com.helger.pyp.indexer.mgr.IndexerManager;
 import com.helger.pyp.indexer.mgr.PYPMetaManager;
+import com.helger.pyp.indexer.mock.PYPIndexerTestRule;
 import com.helger.web.https.DoNothingTrustManager;
 import com.helger.web.https.HostnameVerifierAlwaysTrue;
 
@@ -76,7 +77,7 @@ public final class IndexerResourceTest
   private static final Logger s_aLogger = LoggerFactory.getLogger (IndexerResourceTest.class);
 
   @Rule
-  public final PYPTestRule m_aRule = new PYPTestRule ();
+  public final TestRule m_aRule = new PYPIndexerTestRule ();
 
   private HttpServer m_aServer;
   private WebTarget m_aTarget;

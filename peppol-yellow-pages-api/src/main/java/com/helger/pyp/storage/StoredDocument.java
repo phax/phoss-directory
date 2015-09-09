@@ -19,8 +19,10 @@ package com.helger.pyp.storage;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.NotThreadSafe;
 
 import org.apache.lucene.document.Document;
 
@@ -31,10 +33,13 @@ import com.helger.commons.collection.CollectionHelper;
 
 /**
  * This class represents a document stored in the Lucene index but with a nicer
- * API to not work on a field basis.
+ * API to not work on a field basis. It contains the data at a certain point of
+ * time and this might not necessarily be the most current data. Modifications
+ * to this object have no impact on the underlying Lucene document!
  *
  * @author Philip Helger
  */
+@NotThreadSafe
 public class StoredDocument
 {
   private String m_sParticipantID;
@@ -75,10 +80,20 @@ public class StoredDocument
     return m_sOwnerID;
   }
 
+  public void setCountryCode (@Nullable final String sCountryCode)
+  {
+    m_sCountryCode = sCountryCode;
+  }
+
   @Nullable
   public String getCountryCode ()
   {
     return m_sCountryCode;
+  }
+
+  public void setName (@Nullable final String sName)
+  {
+    m_sName = sName;
   }
 
   @Nullable
@@ -87,10 +102,21 @@ public class StoredDocument
     return m_sName;
   }
 
+  public void setGeoInfo (@Nullable final String sGeoInfo)
+  {
+    m_sGeoInfo = sGeoInfo;
+  }
+
   @Nullable
   public String getGeoInfo ()
   {
     return m_sGeoInfo;
+  }
+
+  public void addIdentifier (@Nonnull final StoredIdentifier aIdentifier)
+  {
+    ValueEnforcer.notNull (aIdentifier, "Identifier");
+    m_aIdentifiers.add (aIdentifier);
   }
 
   @Nonnull
@@ -100,10 +126,32 @@ public class StoredDocument
     return CollectionHelper.newList (m_aIdentifiers);
   }
 
+  @Nonnegative
+  public int getIdentifierCount ()
+  {
+    return m_aIdentifiers.size ();
+  }
+
+  @Nullable
+  public StoredIdentifier getIdentifierAtIndex (@Nonnegative final int nIndex)
+  {
+    return CollectionHelper.getSafe (m_aIdentifiers, nIndex);
+  }
+
+  public void setFreeText (@Nullable final String sFreeText)
+  {
+    m_sFreeText = sFreeText;
+  }
+
   @Nonnull
   public String getFreeText ()
   {
     return m_sFreeText;
+  }
+
+  public void setDeleted (final boolean bDeleted)
+  {
+    m_bDeleted = bDeleted;
   }
 
   public boolean isDeleted ()
@@ -118,17 +166,17 @@ public class StoredDocument
     final StoredDocument ret = new StoredDocument ();
     ret.setParticipantID (aDoc.get (CPYPStorage.FIELD_PARTICIPANTID));
     ret.setOwnerID (aDoc.get (CPYPStorage.FIELD_OWNERID));
-    ret.m_sCountryCode = aDoc.get (CPYPStorage.FIELD_COUNTRY);
-    ret.m_sName = aDoc.get (CPYPStorage.FIELD_NAME);
-    ret.m_sGeoInfo = aDoc.get (CPYPStorage.FIELD_GEOINFO);
+    ret.setCountryCode (aDoc.get (CPYPStorage.FIELD_COUNTRY));
+    ret.setName (aDoc.get (CPYPStorage.FIELD_NAME));
+    ret.setGeoInfo (aDoc.get (CPYPStorage.FIELD_GEOINFO));
     final String [] aIDTypes = aDoc.getValues (CPYPStorage.FIELD_IDENTIFIER_TYPE);
     final String [] aIDValues = aDoc.getValues (CPYPStorage.FIELD_IDENTIFIER);
     if (aIDTypes.length != aIDValues.length)
       throw new IllegalStateException ("Different number of identifier types and values");
     for (int i = 0; i < aIDTypes.length; ++i)
-      ret.m_aIdentifiers.add (new StoredIdentifier (aIDTypes[i], aIDValues[i]));
-    ret.m_sFreeText = aDoc.get (CPYPStorage.FIELD_FREETEXT);
-    ret.m_bDeleted = aDoc.getField (CPYPStorage.FIELD_DELETED) != null;
+      ret.addIdentifier (new StoredIdentifier (aIDTypes[i], aIDValues[i]));
+    ret.setFreeText (aDoc.get (CPYPStorage.FIELD_FREETEXT));
+    ret.setDeleted (aDoc.getField (CPYPStorage.FIELD_DELETED) != null);
     return ret;
   }
 }
