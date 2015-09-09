@@ -22,11 +22,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.commons.annotation.UsedViaReflection;
+import com.helger.commons.callback.IThrowingCallableWithParameter;
 import com.helger.commons.exception.InitializationException;
 import com.helger.commons.io.stream.StreamHelper;
 import com.helger.commons.lang.ClassHelper;
 import com.helger.commons.scope.IScope;
 import com.helger.commons.scope.singleton.AbstractGlobalSingleton;
+import com.helger.photon.basic.app.dao.impl.DAOException;
 import com.helger.pyp.lucene.PYPLucene;
 import com.helger.pyp.storage.PYPStorageManager;
 
@@ -34,9 +36,16 @@ public final class PYPMetaManager extends AbstractGlobalSingleton
 {
   private static final Logger s_aLogger = LoggerFactory.getLogger (PYPMetaManager.class);
 
+  private static IThrowingCallableWithParameter <IndexerManager, PYPStorageManager, DAOException> s_aFactoryIndexerMgr = aStorageMgr -> new IndexerManager (aStorageMgr).readAndQueueInitialData ();
+
   private PYPLucene m_aLucene;
   private PYPStorageManager m_aStorageMgr;
   private IndexerManager m_aIndexerMgr;
+
+  public static void setIndexerMgrFactory (@Nonnull final IThrowingCallableWithParameter <IndexerManager, PYPStorageManager, DAOException> aFactoryIndexerMgr)
+  {
+    s_aFactoryIndexerMgr = aFactoryIndexerMgr;
+  }
 
   @Deprecated
   @UsedViaReflection
@@ -50,7 +59,9 @@ public final class PYPMetaManager extends AbstractGlobalSingleton
     {
       m_aLucene = new PYPLucene ();
       m_aStorageMgr = new PYPStorageManager (m_aLucene);
-      m_aIndexerMgr = new IndexerManager (m_aStorageMgr);
+      m_aIndexerMgr = s_aFactoryIndexerMgr.call (m_aStorageMgr);
+      if (m_aIndexerMgr == null)
+        throw new IllegalStateException ("Failed to create IndexerManager");
 
       s_aLogger.info (ClassHelper.getClassLocalName (this) + " was initialized");
     }

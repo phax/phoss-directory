@@ -55,48 +55,55 @@ public final class IndexerManager implements Closeable
   private static final String ELEMENT_ROOT = "root";
   private static final String ELEMENT_ITEM = "item";
 
-  private final PYPStorageManager m_aStorageMgr;
   private final ReadWriteLock m_aRWLock = new ReentrantReadWriteLock ();
-  @GuardedBy ("m_aRWLock")
-  private final Set <IndexerWorkItem> m_aUniqueItems = new HashSet <> ();
+  private final PYPStorageManager m_aStorageMgr;
+  private final File m_aIndexerWorkItemFile;
   private final ReIndexWorkItemList m_aReIndexList;
   private final IndexerWorkItemQueue m_aIndexerWorkQueue = new IndexerWorkItemQueue (this::_asyncFetchParticipantData);
   private final TriggerKey m_aTriggerKey;
+  @GuardedBy ("m_aRWLock")
+  private final Set <IndexerWorkItem> m_aUniqueItems = new HashSet <> ();
+  @GuardedBy ("m_aRWLock")
   private IPYPBusinessInformationProvider m_aBIProvider = new SMPBusinessInformationProvider ();
 
   // Status vars
   private final GlobalQuartzScheduler m_aScheduler;
-  private final File m_aIndexerWorkItemFile;
 
   public IndexerManager (@Nonnull final PYPStorageManager aStorageMgr) throws DAOException
   {
     m_aStorageMgr = ValueEnforcer.notNull (aStorageMgr, "StorageMgr");
     m_aReIndexList = new ReIndexWorkItemList ();
 
-    // Read existing work item file
+    // Remember the file because upon shutdown WebFileIO may already be
+    // discarded
     m_aIndexerWorkItemFile = WebFileIO.getDataIO ().getFile ("indexer-work-items.xml");
-    {
-      final IMicroDocument aDoc = MicroReader.readMicroXML (m_aIndexerWorkItemFile);
-      if (aDoc != null)
-      {
-        if (s_aLogger.isDebugEnabled ())
-          s_aLogger.debug ("Reading persisted indexer work items from " + m_aIndexerWorkItemFile);
-        for (final IMicroElement eItem : aDoc.getDocumentElement ().getAllChildElements (ELEMENT_ITEM))
-        {
-          final IndexerWorkItem aWorkItem = MicroTypeConverter.convertToNative (eItem, IndexerWorkItem.class);
-          _queueWorkItem (aWorkItem);
-        }
-      }
-
-      // Delete the files to ensure they are not read again next startup time
-      WebFileIO.getFileOpMgr ().deleteFileIfExisting (m_aIndexerWorkItemFile);
-    }
 
     // Schedule re-index job
     m_aTriggerKey = ReIndexJob.schedule (SimpleScheduleBuilder.repeatMinutelyForever (1), CApplication.APP_ID_SECURE);
 
     // remember here
     m_aScheduler = GlobalQuartzScheduler.getInstance ();
+  }
+
+  @Nonnull
+  public IndexerManager readAndQueueInitialData ()
+  {
+    // Read the file - may not be existing
+    final IMicroDocument aDoc = MicroReader.readMicroXML (m_aIndexerWorkItemFile);
+    if (aDoc != null)
+    {
+      if (s_aLogger.isDebugEnabled ())
+        s_aLogger.debug ("Reading persisted indexer work items from " + m_aIndexerWorkItemFile);
+      for (final IMicroElement eItem : aDoc.getDocumentElement ().getAllChildElements (ELEMENT_ITEM))
+      {
+        final IndexerWorkItem aWorkItem = MicroTypeConverter.convertToNative (eItem, IndexerWorkItem.class);
+        _queueWorkItem (aWorkItem);
+      }
+
+      // Delete the files to ensure it is not read again next startup time
+      WebFileIO.getFileOpMgr ().deleteFile (m_aIndexerWorkItemFile);
+    }
+    return this;
   }
 
   private void _writeWorkItems (@Nonnull final List <IndexerWorkItem> aItems)
@@ -121,23 +128,40 @@ public final class IndexerManager implements Closeable
 
     // Unschedule the job to avoid problems on shutdown. Use the saved instance
     // because GlobalQuartzScheduler.getInstance() would fail because the global
-    // scope is already in desctruction.
+    // scope is already in destruction.
     m_aScheduler.unscheduleJob (m_aTriggerKey);
 
+    // Close Lucene index etc.
     m_aStorageMgr.close ();
   }
 
   @Nonnull
   public IPYPBusinessInformationProvider getBusinessInformationProvider ()
   {
-    return m_aBIProvider;
+    m_aRWLock.readLock ().lock ();
+    try
+    {
+      return m_aBIProvider;
+    }
+    finally
+    {
+      m_aRWLock.readLock ().unlock ();
+    }
   }
 
   @Nonnull
   public IndexerManager setBusinessInformationProvider (@Nonnull final IPYPBusinessInformationProvider aBIProvider)
   {
-    m_aBIProvider = ValueEnforcer.notNull (aBIProvider, "BIProvider");
-    return this;
+    m_aRWLock.writeLock ().lock ();
+    try
+    {
+      m_aBIProvider = ValueEnforcer.notNull (aBIProvider, "BIProvider");
+      return this;
+    }
+    finally
+    {
+      m_aRWLock.writeLock ().unlock ();
+    }
   }
 
   @Nonnull
@@ -199,7 +223,7 @@ public final class IndexerManager implements Closeable
     final IPeppolParticipantIdentifier aParticipantID = aItem.getParticipantID ();
 
     // Get BI from participant
-    final BusinessInformationType aBI = m_aBIProvider.getBusinessInformation (aParticipantID);
+    final BusinessInformationType aBI = getBusinessInformationProvider ().getBusinessInformation (aParticipantID);
     if (aBI == null)
     {
       // No/invalid extension present - no need to try again

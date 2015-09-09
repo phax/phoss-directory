@@ -3,6 +3,7 @@ package com.helger.pyp.indexer.job;
 import java.util.Date;
 
 import javax.annotation.Nonnull;
+import javax.servlet.ServletContext;
 
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
@@ -14,10 +15,14 @@ import org.quartz.TriggerKey;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
+import com.helger.commons.annotation.OverrideOnDemand;
 import com.helger.photon.core.job.AbstractPhotonJob;
 import com.helger.pyp.indexer.mgr.IndexerManager;
 import com.helger.pyp.indexer.mgr.PYPMetaManager;
 import com.helger.schedule.quartz.GlobalQuartzScheduler;
+import com.helger.web.mock.MockHttpServletRequest;
+import com.helger.web.mock.OfflineHttpServletRequest;
+import com.helger.web.scope.mgr.WebScopeManager;
 
 /**
  * A Quartz job that is scheduled to re-index existing entries that failed to
@@ -28,11 +33,24 @@ import com.helger.schedule.quartz.GlobalQuartzScheduler;
 @DisallowConcurrentExecution
 public class ReIndexJob extends AbstractPhotonJob
 {
+  private final ServletContext m_aSC;
+
   /**
    * Public no argument constructor must be available.
    */
   public ReIndexJob ()
-  {}
+  {
+    // Save to avoid global scope access
+    m_aSC = WebScopeManager.getGlobalScope ().getServletContext ();
+  }
+
+  @Override
+  @Nonnull
+  @OverrideOnDemand
+  protected MockHttpServletRequest createMockHttpServletRequest ()
+  {
+    return new OfflineHttpServletRequest (m_aSC, false);
+  }
 
   @Override
   protected void onExecute (@Nonnull final JobExecutionContext aContext) throws JobExecutionException

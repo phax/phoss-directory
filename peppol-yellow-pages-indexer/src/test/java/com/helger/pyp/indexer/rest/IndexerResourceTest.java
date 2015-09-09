@@ -55,6 +55,7 @@ import com.helger.pyp.businessinformation.EntityType;
 import com.helger.pyp.businessinformation.IdentifierType;
 import com.helger.pyp.indexer.PYPTestRule;
 import com.helger.pyp.indexer.clientcert.ClientCertificateValidator;
+import com.helger.pyp.indexer.mgr.IndexerManager;
 import com.helger.pyp.indexer.mgr.PYPMetaManager;
 import com.helger.web.https.DoNothingTrustManager;
 import com.helger.web.https.HostnameVerifierAlwaysTrue;
@@ -116,6 +117,11 @@ public final class IndexerResourceTest
   @Before
   public void setUp () throws GeneralSecurityException, IOException
   {
+    // Set test BI provider
+    PYPMetaManager.setIndexerMgrFactory (aStorageMgr -> new IndexerManager (aStorageMgr).setBusinessInformationProvider (aParticipantID -> _createMockBI (aParticipantID))
+                                                                                        .readAndQueueInitialData ());
+    PYPMetaManager.getInstance ();
+
     final File aTestClientCertificateKeyStore = new File ("src/test/resources/smp.pilot.jks");
     if (aTestClientCertificateKeyStore.exists ())
     {
@@ -160,13 +166,12 @@ public final class IndexerResourceTest
   @Test
   public void testCreateAndDeleteParticipant () throws IOException
   {
-    // Set test BI provider
-    PYPMetaManager.getIndexerMgr ().setBusinessInformationProvider (aParticipantID -> _createMockBI (aParticipantID));
 
     final AtomicInteger aIndex = new AtomicInteger (0);
     final SimpleParticipantIdentifier aPI_0 = SimpleParticipantIdentifier.createWithDefaultScheme ("9915:test0");
 
-    CommonsTestHelper.testInParallel (1000, (Runnable) () -> {
+    final int nCount = 4;
+    CommonsTestHelper.testInParallel (nCount, (Runnable) () -> {
       // Create
       final SimpleParticipantIdentifier aPI = SimpleParticipantIdentifier.createWithDefaultScheme ("9915:test" +
                                                                                                    aIndex.getAndIncrement ());
@@ -176,11 +181,11 @@ public final class IndexerResourceTest
       assertEquals ("", sResponseMsg);
     });
 
-    ThreadHelper.sleep (500);
+    ThreadHelper.sleep (2000);
     assertTrue (PYPMetaManager.getStorageMgr ().containsEntry (aPI_0));
 
     aIndex.set (0);
-    CommonsTestHelper.testInParallel (1000, (Runnable) () -> {
+    CommonsTestHelper.testInParallel (nCount, (Runnable) () -> {
       // Delete
       final SimpleParticipantIdentifier aPI = SimpleParticipantIdentifier.createWithDefaultScheme ("9915:test" +
                                                                                                    aIndex.getAndIncrement ());
@@ -189,7 +194,7 @@ public final class IndexerResourceTest
       assertEquals ("", sResponseMsg);
     });
 
-    ThreadHelper.sleep (500);
+    ThreadHelper.sleep (2000);
     assertFalse (PYPMetaManager.getStorageMgr ().containsEntry (aPI_0));
   }
 }
