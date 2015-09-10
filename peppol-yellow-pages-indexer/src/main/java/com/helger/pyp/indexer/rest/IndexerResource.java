@@ -16,9 +16,12 @@
  */
 package com.helger.pyp.indexer.rest;
 
+import java.io.IOException;
+
 import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -28,6 +31,7 @@ import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.helger.commons.annotation.Nonempty;
 import com.helger.peppol.identifier.participant.SimpleParticipantIdentifier;
 import com.helger.pyp.indexer.clientcert.ClientCertificateValidationResult;
 import com.helger.pyp.indexer.clientcert.ClientCertificateValidator;
@@ -65,6 +69,13 @@ public class IndexerResource
     return ClientCertificateValidationResult.createFailure ();
   }
 
+  @Nonnull
+  @Nonempty
+  private static String _getRequestingHost (@Nonnull final HttpServletRequest aHttpServletRequest)
+  {
+    return aHttpServletRequest.getRemoteAddr () + "/" + aHttpServletRequest.getRemoteHost ();
+  }
+
   @PUT
   public Response createOrUpdateParticipant (@Context @Nonnull final HttpServletRequest aHttpServletRequest,
                                              @Nonnull final String sParticipantID)
@@ -77,7 +88,10 @@ public class IndexerResource
     final SimpleParticipantIdentifier aPI = SimpleParticipantIdentifier.createFromURIPart (sParticipantID);
 
     // Queue for handling
-    PYPMetaManager.getIndexerMgr ().queueWorkItem (aPI, EIndexerWorkItemType.CREATE_UPDATE, aResult.getClientID ());
+    PYPMetaManager.getIndexerMgr ().queueWorkItem (aPI,
+                                                   EIndexerWorkItemType.CREATE_UPDATE,
+                                                   aResult.getClientID (),
+                                                   _getRequestingHost (aHttpServletRequest));
 
     // And done
     return Response.noContent ().build ();
@@ -99,7 +113,30 @@ public class IndexerResource
     // creation
 
     // Queue for handling
-    PYPMetaManager.getIndexerMgr ().queueWorkItem (aPI, EIndexerWorkItemType.DELETE, aResult.getClientID ());
+    PYPMetaManager.getIndexerMgr ().queueWorkItem (aPI,
+                                                   EIndexerWorkItemType.DELETE,
+                                                   aResult.getClientID (),
+                                                   _getRequestingHost (aHttpServletRequest));
+
+    // And done
+    return Response.noContent ().build ();
+  }
+
+  @GET
+  @Path ("{participantID}")
+  public Response checkParticipantExistence (@Context @Nonnull final HttpServletRequest aHttpServletRequest,
+                                             @PathParam ("participantID") @Nonnull final String sParticipantID) throws IOException
+  {
+    final ClientCertificateValidationResult aResult = _checkClientCertificate (aHttpServletRequest);
+    if (aResult.isFailure ())
+      return Response.status (Response.Status.FORBIDDEN).build ();
+
+    // Parse identifier
+    final SimpleParticipantIdentifier aPI = SimpleParticipantIdentifier.createFromURIPart (sParticipantID);
+
+    // Queue for handling
+    if (!PYPMetaManager.getStorageMgr ().containsEntry (aPI))
+      return Response.status (Response.Status.NOT_FOUND).build ();
 
     // And done
     return Response.noContent ().build ();
