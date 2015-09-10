@@ -20,11 +20,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 
-import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,9 +59,9 @@ final class ReIndexWorkItemList extends AbstractWALDAO <ReIndexWorkItem>
 
   private final Map <String, ReIndexWorkItem> m_aMap = new HashMap <> ();
 
-  public ReIndexWorkItemList () throws DAOException
+  public ReIndexWorkItemList (@Nullable final String sFilename) throws DAOException
   {
-    super (ReIndexWorkItem.class, "reindex-work-items.xml");
+    super (ReIndexWorkItem.class, sFilename);
     initialRead ();
   }
 
@@ -114,7 +115,15 @@ final class ReIndexWorkItemList extends AbstractWALDAO <ReIndexWorkItem>
     m_aMap.put (sID, aItem);
   }
 
-  public void addItem (@Nonnull final ReIndexWorkItem aItem)
+  /**
+   * Add a unique item to the list.
+   *
+   * @param aItem
+   *        The item to be added. May not be <code>null</code>.
+   * @throws IllegalStateException
+   *         If an item with the same ID is already contained
+   */
+  public void addItem (@Nonnull final ReIndexWorkItem aItem) throws IllegalStateException
   {
     m_aRWLock.writeLock ().lock ();
     try
@@ -143,23 +152,21 @@ final class ReIndexWorkItemList extends AbstractWALDAO <ReIndexWorkItem>
     addItem (aItem);
   }
 
-  @Nonnull
-  @ReturnsMutableCopy
-  public List <ReIndexWorkItem> getAndRemoveAllExpiredEntries ()
+  @Nullable
+  public ReIndexWorkItem getAndRemoveEntry (@Nonnull final Predicate <ReIndexWorkItem> aPred)
   {
     m_aRWLock.writeLock ().lock ();
     try
     {
-      final List <ReIndexWorkItem> ret = new ArrayList <> ();
       // Operate on a copy for removal!
       for (final ReIndexWorkItem aWorkItem : CollectionHelper.newList (m_aMap.values ()))
-        if (aWorkItem.isExpired ())
+        if (aPred.test (aWorkItem))
         {
-          ret.add (aWorkItem);
           m_aMap.remove (aWorkItem.getID ());
           markAsChanged (aWorkItem, EDAOActionType.DELETE);
+          return aWorkItem;
         }
-      return ret;
+      return null;
     }
     finally
     {
@@ -169,7 +176,7 @@ final class ReIndexWorkItemList extends AbstractWALDAO <ReIndexWorkItem>
 
   @Nonnull
   @ReturnsMutableCopy
-  public List <ReIndexWorkItem> getAndRemoveAllItemsForReIndex (@Nonnull final LocalDateTime aDT)
+  public List <ReIndexWorkItem> getAndRemoveAllEntries (@Nonnull final Predicate <ReIndexWorkItem> aPred)
   {
     m_aRWLock.writeLock ().lock ();
     try
@@ -177,7 +184,7 @@ final class ReIndexWorkItemList extends AbstractWALDAO <ReIndexWorkItem>
       final List <ReIndexWorkItem> ret = new ArrayList <> ();
       // Operate on a copy for removal!
       for (final ReIndexWorkItem aWorkItem : CollectionHelper.newList (m_aMap.values ()))
-        if (aWorkItem.isRetryPossible (aDT))
+        if (aPred.test (aWorkItem))
         {
           ret.add (aWorkItem);
           m_aMap.remove (aWorkItem.getID ());

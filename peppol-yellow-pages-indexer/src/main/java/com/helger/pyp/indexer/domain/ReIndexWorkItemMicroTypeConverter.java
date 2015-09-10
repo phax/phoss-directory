@@ -29,7 +29,6 @@ import com.helger.commons.string.StringParser;
 
 public final class ReIndexWorkItemMicroTypeConverter implements IMicroTypeConverter
 {
-  private static final String ATTR_ID = "id";
   private static final String ELEMENT_WORK_ITEM = "workitem";
   private static final String ATTR_MAX_RETRY_DT = "maxretrydt";
   private static final String ATTR_RETRY_COUNT = "retries";
@@ -43,7 +42,6 @@ public final class ReIndexWorkItemMicroTypeConverter implements IMicroTypeConver
   {
     final ReIndexWorkItem aValue = (ReIndexWorkItem) aObject;
     final IMicroElement aElement = new MicroElement (sNamespaceURI, sTagName);
-    aElement.setAttribute (ATTR_ID, aValue.getID ());
     aElement.appendChild (MicroTypeConverter.convertToMicroElement (aValue.getWorkItem (),
                                                                     sNamespaceURI,
                                                                     ELEMENT_WORK_ITEM));
@@ -57,8 +55,6 @@ public final class ReIndexWorkItemMicroTypeConverter implements IMicroTypeConver
   @Nullable
   public ReIndexWorkItem convertToNative (@Nonnull final IMicroElement aElement)
   {
-    final String sID = aElement.getAttributeValue (ATTR_ID);
-
     final IndexerWorkItem aWorkItem = MicroTypeConverter.convertToNative (aElement.getFirstChildElement (ELEMENT_WORK_ITEM),
                                                                           IndexerWorkItem.class);
 
@@ -75,7 +71,7 @@ public final class ReIndexWorkItemMicroTypeConverter implements IMicroTypeConver
     final LocalDateTime aNextRetryDT = aElement.getAttributeValueWithConversion (ATTR_NEXT_RETRY_DT,
                                                                                  LocalDateTime.class);
 
-    return new ReIndexWorkItem (sID, aWorkItem, aMaxRetryDT, nRetryCount, aPreviousRetryDT, aNextRetryDT);
+    return new ReIndexWorkItem (aWorkItem, aMaxRetryDT, nRetryCount, aPreviousRetryDT, aNextRetryDT);
   }
 
 }

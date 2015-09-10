@@ -26,6 +26,8 @@ import org.joda.time.LocalDateTime;
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.hashcode.HashCodeGenerator;
+import com.helger.commons.id.IHasID;
+import com.helger.commons.id.factory.GlobalIDFactory;
 import com.helger.commons.string.ToStringGenerator;
 import com.helger.datetime.PDTFactory;
 import com.helger.peppol.identifier.IParticipantIdentifier;
@@ -38,8 +40,9 @@ import com.helger.peppol.identifier.participant.SimpleParticipantIdentifier;
  * @author Philip Helger
  */
 @Immutable
-public final class IndexerWorkItem implements Serializable
+public final class IndexerWorkItem implements Serializable, IHasID <String>
 {
+  private final String m_sID;
   private final LocalDateTime m_aCreationDT;
   private final IPeppolParticipantIdentifier m_aParticpantID;
   private final EIndexerWorkItemType m_eType;
@@ -51,27 +54,42 @@ public final class IndexerWorkItem implements Serializable
                           @Nonnull @Nonempty final String sOwnerID,
                           @Nonnull @Nonempty final String sRequestingHost)
   {
-    this (PDTFactory.getCurrentLocalDateTime (), aParticpantID, eType, sOwnerID, sRequestingHost);
+    this (GlobalIDFactory.getNewPersistentStringID (),
+          PDTFactory.getCurrentLocalDateTime (),
+          aParticpantID,
+          eType,
+          sOwnerID,
+          sRequestingHost);
   }
 
-  IndexerWorkItem (@Nonnull final LocalDateTime aCreationDT,
+  IndexerWorkItem (@Nonnull @Nonempty final String sID,
+                   @Nonnull final LocalDateTime aCreationDT,
                    @Nonnull final IParticipantIdentifier aParticpantID,
                    @Nonnull final EIndexerWorkItemType eType,
                    @Nonnull @Nonempty final String sOwnerID,
                    @Nonnull @Nonempty final String sRequestingHost)
   {
+    ValueEnforcer.notNull (sID, "ID");
     ValueEnforcer.notNull (aCreationDT, "CreationDT");
     ValueEnforcer.notNull (aParticpantID, "ParticpantID");
     ValueEnforcer.notNull (eType, "Type");
     ValueEnforcer.notNull (sOwnerID, "OwnerID");
     ValueEnforcer.notNull (sRequestingHost, "RequestingHost");
 
+    m_sID = sID;
     m_aCreationDT = aCreationDT;
     // Ensure all objects have the same type
     m_aParticpantID = new SimpleParticipantIdentifier (aParticpantID);
     m_eType = eType;
     m_sOwnerID = sOwnerID;
     m_sRequestingHost = sRequestingHost;
+  }
+
+  @Nonnull
+  @Nonempty
+  public String getID ()
+  {
+    return m_sID;
   }
 
   /**
@@ -106,6 +124,7 @@ public final class IndexerWorkItem implements Serializable
    *         requested this action. Never <code>null</code>.
    */
   @Nonnull
+  @Nonempty
   public String getOwnerID ()
   {
     return m_sOwnerID;
@@ -149,7 +168,8 @@ public final class IndexerWorkItem implements Serializable
   @Override
   public String toString ()
   {
-    return new ToStringGenerator (this).append ("CreationDT", m_aCreationDT)
+    return new ToStringGenerator (this).append ("ID", m_sID)
+                                       .append ("CreationDT", m_aCreationDT)
                                        .append ("ParticipantID", m_aParticpantID)
                                        .append ("Type", m_eType)
                                        .append ("OwnerID", m_sOwnerID)

@@ -29,7 +29,6 @@ import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.hashcode.HashCodeGenerator;
 import com.helger.commons.id.IHasID;
-import com.helger.commons.id.factory.GlobalIDFactory;
 import com.helger.commons.string.ToStringGenerator;
 import com.helger.datetime.PDTFactory;
 import com.helger.pyp.settings.PYPSettings;
@@ -43,7 +42,6 @@ import com.helger.pyp.settings.PYPSettings;
 @NotThreadSafe
 public class ReIndexWorkItem implements IHasID <String>, Serializable
 {
-  private final String m_sID;
   private final IndexerWorkItem m_aWorkItem;
   private final LocalDateTime m_aMaxRetryDT;
   private int m_nRetries;
@@ -53,22 +51,19 @@ public class ReIndexWorkItem implements IHasID <String>, Serializable
   public ReIndexWorkItem (@Nonnull final IndexerWorkItem aWorkItem)
   {
     // The next retry happens from now in the configured number of minutes
-    this (GlobalIDFactory.getNewPersistentStringID (),
-          aWorkItem,
+    this (aWorkItem,
           aWorkItem.getCreationDT ().plusHours (PYPSettings.getReIndexMaxRetryHours ()),
           0,
           (LocalDateTime) null,
           PDTFactory.getCurrentLocalDateTime ().plusMinutes (PYPSettings.getReIndexRetryMinutes ()));
   }
 
-  ReIndexWorkItem (@Nonnull @Nonempty final String sID,
-                   @Nonnull final IndexerWorkItem aWorkItem,
+  ReIndexWorkItem (@Nonnull final IndexerWorkItem aWorkItem,
                    @Nonnull final LocalDateTime aMaxRetryDT,
                    final int nRetries,
                    @Nullable final LocalDateTime aPreviousRetryDT,
                    @Nonnull final LocalDateTime aNextRetryDT)
   {
-    m_sID = ValueEnforcer.notEmpty (sID, "ID");
     m_aWorkItem = ValueEnforcer.notNull (aWorkItem, "WorkItem");
     m_aMaxRetryDT = ValueEnforcer.notNull (aMaxRetryDT, "MaxRetryDT");
     m_nRetries = ValueEnforcer.isGE0 (nRetries, "Retries");
@@ -108,7 +103,7 @@ public class ReIndexWorkItem implements IHasID <String>, Serializable
   @Nonempty
   public String getID ()
   {
-    return m_sID;
+    return m_aWorkItem.getID ();
   }
 
   /**
@@ -174,20 +169,19 @@ public class ReIndexWorkItem implements IHasID <String>, Serializable
     if (o == null || !getClass ().equals (o.getClass ()))
       return false;
     final ReIndexWorkItem rhs = (ReIndexWorkItem) o;
-    return m_sID.equals (rhs.m_sID);
+    return getID ().equals (rhs.getID ());
   }
 
   @Override
   public int hashCode ()
   {
-    return new HashCodeGenerator (this).append (m_sID).getHashCode ();
+    return new HashCodeGenerator (this).append (getID ()).getHashCode ();
   }
 
   @Override
   public String toString ()
   {
-    return new ToStringGenerator (this).append ("ID", m_sID)
-                                       .append ("WorkItem", m_aWorkItem)
+    return new ToStringGenerator (this).append ("WorkItem", m_aWorkItem)
                                        .append ("MaxRetryDT", m_aMaxRetryDT)
                                        .append ("Retries", m_nRetries)
                                        .append ("PreviousRetryDT", m_aPreviousRetryDT)

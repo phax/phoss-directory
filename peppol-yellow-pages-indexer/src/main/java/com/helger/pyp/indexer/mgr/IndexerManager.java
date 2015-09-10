@@ -28,6 +28,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 
+import org.joda.time.LocalDateTime;
 import org.quartz.SimpleScheduleBuilder;
 import org.quartz.TriggerKey;
 import org.slf4j.Logger;
@@ -35,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
+import com.helger.commons.annotation.ReturnsMutableCopy;
 import com.helger.commons.microdom.IMicroDocument;
 import com.helger.commons.microdom.IMicroElement;
 import com.helger.commons.microdom.MicroDocument;
@@ -74,8 +76,9 @@ public final class IndexerManager implements Closeable
   private final ReadWriteLock m_aRWLock = new ReentrantReadWriteLock ();
   private final PYPStorageManager m_aStorageMgr;
   private final File m_aIndexerWorkItemFile;
-  private final ReIndexWorkItemList m_aReIndexList;
   private final IndexerWorkItemQueue m_aIndexerWorkQueue = new IndexerWorkItemQueue (this::_asyncFetchParticipantData);
+  private final ReIndexWorkItemList m_aReIndexList;
+  private final ReIndexWorkItemList m_aDeadList;
   private final TriggerKey m_aTriggerKey;
   @GuardedBy ("m_aRWLock")
   private final Set <IndexerWorkItem> m_aUniqueItems = new HashSet <> ();
@@ -88,7 +91,8 @@ public final class IndexerManager implements Closeable
   public IndexerManager (@Nonnull final PYPStorageManager aStorageMgr) throws DAOException
   {
     m_aStorageMgr = ValueEnforcer.notNull (aStorageMgr, "StorageMgr");
-    m_aReIndexList = new ReIndexWorkItemList ();
+    m_aReIndexList = new ReIndexWorkItemList ("reindex-work-items.xml");
+    m_aDeadList = new ReIndexWorkItemList ("dead-work-items.xml");
 
     // Remember the file because upon shutdown WebFileIO may already be
     // discarded
@@ -341,16 +345,20 @@ public final class IndexerManager implements Closeable
   public void expireOldEntries ()
   {
     // Expire old entries
-    final List <ReIndexWorkItem> aExpiredItems = m_aReIndexList.getAndRemoveAllExpiredEntries ();
+    final List <ReIndexWorkItem> aExpiredItems = m_aReIndexList.getAndRemoveAllEntries (aWorkItem -> aWorkItem.isExpired ());
     if (!aExpiredItems.isEmpty ())
     {
-      s_aLogger.info ("Expired " + aExpiredItems.size () + " re-index work items");
+      s_aLogger.info ("Expiring " + aExpiredItems.size () + " re-index work items");
 
       m_aRWLock.writeLock ().lock ();
       try
       {
-        // remove them from the overall list
-        aExpiredItems.stream ().forEach (aItem -> m_aUniqueItems.remove (aItem.getWorkItem ()));
+        // remove them from the overall list but move to dead item list
+        for (final ReIndexWorkItem aItem : aExpiredItems)
+        {
+          m_aUniqueItems.remove (aItem.getWorkItem ());
+          m_aDeadList.addItem (aItem);
+        }
       }
       finally
       {
@@ -359,14 +367,23 @@ public final class IndexerManager implements Closeable
     }
   }
 
+  /**
+   * Re-index all entries that are ready to be re-indexed now.
+   */
   public void reIndexParticipantData ()
   {
     // Get and remove all items to re-index "now"
-    final List <ReIndexWorkItem> aReIndexNowItems = m_aReIndexList.getAndRemoveAllItemsForReIndex (PDTFactory.getCurrentLocalDateTime ());
+    final LocalDateTime aNow = PDTFactory.getCurrentLocalDateTime ();
+    final List <ReIndexWorkItem> aReIndexNowItems = m_aReIndexList.getAndRemoveAllEntries (aWorkItem -> aWorkItem.isRetryPossible (aNow));
+
+    if (s_aLogger.isDebugEnabled ())
+      s_aLogger.debug ("Re-indexing " + aReIndexNowItems.size () + " work items");
 
     for (final ReIndexWorkItem aReIndexItem : aReIndexNowItems)
     {
-      s_aLogger.info ("Try to perform " + aReIndexItem.getLogText ());
+      if (s_aLogger.isDebugEnabled ())
+        s_aLogger.debug ("Try to re-index " + aReIndexItem.getLogText ());
+
       if (_fetchParticipantData0 (aReIndexItem.getWorkItem ()).isFailure ())
       {
         // Still no success. Add again to the retry list
@@ -375,12 +392,24 @@ public final class IndexerManager implements Closeable
     }
   }
 
+  /**
+   * @return A list with all items where the re-index period has expired. Never
+   *         <code>null</code> but maybe empty.
+   */
+  @Nonnull
+  @ReturnsMutableCopy
+  public List <ReIndexWorkItem> getAllDeadListItems ()
+  {
+    return m_aDeadList.getAllItems ();
+  }
+
   @Override
   public String toString ()
   {
     return ToStringGenerator.getDerived (super.toString ())
                             .append ("UniqueItems", m_aUniqueItems)
                             .append ("ReIndexList", m_aReIndexList)
+                            .append ("DeadList", m_aDeadList)
                             .append ("IndexerWorkQueue", m_aIndexerWorkQueue)
                             .append ("TriggerKey", m_aTriggerKey)
                             .append ("BIProvider", m_aBIProvider)

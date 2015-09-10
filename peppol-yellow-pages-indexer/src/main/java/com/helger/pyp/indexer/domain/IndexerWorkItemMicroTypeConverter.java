@@ -29,6 +29,7 @@ import com.helger.peppol.identifier.IdentifierHelper;
 
 public final class IndexerWorkItemMicroTypeConverter implements IMicroTypeConverter
 {
+  private static final String ATTR_ID = "id";
   private static final String ATTR_CREATION_DATE_TIME = "creationdt";
   private static final String ATTR_PARTICIPANT_ID = "participantid";
   private static final String ATTR_TYPE = "type";
@@ -42,6 +43,7 @@ public final class IndexerWorkItemMicroTypeConverter implements IMicroTypeConver
   {
     final IndexerWorkItem aValue = (IndexerWorkItem) aObject;
     final IMicroElement aElement = new MicroElement (sNamespaceURI, sTagName);
+    aElement.setAttribute (ATTR_ID, aValue.getID ());
     aElement.setAttributeWithConversion (ATTR_CREATION_DATE_TIME, aValue.getCreationDT ());
     aElement.setAttribute (ATTR_PARTICIPANT_ID, aValue.getParticipantID ().getURIEncoded ());
     aElement.setAttribute (ATTR_TYPE, aValue.getType ().getID ());
@@ -53,8 +55,11 @@ public final class IndexerWorkItemMicroTypeConverter implements IMicroTypeConver
   @Nullable
   public IndexerWorkItem convertToNative (@Nonnull final IMicroElement aElement)
   {
+    final String sID = aElement.getAttributeValue (ATTR_ID);
+
     final LocalDateTime aCreationDT = aElement.getAttributeValueWithConversion (ATTR_CREATION_DATE_TIME,
                                                                                 LocalDateTime.class);
+
     final String sParticipantID = aElement.getAttributeValue (ATTR_PARTICIPANT_ID);
     final IParticipantIdentifier aParticipantID = IdentifierHelper.createParticipantIdentifierFromURIPart (sParticipantID);
     if (aParticipantID == null)
@@ -69,7 +74,6 @@ public final class IndexerWorkItemMicroTypeConverter implements IMicroTypeConver
 
     final String sRequestingHost = aElement.getAttributeValue (ATTR_HOST);
 
-    return new IndexerWorkItem (aCreationDT, aParticipantID, eType, sOwnerID, sRequestingHost);
+    return new IndexerWorkItem (sID, aCreationDT, aParticipantID, eType, sOwnerID, sRequestingHost);
   }
-
 }
