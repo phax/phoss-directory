@@ -4,6 +4,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -12,12 +13,16 @@ import javax.annotation.Nullable;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexNotFoundException;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
+import org.apache.lucene.index.IndexableField;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
@@ -46,6 +51,7 @@ public final class PYPLucene implements Closeable
   private DirectoryReader m_aIndexReader;
   private IndexSearcher m_aSearcher;
   private final AtomicBoolean m_aClosing = new AtomicBoolean (false);
+  private final AtomicInteger m_aWriterChanges = new AtomicInteger (0);
 
   public PYPLucene () throws IOException
   {
@@ -60,14 +66,8 @@ public final class PYPLucene implements Closeable
     aWriterConfig.setOpenMode (OpenMode.CREATE_OR_APPEND);
 
     m_aIndexWriter = new IndexWriter (m_aDir, aWriterConfig);
-    try
-    {
-      m_aIndexReader = DirectoryReader.open (m_aDir);
-    }
-    catch (final IndexNotFoundException ex)
-    {
-      // empty index
-    }
+
+    // Reader and searcher are opened on demand
 
     s_aLogger.info ("Lucene index operating on " + aPath);
   }
@@ -114,25 +114,27 @@ public final class PYPLucene implements Closeable
   }
 
   @Nonnull
-  public IndexReader getReader ()
-  {
-    _checkClosing ();
-    return m_aIndexReader;
-  }
-
-  @Nonnull
-  public IndexWriter getWriter ()
+  private IndexWriter _getWriter ()
   {
     _checkClosing ();
     return m_aIndexWriter;
   }
 
   @Nullable
-  public IndexSearcher getSearcher () throws IOException
+  private IndexReader _getReader () throws IOException
   {
     _checkClosing ();
     try
     {
+      // Commit only if a reader is requested
+      if (m_aWriterChanges.intValue () > 0)
+      {
+        s_aLogger.info ("Lazily committing " + m_aWriterChanges.intValue () + " changes to the Lucene index");
+        _getWriter ().commit ();
+        m_aWriterChanges.set (0);
+      }
+
+      // Is a new reader required?
       final DirectoryReader aNewReader = m_aIndexReader != null ? DirectoryReader.openIfChanged (m_aIndexReader)
                                                                 : DirectoryReader.open (m_aDir);
       if (aNewReader != null)
@@ -144,15 +146,100 @@ public final class PYPLucene implements Closeable
         if (s_aLogger.isDebugEnabled ())
           s_aLogger.debug ("Contents of index changed. Creating new searcher");
       }
-      if (m_aSearcher == null)
-        m_aSearcher = new IndexSearcher (m_aIndexReader);
-      return m_aSearcher;
+      return m_aIndexReader;
     }
     catch (final IndexNotFoundException ex)
     {
       // No such index
       return null;
     }
+  }
+
+  @Nullable
+  public Document getDocument (final int nDocID) throws IOException
+  {
+    _checkClosing ();
+
+    final IndexReader aReader = _getReader ();
+    if (aReader == null)
+      return null;
+    return aReader.document (nDocID);
+  }
+
+  @Nullable
+  public IndexSearcher getSearcher () throws IOException
+  {
+    _checkClosing ();
+    if (m_aSearcher == null)
+    {
+      final IndexReader aReader = _getReader ();
+      if (aReader == null)
+        return null;
+      m_aSearcher = new IndexSearcher (aReader);
+    }
+    return m_aSearcher;
+  }
+
+  /**
+   * Updates a document by first deleting the document(s) containing
+   * <code>term</code> and then adding the new document. The delete and then add
+   * are atomic as seen by a reader on the same index (flush may happen only
+   * after the add).
+   *
+   * @param aDelTerm
+   *        the term to identify the document(s) to be deleted. May be
+   *        <code>null</code>.
+   * @param aDoc
+   *        the document to be added May not be <code>null</code>.
+   * @throws CorruptIndexException
+   *         if the index is corrupt
+   * @throws IOException
+   *         if there is a low-level IO error
+   */
+  public void updateDocument (@Nullable final Term aDelTerm,
+                              @Nonnull final Iterable <? extends IndexableField> aDoc) throws IOException
+  {
+    _getWriter ().updateDocument (aDelTerm, aDoc);
+    m_aWriterChanges.incrementAndGet ();
+  }
+
+  /**
+   * Atomically deletes documents matching the provided delTerm and adds a block
+   * of documents with sequentially assigned document IDs, such that an external
+   * reader will see all or none of the documents.
+   *
+   * @param aDelTerm
+   *        the term to identify the document(s) to be deleted. May be
+   *        <code>null</code>.
+   * @param aDocs
+   *        the documents to be added. May not be <code>null</code>.
+   * @throws CorruptIndexException
+   *         if the index is corrupt
+   * @throws IOException
+   *         if there is a low-level IO error
+   */
+  public void updateDocuments (@Nullable final Term aDelTerm,
+                               @Nonnull final Iterable <? extends Iterable <? extends IndexableField>> aDocs) throws IOException
+  {
+    _getWriter ().updateDocuments (aDelTerm, aDocs);
+    m_aWriterChanges.incrementAndGet ();
+  }
+
+  /**
+   * Deletes the document(s) containing any of the terms. All given deletes are
+   * applied and flushed atomically at the same time.
+   *
+   * @param terms
+   *        array of terms to identify the documents to be deleted
+   * @throws CorruptIndexException
+   *         if the index is corrupt
+   * @throws IOException
+   *         if there is a low-level IO error
+   */
+  public void deleteDocuments (final Term... terms) throws IOException
+  {
+    _getWriter ().deleteDocuments (terms);
+    m_aWriterChanges.incrementAndGet ();
   }
 
   /**

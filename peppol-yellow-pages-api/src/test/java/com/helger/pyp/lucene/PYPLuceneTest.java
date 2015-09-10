@@ -66,8 +66,7 @@ public final class PYPLuceneTest
     // Existing index
     try (final PYPLucene aLucene = new PYPLucene ())
     {
-      aLucene.getWriter ().updateDocument (new Term ("id", "Apache Lucene 5.0.0"), doc);
-      aLucene.getWriter ().commit ();
+      aLucene.updateDocument (new Term ("id", "Apache Lucene 5.0.0"), doc);
     }
   }
 
@@ -92,7 +91,7 @@ public final class PYPLuceneTest
        */
       System.out.println ("Matching score for first document: " + aHits[0].score);
 
-      final Document doc = aLucene.getReader ().document (aHits[0].doc);
+      final Document doc = aLucene.getDocument (aHits[0].doc);
       System.out.println ("Id of the document: " + doc.get ("id"));
       return doc;
     }

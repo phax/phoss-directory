@@ -13,7 +13,6 @@ import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.IntField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
-import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
@@ -58,7 +57,7 @@ public final class PYPStorageManager implements Closeable
     @Override
     public void collect (final int doc) throws IOException
     {
-      final Document aDoc = m_aLucene.getReader ().document (doc);
+      final Document aDoc = m_aLucene.getDocument (doc);
       m_aTarget.add (aDoc);
     }
   }
@@ -139,9 +138,7 @@ public final class PYPStorageManager implements Closeable
           aDocument.add (FIELD_VALUE_DELETED);
 
         // Update the documents
-        final IndexWriter aWriter = m_aLucene.getWriter ();
-        aWriter.updateDocuments (_createTerm (aParticipantID), aDocuments);
-        aWriter.commit ();
+        m_aLucene.updateDocuments (_createTerm (aParticipantID), aDocuments);
       }
 
       s_aLogger.info ("Marked " + aDocuments.size () + " Lucene documents as deleted");
@@ -160,10 +157,8 @@ public final class PYPStorageManager implements Closeable
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
 
     return m_aLucene.runAtomic ( () -> {
-      final IndexWriter aWriter = m_aLucene.getWriter ();
-
       // Delete all existing documents of the participant ID
-      aWriter.deleteDocuments (_createTerm (aParticipantID));
+      m_aLucene.deleteDocuments (_createTerm (aParticipantID));
 
       for (final EntityType aEntity : aBI.getEntity ())
       {
@@ -186,11 +181,8 @@ public final class PYPStorageManager implements Closeable
           aDoc.add (new TextField (FIELD_FREETEXT, aEntity.getFreeText (), Store.YES));
 
         // Add to index
-        aWriter.addDocument (aDoc);
+        m_aLucene.updateDocument (null, aDoc);
       }
-
-      // Finally commit
-      aWriter.commit ();
 
       s_aLogger.info ("Added " + aBI.getEntityCount () + " Lucene documents");
       AuditHelper.onAuditExecuteSuccess ("pyp-indexer-create",
