@@ -230,10 +230,11 @@ public final class IndexerManager implements Closeable
   @Nonnull
   public EChange queueWorkItem (@Nonnull final IParticipantIdentifier aParticipantID,
                                 @Nonnull final EIndexerWorkItemType eType,
-                                @Nonnull @Nonempty final String sOwnerID)
+                                @Nonnull @Nonempty final String sOwnerID,
+                                @Nonnull @Nonempty final String sRequestingHost)
   {
     // Build item
-    final IndexerWorkItem aWorkItem = new IndexerWorkItem (aParticipantID, eType, sOwnerID);
+    final IndexerWorkItem aWorkItem = new IndexerWorkItem (aParticipantID, eType, sOwnerID, sRequestingHost);
     // And queue it
     return _queueWorkItem (aWorkItem);
   }

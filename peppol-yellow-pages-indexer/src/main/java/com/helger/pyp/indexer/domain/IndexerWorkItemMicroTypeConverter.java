@@ -33,6 +33,7 @@ public final class IndexerWorkItemMicroTypeConverter implements IMicroTypeConver
   private static final String ATTR_PARTICIPANT_ID = "participantid";
   private static final String ATTR_TYPE = "type";
   private static final String ATTR_OWNER_ID = "ownerid";
+  private static final String ATTR_HOST = "host";
 
   @Nullable
   public IMicroElement convertToMicroElement (@Nonnull final Object aObject,
@@ -45,6 +46,7 @@ public final class IndexerWorkItemMicroTypeConverter implements IMicroTypeConver
     aElement.setAttribute (ATTR_PARTICIPANT_ID, aValue.getParticipantID ().getURIEncoded ());
     aElement.setAttribute (ATTR_TYPE, aValue.getType ().getID ());
     aElement.setAttribute (ATTR_OWNER_ID, aValue.getOwnerID ());
+    aElement.setAttribute (ATTR_HOST, aValue.getRequestingHost ());
     return aElement;
   }
 
@@ -65,7 +67,9 @@ public final class IndexerWorkItemMicroTypeConverter implements IMicroTypeConver
 
     final String sOwnerID = aElement.getAttributeValue (ATTR_OWNER_ID);
 
-    return new IndexerWorkItem (aCreationDT, aParticipantID, eType, sOwnerID);
+    final String sRequestingHost = aElement.getAttributeValue (ATTR_HOST);
+
+    return new IndexerWorkItem (aCreationDT, aParticipantID, eType, sOwnerID, sRequestingHost);
   }
 
 }

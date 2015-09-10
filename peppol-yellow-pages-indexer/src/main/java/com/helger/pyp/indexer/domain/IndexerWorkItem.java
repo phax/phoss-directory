@@ -44,29 +44,34 @@ public final class IndexerWorkItem implements Serializable
   private final IPeppolParticipantIdentifier m_aParticpantID;
   private final EIndexerWorkItemType m_eType;
   private final String m_sOwnerID;
+  private final String m_sRequestingHost;
 
   public IndexerWorkItem (@Nonnull final IParticipantIdentifier aParticpantID,
                           @Nonnull final EIndexerWorkItemType eType,
-                          @Nonnull @Nonempty final String sOwnerID)
+                          @Nonnull @Nonempty final String sOwnerID,
+                          @Nonnull @Nonempty final String sRequestingHost)
   {
-    this (PDTFactory.getCurrentLocalDateTime (), aParticpantID, eType, sOwnerID);
+    this (PDTFactory.getCurrentLocalDateTime (), aParticpantID, eType, sOwnerID, sRequestingHost);
   }
 
   IndexerWorkItem (@Nonnull final LocalDateTime aCreationDT,
                    @Nonnull final IParticipantIdentifier aParticpantID,
                    @Nonnull final EIndexerWorkItemType eType,
-                   @Nonnull @Nonempty final String sOwnerID)
+                   @Nonnull @Nonempty final String sOwnerID,
+                   @Nonnull @Nonempty final String sRequestingHost)
   {
     ValueEnforcer.notNull (aCreationDT, "CreationDT");
     ValueEnforcer.notNull (aParticpantID, "ParticpantID");
     ValueEnforcer.notNull (eType, "Type");
     ValueEnforcer.notNull (sOwnerID, "OwnerID");
+    ValueEnforcer.notNull (sRequestingHost, "RequestingHost");
 
     m_aCreationDT = aCreationDT;
     // Ensure all objects have the same type
     m_aParticpantID = new SimpleParticipantIdentifier (aParticpantID);
     m_eType = eType;
     m_sOwnerID = sOwnerID;
+    m_sRequestingHost = sRequestingHost;
   }
 
   /**
@@ -106,6 +111,17 @@ public final class IndexerWorkItem implements Serializable
     return m_sOwnerID;
   }
 
+  /**
+   * @return The IP address of the host requesting this work item. If this
+   *         action is triggered by the scheduled SML exchange, this should be
+   *         <code>automatic</code>.
+   */
+  @Nonnull
+  public String getRequestingHost ()
+  {
+    return m_sRequestingHost;
+  }
+
   @Nonnull
   @Nonempty
   public String getLogText ()
@@ -137,6 +153,7 @@ public final class IndexerWorkItem implements Serializable
                                        .append ("ParticipantID", m_aParticpantID)
                                        .append ("Type", m_eType)
                                        .append ("OwnerID", m_sOwnerID)
+                                       .append ("RequestingHost", m_sRequestingHost)
                                        .toString ();
   }
 }
