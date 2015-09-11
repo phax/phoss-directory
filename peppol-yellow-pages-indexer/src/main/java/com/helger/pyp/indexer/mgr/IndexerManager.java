@@ -22,8 +22,6 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
@@ -37,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.annotation.ReturnsMutableCopy;
+import com.helger.commons.concurrent.SimpleReadWriteLock;
 import com.helger.commons.microdom.IMicroDocument;
 import com.helger.commons.microdom.IMicroElement;
 import com.helger.commons.microdom.MicroDocument;
@@ -73,7 +72,7 @@ public final class IndexerManager implements Closeable
   private static final String ELEMENT_ROOT = "root";
   private static final String ELEMENT_ITEM = "item";
 
-  private final ReadWriteLock m_aRWLock = new ReentrantReadWriteLock ();
+  private final SimpleReadWriteLock m_aRWLock = new SimpleReadWriteLock ();
   private final PYPStorageManager m_aStorageMgr;
   private final File m_aIndexerWorkItemFile;
   private final IndexerWorkItemQueue m_aIndexerWorkQueue = new IndexerWorkItemQueue (this::_asyncFetchParticipantData);
@@ -128,7 +127,7 @@ public final class IndexerManager implements Closeable
       for (final IMicroElement eItem : aDoc.getDocumentElement ().getAllChildElements (ELEMENT_ITEM))
       {
         final IndexerWorkItem aWorkItem = MicroTypeConverter.convertToNative (eItem, IndexerWorkItem.class);
-        _queueWorkItem (aWorkItem);
+        _queueUniqueWorkItem (aWorkItem);
       }
 
       // Delete the files to ensure it is not read again next startup time
@@ -173,37 +172,43 @@ public final class IndexerManager implements Closeable
     m_aStorageMgr.close ();
   }
 
+  /**
+   * @return The global {@link IPYPBusinessInformationProvider}. Never
+   *         <code>null</code>.
+   */
   @Nonnull
   public IPYPBusinessInformationProvider getBusinessInformationProvider ()
   {
-    m_aRWLock.readLock ().lock ();
-    try
-    {
-      return m_aBIProvider;
-    }
-    finally
-    {
-      m_aRWLock.readLock ().unlock ();
-    }
+    return m_aRWLock.readLocked ( () -> m_aBIProvider);
   }
 
+  /**
+   * Set the global {@link IPYPBusinessInformationProvider} that is used for
+   * future create/update requests.
+   *
+   * @param aBIProvider
+   *        Business information provider to be used. May not be
+   *        <code>null</code>.
+   * @return this for chaining
+   */
   @Nonnull
   public IndexerManager setBusinessInformationProvider (@Nonnull final IPYPBusinessInformationProvider aBIProvider)
   {
-    m_aRWLock.writeLock ().lock ();
-    try
-    {
-      m_aBIProvider = ValueEnforcer.notNull (aBIProvider, "BIProvider");
-      return this;
-    }
-    finally
-    {
-      m_aRWLock.writeLock ().unlock ();
-    }
+    ValueEnforcer.notNull (aBIProvider, "BIProvider");
+    m_aRWLock.writeLocked ( () -> m_aBIProvider = aBIProvider);
+    return this;
   }
 
+  /**
+   * Queue a single work item of any type. If the item is already in the queue,
+   * it is ignored.
+   *
+   * @param aWorkItem
+   *        Work item to be queued. May not be <code>null</code>.
+   * @return {@link EChange#CHANGED} if it was queued
+   */
   @Nonnull
-  private EChange _queueWorkItem (@Nonnull final IndexerWorkItem aWorkItem)
+  private EChange _queueUniqueWorkItem (@Nonnull final IndexerWorkItem aWorkItem)
   {
     ValueEnforcer.notNull (aWorkItem, "WorkItem");
 
@@ -231,6 +236,20 @@ public final class IndexerManager implements Closeable
     return EChange.CHANGED;
   }
 
+  /**
+   * Queue a new work item
+   *
+   * @param aParticipantID
+   *        Participant ID to use.
+   * @param eType
+   *        Action type.
+   * @param sOwnerID
+   *        Owner of this action
+   * @param sRequestingHost
+   *        Requesting host (IP address)
+   * @return {@link EChange#UNCHANGED} if the item was queued,
+   *         {@link EChange#UNCHANGED} if this item is already in the queue!
+   */
   @Nonnull
   public EChange queueWorkItem (@Nonnull final IParticipantIdentifier aParticipantID,
                                 @Nonnull final EIndexerWorkItemType eType,
@@ -240,26 +259,23 @@ public final class IndexerManager implements Closeable
     // Build item
     final IndexerWorkItem aWorkItem = new IndexerWorkItem (aParticipantID, eType, sOwnerID, sRequestingHost);
     // And queue it
-    return _queueWorkItem (aWorkItem);
+    return _queueUniqueWorkItem (aWorkItem);
   }
 
-  private void _removeFromOverallList (@Nonnull final IndexerWorkItem aItem)
-  {
-    m_aRWLock.writeLock ().lock ();
-    try
-    {
-      m_aUniqueItems.remove (aItem);
-    }
-    finally
-    {
-      m_aRWLock.writeLock ().unlock ();
-    }
-  }
-
+  /**
+   * Main action to create or update the business information of a participant.
+   * Here the business information is retrieved and put into the Lucene index.
+   *
+   * @param aWorkItem
+   *        Work item to execute.
+   * @return {@link ESuccess}
+   * @throws IOException
+   *         On Lucene error
+   */
   @Nonnull
-  private ESuccess _onCreateOrUpdate (@Nonnull final IndexerWorkItem aItem) throws IOException
+  private ESuccess _executeCreateOrUpdate (@Nonnull final IndexerWorkItem aWorkItem) throws IOException
   {
-    final IPeppolParticipantIdentifier aParticipantID = aItem.getParticipantID ();
+    final IPeppolParticipantIdentifier aParticipantID = aWorkItem.getParticipantID ();
 
     // Get BI from participant
     final BusinessInformationType aBI = getBusinessInformationProvider ().getBusinessInformation (aParticipantID);
@@ -270,47 +286,69 @@ public final class IndexerManager implements Closeable
     }
 
     // Got data - put in storage
-    return m_aStorageMgr.createOrUpdateEntry (aParticipantID, aBI, aItem.getOwnerID ());
+    return m_aStorageMgr.createOrUpdateEntry (aParticipantID, aBI, aWorkItem.getOwnerID ());
   }
 
+  /**
+   * Main action to delete the business information of a participant. Here the
+   * business information is removed from the Lucene index.
+   *
+   * @param aWorkItem
+   *        Work item to execute.
+   * @return {@link ESuccess}
+   * @throws IOException
+   *         On Lucene error
+   */
   @Nonnull
-  private ESuccess _onDelete (@Nonnull final IndexerWorkItem aItem) throws IOException
+  private ESuccess _executeDelete (@Nonnull final IndexerWorkItem aWorkItem) throws IOException
   {
-    final IPeppolParticipantIdentifier aParticipantID = aItem.getParticipantID ();
+    final IPeppolParticipantIdentifier aParticipantID = aWorkItem.getParticipantID ();
 
-    return m_aStorageMgr.deleteEntry (aParticipantID, aItem.getOwnerID ());
+    return m_aStorageMgr.deleteEntry (aParticipantID, aWorkItem.getOwnerID ());
   }
 
+  /**
+   * This method is responsible for executing the specified work item depending
+   * on its type.
+   *
+   * @param aWorkItem
+   *        The work item to be executed. May not be <code>null</code>.
+   * @return {@link ESuccess}
+   */
   @Nonnull
-  private ESuccess _fetchParticipantData0 (@Nonnull final IndexerWorkItem aItem)
+  private ESuccess _executeWorkItem (@Nonnull final IndexerWorkItem aWorkItem)
   {
-    s_aLogger.info ("On " + aItem.getLogText ());
+    s_aLogger.info ("Execute " + aWorkItem.getLogText ());
 
     try
     {
       ESuccess eSuccess;
-      switch (aItem.getType ())
+      switch (aWorkItem.getType ())
       {
         case CREATE_UPDATE:
-          eSuccess = _onCreateOrUpdate (aItem);
+          eSuccess = _executeCreateOrUpdate (aWorkItem);
           break;
         case DELETE:
-          eSuccess = _onDelete (aItem);
+          eSuccess = _executeDelete (aWorkItem);
           break;
         default:
-          throw new IllegalStateException ("Unsupported item type: " + aItem);
+          throw new IllegalStateException ("Unsupported item type: " + aWorkItem);
       }
 
       if (eSuccess.isSuccess ())
       {
         // Item handled - remove from overall list
-        _removeFromOverallList (aItem);
+        m_aRWLock.writeLocked ( () -> m_aUniqueItems.remove (aWorkItem));
+
+        // And we're done
         return ESuccess.SUCCESS;
       }
+
+      // else error storing data
     }
     catch (final Exception ex)
     {
-      s_aLogger.error ("Error in storage handling", ex);
+      s_aLogger.error ("Error in executing work item " + aWorkItem.getLogText (), ex);
       // Fall through
     }
 
@@ -327,7 +365,7 @@ public final class IndexerManager implements Closeable
   @Nonnull
   private ESuccess _asyncFetchParticipantData (@Nonnull final IndexerWorkItem aItem)
   {
-    final ESuccess eSuccess = _fetchParticipantData0 (aItem);
+    final ESuccess eSuccess = _executeWorkItem (aItem);
 
     if (eSuccess.isFailure ())
     {
@@ -350,20 +388,14 @@ public final class IndexerManager implements Closeable
     {
       s_aLogger.info ("Expiring " + aExpiredItems.size () + " re-index work items");
 
-      m_aRWLock.writeLock ().lock ();
-      try
-      {
+      m_aRWLock.writeLocked ( () -> {
         // remove them from the overall list but move to dead item list
         for (final ReIndexWorkItem aItem : aExpiredItems)
         {
           m_aUniqueItems.remove (aItem.getWorkItem ());
           m_aDeadList.addItem (aItem);
         }
-      }
-      finally
-      {
-        m_aRWLock.writeLock ().unlock ();
-      }
+      });
     }
   }
 
@@ -384,7 +416,7 @@ public final class IndexerManager implements Closeable
       if (s_aLogger.isDebugEnabled ())
         s_aLogger.debug ("Try to re-index " + aReIndexItem.getLogText ());
 
-      if (_fetchParticipantData0 (aReIndexItem.getWorkItem ()).isFailure ())
+      if (_executeWorkItem (aReIndexItem.getWorkItem ()).isFailure ())
       {
         // Still no success. Add again to the retry list
         m_aReIndexList.incRetryCountAndAddItem (aReIndexItem);
