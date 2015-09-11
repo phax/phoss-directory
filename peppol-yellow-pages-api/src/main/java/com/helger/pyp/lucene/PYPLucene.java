@@ -171,6 +171,15 @@ public final class PYPLucene implements Closeable
     }
   }
 
+  /**
+   * Get the Lucene {@link Document} matching the specified ID
+   * 
+   * @param nDocID
+   *        Document ID
+   * @return <code>null</code> if no reader could be obtained
+   * @throws IOException
+   *         On IO error
+   */
   @Nullable
   public Document getDocument (final int nDocID) throws IOException
   {

@@ -18,18 +18,23 @@ package com.helger.pyp.storage;
 
 import javax.annotation.concurrent.Immutable;
 
+/**
+ * Constants Lucene field names
+ *
+ * @author Philip Helger
+ */
 @Immutable
 public final class CPYPStorage
 {
-  static final String FIELD_PARTICIPANTID = "participantid";
-  static final String FIELD_OWNERID = "ownerid";
-  static final String FIELD_COUNTRY_CODE = "country";
-  static final String FIELD_NAME = "name";
-  static final String FIELD_GEOINFO = "geoinfo";
-  static final String FIELD_IDENTIFIER_TYPE = "identifiertype";
-  static final String FIELD_IDENTIFIER = "identifier";
-  static final String FIELD_FREETEXT = "freetext";
-  static final String FIELD_DELETED = "deleted";
+  public static final String FIELD_PARTICIPANTID = "participantid";
+  public static final String FIELD_OWNERID = "ownerid";
+  public static final String FIELD_COUNTRY_CODE = "country";
+  public static final String FIELD_NAME = "name";
+  public static final String FIELD_GEOINFO = "geoinfo";
+  public static final String FIELD_IDENTIFIER_TYPE = "identifiertype";
+  public static final String FIELD_IDENTIFIER = "identifier";
+  public static final String FIELD_FREETEXT = "freetext";
+  public static final String FIELD_DELETED = "deleted";
 
   private CPYPStorage ()
   {}

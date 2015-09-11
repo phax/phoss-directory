@@ -20,7 +20,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.function.Consumer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
+import com.helger.commons.annotation.ReturnsMutableCopy;
 import com.helger.commons.state.ESuccess;
 import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
 import com.helger.photon.basic.security.audit.AuditHelper;
@@ -60,11 +61,11 @@ public final class PYPStorageManager implements Closeable
 {
   public final class AllDocumentsCollector extends SimpleCollector
   {
-    private final List <Document> m_aTarget;
+    private final Consumer <Document> m_aConsumer;
 
-    public AllDocumentsCollector (final List <Document> aTargetList)
+    public AllDocumentsCollector (@Nonnull final Consumer <Document> aConsumer)
     {
-      m_aTarget = aTargetList;
+      m_aConsumer = aConsumer;
     }
 
     public boolean needsScores ()
@@ -76,7 +77,7 @@ public final class PYPStorageManager implements Closeable
     public void collect (final int doc) throws IOException
     {
       final Document aDoc = m_aLucene.getDocument (doc);
-      m_aTarget.add (aDoc);
+      m_aConsumer.accept (aDoc);
     }
   }
 
@@ -141,7 +142,8 @@ public final class PYPStorageManager implements Closeable
       // Get all documents to be marked as deleted
       final IndexSearcher aSearcher = m_aLucene.getSearcher ();
       if (aSearcher != null)
-        aSearcher.search (new TermQuery (_createTerm (aParticipantID)), new AllDocumentsCollector (aDocuments));
+        aSearcher.search (new TermQuery (_createTerm (aParticipantID)),
+                          new AllDocumentsCollector (aDoc -> aDocuments.add (aDoc)));
 
       if (!aDocuments.isEmpty ())
       {
@@ -205,20 +207,53 @@ public final class PYPStorageManager implements Closeable
     });
   }
 
+  /**
+   * Search all documents matching the passed query and pass the result on to
+   * the provided {@link Consumer}.
+   *
+   * @param aQuery
+   *        Query to execute. May not be <code>null</code>-
+   * @param aConsumer
+   *        The consumer of the {@link StoredDocument} objects.
+   * @throws IOException
+   *         On Lucene error
+   * @see #getAllDocuments(Query)
+   */
   @Nonnull
-  public final List <StoredDocument> getAllDocuments (@Nonnull final Query aQuery) throws IOException
+  public final void searchAllDocuments (@Nonnull final Query aQuery,
+                                        @Nonnull final Consumer <StoredDocument> aConsumer) throws IOException
   {
-    return m_aLucene.runAtomic ( () -> {
+    ValueEnforcer.notNull (aQuery, "Query");
+    ValueEnforcer.notNull (aConsumer, "Consumer");
+
+    m_aLucene.runAtomic ( () -> {
       final IndexSearcher aSearcher = m_aLucene.getSearcher ();
       if (aSearcher != null)
       {
-        // Search only documents that do not have the deleted field
-        final List <Document> aTargetList = new ArrayList <> ();
-        aSearcher.search (aQuery, new AllDocumentsCollector (aTargetList));
-        return aTargetList.stream ().map (d -> StoredDocument.create (d)).collect (Collectors.toList ());
+        // Search all documents, convert them to StoredDocument and pass them to
+        // the provided consumer
+        aSearcher.search (aQuery, new AllDocumentsCollector (aDoc -> aConsumer.accept (StoredDocument.create (aDoc))));
       }
-      return new ArrayList <> ();
     });
+  }
+
+  /**
+   * Get all {@link StoredDocument} objects matching the provided query. This is
+   * a specialization of {@link #searchAllDocuments(Query, Consumer)}.
+   * 
+   * @param aQuery
+   *        The query to be executed. May not be <code>null</code>.
+   * @return A non-<code>null</code> but maybe empty list of matching documents
+   * @throws IOException
+   *         On Lucene error
+   */
+  @Nonnull
+  @ReturnsMutableCopy
+  public final List <StoredDocument> getAllDocuments (@Nonnull final Query aQuery) throws IOException
+  {
+    final List <StoredDocument> aTargetList = new ArrayList <> ();
+    searchAllDocuments (aQuery, aDoc -> aTargetList.add (aDoc));
+    return aTargetList;
   }
 
   @Nonnull

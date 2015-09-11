@@ -21,6 +21,8 @@ import javax.annotation.concurrent.Immutable;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
+import com.helger.commons.hashcode.HashCodeGenerator;
+import com.helger.commons.string.ToStringGenerator;
 
 /**
  * This class represents a single identifier as stored by Lucene consisting of a
@@ -52,5 +54,28 @@ public final class StoredIdentifier
   public String getValue ()
   {
     return m_sValue;
+  }
+
+  @Override
+  public boolean equals (final Object o)
+  {
+    if (o == this)
+      return true;
+    if (o == null || !getClass ().equals (o.getClass ()))
+      return false;
+    final StoredIdentifier rhs = (StoredIdentifier) o;
+    return m_sType.equals (rhs.m_sType) && m_sValue.equals (rhs.m_sValue);
+  }
+
+  @Override
+  public int hashCode ()
+  {
+    return new HashCodeGenerator (this).append (m_sType).append (m_sValue).getHashCode ();
+  }
+
+  @Override
+  public String toString ()
+  {
+    return new ToStringGenerator (this).append ("Type", m_sType).append ("Value", m_sValue).toString ();
   }
 }

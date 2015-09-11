@@ -30,6 +30,7 @@ import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.annotation.ReturnsMutableCopy;
 import com.helger.commons.collection.CollectionHelper;
+import com.helger.commons.string.ToStringGenerator;
 
 /**
  * This class represents a document stored in the Lucene index but with a nicer
@@ -157,6 +158,20 @@ public class StoredDocument
   public boolean isDeleted ()
   {
     return m_bDeleted;
+  }
+
+  @Override
+  public String toString ()
+  {
+    return new ToStringGenerator (this).append ("ParticipantID", m_sParticipantID)
+                                       .append ("OwnerID", m_sOwnerID)
+                                       .append ("CountryCode", m_sCountryCode)
+                                       .append ("Name", m_sName)
+                                       .append ("GeoInfo", m_sGeoInfo)
+                                       .append ("Identifiers", m_aIdentifiers)
+                                       .append ("FreeText", m_sFreeText)
+                                       .append ("Deleted", m_bDeleted)
+                                       .toString ();
   }
 
   @Nonnull
