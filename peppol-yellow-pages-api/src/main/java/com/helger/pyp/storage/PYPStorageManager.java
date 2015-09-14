@@ -220,8 +220,8 @@ public final class PYPStorageManager implements Closeable
    * @see #getAllDocuments(Query)
    */
   @Nonnull
-  public final void searchAllDocuments (@Nonnull final Query aQuery,
-                                        @Nonnull final Consumer <StoredDocument> aConsumer) throws IOException
+  public void searchAllDocuments (@Nonnull final Query aQuery,
+                                  @Nonnull final Consumer <StoredDocument> aConsumer) throws IOException
   {
     ValueEnforcer.notNull (aQuery, "Query");
     ValueEnforcer.notNull (aConsumer, "Consumer");
@@ -240,7 +240,7 @@ public final class PYPStorageManager implements Closeable
   /**
    * Get all {@link StoredDocument} objects matching the provided query. This is
    * a specialization of {@link #searchAllDocuments(Query, Consumer)}.
-   * 
+   *
    * @param aQuery
    *        The query to be executed. May not be <code>null</code>.
    * @return A non-<code>null</code> but maybe empty list of matching documents
@@ -249,7 +249,7 @@ public final class PYPStorageManager implements Closeable
    */
   @Nonnull
   @ReturnsMutableCopy
-  public final List <StoredDocument> getAllDocuments (@Nonnull final Query aQuery) throws IOException
+  public List <StoredDocument> getAllDocuments (@Nonnull final Query aQuery) throws IOException
   {
     final List <StoredDocument> aTargetList = new ArrayList <> ();
     searchAllDocuments (aQuery, aDoc -> aTargetList.add (aDoc));
@@ -257,19 +257,19 @@ public final class PYPStorageManager implements Closeable
   }
 
   @Nonnull
-  public final List <StoredDocument> getAllDeletedDocuments () throws IOException
+  public List <StoredDocument> getAllDeletedDocuments () throws IOException
   {
     return getAllDocuments (new TermQuery (new Term (CPYPStorage.FIELD_DELETED)));
   }
 
   @Nonnull
-  public final List <StoredDocument> getAllDocumentsOfParticipant (@Nonnull final IPeppolParticipantIdentifier aParticipantID) throws IOException
+  public List <StoredDocument> getAllDocumentsOfParticipant (@Nonnull final IPeppolParticipantIdentifier aParticipantID) throws IOException
   {
     return getAllDocuments (new TermQuery (_createTerm (aParticipantID)));
   }
 
   @Nonnull
-  public final List <StoredDocument> getAllDocumentsOfCountryCode (@Nonnull final String sCountryCode) throws IOException
+  public List <StoredDocument> getAllDocumentsOfCountryCode (@Nonnull final String sCountryCode) throws IOException
   {
     ValueEnforcer.notNull (sCountryCode, "CountryCode");
     return getAllDocuments (new TermQuery (new Term (CPYPStorage.FIELD_COUNTRY_CODE, sCountryCode)));
