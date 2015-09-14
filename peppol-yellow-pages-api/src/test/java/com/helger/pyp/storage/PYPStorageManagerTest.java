@@ -75,9 +75,9 @@ public final class PYPStorageManagerTest
     try (PYPStorageManager aMgr = new PYPStorageManager (new PYPLucene ()))
     {
       aMgr.createOrUpdateEntry (aParticipantID, _createMockBI (aParticipantID), sOwnerID);
-      final List <StoredDocument> aDocs = aMgr.getAllDocumentsOfParticipant (aParticipantID);
+      final List <PYPStoredDocument> aDocs = aMgr.getAllDocumentsOfParticipant (aParticipantID);
       assertEquals (2, aDocs.size ());
-      final StoredDocument aDoc1 = aDocs.get (1);
+      final PYPStoredDocument aDoc1 = aDocs.get (1);
       assertEquals (aParticipantID.getURIEncoded (), aDoc1.getParticipantID ());
       assertEquals (sOwnerID, aDoc1.getOwnerID ());
       assertEquals ("NO", aDoc1.getCountryCode ());
@@ -105,12 +105,12 @@ public final class PYPStorageManagerTest
     try (PYPStorageManager aMgr = new PYPStorageManager (new PYPLucene ()))
     {
       aMgr.createOrUpdateEntry (aParticipantID, _createMockBI (aParticipantID), sOwnerID);
-      List <StoredDocument> aDocs = aMgr.getAllDocumentsOfCountryCode ("");
+      List <PYPStoredDocument> aDocs = aMgr.getAllDocumentsOfCountryCode ("");
       assertEquals (0, aDocs.size ());
 
       aDocs = aMgr.getAllDocumentsOfCountryCode ("NO");
       assertEquals (1, aDocs.size ());
-      final StoredDocument aDoc = aDocs.get (0);
+      final PYPStoredDocument aDoc = aDocs.get (0);
       assertEquals (aParticipantID.getURIEncoded (), aDoc.getParticipantID ());
       assertEquals (sOwnerID, aDoc.getOwnerID ());
       assertEquals ("NO", aDoc.getCountryCode ());

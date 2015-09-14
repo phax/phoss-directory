@@ -214,14 +214,14 @@ public final class PYPStorageManager implements Closeable
    * @param aQuery
    *        Query to execute. May not be <code>null</code>-
    * @param aConsumer
-   *        The consumer of the {@link StoredDocument} objects.
+   *        The consumer of the {@link PYPStoredDocument} objects.
    * @throws IOException
    *         On Lucene error
    * @see #getAllDocuments(Query)
    */
   @Nonnull
   public void searchAllDocuments (@Nonnull final Query aQuery,
-                                  @Nonnull final Consumer <StoredDocument> aConsumer) throws IOException
+                                  @Nonnull final Consumer <PYPStoredDocument> aConsumer) throws IOException
   {
     ValueEnforcer.notNull (aQuery, "Query");
     ValueEnforcer.notNull (aConsumer, "Consumer");
@@ -232,13 +232,13 @@ public final class PYPStorageManager implements Closeable
       {
         // Search all documents, convert them to StoredDocument and pass them to
         // the provided consumer
-        aSearcher.search (aQuery, new AllDocumentsCollector (aDoc -> aConsumer.accept (StoredDocument.create (aDoc))));
+        aSearcher.search (aQuery, new AllDocumentsCollector (aDoc -> aConsumer.accept (PYPStoredDocument.create (aDoc))));
       }
     });
   }
 
   /**
-   * Get all {@link StoredDocument} objects matching the provided query. This is
+   * Get all {@link PYPStoredDocument} objects matching the provided query. This is
    * a specialization of {@link #searchAllDocuments(Query, Consumer)}.
    *
    * @param aQuery
@@ -249,27 +249,27 @@ public final class PYPStorageManager implements Closeable
    */
   @Nonnull
   @ReturnsMutableCopy
-  public List <StoredDocument> getAllDocuments (@Nonnull final Query aQuery) throws IOException
+  public List <PYPStoredDocument> getAllDocuments (@Nonnull final Query aQuery) throws IOException
   {
-    final List <StoredDocument> aTargetList = new ArrayList <> ();
+    final List <PYPStoredDocument> aTargetList = new ArrayList <> ();
     searchAllDocuments (aQuery, aDoc -> aTargetList.add (aDoc));
     return aTargetList;
   }
 
   @Nonnull
-  public List <StoredDocument> getAllDeletedDocuments () throws IOException
+  public List <PYPStoredDocument> getAllDeletedDocuments () throws IOException
   {
     return getAllDocuments (new TermQuery (new Term (CPYPStorage.FIELD_DELETED)));
   }
 
   @Nonnull
-  public List <StoredDocument> getAllDocumentsOfParticipant (@Nonnull final IPeppolParticipantIdentifier aParticipantID) throws IOException
+  public List <PYPStoredDocument> getAllDocumentsOfParticipant (@Nonnull final IPeppolParticipantIdentifier aParticipantID) throws IOException
   {
     return getAllDocuments (new TermQuery (_createTerm (aParticipantID)));
   }
 
   @Nonnull
-  public List <StoredDocument> getAllDocumentsOfCountryCode (@Nonnull final String sCountryCode) throws IOException
+  public List <PYPStoredDocument> getAllDocumentsOfCountryCode (@Nonnull final String sCountryCode) throws IOException
   {
     ValueEnforcer.notNull (sCountryCode, "CountryCode");
     return getAllDocuments (new TermQuery (new Term (CPYPStorage.FIELD_COUNTRY_CODE, sCountryCode)));

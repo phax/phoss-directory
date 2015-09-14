@@ -41,18 +41,18 @@ import com.helger.commons.string.ToStringGenerator;
  * @author Philip Helger
  */
 @NotThreadSafe
-public class StoredDocument
+public class PYPStoredDocument
 {
   private String m_sParticipantID;
   private String m_sOwnerID;
   private String m_sCountryCode;
   private String m_sName;
   private String m_sGeoInfo;
-  private final List <StoredIdentifier> m_aIdentifiers = new ArrayList <> ();
+  private final List <PYPStoredIdentifier> m_aIdentifiers = new ArrayList <> ();
   private String m_sFreeText;
   private boolean m_bDeleted;
 
-  protected StoredDocument ()
+  protected PYPStoredDocument ()
   {}
 
   public void setParticipantID (@Nonnull @Nonempty final String sParticipantID)
@@ -114,7 +114,7 @@ public class StoredDocument
     return m_sGeoInfo;
   }
 
-  public void addIdentifier (@Nonnull final StoredIdentifier aIdentifier)
+  public void addIdentifier (@Nonnull final PYPStoredIdentifier aIdentifier)
   {
     ValueEnforcer.notNull (aIdentifier, "Identifier");
     m_aIdentifiers.add (aIdentifier);
@@ -122,7 +122,7 @@ public class StoredDocument
 
   @Nonnull
   @ReturnsMutableCopy
-  public List <StoredIdentifier> getAllIdentifiers ()
+  public List <PYPStoredIdentifier> getAllIdentifiers ()
   {
     return CollectionHelper.newList (m_aIdentifiers);
   }
@@ -134,7 +134,7 @@ public class StoredDocument
   }
 
   @Nullable
-  public StoredIdentifier getIdentifierAtIndex (@Nonnegative final int nIndex)
+  public PYPStoredIdentifier getIdentifierAtIndex (@Nonnegative final int nIndex)
   {
     return CollectionHelper.getSafe (m_aIdentifiers, nIndex);
   }
@@ -176,9 +176,9 @@ public class StoredDocument
 
   @Nonnull
   @ReturnsMutableCopy
-  public static StoredDocument create (@Nonnull final Document aDoc)
+  public static PYPStoredDocument create (@Nonnull final Document aDoc)
   {
-    final StoredDocument ret = new StoredDocument ();
+    final PYPStoredDocument ret = new PYPStoredDocument ();
     ret.setParticipantID (aDoc.get (CPYPStorage.FIELD_PARTICIPANTID));
     ret.setOwnerID (aDoc.get (CPYPStorage.FIELD_OWNERID));
     ret.setCountryCode (aDoc.get (CPYPStorage.FIELD_COUNTRY_CODE));
@@ -189,7 +189,7 @@ public class StoredDocument
     if (aIDTypes.length != aIDValues.length)
       throw new IllegalStateException ("Different number of identifier types and values");
     for (int i = 0; i < aIDTypes.length; ++i)
-      ret.addIdentifier (new StoredIdentifier (aIDTypes[i], aIDValues[i]));
+      ret.addIdentifier (new PYPStoredIdentifier (aIDTypes[i], aIDValues[i]));
     ret.setFreeText (aDoc.get (CPYPStorage.FIELD_FREETEXT));
     ret.setDeleted (aDoc.getField (CPYPStorage.FIELD_DELETED) != null);
     return ret;
