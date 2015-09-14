@@ -26,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.commons.charset.CCharset;
-import com.helger.commons.io.stream.StreamHelper;
 
 public final class JettyStopPYP
 {
@@ -34,8 +33,7 @@ public final class JettyStopPYP
 
   public static void main (final String [] args) throws IOException
   {
-    final Socket s = new Socket (InetAddress.getByName (null), JettyMonitor.STOP_PORT);
-    try
+    try (final Socket s = new Socket (InetAddress.getByName (null), JettyMonitor.STOP_PORT))
     {
       s.setSoLinger (false, 0);
 
@@ -47,10 +45,6 @@ public final class JettyStopPYP
     catch (final ConnectException ex)
     {
       s_aLogger.warn ("Jetty is not running");
-    }
-    finally
-    {
-      StreamHelper.close (s);
     }
   }
 }

@@ -45,11 +45,14 @@ import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.annotation.ReturnsMutableCopy;
 import com.helger.commons.state.ESuccess;
+import com.helger.peppol.identifier.IDocumentTypeIdentifier;
+import com.helger.peppol.identifier.IdentifierHelper;
 import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
 import com.helger.photon.basic.security.audit.AuditHelper;
 import com.helger.pyp.businessinformation.BusinessInformationType;
 import com.helger.pyp.businessinformation.EntityType;
 import com.helger.pyp.businessinformation.IdentifierType;
+import com.helger.pyp.businessinformation.PYPExtendedBusinessInformation;
 import com.helger.pyp.lucene.PYPLucene;
 
 /**
@@ -165,7 +168,7 @@ public final class PYPStorageManager implements Closeable
 
   @Nonnull
   public ESuccess createOrUpdateEntry (@Nonnull final IPeppolParticipantIdentifier aParticipantID,
-                                       @Nonnull final BusinessInformationType aBI,
+                                       @Nonnull final PYPExtendedBusinessInformation aExtBI,
                                        @Nonnull @Nonempty final String sOwnerID) throws IOException
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
@@ -174,11 +177,17 @@ public final class PYPStorageManager implements Closeable
       // Delete all existing documents of the participant ID
       m_aLucene.deleteDocuments (_createTerm (aParticipantID));
 
+      final BusinessInformationType aBI = aExtBI.getBusinessInformation ();
       for (final EntityType aEntity : aBI.getEntity ())
       {
         // Convert entity to Lucene document
         final Document aDoc = new Document ();
         aDoc.add (new StringField (CPYPStorage.FIELD_PARTICIPANTID, aParticipantID.getURIEncoded (), Store.YES));
+        // Add all document types to all documents
+        for (final IDocumentTypeIdentifier aDocTypeID : aExtBI.getAllDocumentTypeIDs ())
+          aDoc.add (new StringField (CPYPStorage.FIELD_DOCUMENT_TYPE_ID,
+                                     IdentifierHelper.getIdentifierURIEncoded (aDocTypeID),
+                                     Store.YES));
         aDoc.add (new StringField (CPYPStorage.FIELD_OWNERID, sOwnerID, Store.YES));
         if (aEntity.getCountryCode () != null)
           aDoc.add (new StringField (CPYPStorage.FIELD_COUNTRY_CODE, aEntity.getCountryCode (), Store.YES));
@@ -232,14 +241,15 @@ public final class PYPStorageManager implements Closeable
       {
         // Search all documents, convert them to StoredDocument and pass them to
         // the provided consumer
-        aSearcher.search (aQuery, new AllDocumentsCollector (aDoc -> aConsumer.accept (PYPStoredDocument.create (aDoc))));
+        aSearcher.search (aQuery,
+                          new AllDocumentsCollector (aDoc -> aConsumer.accept (PYPStoredDocument.create (aDoc))));
       }
     });
   }
 
   /**
-   * Get all {@link PYPStoredDocument} objects matching the provided query. This is
-   * a specialization of {@link #searchAllDocuments(Query, Consumer)}.
+   * Get all {@link PYPStoredDocument} objects matching the provided query. This
+   * is a specialization of {@link #searchAllDocuments(Query, Consumer)}.
    *
    * @param aQuery
    *        The query to be executed. May not be <code>null</code>.

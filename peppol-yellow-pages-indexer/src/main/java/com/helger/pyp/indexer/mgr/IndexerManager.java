@@ -51,8 +51,8 @@ import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
 import com.helger.photon.basic.app.dao.impl.DAOException;
 import com.helger.photon.basic.app.io.WebFileIO;
 import com.helger.photon.core.app.CApplication;
-import com.helger.pyp.businessinformation.BusinessInformationType;
 import com.helger.pyp.businessinformation.IPYPBusinessInformationProvider;
+import com.helger.pyp.businessinformation.PYPExtendedBusinessInformation;
 import com.helger.pyp.indexer.domain.EIndexerWorkItemType;
 import com.helger.pyp.indexer.domain.IndexerWorkItem;
 import com.helger.pyp.indexer.domain.ReIndexWorkItem;
@@ -278,7 +278,7 @@ public final class IndexerManager implements Closeable
     final IPeppolParticipantIdentifier aParticipantID = aWorkItem.getParticipantID ();
 
     // Get BI from participant
-    final BusinessInformationType aBI = getBusinessInformationProvider ().getBusinessInformation (aParticipantID);
+    final PYPExtendedBusinessInformation aBI = getBusinessInformationProvider ().getBusinessInformation (aParticipantID);
     if (aBI == null)
     {
       // No/invalid extension present - no need to try again

@@ -16,11 +16,15 @@
  */
 package com.helger.pyp.indexer.mgr;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.busdox.servicemetadata.publishing._1.ExtensionType;
 import org.busdox.servicemetadata.publishing._1.ServiceGroupType;
+import org.busdox.servicemetadata.publishing._1.ServiceMetadataReferenceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,12 +33,16 @@ import com.helger.commons.microdom.IMicroNode;
 import com.helger.commons.microdom.serialize.MicroWriter;
 import com.helger.commons.microdom.util.MicroHelper;
 import com.helger.commons.xml.XMLDebug;
+import com.helger.peppol.identifier.IDocumentTypeIdentifier;
+import com.helger.peppol.identifier.IdentifierHelper;
+import com.helger.peppol.identifier.doctype.SimpleDocumentTypeIdentifier;
 import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
 import com.helger.peppol.smpclient.SMPClientReadOnly;
 import com.helger.peppol.smpclient.exception.SMPClientException;
 import com.helger.pyp.businessinformation.BusinessInformationType;
 import com.helger.pyp.businessinformation.IPYPBusinessInformationProvider;
 import com.helger.pyp.businessinformation.PYPBusinessInformationMarshaller;
+import com.helger.pyp.businessinformation.PYPExtendedBusinessInformation;
 import com.helger.pyp.settings.PYPSettings;
 
 /**
@@ -46,6 +54,7 @@ import com.helger.pyp.settings.PYPSettings;
  */
 public class SMPBusinessInformationProvider implements IPYPBusinessInformationProvider
 {
+  private static final String URL_PART_SERVICES = "/services/";
   private static final Logger s_aLogger = LoggerFactory.getLogger (SMPBusinessInformationProvider.class);
 
   @Nullable
@@ -98,7 +107,7 @@ public class SMPBusinessInformationProvider implements IPYPBusinessInformationPr
   }
 
   @Nullable
-  public BusinessInformationType getBusinessInformation (@Nonnull final IPeppolParticipantIdentifier aParticipantID)
+  public PYPExtendedBusinessInformation getBusinessInformation (@Nonnull final IPeppolParticipantIdentifier aParticipantID)
   {
     // Fetch data
     final SMPClientReadOnly aSMPClient = new SMPClientReadOnly (aParticipantID, PYPSettings.getSMLToUse ());
@@ -109,7 +118,7 @@ public class SMPBusinessInformationProvider implements IPYPBusinessInformationPr
     }
     catch (final SMPClientException ex)
     {
-      s_aLogger.error ("Error querying SMP", ex);
+      s_aLogger.error ("Error querying SMP for service group '" + aParticipantID.getURIEncoded () + "'", ex);
       return null;
     }
 
@@ -117,10 +126,45 @@ public class SMPBusinessInformationProvider implements IPYPBusinessInformationPr
     if (aBI == null)
     {
       // No extension present - no need to try again
-      s_aLogger.warn ("Failed to get SMP BusinessInformation from Extension of " + aParticipantID.getURIEncoded ());
+      s_aLogger.warn ("Failed to get SMP BusinessInformation from Extension of service group " +
+                      aParticipantID.getURIEncoded ());
       return null;
     }
 
-    return aBI;
+    final List <IDocumentTypeIdentifier> aDocumentTypeIDs = new ArrayList <> ();
+    for (final ServiceMetadataReferenceType aRef : aServiceGroup.getServiceMetadataReferenceCollection ()
+                                                                .getServiceMetadataReference ())
+    {
+      final String sHref = aRef.getHref ();
+      final int nIndex = sHref.indexOf (URL_PART_SERVICES);
+      if (nIndex < 0)
+      {
+        s_aLogger.error ("Invalid href when querying service group '" +
+                         aParticipantID.getURIEncoded () +
+                         "': '" +
+                         sHref +
+                         "'");
+      }
+      else
+      {
+        final String sDocumentTypeID = sHref.substring (nIndex + URL_PART_SERVICES.length ());
+        final SimpleDocumentTypeIdentifier aDocTypeID = IdentifierHelper.createDocumentTypeIdentifierFromURIPartOrNull (sDocumentTypeID);
+        if (aDocTypeID == null)
+        {
+          s_aLogger.error ("Invalid document type when querying service group '" +
+                           aParticipantID.getURIEncoded () +
+                           "': '" +
+                           aDocTypeID +
+                           "'");
+        }
+        else
+        {
+          // Success
+          aDocumentTypeIDs.add (aDocTypeID);
+        }
+      }
+    }
+
+    return new PYPExtendedBusinessInformation (aBI, aDocumentTypeIDs);
   }
 }

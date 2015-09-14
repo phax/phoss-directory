@@ -13,11 +13,14 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 
+import com.helger.commons.collection.CollectionHelper;
+import com.helger.peppol.identifier.doctype.EPredefinedDocumentTypeIdentifier;
 import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
 import com.helger.peppol.identifier.participant.SimpleParticipantIdentifier;
 import com.helger.pyp.businessinformation.BusinessInformationType;
 import com.helger.pyp.businessinformation.EntityType;
 import com.helger.pyp.businessinformation.IdentifierType;
+import com.helger.pyp.businessinformation.PYPExtendedBusinessInformation;
 import com.helger.pyp.lucene.PYPLucene;
 import com.helger.pyp.mock.PYPAPITestRule;
 
@@ -32,9 +35,9 @@ public final class PYPStorageManagerTest
   public final TestRule m_aRule = new PYPAPITestRule ();
 
   @Nonnull
-  private static BusinessInformationType _createMockBI (@Nonnull final IPeppolParticipantIdentifier aParticipantID)
+  private static PYPExtendedBusinessInformation _createMockBI (@Nonnull final IPeppolParticipantIdentifier aParticipantID)
   {
-    final BusinessInformationType ret = new BusinessInformationType ();
+    final BusinessInformationType aBI = new BusinessInformationType ();
     {
       final EntityType aEntity = new EntityType ();
       aEntity.setCountryCode ("AT");
@@ -49,7 +52,7 @@ public final class PYPStorageManagerTest
       aID.setValue (aParticipantID.getURIEncoded ());
       aEntity.addIdentifier (aID);
       aEntity.setFreeText ("This is a mock entry for testing purposes only");
-      ret.addEntity (aEntity);
+      aBI.addEntity (aEntity);
     }
     {
       final EntityType aEntity = new EntityType ();
@@ -62,9 +65,10 @@ public final class PYPStorageManagerTest
         aEntity.addIdentifier (aID);
       }
       aEntity.setFreeText ("This is another mock entry for testing purposes only");
-      ret.addEntity (aEntity);
+      aBI.addEntity (aEntity);
     }
-    return ret;
+    return new PYPExtendedBusinessInformation (aBI,
+                                               CollectionHelper.newList (EPredefinedDocumentTypeIdentifier.INVOICE_T010_BIS5A_V20.getAsDocumentTypeIdentifier ()));
   }
 
   @Test

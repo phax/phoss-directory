@@ -16,6 +16,8 @@
  */
 package com.helger.pyp.indexer.mock;
 
+import org.slf4j.bridge.SLF4JBridgeHandler;
+
 import com.helger.peppol.smpclient.SMPClientConfiguration;
 import com.helger.pyp.mock.PYPAPITestRule;
 
@@ -26,6 +28,12 @@ import com.helger.pyp.mock.PYPAPITestRule;
  */
 public class PYPIndexerTestRule extends PYPAPITestRule
 {
+  static
+  {
+    SLF4JBridgeHandler.removeHandlersForRootLogger ();
+    SLF4JBridgeHandler.install ();
+  }
+
   public PYPIndexerTestRule ()
   {}
 

@@ -27,6 +27,7 @@ import javax.annotation.concurrent.Immutable;
 public final class CPYPStorage
 {
   public static final String FIELD_PARTICIPANTID = "participantid";
+  public static final String FIELD_DOCUMENT_TYPE_ID = "doctypeid";
   public static final String FIELD_OWNERID = "ownerid";
   public static final String FIELD_COUNTRY_CODE = "country";
   public static final String FIELD_NAME = "name";

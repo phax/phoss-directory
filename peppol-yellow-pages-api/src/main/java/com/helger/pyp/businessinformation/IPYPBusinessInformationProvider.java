@@ -32,12 +32,13 @@ import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
 public interface IPYPBusinessInformationProvider
 {
   /**
-   * Get the {@link BusinessInformationType} for the given participant ID.
+   * Get the {@link PYPExtendedBusinessInformation} for the given participant
+   * ID.
    *
    * @param aParticipantID
    *        PEPPOL participant ID. May not be <code>null</code>.
    * @return <code>null</code> if lookup fails
    */
   @Nullable
-  BusinessInformationType getBusinessInformation (@Nonnull IPeppolParticipantIdentifier aParticipantID);
+  PYPExtendedBusinessInformation getBusinessInformation (@Nonnull IPeppolParticipantIdentifier aParticipantID);
 }
