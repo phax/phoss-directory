@@ -78,9 +78,9 @@ public final class PYPLucene implements Closeable
     // Analyzer to use
     m_aAnalyzer = new StandardAnalyzer ();
 
+    // Create the index writer
     final IndexWriterConfig aWriterConfig = new IndexWriterConfig (m_aAnalyzer);
     aWriterConfig.setOpenMode (OpenMode.CREATE_OR_APPEND);
-
     m_aIndexWriter = new IndexWriter (m_aDir, aWriterConfig);
 
     // Reader and searcher are opened on demand
@@ -98,6 +98,8 @@ public final class PYPLucene implements Closeable
       {
         // Start closing
         StreamHelper.close (m_aIndexReader);
+
+        // Ensure to commit the writer in case of pending changes
         if (m_aIndexWriter != null && m_aIndexWriter.isOpen ())
           m_aIndexWriter.commit ();
         StreamHelper.close (m_aIndexWriter);
@@ -122,6 +124,9 @@ public final class PYPLucene implements Closeable
       throw new IllegalStateException ("The Lucene index is shutting down so no access is possible");
   }
 
+  /**
+   * @return The analyzer to be used for all Lucene based actions
+   */
   @Nonnull
   public Analyzer getAnalyzer ()
   {
@@ -142,7 +147,7 @@ public final class PYPLucene implements Closeable
     _checkClosing ();
     try
     {
-      // Commit only if a reader is requested
+      // Commit the writer changes only if a reader is requested
       if (m_aWriterChanges.intValue () > 0)
       {
         s_aLogger.info ("Lazily committing " + m_aWriterChanges.intValue () + " changes to the Lucene index");
@@ -150,7 +155,7 @@ public final class PYPLucene implements Closeable
         m_aWriterChanges.set (0);
       }
 
-      // Is a new reader required?
+      // Is a new reader required because the index changed?
       final DirectoryReader aNewReader = m_aIndexReader != null ? DirectoryReader.openIfChanged (m_aIndexReader)
                                                                 : DirectoryReader.open (m_aDir);
       if (aNewReader != null)
@@ -160,7 +165,7 @@ public final class PYPLucene implements Closeable
         m_aSearcher = null;
 
         if (s_aLogger.isDebugEnabled ())
-          s_aLogger.debug ("Contents of index changed. Creating new searcher");
+          s_aLogger.debug ("Contents of index changed. Creating new index reader");
       }
       return m_aIndexReader;
     }
@@ -173,10 +178,11 @@ public final class PYPLucene implements Closeable
 
   /**
    * Get the Lucene {@link Document} matching the specified ID
-   * 
+   *
    * @param nDocID
    *        Document ID
-   * @return <code>null</code> if no reader could be obtained
+   * @return <code>null</code> if no reader could be obtained or no such
+   *         document exists.
    * @throws IOException
    *         On IO error
    */
@@ -191,6 +197,13 @@ public final class PYPLucene implements Closeable
     return aReader.document (nDocID);
   }
 
+  /**
+   * Get a searcher on this index.
+   *
+   * @return <code>null</code> if no reader or no searcher could be obtained
+   * @throws IOException
+   *         On IO error
+   */
   @Nullable
   public IndexSearcher getSearcher () throws IOException
   {
@@ -268,6 +281,8 @@ public final class PYPLucene implements Closeable
   }
 
   /**
+   * Run the provided action within a locked section.
+   * 
    * @param aRunnable
    *        Callback to be executed
    * @return {@link ESuccess#FAILURE} if the index is just closing
@@ -292,6 +307,8 @@ public final class PYPLucene implements Closeable
   }
 
   /**
+   * Run the provided action within a locked section.
+   * 
    * @param aRunnable
    *        Callback to be executed
    * @return <code>null</code> if the index is just closing
