@@ -16,9 +16,14 @@
  */
 package com.helger.pyp.businessinformation;
 
+import java.util.List;
+
 import javax.annotation.Nonnull;
 import javax.xml.bind.JAXBElement;
 
+import com.helger.commons.collection.CollectionHelper;
+import com.helger.commons.io.resource.ClassPathResource;
+import com.helger.commons.io.resource.IReadableResource;
 import com.helger.jaxb.AbstractJAXBMarshaller;
 
 /**
@@ -30,12 +35,15 @@ import com.helger.jaxb.AbstractJAXBMarshaller;
  */
 public class PYPBusinessInformationMarshaller extends AbstractJAXBMarshaller <BusinessInformationType>
 {
+  /** XSD resources */
+  public static final List <? extends IReadableResource> BUSINESS_CARD_XSDS = CollectionHelper.newUnmodifiableList (new ClassPathResource ("/schemas/pyp-business-information-201505.xsd"));
+
   /**
    * Constructor
    */
   public PYPBusinessInformationMarshaller ()
   {
-    super (BusinessInformationType.class, CPYPBusinessInformation.BUSINESS_CARD_XSDS);
+    super (BusinessInformationType.class, BUSINESS_CARD_XSDS);
   }
 
   @Override

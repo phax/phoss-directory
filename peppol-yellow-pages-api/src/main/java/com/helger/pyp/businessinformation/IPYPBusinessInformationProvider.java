@@ -22,10 +22,10 @@ import javax.annotation.Nullable;
 import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
 
 /**
- * Abstract interface to retrieve the {@link BusinessInformationType} from a
- * provided PEPPOL participant ID. By default the SMP must be queried and the
- * <code>Extension</code> element queried. Nevertheless for testing purposes it
- * may be possible to provide mock data.
+ * Abstract interface to retrieve the {@link PYPExtendedBusinessInformation}
+ * from a provided PEPPOL participant ID. By default the SMP must be queried and
+ * the <code>Extension</code> element queried. Nevertheless for testing purposes
+ * it may be possible to provide mock data.
  *
  * @author Philip Helger
  */
