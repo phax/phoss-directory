@@ -32,6 +32,7 @@ import com.helger.commons.microdom.IMicroElement;
 import com.helger.commons.microdom.IMicroNode;
 import com.helger.commons.microdom.serialize.MicroWriter;
 import com.helger.commons.microdom.util.MicroHelper;
+import com.helger.commons.url.SimpleURL;
 import com.helger.commons.xml.XMLDebug;
 import com.helger.peppol.identifier.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.IdentifierHelper;
@@ -135,7 +136,8 @@ public class SMPBusinessInformationProvider implements IPYPBusinessInformationPr
     for (final ServiceMetadataReferenceType aRef : aServiceGroup.getServiceMetadataReferenceCollection ()
                                                                 .getServiceMetadataReference ())
     {
-      final String sHref = aRef.getHref ();
+      // Extract the path in case there are parameters or anchors attached
+      final String sHref = new SimpleURL (aRef.getHref ()).getPath ();
       final int nIndex = sHref.indexOf (URL_PART_SERVICES);
       if (nIndex < 0)
       {
