@@ -52,46 +52,77 @@ public class PYPSettings extends AbstractGlobalSingleton
   private PYPSettings ()
   {}
 
+  /**
+   * @return The underlying settings object. Use it to query non-standard
+   *         settings. Never <code>null</code>.
+   */
   @Nonnull
   public static ISettings getSettingsObject ()
   {
     return s_aSettings;
   }
 
+  /**
+   * @return The global debug flag to be used in
+   *         {@link com.helger.commons.debug.GlobalDebug}.
+   */
   @Nullable
   public static String getGlobalDebug ()
   {
     return s_aSettings.getStringValue ("global.debug");
   }
 
+  /**
+   * @return The global production flag to be used in
+   *         {@link com.helger.commons.debug.GlobalDebug}.
+   */
   @Nullable
   public static String getGlobalProduction ()
   {
     return s_aSettings.getStringValue ("global.production");
   }
 
+  /**
+   * @return The data path where photon will store it's data.
+   */
   @Nullable
   public static String getDataPath ()
   {
     return s_aSettings.getStringValue ("webapp.datapath");
   }
 
+  /**
+   * @return <code>true</code> to perform a readability check on all files in
+   *         the web application directory to check for invalid OS user/access
+   *         rights.
+   */
   public static boolean isCheckFileAccess ()
   {
     return s_aSettings.getBooleanValue ("webapp.checkfileaccess", true);
   }
 
+  /**
+   * @return <code>true</code> if this is a test version. Usually has only
+   *         relevance on the UI for presentational purposes.
+   */
   public static boolean isTestVersion ()
   {
     return s_aSettings.getBooleanValue ("webapp.testversion", GlobalDebug.isDebugMode ());
   }
 
+  /**
+   * @return The issuer of the expected client certificate of the issuer.
+   */
   @Nullable
   public static String getClientCertIssuer ()
   {
     return s_aSettings.getStringValue ("clientcert.issuer");
   }
 
+  /**
+   * @return The alternative (other) issuer of the expected client certificate
+   *         of the issuer.
+   */
   @Nullable
   public static String getClientCertIssuerAlternative ()
   {
