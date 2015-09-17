@@ -28,6 +28,7 @@ import com.helger.photon.bootstrap3.servlet.AbstractWebAppListenerMultiAppBootst
 import com.helger.photon.core.app.CApplication;
 import com.helger.photon.core.app.context.LayoutExecutionContext;
 import com.helger.photon.core.app.init.IApplicationInitializer;
+import com.helger.pyp.indexer.mgr.PYPMetaManager;
 import com.helger.pyp.publisher.app.AppCommonUI;
 import com.helger.pyp.publisher.app.AppInternalErrorHandler;
 import com.helger.pyp.publisher.app.AppSecurity;
@@ -85,7 +86,7 @@ public final class AppWebAppListener extends AbstractWebAppListenerMultiAppBoots
     // Internal stuff:
     VendorInfo.setVendorName ("Philip Helger");
     VendorInfo.setVendorURL ("http://www.helger.com");
-    VendorInfo.setVendorEmail ("philip@helger.com");
+    VendorInfo.setVendorEmail ("pyp@helger.com");
     VendorInfo.setVendorLocation ("Vienna, Austria");
     VendorInfo.setInceptionYear (2015);
 
@@ -98,6 +99,7 @@ public final class AppWebAppListener extends AbstractWebAppListenerMultiAppBoots
     AppSecurity.init ();
 
     // Load managers
+    PYPMetaManager.getInstance ();
     MetaManager.getInstance ();
 
     // Setup error handler

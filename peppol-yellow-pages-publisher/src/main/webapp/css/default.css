@@ -59,10 +59,14 @@
 }
 
 /* Search page */
-.querybox {
+.big-querybox {
 }
 
-.querybuttons {
+.big-querybuttons {
   margin: 10px 0;
   text-align: center;
+}
+
+.small-querybox {
+  margin: 10px 0;
 }

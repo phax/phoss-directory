@@ -101,7 +101,7 @@ public final class PYPStorageManager implements Closeable
   }
 
   @Nonnull
-  private static Term _createTerm (@Nonnull final IPeppolParticipantIdentifier aParticipantID)
+  private static Term _createParticipantTerm (@Nonnull final IPeppolParticipantIdentifier aParticipantID)
   {
     return new Term (CPYPStorage.FIELD_PARTICIPANTID, aParticipantID.getURIEncoded ());
   }
@@ -145,7 +145,7 @@ public final class PYPStorageManager implements Closeable
       // Get all documents to be marked as deleted
       final IndexSearcher aSearcher = m_aLucene.getSearcher ();
       if (aSearcher != null)
-        aSearcher.search (new TermQuery (_createTerm (aParticipantID)),
+        aSearcher.search (new TermQuery (_createParticipantTerm (aParticipantID)),
                           new AllDocumentsCollector (aDoc -> aDocuments.add (aDoc)));
 
       if (!aDocuments.isEmpty ())
@@ -155,7 +155,7 @@ public final class PYPStorageManager implements Closeable
           aDocument.add (FIELD_VALUE_DELETED);
 
         // Update the documents
-        m_aLucene.updateDocuments (_createTerm (aParticipantID), aDocuments);
+        m_aLucene.updateDocuments (_createParticipantTerm (aParticipantID), aDocuments);
       }
 
       s_aLogger.info ("Marked " + aDocuments.size () + " Lucene documents as deleted");
@@ -175,7 +175,7 @@ public final class PYPStorageManager implements Closeable
 
     return m_aLucene.runAtomic ( () -> {
       // Delete all existing documents of the participant ID
-      m_aLucene.deleteDocuments (_createTerm (aParticipantID));
+      m_aLucene.deleteDocuments (_createParticipantTerm (aParticipantID));
 
       final BusinessInformationType aBI = aExtBI.getBusinessInformation ();
       for (final EntityType aEntity : aBI.getEntity ())
@@ -254,32 +254,38 @@ public final class PYPStorageManager implements Closeable
    * @param aQuery
    *        The query to be executed. May not be <code>null</code>.
    * @return A non-<code>null</code> but maybe empty list of matching documents
-   * @throws IOException
-   *         On Lucene error
    */
   @Nonnull
   @ReturnsMutableCopy
-  public List <PYPStoredDocument> getAllDocuments (@Nonnull final Query aQuery) throws IOException
+  public List <PYPStoredDocument> getAllDocuments (@Nonnull final Query aQuery)
   {
     final List <PYPStoredDocument> aTargetList = new ArrayList <> ();
-    searchAllDocuments (aQuery, aDoc -> aTargetList.add (aDoc));
+    try
+    {
+      searchAllDocuments (aQuery, aDoc -> aTargetList.add (aDoc));
+    }
+    catch (final IOException ex)
+    {
+      s_aLogger.error ("Error searching for documents with query " + aQuery, ex);
+    }
     return aTargetList;
   }
 
   @Nonnull
-  public List <PYPStoredDocument> getAllDeletedDocuments () throws IOException
+  public List <PYPStoredDocument> getAllDeletedDocuments ()
   {
     return getAllDocuments (new TermQuery (new Term (CPYPStorage.FIELD_DELETED)));
   }
 
   @Nonnull
-  public List <PYPStoredDocument> getAllDocumentsOfParticipant (@Nonnull final IPeppolParticipantIdentifier aParticipantID) throws IOException
+  public List <PYPStoredDocument> getAllDocumentsOfParticipant (@Nonnull final IPeppolParticipantIdentifier aParticipantID)
   {
-    return getAllDocuments (new TermQuery (_createTerm (aParticipantID)));
+    ValueEnforcer.notNull (aParticipantID, "ParticipantID");
+    return getAllDocuments (new TermQuery (_createParticipantTerm (aParticipantID)));
   }
 
   @Nonnull
-  public List <PYPStoredDocument> getAllDocumentsOfCountryCode (@Nonnull final String sCountryCode) throws IOException
+  public List <PYPStoredDocument> getAllDocumentsOfCountryCode (@Nonnull final String sCountryCode)
   {
     ValueEnforcer.notNull (sCountryCode, "CountryCode");
     return getAllDocuments (new TermQuery (new Term (CPYPStorage.FIELD_COUNTRY_CODE, sCountryCode)));

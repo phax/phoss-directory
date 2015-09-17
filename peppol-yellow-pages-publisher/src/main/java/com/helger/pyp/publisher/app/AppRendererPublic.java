@@ -99,10 +99,9 @@ public final class AppRendererPublic implements ILayoutAreaContentProvider <Layo
       final Locale aDisplayLocale = aLEC.getDisplayLocale ();
       final BootstrapNav aNav = new BootstrapNav ();
       aNav.addItem (new HCSpan ().addClass (CBootstrapCSS.NAVBAR_TEXT)
-                                 .addChild ("Logged in as ")
+                                 .addChild ("Welcome ")
                                  .addChild (new HCStrong ().addChild (SecurityHelper.getUserDisplayName (aUser,
                                                                                                          aDisplayLocale))));
-
       aNav.addItem (new HCA (LinkHelper.getURLWithContext (aRequestScope,
                                                            LogoutServlet.SERVLET_DEFAULT_PATH)).addChild (EPhotonCoreText.LOGIN_LOGOUT.getDisplayText (aDisplayLocale)));
       aNavbar.addNav (EBootstrapNavbarPosition.COLLAPSIBLE_RIGHT, aNav);

@@ -20,7 +20,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 
 import com.helger.photon.basic.app.menu.IMenuTree;
-import com.helger.pyp.publisher.page.PageSearch;
+import com.helger.pyp.publisher.page.PagePublicSearch;
 
 @Immutable
 public final class MenuPublic
@@ -31,7 +31,7 @@ public final class MenuPublic
   public static void init (@Nonnull final IMenuTree aMenuTree)
   {
     // Not logged in
-    aMenuTree.createRootItem (new PageSearch (CMenuPublic.MENU_SEARCH));
+    aMenuTree.createRootItem (new PagePublicSearch (CMenuPublic.MENU_SEARCH));
 
     // Set default
     aMenuTree.setDefaultMenuItemID (CMenuPublic.MENU_SEARCH);

@@ -38,7 +38,7 @@ public final class CApp
 {
   public static final Locale DEFAULT_LOCALE = LocaleCache.getInstance ().getLocale ("en", "US");
 
-  private static final String APPLICATION_TITLE = "PEPPOL Yellow Pages - Indexer";
+  private static final String APPLICATION_TITLE = "PEPPOL Yellow Pages";
 
   // Security roles
   public static final String ROLE_CONFIG_ID = "config";
