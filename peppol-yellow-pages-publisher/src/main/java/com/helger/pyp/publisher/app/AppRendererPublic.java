@@ -22,7 +22,6 @@ import java.util.Locale;
 
 import javax.annotation.Nonnull;
 
-import com.helger.commons.callback.INonThrowingRunnableWithParameter;
 import com.helger.commons.string.StringHelper;
 import com.helger.commons.url.ISimpleURL;
 import com.helger.css.property.CCSSProperties;
@@ -51,10 +50,7 @@ import com.helger.photon.basic.security.util.SecurityHelper;
 import com.helger.photon.bootstrap3.CBootstrapCSS;
 import com.helger.photon.bootstrap3.alert.BootstrapErrorBox;
 import com.helger.photon.bootstrap3.base.BootstrapContainer;
-import com.helger.photon.bootstrap3.breadcrumbs.BootstrapBreadcrumbs;
-import com.helger.photon.bootstrap3.breadcrumbs.BootstrapBreadcrumbsProvider;
 import com.helger.photon.bootstrap3.dropdown.BootstrapDropdownMenu;
-import com.helger.photon.bootstrap3.grid.BootstrapRow;
 import com.helger.photon.bootstrap3.nav.BootstrapNav;
 import com.helger.photon.bootstrap3.navbar.BootstrapNavbar;
 import com.helger.photon.bootstrap3.navbar.EBootstrapNavbarPosition;
@@ -87,13 +83,9 @@ public final class AppRendererPublic implements ILayoutAreaContentProvider <Layo
   public AppRendererPublic ()
   {
     m_aFooterObjects = new ArrayList <IMenuObject> ();
-    ApplicationMenuTree.getTree ().iterateAllMenuObjects (new INonThrowingRunnableWithParameter <IMenuObject> ()
-    {
-      public void run (@Nonnull final IMenuObject aCurrentObject)
-      {
-        if (aCurrentObject.containsAttribute (CMenuPublic.FLAG_FOOTER))
-          m_aFooterObjects.add (aCurrentObject);
-      }
+    ApplicationMenuTree.getTree ().iterateAllMenuObjects (aCurrentObject -> {
+      if (aCurrentObject.containsAttribute (CMenuPublic.FLAG_FOOTER))
+        m_aFooterObjects.add (aCurrentObject);
     });
   }
 
@@ -137,6 +129,7 @@ public final class AppRendererPublic implements ILayoutAreaContentProvider <Layo
     final ISimpleURL aLinkToStartPage = aLEC.getLinkToMenuItem (aLEC.getMenuTree ().getDefaultMenuItemID ());
 
     final BootstrapNavbar aNavbar = new BootstrapNavbar (EBootstrapNavbarType.STATIC_TOP, true, aDisplayLocale);
+    ((BootstrapContainer) aNavbar.getContainer ()).setFluid (true);
     aNavbar.addBrand (new HCSpan ().addClass (CAppCSS.CSS_CLASS_LOGO1).addChild (CApp.getApplicationTitle ()),
                       aLinkToStartPage);
 
@@ -169,7 +162,7 @@ public final class AppRendererPublic implements ILayoutAreaContentProvider <Layo
 
   @SuppressWarnings ("unchecked")
   @Nonnull
-  static IHCNode _getMainContent (@Nonnull final LayoutExecutionContext aLEC)
+  static IHCNode getMainContent (@Nonnull final LayoutExecutionContext aLEC)
   {
     final IRequestWebScopeWithoutResponse aRequestScope = aLEC.getRequestScope ();
 
@@ -239,38 +232,23 @@ public final class AppRendererPublic implements ILayoutAreaContentProvider <Layo
     // Header
     ret.addChild (_getNavbar (aLEC));
 
-    final BootstrapContainer aOuterContainer = ret.addAndReturnChild (new BootstrapContainer ());
+    final BootstrapContainer aOuterContainer = ret.addAndReturnChild (new BootstrapContainer ().setFluid (false));
 
-    // Breadcrumbs
-    {
-      final BootstrapBreadcrumbs aBreadcrumbs = BootstrapBreadcrumbsProvider.createBreadcrumbs (aLEC);
-      aBreadcrumbs.addClass (CBootstrapCSS.HIDDEN_XS);
-      aOuterContainer.addChild (aBreadcrumbs);
-    }
-
-    // Content
-    {
-      final BootstrapRow aRow = aOuterContainer.addAndReturnChild (new BootstrapRow ());
-      final HCDiv aCol1 = aRow.createColumn (12, 4, 4, 3);
-      final HCDiv aCol2 = aRow.createColumn (12, 8, 8, 9);
-
-      // left
-      // We need a wrapper span for easy AJAX content replacement
-      aCol1.addChild (new HCSpan ().setID (CLayout.LAYOUT_AREAID_MENU).addChild (getMenuContent (aLEC)));
-      aCol1.addChild (new HCDiv ().setID (CLayout.LAYOUT_AREAID_SPECIAL));
-
-      // content
-      aCol2.addChild (_getMainContent (aLEC));
-    }
+    // Content - no menu
+    aOuterContainer.addChild (getMainContent (aLEC));
 
     // Footer
     {
-      final BootstrapContainer aDiv = new BootstrapContainer ().setID (CLayout.LAYOUT_AREAID_FOOTER);
+      final BootstrapContainer aDiv = new BootstrapContainer ().setFluid (true).setID (CLayout.LAYOUT_AREAID_FOOTER);
 
-      aDiv.addChild (new HCP ().addChild ("Demo web application for the ")
+      aDiv.addChild (new HCP ().addChild ("PYP Publisher based on ")
                                .addChild (new HCA ("https://github.com/phax/ph-oton").addChild ("ph-oton"))
                                .addChild (" stack"));
-      aDiv.addChild (new HCP ().addChild ("Created by Philip Helger - Twitter: @philiphelger"));
+      aDiv.addChild (new HCP ().addChild ("Sources are available on ")
+                               .addChild (new HCA ("https://github.com/phax/peppol-yellow-pages").addChild ("GitHub")));
+      aDiv.addChild (new HCP ().addChild ("Created by ")
+                               .addChild (new HCA ("https://github.com/phax").addChild ("Philip Helger"))
+                               .addChild (" for PEPPOL - Twitter: @philiphelger"));
 
       final BootstrapMenuItemRendererHorz aRenderer = new BootstrapMenuItemRendererHorz (aDisplayLocale);
       final HCUL aUL = aDiv.addAndReturnChild (new HCUL ().addClass (CSS_CLASS_FOOTER_LINKS));
@@ -287,7 +265,7 @@ public final class AppRendererPublic implements ILayoutAreaContentProvider <Layo
             else
               throw new IllegalStateException ("Unsupported menu object type!");
       }
-      aOuterContainer.addChild (aDiv);
+      ret.addChild (aDiv);
     }
 
     return ret;

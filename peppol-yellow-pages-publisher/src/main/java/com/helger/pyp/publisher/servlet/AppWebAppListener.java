@@ -37,8 +37,8 @@ import com.helger.pyp.publisher.app.MetaManager;
 import com.helger.pyp.settings.PYPSettings;
 
 /**
- * This listener is invoked during the servlet initiailization. This is
- * basically a ServletContextListener.
+ * This listener is invoked during the servlet initialization. This is basically
+ * a ServletContextListener.
  *
  * @author Philip Helger
  */

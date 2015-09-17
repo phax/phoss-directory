@@ -16,9 +16,11 @@
  */
 package com.helger.pyp.publisher.action;
 
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 
 import com.helger.photon.core.action.IActionDeclaration;
+import com.helger.photon.core.action.IActionInvoker;
 import com.helger.photon.core.action.decl.PublicApplicationActionDeclaration;
 import com.helger.photon.uictrls.datatables.ajax.ActionExecutorDataTablesI18N;
 import com.helger.pyp.publisher.app.CApp;
@@ -36,4 +38,9 @@ public final class CActionPublic
 
   private CActionPublic ()
   {}
+
+  public static void initActions (@Nonnull final IActionInvoker aActionInvoker)
+  {
+    aActionInvoker.registerAction (DATATABLES_I18N);
+  }
 }

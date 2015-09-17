@@ -16,9 +16,11 @@
  */
 package com.helger.pyp.publisher.ajax;
 
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 
 import com.helger.photon.core.ajax.IAjaxFunctionDeclaration;
+import com.helger.photon.core.ajax.IAjaxInvoker;
 import com.helger.photon.core.ajax.decl.PublicApplicationAjaxFunctionDeclaration;
 import com.helger.photon.uictrls.datatables.ajax.AjaxExecutorDataTables;
 
@@ -37,4 +39,10 @@ public final class CAjaxPublic
 
   private CAjaxPublic ()
   {}
+
+  public static void initAjax (@Nonnull final IAjaxInvoker aAjaxInvoker)
+  {
+    aAjaxInvoker.registerFunction (DATATABLES);
+    aAjaxInvoker.registerFunction (LOGIN);
+  }
 }

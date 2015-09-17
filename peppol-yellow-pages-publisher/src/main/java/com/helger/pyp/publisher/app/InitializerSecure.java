@@ -23,7 +23,6 @@ import com.helger.photon.basic.app.locale.ILocaleManager;
 import com.helger.photon.basic.app.menu.IMenuTree;
 import com.helger.photon.bootstrap3.pages.sysinfo.ConfigurationFile;
 import com.helger.photon.bootstrap3.pages.sysinfo.ConfigurationFileManager;
-import com.helger.photon.core.action.IActionInvoker;
 import com.helger.photon.core.ajax.IAjaxInvoker;
 import com.helger.photon.core.app.context.LayoutExecutionContext;
 import com.helger.photon.core.app.init.DefaultApplicationInitializer;
@@ -59,10 +58,6 @@ public final class InitializerSecure extends DefaultApplicationInitializer <Layo
 
   @Override
   public void initAjax (@Nonnull final IAjaxInvoker aAjaxInvoker)
-  {}
-
-  @Override
-  public void initActions (@Nonnull final IActionInvoker aActionInvoker)
   {}
 
   @Override

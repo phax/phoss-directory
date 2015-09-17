@@ -57,3 +57,12 @@
 #menu .nav .nav .nav>li>a {
 	padding-left: 25px;
 }
+
+/* Search page */
+.querybox {
+}
+
+.querybuttons {
+  margin: 10px 0;
+  text-align: center;
+}
