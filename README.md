@@ -4,9 +4,9 @@ The official PEPPOL Yellow Pages (PYP) software. It is split into the following 
   * `peppol-yellow-pages-indexer` - the PYP indexer part
   * `peppol-yellow-pages-publisher` - the PYP publisher web application
   
-Status as per 2015-09-14: 
+Status as per 2015-09-17: 
   * This project was started on 2015-08-31 so don't expect too much right now :)
-  * The indexer part (incl. REST interface) looks quite good. Unit tests with concurrent indexing requests work flawlessly incl. Lucene based storage and lookup. The only thing missing is the fetching of all document types supported by a service group for later querying.
+  * The indexer part (incl. REST interface) looks quite good. Unit tests with concurrent indexing requests work flawlessly incl. Lucene based storage and lookup. The first real BusinessInformation lookup for `9915:test` also succeeded.
   * The next steps after finishing the Indexer are to work on the publisher web site. Except something available by approximately end of September 2015
   
 # Building requirements
