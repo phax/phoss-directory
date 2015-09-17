@@ -71,12 +71,12 @@ import com.helger.pyp.settings.PYPSettings;
  *
  * @author Philip Helger
  */
-public class SMPBusinessInformationProvider implements IPYPBusinessInformationProvider
+public final class SMPBusinessInformationProvider implements IPYPBusinessInformationProvider
 {
   private static final String URL_PART_SERVICES = "/services/";
   private static final Logger s_aLogger = LoggerFactory.getLogger (SMPBusinessInformationProvider.class);
 
-  // FIXME replace with MicroHelper version in ph-commons >= 6.2.0
+  // FIXME replace with MicroHelper version in ph-commons >= 6.2.1
   @Nonnull
   public static IMicroNode convertToMicroNode (@Nonnull final Node aNode)
   {

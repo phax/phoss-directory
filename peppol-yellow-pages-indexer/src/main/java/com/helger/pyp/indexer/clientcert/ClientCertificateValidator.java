@@ -55,6 +55,9 @@ import com.helger.pyp.settings.PYPSettings;
 @Immutable
 public final class ClientCertificateValidator
 {
+  /** The client ID to be used, if client certificate validator is disabled! */
+  public static final String INSECURE_DEBUG_CLIENT = "insecure-debug-client";
+
   private static final Logger s_aLogger = LoggerFactory.getLogger (ClientCertificateValidator.class);
 
   @PresentForCodeCoverage
@@ -278,13 +281,13 @@ public final class ClientCertificateValidator
    * @return Never <code>null</code>.
    */
   @Nonnull
-  public static ClientCertificateValidationResult isClientCertificateValid (@Nonnull final HttpServletRequest aHttpRequest)
+  public static ClientCertificateValidationResult verifyClientCertificate (@Nonnull final HttpServletRequest aHttpRequest)
   {
     if (s_bAllowAllForTests)
     {
       if (s_aLogger.isDebugEnabled ())
         s_aLogger.debug ("Client certificate is considered valid because the 'allow all' for tests is set!");
-      return ClientCertificateValidationResult.createSuccess ("insecure-debug-client");
+      return ClientCertificateValidationResult.createSuccess (INSECURE_DEBUG_CLIENT);
     }
 
     // This is how to get client certificate from request

@@ -33,7 +33,7 @@ import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.annotation.OverrideOnDemand;
 import com.helger.photon.core.job.AbstractPhotonJob;
-import com.helger.pyp.indexer.mgr.IndexerManager;
+import com.helger.pyp.indexer.mgr.PYPIndexerManager;
 import com.helger.pyp.indexer.mgr.PYPMetaManager;
 import com.helger.schedule.quartz.GlobalQuartzScheduler;
 import com.helger.web.mock.MockHttpServletRequest;
@@ -71,7 +71,7 @@ public class ReIndexJob extends AbstractPhotonJob
   @Override
   protected void onExecute (@Nonnull final JobExecutionContext aContext) throws JobExecutionException
   {
-    final IndexerManager aIndexerMgr = PYPMetaManager.getIndexerMgr ();
+    final PYPIndexerManager aIndexerMgr = PYPMetaManager.getIndexerMgr ();
 
     // First expire all old entries
     aIndexerMgr.expireOldEntries ();

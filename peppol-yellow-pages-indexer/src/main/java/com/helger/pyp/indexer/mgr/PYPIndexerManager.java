@@ -66,9 +66,9 @@ import com.helger.schedule.quartz.GlobalQuartzScheduler;
  *
  * @author Philip Helger
  */
-public final class IndexerManager implements Closeable
+public final class PYPIndexerManager implements Closeable
 {
-  private static final Logger s_aLogger = LoggerFactory.getLogger (IndexerManager.class);
+  private static final Logger s_aLogger = LoggerFactory.getLogger (PYPIndexerManager.class);
   private static final String ELEMENT_ROOT = "root";
   private static final String ELEMENT_ITEM = "item";
 
@@ -87,7 +87,7 @@ public final class IndexerManager implements Closeable
   // Status vars
   private final GlobalQuartzScheduler m_aScheduler;
 
-  public IndexerManager (@Nonnull final PYPStorageManager aStorageMgr) throws DAOException
+  public PYPIndexerManager (@Nonnull final PYPStorageManager aStorageMgr) throws DAOException
   {
     m_aStorageMgr = ValueEnforcer.notNull (aStorageMgr, "StorageMgr");
     m_aReIndexList = new ReIndexWorkItemList ("reindex-work-items.xml");
@@ -116,7 +116,7 @@ public final class IndexerManager implements Closeable
    * @return this for chaining
    */
   @Nonnull
-  public IndexerManager readAndQueueInitialData ()
+  public PYPIndexerManager readAndQueueInitialData ()
   {
     // Read the file - may not be existing
     final IMicroDocument aDoc = MicroReader.readMicroXML (m_aIndexerWorkItemFile);
@@ -192,7 +192,7 @@ public final class IndexerManager implements Closeable
    * @return this for chaining
    */
   @Nonnull
-  public IndexerManager setBusinessInformationProvider (@Nonnull final IPYPBusinessInformationProvider aBIProvider)
+  public PYPIndexerManager setBusinessInformationProvider (@Nonnull final IPYPBusinessInformationProvider aBIProvider)
   {
     ValueEnforcer.notNull (aBIProvider, "BIProvider");
     m_aRWLock.writeLocked ( () -> m_aBIProvider = aBIProvider);

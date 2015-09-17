@@ -60,7 +60,7 @@ public class IndexerResource
   {
     try
     {
-      return ClientCertificateValidator.isClientCertificateValid (aHttpServletRequest);
+      return ClientCertificateValidator.verifyClientCertificate (aHttpServletRequest);
     }
     catch (final RuntimeException ex)
     {

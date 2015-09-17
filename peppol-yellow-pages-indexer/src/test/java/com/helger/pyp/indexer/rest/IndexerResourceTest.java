@@ -57,7 +57,7 @@ import com.helger.pyp.businessinformation.EntityType;
 import com.helger.pyp.businessinformation.IdentifierType;
 import com.helger.pyp.businessinformation.PYPExtendedBusinessInformation;
 import com.helger.pyp.indexer.clientcert.ClientCertificateValidator;
-import com.helger.pyp.indexer.mgr.IndexerManager;
+import com.helger.pyp.indexer.mgr.PYPIndexerManager;
 import com.helger.pyp.indexer.mgr.PYPMetaManager;
 import com.helger.pyp.indexer.mock.PYPIndexerTestRule;
 import com.helger.web.https.DoNothingTrustManager;
@@ -116,7 +116,7 @@ public final class IndexerResourceTest
   public void setUp () throws GeneralSecurityException, IOException
   {
     // Set test BI provider
-    PYPMetaManager.setIndexerMgrFactory (aStorageMgr -> new IndexerManager (aStorageMgr).setBusinessInformationProvider (aParticipantID -> _createMockBI (aParticipantID))
+    PYPMetaManager.setIndexerMgrFactory (aStorageMgr -> new PYPIndexerManager (aStorageMgr).setBusinessInformationProvider (aParticipantID -> _createMockBI (aParticipantID))
                                                                                         .readAndQueueInitialData ());
     PYPMetaManager.getInstance ();
 

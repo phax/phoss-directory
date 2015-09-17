@@ -36,13 +36,13 @@ public final class PYPMetaManager extends AbstractGlobalSingleton
 {
   private static final Logger s_aLogger = LoggerFactory.getLogger (PYPMetaManager.class);
 
-  private static IThrowingCallableWithParameter <IndexerManager, PYPStorageManager, DAOException> s_aFactoryIndexerMgr = aStorageMgr -> new IndexerManager (aStorageMgr).readAndQueueInitialData ();
+  private static IThrowingCallableWithParameter <PYPIndexerManager, PYPStorageManager, DAOException> s_aFactoryIndexerMgr = aStorageMgr -> new PYPIndexerManager (aStorageMgr).readAndQueueInitialData ();
 
   private PYPLucene m_aLucene;
   private PYPStorageManager m_aStorageMgr;
-  private IndexerManager m_aIndexerMgr;
+  private PYPIndexerManager m_aIndexerMgr;
 
-  public static void setIndexerMgrFactory (@Nonnull final IThrowingCallableWithParameter <IndexerManager, PYPStorageManager, DAOException> aFactoryIndexerMgr)
+  public static void setIndexerMgrFactory (@Nonnull final IThrowingCallableWithParameter <PYPIndexerManager, PYPStorageManager, DAOException> aFactoryIndexerMgr)
   {
     s_aFactoryIndexerMgr = aFactoryIndexerMgr;
   }
@@ -98,7 +98,7 @@ public final class PYPMetaManager extends AbstractGlobalSingleton
   }
 
   @Nonnull
-  public static IndexerManager getIndexerMgr ()
+  public static PYPIndexerManager getIndexerMgr ()
   {
     return getInstance ().m_aIndexerMgr;
   }
