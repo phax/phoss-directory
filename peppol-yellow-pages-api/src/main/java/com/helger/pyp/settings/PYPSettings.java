@@ -36,7 +36,7 @@ import com.helger.settings.exchange.properties.SettingsPersistenceProperties;
  *
  * @author Philip Helger
  */
-public class PYPSettings extends AbstractGlobalSingleton
+public final class PYPSettings extends AbstractGlobalSingleton
 {
   /** The name of the file containing the settings */
   public static final String FILENAME = "pyp.properties";
