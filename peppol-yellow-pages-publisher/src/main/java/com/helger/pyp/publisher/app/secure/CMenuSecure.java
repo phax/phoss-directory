@@ -14,18 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pyp.publisher.app;
+package com.helger.pyp.publisher.app.secure;
 
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
-public final class CMenuPublic
+public final class CMenuSecure
 {
-  public static final String MENU_SEARCH = "search";
+  // Menu item IDs
+  public static final String MENU_INDEXER = "indexer";
+  public static final String MENU_INDEX_MANUALLY = "index_manually";
 
-  // flags
-  public static final String FLAG_FOOTER = "footer";
+  public static final String MENU_ADMIN = "admin";
+  public static final String MENU_CHANGE_PASSWORD = "change_password";
 
-  private CMenuPublic ()
+  private CMenuSecure ()
   {}
 }

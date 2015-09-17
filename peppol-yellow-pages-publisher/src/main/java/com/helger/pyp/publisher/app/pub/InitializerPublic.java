@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pyp.publisher.app;
+package com.helger.pyp.publisher.app.pub;
 
 import javax.annotation.Nonnull;
 
@@ -28,6 +28,7 @@ import com.helger.photon.core.app.layout.CLayout;
 import com.helger.photon.core.app.layout.ILayoutManager;
 import com.helger.pyp.publisher.action.CActionPublic;
 import com.helger.pyp.publisher.ajax.CAjaxPublic;
+import com.helger.pyp.publisher.app.CApp;
 
 /**
  * Initialize the view application stuff

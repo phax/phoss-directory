@@ -24,6 +24,7 @@ import javax.servlet.ServletContext;
 
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.vendor.VendorInfo;
+import com.helger.photon.basic.app.request.ApplicationRequestManager;
 import com.helger.photon.bootstrap3.servlet.AbstractWebAppListenerMultiAppBootstrap;
 import com.helger.photon.core.app.CApplication;
 import com.helger.photon.core.app.context.LayoutExecutionContext;
@@ -32,9 +33,9 @@ import com.helger.pyp.indexer.mgr.PYPMetaManager;
 import com.helger.pyp.publisher.app.AppCommonUI;
 import com.helger.pyp.publisher.app.AppInternalErrorHandler;
 import com.helger.pyp.publisher.app.AppSecurity;
-import com.helger.pyp.publisher.app.InitializerPublic;
-import com.helger.pyp.publisher.app.InitializerSecure;
 import com.helger.pyp.publisher.app.MetaManager;
+import com.helger.pyp.publisher.app.pub.InitializerPublic;
+import com.helger.pyp.publisher.app.secure.InitializerSecure;
 import com.helger.pyp.settings.PYPSettings;
 
 /**
@@ -91,6 +92,8 @@ public final class AppWebAppListener extends AbstractWebAppListenerMultiAppBoots
     VendorInfo.setInceptionYear (2015);
 
     super.initGlobals ();
+
+    ApplicationRequestManager.getRequestMgr ().setUsePaths (true);
 
     // UI stuff
     AppCommonUI.init ();

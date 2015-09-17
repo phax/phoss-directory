@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pyp.publisher.app;
+package com.helger.pyp.publisher.app.pub;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 
 import com.helger.photon.basic.app.menu.IMenuTree;
-import com.helger.pyp.publisher.page.PagePublicSearch;
+import com.helger.pyp.publisher.app.pub.page.PagePublicSearch;
 
 @Immutable
 public final class MenuPublic

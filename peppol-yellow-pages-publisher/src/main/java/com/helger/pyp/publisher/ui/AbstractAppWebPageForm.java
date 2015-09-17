@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pyp.publisher.page;
+package com.helger.pyp.publisher.ui;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

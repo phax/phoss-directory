@@ -14,18 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pyp.publisher.app;
+package com.helger.pyp.publisher.ui;
 
-import javax.annotation.concurrent.Immutable;
+import javax.annotation.Nonnull;
 
-@Immutable
-public final class CMenuSecure
+import com.helger.commons.annotation.Nonempty;
+import com.helger.photon.bootstrap3.pages.AbstractBootstrapWebPage;
+import com.helger.photon.uicore.page.WebPageExecutionContext;
+
+public abstract class AbstractAppWebPage extends AbstractBootstrapWebPage <WebPageExecutionContext>
 {
-  // Menu item IDs
-  public static final String MENU_ADMIN = "admin";
-
-  public static final String MENU_SAVED_STATES = "saved_states";
-
-  private CMenuSecure ()
-  {}
+  public AbstractAppWebPage (@Nonnull @Nonempty final String sID, @Nonnull final String sName)
+  {
+    super (sID, sName);
+  }
 }

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pyp.publisher.app;
+package com.helger.pyp.publisher.app.pub;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,6 +67,9 @@ import com.helger.photon.core.servlet.LogoutServlet;
 import com.helger.photon.core.url.LinkHelper;
 import com.helger.photon.uicore.page.IWebPage;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
+import com.helger.pyp.publisher.app.AppCommonUI;
+import com.helger.pyp.publisher.app.CApp;
+import com.helger.pyp.publisher.app.CAppCSS;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 
 /**
@@ -161,7 +164,7 @@ public final class AppRendererPublic implements ILayoutAreaContentProvider <Layo
 
   @SuppressWarnings ("unchecked")
   @Nonnull
-  static IHCNode getMainContent (@Nonnull final LayoutExecutionContext aLEC)
+  public static IHCNode getMainContent (@Nonnull final LayoutExecutionContext aLEC)
   {
     final IRequestWebScopeWithoutResponse aRequestScope = aLEC.getRequestScope ();
 
@@ -247,7 +250,8 @@ public final class AppRendererPublic implements ILayoutAreaContentProvider <Layo
                                .addChild (new HCA ("https://github.com/phax/peppol-yellow-pages").addChild ("GitHub")));
       aDiv.addChild (new HCP ().addChild ("Created by ")
                                .addChild (new HCA ("https://github.com/phax").addChild ("Philip Helger"))
-                               .addChild (" for PEPPOL - Twitter: @philiphelger"));
+                               .addChild (" for PEPPOL - Twitter: ")
+                               .addChild (new HCA ("https://twitter.com/philiphelger").addChild ("@philiphelger")));
 
       final BootstrapMenuItemRendererHorz aRenderer = new BootstrapMenuItemRendererHorz (aDisplayLocale);
       final HCUL aUL = aDiv.addAndReturnChild (new HCUL ().addClass (CSS_CLASS_FOOTER_LINKS));

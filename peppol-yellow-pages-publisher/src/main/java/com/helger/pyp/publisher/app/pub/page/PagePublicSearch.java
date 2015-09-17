@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pyp.publisher.page;
+package com.helger.pyp.publisher.app.pub.page;
 
 import java.util.List;
 
@@ -44,6 +44,7 @@ import com.helger.photon.core.form.RequestField;
 import com.helger.photon.uicore.icon.EDefaultIcon;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 import com.helger.pyp.indexer.mgr.PYPMetaManager;
+import com.helger.pyp.publisher.ui.AbstractAppWebPage;
 import com.helger.pyp.publisher.ui.HCExtImg;
 import com.helger.pyp.storage.PYPStoredDocument;
 

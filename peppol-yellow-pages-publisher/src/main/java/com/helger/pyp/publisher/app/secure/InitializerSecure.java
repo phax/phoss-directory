@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pyp.publisher.app;
+package com.helger.pyp.publisher.app.secure;
 
 import javax.annotation.Nonnull;
 
@@ -29,6 +29,7 @@ import com.helger.photon.core.app.init.DefaultApplicationInitializer;
 import com.helger.photon.core.app.layout.CLayout;
 import com.helger.photon.core.app.layout.ILayoutManager;
 import com.helger.photon.uictrls.prism.EPrismLanguage;
+import com.helger.pyp.publisher.app.CApp;
 
 /**
  * Initialize the config application stuff

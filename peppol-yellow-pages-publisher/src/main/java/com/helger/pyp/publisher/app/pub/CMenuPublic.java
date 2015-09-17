@@ -14,18 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pyp.publisher.page;
+package com.helger.pyp.publisher.app.pub;
 
-import javax.annotation.Nonnull;
+import javax.annotation.concurrent.Immutable;
 
-import com.helger.commons.annotation.Nonempty;
-import com.helger.photon.bootstrap3.pages.AbstractBootstrapWebPage;
-import com.helger.photon.uicore.page.WebPageExecutionContext;
-
-public abstract class AbstractAppWebPage extends AbstractBootstrapWebPage <WebPageExecutionContext>
+@Immutable
+public final class CMenuPublic
 {
-  public AbstractAppWebPage (@Nonnull @Nonempty final String sID, @Nonnull final String sName)
-  {
-    super (sID, sName);
-  }
+  public static final String MENU_SEARCH = "search";
+
+  // flags
+  public static final String FLAG_FOOTER = "footer";
+
+  private CMenuPublic ()
+  {}
 }
