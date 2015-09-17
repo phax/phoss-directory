@@ -239,11 +239,15 @@ public final class PYPStorageManager implements Closeable
       final IndexSearcher aSearcher = m_aLucene.getSearcher ();
       if (aSearcher != null)
       {
+        s_aLogger.info ("Searching " + aQuery);
+
         // Search all documents, convert them to StoredDocument and pass them to
         // the provided consumer
         aSearcher.search (aQuery,
                           new AllDocumentsCollector (aDoc -> aConsumer.accept (PYPStoredDocument.create (aDoc))));
       }
+      else
+        s_aLogger.warn ("Failed to obtain IndexSearcher");
     });
   }
 

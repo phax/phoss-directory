@@ -73,15 +73,15 @@ public final class PageSecureIndexManually extends AbstractAppWebPage
                                           "localhost")
                           .isChanged ())
         {
-          aNodeList.addChild (new BootstrapSuccessBox ().addChild ("The indexing of participant ID '" +
-                                                                   sParticipantID +
-                                                                   "' was successfully triggered!"));
+          aWPEC.postRedirectGet (new BootstrapSuccessBox ().addChild ("The indexing of participant ID '" +
+                                                                      sParticipantID +
+                                                                      "' was successfully triggered!"));
         }
         else
         {
-          aNodeList.addChild (new BootstrapWarnBox ().addChild ("Participant ID '" +
-                                                                sParticipantID +
-                                                                "' is already in the indexing queue!"));
+          aWPEC.postRedirectGet (new BootstrapWarnBox ().addChild ("Participant ID '" +
+                                                                   sParticipantID +
+                                                                   "' is already in the indexing queue!"));
         }
       }
     }
