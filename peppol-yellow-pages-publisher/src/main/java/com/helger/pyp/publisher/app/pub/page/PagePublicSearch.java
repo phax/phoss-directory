@@ -102,7 +102,7 @@ public final class PagePublicSearch extends AbstractAppWebPage
       aBodyRow.createColumn (12, 6, 6, 6).addChild (aSmallQueryBox);
 
       // Fetch query results
-      final Query aLuceneQuery = PYPQueryManager.convertQueryStringToLuceneQuery (sQuery);
+      final Query aLuceneQuery = PYPQueryManager.convertQueryStringToLuceneQuery (PYPMetaManager.getLucene (), sQuery);
       final List <PYPStoredDocument> aDocs = PYPMetaManager.getStorageMgr ().getAllDocuments (aLuceneQuery);
       if (aDocs.isEmpty ())
       {

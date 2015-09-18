@@ -56,7 +56,7 @@ import com.helger.photon.basic.app.io.WebFileIO;
  *
  * @author Philip Helger
  */
-public final class PYPLucene implements Closeable, ILuceneDocumentProvider
+public final class PYPLucene implements Closeable, ILuceneDocumentProvider, ILuceneAnalyzerProvider
 {
   private static final Logger s_aLogger = LoggerFactory.getLogger (PYPLucene.class);
 
