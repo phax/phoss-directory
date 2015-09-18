@@ -286,7 +286,7 @@ public final class PYPIndexerManager implements Closeable
     }
 
     // Got data - put in storage
-    return m_aStorageMgr.createOrUpdateEntry (aParticipantID, aBI, aWorkItem.getOwnerID ());
+    return m_aStorageMgr.createOrUpdateEntry (aParticipantID, aBI, aWorkItem.getAsMetaData ());
   }
 
   /**
@@ -304,7 +304,7 @@ public final class PYPIndexerManager implements Closeable
   {
     final IPeppolParticipantIdentifier aParticipantID = aWorkItem.getParticipantID ();
 
-    return m_aStorageMgr.deleteEntry (aParticipantID, aWorkItem.getOwnerID ());
+    return m_aStorageMgr.deleteEntry (aParticipantID, aWorkItem.getAsMetaData ());
   }
 
   /**

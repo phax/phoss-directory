@@ -28,13 +28,15 @@ public final class CPYPStorage
 {
   public static final String FIELD_PARTICIPANTID = "participantid";
   public static final String FIELD_DOCUMENT_TYPE_ID = "doctypeid";
-  public static final String FIELD_OWNERID = "ownerid";
   public static final String FIELD_COUNTRY_CODE = "country";
   public static final String FIELD_NAME = "name";
   public static final String FIELD_GEOINFO = "geoinfo";
   public static final String FIELD_IDENTIFIER_TYPE = "identifiertype";
   public static final String FIELD_IDENTIFIER = "identifier";
   public static final String FIELD_FREETEXT = "freetext";
+  public static final String FIELD_METADATA_CREATIONDT = "md-creationdt";
+  public static final String FIELD_METADATA_OWNERID = "md-ownerid";
+  public static final String FIELD_METADATA_REQUESTING_HOST = "md-requestinghost";
   public static final String FIELD_ALL_FIELDS = "allfields";
   public static final String FIELD_DELETED = "deleted";
   public static final String FIELD_GROUP_END = "groupend";

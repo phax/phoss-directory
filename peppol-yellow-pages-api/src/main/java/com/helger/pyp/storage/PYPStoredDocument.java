@@ -31,6 +31,7 @@ import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.annotation.ReturnsMutableCopy;
 import com.helger.commons.collection.CollectionHelper;
 import com.helger.commons.string.ToStringGenerator;
+import com.helger.datetime.PDTFactory;
 import com.helger.peppol.identifier.doctype.IPeppolDocumentTypeIdentifier;
 import com.helger.peppol.identifier.doctype.SimpleDocumentTypeIdentifier;
 
@@ -47,12 +48,12 @@ public class PYPStoredDocument
 {
   private String m_sParticipantID;
   private final List <SimpleDocumentTypeIdentifier> m_aDocumentTypeIDs = new ArrayList <> ();
-  private String m_sOwnerID;
   private String m_sCountryCode;
   private String m_sName;
   private String m_sGeoInfo;
   private final List <PYPStoredIdentifier> m_aIdentifiers = new ArrayList <> ();
   private String m_sFreeText;
+  private PYPDocumentMetaData m_aMetaData;
   private boolean m_bDeleted;
 
   protected PYPStoredDocument ()
@@ -94,19 +95,6 @@ public class PYPStoredDocument
   public IPeppolDocumentTypeIdentifier getDocumentTypeIDAtIndex (@Nonnegative final int nIndex)
   {
     return CollectionHelper.getSafe (m_aDocumentTypeIDs, nIndex);
-  }
-
-  public void setOwnerID (@Nonnull @Nonempty final String sOwnerID)
-  {
-    ValueEnforcer.notEmpty (sOwnerID, "OwnerID");
-    m_sOwnerID = sOwnerID;
-  }
-
-  @Nonnull
-  @Nonempty
-  public String getOwnerID ()
-  {
-    return m_sOwnerID;
   }
 
   public void setCountryCode (@Nullable final String sCountryCode)
@@ -178,6 +166,18 @@ public class PYPStoredDocument
     return m_sFreeText;
   }
 
+  @Nonnull
+  public PYPDocumentMetaData getMetaData ()
+  {
+    return m_aMetaData;
+  }
+
+  public void setMetaData (@Nonnull final PYPDocumentMetaData aMetaData)
+  {
+    ValueEnforcer.notNull (aMetaData, "MetaData");
+    m_aMetaData = aMetaData;
+  }
+
   public void setDeleted (final boolean bDeleted)
   {
     m_bDeleted = bDeleted;
@@ -193,12 +193,12 @@ public class PYPStoredDocument
   {
     return new ToStringGenerator (this).append ("ParticipantID", m_sParticipantID)
                                        .append ("DocumentTypeIDs", m_aDocumentTypeIDs)
-                                       .append ("OwnerID", m_sOwnerID)
                                        .append ("CountryCode", m_sCountryCode)
                                        .append ("Name", m_sName)
                                        .append ("GeoInfo", m_sGeoInfo)
                                        .append ("Identifiers", m_aIdentifiers)
                                        .append ("FreeText", m_sFreeText)
+                                       .append ("MetaData", m_aMetaData)
                                        .append ("Deleted", m_bDeleted)
                                        .toString ();
   }
@@ -211,7 +211,6 @@ public class PYPStoredDocument
     ret.setParticipantID (aDoc.get (CPYPStorage.FIELD_PARTICIPANTID));
     for (final String sDocTypeID : aDoc.getValues (CPYPStorage.FIELD_DOCUMENT_TYPE_ID))
       ret.addDocumentTypeID (SimpleDocumentTypeIdentifier.createFromURIPart (sDocTypeID));
-    ret.setOwnerID (aDoc.get (CPYPStorage.FIELD_OWNERID));
     ret.setCountryCode (aDoc.get (CPYPStorage.FIELD_COUNTRY_CODE));
     ret.setName (aDoc.get (CPYPStorage.FIELD_NAME));
     ret.setGeoInfo (aDoc.get (CPYPStorage.FIELD_GEOINFO));
@@ -221,6 +220,15 @@ public class PYPStoredDocument
       throw new IllegalStateException ("Different number of identifier types and values");
     for (int i = 0; i < aIDTypes.length; ++i)
       ret.addIdentifier (new PYPStoredIdentifier (aIDTypes[i], aIDValues[i]));
+    {
+      final PYPDocumentMetaData aMetaData = new PYPDocumentMetaData (PDTFactory.createDateTimeFromMillis (aDoc.getField (CPYPStorage.FIELD_METADATA_CREATIONDT)
+                                                                                                              .numericValue ()
+                                                                                                              .longValue ())
+                                                                               .toLocalDateTime (),
+                                                                     aDoc.get (CPYPStorage.FIELD_METADATA_OWNERID),
+                                                                     aDoc.get (CPYPStorage.FIELD_METADATA_REQUESTING_HOST));
+      ret.setMetaData (aMetaData);
+    }
     ret.setFreeText (aDoc.get (CPYPStorage.FIELD_FREETEXT));
     ret.setDeleted (aDoc.getField (CPYPStorage.FIELD_DELETED) != null);
     return ret;

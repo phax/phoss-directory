@@ -31,6 +31,7 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.IntField;
+import org.apache.lucene.document.LongField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexOptions;
@@ -43,7 +44,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.commons.ValueEnforcer;
-import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.annotation.ReturnsMutableCopy;
 import com.helger.commons.collection.CollectionHelper;
 import com.helger.commons.collection.multimap.IMultiMapListBased;
@@ -121,9 +121,10 @@ public final class PYPStorageManager implements Closeable
 
   @Nonnull
   public ESuccess deleteEntry (@Nonnull final IPeppolParticipantIdentifier aParticipantID,
-                               @Nonnull @Nonempty final String sOwnerID) throws IOException
+                               @Nonnull final PYPDocumentMetaData aMetaData) throws IOException
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
+    ValueEnforcer.notNull (aMetaData, "MetaData");
 
     return m_aLucene.runAtomic ( () -> {
       final List <Document> aDocuments = new ArrayList <> ();
@@ -148,18 +149,18 @@ public final class PYPStorageManager implements Closeable
       AuditHelper.onAuditExecuteSuccess ("pyp-indexer-delete",
                                          aParticipantID.getURIEncoded (),
                                          Integer.valueOf (aDocuments.size ()),
-                                         sOwnerID);
+                                         aMetaData);
     });
   }
 
   @Nonnull
   public ESuccess createOrUpdateEntry (@Nonnull final IPeppolParticipantIdentifier aParticipantID,
                                        @Nonnull final PYPExtendedBusinessInformation aExtBI,
-                                       @Nonnull @Nonempty final String sOwnerID) throws IOException
+                                       @Nonnull final PYPDocumentMetaData aMetaData) throws IOException
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
     ValueEnforcer.notNull (aExtBI, "ExtBI");
-    ValueEnforcer.notEmpty (sOwnerID, "sOwnerID");
+    ValueEnforcer.notNull (aMetaData, "MetaData");
 
     return m_aLucene.runAtomic ( () -> {
       final List <Document> aDocs = new ArrayList <> ();
@@ -181,9 +182,6 @@ public final class PYPStorageManager implements Closeable
           aDoc.add (new StringField (CPYPStorage.FIELD_DOCUMENT_TYPE_ID, sDocTypeID, Store.YES));
           aSB.append (sDocTypeID).append (' ');
         }
-
-        aDoc.add (new StringField (CPYPStorage.FIELD_OWNERID, sOwnerID, Store.YES));
-        aSB.append (sOwnerID).append (' ');
 
         if (aEntity.getCountryCode () != null)
         {
@@ -221,6 +219,13 @@ public final class PYPStorageManager implements Closeable
         // Add the "all" field
         aDoc.add (new TextField (CPYPStorage.FIELD_ALL_FIELDS, aSB.toString (), Store.NO));
 
+        // Add meta data (not part of the "all field" field!)
+        aDoc.add (new LongField (CPYPStorage.FIELD_METADATA_CREATIONDT, aMetaData.getCreationDTMillis (), Store.YES));
+        aDoc.add (new StringField (CPYPStorage.FIELD_METADATA_OWNERID, aMetaData.getOwnerID (), Store.YES));
+        aDoc.add (new StringField (CPYPStorage.FIELD_METADATA_REQUESTING_HOST,
+                                   aMetaData.getRequestingHost (),
+                                   Store.YES));
+
         aDocs.add (aDoc);
       }
 
@@ -241,7 +246,7 @@ public final class PYPStorageManager implements Closeable
       AuditHelper.onAuditExecuteSuccess ("pyp-indexer-create",
                                          aParticipantID.getURIEncoded (),
                                          Integer.valueOf (aDocs.size ()),
-                                         sOwnerID);
+                                         aMetaData);
     });
   }
 

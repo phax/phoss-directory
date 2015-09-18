@@ -33,6 +33,7 @@ import com.helger.html.hc.html.forms.EHCFormMethod;
 import com.helger.html.hc.html.forms.HCEdit;
 import com.helger.html.hc.html.forms.HCForm;
 import com.helger.html.hc.html.grouping.HCDiv;
+import com.helger.html.hc.html.grouping.HCOL;
 import com.helger.html.hc.html.sections.HCH2;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.photon.bootstrap3.CBootstrapCSS;
@@ -117,22 +118,22 @@ public final class PagePublicSearch extends AbstractAppWebPage
       }
       else
       {
-        int nIndex = 1;
+        final HCOL aOL = new HCOL ().setStart (1);
         for (final Map.Entry <String, List <PYPStoredDocument>> aEntry : aGroupedDocs.entrySet ())
         {
           final String sParticipantID = aEntry.getKey ();
           final List <PYPStoredDocument> aDocs = aEntry.getValue ();
 
           final HCDiv aResultItem = new HCDiv ();
-          aResultItem.addChild (Integer.toString (nIndex) + ".: ").addChild (sParticipantID);
-
+          aResultItem.addChild (sParticipantID);
           if (aDocs.size () > 1)
             aResultItem.addChild (" (" + aDocs.size () + " entities)");
 
-          aNodeList.addChild (aResultItem);
-          if (++nIndex > 10)
+          aOL.addItem (aResultItem);
+          if (aOL.getChildCount () >= 10)
             break;
         }
+        aNodeList.addChild (aOL);
       }
     }
     else

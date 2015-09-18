@@ -25,6 +25,7 @@ import org.joda.time.LocalDateTime;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
+import com.helger.commons.annotation.ReturnsMutableCopy;
 import com.helger.commons.hashcode.HashCodeGenerator;
 import com.helger.commons.id.IHasID;
 import com.helger.commons.id.factory.GlobalIDFactory;
@@ -33,6 +34,7 @@ import com.helger.datetime.PDTFactory;
 import com.helger.peppol.identifier.IParticipantIdentifier;
 import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
 import com.helger.peppol.identifier.participant.SimpleParticipantIdentifier;
+import com.helger.pyp.storage.PYPDocumentMetaData;
 
 /**
  * This class represents a single work item for the indexer.
@@ -146,6 +148,13 @@ public final class IndexerWorkItem implements Serializable, IHasID <String>
   public String getLogText ()
   {
     return m_sOwnerID + "@" + m_eType + "[" + m_aParticpantID.getURIEncoded () + "]";
+  }
+
+  @Nonnull
+  @ReturnsMutableCopy
+  public PYPDocumentMetaData getAsMetaData ()
+  {
+    return new PYPDocumentMetaData (m_aCreationDT, m_sOwnerID, m_sRequestingHost);
   }
 
   @Override
