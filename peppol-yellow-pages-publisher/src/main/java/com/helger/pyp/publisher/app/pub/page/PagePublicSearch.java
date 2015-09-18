@@ -17,6 +17,7 @@
 package com.helger.pyp.publisher.app.pub.page;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -46,6 +47,7 @@ import com.helger.pyp.indexer.mgr.PYPMetaManager;
 import com.helger.pyp.publisher.ui.AbstractAppWebPage;
 import com.helger.pyp.publisher.ui.HCExtImg;
 import com.helger.pyp.storage.PYPQueryManager;
+import com.helger.pyp.storage.PYPStorageManager;
 import com.helger.pyp.storage.PYPStoredDocument;
 
 public final class PagePublicSearch extends AbstractAppWebPage
@@ -101,20 +103,33 @@ public final class PagePublicSearch extends AbstractAppWebPage
       final BootstrapRow aBodyRow = aNodeList.addAndReturnChild (new BootstrapRow ());
       aBodyRow.createColumn (12, 6, 6, 6).addChild (aSmallQueryBox);
 
-      // Fetch query results
+      // Build Lucene query
       final Query aLuceneQuery = PYPQueryManager.convertQueryStringToLuceneQuery (PYPMetaManager.getLucene (), sQuery);
-      final List <PYPStoredDocument> aDocs = PYPMetaManager.getStorageMgr ().getAllDocuments (aLuceneQuery);
-      if (aDocs.isEmpty ())
+      // Search all documents
+      final List <PYPStoredDocument> aResultDocs = PYPMetaManager.getStorageMgr ().getAllDocuments (aLuceneQuery);
+      // Group by participant ID
+      final Map <String, List <PYPStoredDocument>> aGroupedDocs = PYPStorageManager.getGroupedByParticipantID (aResultDocs);
+
+      // Display results
+      if (aGroupedDocs.isEmpty ())
       {
         aNodeList.addChild (new BootstrapInfoBox ().addChild ("No search results found for query '" + sQuery + "'"));
       }
       else
       {
         int nIndex = 1;
-        for (final PYPStoredDocument aDoc : aDocs)
+        for (final Map.Entry <String, List <PYPStoredDocument>> aEntry : aGroupedDocs.entrySet ())
         {
-          aNodeList.addChild (new HCDiv ().addChild (Integer.toString (nIndex) + ".: ")
-                                          .addChild (aDoc.getParticipantID ()));
+          final String sParticipantID = aEntry.getKey ();
+          final List <PYPStoredDocument> aDocs = aEntry.getValue ();
+
+          final HCDiv aResultItem = new HCDiv ();
+          aResultItem.addChild (Integer.toString (nIndex) + ".: ").addChild (sParticipantID);
+
+          if (aDocs.size () > 1)
+            aResultItem.addChild (" (" + aDocs.size () + " entities)");
+
+          aNodeList.addChild (aResultItem);
           if (++nIndex > 10)
             break;
         }

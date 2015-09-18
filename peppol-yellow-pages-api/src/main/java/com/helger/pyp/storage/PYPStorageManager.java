@@ -20,18 +20,20 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Store;
+import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.IntField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
+import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
@@ -43,6 +45,9 @@ import org.slf4j.LoggerFactory;
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.annotation.ReturnsMutableCopy;
+import com.helger.commons.collection.CollectionHelper;
+import com.helger.commons.collection.multimap.IMultiMapListBased;
+import com.helger.commons.collection.multimap.MultiLinkedHashMapArrayListBased;
 import com.helger.commons.state.ESuccess;
 import com.helger.peppol.identifier.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.IdentifierHelper;
@@ -60,11 +65,21 @@ import com.helger.pyp.lucene.PYPLucene;
  *
  * @author Philip Helger
  */
+@Immutable
 public final class PYPStorageManager implements Closeable
 {
   private static final Logger s_aLogger = LoggerFactory.getLogger (PYPStorageManager.class);
-
   private static final IntField FIELD_VALUE_DELETED = new IntField (CPYPStorage.FIELD_DELETED, 1, Store.NO);
+  private static final FieldType TYPE_GROUP_END = new FieldType ();
+  private static final String VALUE_GROUP_END = "x";
+
+  static
+  {
+    TYPE_GROUP_END.setStored (false);
+    TYPE_GROUP_END.setIndexOptions (IndexOptions.DOCS);
+    TYPE_GROUP_END.setOmitNorms (true);
+    TYPE_GROUP_END.freeze ();
+  }
 
   private final PYPLucene m_aLucene;
 
@@ -143,10 +158,11 @@ public final class PYPStorageManager implements Closeable
                                        @Nonnull @Nonempty final String sOwnerID) throws IOException
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
+    ValueEnforcer.notNull (aExtBI, "ExtBI");
+    ValueEnforcer.notEmpty (sOwnerID, "sOwnerID");
 
     return m_aLucene.runAtomic ( () -> {
-      // Delete all existing documents of the participant ID
-      m_aLucene.deleteDocuments (_createParticipantTerm (aParticipantID));
+      final List <Document> aDocs = new ArrayList <> ();
 
       final BusinessInformationType aBI = aExtBI.getBusinessInformation ();
       for (final EntityType aEntity : aBI.getEntity ())
@@ -205,14 +221,26 @@ public final class PYPStorageManager implements Closeable
         // Add the "all" field
         aDoc.add (new TextField (CPYPStorage.FIELD_ALL_FIELDS, aSB.toString (), Store.NO));
 
-        // Add to index
-        m_aLucene.updateDocument (null, aDoc);
+        aDocs.add (aDoc);
       }
 
-      s_aLogger.info ("Added " + aBI.getEntityCount () + " Lucene documents");
+      if (!aDocs.isEmpty ())
+      {
+        // Add "group end" marker
+        CollectionHelper.getLastElement (aDocs)
+                        .add (new Field (CPYPStorage.FIELD_GROUP_END, VALUE_GROUP_END, TYPE_GROUP_END));
+      }
+
+      // Delete all existing documents of the participant ID
+      m_aLucene.deleteDocuments (_createParticipantTerm (aParticipantID));
+
+      // Add to index
+      m_aLucene.updateDocuments (null, aDocs);
+
+      s_aLogger.info ("Added " + aDocs.size () + " Lucene documents");
       AuditHelper.onAuditExecuteSuccess ("pyp-indexer-create",
                                          aParticipantID.getURIEncoded (),
-                                         Integer.valueOf (aBI.getEntityCount ()),
+                                         Integer.valueOf (aDocs.size ()),
                                          sOwnerID);
     });
   }
@@ -240,7 +268,8 @@ public final class PYPStorageManager implements Closeable
       final IndexSearcher aSearcher = m_aLucene.getSearcher ();
       if (aSearcher != null)
       {
-        s_aLogger.info ("Searching " + aQuery);
+        if (s_aLogger.isDebugEnabled ())
+          s_aLogger.debug ("Searching Lucene: " + aQuery);
 
         // Search all documents, convert them to StoredDocument and pass them to
         // the provided consumer
@@ -298,8 +327,11 @@ public final class PYPStorageManager implements Closeable
   }
 
   @Nonnull
-  public static Map <String, List <PYPStoredDocument>> getGroupedByParticipantID (@Nonnull final List <PYPStoredDocument> aDocs)
+  public static IMultiMapListBased <String, PYPStoredDocument> getGroupedByParticipantID (@Nonnull final List <PYPStoredDocument> aDocs)
   {
-    return aDocs.stream ().collect (Collectors.groupingBy (PYPStoredDocument::getParticipantID));
+    final MultiLinkedHashMapArrayListBased <String, PYPStoredDocument> ret = new MultiLinkedHashMapArrayListBased <> ();
+    for (final PYPStoredDocument aDoc : aDocs)
+      ret.putSingle (aDoc.getParticipantID (), aDoc);
+    return ret;
   }
 }

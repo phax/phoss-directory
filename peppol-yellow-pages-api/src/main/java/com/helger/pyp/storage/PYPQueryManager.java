@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nonnull;
+import javax.annotation.concurrent.Immutable;
 
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
@@ -26,6 +27,7 @@ import com.helger.pyp.lucene.ILuceneAnalyzerProvider;
  *
  * @author Philip Helger
  */
+@Immutable
 public final class PYPQueryManager
 {
   private static final Logger s_aLogger = LoggerFactory.getLogger (PYPQueryManager.class);
