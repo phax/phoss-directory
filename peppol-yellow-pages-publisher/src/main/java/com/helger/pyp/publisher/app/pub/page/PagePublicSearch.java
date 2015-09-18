@@ -21,9 +21,6 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import org.apache.lucene.index.Term;
-import org.apache.lucene.search.TermQuery;
-
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.string.StringHelper;
 import com.helger.commons.url.SimpleURL;
@@ -102,8 +99,7 @@ public final class PagePublicSearch extends AbstractAppWebPage
       aBodyRow.createColumn (12, 6, 6, 6).addChild (aSmallQueryBox);
 
       // Fetch query results
-      final List <PYPStoredDocument> aDocs = PYPMetaManager.getStorageMgr ()
-                                                           .getAllDocuments (new TermQuery (new Term ("*", sQuery)));
+      final List <PYPStoredDocument> aDocs = PYPMetaManager.getStorageMgr ().getAllDocumentsMatchingTerm (sQuery);
       if (aDocs.isEmpty ())
       {
         aNodeList.addChild (new BootstrapInfoBox ().addChild ("No search results found for query '" + sQuery + "'"));

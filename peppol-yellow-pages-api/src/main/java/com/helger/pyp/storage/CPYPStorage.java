@@ -35,6 +35,7 @@ public final class CPYPStorage
   public static final String FIELD_IDENTIFIER_TYPE = "identifiertype";
   public static final String FIELD_IDENTIFIER = "identifier";
   public static final String FIELD_FREETEXT = "freetext";
+  public static final String FIELD_ALL_FIELDS = "allfields";
   public static final String FIELD_DELETED = "deleted";
 
   private CPYPStorage ()

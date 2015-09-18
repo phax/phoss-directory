@@ -65,6 +65,7 @@ public final class PYPLucene implements Closeable
   private final Analyzer m_aAnalyzer;
   private final IndexWriter m_aIndexWriter;
   private DirectoryReader m_aIndexReader;
+  private IndexReader m_aSearchReader;
   private IndexSearcher m_aSearcher;
   private final AtomicBoolean m_aClosing = new AtomicBoolean (false);
   private final AtomicInteger m_aWriterChanges = new AtomicInteger (0);
@@ -142,7 +143,7 @@ public final class PYPLucene implements Closeable
   }
 
   @Nullable
-  private IndexReader _getReader () throws IOException
+  private DirectoryReader _getReader () throws IOException
   {
     _checkClosing ();
     try
@@ -208,13 +209,23 @@ public final class PYPLucene implements Closeable
   public IndexSearcher getSearcher () throws IOException
   {
     _checkClosing ();
-    if (m_aSearcher == null)
+    final IndexReader aReader = _getReader ();
+    if (aReader == null)
     {
-      final IndexReader aReader = _getReader ();
-      if (aReader == null)
-        return null;
-      m_aSearcher = new IndexSearcher (aReader);
+      // Index not readable
+      return null;
     }
+
+    if (m_aSearchReader == aReader)
+    {
+      // Reader did not change - use cached searcher
+      assert m_aSearcher != null;
+      return m_aSearcher;
+    }
+
+    // Create new searcher
+    m_aSearchReader = aReader;
+    m_aSearcher = new IndexSearcher (aReader);
     return m_aSearcher;
   }
 
@@ -282,7 +293,7 @@ public final class PYPLucene implements Closeable
 
   /**
    * Run the provided action within a locked section.
-   * 
+   *
    * @param aRunnable
    *        Callback to be executed
    * @return {@link ESuccess#FAILURE} if the index is just closing
@@ -308,7 +319,7 @@ public final class PYPLucene implements Closeable
 
   /**
    * Run the provided action within a locked section.
-   * 
+   *
    * @param aRunnable
    *        Callback to be executed
    * @return <code>null</code> if the index is just closing

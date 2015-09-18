@@ -182,27 +182,57 @@ public final class PYPStorageManager implements Closeable
       {
         // Convert entity to Lucene document
         final Document aDoc = new Document ();
+        final StringBuilder aSB = new StringBuilder ();
+
         aDoc.add (new StringField (CPYPStorage.FIELD_PARTICIPANTID, aParticipantID.getURIEncoded (), Store.YES));
+        aSB.append (aParticipantID.getURIEncoded ()).append (' ');
+
         // Add all document types to all documents
         for (final IDocumentTypeIdentifier aDocTypeID : aExtBI.getAllDocumentTypeIDs ())
-          aDoc.add (new StringField (CPYPStorage.FIELD_DOCUMENT_TYPE_ID,
-                                     IdentifierHelper.getIdentifierURIEncoded (aDocTypeID),
-                                     Store.YES));
+        {
+          final String sDocTypeID = IdentifierHelper.getIdentifierURIEncoded (aDocTypeID);
+          aDoc.add (new StringField (CPYPStorage.FIELD_DOCUMENT_TYPE_ID, sDocTypeID, Store.YES));
+          aSB.append (sDocTypeID).append (' ');
+        }
+
         aDoc.add (new StringField (CPYPStorage.FIELD_OWNERID, sOwnerID, Store.YES));
+        aSB.append (sOwnerID).append (' ');
+
         if (aEntity.getCountryCode () != null)
+        {
           aDoc.add (new StringField (CPYPStorage.FIELD_COUNTRY_CODE, aEntity.getCountryCode (), Store.YES));
+          aSB.append (aEntity.getCountryCode ()).append (' ');
+        }
+
         if (aEntity.getName () != null)
+        {
           aDoc.add (new TextField (CPYPStorage.FIELD_NAME, aEntity.getName (), Store.YES));
+          aSB.append (aEntity.getName ()).append (' ');
+        }
+
         if (aEntity.getGeoInfo () != null)
+        {
           aDoc.add (new TextField (CPYPStorage.FIELD_GEOINFO, aEntity.getGeoInfo (), Store.YES));
+          aSB.append (aEntity.getGeoInfo ()).append (' ');
+        }
 
         for (final IdentifierType aIdentifier : aEntity.getIdentifier ())
         {
           aDoc.add (new TextField (CPYPStorage.FIELD_IDENTIFIER_TYPE, aIdentifier.getType (), Store.YES));
+          aSB.append (aIdentifier.getType ()).append (' ');
+
           aDoc.add (new TextField (CPYPStorage.FIELD_IDENTIFIER, aIdentifier.getValue (), Store.YES));
+          aSB.append (aIdentifier.getValue ()).append (' ');
         }
+
         if (aEntity.getFreeText () != null)
+        {
           aDoc.add (new TextField (CPYPStorage.FIELD_FREETEXT, aEntity.getFreeText (), Store.YES));
+          aSB.append (aEntity.getFreeText ()).append (' ');
+        }
+
+        // Add the "all" field
+        aDoc.add (new TextField (CPYPStorage.FIELD_ALL_FIELDS, aSB.toString (), Store.NO));
 
         // Add to index
         m_aLucene.updateDocument (null, aDoc);
@@ -279,6 +309,13 @@ public final class PYPStorageManager implements Closeable
   public List <PYPStoredDocument> getAllDeletedDocuments ()
   {
     return getAllDocuments (new TermQuery (new Term (CPYPStorage.FIELD_DELETED)));
+  }
+
+  @Nonnull
+  public List <PYPStoredDocument> getAllDocumentsMatchingTerm (@Nonnull @Nonempty final String sQueryTerm)
+  {
+    ValueEnforcer.notNull (sQueryTerm, "QueryTerm");
+    return getAllDocuments (new TermQuery (new Term (CPYPStorage.FIELD_ALL_FIELDS, sQueryTerm)));
   }
 
   @Nonnull
