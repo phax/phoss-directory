@@ -56,7 +56,7 @@ import com.helger.photon.basic.app.io.WebFileIO;
  *
  * @author Philip Helger
  */
-public final class PYPLucene implements Closeable
+public final class PYPLucene implements Closeable, ILuceneDocumentProvider
 {
   private static final Logger s_aLogger = LoggerFactory.getLogger (PYPLucene.class);
 
@@ -223,7 +223,7 @@ public final class PYPLucene implements Closeable
       return m_aSearcher;
     }
 
-    // Create new searcher
+    // Create new searcher only if necessary
     m_aSearchReader = aReader;
     m_aSearcher = new IndexSearcher (aReader);
     return m_aSearcher;

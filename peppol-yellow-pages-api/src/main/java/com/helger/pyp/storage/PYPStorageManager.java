@@ -20,7 +20,9 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -31,11 +33,8 @@ import org.apache.lucene.document.IntField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.BooleanClause.Occur;
-import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.SimpleCollector;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.slf4j.Logger;
@@ -53,6 +52,7 @@ import com.helger.pyp.businessinformation.BusinessInformationType;
 import com.helger.pyp.businessinformation.EntityType;
 import com.helger.pyp.businessinformation.IdentifierType;
 import com.helger.pyp.businessinformation.PYPExtendedBusinessInformation;
+import com.helger.pyp.lucene.AllDocumentsCollector;
 import com.helger.pyp.lucene.PYPLucene;
 
 /**
@@ -62,28 +62,6 @@ import com.helger.pyp.lucene.PYPLucene;
  */
 public final class PYPStorageManager implements Closeable
 {
-  public final class AllDocumentsCollector extends SimpleCollector
-  {
-    private final Consumer <Document> m_aConsumer;
-
-    public AllDocumentsCollector (@Nonnull final Consumer <Document> aConsumer)
-    {
-      m_aConsumer = aConsumer;
-    }
-
-    public boolean needsScores ()
-    {
-      return false;
-    }
-
-    @Override
-    public void collect (final int doc) throws IOException
-    {
-      final Document aDoc = m_aLucene.getDocument (doc);
-      m_aConsumer.accept (aDoc);
-    }
-  }
-
   private static final Logger s_aLogger = LoggerFactory.getLogger (PYPStorageManager.class);
 
   private static final IntField FIELD_VALUE_DELETED = new IntField (CPYPStorage.FIELD_DELETED, 1, Store.NO);
@@ -106,13 +84,6 @@ public final class PYPStorageManager implements Closeable
     return new Term (CPYPStorage.FIELD_PARTICIPANTID, aParticipantID.getURIEncoded ());
   }
 
-  private static Query _andNotDeleted (@Nonnull final Query aQuery)
-  {
-    return new BooleanQuery.Builder ().add (aQuery, Occur.MUST)
-                                      .add (new TermQuery (new Term (CPYPStorage.FIELD_DELETED)), Occur.MUST_NOT)
-                                      .build ();
-  }
-
   public boolean containsEntry (@Nullable final IPeppolParticipantIdentifier aParticipantID) throws IOException
   {
     if (aParticipantID == null)
@@ -123,9 +94,9 @@ public final class PYPStorageManager implements Closeable
       if (aSearcher != null)
       {
         // Search only documents that do not have the deleted field
-        final TopDocs aTopDocs = aSearcher.search (_andNotDeleted (new TermQuery (new Term (CPYPStorage.FIELD_PARTICIPANTID,
-                                                                                            aParticipantID.getURIEncoded ()))),
-                                                   1);
+        final Query aQuery = new TermQuery (new Term (CPYPStorage.FIELD_PARTICIPANTID,
+                                                      aParticipantID.getURIEncoded ()));
+        final TopDocs aTopDocs = aSearcher.search (PYPQueryManager.andNotDeleted (aQuery), 1);
         if (aTopDocs.totalHits > 0)
           return Boolean.TRUE;
       }
@@ -146,7 +117,7 @@ public final class PYPStorageManager implements Closeable
       final IndexSearcher aSearcher = m_aLucene.getSearcher ();
       if (aSearcher != null)
         aSearcher.search (new TermQuery (_createParticipantTerm (aParticipantID)),
-                          new AllDocumentsCollector (aDoc -> aDocuments.add (aDoc)));
+                          new AllDocumentsCollector (m_aLucene, aDoc -> aDocuments.add (aDoc)));
 
       if (!aDocuments.isEmpty ())
       {
@@ -274,7 +245,8 @@ public final class PYPStorageManager implements Closeable
         // Search all documents, convert them to StoredDocument and pass them to
         // the provided consumer
         aSearcher.search (aQuery,
-                          new AllDocumentsCollector (aDoc -> aConsumer.accept (PYPStoredDocument.create (aDoc))));
+                          new AllDocumentsCollector (m_aLucene,
+                                                     aDoc -> aConsumer.accept (PYPStoredDocument.create (aDoc))));
       }
       else
         s_aLogger.warn ("Failed to obtain IndexSearcher");
@@ -312,13 +284,6 @@ public final class PYPStorageManager implements Closeable
   }
 
   @Nonnull
-  public List <PYPStoredDocument> getAllDocumentsMatchingTerm (@Nonnull @Nonempty final String sQueryTerm)
-  {
-    ValueEnforcer.notNull (sQueryTerm, "QueryTerm");
-    return getAllDocuments (new TermQuery (new Term (CPYPStorage.FIELD_ALL_FIELDS, sQueryTerm)));
-  }
-
-  @Nonnull
   public List <PYPStoredDocument> getAllDocumentsOfParticipant (@Nonnull final IPeppolParticipantIdentifier aParticipantID)
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
@@ -330,5 +295,11 @@ public final class PYPStorageManager implements Closeable
   {
     ValueEnforcer.notNull (sCountryCode, "CountryCode");
     return getAllDocuments (new TermQuery (new Term (CPYPStorage.FIELD_COUNTRY_CODE, sCountryCode)));
+  }
+
+  @Nonnull
+  public static Map <String, List <PYPStoredDocument>> getGroupedByParticipantID (@Nonnull final List <PYPStoredDocument> aDocs)
+  {
+    return aDocs.stream ().collect (Collectors.groupingBy (PYPStoredDocument::getParticipantID));
   }
 }

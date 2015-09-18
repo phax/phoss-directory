@@ -21,6 +21,8 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.apache.lucene.search.Query;
+
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.string.StringHelper;
 import com.helger.commons.url.SimpleURL;
@@ -43,6 +45,7 @@ import com.helger.photon.uicore.page.WebPageExecutionContext;
 import com.helger.pyp.indexer.mgr.PYPMetaManager;
 import com.helger.pyp.publisher.ui.AbstractAppWebPage;
 import com.helger.pyp.publisher.ui.HCExtImg;
+import com.helger.pyp.storage.PYPQueryManager;
 import com.helger.pyp.storage.PYPStoredDocument;
 
 public final class PagePublicSearch extends AbstractAppWebPage
@@ -99,7 +102,8 @@ public final class PagePublicSearch extends AbstractAppWebPage
       aBodyRow.createColumn (12, 6, 6, 6).addChild (aSmallQueryBox);
 
       // Fetch query results
-      final List <PYPStoredDocument> aDocs = PYPMetaManager.getStorageMgr ().getAllDocumentsMatchingTerm (sQuery);
+      final Query aLuceneQuery = PYPQueryManager.convertQueryStringToLuceneQuery (sQuery);
+      final List <PYPStoredDocument> aDocs = PYPMetaManager.getStorageMgr ().getAllDocuments (aLuceneQuery);
       if (aDocs.isEmpty ())
       {
         aNodeList.addChild (new BootstrapInfoBox ().addChild ("No search results found for query '" + sQuery + "'"));
