@@ -36,6 +36,7 @@ import com.helger.photon.bootstrap3.CBootstrapCSS;
 import com.helger.photon.bootstrap3.base.BootstrapContainer;
 import com.helger.photon.bootstrap3.breadcrumbs.BootstrapBreadcrumbs;
 import com.helger.photon.bootstrap3.breadcrumbs.BootstrapBreadcrumbsProvider;
+import com.helger.photon.bootstrap3.button.BootstrapButton;
 import com.helger.photon.bootstrap3.grid.BootstrapRow;
 import com.helger.photon.bootstrap3.nav.BootstrapNav;
 import com.helger.photon.bootstrap3.navbar.BootstrapNavbar;
@@ -47,6 +48,7 @@ import com.helger.photon.core.app.context.LayoutExecutionContext;
 import com.helger.photon.core.app.context.SimpleWebExecutionContext;
 import com.helger.photon.core.app.layout.CLayout;
 import com.helger.photon.core.app.layout.ILayoutAreaContentProvider;
+import com.helger.photon.core.servlet.AbstractPublicApplicationServlet;
 import com.helger.photon.core.servlet.LogoutServlet;
 import com.helger.photon.core.url.LinkHelper;
 import com.helger.pyp.publisher.app.CApp;
@@ -76,10 +78,15 @@ public final class AppRendererSecure implements ILayoutAreaContentProvider <Layo
                                                                .addChild (" Administration")),
                       aLinkToStartPage);
 
+    aNavbar.addButton (EBootstrapNavbarPosition.COLLAPSIBLE_RIGHT,
+                       new BootstrapButton ().addChild ("Goto public area")
+                                             .setOnClick (LinkHelper.getURLWithContext (AbstractPublicApplicationServlet.SERVLET_DEFAULT_PATH +
+                                                                                        "/")));
+
     final BootstrapNav aNav = new BootstrapNav ();
     final IUser aUser = LoggedInUserManager.getInstance ().getCurrentUser ();
-    aNav.addItem (new HCSpan ().addChild ("Logged in as ")
-                               .addClass (CBootstrapCSS.NAVBAR_TEXT)
+    aNav.addItem (new HCSpan ().addClass (CBootstrapCSS.NAVBAR_TEXT)
+                               .addChild ("Welcome ")
                                .addChild (new HCStrong ().addChild (SecurityHelper.getUserDisplayName (aUser,
                                                                                                        aDisplayLocale))));
 

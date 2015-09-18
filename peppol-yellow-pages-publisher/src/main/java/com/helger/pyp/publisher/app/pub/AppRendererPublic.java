@@ -44,12 +44,14 @@ import com.helger.photon.basic.app.menu.IMenuObject;
 import com.helger.photon.basic.app.menu.IMenuSeparator;
 import com.helger.photon.basic.app.menu.IMenuTree;
 import com.helger.photon.basic.app.menu.MenuItemDeterminatorCallback;
+import com.helger.photon.basic.security.AccessManager;
 import com.helger.photon.basic.security.login.LoggedInUserManager;
 import com.helger.photon.basic.security.user.IUser;
 import com.helger.photon.basic.security.util.SecurityHelper;
 import com.helger.photon.bootstrap3.CBootstrapCSS;
 import com.helger.photon.bootstrap3.alert.BootstrapErrorBox;
 import com.helger.photon.bootstrap3.base.BootstrapContainer;
+import com.helger.photon.bootstrap3.button.BootstrapButton;
 import com.helger.photon.bootstrap3.dropdown.BootstrapDropdownMenu;
 import com.helger.photon.bootstrap3.nav.BootstrapNav;
 import com.helger.photon.bootstrap3.navbar.BootstrapNavbar;
@@ -63,6 +65,7 @@ import com.helger.photon.core.app.context.LayoutExecutionContext;
 import com.helger.photon.core.app.layout.CLayout;
 import com.helger.photon.core.app.layout.ILayoutAreaContentProvider;
 import com.helger.photon.core.app.redirect.ForcedRedirectManager;
+import com.helger.photon.core.servlet.AbstractSecureApplicationServlet;
 import com.helger.photon.core.servlet.LogoutServlet;
 import com.helger.photon.core.url.LinkHelper;
 import com.helger.photon.uicore.page.IWebPage;
@@ -99,8 +102,17 @@ public final class AppRendererPublic implements ILayoutAreaContentProvider <Layo
     final IUser aUser = LoggedInUserManager.getInstance ().getCurrentUser ();
     if (aUser != null)
     {
+      if (AccessManager.getInstance ().hasUserRole (aUser.getID (), CApp.ROLE_CONFIG_ID))
+      {
+        aNavbar.addButton (EBootstrapNavbarPosition.COLLAPSIBLE_DEFAULT,
+                           new BootstrapButton ().addChild ("Goto secure area")
+                                                 .setOnClick (LinkHelper.getURLWithContext (AbstractSecureApplicationServlet.SERVLET_DEFAULT_PATH +
+                                                                                            "/")));
+      }
+
       final Locale aDisplayLocale = aLEC.getDisplayLocale ();
       final BootstrapNav aNav = new BootstrapNav ();
+
       aNav.addItem (new HCSpan ().addClass (CBootstrapCSS.NAVBAR_TEXT)
                                  .addChild ("Welcome ")
                                  .addChild (new HCStrong ().addChild (SecurityHelper.getUserDisplayName (aUser,
