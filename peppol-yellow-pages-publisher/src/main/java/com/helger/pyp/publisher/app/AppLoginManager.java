@@ -31,8 +31,9 @@ public final class AppLoginManager extends LoginManager
   @Override
   protected IHTMLProvider createLoginScreen (final boolean bLoginError, @Nonnull final ELoginResult eLoginResult)
   {
-    return new BootstrapLoginHTMLProvider (bLoginError, eLoginResult, CApp.getApplicationTitle () +
-                                                                      " Administration - Login");
+    return new BootstrapLoginHTMLProvider (bLoginError,
+                                           eLoginResult,
+                                           AppCommonUI.getApplicationTitle () + " Administration - Login");
   }
 
   @Override
@@ -40,6 +41,6 @@ public final class AppLoginManager extends LoginManager
   @ReturnsImmutableObject
   protected Collection <String> getAllRequiredRoleIDs ()
   {
-    return CApp.REQUIRED_ROLE_IDS_CONFIG;
+    return AppSecurity.REQUIRED_ROLE_IDS_CONFIG;
   }
 }

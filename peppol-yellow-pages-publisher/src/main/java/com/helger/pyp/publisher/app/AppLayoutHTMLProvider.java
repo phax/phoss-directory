@@ -57,6 +57,6 @@ public class AppLayoutHTMLProvider extends AbstractLayoutManagerBasedLayoutHTMLP
   protected void fillHead (@Nonnull final ISimpleWebExecutionContext aSWEC, @Nonnull final HCHtml aHtml)
   {
     super.fillHead (aSWEC, aHtml);
-    aHtml.getHead ().setPageTitle (CApp.getApplicationTitle ());
+    aHtml.getHead ().setPageTitle (AppCommonUI.getApplicationTitle ());
   }
 }

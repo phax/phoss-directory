@@ -36,7 +36,7 @@ import com.helger.photon.core.ajax.response.AjaxDefaultResponse;
 import com.helger.photon.core.ajax.response.IAjaxResponse;
 import com.helger.photon.core.app.context.LayoutExecutionContext;
 import com.helger.photon.core.login.CLogin;
-import com.helger.pyp.publisher.app.CApp;
+import com.helger.pyp.publisher.app.AppSecurity;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 
 /**
@@ -62,7 +62,7 @@ public final class AjaxExecutorPublicLogin extends AbstractAjaxExecutor
     // Main login
     final ELoginResult eLoginResult = LoggedInUserManager.getInstance ().loginUser (sLoginName,
                                                                                     sPassword,
-                                                                                    CApp.REQUIRED_ROLE_IDS_VIEW);
+                                                                                    AppSecurity.REQUIRED_ROLE_IDS_VIEW);
     if (eLoginResult.isSuccess ())
       return AjaxDefaultResponse.createSuccess (aRequestScope, new JsonObject ().add (JSON_LOGGEDIN, true));
 

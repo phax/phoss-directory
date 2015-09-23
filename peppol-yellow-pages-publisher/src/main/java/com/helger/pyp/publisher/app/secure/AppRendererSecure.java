@@ -52,7 +52,6 @@ import com.helger.photon.core.servlet.AbstractPublicApplicationServlet;
 import com.helger.photon.core.servlet.LogoutServlet;
 import com.helger.photon.core.url.LinkHelper;
 import com.helger.pyp.publisher.app.AppCommonUI;
-import com.helger.pyp.publisher.app.CApp;
 import com.helger.pyp.publisher.app.pub.AppRendererPublic;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 
@@ -73,7 +72,7 @@ public final class AppRendererSecure implements ILayoutAreaContentProvider <Layo
 
     final BootstrapNavbar aNavbar = new BootstrapNavbar (EBootstrapNavbarType.STATIC_TOP, true, aDisplayLocale);
     aNavbar.addBrand (new HCNodeList ().addChild (new HCSpan ().addClass (AppCommonUI.CSS_CLASS_LOGO1)
-                                                               .addChild (CApp.getApplicationTitle ()))
+                                                               .addChild (AppCommonUI.getApplicationTitle ()))
                                        .addChild (new HCSpan ().addClass (AppCommonUI.CSS_CLASS_LOGO2)
                                                                .addChild (" Administration")),
                       aLinkToStartPage);

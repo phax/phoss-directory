@@ -23,6 +23,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 import com.helger.commons.id.factory.GlobalIDFactory;
+import com.helger.commons.locale.LocaleCache;
 import com.helger.css.property.CCSSProperties;
 import com.helger.html.css.DefaultCSSClassProvider;
 import com.helger.html.css.ICSSClassProvider;
@@ -53,6 +54,7 @@ import com.helger.photon.uictrls.datatables.plugins.DataTablesPluginSearchHighli
 import com.helger.pyp.publisher.action.CActionPublic;
 import com.helger.pyp.publisher.ajax.AjaxExecutorPublicLogin;
 import com.helger.pyp.publisher.ajax.CAjaxPublic;
+import com.helger.pyp.settings.PYPSettings;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 
 @Immutable
@@ -62,6 +64,10 @@ public final class AppCommonUI
   public static final ICSSClassProvider CSS_CLASS_LOGO1 = DefaultCSSClassProvider.create ("logo1");
   public static final ICSSClassProvider CSS_CLASS_LOGO2 = DefaultCSSClassProvider.create ("logo2");
 
+  public static final Locale DEFAULT_LOCALE = LocaleCache.getInstance ().getLocale ("en", "US");
+
+  private static final String APPLICATION_TITLE = "PEPPOL Yellow Pages";
+
   private static final DataTablesLengthMenu LENGTH_MENU = new DataTablesLengthMenu ().addItem (25)
                                                                                      .addItem (50)
                                                                                      .addItem (100)
@@ -69,6 +75,12 @@ public final class AppCommonUI
 
   private AppCommonUI ()
   {}
+
+  @Nonnull
+  public static String getApplicationTitle ()
+  {
+    return APPLICATION_TITLE + (PYPSettings.isTestVersion () ? " [TEST]" : "");
+  }
 
   public static void init ()
   {

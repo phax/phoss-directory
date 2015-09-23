@@ -23,7 +23,7 @@ import com.helger.photon.core.action.IActionDeclaration;
 import com.helger.photon.core.action.IActionInvoker;
 import com.helger.photon.core.action.decl.PublicApplicationActionDeclaration;
 import com.helger.photon.uictrls.datatables.ajax.ActionExecutorDataTablesI18N;
-import com.helger.pyp.publisher.app.CApp;
+import com.helger.pyp.publisher.app.AppCommonUI;
 
 /**
  * This class defines the available actions for the view app
@@ -34,7 +34,7 @@ import com.helger.pyp.publisher.app.CApp;
 public final class CActionPublic
 {
   public static final IActionDeclaration DATATABLES_I18N = new PublicApplicationActionDeclaration ("datatables-i18n",
-                                                                                                   new ActionExecutorDataTablesI18N (CApp.DEFAULT_LOCALE));
+                                                                                                   new ActionExecutorDataTablesI18N (AppCommonUI.DEFAULT_LOCALE));
 
   private CActionPublic ()
   {}

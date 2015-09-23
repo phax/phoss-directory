@@ -25,7 +25,8 @@ import com.helger.photon.basic.app.menu.filter.MenuObjectFilterUserAssignedToUse
 import com.helger.photon.bootstrap3.pages.BootstrapPagesMenuConfigurator;
 import com.helger.photon.bootstrap3.pages.security.BasePageSecurityChangePassword;
 import com.helger.photon.uicore.page.system.BasePageShowChildren;
-import com.helger.pyp.publisher.app.CApp;
+import com.helger.pyp.publisher.app.AppCommonUI;
+import com.helger.pyp.publisher.app.AppSecurity;
 import com.helger.pyp.publisher.app.secure.page.PageSecureIndexManually;
 
 @Immutable
@@ -38,7 +39,7 @@ public final class MenuSecure
   {
     // We need this additional indirection layer, as the pages are initialized
     // statically!
-    final MenuObjectFilterUserAssignedToUserGroup aFilterAdministrators = new MenuObjectFilterUserAssignedToUserGroup (CApp.USERGROUP_ADMINISTRATORS_ID);
+    final MenuObjectFilterUserAssignedToUserGroup aFilterAdministrators = new MenuObjectFilterUserAssignedToUserGroup (AppSecurity.USERGROUP_ADMINISTRATORS_ID);
 
     // Indexer
     {
@@ -55,7 +56,7 @@ public final class MenuSecure
                                                                                           aMenuTree));
 
       aMenuTree.createItem (aAdmin, new BasePageSecurityChangePassword <> (CMenuSecure.MENU_CHANGE_PASSWORD));
-      BootstrapPagesMenuConfigurator.addAllItems (aMenuTree, aAdmin, aFilterAdministrators, CApp.DEFAULT_LOCALE);
+      BootstrapPagesMenuConfigurator.addAllItems (aMenuTree, aAdmin, aFilterAdministrators, AppCommonUI.DEFAULT_LOCALE);
     }
 
     // Default menu item

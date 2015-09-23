@@ -28,7 +28,7 @@ import com.helger.photon.core.app.layout.CLayout;
 import com.helger.photon.core.app.layout.ILayoutManager;
 import com.helger.pyp.publisher.action.CActionPublic;
 import com.helger.pyp.publisher.ajax.CAjaxPublic;
-import com.helger.pyp.publisher.app.CApp;
+import com.helger.pyp.publisher.app.AppCommonUI;
 
 /**
  * Initialize the view application stuff
@@ -40,8 +40,8 @@ public final class InitializerPublic extends DefaultApplicationInitializer <Layo
   @Override
   public void initLocales (@Nonnull final ILocaleManager aLocaleMgr)
   {
-    aLocaleMgr.registerLocale (CApp.DEFAULT_LOCALE);
-    aLocaleMgr.setDefaultLocale (CApp.DEFAULT_LOCALE);
+    aLocaleMgr.registerLocale (AppCommonUI.DEFAULT_LOCALE);
+    aLocaleMgr.setDefaultLocale (AppCommonUI.DEFAULT_LOCALE);
   }
 
   @Override

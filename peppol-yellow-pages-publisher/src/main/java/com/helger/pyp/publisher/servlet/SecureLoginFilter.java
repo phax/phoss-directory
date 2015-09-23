@@ -28,7 +28,7 @@ import com.helger.photon.basic.security.login.LoggedInUserManager;
 import com.helger.photon.core.app.CApplication;
 import com.helger.photon.core.servlet.AbstractUnifiedResponseFilter;
 import com.helger.pyp.publisher.app.AppLoginManager;
-import com.helger.pyp.publisher.app.CApp;
+import com.helger.pyp.publisher.app.AppSecurity;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 import com.helger.web.servlet.response.UnifiedResponse;
 
@@ -70,7 +70,7 @@ public final class SecureLoginFilter extends AbstractUnifiedResponseFilter
 
     // Check if the currently logged in user has the required roles
     final String sCurrentUserID = LoggedInUserManager.getInstance ().getCurrentUserID ();
-    if (!AccessManager.getInstance ().hasUserAllRoles (sCurrentUserID, CApp.REQUIRED_ROLE_IDS_CONFIG))
+    if (!AccessManager.getInstance ().hasUserAllRoles (sCurrentUserID, AppSecurity.REQUIRED_ROLE_IDS_CONFIG))
     {
       aUnifiedResponse.setStatus (HttpServletResponse.SC_FORBIDDEN);
       return EContinue.BREAK;

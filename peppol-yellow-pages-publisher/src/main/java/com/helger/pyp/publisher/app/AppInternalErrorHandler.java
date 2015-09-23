@@ -65,7 +65,7 @@ public final class AppInternalErrorHandler extends AbstractErrorCallback impleme
       final String sAppID = aRequestScope == null ? "<no request scope present>"
                                                   : ScopeManager.getRequestApplicationID (aRequestScope);
       s_aLogger.warn ("Failed to retrieve default locale for application ID '" + sAppID + "'");
-      return CApp.DEFAULT_LOCALE;
+      return AppCommonUI.DEFAULT_LOCALE;
     }
   }
 
@@ -109,7 +109,7 @@ public final class AppInternalErrorHandler extends AbstractErrorCallback impleme
     final NamedSMTPSettings aNamedSettings = PhotonCoreManager.getSMTPSettingsMgr ()
                                                               .getSettings (CNamedSMTPSettings.NAMED_SMTP_SETTINGS_DEFAULT_ID);
     final ISMTPSettings aSMTPSettings = aNamedSettings == null ? null : aNamedSettings.getSMTPSettings ();
-    InternalErrorHandler.setSMTPSenderAddress (new EmailAddress ("pyp@helger.com", CApp.getApplicationTitle ()));
+    InternalErrorHandler.setSMTPSenderAddress (new EmailAddress ("pyp@helger.com", AppCommonUI.getApplicationTitle ()));
     InternalErrorHandler.setSMTPReceiverAddress (new EmailAddress ("philip@helger.com", "Philip"));
     InternalErrorHandler.setSMTPSettings (aSMTPSettings);
   }
