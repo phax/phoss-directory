@@ -24,22 +24,24 @@ import javax.annotation.concurrent.Immutable;
 
 import com.helger.commons.id.factory.GlobalIDFactory;
 import com.helger.css.property.CCSSProperties;
+import com.helger.html.css.DefaultCSSClassProvider;
+import com.helger.html.css.ICSSClassProvider;
 import com.helger.html.hc.html.forms.HCEdit;
 import com.helger.html.hc.html.forms.HCEditPassword;
 import com.helger.html.hc.html.grouping.HCDiv;
-import com.helger.html.hc.html.tabular.IHCTable;
 import com.helger.html.jquery.JQuery;
 import com.helger.html.jquery.JQueryAjaxBuilder;
+import com.helger.html.jscode.JSAnonymousFunction;
 import com.helger.html.jscode.JSAssocArray;
 import com.helger.html.jscode.JSPackage;
+import com.helger.html.jscode.JSVar;
+import com.helger.html.jscode.html.JSHtml;
 import com.helger.photon.bootstrap3.button.BootstrapButtonToolbar;
 import com.helger.photon.bootstrap3.form.BootstrapForm;
 import com.helger.photon.bootstrap3.form.BootstrapFormGroup;
 import com.helger.photon.bootstrap3.form.EBootstrapFormType;
 import com.helger.photon.bootstrap3.uictrls.datatables.BootstrapDataTables;
-import com.helger.photon.bootstrap3.uictrls.datatables.IBootstrapDataTablesConfigurator;
 import com.helger.photon.core.EPhotonCoreText;
-import com.helger.photon.core.app.context.ILayoutExecutionContext;
 import com.helger.photon.core.app.context.LayoutExecutionContext;
 import com.helger.photon.core.form.RequestField;
 import com.helger.photon.core.login.CLogin;
@@ -49,12 +51,17 @@ import com.helger.photon.uictrls.datatables.ajax.ActionExecutorDataTablesI18N;
 import com.helger.photon.uictrls.datatables.ajax.AjaxExecutorDataTables;
 import com.helger.photon.uictrls.datatables.plugins.DataTablesPluginSearchHighlight;
 import com.helger.pyp.publisher.action.CActionPublic;
+import com.helger.pyp.publisher.ajax.AjaxExecutorPublicLogin;
 import com.helger.pyp.publisher.ajax.CAjaxPublic;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 
 @Immutable
 public final class AppCommonUI
 {
+  // Logo parts
+  public static final ICSSClassProvider CSS_CLASS_LOGO1 = DefaultCSSClassProvider.create ("logo1");
+  public static final ICSSClassProvider CSS_CLASS_LOGO2 = DefaultCSSClassProvider.create ("logo2");
+
   private static final DataTablesLengthMenu LENGTH_MENU = new DataTablesLengthMenu ().addItem (25)
                                                                                      .addItem (50)
                                                                                      .addItem (100)
@@ -65,23 +72,17 @@ public final class AppCommonUI
 
   public static void init ()
   {
-    BootstrapDataTables.setConfigurator (new IBootstrapDataTablesConfigurator ()
-    {
-      public void configure (@Nonnull final ILayoutExecutionContext aLEC,
-                             @Nonnull final IHCTable <?> aTable,
-                             @Nonnull final BootstrapDataTables aDataTables)
-      {
-        final IRequestWebScopeWithoutResponse aRequestScope = aLEC.getRequestScope ();
-        aDataTables.setAutoWidth (false)
-                   .setLengthMenu (LENGTH_MENU)
-                   .setAjaxBuilder (new JQueryAjaxBuilder ().url (CAjaxPublic.DATATABLES.getInvocationURL (aRequestScope))
-                                                            .data (new JSAssocArray ().add (AjaxExecutorDataTables.OBJECT_ID,
-                                                                                            aTable.getID ())))
-                   .setServerFilterType (EDataTablesFilterType.ALL_TERMS_PER_ROW)
-                   .setTextLoadingURL (CActionPublic.DATATABLES_I18N.getInvocationURL (aRequestScope),
-                                       ActionExecutorDataTablesI18N.LANGUAGE_ID)
-                   .addPlugin (new DataTablesPluginSearchHighlight ());
-      }
+    BootstrapDataTables.setConfigurator ( (aLEC, aTable, aDataTables) -> {
+      final IRequestWebScopeWithoutResponse aRequestScope = aLEC.getRequestScope ();
+      aDataTables.setAutoWidth (false)
+                 .setLengthMenu (LENGTH_MENU)
+                 .setAjaxBuilder (new JQueryAjaxBuilder ().url (CAjaxPublic.DATATABLES.getInvocationURL (aRequestScope))
+                                                          .data (new JSAssocArray ().add (AjaxExecutorDataTables.OBJECT_ID,
+                                                                                          aTable.getID ())))
+                 .setServerFilterType (EDataTablesFilterType.ALL_TERMS_PER_ROW)
+                 .setTextLoadingURL (CActionPublic.DATATABLES_I18N.getInvocationURL (aRequestScope),
+                                     ActionExecutorDataTablesI18N.LANGUAGE_ID)
+                 .addPlugin (new DataTablesPluginSearchHighlight ());
     });
   }
 
@@ -119,11 +120,23 @@ public final class AppCommonUI
     // Login button
     final BootstrapButtonToolbar aToolbar = aForm.addAndReturnChild (new BootstrapButtonToolbar (aLEC));
     final JSPackage aOnClick = new JSPackage ();
-    aOnClick.add (CAppJS.viewLogin ()
-                        .arg (CAjaxPublic.LOGIN.getInvocationURI (aRequestScope))
-                        .arg (new JSAssocArray ().add (CLogin.REQUEST_ATTR_USERID, JQuery.idRef (sIDUserName).val ())
-                                                 .add (CLogin.REQUEST_ATTR_PASSWORD, JQuery.idRef (sIDPassword).val ()))
-                        .arg (sIDErrorField));
+    {
+      final JSAnonymousFunction aJSSuccess = new JSAnonymousFunction ();
+      final JSVar aJSData = aJSSuccess.param ("data");
+      aJSSuccess.body ()._if (aJSData.ref ("value").ref (AjaxExecutorPublicLogin.JSON_LOGGEDIN),
+                              JSHtml.windowLocationReload (),
+                              JQuery.idRef (sIDErrorField)
+                                    .empty ()
+                                    .append (aJSData.ref ("value").ref (AjaxExecutorPublicLogin.JSON_HTML)));
+
+      aOnClick.add (new JQueryAjaxBuilder ().url (CAjaxPublic.LOGIN.getInvocationURI (aRequestScope))
+                                            .data (new JSAssocArray ().add (CLogin.REQUEST_ATTR_USERID,
+                                                                            JQuery.idRef (sIDUserName).val ())
+                                                                      .add (CLogin.REQUEST_ATTR_PASSWORD,
+                                                                            JQuery.idRef (sIDPassword).val ()))
+                                            .success (aJSSuccess)
+                                            .build ());
+    }
     aOnClick._return (false);
     aToolbar.addSubmitButton (EPhotonCoreText.LOGIN_BUTTON_SUBMIT.getDisplayText (aDisplayLocale), aOnClick);
     return aForm;

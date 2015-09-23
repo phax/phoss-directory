@@ -46,9 +46,10 @@ import com.helger.web.scope.IRequestWebScopeWithoutResponse;
  */
 public final class AjaxExecutorPublicLogin extends AbstractAjaxExecutor
 {
+  public static final String JSON_LOGGEDIN = "loggedin";
+  public static final String JSON_HTML = "html";
+
   private static final Logger s_aLogger = LoggerFactory.getLogger (AjaxExecutorPublicLogin.class);
-  private static final String JSON_LOGGEDIN = "loggedin";
-  private static final String JSON_HTML = "html";
 
   @Override
   @Nonnull

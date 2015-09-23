@@ -72,7 +72,6 @@ import com.helger.photon.uicore.page.IWebPage;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 import com.helger.pyp.publisher.app.AppCommonUI;
 import com.helger.pyp.publisher.app.CApp;
-import com.helger.pyp.publisher.app.CAppCSS;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 
 /**
@@ -144,7 +143,7 @@ public final class AppRendererPublic implements ILayoutAreaContentProvider <Layo
 
     final BootstrapNavbar aNavbar = new BootstrapNavbar (EBootstrapNavbarType.STATIC_TOP, true, aDisplayLocale);
     ((BootstrapContainer) aNavbar.getContainer ()).setFluid (true);
-    aNavbar.addBrand (new HCSpan ().addClass (CAppCSS.CSS_CLASS_LOGO1).addChild (CApp.getApplicationTitle ()),
+    aNavbar.addBrand (new HCSpan ().addClass (AppCommonUI.CSS_CLASS_LOGO1).addChild (CApp.getApplicationTitle ()),
                       aLinkToStartPage);
 
     _addNavbarLoginLogout (aLEC, aNavbar);
