@@ -67,7 +67,7 @@
     <jetty.version>9.2.13.v20150730</jetty.version>
     <lucene.version>5.3.0</lucene.version>
     <jersey.version>2.22</jersey.version>
-    <ph-oton.version>6.0.0</ph-oton.version>
+    <ph-oton.version>6.1.0</ph-oton.version>
   </properties>
   
   <dependencyManagement>

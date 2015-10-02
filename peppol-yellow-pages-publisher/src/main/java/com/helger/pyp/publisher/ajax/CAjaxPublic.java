@@ -23,6 +23,8 @@ import com.helger.photon.core.ajax.IAjaxFunctionDeclaration;
 import com.helger.photon.core.ajax.IAjaxInvoker;
 import com.helger.photon.core.ajax.decl.PublicApplicationAjaxFunctionDeclaration;
 import com.helger.photon.uictrls.datatables.ajax.AjaxExecutorDataTables;
+import com.helger.photon.uictrls.datatables.ajax.AjaxExecutorDataTablesI18N;
+import com.helger.pyp.publisher.app.AppCommonUI;
 
 /**
  * This class defines the available ajax functions for the view application.
@@ -34,6 +36,8 @@ public final class CAjaxPublic
 {
   public static final IAjaxFunctionDeclaration DATATABLES = new PublicApplicationAjaxFunctionDeclaration ("dataTables",
                                                                                                           AjaxExecutorDataTables.class);
+  public static final IAjaxFunctionDeclaration DATATABLES_I18N = new PublicApplicationAjaxFunctionDeclaration ("datatables-i18n",
+                                                                                                               new AjaxExecutorDataTablesI18N (AppCommonUI.DEFAULT_LOCALE));
   public static final IAjaxFunctionDeclaration LOGIN = new PublicApplicationAjaxFunctionDeclaration ("login",
                                                                                                      AjaxExecutorPublicLogin.class);
 
@@ -43,6 +47,7 @@ public final class CAjaxPublic
   public static void initAjax (@Nonnull final IAjaxInvoker aAjaxInvoker)
   {
     aAjaxInvoker.registerFunction (DATATABLES);
+    aAjaxInvoker.registerFunction (DATATABLES_I18N);
     aAjaxInvoker.registerFunction (LOGIN);
   }
 }

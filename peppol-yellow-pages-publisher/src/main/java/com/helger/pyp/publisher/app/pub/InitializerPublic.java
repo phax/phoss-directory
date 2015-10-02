@@ -20,13 +20,11 @@ import javax.annotation.Nonnull;
 
 import com.helger.photon.basic.app.locale.ILocaleManager;
 import com.helger.photon.basic.app.menu.IMenuTree;
-import com.helger.photon.core.action.IActionInvoker;
 import com.helger.photon.core.ajax.IAjaxInvoker;
 import com.helger.photon.core.app.context.LayoutExecutionContext;
 import com.helger.photon.core.app.init.DefaultApplicationInitializer;
 import com.helger.photon.core.app.layout.CLayout;
 import com.helger.photon.core.app.layout.ILayoutManager;
-import com.helger.pyp.publisher.action.CActionPublic;
 import com.helger.pyp.publisher.ajax.CAjaxPublic;
 import com.helger.pyp.publisher.app.AppCommonUI;
 
@@ -61,12 +59,6 @@ public final class InitializerPublic extends DefaultApplicationInitializer <Layo
   public void initAjax (@Nonnull final IAjaxInvoker aAjaxInvoker)
   {
     CAjaxPublic.initAjax (aAjaxInvoker);
-  }
-
-  @Override
-  public void initActions (@Nonnull final IActionInvoker aActionInvoker)
-  {
-    CActionPublic.initActions (aActionInvoker);
   }
 
   @Override

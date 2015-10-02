@@ -31,7 +31,6 @@ import com.helger.commons.scope.mgr.ScopeManager;
 import com.helger.photon.basic.app.dao.impl.AbstractDAO;
 import com.helger.photon.basic.app.request.ApplicationRequestManager;
 import com.helger.photon.basic.longrun.ILongRunningJob;
-import com.helger.photon.core.action.servlet.AbstractActionServlet;
 import com.helger.photon.core.ajax.servlet.AbstractAjaxServlet;
 import com.helger.photon.core.app.error.InternalErrorBuilder;
 import com.helger.photon.core.app.error.InternalErrorHandler;
@@ -101,7 +100,6 @@ public final class AppInternalErrorHandler extends AbstractErrorCallback impleme
     // Set global internal error handlers
     final AppInternalErrorHandler aIntErrHdl = new AppInternalErrorHandler ();
     AbstractAjaxServlet.getExceptionCallbacks ().addCallback (aIntErrHdl);
-    AbstractActionServlet.getExceptionCallbacks ().addCallback (aIntErrHdl);
     AbstractDAO.getExceptionHandlersRead ().addCallback (aIntErrHdl);
     AbstractDAO.getExceptionHandlersWrite ().addCallback (aIntErrHdl);
     AbstractJob.getExceptionCallbacks ().addCallback (aIntErrHdl);
