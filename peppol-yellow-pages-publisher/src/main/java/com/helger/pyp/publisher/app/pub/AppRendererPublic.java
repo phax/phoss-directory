@@ -176,7 +176,7 @@ public final class AppRendererPublic implements ILayoutAreaContentProvider <Layo
 
   @SuppressWarnings ("unchecked")
   @Nonnull
-  public static IHCNode getMainContent (@Nonnull final LayoutExecutionContext aLEC)
+  public static IHCNode getPageContent (@Nonnull final LayoutExecutionContext aLEC)
   {
     final IRequestWebScopeWithoutResponse aRequestScope = aLEC.getRequestScope ();
 
@@ -249,7 +249,7 @@ public final class AppRendererPublic implements ILayoutAreaContentProvider <Layo
     final BootstrapContainer aOuterContainer = ret.addAndReturnChild (new BootstrapContainer ().setFluid (false));
 
     // Content - no menu
-    aOuterContainer.addChild (getMainContent (aLEC));
+    aOuterContainer.addChild (getPageContent (aLEC));
 
     // Footer
     {
