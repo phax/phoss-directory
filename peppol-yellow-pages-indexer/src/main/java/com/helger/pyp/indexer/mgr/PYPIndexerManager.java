@@ -338,7 +338,7 @@ public final class PYPIndexerManager implements Closeable
       if (eSuccess.isSuccess ())
       {
         // Item handled - remove from overall list
-        m_aRWLock.writeLocked ( () -> m_aUniqueItems.remove (aWorkItem));
+        m_aRWLock.writeLocked ((Runnable) () -> m_aUniqueItems.remove (aWorkItem));
 
         // And we're done
         return ESuccess.SUCCESS;
