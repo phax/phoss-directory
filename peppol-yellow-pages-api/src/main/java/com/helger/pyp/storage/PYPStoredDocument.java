@@ -30,6 +30,7 @@ import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.annotation.ReturnsMutableCopy;
 import com.helger.commons.collection.CollectionHelper;
+import com.helger.commons.string.StringHelper;
 import com.helger.commons.string.ToStringGenerator;
 import com.helger.datetime.PDTFactory;
 import com.helger.peppol.identifier.doctype.IPeppolDocumentTypeIdentifier;
@@ -108,6 +109,11 @@ public class PYPStoredDocument
     return m_sCountryCode;
   }
 
+  public boolean hasCountryCode ()
+  {
+    return StringHelper.hasText (m_sCountryCode);
+  }
+
   public void setName (@Nullable final String sName)
   {
     m_sName = sName;
@@ -119,6 +125,11 @@ public class PYPStoredDocument
     return m_sName;
   }
 
+  public boolean hasName ()
+  {
+    return StringHelper.hasText (m_sName);
+  }
+
   public void setGeoInfo (@Nullable final String sGeoInfo)
   {
     m_sGeoInfo = sGeoInfo;
@@ -128,6 +139,11 @@ public class PYPStoredDocument
   public String getGeoInfo ()
   {
     return m_sGeoInfo;
+  }
+
+  public boolean hasGeoInfo ()
+  {
+    return StringHelper.hasText (m_sGeoInfo);
   }
 
   public void addIdentifier (@Nonnull final PYPStoredIdentifier aIdentifier)
@@ -155,6 +171,11 @@ public class PYPStoredDocument
     return CollectionHelper.getSafe (m_aIdentifiers, nIndex);
   }
 
+  public boolean hasAnyIdentifier ()
+  {
+    return CollectionHelper.isNotEmpty (m_aIdentifiers);
+  }
+
   public void setFreeText (@Nullable final String sFreeText)
   {
     m_sFreeText = sFreeText;
@@ -164,6 +185,11 @@ public class PYPStoredDocument
   public String getFreeText ()
   {
     return m_sFreeText;
+  }
+
+  public boolean hasFreeText ()
+  {
+    return StringHelper.hasText (m_sFreeText);
   }
 
   @Nonnull

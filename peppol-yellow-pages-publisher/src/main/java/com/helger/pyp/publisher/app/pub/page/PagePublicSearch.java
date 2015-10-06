@@ -29,12 +29,17 @@ import com.helger.commons.string.StringHelper;
 import com.helger.commons.url.SimpleURL;
 import com.helger.html.css.DefaultCSSClassProvider;
 import com.helger.html.css.ICSSClassProvider;
+import com.helger.html.hc.ext.HCExtHelper;
 import com.helger.html.hc.html.forms.EHCFormMethod;
 import com.helger.html.hc.html.forms.HCEdit;
 import com.helger.html.hc.html.forms.HCForm;
 import com.helger.html.hc.html.grouping.HCDiv;
+import com.helger.html.hc.html.grouping.HCLI;
 import com.helger.html.hc.html.grouping.HCOL;
+import com.helger.html.hc.html.grouping.HCUL;
+import com.helger.html.hc.html.grouping.IHCLI;
 import com.helger.html.hc.html.sections.HCH2;
+import com.helger.html.hc.html.textlevel.HCSpan;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.photon.bootstrap3.CBootstrapCSS;
 import com.helger.photon.bootstrap3.alert.BootstrapInfoBox;
@@ -58,6 +63,12 @@ public final class PagePublicSearch extends AbstractAppWebPage
   private static final ICSSClassProvider CSS_CLASS_BIG_QUERY_BOX = DefaultCSSClassProvider.create ("big-querybox");
   private static final ICSSClassProvider CSS_CLASS_BIG_QUERY_BUTTONS = DefaultCSSClassProvider.create ("big-querybuttons");
   private static final ICSSClassProvider CSS_CLASS_SMALL_QUERY_BOX = DefaultCSSClassProvider.create ("small-querybox");
+  private static final ICSSClassProvider CSS_CLASS_RESULT_DOC = DefaultCSSClassProvider.create ("result-doc");
+  private static final ICSSClassProvider CSS_CLASS_RESULT_DOC_HEADER = DefaultCSSClassProvider.create ("result-doc-header");
+  private static final ICSSClassProvider CSS_CLASS_RESULT_DOC_COUNTRY_CODE = DefaultCSSClassProvider.create ("result-doc-country-code");
+  private static final ICSSClassProvider CSS_CLASS_RESULT_DOC_NAME = DefaultCSSClassProvider.create ("result-doc-name");
+  private static final ICSSClassProvider CSS_CLASS_RESULT_DOC_GEOINFO = DefaultCSSClassProvider.create ("result-doc-geoinfo");
+  private static final ICSSClassProvider CSS_CLASS_RESULT_DOC_FREETEXT = DefaultCSSClassProvider.create ("result-doc-freetext");
 
   public PagePublicSearch (@Nonnull @Nonempty final String sID)
   {
@@ -124,10 +135,32 @@ public final class PagePublicSearch extends AbstractAppWebPage
           final String sParticipantID = aEntry.getKey ();
           final List <PYPStoredDocument> aDocs = aEntry.getValue ();
 
-          final HCDiv aResultItem = new HCDiv ();
-          aResultItem.addChild (sParticipantID);
+          final HCDiv aResultItem = new HCDiv ().addClass (CSS_CLASS_RESULT_DOC);
+          final HCDiv aHeadRow = aResultItem.addAndReturnChild (new HCDiv ());
+          aHeadRow.addChild (sParticipantID);
           if (aDocs.size () > 1)
-            aResultItem.addChild (" (" + aDocs.size () + " entities)");
+            aHeadRow.addChild (" (" + aDocs.size () + " entities)");
+
+          final HCUL aUL = aResultItem.addAndReturnChild (new HCUL ());
+          for (final PYPStoredDocument aStoredDoc : aEntry.getValue ())
+          {
+            final IHCLI <?> aLI = aUL.addAndReturnItem (new HCLI ().addClass (CSS_CLASS_RESULT_DOC_HEADER));
+            final HCDiv aDocHeadRow = new HCDiv ();
+            if (aStoredDoc.hasCountryCode ())
+              aDocHeadRow.addChild (new HCSpan ().addChild (aStoredDoc.getCountryCode ())
+                                                 .addClass (CSS_CLASS_RESULT_DOC_COUNTRY_CODE));
+            if (aStoredDoc.hasName ())
+              aDocHeadRow.addChild (new HCSpan ().addChild (aStoredDoc.getName ())
+                                                 .addClass (CSS_CLASS_RESULT_DOC_NAME));
+            if (aDocHeadRow.hasChildren ())
+              aLI.addChild (aDocHeadRow);
+            if (aStoredDoc.hasGeoInfo ())
+              aLI.addChild (new HCDiv ().addChildren (HCExtHelper.nl2divList (aStoredDoc.getGeoInfo ()))
+                                        .addClass (CSS_CLASS_RESULT_DOC_GEOINFO));
+            if (aStoredDoc.hasFreeText ())
+              aLI.addChild (new HCDiv ().addChildren (HCExtHelper.nl2divList (aStoredDoc.getFreeText ()))
+                                        .addClass (CSS_CLASS_RESULT_DOC_FREETEXT));
+          }
 
           aOL.addItem (aResultItem);
           if (aOL.getChildCount () >= 10)

@@ -70,3 +70,32 @@
 .small-querybox {
   margin: 10px 0;
 }
+
+.result-doc {
+	margin:0.5em;
+	padding: 3px;
+}
+
+li:nth-of-type(2n+1) .result-doc { 
+  background: #ddd;
+}
+
+.result-doc-header {
+  margin-top: 0.5em;
+  padding-top: 0.5em;
+  border-top: solid 1px black;
+}
+
+.result-doc-header:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+
+.result-doc-geoinfo {
+  margin-top: 0.5em;
+}
+
+.result-doc-freetext {
+  margin-top: 0.5em;
+}
