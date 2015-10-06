@@ -23,8 +23,11 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.apache.lucene.search.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.helger.commons.annotation.Nonempty;
+import com.helger.commons.collection.CollectionHelper;
 import com.helger.commons.string.StringHelper;
 import com.helger.commons.url.SimpleURL;
 import com.helger.html.css.DefaultCSSClassProvider;
@@ -39,16 +42,22 @@ import com.helger.html.hc.html.grouping.HCOL;
 import com.helger.html.hc.html.grouping.HCUL;
 import com.helger.html.hc.html.grouping.IHCLI;
 import com.helger.html.hc.html.sections.HCH2;
+import com.helger.html.hc.html.textlevel.HCA;
 import com.helger.html.hc.html.textlevel.HCSpan;
 import com.helger.html.hc.impl.HCNodeList;
+import com.helger.peppol.identifier.participant.SimpleParticipantIdentifier;
 import com.helger.photon.bootstrap3.CBootstrapCSS;
 import com.helger.photon.bootstrap3.alert.BootstrapInfoBox;
 import com.helger.photon.bootstrap3.button.BootstrapSubmitButton;
 import com.helger.photon.bootstrap3.grid.BootstrapRow;
 import com.helger.photon.bootstrap3.inputgroup.BootstrapInputGroup;
+import com.helger.photon.core.app.html.PhotonCSS;
 import com.helger.photon.core.form.RequestField;
+import com.helger.photon.uicore.css.CPageParam;
 import com.helger.photon.uicore.icon.EDefaultIcon;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
+import com.helger.photon.uictrls.EUICtrlsCSSPathProvider;
+import com.helger.photon.uictrls.famfam.EFamFamFlagIcon;
 import com.helger.pyp.indexer.mgr.PYPMetaManager;
 import com.helger.pyp.publisher.ui.AbstractAppWebPage;
 import com.helger.pyp.publisher.ui.HCExtImg;
@@ -58,7 +67,9 @@ import com.helger.pyp.storage.PYPStoredDocument;
 
 public final class PagePublicSearch extends AbstractAppWebPage
 {
+  private static final Logger s_aLogger = LoggerFactory.getLogger (PagePublicSearch.class);
   private static final String FIELD_QUERY = "q";
+  private static final String FIELD_PARTICIPANT_ID = "partid";
 
   private static final ICSSClassProvider CSS_CLASS_BIG_QUERY_BOX = DefaultCSSClassProvider.create ("big-querybox");
   private static final ICSSClassProvider CSS_CLASS_BIG_QUERY_BUTTONS = DefaultCSSClassProvider.create ("big-querybuttons");
@@ -88,6 +99,18 @@ public final class PagePublicSearch extends AbstractAppWebPage
     return new HCEdit (new RequestField (FIELD_QUERY)).setPlaceholder ("Your query goes here");
   }
 
+  @Nonnull
+  private BootstrapRow _createSmallQueryBox (@Nonnull final WebPageExecutionContext aWPEC)
+  {
+    final HCForm aSmallQueryBox = new HCForm ().setAction (aWPEC.getSelfHref ()).setMethod (EHCFormMethod.GET);
+    aSmallQueryBox.addChild (new BootstrapInputGroup (_createQueryEdit ()).addSuffix (new BootstrapSubmitButton ().setIcon (EDefaultIcon.MAGNIFIER))
+                                                                          .addClass (CSS_CLASS_SMALL_QUERY_BOX));
+
+    final BootstrapRow aBodyRow = new BootstrapRow ();
+    aBodyRow.createColumn (12, 6, 6, 6).addChild (aSmallQueryBox);
+    return aBodyRow;
+  }
+
   @Override
   protected void fillContent (final WebPageExecutionContext aWPEC)
   {
@@ -104,84 +127,142 @@ public final class PagePublicSearch extends AbstractAppWebPage
     }
 
     final String sQuery = aWPEC.getAttributeAsString (FIELD_QUERY);
-    if (StringHelper.hasText (sQuery))
+    final String sParticipantID = aWPEC.getAttributeAsString (FIELD_PARTICIPANT_ID);
+    boolean bShowQuery = true;
+
+    if (aWPEC.hasAction (CPageParam.ACTION_VIEW) && StringHelper.hasText (sParticipantID))
     {
-      // Show small query box
-      // Show big query box
-      final HCForm aSmallQueryBox = new HCForm ().setAction (aWPEC.getSelfHref ()).setMethod (EHCFormMethod.GET);
-      aSmallQueryBox.addChild (new BootstrapInputGroup (_createQueryEdit ()).addSuffix (new BootstrapSubmitButton ().setIcon (EDefaultIcon.MAGNIFIER))
-                                                                            .addClass (CSS_CLASS_SMALL_QUERY_BOX));
-
-      final BootstrapRow aBodyRow = aNodeList.addAndReturnChild (new BootstrapRow ());
-      aBodyRow.createColumn (12, 6, 6, 6).addChild (aSmallQueryBox);
-
-      // Build Lucene query
-      final Query aLuceneQuery = PYPQueryManager.convertQueryStringToLuceneQuery (PYPMetaManager.getLucene (), sQuery);
-      // Search all documents
-      final List <PYPStoredDocument> aResultDocs = PYPMetaManager.getStorageMgr ().getAllDocuments (aLuceneQuery);
-      // Group by participant ID
-      final Map <String, List <PYPStoredDocument>> aGroupedDocs = PYPStorageManager.getGroupedByParticipantID (aResultDocs);
-
-      // Display results
-      if (aGroupedDocs.isEmpty ())
+      final SimpleParticipantIdentifier aParticipantID = SimpleParticipantIdentifier.createFromURIPartOrNull (sParticipantID);
+      if (aParticipantID != null)
       {
-        aNodeList.addChild (new BootstrapInfoBox ().addChild ("No search results found for query '" + sQuery + "'"));
+        // Show small query box
+        aNodeList.addChild (_createSmallQueryBox (aWPEC));
+
+        // Search document matching participant ID
+        final List <PYPStoredDocument> aResultDocs = PYPMetaManager.getStorageMgr ()
+                                                                   .getAllDocumentsOfParticipant (aParticipantID);
+        // Group by participant ID
+        final Map <String, List <PYPStoredDocument>> aGroupedDocs = PYPStorageManager.getGroupedByParticipantID (aResultDocs);
+        if (aGroupedDocs.isEmpty ())
+          s_aLogger.warn ("No stored document matches participant identifier '" + sParticipantID + "'");
+        else
+        {
+          if (aGroupedDocs.size () > 1)
+            s_aLogger.warn ("Found " +
+                            aGroupedDocs.size () +
+                            " entries for participant identifier '" +
+                            sParticipantID +
+                            "' - weird");
+          // Get the first one
+          final List <PYPStoredDocument> aDocuments = CollectionHelper.getFirstElement (aGroupedDocs.values ());
+          bShowQuery = false;
+
+          aNodeList.addChild (aDocuments.toString ());
+        }
+      }
+      else
+        s_aLogger.warn ("Failed to parse participant identifier '" + sParticipantID + "'");
+    }
+
+    if (bShowQuery)
+    {
+      if (StringHelper.hasText (sQuery))
+      {
+        // Show small query box
+        aNodeList.addChild (_createSmallQueryBox (aWPEC));
+
+        s_aLogger.info ("Searching for '" + sQuery + "'");
+
+        // Build Lucene query
+        final Query aLuceneQuery = PYPQueryManager.convertQueryStringToLuceneQuery (PYPMetaManager.getLucene (),
+                                                                                    sQuery);
+        // Search all documents
+        final List <PYPStoredDocument> aResultDocs = PYPMetaManager.getStorageMgr ().getAllDocuments (aLuceneQuery);
+        // Group by participant ID
+        final Map <String, List <PYPStoredDocument>> aGroupedDocs = PYPStorageManager.getGroupedByParticipantID (aResultDocs);
+
+        final int nMaxResults = 10;
+
+        // Display results
+        if (aGroupedDocs.isEmpty ())
+        {
+          aNodeList.addChild (new BootstrapInfoBox ().addChild ("No search results found for query '" + sQuery + "'"));
+        }
+        else
+        {
+          final HCOL aOL = new HCOL ().setStart (1);
+          for (final Map.Entry <String, List <PYPStoredDocument>> aEntry : aGroupedDocs.entrySet ())
+          {
+            final String sDocParticipantID = aEntry.getKey ();
+            final List <PYPStoredDocument> aDocs = aEntry.getValue ();
+
+            // Start result document
+            final HCDiv aResultItem = new HCDiv ().addClass (CSS_CLASS_RESULT_DOC);
+            final HCDiv aHeadRow = aResultItem.addAndReturnChild (new HCDiv ());
+            aHeadRow.addChild (sDocParticipantID);
+            if (aDocs.size () > 1)
+              aHeadRow.addChild (" (" + aDocs.size () + " entities)");
+            aHeadRow.addChild (new HCA (aWPEC.getSelfHref ()
+                                             .add (FIELD_QUERY, sQuery)
+                                             .add (CPageParam.PARAM_ACTION, CPageParam.ACTION_VIEW)
+                                             .add (FIELD_PARTICIPANT_ID,
+                                                   sDocParticipantID)).addChild (EDefaultIcon.MAGNIFIER.getAsNode ()));
+
+            // Show all entities of the stored document
+            final HCUL aUL = aResultItem.addAndReturnChild (new HCUL ());
+            for (final PYPStoredDocument aStoredDoc : aEntry.getValue ())
+            {
+              final IHCLI <?> aLI = aUL.addAndReturnItem (new HCLI ().addClass (CSS_CLASS_RESULT_DOC_HEADER));
+              final HCDiv aDocHeadRow = new HCDiv ();
+              if (aStoredDoc.hasCountryCode ())
+              {
+                // Add country flag (if available)
+                final EFamFamFlagIcon eFlagIcon = EFamFamFlagIcon.getFromIDOrNull (aStoredDoc.getCountryCode ());
+                if (eFlagIcon != null)
+                {
+                  aDocHeadRow.addChild (eFlagIcon.getAsNode ());
+                  PhotonCSS.registerCSSIncludeForThisRequest (EUICtrlsCSSPathProvider.FAMFAM_FLAGS);
+                }
+                aDocHeadRow.addChild (new HCSpan ().addChild (aStoredDoc.getCountryCode ())
+                                                   .addClass (CSS_CLASS_RESULT_DOC_COUNTRY_CODE));
+              }
+              if (aStoredDoc.hasName ())
+                aDocHeadRow.addChild (new HCSpan ().addChild (aStoredDoc.getName ())
+                                                   .addClass (CSS_CLASS_RESULT_DOC_NAME));
+              if (aDocHeadRow.hasChildren ())
+                aLI.addChild (aDocHeadRow);
+
+              if (aStoredDoc.hasGeoInfo ())
+                aLI.addChild (new HCDiv ().addChildren (HCExtHelper.nl2divList (aStoredDoc.getGeoInfo ()))
+                                          .addClass (CSS_CLASS_RESULT_DOC_GEOINFO));
+              if (aStoredDoc.hasFreeText ())
+                aLI.addChild (new HCDiv ().addChildren (HCExtHelper.nl2divList (aStoredDoc.getFreeText ()))
+                                          .addClass (CSS_CLASS_RESULT_DOC_FREETEXT));
+            }
+
+            aOL.addItem (aResultItem);
+
+            // Break at 10 results
+            if (aOL.getChildCount () >= nMaxResults)
+              break;
+          }
+          aNodeList.addChild (aOL);
+        }
       }
       else
       {
-        final HCOL aOL = new HCOL ().setStart (1);
-        for (final Map.Entry <String, List <PYPStoredDocument>> aEntry : aGroupedDocs.entrySet ())
-        {
-          final String sParticipantID = aEntry.getKey ();
-          final List <PYPStoredDocument> aDocs = aEntry.getValue ();
+        // Show big query box
+        final HCForm aBigQueryBox = new HCForm ().setAction (aWPEC.getSelfHref ()).setMethod (EHCFormMethod.GET);
+        aBigQueryBox.addChild (new HCDiv ().addClass (CSS_CLASS_BIG_QUERY_BOX).addChild (_createQueryEdit ()));
+        aBigQueryBox.addChild (new HCDiv ().addClass (CSS_CLASS_BIG_QUERY_BUTTONS)
+                                           .addChild (new BootstrapSubmitButton ().addChild ("Search PYP")
+                                                                                  .setIcon (EDefaultIcon.MAGNIFIER)));
 
-          final HCDiv aResultItem = new HCDiv ().addClass (CSS_CLASS_RESULT_DOC);
-          final HCDiv aHeadRow = aResultItem.addAndReturnChild (new HCDiv ());
-          aHeadRow.addChild (sParticipantID);
-          if (aDocs.size () > 1)
-            aHeadRow.addChild (" (" + aDocs.size () + " entities)");
-
-          final HCUL aUL = aResultItem.addAndReturnChild (new HCUL ());
-          for (final PYPStoredDocument aStoredDoc : aEntry.getValue ())
-          {
-            final IHCLI <?> aLI = aUL.addAndReturnItem (new HCLI ().addClass (CSS_CLASS_RESULT_DOC_HEADER));
-            final HCDiv aDocHeadRow = new HCDiv ();
-            if (aStoredDoc.hasCountryCode ())
-              aDocHeadRow.addChild (new HCSpan ().addChild (aStoredDoc.getCountryCode ())
-                                                 .addClass (CSS_CLASS_RESULT_DOC_COUNTRY_CODE));
-            if (aStoredDoc.hasName ())
-              aDocHeadRow.addChild (new HCSpan ().addChild (aStoredDoc.getName ())
-                                                 .addClass (CSS_CLASS_RESULT_DOC_NAME));
-            if (aDocHeadRow.hasChildren ())
-              aLI.addChild (aDocHeadRow);
-            if (aStoredDoc.hasGeoInfo ())
-              aLI.addChild (new HCDiv ().addChildren (HCExtHelper.nl2divList (aStoredDoc.getGeoInfo ()))
-                                        .addClass (CSS_CLASS_RESULT_DOC_GEOINFO));
-            if (aStoredDoc.hasFreeText ())
-              aLI.addChild (new HCDiv ().addChildren (HCExtHelper.nl2divList (aStoredDoc.getFreeText ()))
-                                        .addClass (CSS_CLASS_RESULT_DOC_FREETEXT));
-          }
-
-          aOL.addItem (aResultItem);
-          if (aOL.getChildCount () >= 10)
-            break;
-        }
-        aNodeList.addChild (aOL);
+        final BootstrapRow aBodyRow = aNodeList.addAndReturnChild (new BootstrapRow ());
+        aBodyRow.createColumn (12, 1, 2, 3).addClass (CBootstrapCSS.HIDDEN_XS);
+        aBodyRow.createColumn (12, 10, 8, 6).addChild (aBigQueryBox);
+        aBodyRow.createColumn (12, 1, 2, 3).addClass (CBootstrapCSS.HIDDEN_XS);
       }
-    }
-    else
-    {
-      // Show big query box
-      final HCForm aBigQueryBox = new HCForm ().setAction (aWPEC.getSelfHref ()).setMethod (EHCFormMethod.GET);
-      aBigQueryBox.addChild (new HCDiv ().addClass (CSS_CLASS_BIG_QUERY_BOX).addChild (_createQueryEdit ()));
-      aBigQueryBox.addChild (new HCDiv ().addClass (CSS_CLASS_BIG_QUERY_BUTTONS)
-                                         .addChild (new BootstrapSubmitButton ().addChild ("Search PYP")
-                                                                                .setIcon (EDefaultIcon.MAGNIFIER)));
-
-      final BootstrapRow aBodyRow = aNodeList.addAndReturnChild (new BootstrapRow ());
-      aBodyRow.createColumn (12, 1, 2, 3).addClass (CBootstrapCSS.HIDDEN_XS);
-      aBodyRow.createColumn (12, 10, 8, 6).addChild (aBigQueryBox);
-      aBodyRow.createColumn (12, 1, 2, 3).addClass (CBootstrapCSS.HIDDEN_XS);
     }
   }
 }

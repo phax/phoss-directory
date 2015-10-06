@@ -331,6 +331,14 @@ public final class PYPStorageManager implements Closeable
     return getAllDocuments (new TermQuery (new Term (CPYPStorage.FIELD_COUNTRY_CODE, sCountryCode)));
   }
 
+  /**
+   * Group the passed document list by participant ID
+   *
+   * @param aDocs
+   *        The document list to group.
+   * @return A non-<code>null</code> LinkedHashMap with the results. Order is
+   *         like the input order.
+   */
   @Nonnull
   public static IMultiMapListBased <String, PYPStoredDocument> getGroupedByParticipantID (@Nonnull final List <PYPStoredDocument> aDocs)
   {
