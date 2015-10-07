@@ -1,4 +1,4 @@
-package com.helger.pyp.storage;
+package com.helger.pyp.indexer.storage;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -22,8 +22,11 @@ import com.helger.pyp.businessinformation.BusinessInformationType;
 import com.helger.pyp.businessinformation.EntityType;
 import com.helger.pyp.businessinformation.IdentifierType;
 import com.helger.pyp.businessinformation.PYPExtendedBusinessInformation;
+import com.helger.pyp.indexer.lucene.PYPLucene;
 import com.helger.pyp.indexer.mock.PYPAPITestRule;
-import com.helger.pyp.lucene.PYPLucene;
+import com.helger.pyp.indexer.storage.PYPDocumentMetaData;
+import com.helger.pyp.indexer.storage.PYPStorageManager;
+import com.helger.pyp.indexer.storage.PYPStoredDocument;
 
 /**
  * Test class for class {@link PYPStorageManager}.

@@ -1,4 +1,4 @@
-package com.helger.pyp.lucene;
+package com.helger.pyp.indexer.lucene;
 
 import java.io.IOException;
 import java.util.function.Consumer;

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pyp.storage;
+package com.helger.pyp.indexer.storage;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -57,8 +57,8 @@ import com.helger.pyp.businessinformation.BusinessInformationType;
 import com.helger.pyp.businessinformation.EntityType;
 import com.helger.pyp.businessinformation.IdentifierType;
 import com.helger.pyp.businessinformation.PYPExtendedBusinessInformation;
-import com.helger.pyp.lucene.AllDocumentsCollector;
-import com.helger.pyp.lucene.PYPLucene;
+import com.helger.pyp.indexer.lucene.AllDocumentsCollector;
+import com.helger.pyp.indexer.lucene.PYPLucene;
 
 /**
  * The global storage manager that wraps the used Lucene index.

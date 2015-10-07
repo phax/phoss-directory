@@ -29,8 +29,8 @@ import com.helger.commons.lang.ClassHelper;
 import com.helger.commons.scope.IScope;
 import com.helger.commons.scope.singleton.AbstractGlobalSingleton;
 import com.helger.photon.basic.app.dao.impl.DAOException;
-import com.helger.pyp.lucene.PYPLucene;
-import com.helger.pyp.storage.PYPStorageManager;
+import com.helger.pyp.indexer.lucene.PYPLucene;
+import com.helger.pyp.indexer.storage.PYPStorageManager;
 
 public final class PYPMetaManager extends AbstractGlobalSingleton
 {

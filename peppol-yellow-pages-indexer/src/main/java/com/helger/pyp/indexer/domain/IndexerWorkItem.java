@@ -34,7 +34,7 @@ import com.helger.datetime.PDTFactory;
 import com.helger.peppol.identifier.IParticipantIdentifier;
 import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
 import com.helger.peppol.identifier.participant.SimpleParticipantIdentifier;
-import com.helger.pyp.storage.PYPDocumentMetaData;
+import com.helger.pyp.indexer.storage.PYPDocumentMetaData;
 
 /**
  * This class represents a single work item for the indexer.

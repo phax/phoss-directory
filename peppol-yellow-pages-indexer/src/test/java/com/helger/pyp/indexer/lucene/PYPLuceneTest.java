@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pyp.lucene;
+package com.helger.pyp.indexer.lucene;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -43,6 +43,7 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 
 import com.helger.photon.basic.mock.PhotonBasicTestRule;
+import com.helger.pyp.indexer.lucene.PYPLucene;
 
 /**
  * Test class for class {@link PYPLucene}.

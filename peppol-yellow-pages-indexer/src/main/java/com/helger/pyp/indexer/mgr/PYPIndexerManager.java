@@ -57,7 +57,7 @@ import com.helger.pyp.indexer.domain.EIndexerWorkItemType;
 import com.helger.pyp.indexer.domain.IndexerWorkItem;
 import com.helger.pyp.indexer.domain.ReIndexWorkItem;
 import com.helger.pyp.indexer.job.ReIndexJob;
-import com.helger.pyp.storage.PYPStorageManager;
+import com.helger.pyp.indexer.storage.PYPStorageManager;
 import com.helger.schedule.quartz.GlobalQuartzScheduler;
 
 /**

@@ -38,8 +38,8 @@ import com.helger.photon.bootstrap3.table.BootstrapTable;
 import com.helger.photon.core.app.html.PhotonCSS;
 import com.helger.photon.uictrls.EUICtrlsCSSPathProvider;
 import com.helger.photon.uictrls.famfam.EFamFamFlagIcon;
-import com.helger.pyp.storage.PYPStoredDocument;
-import com.helger.pyp.storage.PYPStoredIdentifier;
+import com.helger.pyp.indexer.storage.PYPStoredDocument;
+import com.helger.pyp.indexer.storage.PYPStoredIdentifier;
 
 /**
  * Common UI ctrls for business information display

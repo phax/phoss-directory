@@ -64,12 +64,12 @@ import com.helger.photon.uicore.css.CPageParam;
 import com.helger.photon.uicore.icon.EDefaultIcon;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 import com.helger.pyp.indexer.mgr.PYPMetaManager;
+import com.helger.pyp.indexer.storage.PYPQueryManager;
+import com.helger.pyp.indexer.storage.PYPStorageManager;
+import com.helger.pyp.indexer.storage.PYPStoredDocument;
 import com.helger.pyp.publisher.ui.AbstractAppWebPage;
 import com.helger.pyp.publisher.ui.HCExtImg;
 import com.helger.pyp.publisher.ui.PYPCommonUI;
-import com.helger.pyp.storage.PYPQueryManager;
-import com.helger.pyp.storage.PYPStorageManager;
-import com.helger.pyp.storage.PYPStoredDocument;
 
 public final class PagePublicSearch extends AbstractAppWebPage
 {

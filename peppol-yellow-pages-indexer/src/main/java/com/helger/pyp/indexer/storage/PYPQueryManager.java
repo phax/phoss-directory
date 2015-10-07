@@ -1,4 +1,4 @@
-package com.helger.pyp.storage;
+package com.helger.pyp.indexer.storage;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.regex.RegExHelper;
-import com.helger.pyp.lucene.ILuceneAnalyzerProvider;
+import com.helger.pyp.indexer.lucene.ILuceneAnalyzerProvider;
 
 /**
  * PYP Lucene Query manager
@@ -59,7 +59,7 @@ public final class PYPQueryManager
    *
    * @param aAnalyzerProvider
    *        Analyzer provider. E.g. instance of
-   *        {@link com.helger.pyp.lucene.PYPLucene}.
+   *        {@link com.helger.pyp.indexer.lucene.PYPLucene}.
    * @param sQueryString
    *        The user provided query string. Must neither be <code>null</code>
    *        nor empty.
