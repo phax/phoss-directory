@@ -19,7 +19,6 @@ package com.helger.pyp.indexer.mock;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import com.helger.peppol.smpclient.SMPClientConfiguration;
-import com.helger.pyp.mock.PYPAPITestRule;
 
 /**
  * Special PYP test rule with the correct data path from the settings file.

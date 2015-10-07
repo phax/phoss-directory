@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pyp.mock;
+package com.helger.pyp.indexer.mock;
 
 import java.io.File;
 

@@ -22,8 +22,8 @@ import com.helger.pyp.businessinformation.BusinessInformationType;
 import com.helger.pyp.businessinformation.EntityType;
 import com.helger.pyp.businessinformation.IdentifierType;
 import com.helger.pyp.businessinformation.PYPExtendedBusinessInformation;
+import com.helger.pyp.indexer.mock.PYPAPITestRule;
 import com.helger.pyp.lucene.PYPLucene;
-import com.helger.pyp.mock.PYPAPITestRule;
 
 /**
  * Test class for class {@link PYPStorageManager}.
@@ -75,7 +75,7 @@ public final class PYPStorageManagerTest
       aBI.addEntity (aEntity);
     }
     return new PYPExtendedBusinessInformation (aBI,
-                                               CollectionHelper.newList (EPredefinedDocumentTypeIdentifier.INVOICE_T010_BIS5A_V20.getAsDocumentTypeIdentifier ()));
+                                               CollectionHelper.newList (EPredefinedDocumentTypeIdentifier.INVOICE_T010_BIS5A_V20));
   }
 
   @Test
@@ -86,25 +86,30 @@ public final class PYPStorageManagerTest
     {
       final PYPDocumentMetaData aMetaData = _createMockMetaData ();
       aMgr.createOrUpdateEntry (aParticipantID, _createMockBI (aParticipantID), aMetaData);
-      final List <PYPStoredDocument> aDocs = aMgr.getAllDocumentsOfParticipant (aParticipantID);
-      assertEquals (2, aDocs.size ());
-      final PYPStoredDocument aDoc1 = aDocs.get (1);
-      assertEquals (aParticipantID.getURIEncoded (), aDoc1.getParticipantID ());
-      assertEquals ("junittest", aDoc1.getMetaData ().getOwnerID ());
-      assertEquals ("NO", aDoc1.getCountryCode ());
-      assertNull (aDoc1.getName ());
-      assertNull (aDoc1.getGeoInfo ());
-      assertEquals (10, aDoc1.getIdentifierCount ());
-      for (int i = 0; i < aDoc1.getIdentifierCount (); ++i)
+      try
       {
-        assertEquals ("type" + i, aDoc1.getIdentifierAtIndex (i).getType ());
-        assertEquals ("value" + i, aDoc1.getIdentifierAtIndex (i).getValue ());
+        final List <PYPStoredDocument> aDocs = aMgr.getAllDocumentsOfParticipant (aParticipantID);
+        assertEquals (2, aDocs.size ());
+        final PYPStoredDocument aDoc1 = aDocs.get (1);
+        assertEquals (aParticipantID.getURIEncoded (), aDoc1.getParticipantID ());
+        assertEquals ("junittest", aDoc1.getMetaData ().getOwnerID ());
+        assertEquals ("NO", aDoc1.getCountryCode ());
+        assertNull (aDoc1.getName ());
+        assertNull (aDoc1.getGeoInfo ());
+        assertEquals (10, aDoc1.getIdentifierCount ());
+        for (int i = 0; i < aDoc1.getIdentifierCount (); ++i)
+        {
+          assertEquals ("type" + i, aDoc1.getIdentifierAtIndex (i).getType ());
+          assertEquals ("value" + i, aDoc1.getIdentifierAtIndex (i).getValue ());
+        }
+        assertEquals ("This is another mock entry for testing purposes only", aDoc1.getFreeText ());
+        assertFalse (aDoc1.isDeleted ());
       }
-      assertEquals ("This is another mock entry for testing purposes only", aDoc1.getFreeText ());
-      assertFalse (aDoc1.isDeleted ());
-
-      // Finally delete the entry again
-      aMgr.deleteEntry (aParticipantID, aMetaData);
+      finally
+      {
+        // Finally delete the entry again
+        aMgr.deleteEntry (aParticipantID, aMetaData);
+      }
     }
   }
 
@@ -116,18 +121,26 @@ public final class PYPStorageManagerTest
     {
       final PYPDocumentMetaData aMetaData = _createMockMetaData ();
       aMgr.createOrUpdateEntry (aParticipantID, _createMockBI (aParticipantID), aMetaData);
-      List <PYPStoredDocument> aDocs = aMgr.getAllDocumentsOfCountryCode ("");
-      assertEquals (0, aDocs.size ());
+      try
+      {
+        // No country - no fields
+        List <PYPStoredDocument> aDocs = aMgr.getAllDocumentsOfCountryCode ("");
+        assertEquals (0, aDocs.size ());
 
-      aDocs = aMgr.getAllDocumentsOfCountryCode ("NO");
-      assertEquals (1, aDocs.size ());
-      final PYPStoredDocument aDoc = aDocs.get (0);
-      assertEquals (aParticipantID.getURIEncoded (), aDoc.getParticipantID ());
-      assertEquals ("junittest", aDoc.getMetaData ().getOwnerID ());
-      assertEquals ("NO", aDoc.getCountryCode ());
+        // Search for NO
+        aDocs = aMgr.getAllDocumentsOfCountryCode ("NO");
+        assertEquals (1, aDocs.size ());
 
-      // Finally delete the entry again
-      aMgr.deleteEntry (aParticipantID, aMetaData);
+        final PYPStoredDocument aSingleDoc = aDocs.get (0);
+        assertEquals (aParticipantID.getURIEncoded (), aSingleDoc.getParticipantID ());
+        assertEquals ("junittest", aSingleDoc.getMetaData ().getOwnerID ());
+        assertEquals ("NO", aSingleDoc.getCountryCode ());
+      }
+      finally
+      {
+        // Finally delete the entry again
+        aMgr.deleteEntry (aParticipantID, aMetaData);
+      }
     }
   }
 }

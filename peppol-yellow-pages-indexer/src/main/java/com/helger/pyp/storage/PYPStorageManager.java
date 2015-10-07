@@ -237,10 +237,8 @@ public final class PYPStorageManager implements Closeable
       }
 
       // Delete all existing documents of the participant ID
-      m_aLucene.deleteDocuments (_createParticipantTerm (aParticipantID));
-
-      // Add to index
-      m_aLucene.updateDocuments (null, aDocs);
+      // and add the new ones to the index
+      m_aLucene.updateDocuments (_createParticipantTerm (aParticipantID), aDocs);
 
       s_aLogger.info ("Added " + aDocs.size () + " Lucene documents");
       AuditHelper.onAuditExecuteSuccess ("pyp-indexer-create",
@@ -324,6 +322,13 @@ public final class PYPStorageManager implements Closeable
     return getAllDocuments (new TermQuery (_createParticipantTerm (aParticipantID)));
   }
 
+  /**
+   * Get all documents matching the passed country code
+   *
+   * @param sCountryCode
+   *        Country code to search. May not be <code>null</code>.
+   * @return Non-<code>null</code> but maybe empty list of documents
+   */
   @Nonnull
   public List <PYPStoredDocument> getAllDocumentsOfCountryCode (@Nonnull final String sCountryCode)
   {
@@ -337,7 +342,7 @@ public final class PYPStorageManager implements Closeable
    * @param aDocs
    *        The document list to group.
    * @return A non-<code>null</code> LinkedHashMap with the results. Order is
-   *         like the input order.
+   *         like the order of the input list.
    */
   @Nonnull
   public static IMultiMapListBased <String, PYPStoredDocument> getGroupedByParticipantID (@Nonnull final List <PYPStoredDocument> aDocs)
