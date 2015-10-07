@@ -72,11 +72,12 @@ public final class PYPCommonUI
       final HCNodeList aCountryCtrl = new HCNodeList ();
       final String sCountryCode = aStoredDoc.getCountryCode ();
       aCountryCtrl.addChild (getFlagNode (sCountryCode));
-      aCountryCtrl.addChild (" " + sCountryCode);
 
       final Locale aCountry = CountryCache.getInstance ().getCountry (sCountryCode);
       if (aCountry != null)
-        aCountryCtrl.addChild (" " + aCountry.getDisplayCountry (aDisplayLocale));
+        aCountryCtrl.addChild (" " + aCountry.getDisplayCountry (aDisplayLocale) + " [" + sCountryCode + "]");
+      else
+        aCountryCtrl.addChild (" " + sCountryCode);
 
       aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Country").setCtrl (aCountryCtrl));
     }
