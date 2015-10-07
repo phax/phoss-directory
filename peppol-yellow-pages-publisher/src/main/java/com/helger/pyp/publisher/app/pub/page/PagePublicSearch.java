@@ -17,6 +17,7 @@
 package com.helger.pyp.publisher.app.pub.page;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
@@ -32,6 +33,7 @@ import com.helger.commons.string.StringHelper;
 import com.helger.commons.url.SimpleURL;
 import com.helger.html.css.DefaultCSSClassProvider;
 import com.helger.html.css.ICSSClassProvider;
+import com.helger.html.hc.IHCNode;
 import com.helger.html.hc.ext.HCExtHelper;
 import com.helger.html.hc.html.forms.EHCFormMethod;
 import com.helger.html.hc.html.forms.HCEdit;
@@ -41,26 +43,30 @@ import com.helger.html.hc.html.grouping.HCLI;
 import com.helger.html.hc.html.grouping.HCOL;
 import com.helger.html.hc.html.grouping.HCUL;
 import com.helger.html.hc.html.grouping.IHCLI;
-import com.helger.html.hc.html.sections.HCH2;
+import com.helger.html.hc.html.sections.HCH1;
 import com.helger.html.hc.html.textlevel.HCA;
 import com.helger.html.hc.html.textlevel.HCSpan;
 import com.helger.html.hc.impl.HCNodeList;
+import com.helger.peppol.identifier.doctype.ComparatorDocumentTypeIdentifier;
+import com.helger.peppol.identifier.doctype.IPeppolDocumentTypeIdentifier;
 import com.helger.peppol.identifier.participant.SimpleParticipantIdentifier;
 import com.helger.photon.bootstrap3.CBootstrapCSS;
 import com.helger.photon.bootstrap3.alert.BootstrapInfoBox;
+import com.helger.photon.bootstrap3.alert.BootstrapWarnBox;
+import com.helger.photon.bootstrap3.badge.BootstrapBadge;
 import com.helger.photon.bootstrap3.button.BootstrapSubmitButton;
 import com.helger.photon.bootstrap3.grid.BootstrapRow;
 import com.helger.photon.bootstrap3.inputgroup.BootstrapInputGroup;
-import com.helger.photon.core.app.html.PhotonCSS;
+import com.helger.photon.bootstrap3.nav.BootstrapTabBox;
+import com.helger.photon.bootstrap3.panel.BootstrapPanel;
 import com.helger.photon.core.form.RequestField;
 import com.helger.photon.uicore.css.CPageParam;
 import com.helger.photon.uicore.icon.EDefaultIcon;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
-import com.helger.photon.uictrls.EUICtrlsCSSPathProvider;
-import com.helger.photon.uictrls.famfam.EFamFamFlagIcon;
 import com.helger.pyp.indexer.mgr.PYPMetaManager;
 import com.helger.pyp.publisher.ui.AbstractAppWebPage;
 import com.helger.pyp.publisher.ui.HCExtImg;
+import com.helger.pyp.publisher.ui.PYPCommonUI;
 import com.helger.pyp.storage.PYPQueryManager;
 import com.helger.pyp.storage.PYPStorageManager;
 import com.helger.pyp.storage.PYPStoredDocument;
@@ -115,12 +121,14 @@ public final class PagePublicSearch extends AbstractAppWebPage
   protected void fillContent (final WebPageExecutionContext aWPEC)
   {
     final HCNodeList aNodeList = aWPEC.getNodeList ();
+    final Locale aDisplayLocale = aWPEC.getDisplayLocale ();
 
     {
       final BootstrapRow aHeaderRow = aNodeList.addAndReturnChild (new BootstrapRow ());
       // A PYP logo would be nice
       aHeaderRow.createColumn (12, 12, 1, 2).addClass (CBootstrapCSS.HIDDEN_SM);
-      aHeaderRow.createColumn (12, 6, 5, 4).addChild (new HCH2 ().addChild ("PYP logo goes here"));
+      aHeaderRow.createColumn (12, 6, 5, 4)
+                .addChild (new HCExtImg (new SimpleURL ("/imgs/pyplogo.png")).addClass (CBootstrapCSS.PULL_LEFT));
       aHeaderRow.createColumn (12, 6, 5, 4)
                 .addChild (new HCExtImg (new SimpleURL ("/imgs/peppol.png")).addClass (CBootstrapCSS.PULL_RIGHT));
       aHeaderRow.createColumn (12, 12, 1, 2).addClass (CBootstrapCSS.HIDDEN_SM);
@@ -157,7 +165,45 @@ public final class PagePublicSearch extends AbstractAppWebPage
           final List <PYPStoredDocument> aDocuments = CollectionHelper.getFirstElement (aGroupedDocs.values ());
           bShowQuery = false;
 
-          aNodeList.addChild (aDocuments.toString ());
+          aNodeList.addChild (new HCH1 ().addChild ("Details for " + sParticipantID));
+
+          final BootstrapTabBox aTabBox = aNodeList.addAndReturnChild (new BootstrapTabBox ());
+
+          // Buisness information
+          {
+            final HCNodeList aOL = new HCNodeList ();
+            int nIndex = 1;
+            for (final PYPStoredDocument aStoredDoc : aDocuments)
+            {
+              final BootstrapPanel aPanel = aOL.addAndReturnChild (new BootstrapPanel ());
+              if (aDocuments.size () > 1)
+                aPanel.getOrCreateHeader ().addChild ("Business information entity " + nIndex);
+              aPanel.getBody ().addChild (PYPCommonUI.showBusinessInfoDetails (aStoredDoc, aDisplayLocale));
+              ++nIndex;
+            }
+            // Add whole list or just the first item?
+            final IHCNode aTabLabel = new HCSpan ().addChild ("Business information ")
+                                                   .addChild (new BootstrapBadge ().addChild (Integer.toString (aDocuments.size ())));
+            aTabBox.addTab (aTabLabel, aOL);
+          }
+
+          // Document types
+          {
+            final HCOL aDocTypeCtrl = new HCOL ();
+            final List <IPeppolDocumentTypeIdentifier> aDocTypeIDs = CollectionHelper.getSorted (aResultDocs.get (0)
+                                                                                                            .getAllDocumentTypeIDs (),
+                                                                                                 new ComparatorDocumentTypeIdentifier ());
+            for (final IPeppolDocumentTypeIdentifier aDocTypeID : aDocTypeIDs)
+            {
+              final IHCLI <?> aLI = aDocTypeCtrl.addItem ();
+              aLI.addChild (PYPCommonUI.getDocumentTypeID (aDocTypeID));
+              aLI.addChild (PYPCommonUI.getDocumentTypeIDDetails (aDocTypeID.getParts ()));
+            }
+            aTabBox.addTab (new HCSpan ().addChild ("Document types ")
+                                         .addChild (new BootstrapBadge ().addChild (Integer.toString (aDocTypeIDs.size ()))),
+                            aDocTypeCtrl.hasChildren () ? aDocTypeCtrl
+                                                        : new BootstrapWarnBox ().addChild ("No document types available for this participant"));
+          }
         }
       }
       else
@@ -217,12 +263,7 @@ public final class PagePublicSearch extends AbstractAppWebPage
               if (aStoredDoc.hasCountryCode ())
               {
                 // Add country flag (if available)
-                final EFamFamFlagIcon eFlagIcon = EFamFamFlagIcon.getFromIDOrNull (aStoredDoc.getCountryCode ());
-                if (eFlagIcon != null)
-                {
-                  aDocHeadRow.addChild (eFlagIcon.getAsNode ());
-                  PhotonCSS.registerCSSIncludeForThisRequest (EUICtrlsCSSPathProvider.FAMFAM_FLAGS);
-                }
+                aDocHeadRow.addChild (PYPCommonUI.getFlagNode (aStoredDoc.getCountryCode ()));
                 aDocHeadRow.addChild (new HCSpan ().addChild (aStoredDoc.getCountryCode ())
                                                    .addClass (CSS_CLASS_RESULT_DOC_COUNTRY_CODE));
               }
