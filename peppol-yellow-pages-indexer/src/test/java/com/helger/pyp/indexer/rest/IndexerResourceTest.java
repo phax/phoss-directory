@@ -117,7 +117,7 @@ public final class IndexerResourceTest
   {
     // Set test BI provider
     PYPMetaManager.setIndexerMgrFactory (aStorageMgr -> new PYPIndexerManager (aStorageMgr).setBusinessInformationProvider (aParticipantID -> _createMockBI (aParticipantID))
-                                                                                        .readAndQueueInitialData ());
+                                                                                           .readAndQueueInitialData ());
     PYPMetaManager.getInstance ();
 
     final File aTestClientCertificateKeyStore = new File ("src/test/resources/smp.pilot.jks");
@@ -164,7 +164,6 @@ public final class IndexerResourceTest
   @Test
   public void testCreateAndDeleteParticipant () throws IOException
   {
-
     final AtomicInteger aIndex = new AtomicInteger (0);
     final SimpleParticipantIdentifier aPI_0 = SimpleParticipantIdentifier.createWithDefaultScheme ("9915:test0");
 
