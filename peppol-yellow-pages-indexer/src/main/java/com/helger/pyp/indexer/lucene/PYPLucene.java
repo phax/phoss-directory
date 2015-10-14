@@ -327,7 +327,7 @@ public final class PYPLucene implements Closeable, ILuceneDocumentProvider, ILuc
    *         may be thrown by the callback
    */
   @Nonnull
-  public <T> T runAtomic (@Nonnull final IThrowingCallable <T, IOException> aRunnable) throws IOException
+  public <T> T callAtomic (@Nonnull final IThrowingCallable <T, IOException> aRunnable) throws IOException
   {
     m_aLock.lock ();
     try

@@ -45,6 +45,7 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.ReturnsMutableCopy;
+import com.helger.commons.callback.IThrowingCallable;
 import com.helger.commons.collection.CollectionHelper;
 import com.helger.commons.collection.multimap.IMultiMapListBased;
 import com.helger.commons.collection.multimap.MultiLinkedHashMapArrayListBased;
@@ -104,18 +105,22 @@ public final class PYPStorageManager implements Closeable
     if (aParticipantID == null)
       return false;
 
-    return m_aLucene.runAtomic ( () -> {
-      final IndexSearcher aSearcher = m_aLucene.getSearcher ();
-      if (aSearcher != null)
+    return m_aLucene.callAtomic (new IThrowingCallable <Boolean, IOException> ()
+    {
+      public Boolean call () throws IOException
       {
-        // Search only documents that do not have the deleted field
-        final Query aQuery = new TermQuery (new Term (CPYPStorage.FIELD_PARTICIPANTID,
-                                                      aParticipantID.getURIEncoded ()));
-        final TopDocs aTopDocs = aSearcher.search (PYPQueryManager.andNotDeleted (aQuery), 1);
-        if (aTopDocs.totalHits > 0)
-          return Boolean.TRUE;
+        final IndexSearcher aSearcher = m_aLucene.getSearcher ();
+        if (aSearcher != null)
+        {
+          // Search only documents that do not have the deleted field
+          final Query aQuery = new TermQuery (new Term (CPYPStorage.FIELD_PARTICIPANTID,
+                                                        aParticipantID.getURIEncoded ()));
+          final TopDocs aTopDocs = aSearcher.search (PYPQueryManager.andNotDeleted (aQuery), 1);
+          if (aTopDocs.totalHits > 0)
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
       }
-      return Boolean.FALSE;
     }).booleanValue ();
   }
 

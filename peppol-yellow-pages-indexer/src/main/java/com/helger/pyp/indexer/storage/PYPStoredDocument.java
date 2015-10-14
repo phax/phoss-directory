@@ -229,6 +229,14 @@ public class PYPStoredDocument
                                        .toString ();
   }
 
+  /**
+   * Convert a stored Lucene {@link Document} to a {@link PYPStoredDocument}.
+   * This method resolves all Lucene fields to Java fields.
+   * 
+   * @param aDoc
+   *        Source Lucene document. May not be <code>null</code>.
+   * @return The new {@link PYPStoredDocument}.
+   */
   @Nonnull
   @ReturnsMutableCopy
   public static PYPStoredDocument create (@Nonnull final Document aDoc)
