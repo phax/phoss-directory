@@ -64,10 +64,9 @@
   <properties>
     <slf4j.version>1.7.12</slf4j.version>
     <log4j.version>2.4</log4j.version>
-    <jetty.version> 9.3.3.v20150827</jetty.version>
-    <!-- 5.3.1 seems to have a regression. Tests fail! -->
+    <jetty.version>9.3.5.v20151012</jetty.version>
     <lucene.version>5.3.1</lucene.version>
-    <jersey.version>2.22</jersey.version>
+    <jersey.version>2.22.1</jersey.version>
     <ph-oton.version>6.1.0</ph-oton.version>
   </properties>
   
@@ -160,6 +159,11 @@
         <version>${jersey.version}</version>
         <type>pom</type>
         <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>fluent-hc</artifactId>
+        <version>4.5.1</version>
       </dependency>
   
       <dependency>
