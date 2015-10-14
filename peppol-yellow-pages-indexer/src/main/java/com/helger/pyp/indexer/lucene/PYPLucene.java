@@ -17,6 +17,7 @@
 package com.helger.pyp.indexer.lucene;
 
 import java.io.Closeable;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -70,10 +71,16 @@ public final class PYPLucene implements Closeable, ILuceneDocumentProvider, ILuc
   private final AtomicBoolean m_aClosing = new AtomicBoolean (false);
   private final AtomicInteger m_aWriterChanges = new AtomicInteger (0);
 
+  @Nonnull
+  public static File getLuceneIndexDir ()
+  {
+    return WebFileIO.getDataIO ().getFile ("lucene-index");
+  }
+
   public PYPLucene () throws IOException
   {
     // Where to store the index files
-    final Path aPath = WebFileIO.getDataIO ().getFile ("lucene-index").toPath ();
+    final Path aPath = getLuceneIndexDir ().toPath ();
     m_aDir = FSDirectory.open (aPath);
 
     // Analyzer to use

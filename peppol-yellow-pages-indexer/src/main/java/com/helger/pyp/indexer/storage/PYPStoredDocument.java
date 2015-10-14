@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.apache.lucene.document.Document;
+import org.apache.lucene.index.IndexableField;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
@@ -232,7 +233,7 @@ public class PYPStoredDocument
   /**
    * Convert a stored Lucene {@link Document} to a {@link PYPStoredDocument}.
    * This method resolves all Lucene fields to Java fields.
-   * 
+   *
    * @param aDoc
    *        Source Lucene document. May not be <code>null</code>.
    * @return The new {@link PYPStoredDocument}.
@@ -255,9 +256,9 @@ public class PYPStoredDocument
     for (int i = 0; i < aIDTypes.length; ++i)
       ret.addIdentifier (new PYPStoredIdentifier (aIDTypes[i], aIDValues[i]));
     {
-      final PYPDocumentMetaData aMetaData = new PYPDocumentMetaData (PDTFactory.createDateTimeFromMillis (aDoc.getField (CPYPStorage.FIELD_METADATA_CREATIONDT)
-                                                                                                              .numericValue ()
-                                                                                                              .longValue ())
+      final IndexableField aFieldMetadata = aDoc.getField (CPYPStorage.FIELD_METADATA_CREATIONDT);
+      final PYPDocumentMetaData aMetaData = new PYPDocumentMetaData (PDTFactory.createDateTimeFromMillis (aFieldMetadata.numericValue ()
+                                                                                                                        .longValue ())
                                                                                .toLocalDateTime (),
                                                                      aDoc.get (CPYPStorage.FIELD_METADATA_OWNERID),
                                                                      aDoc.get (CPYPStorage.FIELD_METADATA_REQUESTING_HOST));

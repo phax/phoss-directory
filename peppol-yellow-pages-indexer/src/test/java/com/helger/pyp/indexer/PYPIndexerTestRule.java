@@ -14,14 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pyp.indexer.mock;
+package com.helger.pyp.indexer;
 
 import java.io.File;
 
+import org.slf4j.bridge.SLF4JBridgeHandler;
+
 import com.helger.commons.id.factory.GlobalIDFactory;
 import com.helger.commons.scope.mock.ScopeTestRule;
+import com.helger.peppol.smpclient.SMPClientConfiguration;
+import com.helger.photon.basic.app.io.WebFileIO;
 import com.helger.photon.basic.app.io.WebIOIntIDFactory;
 import com.helger.photon.basic.mock.PhotonBasicWebTestRule;
+import com.helger.pyp.indexer.lucene.PYPLucene;
 import com.helger.pyp.settings.PYPSettings;
 
 /**
@@ -29,9 +34,15 @@ import com.helger.pyp.settings.PYPSettings;
  *
  * @author Philip Helger
  */
-public class PYPAPITestRule extends PhotonBasicWebTestRule
+public class PYPIndexerTestRule extends PhotonBasicWebTestRule
 {
-  public PYPAPITestRule ()
+  static
+  {
+    SLF4JBridgeHandler.removeHandlersForRootLogger ();
+    SLF4JBridgeHandler.install ();
+  }
+
+  public PYPIndexerTestRule ()
   {
     super (new File (PYPSettings.getDataPath ()), ScopeTestRule.STORAGE_PATH);
   }
@@ -40,6 +51,9 @@ public class PYPAPITestRule extends PhotonBasicWebTestRule
   public void before ()
   {
     super.before ();
+    WebFileIO.getFileOpMgr ().deleteDirRecursiveIfExisting (PYPLucene.getLuceneIndexDir ());
     GlobalIDFactory.setPersistentIntIDFactory (new WebIOIntIDFactory ("pyp-ids.dat"));
+    // Ensure the network system properties are assigned
+    SMPClientConfiguration.getConfigFile ().applyAllNetworkSystemProperties ();
   }
 }

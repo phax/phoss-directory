@@ -22,8 +22,8 @@ import com.helger.pyp.businessinformation.BusinessInformationType;
 import com.helger.pyp.businessinformation.EntityType;
 import com.helger.pyp.businessinformation.IdentifierType;
 import com.helger.pyp.businessinformation.PYPExtendedBusinessInformation;
+import com.helger.pyp.indexer.PYPIndexerTestRule;
 import com.helger.pyp.indexer.lucene.PYPLucene;
-import com.helger.pyp.indexer.mock.PYPAPITestRule;
 import com.helger.pyp.indexer.storage.PYPDocumentMetaData;
 import com.helger.pyp.indexer.storage.PYPStorageManager;
 import com.helger.pyp.indexer.storage.PYPStoredDocument;
@@ -36,7 +36,7 @@ import com.helger.pyp.indexer.storage.PYPStoredDocument;
 public final class PYPStorageManagerTest
 {
   @Rule
-  public final TestRule m_aRule = new PYPAPITestRule ();
+  public final TestRule m_aRule = new PYPIndexerTestRule ();
 
   @Nonnull
   private static PYPDocumentMetaData _createMockMetaData ()

@@ -16,7 +16,9 @@
  */
 package com.helger.pyp.indexer.lucene;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -43,7 +45,6 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 
 import com.helger.photon.basic.mock.PhotonBasicTestRule;
-import com.helger.pyp.indexer.lucene.PYPLucene;
 
 /**
  * Test class for class {@link PYPLucene}.
@@ -101,15 +102,15 @@ public final class PYPLuceneTest
         return null;
 
       final int numTotalHits = results.totalHits;
-      System.out.println (numTotalHits + " total matching documents");
+      assertEquals (1, numTotalHits);
 
       /*
        * Matching score for the first document
        */
-      System.out.println ("Matching score for first document: " + aHits[0].score);
+      assertTrue (aHits[0].score > 0);
 
       final Document doc = aLucene.getDocument (aHits[0].doc);
-      System.out.println ("Id of the document: " + doc.get ("id"));
+      assertEquals ("Apache Lucene 5.0.0", doc.get ("id"));
       return doc;
     }
   }
