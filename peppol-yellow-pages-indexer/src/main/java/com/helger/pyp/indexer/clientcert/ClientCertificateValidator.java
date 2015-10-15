@@ -63,7 +63,7 @@ public final class ClientCertificateValidator
   @PresentForCodeCoverage
   private static final ClientCertificateValidator s_aInstance = new ClientCertificateValidator ();
 
-  private static boolean s_bAllowAllForTests = false;
+  private static boolean s_bCheckDisabled = !PYPSettings.isClientCertificateValidationActive ();
   private static X509Certificate s_aPeppolSMPRootCert;
   private static X509Certificate s_aPeppolSMPRootCertAlternative;
 
@@ -82,7 +82,7 @@ public final class ClientCertificateValidator
   @VisibleForTesting
   public static void allowAllForTests (final boolean bAllowAll)
   {
-    s_bAllowAllForTests = bAllowAll;
+    s_bCheckDisabled = bAllowAll;
   }
 
   private static void _initCertificateIssuers ()
@@ -283,7 +283,7 @@ public final class ClientCertificateValidator
   @Nonnull
   public static ClientCertificateValidationResult verifyClientCertificate (@Nonnull final HttpServletRequest aHttpRequest)
   {
-    if (s_bAllowAllForTests)
+    if (s_bCheckDisabled)
     {
       if (s_aLogger.isDebugEnabled ())
         s_aLogger.debug ("Client certificate is considered valid because the 'allow all' for tests is set!");

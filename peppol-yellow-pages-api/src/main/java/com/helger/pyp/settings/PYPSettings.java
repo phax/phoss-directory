@@ -110,6 +110,11 @@ public final class PYPSettings extends AbstractGlobalSingleton
     return s_aSettings.getBooleanValue ("webapp.testversion", GlobalDebug.isDebugMode ());
   }
 
+  public static boolean isClientCertificateValidationActive ()
+  {
+    return s_aSettings.getBooleanValue ("indexer.clientcert.validation", true);
+  }
+
   /**
    * @return The issuer of the expected client certificate of the issuer.
    */
