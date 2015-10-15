@@ -65,7 +65,7 @@ public final class AppCommonUI
 
   public static final Locale DEFAULT_LOCALE = LocaleCache.getInstance ().getLocale ("en", "US");
 
-  private static final String APPLICATION_TITLE = "PEPPOL Yellow Pages";
+  private static final String APPLICATION_TITLE = "PEPPOL Directory";
 
   private static final DataTablesLengthMenu LENGTH_MENU = new DataTablesLengthMenu ().addItem (25)
                                                                                      .addItem (50)
