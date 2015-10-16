@@ -78,7 +78,7 @@ public final class AppRendererSecure implements ILayoutAreaContentProvider <Layo
                                                                .addChild (" Administration")),
                       aLinkToStartPage);
 
-    aNavbar.addButton (EBootstrapNavbarPosition.COLLAPSIBLE_RIGHT,
+    aNavbar.addButton (EBootstrapNavbarPosition.COLLAPSIBLE_DEFAULT,
                        new BootstrapButton ().addChild ("Goto public area")
                                              .setOnClick (LinkHelper.getURLWithContext (AbstractPublicApplicationServlet.SERVLET_DEFAULT_PATH +
                                                                                         "/")));
@@ -111,7 +111,7 @@ public final class AppRendererSecure implements ILayoutAreaContentProvider <Layo
     // Header
     ret.addChild (_getNavbar (aLEC));
 
-    final BootstrapContainer aOuterContainer = ret.addAndReturnChild (new BootstrapContainer ());
+    final BootstrapContainer aOuterContainer = ret.addAndReturnChild (new BootstrapContainer ().setFluid (true));
 
     // Breadcrumbs
     {

@@ -67,7 +67,7 @@ public final class InitializerSecure extends DefaultApplicationInitializer <Layo
     final ConfigurationFileManager aCfgMgr = ConfigurationFileManager.getInstance ();
     aCfgMgr.registerConfigurationFile (new ConfigurationFile (new ClassPathResource ("log4j2.xml")).setDescription ("log4j configuration file")
                                                                                                    .setSyntaxHighlightLanguage (EPrismLanguage.MARKUP));
-    aCfgMgr.registerConfigurationFile (new ConfigurationFile (new ClassPathResource ("webapp.properties")).setDescription ("Web application properties")
-                                                                                                          .setSyntaxHighlightLanguage (EPrismLanguage.APACHECONF));
+    aCfgMgr.registerConfigurationFile (new ConfigurationFile (new ClassPathResource ("pyp.properties")).setDescription ("PYP properties")
+                                                                                                       .setSyntaxHighlightLanguage (EPrismLanguage.APACHECONF));
   }
 }
