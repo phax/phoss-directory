@@ -58,7 +58,9 @@ import org.apache.http.auth.Credentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.config.ConnectionConfig;
@@ -67,6 +69,7 @@ import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -78,7 +81,10 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.OverrideOnDemand;
+import com.helger.commons.charset.CCharset;
 import com.helger.commons.exception.InitializationException;
+import com.helger.commons.io.stream.StreamHelper;
+import com.helger.commons.state.ESuccess;
 import com.helger.peppol.identifier.IParticipantIdentifier;
 import com.helger.peppol.identifier.IdentifierHelper;
 import com.helger.peppol.utils.KeyStoreHelper;
@@ -178,26 +184,16 @@ public class PYPClient implements Closeable
     try
     {
       // Set SSL context
-      final KeyStore aKeyStore = KeyStoreHelper.loadKeyStore (PYPClientConfiguration.getKeyStorePath (),
-                                                              PYPClientConfiguration.getKeyStorePassword ());
-      final SSLContext aSSLContext = SSLContexts.custom ()
-                                                .loadKeyMaterial (aKeyStore,
-                                                                  PYPClientConfiguration.getKeyStoreKeyPassword (),
-                                                                  (aAliases, aSocket) -> {
-                                                                    final String sAlias = PYPClientConfiguration.getKeyStoreKeyAlias ();
-                                                                    return aAliases.containsKey (sAlias) ? sAlias
-                                                                                                         : null;
-                                                                  })
-                                                .build ();
+      final KeyStore aKeyStore = KeyStoreHelper.loadKeyStore (PYPClientConfiguration.getKeyStorePath (), PYPClientConfiguration.getKeyStorePassword ());
+      final SSLContext aSSLContext = SSLContexts.custom ().loadKeyMaterial (aKeyStore, PYPClientConfiguration.getKeyStoreKeyPassword (), (aAliases, aSocket) -> {
+        final String sAlias = PYPClientConfiguration.getKeyStoreKeyAlias ();
+        return aAliases.containsKey (sAlias) ? sAlias : null;
+      }).build ();
       // Allow TLSv1 protocol only
-      final SSLConnectionSocketFactory aSSLSocketFactory = new SSLConnectionSocketFactory (aSSLContext,
-                                                                                           new String [] { "TLSv1" },
-                                                                                           null,
-                                                                                           SSLConnectionSocketFactory.getDefaultHostnameVerifier ());
+      final SSLConnectionSocketFactory aSSLSocketFactory = new SSLConnectionSocketFactory (aSSLContext, new String [] { "TLSv1" }, null, SSLConnectionSocketFactory.getDefaultHostnameVerifier ());
 
       final Registry <ConnectionSocketFactory> sfr = RegistryBuilder.<ConnectionSocketFactory> create ()
-                                                                    .register ("http",
-                                                                               PlainConnectionSocketFactory.getSocketFactory ())
+                                                                    .register ("http", PlainConnectionSocketFactory.getSocketFactory ())
                                                                     .register ("https", aSSLSocketFactory)
                                                                     .build ();
 
@@ -224,12 +220,7 @@ public class PYPClient implements Closeable
   @OverrideOnDemand
   protected RequestConfig createRequestConfig ()
   {
-    return RequestConfig.custom ()
-                        .setSocketTimeout (10000)
-                        .setConnectTimeout (5000)
-                        .setConnectionRequestTimeout (5000)
-                        .setProxy (m_aProxy)
-                        .build ();
+    return RequestConfig.custom ().setSocketTimeout (10000).setConnectTimeout (5000).setConnectionRequestTimeout (5000).setProxy (m_aProxy).build ();
   }
 
   /**
@@ -261,7 +252,19 @@ public class PYPClient implements Closeable
     if (m_aHttpClient == null)
       m_aHttpClient = createClientBuilder ().build ();
 
+    if (s_aLogger.isDebugEnabled ())
+      s_aLogger.debug ("Executing request " + aRequest.getRequestLine ());
+
     return m_aHttpClient.execute (aRequest, aContext);
+  }
+
+  @Nullable
+  private static String _getResponseString (@Nonnull final CloseableHttpResponse aResponse) throws IOException
+  {
+    final HttpEntity aResponseEntity = aResponse.getEntity ();
+    final String sResponse = aResponseEntity == null ? null : StreamHelper.getAllBytesAsString (aResponseEntity.getContent (), CCharset.CHARSET_UTF_8_OBJ);
+    EntityUtils.consume (aResponseEntity);
+    return sResponse;
   }
 
   /**
@@ -274,37 +277,84 @@ public class PYPClient implements Closeable
    *         <code>false</code> otherwise.
    */
   @Nonnull
-  public boolean isParticipantRegistered (@Nonnull final IParticipantIdentifier aParticipantID)
+  public boolean isServiceGroupRegistered (@Nonnull final IParticipantIdentifier aParticipantID)
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
 
-    final HttpGet aGet = new HttpGet (m_sPYPIndexerURL +
-                                      IdentifierHelper.getIdentifierURIPercentEncoded (aParticipantID));
-    final RequestConfig aRequestConfig = RequestConfig.custom ()
-                                                      .setSocketTimeout (10000)
-                                                      .setConnectTimeout (5000)
-                                                      .setConnectionRequestTimeout (5000)
-                                                      .setProxy (m_aProxy)
-                                                      .build ();
-    aGet.setConfig (aRequestConfig);
-
-    s_aLogger.info ("Executing request " + aGet.getRequestLine ());
+    final HttpGet aGet = new HttpGet (m_sPYPIndexerURL + IdentifierHelper.getIdentifierURIPercentEncoded (aParticipantID));
     try (final CloseableHttpResponse aResponse = executeRequest (aGet))
     {
-      final HttpEntity aEntity = aResponse.getEntity ();
+      final String sResponse = _getResponseString (aResponse);
 
-      System.out.println ("----------------------------------------");
-      System.out.println (aResponse.getStatusLine ());
-      EntityUtils.consume (aEntity);
-      if (aResponse.getStatusLine ().getStatusCode () == 200)
+      // Check result
+      if (aResponse.getStatusLine ().getStatusCode () >= 200 && aResponse.getStatusLine ().getStatusCode () < 300)
         return true;
+
+      if (aResponse.getStatusLine ().getStatusCode () == 404)
+        return false;
+
+      s_aLogger.warn ("Unexpected status returned from server for " + aGet.getRequestLine () + ": " + aResponse.getStatusLine () + "\n" + sResponse);
     }
     catch (final IOException ex)
     {
-      // fall through
-      ex.printStackTrace ();
+      s_aLogger.error ("Error performing request " + aGet.getRequestLine (), ex);
     }
     return false;
+  }
+
+  @Nonnull
+  public ESuccess addServiceGroupToIndex (@Nonnull final IParticipantIdentifier aParticipantID)
+  {
+    ValueEnforcer.notNull (aParticipantID, "ParticipantID");
+    final String sParticipantID = IdentifierHelper.getIdentifierURIEncoded (aParticipantID);
+
+    final HttpPut aPut = new HttpPut (m_sPYPIndexerURL);
+    aPut.setEntity (new StringEntity (sParticipantID, CCharset.CHARSET_UTF_8_OBJ));
+    try (final CloseableHttpResponse aResponse = executeRequest (aPut))
+    {
+      final String sResponse = _getResponseString (aResponse);
+
+      // Check result
+      if (aResponse.getStatusLine ().getStatusCode () >= 200 && aResponse.getStatusLine ().getStatusCode () < 300)
+      {
+        s_aLogger.info ("Added service group '" + sParticipantID + "' to PYP index. May take some time until it shows up.");
+        return ESuccess.SUCCESS;
+      }
+
+      s_aLogger.warn ("Unexpected status returned from server for " + aPut.getRequestLine () + ": " + aResponse.getStatusLine () + "\n" + sResponse);
+    }
+    catch (final IOException ex)
+    {
+      s_aLogger.error ("Error performing request " + aPut.getRequestLine (), ex);
+    }
+    return ESuccess.FAILURE;
+  }
+
+  @Nonnull
+  public ESuccess deleteServiceGroupFromIndex (@Nonnull final IParticipantIdentifier aParticipantID)
+  {
+    ValueEnforcer.notNull (aParticipantID, "ParticipantID");
+
+    final HttpDelete aDelete = new HttpDelete (m_sPYPIndexerURL + IdentifierHelper.getIdentifierURIPercentEncoded (aParticipantID));
+    try (final CloseableHttpResponse aResponse = executeRequest (aDelete))
+    {
+      final String sResponse = _getResponseString (aResponse);
+
+      // Check result
+      if (aResponse.getStatusLine ().getStatusCode () >= 200 && aResponse.getStatusLine ().getStatusCode () < 300)
+      {
+        final String sParticipantID = IdentifierHelper.getIdentifierURIEncoded (aParticipantID);
+        s_aLogger.info ("Removed service group '" + sParticipantID + "' from PYP index. May take some time until it is removed.");
+        return ESuccess.SUCCESS;
+      }
+
+      s_aLogger.warn ("Unexpected status returned from server for " + aDelete.getRequestLine () + ": " + aResponse.getStatusLine () + "\n" + sResponse);
+    }
+    catch (final IOException ex)
+    {
+      s_aLogger.error ("Error performing request " + aDelete.getRequestLine (), ex);
+    }
+    return ESuccess.FAILURE;
   }
 
   public void close () throws IOException
@@ -317,10 +367,12 @@ public class PYPClient implements Closeable
   public static PYPClient createDefaultClient ()
   {
     final PYPClient aClient = new PYPClient (URI.create ("http://pyp.helger.com"));
+    final boolean bIsHttp = aClient.getPYPHostURI ().startsWith ("http:");
 
     // Get proxy settings
-    final String sProxyHost = PYPClientConfiguration.getConfigFile ().getString ("http.proxyHost");
-    final int nProxyPort = PYPClientConfiguration.getConfigFile ().getInt ("http.proxyPort", 0);
+    final String sPrefix = bIsHttp ? "http." : "https.";
+    final String sProxyHost = PYPClientConfiguration.getConfigFile ().getString (sPrefix + "proxyHost");
+    final int nProxyPort = PYPClientConfiguration.getConfigFile ().getInt (sPrefix + "proxyPort", 0);
     if (sProxyHost != null && nProxyPort > 0)
       aClient.setProxy (new HttpHost (sProxyHost, nProxyPort));
 

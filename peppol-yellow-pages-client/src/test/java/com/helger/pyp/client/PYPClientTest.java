@@ -19,7 +19,10 @@ public final class PYPClientTest
   @Test
   public void testBasic ()
   {
+    final SimpleParticipantIdentifier aPI = SimpleParticipantIdentifier.createWithDefaultScheme ("9915:test");
     final PYPClient aClient = PYPClient.createDefaultClient ();
-    aClient.isParticipantRegistered (SimpleParticipantIdentifier.createWithDefaultScheme ("9915:test"));
+    aClient.deleteServiceGroupFromIndex (aPI);
+    aClient.isServiceGroupRegistered (aPI);
+    aClient.addServiceGroupToIndex (aPI);
   }
 }
