@@ -25,8 +25,6 @@ import com.helger.commons.collection.CollectionHelper;
 import com.helger.commons.io.resource.ClassPathResource;
 import com.helger.commons.io.resource.IReadableResource;
 import com.helger.jaxb.AbstractJAXBMarshaller;
-import com.helger.pyp.businessinformation.BusinessInformationType;
-import com.helger.pyp.businessinformation.ObjectFactory;
 
 /**
  * This is the reader and writer for {@link BusinessInformationType} documents.

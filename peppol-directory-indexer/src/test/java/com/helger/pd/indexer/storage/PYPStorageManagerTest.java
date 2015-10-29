@@ -15,18 +15,15 @@ import org.junit.rules.TestRule;
 
 import com.helger.commons.collection.CollectionHelper;
 import com.helger.datetime.PDTFactory;
+import com.helger.pd.businessinformation.BusinessInformationType;
+import com.helger.pd.businessinformation.EntityType;
+import com.helger.pd.businessinformation.IdentifierType;
 import com.helger.pd.businessinformation.PDExtendedBusinessInformation;
 import com.helger.pd.indexer.PYPIndexerTestRule;
 import com.helger.pd.indexer.lucene.PYPLucene;
-import com.helger.pd.indexer.storage.PYPDocumentMetaData;
-import com.helger.pd.indexer.storage.PYPStorageManager;
-import com.helger.pd.indexer.storage.PYPStoredDocument;
 import com.helger.peppol.identifier.doctype.EPredefinedDocumentTypeIdentifier;
 import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
 import com.helger.peppol.identifier.participant.SimpleParticipantIdentifier;
-import com.helger.pyp.businessinformation.BusinessInformationType;
-import com.helger.pyp.businessinformation.EntityType;
-import com.helger.pyp.businessinformation.IdentifierType;
 
 /**
  * Test class for class {@link PYPStorageManager}.

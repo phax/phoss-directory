@@ -44,7 +44,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 
-import com.helger.pd.indexer.lucene.PYPLucene;
 import com.helger.photon.basic.mock.PhotonBasicTestRule;
 
 /**

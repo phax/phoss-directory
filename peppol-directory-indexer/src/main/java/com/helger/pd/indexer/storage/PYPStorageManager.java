@@ -49,10 +49,14 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.ReturnsMutableCopy;
+import com.helger.commons.callback.IThrowingCallable;
 import com.helger.commons.collection.CollectionHelper;
 import com.helger.commons.collection.multimap.IMultiMapListBased;
 import com.helger.commons.collection.multimap.MultiLinkedHashMapArrayListBased;
 import com.helger.commons.state.ESuccess;
+import com.helger.pd.businessinformation.BusinessInformationType;
+import com.helger.pd.businessinformation.EntityType;
+import com.helger.pd.businessinformation.IdentifierType;
 import com.helger.pd.businessinformation.PDExtendedBusinessInformation;
 import com.helger.pd.indexer.lucene.AllDocumentsCollector;
 import com.helger.pd.indexer.lucene.PYPLucene;
@@ -60,9 +64,6 @@ import com.helger.peppol.identifier.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.IdentifierHelper;
 import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
 import com.helger.photon.basic.security.audit.AuditHelper;
-import com.helger.pyp.businessinformation.BusinessInformationType;
-import com.helger.pyp.businessinformation.EntityType;
-import com.helger.pyp.businessinformation.IdentifierType;
 
 /**
  * The global storage manager that wraps the used Lucene index.
@@ -108,7 +109,7 @@ public final class PYPStorageManager implements Closeable
     if (aParticipantID == null)
       return false;
 
-    return m_aLucene.callAtomic ( () -> {
+    final IThrowingCallable <Boolean, IOException> cb = () -> {
       final IndexSearcher aSearcher = m_aLucene.getSearcher ();
       if (aSearcher != null)
       {
@@ -119,7 +120,8 @@ public final class PYPStorageManager implements Closeable
           return Boolean.TRUE;
       }
       return Boolean.FALSE;
-    }).booleanValue ();
+    };
+    return m_aLucene.callAtomic (cb).booleanValue ();
   }
 
   @Nonnull

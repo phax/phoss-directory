@@ -104,7 +104,7 @@
         <configuration>
           <instructions>
             <Export-Package>
-              com.helger.pyp.indexer.*
+              com.helger.pd.indexer.*
             </Export-Package>
             <Import-Package>
               !javax.annotation.*,*

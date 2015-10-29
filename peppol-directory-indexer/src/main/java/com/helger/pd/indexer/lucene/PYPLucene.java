@@ -330,11 +330,15 @@ public final class PYPLucene implements Closeable, ILuceneDocumentProvider, ILuc
    * @param aRunnable
    *        Callback to be executed
    * @return <code>null</code> if the index is just closing
-   * @throws IOException
+   * @throws EX
    *         may be thrown by the callback
+   * @param <T>
+   *        Result type
+   * @param <EX>
+   *        Exception type
    */
   @Nullable
-  public <T> T callAtomic (@Nonnull final IThrowingCallable <T, IOException> aRunnable) throws IOException
+  public <T, EX extends Exception> T callAtomic (@Nonnull final IThrowingCallable <T, EX> aRunnable) throws EX
   {
     m_aLock.lock ();
     try

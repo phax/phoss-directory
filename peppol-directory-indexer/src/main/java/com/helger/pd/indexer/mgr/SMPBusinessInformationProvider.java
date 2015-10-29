@@ -49,6 +49,7 @@ import com.helger.commons.microdom.serialize.MicroWriter;
 import com.helger.commons.url.SimpleURL;
 import com.helger.commons.url.URLHelper;
 import com.helger.commons.xml.XMLDebug;
+import com.helger.pd.businessinformation.BusinessInformationType;
 import com.helger.pd.businessinformation.IPDBusinessInformationProvider;
 import com.helger.pd.businessinformation.PDBusinessInformationMarshaller;
 import com.helger.pd.businessinformation.PDExtendedBusinessInformation;
@@ -62,7 +63,6 @@ import com.helger.peppol.smp.ServiceGroupType;
 import com.helger.peppol.smp.ServiceMetadataReferenceType;
 import com.helger.peppol.smpclient.SMPClientReadOnly;
 import com.helger.peppol.smpclient.exception.SMPClientException;
-import com.helger.pyp.businessinformation.BusinessInformationType;
 
 /**
  * The SMP based {@link IPDBusinessInformationProvider} implementation. An SMP

@@ -5,7 +5,6 @@ import static org.junit.Assert.assertNotNull;
 import org.junit.Test;
 
 import com.helger.pd.businessinformation.PDExtendedBusinessInformation;
-import com.helger.pd.indexer.mgr.SMPBusinessInformationProvider;
 import com.helger.peppol.identifier.participant.SimpleParticipantIdentifier;
 
 /**

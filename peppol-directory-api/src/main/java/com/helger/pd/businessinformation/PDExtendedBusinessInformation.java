@@ -14,7 +14,6 @@ import com.helger.commons.collection.CollectionHelper;
 import com.helger.commons.string.ToStringGenerator;
 import com.helger.peppol.identifier.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.doctype.SimpleDocumentTypeIdentifier;
-import com.helger.pyp.businessinformation.BusinessInformationType;
 
 /**
  * This class encapsulates all the data to be added to the Lucene index. It

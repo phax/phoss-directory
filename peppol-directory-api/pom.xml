@@ -86,7 +86,7 @@
         <configuration>
           <instructions>
             <Export-Package>
-              com.helger.pyp.*
+              com.helger.pd.*
             </Export-Package>
             <Import-Package>
               !javax.annotation.*,*

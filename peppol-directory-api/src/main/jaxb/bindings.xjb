@@ -26,7 +26,7 @@
   </globalBindings>
   <bindings schemaLocation="../resources/schemas/pyp-business-information-201505.xsd" node="/xs:schema">
     <schemaBindings>
-      <package name="com.helger.pyp.businessinformation" />
+      <package name="com.helger.pd.businessinformation" />
     </schemaBindings>
   </bindings>
 </bindings>
