@@ -1,0 +1,81 @@
+/**
+ * Copyright (C) 2015 Philip Helger (www.helger.com)
+ * philip[at]helger[dot]com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.helger.pd.indexer.storage;
+
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.Immutable;
+
+import com.helger.commons.ValueEnforcer;
+import com.helger.commons.annotation.Nonempty;
+import com.helger.commons.hashcode.HashCodeGenerator;
+import com.helger.commons.string.ToStringGenerator;
+
+/**
+ * This class represents a single identifier as stored by Lucene consisting of a
+ * type and a value.
+ *
+ * @author Philip Helger
+ */
+@Immutable
+public final class PYPStoredIdentifier
+{
+  private final String m_sType;
+  private final String m_sValue;
+
+  public PYPStoredIdentifier (@Nonnull @Nonempty final String sType, @Nonnull @Nonempty final String sValue)
+  {
+    m_sType = ValueEnforcer.notEmpty (sType, "Type");
+    m_sValue = ValueEnforcer.notEmpty (sValue, "Value");
+  }
+
+  @Nonnull
+  @Nonempty
+  public String getType ()
+  {
+    return m_sType;
+  }
+
+  @Nonnull
+  @Nonempty
+  public String getValue ()
+  {
+    return m_sValue;
+  }
+
+  @Override
+  public boolean equals (final Object o)
+  {
+    if (o == this)
+      return true;
+    if (o == null || !getClass ().equals (o.getClass ()))
+      return false;
+    final PYPStoredIdentifier rhs = (PYPStoredIdentifier) o;
+    return m_sType.equals (rhs.m_sType) && m_sValue.equals (rhs.m_sValue);
+  }
+
+  @Override
+  public int hashCode ()
+  {
+    return new HashCodeGenerator (this).append (m_sType).append (m_sValue).getHashCode ();
+  }
+
+  @Override
+  public String toString ()
+  {
+    return new ToStringGenerator (this).append ("Type", m_sType).append ("Value", m_sValue).toString ();
+  }
+}

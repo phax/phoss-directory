@@ -22,6 +22,8 @@ import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.string.StringHelper;
 import com.helger.html.hc.html.forms.HCEdit;
 import com.helger.html.hc.impl.HCNodeList;
+import com.helger.pd.indexer.domain.EIndexerWorkItemType;
+import com.helger.pd.indexer.mgr.PYPMetaManager;
 import com.helger.peppol.identifier.CIdentifier;
 import com.helger.peppol.identifier.participant.SimpleParticipantIdentifier;
 import com.helger.photon.bootstrap3.alert.BootstrapSuccessBox;
@@ -33,8 +35,6 @@ import com.helger.photon.core.form.RequestField;
 import com.helger.photon.uicore.css.CPageParam;
 import com.helger.photon.uicore.icon.EDefaultIcon;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
-import com.helger.pyp.indexer.domain.EIndexerWorkItemType;
-import com.helger.pyp.indexer.mgr.PYPMetaManager;
 import com.helger.pyp.publisher.ui.AbstractAppWebPage;
 import com.helger.validation.error.FormErrors;
 

@@ -27,6 +27,8 @@ import com.helger.html.hc.html.textlevel.HCStrong;
 import com.helger.html.hc.html.textlevel.HCWBR;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.html.hc.impl.HCTextNode;
+import com.helger.pd.indexer.storage.PYPStoredDocument;
+import com.helger.pd.indexer.storage.PYPStoredIdentifier;
 import com.helger.peppol.identifier.doctype.EPredefinedDocumentTypeIdentifier;
 import com.helger.peppol.identifier.doctype.IPeppolDocumentTypeIdentifier;
 import com.helger.peppol.identifier.doctype.IPeppolDocumentTypeIdentifierParts;
@@ -40,8 +42,6 @@ import com.helger.photon.bootstrap3.table.BootstrapTable;
 import com.helger.photon.core.app.html.PhotonCSS;
 import com.helger.photon.uictrls.EUICtrlsCSSPathProvider;
 import com.helger.photon.uictrls.famfam.EFamFamFlagIcon;
-import com.helger.pyp.indexer.storage.PYPStoredDocument;
-import com.helger.pyp.indexer.storage.PYPStoredIdentifier;
 
 /**
  * Common UI ctrls for business information display
