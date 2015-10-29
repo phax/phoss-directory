@@ -23,6 +23,7 @@ public final class CMenuSecure
 {
   // Menu item IDs
   public static final String MENU_INDEXER = "indexer";
+  public static final String MENU_ALL_PARTICIPANTS = "all_participants";
   public static final String MENU_INDEX_MANUALLY = "index_manually";
 
   public static final String MENU_ADMIN = "admin";

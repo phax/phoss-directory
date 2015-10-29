@@ -20,6 +20,8 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.function.Consumer;
 
 import javax.annotation.Nonnull;
@@ -36,16 +38,17 @@ import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.search.Collector;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.WildcardQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.ReturnsMutableCopy;
-import com.helger.commons.callback.IThrowingCallable;
 import com.helger.commons.collection.CollectionHelper;
 import com.helger.commons.collection.multimap.IMultiMapListBased;
 import com.helger.commons.collection.multimap.MultiLinkedHashMapArrayListBased;
@@ -105,22 +108,17 @@ public final class PYPStorageManager implements Closeable
     if (aParticipantID == null)
       return false;
 
-    return m_aLucene.callAtomic (new IThrowingCallable <Boolean, IOException> ()
-    {
-      public Boolean call () throws IOException
+    return m_aLucene.callAtomic ( () -> {
+      final IndexSearcher aSearcher = m_aLucene.getSearcher ();
+      if (aSearcher != null)
       {
-        final IndexSearcher aSearcher = m_aLucene.getSearcher ();
-        if (aSearcher != null)
-        {
-          // Search only documents that do not have the deleted field
-          final Query aQuery = new TermQuery (new Term (CPYPStorage.FIELD_PARTICIPANTID,
-                                                        aParticipantID.getURIEncoded ()));
-          final TopDocs aTopDocs = aSearcher.search (PYPQueryManager.andNotDeleted (aQuery), 1);
-          if (aTopDocs.totalHits > 0)
-            return Boolean.TRUE;
-        }
-        return Boolean.FALSE;
+        // Search only documents that do not have the deleted field
+        final Query aQuery = new TermQuery (_createParticipantTerm (aParticipantID));
+        final TopDocs aTopDocs = aSearcher.search (PYPQueryManager.andNotDeleted (aQuery), 1);
+        if (aTopDocs.totalHits > 0)
+          return Boolean.TRUE;
       }
+      return Boolean.FALSE;
     }).booleanValue ();
   }
 
@@ -259,18 +257,16 @@ public final class PYPStorageManager implements Closeable
    *
    * @param aQuery
    *        Query to execute. May not be <code>null</code>-
-   * @param aConsumer
-   *        The consumer of the {@link PYPStoredDocument} objects.
+   * @param aCollector
+   *        The Lucene collector to be used. May not be <code>null</code>.
    * @throws IOException
    *         On Lucene error
    * @see #getAllDocuments(Query)
    */
-  @Nonnull
-  public void searchAllDocuments (@Nonnull final Query aQuery,
-                                  @Nonnull final Consumer <PYPStoredDocument> aConsumer) throws IOException
+  public void searchAtomic (@Nonnull final Query aQuery, @Nonnull final Collector aCollector) throws IOException
   {
     ValueEnforcer.notNull (aQuery, "Query");
-    ValueEnforcer.notNull (aConsumer, "Consumer");
+    ValueEnforcer.notNull (aCollector, "Collector");
 
     m_aLucene.runAtomic ( () -> {
       final IndexSearcher aSearcher = m_aLucene.getSearcher ();
@@ -281,13 +277,34 @@ public final class PYPStorageManager implements Closeable
 
         // Search all documents, convert them to StoredDocument and pass them to
         // the provided consumer
-        aSearcher.search (aQuery,
-                          new AllDocumentsCollector (m_aLucene,
-                                                     aDoc -> aConsumer.accept (PYPStoredDocument.create (aDoc))));
+        aSearcher.search (aQuery, aCollector);
       }
       else
         s_aLogger.warn ("Failed to obtain IndexSearcher");
     });
+  }
+
+  /**
+   * Search all documents matching the passed query and pass the result on to
+   * the provided {@link Consumer}.
+   *
+   * @param aQuery
+   *        Query to execute. May not be <code>null</code>-
+   * @param aConsumer
+   *        The consumer of the {@link PYPStoredDocument} objects.
+   * @throws IOException
+   *         On Lucene error
+   * @see #searchAtomic(Query, Collector)
+   * @see #getAllDocuments(Query)
+   */
+  public void searchAllDocuments (@Nonnull final Query aQuery,
+                                  @Nonnull final Consumer <PYPStoredDocument> aConsumer) throws IOException
+  {
+    ValueEnforcer.notNull (aQuery, "Query");
+    ValueEnforcer.notNull (aConsumer, "Consumer");
+
+    searchAtomic (aQuery,
+                  new AllDocumentsCollector (m_aLucene, aDoc -> aConsumer.accept (PYPStoredDocument.create (aDoc))));
   }
 
   /**
@@ -297,6 +314,7 @@ public final class PYPStorageManager implements Closeable
    * @param aQuery
    *        The query to be executed. May not be <code>null</code>.
    * @return A non-<code>null</code> but maybe empty list of matching documents
+   * @see #searchAllDocuments(Query, Consumer)
    */
   @Nonnull
   @ReturnsMutableCopy
@@ -312,12 +330,6 @@ public final class PYPStorageManager implements Closeable
       s_aLogger.error ("Error searching for documents with query " + aQuery, ex);
     }
     return aTargetList;
-  }
-
-  @Nonnull
-  public List <PYPStoredDocument> getAllDeletedDocuments ()
-  {
-    return getAllDocuments (new TermQuery (new Term (CPYPStorage.FIELD_DELETED)));
   }
 
   @Nonnull
@@ -341,6 +353,26 @@ public final class PYPStorageManager implements Closeable
     return getAllDocuments (new TermQuery (new Term (CPYPStorage.FIELD_COUNTRY_CODE, sCountryCode)));
   }
 
+  @Nonnull
+  @ReturnsMutableCopy
+  public Set <String> getAllContainedParticipantIDs ()
+  {
+    final Set <String> aTargetList = new TreeSet <> ();
+    final Query aQuery = PYPQueryManager.andNotDeleted (new WildcardQuery (new Term (CPYPStorage.FIELD_ALL_FIELDS,
+                                                                                     "*")));
+    try
+    {
+      searchAtomic (aQuery,
+                    new AllDocumentsCollector (m_aLucene,
+                                               aDoc -> aTargetList.add (aDoc.get (CPYPStorage.FIELD_PARTICIPANTID))));
+    }
+    catch (final IOException ex)
+    {
+      s_aLogger.error ("Error searching for documents with query " + aQuery, ex);
+    }
+    return aTargetList;
+  }
+
   /**
    * Group the passed document list by participant ID
    *
@@ -350,6 +382,7 @@ public final class PYPStorageManager implements Closeable
    *         like the order of the input list.
    */
   @Nonnull
+  @ReturnsMutableCopy
   public static IMultiMapListBased <String, PYPStoredDocument> getGroupedByParticipantID (@Nonnull final List <PYPStoredDocument> aDocs)
   {
     final MultiLinkedHashMapArrayListBased <String, PYPStoredDocument> ret = new MultiLinkedHashMapArrayListBased <> ();

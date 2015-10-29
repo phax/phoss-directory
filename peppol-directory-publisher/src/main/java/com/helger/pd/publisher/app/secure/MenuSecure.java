@@ -21,6 +21,7 @@ import javax.annotation.concurrent.Immutable;
 
 import com.helger.pd.publisher.app.AppCommonUI;
 import com.helger.pd.publisher.app.AppSecurity;
+import com.helger.pd.publisher.app.secure.page.PageSecureAllParticipants;
 import com.helger.pd.publisher.app.secure.page.PageSecureIndexManually;
 import com.helger.photon.basic.app.menu.IMenuItemPage;
 import com.helger.photon.basic.app.menu.IMenuTree;
@@ -46,6 +47,7 @@ public final class MenuSecure
       final IMenuItemPage aIndexer = aMenuTree.createRootItem (new BasePageShowChildren <> (CMenuSecure.MENU_INDEXER,
                                                                                             "Indexer",
                                                                                             aMenuTree));
+      aMenuTree.createItem (aIndexer, new PageSecureAllParticipants (CMenuSecure.MENU_ALL_PARTICIPANTS));
       aMenuTree.createItem (aIndexer, new PageSecureIndexManually (CMenuSecure.MENU_INDEX_MANUALLY));
     }
 
