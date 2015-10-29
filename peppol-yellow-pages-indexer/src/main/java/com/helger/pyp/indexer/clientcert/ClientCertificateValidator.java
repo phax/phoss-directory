@@ -147,7 +147,7 @@ public final class ClientCertificateValidator
     final String sTrustStoreAlias = PYPSettings.getTruststoreAliasAlternative ();
 
     if (StringHelper.hasText (sTrustStorePath) &&
-        StringHelper.hasText (sTrustStorePath) &&
+        StringHelper.hasText (sTrustStorePassword) &&
         StringHelper.hasText (sTrustStorePath))
     {
       // Load keystores
