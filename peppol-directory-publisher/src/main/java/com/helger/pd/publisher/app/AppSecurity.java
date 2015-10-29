@@ -41,6 +41,10 @@ public final class AppSecurity
   public static final String ROLE_VIEW_NAME = "View user";
   public static final String ROLE_VIEW_DESCRIPTION = null;
   public static final Map <String, ?> ROLE_VIEW_CUSTOMATTRS = null;
+  public static final String ROLE_SG_OWNER_ID = "sgowner";
+  public static final String ROLE_SG_OWNER_NAME = "Service Group owner";
+  public static final String ROLE_SG_OWNER_DESCRIPTION = null;
+  public static final Map <String, ?> ROLE_SG_OWNER_CUSTOMATTRS = null;
 
   public static final List <String> REQUIRED_ROLE_IDS_CONFIG = CollectionHelper.newUnmodifiableList (ROLE_CONFIG_ID);
   public static final List <String> REQUIRED_ROLE_IDS_VIEW = CollectionHelper.newUnmodifiableList (ROLE_VIEW_ID);
@@ -103,6 +107,11 @@ public final class AppSecurity
       aAM.createPredefinedRole (ROLE_CONFIG_ID, ROLE_CONFIG_NAME, ROLE_CONFIG_DESCRIPTION, ROLE_CONFIG_CUSTOMATTRS);
     if (!aAM.containsRoleWithID (ROLE_VIEW_ID))
       aAM.createPredefinedRole (ROLE_VIEW_ID, ROLE_VIEW_NAME, ROLE_VIEW_DESCRIPTION, ROLE_VIEW_CUSTOMATTRS);
+    if (!aAM.containsRoleWithID (ROLE_SG_OWNER_ID))
+      aAM.createPredefinedRole (ROLE_SG_OWNER_ID,
+                                ROLE_SG_OWNER_NAME,
+                                ROLE_SG_OWNER_DESCRIPTION,
+                                ROLE_SG_OWNER_CUSTOMATTRS);
 
     // User group Administrators
     if (!aAM.containsUserGroupWithID (USERGROUP_ADMINISTRATORS_ID))
@@ -116,6 +125,7 @@ public final class AppSecurity
     }
     aAM.assignRoleToUserGroup (USERGROUP_ADMINISTRATORS_ID, ROLE_CONFIG_ID);
     aAM.assignRoleToUserGroup (USERGROUP_ADMINISTRATORS_ID, ROLE_VIEW_ID);
+    aAM.assignRoleToUserGroup (USERGROUP_ADMINISTRATORS_ID, ROLE_SG_OWNER_ID);
 
     // User group for Config users
     if (!aAM.containsUserGroupWithID (USERGROUP_CONFIG_ID))

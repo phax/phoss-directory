@@ -24,7 +24,7 @@ import javax.servlet.ServletContext;
 
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.vendor.VendorInfo;
-import com.helger.pd.indexer.mgr.PYPMetaManager;
+import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.publisher.app.AppCommonUI;
 import com.helger.pd.publisher.app.AppInternalErrorHandler;
 import com.helger.pd.publisher.app.AppSecurity;
@@ -102,7 +102,7 @@ public final class AppWebAppListener extends AbstractWebAppListenerMultiAppBoots
     AppSecurity.init ();
 
     // Load managers
-    PYPMetaManager.getInstance ();
+    PDMetaManager.getInstance ();
     MetaManager.getInstance ();
 
     // Setup error handler

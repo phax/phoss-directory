@@ -21,7 +21,7 @@ import javax.annotation.Nonnull;
 import com.helger.commons.annotation.Nonempty;
 import com.helger.html.hc.html.grouping.HCUL;
 import com.helger.html.hc.impl.HCNodeList;
-import com.helger.pd.indexer.mgr.PYPMetaManager;
+import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 
@@ -38,7 +38,7 @@ public final class PageSecureAllParticipants extends AbstractAppWebPage
     final HCNodeList aNodeList = aWPEC.getNodeList ();
 
     final HCUL aUL = aNodeList.addAndReturnChild (new HCUL ());
-    for (final String sParticipantID : PYPMetaManager.getStorageMgr ().getAllContainedParticipantIDs ())
+    for (final String sParticipantID : PDMetaManager.getStorageMgr ().getAllContainedParticipantIDs ())
       aUL.addItem (sParticipantID);
   }
 }

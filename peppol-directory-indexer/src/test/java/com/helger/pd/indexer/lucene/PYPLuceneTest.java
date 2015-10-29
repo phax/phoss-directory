@@ -47,7 +47,7 @@ import org.junit.rules.TestRule;
 import com.helger.photon.basic.mock.PhotonBasicTestRule;
 
 /**
- * Test class for class {@link PYPLucene}.
+ * Test class for class {@link PDLucene}.
  *
  * @author Philip Helger
  */
@@ -82,7 +82,7 @@ public final class PYPLuceneTest
                                                                        StandardCharsets.UTF_8))));
 
     // Existing index
-    try (final PYPLucene aLucene = new PYPLucene ())
+    try (final PDLucene aLucene = new PDLucene ())
     {
       aLucene.updateDocument (new Term ("id", "Apache Lucene 5.0.0"), doc);
     }
@@ -91,7 +91,7 @@ public final class PYPLuceneTest
   @Nullable
   private static Document _searchBest (final Query aQuery) throws IOException
   {
-    try (final PYPLucene aLucene = new PYPLucene ())
+    try (final PDLucene aLucene = new PDLucene ())
     {
       // Find top 5 hits
       final TopDocs results = aLucene.getSearcher ().search (aQuery, 5);

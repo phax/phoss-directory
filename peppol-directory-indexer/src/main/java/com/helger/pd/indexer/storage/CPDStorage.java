@@ -24,7 +24,7 @@ import javax.annotation.concurrent.Immutable;
  * @author Philip Helger
  */
 @Immutable
-public final class CPYPStorage
+public final class CPDStorage
 {
   public static final String FIELD_PARTICIPANTID = "participantid";
   public static final String FIELD_DOCUMENT_TYPE_ID = "doctypeid";
@@ -41,6 +41,6 @@ public final class CPYPStorage
   public static final String FIELD_DELETED = "deleted";
   public static final String FIELD_GROUP_END = "groupend";
 
-  private CPYPStorage ()
+  private CPDStorage ()
   {}
 }

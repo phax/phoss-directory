@@ -23,7 +23,7 @@ import com.helger.commons.string.StringHelper;
 import com.helger.html.hc.html.forms.HCEdit;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.domain.EIndexerWorkItemType;
-import com.helger.pd.indexer.mgr.PYPMetaManager;
+import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.peppol.identifier.CIdentifier;
 import com.helger.peppol.identifier.participant.SimpleParticipantIdentifier;
@@ -66,7 +66,7 @@ public final class PageSecureIndexManually extends AbstractAppWebPage
 
       if (aFormErrors.isEmpty ())
       {
-        if (PYPMetaManager.getIndexerMgr ()
+        if (PDMetaManager.getIndexerMgr ()
                           .queueWorkItem (aParticipantID,
                                           EIndexerWorkItemType.CREATE_UPDATE,
                                           "manually-triggered",

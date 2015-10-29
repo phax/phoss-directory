@@ -20,13 +20,13 @@ import com.helger.pd.businessinformation.EntityType;
 import com.helger.pd.businessinformation.IdentifierType;
 import com.helger.pd.businessinformation.PDExtendedBusinessInformation;
 import com.helger.pd.indexer.PYPIndexerTestRule;
-import com.helger.pd.indexer.lucene.PYPLucene;
+import com.helger.pd.indexer.lucene.PDLucene;
 import com.helger.peppol.identifier.doctype.EPredefinedDocumentTypeIdentifier;
 import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
 import com.helger.peppol.identifier.participant.SimpleParticipantIdentifier;
 
 /**
- * Test class for class {@link PYPStorageManager}.
+ * Test class for class {@link PDStorageManager}.
  *
  * @author Philip Helger
  */
@@ -36,9 +36,9 @@ public final class PYPStorageManagerTest
   public final TestRule m_aRule = new PYPIndexerTestRule ();
 
   @Nonnull
-  private static PYPDocumentMetaData _createMockMetaData ()
+  private static PDDocumentMetaData _createMockMetaData ()
   {
-    return new PYPDocumentMetaData (PDTFactory.getCurrentLocalDateTime (), "junittest", "localhost");
+    return new PDDocumentMetaData (PDTFactory.getCurrentLocalDateTime (), "junittest", "localhost");
   }
 
   @Nonnull
@@ -82,15 +82,15 @@ public final class PYPStorageManagerTest
   public void testGetAllDocumentsOfParticipant () throws IOException
   {
     final SimpleParticipantIdentifier aParticipantID = SimpleParticipantIdentifier.createWithDefaultScheme ("0088:test");
-    try (PYPStorageManager aMgr = new PYPStorageManager (new PYPLucene ()))
+    try (PDStorageManager aMgr = new PDStorageManager (new PDLucene ()))
     {
-      final PYPDocumentMetaData aMetaData = _createMockMetaData ();
+      final PDDocumentMetaData aMetaData = _createMockMetaData ();
       aMgr.createOrUpdateEntry (aParticipantID, _createMockBI (aParticipantID), aMetaData);
       try
       {
-        final List <PYPStoredDocument> aDocs = aMgr.getAllDocumentsOfParticipant (aParticipantID);
+        final List <PDStoredDocument> aDocs = aMgr.getAllDocumentsOfParticipant (aParticipantID);
         assertEquals (2, aDocs.size ());
-        final PYPStoredDocument aDoc1 = aDocs.get (1);
+        final PDStoredDocument aDoc1 = aDocs.get (1);
         assertEquals (aParticipantID.getURIEncoded (), aDoc1.getParticipantID ());
         assertEquals ("junittest", aDoc1.getMetaData ().getOwnerID ());
         assertEquals ("NO", aDoc1.getCountryCode ());
@@ -117,21 +117,21 @@ public final class PYPStorageManagerTest
   public void testGetAllDocumentsOfCountryCode () throws IOException
   {
     final SimpleParticipantIdentifier aParticipantID = SimpleParticipantIdentifier.createWithDefaultScheme ("0088:test");
-    try (PYPStorageManager aMgr = new PYPStorageManager (new PYPLucene ()))
+    try (PDStorageManager aMgr = new PDStorageManager (new PDLucene ()))
     {
-      final PYPDocumentMetaData aMetaData = _createMockMetaData ();
+      final PDDocumentMetaData aMetaData = _createMockMetaData ();
       aMgr.createOrUpdateEntry (aParticipantID, _createMockBI (aParticipantID), aMetaData);
       try
       {
         // No country - no fields
-        List <PYPStoredDocument> aDocs = aMgr.getAllDocumentsOfCountryCode ("");
+        List <PDStoredDocument> aDocs = aMgr.getAllDocumentsOfCountryCode ("");
         assertEquals (0, aDocs.size ());
 
         // Search for NO
         aDocs = aMgr.getAllDocumentsOfCountryCode ("NO");
         assertEquals (1, aDocs.size ());
 
-        final PYPStoredDocument aSingleDoc = aDocs.get (0);
+        final PDStoredDocument aSingleDoc = aDocs.get (0);
         assertEquals (aParticipantID.getURIEncoded (), aSingleDoc.getParticipantID ());
         assertEquals ("junittest", aSingleDoc.getMetaData ().getOwnerID ());
         assertEquals ("NO", aSingleDoc.getCountryCode ());

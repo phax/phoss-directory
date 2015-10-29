@@ -31,12 +31,12 @@ import com.helger.commons.string.ToStringGenerator;
  * @author Philip Helger
  */
 @Immutable
-public final class PYPStoredIdentifier
+public final class PDStoredIdentifier
 {
   private final String m_sType;
   private final String m_sValue;
 
-  public PYPStoredIdentifier (@Nonnull @Nonempty final String sType, @Nonnull @Nonempty final String sValue)
+  public PDStoredIdentifier (@Nonnull @Nonempty final String sType, @Nonnull @Nonempty final String sValue)
   {
     m_sType = ValueEnforcer.notEmpty (sType, "Type");
     m_sValue = ValueEnforcer.notEmpty (sValue, "Value");
@@ -63,7 +63,7 @@ public final class PYPStoredIdentifier
       return true;
     if (o == null || !getClass ().equals (o.getClass ()))
       return false;
-    final PYPStoredIdentifier rhs = (PYPStoredIdentifier) o;
+    final PDStoredIdentifier rhs = (PDStoredIdentifier) o;
     return m_sType.equals (rhs.m_sType) && m_sValue.equals (rhs.m_sValue);
   }
 

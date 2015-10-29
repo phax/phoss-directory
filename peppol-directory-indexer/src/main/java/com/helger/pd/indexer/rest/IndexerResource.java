@@ -35,7 +35,7 @@ import com.helger.commons.annotation.Nonempty;
 import com.helger.pd.indexer.clientcert.ClientCertificateValidationResult;
 import com.helger.pd.indexer.clientcert.ClientCertificateValidator;
 import com.helger.pd.indexer.domain.EIndexerWorkItemType;
-import com.helger.pd.indexer.mgr.PYPMetaManager;
+import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.peppol.identifier.participant.SimpleParticipantIdentifier;
 
 /**
@@ -88,7 +88,7 @@ public class IndexerResource
     final SimpleParticipantIdentifier aPI = SimpleParticipantIdentifier.createFromURIPart (sParticipantID);
 
     // Queue for handling
-    PYPMetaManager.getIndexerMgr ().queueWorkItem (aPI,
+    PDMetaManager.getIndexerMgr ().queueWorkItem (aPI,
                                                    EIndexerWorkItemType.CREATE_UPDATE,
                                                    aResult.getClientID (),
                                                    _getRequestingHost (aHttpServletRequest));
@@ -113,7 +113,7 @@ public class IndexerResource
     // creation
 
     // Queue for handling
-    PYPMetaManager.getIndexerMgr ().queueWorkItem (aPI,
+    PDMetaManager.getIndexerMgr ().queueWorkItem (aPI,
                                                    EIndexerWorkItemType.DELETE,
                                                    aResult.getClientID (),
                                                    _getRequestingHost (aHttpServletRequest));
@@ -135,7 +135,7 @@ public class IndexerResource
     final SimpleParticipantIdentifier aPI = SimpleParticipantIdentifier.createFromURIPart (sParticipantID);
 
     // Queue for handling
-    if (!PYPMetaManager.getStorageMgr ().containsEntry (aPI))
+    if (!PDMetaManager.getStorageMgr ().containsEntry (aPI))
       return Response.status (Response.Status.NOT_FOUND).build ();
 
     // And done

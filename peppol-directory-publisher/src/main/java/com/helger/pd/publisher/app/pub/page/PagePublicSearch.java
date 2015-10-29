@@ -46,13 +46,13 @@ import com.helger.html.hc.html.grouping.IHCLI;
 import com.helger.html.hc.html.sections.HCH1;
 import com.helger.html.hc.html.textlevel.HCSpan;
 import com.helger.html.hc.impl.HCNodeList;
-import com.helger.pd.indexer.mgr.PYPMetaManager;
-import com.helger.pd.indexer.storage.PYPQueryManager;
-import com.helger.pd.indexer.storage.PYPStorageManager;
-import com.helger.pd.indexer.storage.PYPStoredDocument;
+import com.helger.pd.indexer.mgr.PDMetaManager;
+import com.helger.pd.indexer.storage.PDQueryManager;
+import com.helger.pd.indexer.storage.PDStorageManager;
+import com.helger.pd.indexer.storage.PDStoredDocument;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.pd.publisher.ui.HCExtImg;
-import com.helger.pd.publisher.ui.PYPCommonUI;
+import com.helger.pd.publisher.ui.PDCommonUI;
 import com.helger.peppol.identifier.doctype.ComparatorDocumentTypeIdentifier;
 import com.helger.peppol.identifier.doctype.IPeppolDocumentTypeIdentifier;
 import com.helger.peppol.identifier.participant.SimpleParticipantIdentifier;
@@ -149,10 +149,10 @@ public final class PagePublicSearch extends AbstractAppWebPage
         aNodeList.addChild (_createSmallQueryBox (aWPEC));
 
         // Search document matching participant ID
-        final List <PYPStoredDocument> aResultDocs = PYPMetaManager.getStorageMgr ()
+        final List <PDStoredDocument> aResultDocs = PDMetaManager.getStorageMgr ()
                                                                    .getAllDocumentsOfParticipant (aParticipantID);
         // Group by participant ID
-        final Map <String, List <PYPStoredDocument>> aGroupedDocs = PYPStorageManager.getGroupedByParticipantID (aResultDocs);
+        final Map <String, List <PDStoredDocument>> aGroupedDocs = PDStorageManager.getGroupedByParticipantID (aResultDocs);
         if (aGroupedDocs.isEmpty ())
           s_aLogger.warn ("No stored document matches participant identifier '" + sParticipantID + "'");
         else
@@ -164,7 +164,7 @@ public final class PagePublicSearch extends AbstractAppWebPage
                             sParticipantID +
                             "' - weird");
           // Get the first one
-          final List <PYPStoredDocument> aDocuments = CollectionHelper.getFirstElement (aGroupedDocs.values ());
+          final List <PDStoredDocument> aDocuments = CollectionHelper.getFirstElement (aGroupedDocs.values ());
           bShowQuery = false;
 
           aNodeList.addChild (new HCH1 ().addChild ("Details for " + sParticipantID));
@@ -175,12 +175,12 @@ public final class PagePublicSearch extends AbstractAppWebPage
           {
             final HCNodeList aOL = new HCNodeList ();
             int nIndex = 1;
-            for (final PYPStoredDocument aStoredDoc : aDocuments)
+            for (final PDStoredDocument aStoredDoc : aDocuments)
             {
               final BootstrapPanel aPanel = aOL.addAndReturnChild (new BootstrapPanel ());
               if (aDocuments.size () > 1)
                 aPanel.getOrCreateHeader ().addChild ("Business information entity " + nIndex);
-              aPanel.getBody ().addChild (PYPCommonUI.showBusinessInfoDetails (aStoredDoc, aDisplayLocale));
+              aPanel.getBody ().addChild (PDCommonUI.showBusinessInfoDetails (aStoredDoc, aDisplayLocale));
               ++nIndex;
             }
             // Add whole list or just the first item?
@@ -198,8 +198,8 @@ public final class PagePublicSearch extends AbstractAppWebPage
             for (final IPeppolDocumentTypeIdentifier aDocTypeID : aDocTypeIDs)
             {
               final IHCLI <?> aLI = aDocTypeCtrl.addItem ();
-              aLI.addChild (PYPCommonUI.getDocumentTypeID (aDocTypeID));
-              aLI.addChild (PYPCommonUI.getDocumentTypeIDDetails (aDocTypeID.getParts ()));
+              aLI.addChild (PDCommonUI.getDocumentTypeID (aDocTypeID));
+              aLI.addChild (PDCommonUI.getDocumentTypeIDDetails (aDocTypeID.getParts ()));
             }
             aTabBox.addTab (new HCSpan ().addChild ("Document types ")
                                          .addChild (new BootstrapBadge ().addChild (Integer.toString (aDocTypeIDs.size ()))),
@@ -222,15 +222,15 @@ public final class PagePublicSearch extends AbstractAppWebPage
         s_aLogger.info ("Searching for '" + sQuery + "'");
 
         // Build Lucene query
-        final Query aLuceneQuery = PYPQueryManager.convertQueryStringToLuceneQuery (PYPMetaManager.getLucene (),
+        final Query aLuceneQuery = PDQueryManager.convertQueryStringToLuceneQuery (PDMetaManager.getLucene (),
                                                                                     sQuery);
         // Search all documents
-        final List <PYPStoredDocument> aResultDocs = PYPMetaManager.getStorageMgr ().getAllDocuments (aLuceneQuery);
+        final List <PDStoredDocument> aResultDocs = PDMetaManager.getStorageMgr ().getAllDocuments (aLuceneQuery);
 
         s_aLogger.info ("  Result for " + aLuceneQuery + " are " + aResultDocs.size () + " documents");
 
         // Group by participant ID
-        final Map <String, List <PYPStoredDocument>> aGroupedDocs = PYPStorageManager.getGroupedByParticipantID (aResultDocs);
+        final Map <String, List <PDStoredDocument>> aGroupedDocs = PDStorageManager.getGroupedByParticipantID (aResultDocs);
 
         final int nMaxResults = 10;
 
@@ -242,10 +242,10 @@ public final class PagePublicSearch extends AbstractAppWebPage
         else
         {
           final HCOL aOL = new HCOL ().setStart (1);
-          for (final Map.Entry <String, List <PYPStoredDocument>> aEntry : aGroupedDocs.entrySet ())
+          for (final Map.Entry <String, List <PDStoredDocument>> aEntry : aGroupedDocs.entrySet ())
           {
             final String sDocParticipantID = aEntry.getKey ();
-            final List <PYPStoredDocument> aDocs = aEntry.getValue ();
+            final List <PDStoredDocument> aDocs = aEntry.getValue ();
 
             // Start result document
             final HCDiv aResultItem = new HCDiv ().addClass (CSS_CLASS_RESULT_DOC);
@@ -267,14 +267,14 @@ public final class PagePublicSearch extends AbstractAppWebPage
 
             // Show all entities of the stored document
             final HCUL aUL = aResultItem.addAndReturnChild (new HCUL ());
-            for (final PYPStoredDocument aStoredDoc : aEntry.getValue ())
+            for (final PDStoredDocument aStoredDoc : aEntry.getValue ())
             {
               final IHCLI <?> aLI = aUL.addAndReturnItem (new HCLI ().addClass (CSS_CLASS_RESULT_DOC_HEADER));
               final HCDiv aDocHeadRow = new HCDiv ();
               if (aStoredDoc.hasCountryCode ())
               {
                 // Add country flag (if available)
-                aDocHeadRow.addChild (PYPCommonUI.getFlagNode (aStoredDoc.getCountryCode ()));
+                aDocHeadRow.addChild (PDCommonUI.getFlagNode (aStoredDoc.getCountryCode ()));
                 aDocHeadRow.addChild (new HCSpan ().addChild (aStoredDoc.getCountryCode ())
                                                    .addClass (CSS_CLASS_RESULT_DOC_COUNTRY_CODE));
               }

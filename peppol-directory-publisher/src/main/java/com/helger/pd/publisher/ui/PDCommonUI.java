@@ -27,8 +27,8 @@ import com.helger.html.hc.html.textlevel.HCStrong;
 import com.helger.html.hc.html.textlevel.HCWBR;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.html.hc.impl.HCTextNode;
-import com.helger.pd.indexer.storage.PYPStoredDocument;
-import com.helger.pd.indexer.storage.PYPStoredIdentifier;
+import com.helger.pd.indexer.storage.PDStoredDocument;
+import com.helger.pd.indexer.storage.PDStoredIdentifier;
 import com.helger.peppol.identifier.doctype.EPredefinedDocumentTypeIdentifier;
 import com.helger.peppol.identifier.doctype.IPeppolDocumentTypeIdentifier;
 import com.helger.peppol.identifier.doctype.IPeppolDocumentTypeIdentifierParts;
@@ -49,9 +49,9 @@ import com.helger.photon.uictrls.famfam.EFamFamFlagIcon;
  * @author Philip Helger
  */
 @Immutable
-public final class PYPCommonUI
+public final class PDCommonUI
 {
-  private PYPCommonUI ()
+  private PDCommonUI ()
   {}
 
   @Nullable
@@ -65,7 +65,7 @@ public final class PYPCommonUI
   }
 
   @Nonnull
-  public static BootstrapViewForm showBusinessInfoDetails (@Nonnull final PYPStoredDocument aStoredDoc,
+  public static BootstrapViewForm showBusinessInfoDetails (@Nonnull final PDStoredDocument aStoredDoc,
                                                            @Nonnull final Locale aDisplayLocale)
   {
     final BootstrapViewForm aViewForm = new BootstrapViewForm ();
@@ -93,7 +93,7 @@ public final class PYPCommonUI
       final BootstrapTable aIDTable = new BootstrapTable (HCCol.star (), HCCol.star ()).setStriped (true)
                                                                                        .setBordered (true);
       aIDTable.addHeaderRow ().addCells ("Type", "Value");
-      for (final PYPStoredIdentifier aStoredID : aStoredDoc.getAllIdentifiers ())
+      for (final PDStoredIdentifier aStoredID : aStoredDoc.getAllIdentifiers ())
         aIDTable.addBodyRow ().addCells (aStoredID.getType (), aStoredID.getValue ());
       aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Additional identifiers").setCtrl (aIDTable));
     }

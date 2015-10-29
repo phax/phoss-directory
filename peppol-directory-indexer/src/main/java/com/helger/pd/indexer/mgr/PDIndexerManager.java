@@ -52,7 +52,7 @@ import com.helger.pd.indexer.domain.EIndexerWorkItemType;
 import com.helger.pd.indexer.domain.IndexerWorkItem;
 import com.helger.pd.indexer.domain.ReIndexWorkItem;
 import com.helger.pd.indexer.job.ReIndexJob;
-import com.helger.pd.indexer.storage.PYPStorageManager;
+import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.peppol.identifier.IParticipantIdentifier;
 import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
 import com.helger.photon.basic.app.dao.impl.DAOException;
@@ -66,14 +66,14 @@ import com.helger.schedule.quartz.GlobalQuartzScheduler;
  *
  * @author Philip Helger
  */
-public final class PYPIndexerManager implements Closeable
+public final class PDIndexerManager implements Closeable
 {
-  private static final Logger s_aLogger = LoggerFactory.getLogger (PYPIndexerManager.class);
+  private static final Logger s_aLogger = LoggerFactory.getLogger (PDIndexerManager.class);
   private static final String ELEMENT_ROOT = "root";
   private static final String ELEMENT_ITEM = "item";
 
   private final SimpleReadWriteLock m_aRWLock = new SimpleReadWriteLock ();
-  private final PYPStorageManager m_aStorageMgr;
+  private final PDStorageManager m_aStorageMgr;
   private final File m_aIndexerWorkItemFile;
   private final IndexerWorkItemQueue m_aIndexerWorkQueue = new IndexerWorkItemQueue (this::_asyncFetchParticipantData);
   private final ReIndexWorkItemList m_aReIndexList;
@@ -87,7 +87,7 @@ public final class PYPIndexerManager implements Closeable
   // Status vars
   private final GlobalQuartzScheduler m_aScheduler;
 
-  public PYPIndexerManager (@Nonnull final PYPStorageManager aStorageMgr) throws DAOException
+  public PDIndexerManager (@Nonnull final PDStorageManager aStorageMgr) throws DAOException
   {
     m_aStorageMgr = ValueEnforcer.notNull (aStorageMgr, "StorageMgr");
     m_aReIndexList = new ReIndexWorkItemList ("reindex-work-items.xml");
@@ -116,7 +116,7 @@ public final class PYPIndexerManager implements Closeable
    * @return this for chaining
    */
   @Nonnull
-  public PYPIndexerManager readAndQueueInitialData ()
+  public PDIndexerManager readAndQueueInitialData ()
   {
     // Read the file - may not be existing
     final IMicroDocument aDoc = MicroReader.readMicroXML (m_aIndexerWorkItemFile);
@@ -192,7 +192,7 @@ public final class PYPIndexerManager implements Closeable
    * @return this for chaining
    */
   @Nonnull
-  public PYPIndexerManager setBusinessInformationProvider (@Nonnull final IPDBusinessInformationProvider aBIProvider)
+  public PDIndexerManager setBusinessInformationProvider (@Nonnull final IPDBusinessInformationProvider aBIProvider)
   {
     ValueEnforcer.notNull (aBIProvider, "BIProvider");
     m_aRWLock.writeLocked ( () -> m_aBIProvider = aBIProvider);

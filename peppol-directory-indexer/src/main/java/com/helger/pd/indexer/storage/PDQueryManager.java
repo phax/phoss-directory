@@ -29,11 +29,11 @@ import com.helger.pd.indexer.lucene.ILuceneAnalyzerProvider;
  * @author Philip Helger
  */
 @Immutable
-public final class PYPQueryManager
+public final class PDQueryManager
 {
-  private static final Logger s_aLogger = LoggerFactory.getLogger (PYPQueryManager.class);
+  private static final Logger s_aLogger = LoggerFactory.getLogger (PDQueryManager.class);
 
-  private PYPQueryManager ()
+  private PDQueryManager ()
   {}
 
   /**
@@ -49,7 +49,7 @@ public final class PYPQueryManager
   public static BooleanQuery andNotDeleted (@Nonnull final Query aQuery)
   {
     return new BooleanQuery.Builder ().add (aQuery, Occur.MUST)
-                                      .add (new TermQuery (new Term (CPYPStorage.FIELD_DELETED)), Occur.MUST_NOT)
+                                      .add (new TermQuery (new Term (CPDStorage.FIELD_DELETED)), Occur.MUST_NOT)
                                       .build ();
   }
 
@@ -60,7 +60,7 @@ public final class PYPQueryManager
    *
    * @param aAnalyzerProvider
    *        Analyzer provider. E.g. instance of
-   *        {@link com.helger.pd.indexer.lucene.PYPLucene}.
+   *        {@link com.helger.pd.indexer.lucene.PDLucene}.
    * @param sQueryString
    *        The user provided query string. Must neither be <code>null</code>
    *        nor empty.
@@ -71,7 +71,7 @@ public final class PYPQueryManager
                                                  @Nonnull @Nonempty final String sQueryString)
   {
     // Use the default analyzer to split the query string into fields
-    try (final TokenStream aTokenStream = aAnalyzerProvider.getAnalyzer ().tokenStream (CPYPStorage.FIELD_ALL_FIELDS,
+    try (final TokenStream aTokenStream = aAnalyzerProvider.getAnalyzer ().tokenStream (CPDStorage.FIELD_ALL_FIELDS,
                                                                                         sQueryString))
     {
       final List <String> ret = new ArrayList <> ();
@@ -98,7 +98,7 @@ public final class PYPQueryManager
 
   private static Query _createSimpleAllFieldsQuery (@Nonnull final String sText)
   {
-    return new WildcardQuery (new Term (CPYPStorage.FIELD_ALL_FIELDS, "*" + sText + "*"));
+    return new WildcardQuery (new Term (CPDStorage.FIELD_ALL_FIELDS, "*" + sText + "*"));
   }
 
   /**

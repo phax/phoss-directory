@@ -32,13 +32,13 @@ import com.helger.datetime.PDTFactory;
  * @author Philip Helger
  */
 @Immutable
-public final class PYPDocumentMetaData
+public final class PDDocumentMetaData
 {
   private final LocalDateTime m_aCreationDT;
   private final String m_sOwnerID;
   private final String m_sRequestingHost;
 
-  public PYPDocumentMetaData (@Nonnull final LocalDateTime aCreationDT,
+  public PDDocumentMetaData (@Nonnull final LocalDateTime aCreationDT,
                               @Nonnull @Nonempty final String sOwnerID,
                               @Nonnull @Nonempty final String sRequestingHost)
   {

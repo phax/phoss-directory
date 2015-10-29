@@ -57,9 +57,9 @@ import com.helger.photon.basic.app.io.WebFileIO;
  *
  * @author Philip Helger
  */
-public final class PYPLucene implements Closeable, ILuceneDocumentProvider, ILuceneAnalyzerProvider
+public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuceneAnalyzerProvider
 {
-  private static final Logger s_aLogger = LoggerFactory.getLogger (PYPLucene.class);
+  private static final Logger s_aLogger = LoggerFactory.getLogger (PDLucene.class);
 
   private final Lock m_aLock = new ReentrantLock ();
   private final Directory m_aDir;
@@ -77,7 +77,7 @@ public final class PYPLucene implements Closeable, ILuceneDocumentProvider, ILuc
     return WebFileIO.getDataIO ().getFile ("lucene-index");
   }
 
-  public PYPLucene () throws IOException
+  public PDLucene () throws IOException
   {
     // Where to store the index files
     final Path aPath = getLuceneIndexDir ().toPath ();

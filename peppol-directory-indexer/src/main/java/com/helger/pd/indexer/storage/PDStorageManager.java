@@ -59,7 +59,7 @@ import com.helger.pd.businessinformation.EntityType;
 import com.helger.pd.businessinformation.IdentifierType;
 import com.helger.pd.businessinformation.PDExtendedBusinessInformation;
 import com.helger.pd.indexer.lucene.AllDocumentsCollector;
-import com.helger.pd.indexer.lucene.PYPLucene;
+import com.helger.pd.indexer.lucene.PDLucene;
 import com.helger.peppol.identifier.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.IdentifierHelper;
 import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
@@ -71,10 +71,10 @@ import com.helger.photon.basic.security.audit.AuditHelper;
  * @author Philip Helger
  */
 @Immutable
-public final class PYPStorageManager implements Closeable
+public final class PDStorageManager implements Closeable
 {
-  private static final Logger s_aLogger = LoggerFactory.getLogger (PYPStorageManager.class);
-  private static final IntField FIELD_VALUE_DELETED = new IntField (CPYPStorage.FIELD_DELETED, 1, Store.NO);
+  private static final Logger s_aLogger = LoggerFactory.getLogger (PDStorageManager.class);
+  private static final IntField FIELD_VALUE_DELETED = new IntField (CPDStorage.FIELD_DELETED, 1, Store.NO);
   private static final FieldType TYPE_GROUP_END = new FieldType ();
   private static final String VALUE_GROUP_END = "x";
 
@@ -86,9 +86,9 @@ public final class PYPStorageManager implements Closeable
     TYPE_GROUP_END.freeze ();
   }
 
-  private final PYPLucene m_aLucene;
+  private final PDLucene m_aLucene;
 
-  public PYPStorageManager (@Nonnull final PYPLucene aLucene)
+  public PDStorageManager (@Nonnull final PDLucene aLucene)
   {
     m_aLucene = ValueEnforcer.notNull (aLucene, "Lucene");
   }
@@ -101,7 +101,7 @@ public final class PYPStorageManager implements Closeable
   @Nonnull
   private static Term _createParticipantTerm (@Nonnull final IPeppolParticipantIdentifier aParticipantID)
   {
-    return new Term (CPYPStorage.FIELD_PARTICIPANTID, aParticipantID.getURIEncoded ());
+    return new Term (CPDStorage.FIELD_PARTICIPANTID, aParticipantID.getURIEncoded ());
   }
 
   public boolean containsEntry (@Nullable final IPeppolParticipantIdentifier aParticipantID) throws IOException
@@ -116,7 +116,7 @@ public final class PYPStorageManager implements Closeable
       {
         // Search only documents that do not have the deleted field
         final Query aQuery = new TermQuery (_createParticipantTerm (aParticipantID));
-        final TopDocs aTopDocs = aSearcher.search (PYPQueryManager.andNotDeleted (aQuery), 1);
+        final TopDocs aTopDocs = aSearcher.search (PDQueryManager.andNotDeleted (aQuery), 1);
         if (aTopDocs.totalHits > 0)
           return Boolean.TRUE;
       }
@@ -127,7 +127,7 @@ public final class PYPStorageManager implements Closeable
 
   @Nonnull
   public ESuccess deleteEntry (@Nonnull final IPeppolParticipantIdentifier aParticipantID,
-                               @Nonnull final PYPDocumentMetaData aMetaData) throws IOException
+                               @Nonnull final PDDocumentMetaData aMetaData) throws IOException
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
     ValueEnforcer.notNull (aMetaData, "MetaData");
@@ -162,7 +162,7 @@ public final class PYPStorageManager implements Closeable
   @Nonnull
   public ESuccess createOrUpdateEntry (@Nonnull final IPeppolParticipantIdentifier aParticipantID,
                                        @Nonnull final PDExtendedBusinessInformation aExtBI,
-                                       @Nonnull final PYPDocumentMetaData aMetaData) throws IOException
+                                       @Nonnull final PDDocumentMetaData aMetaData) throws IOException
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
     ValueEnforcer.notNull (aExtBI, "ExtBI");
@@ -178,57 +178,57 @@ public final class PYPStorageManager implements Closeable
         final Document aDoc = new Document ();
         final StringBuilder aSB = new StringBuilder ();
 
-        aDoc.add (new StringField (CPYPStorage.FIELD_PARTICIPANTID, aParticipantID.getURIEncoded (), Store.YES));
+        aDoc.add (new StringField (CPDStorage.FIELD_PARTICIPANTID, aParticipantID.getURIEncoded (), Store.YES));
         aSB.append (aParticipantID.getURIEncoded ()).append (' ');
 
         // Add all document types to all documents
         for (final IDocumentTypeIdentifier aDocTypeID : aExtBI.getAllDocumentTypeIDs ())
         {
           final String sDocTypeID = IdentifierHelper.getIdentifierURIEncoded (aDocTypeID);
-          aDoc.add (new StringField (CPYPStorage.FIELD_DOCUMENT_TYPE_ID, sDocTypeID, Store.YES));
+          aDoc.add (new StringField (CPDStorage.FIELD_DOCUMENT_TYPE_ID, sDocTypeID, Store.YES));
           aSB.append (sDocTypeID).append (' ');
         }
 
         if (aEntity.getCountryCode () != null)
         {
-          aDoc.add (new StringField (CPYPStorage.FIELD_COUNTRY_CODE, aEntity.getCountryCode (), Store.YES));
+          aDoc.add (new StringField (CPDStorage.FIELD_COUNTRY_CODE, aEntity.getCountryCode (), Store.YES));
           aSB.append (aEntity.getCountryCode ()).append (' ');
         }
 
         if (aEntity.getName () != null)
         {
-          aDoc.add (new TextField (CPYPStorage.FIELD_NAME, aEntity.getName (), Store.YES));
+          aDoc.add (new TextField (CPDStorage.FIELD_NAME, aEntity.getName (), Store.YES));
           aSB.append (aEntity.getName ()).append (' ');
         }
 
         if (aEntity.getGeoInfo () != null)
         {
-          aDoc.add (new TextField (CPYPStorage.FIELD_GEOINFO, aEntity.getGeoInfo (), Store.YES));
+          aDoc.add (new TextField (CPDStorage.FIELD_GEOINFO, aEntity.getGeoInfo (), Store.YES));
           aSB.append (aEntity.getGeoInfo ()).append (' ');
         }
 
         for (final IdentifierType aIdentifier : aEntity.getIdentifier ())
         {
-          aDoc.add (new TextField (CPYPStorage.FIELD_IDENTIFIER_TYPE, aIdentifier.getType (), Store.YES));
+          aDoc.add (new TextField (CPDStorage.FIELD_IDENTIFIER_TYPE, aIdentifier.getType (), Store.YES));
           aSB.append (aIdentifier.getType ()).append (' ');
 
-          aDoc.add (new TextField (CPYPStorage.FIELD_IDENTIFIER, aIdentifier.getValue (), Store.YES));
+          aDoc.add (new TextField (CPDStorage.FIELD_IDENTIFIER, aIdentifier.getValue (), Store.YES));
           aSB.append (aIdentifier.getValue ()).append (' ');
         }
 
         if (aEntity.getFreeText () != null)
         {
-          aDoc.add (new TextField (CPYPStorage.FIELD_FREETEXT, aEntity.getFreeText (), Store.YES));
+          aDoc.add (new TextField (CPDStorage.FIELD_FREETEXT, aEntity.getFreeText (), Store.YES));
           aSB.append (aEntity.getFreeText ()).append (' ');
         }
 
         // Add the "all" field
-        aDoc.add (new TextField (CPYPStorage.FIELD_ALL_FIELDS, aSB.toString (), Store.NO));
+        aDoc.add (new TextField (CPDStorage.FIELD_ALL_FIELDS, aSB.toString (), Store.NO));
 
         // Add meta data (not part of the "all field" field!)
-        aDoc.add (new LongField (CPYPStorage.FIELD_METADATA_CREATIONDT, aMetaData.getCreationDTMillis (), Store.YES));
-        aDoc.add (new StringField (CPYPStorage.FIELD_METADATA_OWNERID, aMetaData.getOwnerID (), Store.YES));
-        aDoc.add (new StringField (CPYPStorage.FIELD_METADATA_REQUESTING_HOST,
+        aDoc.add (new LongField (CPDStorage.FIELD_METADATA_CREATIONDT, aMetaData.getCreationDTMillis (), Store.YES));
+        aDoc.add (new StringField (CPDStorage.FIELD_METADATA_OWNERID, aMetaData.getOwnerID (), Store.YES));
+        aDoc.add (new StringField (CPDStorage.FIELD_METADATA_REQUESTING_HOST,
                                    aMetaData.getRequestingHost (),
                                    Store.YES));
 
@@ -239,7 +239,7 @@ public final class PYPStorageManager implements Closeable
       {
         // Add "group end" marker
         CollectionHelper.getLastElement (aDocs)
-                        .add (new Field (CPYPStorage.FIELD_GROUP_END, VALUE_GROUP_END, TYPE_GROUP_END));
+                        .add (new Field (CPDStorage.FIELD_GROUP_END, VALUE_GROUP_END, TYPE_GROUP_END));
       }
 
       // Delete all existing documents of the participant ID
@@ -294,24 +294,24 @@ public final class PYPStorageManager implements Closeable
    * @param aQuery
    *        Query to execute. May not be <code>null</code>-
    * @param aConsumer
-   *        The consumer of the {@link PYPStoredDocument} objects.
+   *        The consumer of the {@link PDStoredDocument} objects.
    * @throws IOException
    *         On Lucene error
    * @see #searchAtomic(Query, Collector)
    * @see #getAllDocuments(Query)
    */
   public void searchAllDocuments (@Nonnull final Query aQuery,
-                                  @Nonnull final Consumer <PYPStoredDocument> aConsumer) throws IOException
+                                  @Nonnull final Consumer <PDStoredDocument> aConsumer) throws IOException
   {
     ValueEnforcer.notNull (aQuery, "Query");
     ValueEnforcer.notNull (aConsumer, "Consumer");
 
     searchAtomic (aQuery,
-                  new AllDocumentsCollector (m_aLucene, aDoc -> aConsumer.accept (PYPStoredDocument.create (aDoc))));
+                  new AllDocumentsCollector (m_aLucene, aDoc -> aConsumer.accept (PDStoredDocument.create (aDoc))));
   }
 
   /**
-   * Get all {@link PYPStoredDocument} objects matching the provided query. This
+   * Get all {@link PDStoredDocument} objects matching the provided query. This
    * is a specialization of {@link #searchAllDocuments(Query, Consumer)}.
    *
    * @param aQuery
@@ -321,9 +321,9 @@ public final class PYPStorageManager implements Closeable
    */
   @Nonnull
   @ReturnsMutableCopy
-  public List <PYPStoredDocument> getAllDocuments (@Nonnull final Query aQuery)
+  public List <PDStoredDocument> getAllDocuments (@Nonnull final Query aQuery)
   {
-    final List <PYPStoredDocument> aTargetList = new ArrayList <> ();
+    final List <PDStoredDocument> aTargetList = new ArrayList <> ();
     try
     {
       searchAllDocuments (aQuery, aDoc -> aTargetList.add (aDoc));
@@ -336,7 +336,7 @@ public final class PYPStorageManager implements Closeable
   }
 
   @Nonnull
-  public List <PYPStoredDocument> getAllDocumentsOfParticipant (@Nonnull final IPeppolParticipantIdentifier aParticipantID)
+  public List <PDStoredDocument> getAllDocumentsOfParticipant (@Nonnull final IPeppolParticipantIdentifier aParticipantID)
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
     return getAllDocuments (new TermQuery (_createParticipantTerm (aParticipantID)));
@@ -350,10 +350,10 @@ public final class PYPStorageManager implements Closeable
    * @return Non-<code>null</code> but maybe empty list of documents
    */
   @Nonnull
-  public List <PYPStoredDocument> getAllDocumentsOfCountryCode (@Nonnull final String sCountryCode)
+  public List <PDStoredDocument> getAllDocumentsOfCountryCode (@Nonnull final String sCountryCode)
   {
     ValueEnforcer.notNull (sCountryCode, "CountryCode");
-    return getAllDocuments (new TermQuery (new Term (CPYPStorage.FIELD_COUNTRY_CODE, sCountryCode)));
+    return getAllDocuments (new TermQuery (new Term (CPDStorage.FIELD_COUNTRY_CODE, sCountryCode)));
   }
 
   @Nonnull
@@ -361,13 +361,13 @@ public final class PYPStorageManager implements Closeable
   public Set <String> getAllContainedParticipantIDs ()
   {
     final Set <String> aTargetList = new TreeSet <> ();
-    final Query aQuery = PYPQueryManager.andNotDeleted (new WildcardQuery (new Term (CPYPStorage.FIELD_ALL_FIELDS,
+    final Query aQuery = PDQueryManager.andNotDeleted (new WildcardQuery (new Term (CPDStorage.FIELD_ALL_FIELDS,
                                                                                      "*")));
     try
     {
       searchAtomic (aQuery,
                     new AllDocumentsCollector (m_aLucene,
-                                               aDoc -> aTargetList.add (aDoc.get (CPYPStorage.FIELD_PARTICIPANTID))));
+                                               aDoc -> aTargetList.add (aDoc.get (CPDStorage.FIELD_PARTICIPANTID))));
     }
     catch (final IOException ex)
     {
@@ -386,10 +386,10 @@ public final class PYPStorageManager implements Closeable
    */
   @Nonnull
   @ReturnsMutableCopy
-  public static IMultiMapListBased <String, PYPStoredDocument> getGroupedByParticipantID (@Nonnull final List <PYPStoredDocument> aDocs)
+  public static IMultiMapListBased <String, PDStoredDocument> getGroupedByParticipantID (@Nonnull final List <PDStoredDocument> aDocs)
   {
-    final MultiLinkedHashMapArrayListBased <String, PYPStoredDocument> ret = new MultiLinkedHashMapArrayListBased <> ();
-    for (final PYPStoredDocument aDoc : aDocs)
+    final MultiLinkedHashMapArrayListBased <String, PDStoredDocument> ret = new MultiLinkedHashMapArrayListBased <> ();
+    for (final PDStoredDocument aDoc : aDocs)
       ret.putSingle (aDoc.getParticipantID (), aDoc);
     return ret;
   }

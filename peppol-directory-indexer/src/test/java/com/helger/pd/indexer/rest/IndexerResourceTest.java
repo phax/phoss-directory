@@ -54,8 +54,8 @@ import com.helger.pd.businessinformation.IdentifierType;
 import com.helger.pd.businessinformation.PDExtendedBusinessInformation;
 import com.helger.pd.indexer.PYPIndexerTestRule;
 import com.helger.pd.indexer.clientcert.ClientCertificateValidator;
-import com.helger.pd.indexer.mgr.PYPIndexerManager;
-import com.helger.pd.indexer.mgr.PYPMetaManager;
+import com.helger.pd.indexer.mgr.PDIndexerManager;
+import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.peppol.identifier.doctype.EPredefinedDocumentTypeIdentifier;
 import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
 import com.helger.peppol.identifier.participant.SimpleParticipantIdentifier;
@@ -116,9 +116,9 @@ public final class IndexerResourceTest
   public void setUp () throws GeneralSecurityException, IOException
   {
     // Set test BI provider
-    PYPMetaManager.setIndexerMgrFactory (aStorageMgr -> new PYPIndexerManager (aStorageMgr).setBusinessInformationProvider (aParticipantID -> _createMockBI (aParticipantID))
+    PDMetaManager.setIndexerMgrFactory (aStorageMgr -> new PDIndexerManager (aStorageMgr).setBusinessInformationProvider (aParticipantID -> _createMockBI (aParticipantID))
                                                                                            .readAndQueueInitialData ());
-    PYPMetaManager.getInstance ();
+    PDMetaManager.getInstance ();
 
     final File aTestClientCertificateKeyStore = new File ("src/test/resources/smp.pilot.jks");
     if (aTestClientCertificateKeyStore.exists ())
@@ -179,7 +179,7 @@ public final class IndexerResourceTest
     });
 
     ThreadHelper.sleep (2000);
-    assertTrue (PYPMetaManager.getStorageMgr ().containsEntry (aPI_0));
+    assertTrue (PDMetaManager.getStorageMgr ().containsEntry (aPI_0));
 
     aIndex.set (0);
     CommonsTestHelper.testInParallel (nCount, (Runnable) () -> {
@@ -192,6 +192,6 @@ public final class IndexerResourceTest
     });
 
     ThreadHelper.sleep (2000);
-    assertFalse (PYPMetaManager.getStorageMgr ().containsEntry (aPI_0));
+    assertFalse (PDMetaManager.getStorageMgr ().containsEntry (aPI_0));
   }
 }

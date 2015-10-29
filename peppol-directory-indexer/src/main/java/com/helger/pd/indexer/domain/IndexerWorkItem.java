@@ -31,7 +31,7 @@ import com.helger.commons.id.IHasID;
 import com.helger.commons.id.factory.GlobalIDFactory;
 import com.helger.commons.string.ToStringGenerator;
 import com.helger.datetime.PDTFactory;
-import com.helger.pd.indexer.storage.PYPDocumentMetaData;
+import com.helger.pd.indexer.storage.PDDocumentMetaData;
 import com.helger.peppol.identifier.IParticipantIdentifier;
 import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
 import com.helger.peppol.identifier.participant.SimpleParticipantIdentifier;
@@ -152,9 +152,9 @@ public final class IndexerWorkItem implements Serializable, IHasID <String>
 
   @Nonnull
   @ReturnsMutableCopy
-  public PYPDocumentMetaData getAsMetaData ()
+  public PDDocumentMetaData getAsMetaData ()
   {
-    return new PYPDocumentMetaData (m_aCreationDT, m_sOwnerID, m_sRequestingHost);
+    return new PDDocumentMetaData (m_aCreationDT, m_sOwnerID, m_sRequestingHost);
   }
 
   @Override

@@ -28,28 +28,28 @@ import com.helger.commons.io.stream.StreamHelper;
 import com.helger.commons.lang.ClassHelper;
 import com.helger.commons.scope.IScope;
 import com.helger.commons.scope.singleton.AbstractGlobalSingleton;
-import com.helger.pd.indexer.lucene.PYPLucene;
-import com.helger.pd.indexer.storage.PYPStorageManager;
+import com.helger.pd.indexer.lucene.PDLucene;
+import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.photon.basic.app.dao.impl.DAOException;
 
-public final class PYPMetaManager extends AbstractGlobalSingleton
+public final class PDMetaManager extends AbstractGlobalSingleton
 {
-  private static final Logger s_aLogger = LoggerFactory.getLogger (PYPMetaManager.class);
+  private static final Logger s_aLogger = LoggerFactory.getLogger (PDMetaManager.class);
 
-  private static IThrowingCallableWithParameter <PYPIndexerManager, PYPStorageManager, DAOException> s_aFactoryIndexerMgr = aStorageMgr -> new PYPIndexerManager (aStorageMgr).readAndQueueInitialData ();
+  private static IThrowingCallableWithParameter <PDIndexerManager, PDStorageManager, DAOException> s_aFactoryIndexerMgr = aStorageMgr -> new PDIndexerManager (aStorageMgr).readAndQueueInitialData ();
 
-  private PYPLucene m_aLucene;
-  private PYPStorageManager m_aStorageMgr;
-  private PYPIndexerManager m_aIndexerMgr;
+  private PDLucene m_aLucene;
+  private PDStorageManager m_aStorageMgr;
+  private PDIndexerManager m_aIndexerMgr;
 
-  public static void setIndexerMgrFactory (@Nonnull final IThrowingCallableWithParameter <PYPIndexerManager, PYPStorageManager, DAOException> aFactoryIndexerMgr)
+  public static void setIndexerMgrFactory (@Nonnull final IThrowingCallableWithParameter <PDIndexerManager, PDStorageManager, DAOException> aFactoryIndexerMgr)
   {
     s_aFactoryIndexerMgr = aFactoryIndexerMgr;
   }
 
   @Deprecated
   @UsedViaReflection
-  public PYPMetaManager ()
+  public PDMetaManager ()
   {}
 
   @Override
@@ -57,8 +57,8 @@ public final class PYPMetaManager extends AbstractGlobalSingleton
   {
     try
     {
-      m_aLucene = new PYPLucene ();
-      m_aStorageMgr = new PYPStorageManager (m_aLucene);
+      m_aLucene = new PDLucene ();
+      m_aStorageMgr = new PDStorageManager (m_aLucene);
       m_aIndexerMgr = s_aFactoryIndexerMgr.call (m_aStorageMgr);
       if (m_aIndexerMgr == null)
         throw new IllegalStateException ("Failed to create IndexerManager");
@@ -80,25 +80,25 @@ public final class PYPMetaManager extends AbstractGlobalSingleton
   }
 
   @Nonnull
-  public static PYPMetaManager getInstance ()
+  public static PDMetaManager getInstance ()
   {
-    return getGlobalSingleton (PYPMetaManager.class);
+    return getGlobalSingleton (PDMetaManager.class);
   }
 
   @Nonnull
-  public static PYPLucene getLucene ()
+  public static PDLucene getLucene ()
   {
     return getInstance ().m_aLucene;
   }
 
   @Nonnull
-  public static PYPStorageManager getStorageMgr ()
+  public static PDStorageManager getStorageMgr ()
   {
     return getInstance ().m_aStorageMgr;
   }
 
   @Nonnull
-  public static PYPIndexerManager getIndexerMgr ()
+  public static PDIndexerManager getIndexerMgr ()
   {
     return getInstance ().m_aIndexerMgr;
   }

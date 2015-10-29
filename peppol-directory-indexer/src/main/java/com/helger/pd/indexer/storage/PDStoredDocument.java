@@ -46,19 +46,19 @@ import com.helger.peppol.identifier.doctype.SimpleDocumentTypeIdentifier;
  * @author Philip Helger
  */
 @NotThreadSafe
-public class PYPStoredDocument
+public class PDStoredDocument
 {
   private String m_sParticipantID;
   private final List <SimpleDocumentTypeIdentifier> m_aDocumentTypeIDs = new ArrayList <> ();
   private String m_sCountryCode;
   private String m_sName;
   private String m_sGeoInfo;
-  private final List <PYPStoredIdentifier> m_aIdentifiers = new ArrayList <> ();
+  private final List <PDStoredIdentifier> m_aIdentifiers = new ArrayList <> ();
   private String m_sFreeText;
-  private PYPDocumentMetaData m_aMetaData;
+  private PDDocumentMetaData m_aMetaData;
   private boolean m_bDeleted;
 
-  protected PYPStoredDocument ()
+  protected PDStoredDocument ()
   {}
 
   public void setParticipantID (@Nonnull @Nonempty final String sParticipantID)
@@ -147,7 +147,7 @@ public class PYPStoredDocument
     return StringHelper.hasText (m_sGeoInfo);
   }
 
-  public void addIdentifier (@Nonnull final PYPStoredIdentifier aIdentifier)
+  public void addIdentifier (@Nonnull final PDStoredIdentifier aIdentifier)
   {
     ValueEnforcer.notNull (aIdentifier, "Identifier");
     m_aIdentifiers.add (aIdentifier);
@@ -155,7 +155,7 @@ public class PYPStoredDocument
 
   @Nonnull
   @ReturnsMutableCopy
-  public List <PYPStoredIdentifier> getAllIdentifiers ()
+  public List <PDStoredIdentifier> getAllIdentifiers ()
   {
     return CollectionHelper.newList (m_aIdentifiers);
   }
@@ -167,7 +167,7 @@ public class PYPStoredDocument
   }
 
   @Nullable
-  public PYPStoredIdentifier getIdentifierAtIndex (@Nonnegative final int nIndex)
+  public PDStoredIdentifier getIdentifierAtIndex (@Nonnegative final int nIndex)
   {
     return CollectionHelper.getSafe (m_aIdentifiers, nIndex);
   }
@@ -194,12 +194,12 @@ public class PYPStoredDocument
   }
 
   @Nonnull
-  public PYPDocumentMetaData getMetaData ()
+  public PDDocumentMetaData getMetaData ()
   {
     return m_aMetaData;
   }
 
-  public void setMetaData (@Nonnull final PYPDocumentMetaData aMetaData)
+  public void setMetaData (@Nonnull final PDDocumentMetaData aMetaData)
   {
     ValueEnforcer.notNull (aMetaData, "MetaData");
     m_aMetaData = aMetaData;
@@ -231,41 +231,41 @@ public class PYPStoredDocument
   }
 
   /**
-   * Convert a stored Lucene {@link Document} to a {@link PYPStoredDocument}.
+   * Convert a stored Lucene {@link Document} to a {@link PDStoredDocument}.
    * This method resolves all Lucene fields to Java fields.
    *
    * @param aDoc
    *        Source Lucene document. May not be <code>null</code>.
-   * @return The new {@link PYPStoredDocument}.
+   * @return The new {@link PDStoredDocument}.
    */
   @Nonnull
   @ReturnsMutableCopy
-  public static PYPStoredDocument create (@Nonnull final Document aDoc)
+  public static PDStoredDocument create (@Nonnull final Document aDoc)
   {
-    final PYPStoredDocument ret = new PYPStoredDocument ();
-    ret.setParticipantID (aDoc.get (CPYPStorage.FIELD_PARTICIPANTID));
-    for (final String sDocTypeID : aDoc.getValues (CPYPStorage.FIELD_DOCUMENT_TYPE_ID))
+    final PDStoredDocument ret = new PDStoredDocument ();
+    ret.setParticipantID (aDoc.get (CPDStorage.FIELD_PARTICIPANTID));
+    for (final String sDocTypeID : aDoc.getValues (CPDStorage.FIELD_DOCUMENT_TYPE_ID))
       ret.addDocumentTypeID (SimpleDocumentTypeIdentifier.createFromURIPart (sDocTypeID));
-    ret.setCountryCode (aDoc.get (CPYPStorage.FIELD_COUNTRY_CODE));
-    ret.setName (aDoc.get (CPYPStorage.FIELD_NAME));
-    ret.setGeoInfo (aDoc.get (CPYPStorage.FIELD_GEOINFO));
-    final String [] aIDTypes = aDoc.getValues (CPYPStorage.FIELD_IDENTIFIER_TYPE);
-    final String [] aIDValues = aDoc.getValues (CPYPStorage.FIELD_IDENTIFIER);
+    ret.setCountryCode (aDoc.get (CPDStorage.FIELD_COUNTRY_CODE));
+    ret.setName (aDoc.get (CPDStorage.FIELD_NAME));
+    ret.setGeoInfo (aDoc.get (CPDStorage.FIELD_GEOINFO));
+    final String [] aIDTypes = aDoc.getValues (CPDStorage.FIELD_IDENTIFIER_TYPE);
+    final String [] aIDValues = aDoc.getValues (CPDStorage.FIELD_IDENTIFIER);
     if (aIDTypes.length != aIDValues.length)
       throw new IllegalStateException ("Different number of identifier types and values");
     for (int i = 0; i < aIDTypes.length; ++i)
-      ret.addIdentifier (new PYPStoredIdentifier (aIDTypes[i], aIDValues[i]));
+      ret.addIdentifier (new PDStoredIdentifier (aIDTypes[i], aIDValues[i]));
     {
-      final IndexableField aFieldMetadata = aDoc.getField (CPYPStorage.FIELD_METADATA_CREATIONDT);
-      final PYPDocumentMetaData aMetaData = new PYPDocumentMetaData (PDTFactory.createDateTimeFromMillis (aFieldMetadata.numericValue ()
+      final IndexableField aFieldMetadata = aDoc.getField (CPDStorage.FIELD_METADATA_CREATIONDT);
+      final PDDocumentMetaData aMetaData = new PDDocumentMetaData (PDTFactory.createDateTimeFromMillis (aFieldMetadata.numericValue ()
                                                                                                                         .longValue ())
                                                                                .toLocalDateTime (),
-                                                                     aDoc.get (CPYPStorage.FIELD_METADATA_OWNERID),
-                                                                     aDoc.get (CPYPStorage.FIELD_METADATA_REQUESTING_HOST));
+                                                                     aDoc.get (CPDStorage.FIELD_METADATA_OWNERID),
+                                                                     aDoc.get (CPDStorage.FIELD_METADATA_REQUESTING_HOST));
       ret.setMetaData (aMetaData);
     }
-    ret.setFreeText (aDoc.get (CPYPStorage.FIELD_FREETEXT));
-    ret.setDeleted (aDoc.getField (CPYPStorage.FIELD_DELETED) != null);
+    ret.setFreeText (aDoc.get (CPDStorage.FIELD_FREETEXT));
+    ret.setDeleted (aDoc.getField (CPDStorage.FIELD_DELETED) != null);
     return ret;
   }
 }
