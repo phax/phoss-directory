@@ -256,7 +256,7 @@ public final class AppRendererPublic implements ILayoutAreaContentProvider <Layo
       final BootstrapContainer aDiv = new BootstrapContainer ().setFluid (true).setID (CLayout.LAYOUT_AREAID_FOOTER);
 
       aDiv.addChild (new HCP ().addChild ("PEPPOL Directory. Sources are available on ")
-                               .addChild (new HCA ("https://github.com/phax/peppol-yellow-pages").addChild ("GitHub"))
+                               .addChild (new HCA ("https://github.com/phax/peppol-directory").addChild ("GitHub"))
                                .addChild (", based on ")
                                .addChild (new HCA ("https://github.com/phax/ph-oton").addChild ("ph-oton"))
                                .addChild (" stack"));
