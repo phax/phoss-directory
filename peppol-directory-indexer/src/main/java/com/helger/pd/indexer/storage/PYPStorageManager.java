@@ -109,7 +109,8 @@ public final class PYPStorageManager implements Closeable
     if (aParticipantID == null)
       return false;
 
-    final IThrowingCallable <Boolean, IOException> cb = () -> {
+    // Must be "Exception" because of JDK commandline compiler issue
+    final IThrowingCallable <Boolean, Exception> cb = () -> {
       final IndexSearcher aSearcher = m_aLucene.getSearcher ();
       if (aSearcher != null)
       {

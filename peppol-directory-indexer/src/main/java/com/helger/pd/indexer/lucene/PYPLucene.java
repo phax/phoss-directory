@@ -325,31 +325,38 @@ public final class PYPLucene implements Closeable, ILuceneDocumentProvider, ILuc
   }
 
   /**
-   * Run the provided action within a locked section.
+   * Run the provided action within a locked section.<br>
+   * Note: because of a problem with JDK 1.8.60 (+) commandline compiler, this
+   * method uses type "Exception" instead of "IOException" in the parameter
+   * signature
    *
    * @param aRunnable
-   *        Callback to be executed
+   *        Callback to be executed.
    * @return <code>null</code> if the index is just closing
-   * @throws EX
+   * @throws IOException
    *         may be thrown by the callback
    * @param <T>
    *        Result type
-   * @param <EX>
-   *        Exception type
    */
   @Nullable
-  public <T, EX extends Exception> T callAtomic (@Nonnull final IThrowingCallable <T, EX> aRunnable) throws EX
+  public <T> T callAtomic (@Nonnull final IThrowingCallable <T, Exception> aRunnable) throws IOException
   {
     m_aLock.lock ();
     try
     {
-      if (isClosing ())
-        return null;
-      return aRunnable.call ();
+      if (!isClosing ())
+        return aRunnable.call ();
+    }
+    catch (final Exception ex)
+    {
+      if (ex instanceof IOException)
+        throw (IOException) ex;
+      assert false;
     }
     finally
     {
       m_aLock.unlock ();
     }
+    return null;
   }
 }
