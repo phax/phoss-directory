@@ -24,6 +24,7 @@ import javax.servlet.ServletContext;
 
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.vendor.VendorInfo;
+import com.helger.pd.settings.PDSettings;
 import com.helger.photon.basic.app.request.ApplicationRequestManager;
 import com.helger.photon.bootstrap3.servlet.AbstractWebAppListenerMultiAppBootstrap;
 import com.helger.photon.core.app.CApplication;
@@ -36,7 +37,6 @@ import com.helger.pyp.publisher.app.AppSecurity;
 import com.helger.pyp.publisher.app.MetaManager;
 import com.helger.pyp.publisher.app.pub.InitializerPublic;
 import com.helger.pyp.publisher.app.secure.InitializerSecure;
-import com.helger.pyp.settings.PYPSettings;
 
 /**
  * This listener is invoked during the servlet initialization. This is basically
@@ -49,25 +49,25 @@ public final class AppWebAppListener extends AbstractWebAppListenerMultiAppBoots
   @Override
   protected String getInitParameterDebug (@Nonnull final ServletContext aSC)
   {
-    return PYPSettings.getGlobalDebug ();
+    return PDSettings.getGlobalDebug ();
   }
 
   @Override
   protected String getInitParameterProduction (@Nonnull final ServletContext aSC)
   {
-    return PYPSettings.getGlobalProduction ();
+    return PDSettings.getGlobalProduction ();
   }
 
   @Override
   protected String getDataPath (@Nonnull final ServletContext aSC)
   {
-    return PYPSettings.getDataPath ();
+    return PDSettings.getDataPath ();
   }
 
   @Override
   protected boolean shouldCheckFileAccess (@Nonnull final ServletContext aSC)
   {
-    return PYPSettings.isCheckFileAccess ();
+    return PDSettings.isCheckFileAccess ();
   }
 
   @Override

@@ -22,12 +22,12 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import com.helger.commons.id.factory.GlobalIDFactory;
 import com.helger.commons.scope.mock.ScopeTestRule;
+import com.helger.pd.settings.PDSettings;
 import com.helger.peppol.smpclient.SMPClientConfiguration;
 import com.helger.photon.basic.app.io.WebFileIO;
 import com.helger.photon.basic.app.io.WebIOIntIDFactory;
 import com.helger.photon.basic.mock.PhotonBasicWebTestRule;
 import com.helger.pyp.indexer.lucene.PYPLucene;
-import com.helger.pyp.settings.PYPSettings;
 
 /**
  * Special PYP test rule with the correct data path from the settings file.
@@ -44,7 +44,7 @@ public class PYPIndexerTestRule extends PhotonBasicWebTestRule
 
   public PYPIndexerTestRule ()
   {
-    super (new File (PYPSettings.getDataPath ()), ScopeTestRule.STORAGE_PATH);
+    super (new File (PDSettings.getDataPath ()), ScopeTestRule.STORAGE_PATH);
   }
 
   @Override

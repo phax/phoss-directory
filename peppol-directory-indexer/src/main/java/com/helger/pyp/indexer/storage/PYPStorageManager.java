@@ -50,6 +50,7 @@ import com.helger.commons.collection.CollectionHelper;
 import com.helger.commons.collection.multimap.IMultiMapListBased;
 import com.helger.commons.collection.multimap.MultiLinkedHashMapArrayListBased;
 import com.helger.commons.state.ESuccess;
+import com.helger.pd.businessinformation.PDExtendedBusinessInformation;
 import com.helger.peppol.identifier.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.IdentifierHelper;
 import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
@@ -57,7 +58,6 @@ import com.helger.photon.basic.security.audit.AuditHelper;
 import com.helger.pyp.businessinformation.BusinessInformationType;
 import com.helger.pyp.businessinformation.EntityType;
 import com.helger.pyp.businessinformation.IdentifierType;
-import com.helger.pyp.businessinformation.PYPExtendedBusinessInformation;
 import com.helger.pyp.indexer.lucene.AllDocumentsCollector;
 import com.helger.pyp.indexer.lucene.PYPLucene;
 
@@ -160,7 +160,7 @@ public final class PYPStorageManager implements Closeable
 
   @Nonnull
   public ESuccess createOrUpdateEntry (@Nonnull final IPeppolParticipantIdentifier aParticipantID,
-                                       @Nonnull final PYPExtendedBusinessInformation aExtBI,
+                                       @Nonnull final PDExtendedBusinessInformation aExtBI,
                                        @Nonnull final PYPDocumentMetaData aMetaData) throws IOException
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");

@@ -49,6 +49,10 @@ import com.helger.commons.microdom.serialize.MicroWriter;
 import com.helger.commons.url.SimpleURL;
 import com.helger.commons.url.URLHelper;
 import com.helger.commons.xml.XMLDebug;
+import com.helger.pd.businessinformation.IPDBusinessInformationProvider;
+import com.helger.pd.businessinformation.PDBusinessInformationMarshaller;
+import com.helger.pd.businessinformation.PDExtendedBusinessInformation;
+import com.helger.pd.settings.PDSettings;
 import com.helger.peppol.identifier.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.IdentifierHelper;
 import com.helger.peppol.identifier.doctype.SimpleDocumentTypeIdentifier;
@@ -59,19 +63,15 @@ import com.helger.peppol.smp.ServiceMetadataReferenceType;
 import com.helger.peppol.smpclient.SMPClientReadOnly;
 import com.helger.peppol.smpclient.exception.SMPClientException;
 import com.helger.pyp.businessinformation.BusinessInformationType;
-import com.helger.pyp.businessinformation.IPYPBusinessInformationProvider;
-import com.helger.pyp.businessinformation.PYPBusinessInformationMarshaller;
-import com.helger.pyp.businessinformation.PYPExtendedBusinessInformation;
-import com.helger.pyp.settings.PYPSettings;
 
 /**
- * The SMP based {@link IPYPBusinessInformationProvider} implementation. An SMP
+ * The SMP based {@link IPDBusinessInformationProvider} implementation. An SMP
  * lookup of the ServiceGroup is performed, and the <code>Extension</code>
  * element is parsed for the elements as specified in the PYP specification.
  *
  * @author Philip Helger
  */
-public final class SMPBusinessInformationProvider implements IPYPBusinessInformationProvider
+public final class SMPBusinessInformationProvider implements IPDBusinessInformationProvider
 {
   private static final String URL_PART_SERVICES = "/services/";
   private static final Logger s_aLogger = LoggerFactory.getLogger (SMPBusinessInformationProvider.class);
@@ -188,7 +188,7 @@ public final class SMPBusinessInformationProvider implements IPYPBusinessInforma
               if (eBussinessInfo != null)
               {
                 final String sBusinessInfo = MicroWriter.getXMLString (eBussinessInfo);
-                final BusinessInformationType aBI = new PYPBusinessInformationMarshaller ().read (sBusinessInfo);
+                final BusinessInformationType aBI = new PDBusinessInformationMarshaller ().read (sBusinessInfo);
                 if (aBI != null)
                 {
                   // Finally we're done
@@ -220,10 +220,10 @@ public final class SMPBusinessInformationProvider implements IPYPBusinessInforma
   }
 
   @Nullable
-  public PYPExtendedBusinessInformation getBusinessInformation (@Nonnull final IPeppolParticipantIdentifier aParticipantID)
+  public PDExtendedBusinessInformation getBusinessInformation (@Nonnull final IPeppolParticipantIdentifier aParticipantID)
   {
     // Fetch data
-    final SMPClientReadOnly aSMPClient = new SMPClientReadOnly (aParticipantID, PYPSettings.getSMLToUse ());
+    final SMPClientReadOnly aSMPClient = new SMPClientReadOnly (aParticipantID, PDSettings.getSMLToUse ());
     ServiceGroupType aServiceGroup;
     try
     {
@@ -281,6 +281,6 @@ public final class SMPBusinessInformationProvider implements IPYPBusinessInforma
       }
     }
 
-    return new PYPExtendedBusinessInformation (aBI, aDocumentTypeIDs);
+    return new PDExtendedBusinessInformation (aBI, aDocumentTypeIDs);
   }
 }

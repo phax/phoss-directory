@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pyp.businessinformation;
+package com.helger.pd.businessinformation;
 
 import java.util.List;
 
@@ -25,6 +25,8 @@ import com.helger.commons.collection.CollectionHelper;
 import com.helger.commons.io.resource.ClassPathResource;
 import com.helger.commons.io.resource.IReadableResource;
 import com.helger.jaxb.AbstractJAXBMarshaller;
+import com.helger.pyp.businessinformation.BusinessInformationType;
+import com.helger.pyp.businessinformation.ObjectFactory;
 
 /**
  * This is the reader and writer for {@link BusinessInformationType} documents.
@@ -33,7 +35,7 @@ import com.helger.jaxb.AbstractJAXBMarshaller;
  *
  * @author Philip Helger
  */
-public class PYPBusinessInformationMarshaller extends AbstractJAXBMarshaller <BusinessInformationType>
+public class PDBusinessInformationMarshaller extends AbstractJAXBMarshaller <BusinessInformationType>
 {
   /** XSD resources */
   public static final List <? extends IReadableResource> BUSINESS_CARD_XSDS = CollectionHelper.newUnmodifiableList (new ClassPathResource ("/schemas/pyp-business-information-201505.xsd"));
@@ -41,7 +43,7 @@ public class PYPBusinessInformationMarshaller extends AbstractJAXBMarshaller <Bu
   /**
    * Constructor
    */
-  public PYPBusinessInformationMarshaller ()
+  public PDBusinessInformationMarshaller ()
   {
     super (BusinessInformationType.class, BUSINESS_CARD_XSDS);
   }

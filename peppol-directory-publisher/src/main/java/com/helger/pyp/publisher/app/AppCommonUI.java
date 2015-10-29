@@ -37,6 +37,7 @@ import com.helger.html.jscode.JSAssocArray;
 import com.helger.html.jscode.JSPackage;
 import com.helger.html.jscode.JSVar;
 import com.helger.html.jscode.html.JSHtml;
+import com.helger.pd.settings.PDSettings;
 import com.helger.photon.bootstrap3.button.BootstrapButtonToolbar;
 import com.helger.photon.bootstrap3.form.BootstrapForm;
 import com.helger.photon.bootstrap3.form.BootstrapFormGroup;
@@ -53,7 +54,6 @@ import com.helger.photon.uictrls.datatables.ajax.AjaxExecutorDataTablesI18N;
 import com.helger.photon.uictrls.datatables.plugins.DataTablesPluginSearchHighlight;
 import com.helger.pyp.publisher.ajax.AjaxExecutorPublicLogin;
 import com.helger.pyp.publisher.ajax.CAjaxPublic;
-import com.helger.pyp.settings.PYPSettings;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 
 @Immutable
@@ -78,7 +78,7 @@ public final class AppCommonUI
   @Nonnull
   public static String getApplicationTitle ()
   {
-    return APPLICATION_TITLE + (PYPSettings.isTestVersion () ? " [TEST]" : "");
+    return APPLICATION_TITLE + (PDSettings.isTestVersion () ? " [TEST]" : "");
   }
 
   public static void init ()

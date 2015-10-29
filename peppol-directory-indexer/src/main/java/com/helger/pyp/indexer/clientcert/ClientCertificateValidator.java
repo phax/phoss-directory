@@ -43,8 +43,8 @@ import com.helger.commons.collection.ArrayHelper;
 import com.helger.commons.collection.CollectionHelper;
 import com.helger.commons.exception.InitializationException;
 import com.helger.commons.string.StringHelper;
+import com.helger.pd.settings.PDSettings;
 import com.helger.peppol.utils.KeyStoreHelper;
-import com.helger.pyp.settings.PYPSettings;
 
 /**
  * Extract certificates from HTTP requests. These are the client certificates
@@ -63,7 +63,7 @@ public final class ClientCertificateValidator
   @PresentForCodeCoverage
   private static final ClientCertificateValidator s_aInstance = new ClientCertificateValidator ();
 
-  private static boolean s_bCheckDisabled = !PYPSettings.isClientCertificateValidationActive ();
+  private static boolean s_bCheckDisabled = !PDSettings.isClientCertificateValidationActive ();
   private static X509Certificate s_aPeppolSMPRootCert;
   private static X509Certificate s_aPeppolSMPRootCertAlternative;
 
@@ -88,7 +88,7 @@ public final class ClientCertificateValidator
   private static void _initCertificateIssuers ()
   {
     // Get the certificate issuer we need
-    final String sIssuerToSearch = PYPSettings.getClientCertIssuer ();
+    final String sIssuerToSearch = PDSettings.getClientCertIssuer ();
     if (StringHelper.hasNoText (sIssuerToSearch))
       throw new InitializationException ("The settings file is missing the entry for the client certificate issuer");
 
@@ -96,7 +96,7 @@ public final class ClientCertificateValidator
     s_aSearchIssuers.add (new X500Principal (sIssuerToSearch));
 
     // Optional alternative issuer
-    final String sIssuerToSearchAlternative = PYPSettings.getClientCertIssuerAlternative ();
+    final String sIssuerToSearchAlternative = PDSettings.getClientCertIssuerAlternative ();
     if (StringHelper.hasText (sIssuerToSearchAlternative))
     {
       // Throws a runtime exception on syntax error anyway :)
@@ -109,9 +109,9 @@ public final class ClientCertificateValidator
   private static void _initRootCert ()
   {
     // Get data from config file
-    final String sTrustStorePath = PYPSettings.getTruststoreLocation ();
-    final String sTrustStorePassword = PYPSettings.getTruststorePassword ();
-    final String sTrustStoreAlias = PYPSettings.getTruststoreAlias ();
+    final String sTrustStorePath = PDSettings.getTruststoreLocation ();
+    final String sTrustStorePassword = PDSettings.getTruststorePassword ();
+    final String sTrustStoreAlias = PDSettings.getTruststoreAlias ();
 
     // Load keystores
     try
@@ -142,9 +142,9 @@ public final class ClientCertificateValidator
   private static void _initRootCertAlternative ()
   {
     // Get data from config file
-    final String sTrustStorePath = PYPSettings.getTruststoreLocationAlternative ();
-    final String sTrustStorePassword = PYPSettings.getTruststorePasswordAlternative ();
-    final String sTrustStoreAlias = PYPSettings.getTruststoreAliasAlternative ();
+    final String sTrustStorePath = PDSettings.getTruststoreLocationAlternative ();
+    final String sTrustStorePassword = PDSettings.getTruststorePasswordAlternative ();
+    final String sTrustStoreAlias = PDSettings.getTruststoreAliasAlternative ();
 
     if (StringHelper.hasText (sTrustStorePath) &&
         StringHelper.hasText (sTrustStorePassword) &&

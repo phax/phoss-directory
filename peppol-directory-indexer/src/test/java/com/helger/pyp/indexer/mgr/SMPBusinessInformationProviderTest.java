@@ -4,8 +4,8 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 
+import com.helger.pd.businessinformation.PDExtendedBusinessInformation;
 import com.helger.peppol.identifier.participant.SimpleParticipantIdentifier;
-import com.helger.pyp.businessinformation.PYPExtendedBusinessInformation;
 
 /**
  * Test class for class {@link SMPBusinessInformationProvider}.
@@ -18,7 +18,7 @@ public class SMPBusinessInformationProviderTest
   public void testFetch ()
   {
     final SMPBusinessInformationProvider aBI = new SMPBusinessInformationProvider ();
-    final PYPExtendedBusinessInformation aExtBI = aBI.getBusinessInformation (SimpleParticipantIdentifier.createWithDefaultScheme ("9915:test"));
+    final PDExtendedBusinessInformation aExtBI = aBI.getBusinessInformation (SimpleParticipantIdentifier.createWithDefaultScheme ("9915:test"));
     assertNotNull (aExtBI);
     System.out.println (aExtBI);
   }

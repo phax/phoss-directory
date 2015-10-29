@@ -31,7 +31,7 @@ import com.helger.commons.hashcode.HashCodeGenerator;
 import com.helger.commons.id.IHasID;
 import com.helger.commons.string.ToStringGenerator;
 import com.helger.datetime.PDTFactory;
-import com.helger.pyp.settings.PYPSettings;
+import com.helger.pd.settings.PDSettings;
 
 /**
  * This class holds a single item to be re-indexed. It is only invoked if
@@ -52,10 +52,10 @@ public class ReIndexWorkItem implements IHasID <String>, Serializable
   {
     // The next retry happens from now in the configured number of minutes
     this (aWorkItem,
-          aWorkItem.getCreationDT ().plusHours (PYPSettings.getReIndexMaxRetryHours ()),
+          aWorkItem.getCreationDT ().plusHours (PDSettings.getReIndexMaxRetryHours ()),
           0,
           (LocalDateTime) null,
-          PDTFactory.getCurrentLocalDateTime ().plusMinutes (PYPSettings.getReIndexRetryMinutes ()));
+          PDTFactory.getCurrentLocalDateTime ().plusMinutes (PDSettings.getReIndexRetryMinutes ()));
   }
 
   ReIndexWorkItem (@Nonnull final IndexerWorkItem aWorkItem,
@@ -96,7 +96,7 @@ public class ReIndexWorkItem implements IHasID <String>, Serializable
   {
     m_nRetries++;
     m_aPreviousRetryDT = PDTFactory.getCurrentLocalDateTime ();
-    m_aNextRetryDT = m_aPreviousRetryDT.plusMinutes (PYPSettings.getReIndexRetryMinutes ());
+    m_aNextRetryDT = m_aPreviousRetryDT.plusMinutes (PDSettings.getReIndexRetryMinutes ());
   }
 
   @Nonnull

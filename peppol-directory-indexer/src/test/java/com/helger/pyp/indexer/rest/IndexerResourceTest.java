@@ -48,6 +48,7 @@ import com.helger.commons.collection.CollectionHelper;
 import com.helger.commons.mock.CommonsTestHelper;
 import com.helger.commons.random.VerySecureRandom;
 import com.helger.commons.thread.ThreadHelper;
+import com.helger.pd.businessinformation.PDExtendedBusinessInformation;
 import com.helger.peppol.identifier.doctype.EPredefinedDocumentTypeIdentifier;
 import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
 import com.helger.peppol.identifier.participant.SimpleParticipantIdentifier;
@@ -55,7 +56,6 @@ import com.helger.peppol.utils.KeyStoreHelper;
 import com.helger.pyp.businessinformation.BusinessInformationType;
 import com.helger.pyp.businessinformation.EntityType;
 import com.helger.pyp.businessinformation.IdentifierType;
-import com.helger.pyp.businessinformation.PYPExtendedBusinessInformation;
 import com.helger.pyp.indexer.PYPIndexerTestRule;
 import com.helger.pyp.indexer.clientcert.ClientCertificateValidator;
 import com.helger.pyp.indexer.mgr.PYPIndexerManager;
@@ -79,7 +79,7 @@ public final class IndexerResourceTest
   private WebTarget m_aTarget;
 
   @Nonnull
-  private static PYPExtendedBusinessInformation _createMockBI (@Nonnull final IPeppolParticipantIdentifier aParticipantID)
+  private static PDExtendedBusinessInformation _createMockBI (@Nonnull final IPeppolParticipantIdentifier aParticipantID)
   {
     final BusinessInformationType aBI = new BusinessInformationType ();
     {
@@ -108,7 +108,7 @@ public final class IndexerResourceTest
       aEntity.setFreeText ("This is another mock entry for testing purposes only");
       aBI.addEntity (aEntity);
     }
-    return new PYPExtendedBusinessInformation (aBI,
+    return new PDExtendedBusinessInformation (aBI,
                                                CollectionHelper.newList (EPredefinedDocumentTypeIdentifier.INVOICE_T010_BIS5A_V20.getAsDocumentTypeIdentifier ()));
   }
 

@@ -46,13 +46,13 @@ import com.helger.commons.state.EChange;
 import com.helger.commons.state.ESuccess;
 import com.helger.commons.string.ToStringGenerator;
 import com.helger.datetime.PDTFactory;
+import com.helger.pd.businessinformation.IPDBusinessInformationProvider;
+import com.helger.pd.businessinformation.PDExtendedBusinessInformation;
 import com.helger.peppol.identifier.IParticipantIdentifier;
 import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
 import com.helger.photon.basic.app.dao.impl.DAOException;
 import com.helger.photon.basic.app.io.WebFileIO;
 import com.helger.photon.core.app.CApplication;
-import com.helger.pyp.businessinformation.IPYPBusinessInformationProvider;
-import com.helger.pyp.businessinformation.PYPExtendedBusinessInformation;
 import com.helger.pyp.indexer.domain.EIndexerWorkItemType;
 import com.helger.pyp.indexer.domain.IndexerWorkItem;
 import com.helger.pyp.indexer.domain.ReIndexWorkItem;
@@ -82,7 +82,7 @@ public final class PYPIndexerManager implements Closeable
   @GuardedBy ("m_aRWLock")
   private final Set <IndexerWorkItem> m_aUniqueItems = new HashSet <> ();
   @GuardedBy ("m_aRWLock")
-  private IPYPBusinessInformationProvider m_aBIProvider = new SMPBusinessInformationProvider ();
+  private IPDBusinessInformationProvider m_aBIProvider = new SMPBusinessInformationProvider ();
 
   // Status vars
   private final GlobalQuartzScheduler m_aScheduler;
@@ -110,7 +110,7 @@ public final class PYPIndexerManager implements Closeable
    * directly after the constructor. But please note that the queuing of the
    * items might directly trigger the usage of the
    * {@link #getBusinessInformationProvider()} so make sure to call
-   * {@link #setBusinessInformationProvider(IPYPBusinessInformationProvider)}
+   * {@link #setBusinessInformationProvider(IPDBusinessInformationProvider)}
    * before calling this method.
    *
    * @return this for chaining
@@ -173,17 +173,17 @@ public final class PYPIndexerManager implements Closeable
   }
 
   /**
-   * @return The global {@link IPYPBusinessInformationProvider}. Never
+   * @return The global {@link IPDBusinessInformationProvider}. Never
    *         <code>null</code>.
    */
   @Nonnull
-  public IPYPBusinessInformationProvider getBusinessInformationProvider ()
+  public IPDBusinessInformationProvider getBusinessInformationProvider ()
   {
     return m_aRWLock.readLocked ( () -> m_aBIProvider);
   }
 
   /**
-   * Set the global {@link IPYPBusinessInformationProvider} that is used for
+   * Set the global {@link IPDBusinessInformationProvider} that is used for
    * future create/update requests.
    *
    * @param aBIProvider
@@ -192,7 +192,7 @@ public final class PYPIndexerManager implements Closeable
    * @return this for chaining
    */
   @Nonnull
-  public PYPIndexerManager setBusinessInformationProvider (@Nonnull final IPYPBusinessInformationProvider aBIProvider)
+  public PYPIndexerManager setBusinessInformationProvider (@Nonnull final IPDBusinessInformationProvider aBIProvider)
   {
     ValueEnforcer.notNull (aBIProvider, "BIProvider");
     m_aRWLock.writeLocked ( () -> m_aBIProvider = aBIProvider);
@@ -278,7 +278,7 @@ public final class PYPIndexerManager implements Closeable
     final IPeppolParticipantIdentifier aParticipantID = aWorkItem.getParticipantID ();
 
     // Get BI from participant
-    final PYPExtendedBusinessInformation aBI = getBusinessInformationProvider ().getBusinessInformation (aParticipantID);
+    final PDExtendedBusinessInformation aBI = getBusinessInformationProvider ().getBusinessInformation (aParticipantID);
     if (aBI == null)
     {
       // No/invalid extension present - no need to try again

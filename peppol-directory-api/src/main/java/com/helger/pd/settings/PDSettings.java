@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pyp.settings;
+package com.helger.pd.settings;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -36,10 +36,10 @@ import com.helger.settings.exchange.properties.SettingsPersistenceProperties;
  *
  * @author Philip Helger
  */
-public final class PYPSettings extends AbstractGlobalSingleton
+public final class PDSettings extends AbstractGlobalSingleton
 {
   /** The name of the file containing the settings */
-  public static final String FILENAME = "pyp.properties";
+  public static final String FILENAME = "pd.properties";
   private static final IMutableSettings s_aSettings;
 
   static
@@ -49,7 +49,7 @@ public final class PYPSettings extends AbstractGlobalSingleton
 
   @Deprecated
   @UsedViaReflection
-  private PYPSettings ()
+  private PDSettings ()
   {}
 
   /**

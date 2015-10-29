@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pyp.businessinformation;
+package com.helger.pd.businessinformation;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -22,17 +22,17 @@ import javax.annotation.Nullable;
 import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
 
 /**
- * Abstract interface to retrieve the {@link PYPExtendedBusinessInformation}
+ * Abstract interface to retrieve the {@link PDExtendedBusinessInformation}
  * from a provided PEPPOL participant ID. By default the SMP must be queried and
  * the <code>Extension</code> element queried. Nevertheless for testing purposes
  * it may be possible to provide mock data.
  *
  * @author Philip Helger
  */
-public interface IPYPBusinessInformationProvider
+public interface IPDBusinessInformationProvider
 {
   /**
-   * Get the {@link PYPExtendedBusinessInformation} for the given participant
+   * Get the {@link PDExtendedBusinessInformation} for the given participant
    * ID.
    *
    * @param aParticipantID
@@ -40,5 +40,5 @@ public interface IPYPBusinessInformationProvider
    * @return <code>null</code> if lookup fails
    */
   @Nullable
-  PYPExtendedBusinessInformation getBusinessInformation (@Nonnull IPeppolParticipantIdentifier aParticipantID);
+  PDExtendedBusinessInformation getBusinessInformation (@Nonnull IPeppolParticipantIdentifier aParticipantID);
 }

@@ -1,4 +1,4 @@
-package com.helger.pyp.businessinformation;
+package com.helger.pd.businessinformation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +14,7 @@ import com.helger.commons.collection.CollectionHelper;
 import com.helger.commons.string.ToStringGenerator;
 import com.helger.peppol.identifier.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.doctype.SimpleDocumentTypeIdentifier;
+import com.helger.pyp.businessinformation.BusinessInformationType;
 
 /**
  * This class encapsulates all the data to be added to the Lucene index. It
@@ -24,12 +25,12 @@ import com.helger.peppol.identifier.doctype.SimpleDocumentTypeIdentifier;
  * @author Philip Helger
  */
 @Immutable
-public class PYPExtendedBusinessInformation
+public class PDExtendedBusinessInformation
 {
   private final BusinessInformationType m_aBusinessInfo;
   private final List <IDocumentTypeIdentifier> m_aDocumentTypeIDs = new ArrayList <> ();
 
-  public PYPExtendedBusinessInformation (@Nonnull final BusinessInformationType aBusinessInfo,
+  public PDExtendedBusinessInformation (@Nonnull final BusinessInformationType aBusinessInfo,
                                          @Nullable final List <IDocumentTypeIdentifier> aDocumentTypeIDs)
   {
     m_aBusinessInfo = ValueEnforcer.notNull (aBusinessInfo, "BusinessInfo");
