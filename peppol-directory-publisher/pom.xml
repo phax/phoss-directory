@@ -21,14 +21,14 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.helger</groupId>
-    <artifactId>peppol-yellow-pages-parent-pom</artifactId>
+    <artifactId>peppol-directory-parent-pom</artifactId>
     <version>0.1.0-SNAPSHOT</version>
   </parent>
-  <artifactId>peppol-yellow-pages-publisher</artifactId>
+  <artifactId>peppol-directory-publisher</artifactId>
   <packaging>war</packaging>
-  <name>peppol-yellow-pages-publisher</name>
+  <name>peppol-directory-publisher</name>
   <description>The publisher web application of the PEPPOL Yellow Pages</description>
-  <url>https://github.com/phax/peppol-yellow-pages/peppol-yellow-pages-publisher</url>
+  <url>https://github.com/phax/peppol-directory/peppol-directory-publisher</url>
   <inceptionYear>2015</inceptionYear>
 
   <licenses>
@@ -62,11 +62,11 @@
   <dependencies>
     <dependency>
       <groupId>com.helger</groupId>
-      <artifactId>peppol-yellow-pages-api</artifactId>
+      <artifactId>peppol-directory-api</artifactId>
     </dependency>
     <dependency>
       <groupId>com.helger</groupId>
-      <artifactId>peppol-yellow-pages-indexer</artifactId>
+      <artifactId>peppol-directory-indexer</artifactId>
     </dependency>
 
     <dependency>

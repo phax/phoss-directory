@@ -21,14 +21,14 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.helger</groupId>
-    <artifactId>peppol-yellow-pages-parent-pom</artifactId>
+    <artifactId>peppol-directory-parent-pom</artifactId>
     <version>0.1.0-SNAPSHOT</version>
   </parent>
-  <artifactId>peppol-yellow-pages-api</artifactId>
+  <artifactId>peppol-directory-api</artifactId>
   <packaging>bundle</packaging>
-  <name>peppol-yellow-pages-api</name>
+  <name>peppol-directory-api</name>
   <description>The common parts of the PEPPOL Yellow Pages</description>
-  <url>https://github.com/phax/peppol-yellow-pages/peppol-yellow-pages-api</url>
+  <url>https://github.com/phax/peppol-directory/peppol-directory-api</url>
   <inceptionYear>2015</inceptionYear>
 
   <licenses>
