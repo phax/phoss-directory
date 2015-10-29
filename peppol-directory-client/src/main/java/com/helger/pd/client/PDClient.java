@@ -38,7 +38,7 @@
  * the provisions above, a recipient may use your version of this file
  * under either the MPL or the EUPL License.
  */
-package com.helger.pyp.client;
+package com.helger.pd.client;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -94,9 +94,9 @@ import com.helger.peppol.utils.KeyStoreHelper;
  *
  * @author Philip Helger
  */
-public class PYPClient implements Closeable
+public class PDClient implements Closeable
 {
-  private static final Logger s_aLogger = LoggerFactory.getLogger (PYPClient.class);
+  private static final Logger s_aLogger = LoggerFactory.getLogger (PDClient.class);
 
   /**
    * The string representation of the PYP host URL, always ending with a
@@ -117,7 +117,7 @@ public class PYPClient implements Closeable
    *        context path but without the REST interface. May be http or https.
    *        Example: http://pyp.helger.com/
    */
-  public PYPClient (@Nonnull final URI aPYPHost)
+  public PDClient (@Nonnull final URI aPYPHost)
   {
     ValueEnforcer.notNull (aPYPHost, "SMPHost");
 
@@ -184,9 +184,9 @@ public class PYPClient implements Closeable
     try
     {
       // Set SSL context
-      final KeyStore aKeyStore = KeyStoreHelper.loadKeyStore (PYPClientConfiguration.getKeyStorePath (), PYPClientConfiguration.getKeyStorePassword ());
-      final SSLContext aSSLContext = SSLContexts.custom ().loadKeyMaterial (aKeyStore, PYPClientConfiguration.getKeyStoreKeyPassword (), (aAliases, aSocket) -> {
-        final String sAlias = PYPClientConfiguration.getKeyStoreKeyAlias ();
+      final KeyStore aKeyStore = KeyStoreHelper.loadKeyStore (PDClientConfiguration.getKeyStorePath (), PDClientConfiguration.getKeyStorePassword ());
+      final SSLContext aSSLContext = SSLContexts.custom ().loadKeyMaterial (aKeyStore, PDClientConfiguration.getKeyStoreKeyPassword (), (aAliases, aSocket) -> {
+        final String sAlias = PDClientConfiguration.getKeyStoreKeyAlias ();
         return aAliases.containsKey (sAlias) ? sAlias : null;
       }).build ();
       // Allow TLSv1 protocol only
@@ -364,15 +364,15 @@ public class PYPClient implements Closeable
   }
 
   @Nonnull
-  public static PYPClient createDefaultClient ()
+  public static PDClient createDefaultClient ()
   {
-    final PYPClient aClient = new PYPClient (URI.create ("http://pyp.helger.com"));
+    final PDClient aClient = new PDClient (URI.create ("http://pyp.helger.com"));
     final boolean bIsHttp = aClient.getPYPHostURI ().startsWith ("http:");
 
     // Get proxy settings
     final String sPrefix = bIsHttp ? "http." : "https.";
-    final String sProxyHost = PYPClientConfiguration.getConfigFile ().getString (sPrefix + "proxyHost");
-    final int nProxyPort = PYPClientConfiguration.getConfigFile ().getInt (sPrefix + "proxyPort", 0);
+    final String sProxyHost = PDClientConfiguration.getConfigFile ().getString (sPrefix + "proxyHost");
+    final int nProxyPort = PDClientConfiguration.getConfigFile ().getInt (sPrefix + "proxyPort", 0);
     if (sProxyHost != null && nProxyPort > 0)
       aClient.setProxy (new HttpHost (sProxyHost, nProxyPort));
 

@@ -38,7 +38,7 @@
  * the provisions above, a recipient may use your version of this file
  * under either the MPL or the EUPL License.
  */
-package com.helger.pyp.client;
+package com.helger.pd.client;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,32 +60,32 @@ import com.helger.peppol.utils.ConfigFile;
  * of the properties file resolving is as follows:
  * <ol>
  * <li>Check for the value of the system property
- * <code>pyp.client.properties.path</code></li>
- * <li>The filename <code>private-pyp-client.properties</code> in the root of
- * the classpath</li>
- * <li>The filename <code>pyp-client.properties</code> in the root of the
+ * <code>pd.client.properties.path</code></li>
+ * <li>The filename <code>private-pd-client.properties</code> in the root of the
+ * classpath</li>
+ * <li>The filename <code>pd-client.properties</code> in the root of the
  * classpath</li>
  * </ol>
  *
  * @author Philip Helger
  */
 @Immutable
-public final class PYPClientConfiguration
+public final class PDClientConfiguration
 {
-  private static final Logger s_aLogger = LoggerFactory.getLogger (PYPClientConfiguration.class);
+  private static final Logger s_aLogger = LoggerFactory.getLogger (PDClientConfiguration.class);
   private static final ConfigFile s_aConfigFile;
 
   static
   {
     final List <String> aFilePaths = new ArrayList <String> ();
     // Check if the system property is present
-    final String sPropertyPath = SystemProperties.getPropertyValue ("pyp.client.properties.path");
+    final String sPropertyPath = SystemProperties.getPropertyValue ("pd.client.properties.path");
     if (StringHelper.hasText (sPropertyPath))
       aFilePaths.add (sPropertyPath);
 
     // Use the default paths
-    aFilePaths.add ("private-pyp-client.properties");
-    aFilePaths.add ("pyp-client.properties");
+    aFilePaths.add ("private-pd-client.properties");
+    aFilePaths.add ("pd-client.properties");
 
     s_aConfigFile = new ConfigFile (ArrayHelper.newArray (aFilePaths, String.class));
     if (s_aConfigFile.isRead ())
@@ -94,7 +94,7 @@ public final class PYPClientConfiguration
       s_aLogger.warn ("Failed to read PYP client properties from any of the paths: " + aFilePaths);
   }
 
-  private PYPClientConfiguration ()
+  private PDClientConfiguration ()
   {}
 
   /**
