@@ -255,11 +255,11 @@ public final class AppRendererPublic implements ILayoutAreaContentProvider <Layo
     {
       final BootstrapContainer aDiv = new BootstrapContainer ().setFluid (true).setID (CLayout.LAYOUT_AREAID_FOOTER);
 
-      aDiv.addChild (new HCP ().addChild ("PYP Publisher based on ")
+      aDiv.addChild (new HCP ().addChild ("PEPPOL Directory. Sources are available on ")
+                               .addChild (new HCA ("https://github.com/phax/peppol-yellow-pages").addChild ("GitHub"))
+                               .addChild (", based on ")
                                .addChild (new HCA ("https://github.com/phax/ph-oton").addChild ("ph-oton"))
                                .addChild (" stack"));
-      aDiv.addChild (new HCP ().addChild ("Sources are available on ")
-                               .addChild (new HCA ("https://github.com/phax/peppol-yellow-pages").addChild ("GitHub")));
       aDiv.addChild (new HCP ().addChild ("Created by ")
                                .addChild (new HCA ("https://github.com/phax").addChild ("Philip Helger"))
                                .addChild (" for PEPPOL - Twitter: ")

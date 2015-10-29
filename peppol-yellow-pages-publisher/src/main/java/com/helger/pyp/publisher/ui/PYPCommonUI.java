@@ -34,6 +34,8 @@ import com.helger.peppol.identifier.process.EPredefinedProcessIdentifier;
 import com.helger.peppol.identifier.process.IPeppolProcessIdentifier;
 import com.helger.photon.bootstrap3.form.BootstrapFormGroup;
 import com.helger.photon.bootstrap3.form.BootstrapViewForm;
+import com.helger.photon.bootstrap3.label.BootstrapLabel;
+import com.helger.photon.bootstrap3.label.EBootstrapLabelType;
 import com.helger.photon.bootstrap3.table.BootstrapTable;
 import com.helger.photon.core.app.html.PhotonCSS;
 import com.helger.photon.uictrls.EUICtrlsCSSPathProvider;
@@ -124,9 +126,10 @@ public final class PYPCommonUI
 
     final EPredefinedDocumentTypeIdentifier ePredefined = EPredefinedDocumentTypeIdentifier.getFromDocumentTypeIdentifierOrNull (aDocTypeID);
     if (ePredefined != null)
-      ret.addChild (new HCDiv ().addChild ("Predefined document type: " + ePredefined.getCommonName ()));
+      ret.addChild (new HCDiv ().addChild (new BootstrapLabel (EBootstrapLabelType.SUCCESS).addChild ("Predefined document type"))
+                                .addChild (" " + ePredefined.getCommonName ()));
     else
-      ret.addChild (new HCDiv ().addChild ("Non standard document type"));
+      ret.addChild (new HCDiv ().addChild (new BootstrapLabel (EBootstrapLabelType.WARNING).addChild ("Non standard document type")));
     ret.addChild (new HCCode ().addChild (_getWBRList (aDocTypeID.getURIEncoded ())));
     return ret;
   }

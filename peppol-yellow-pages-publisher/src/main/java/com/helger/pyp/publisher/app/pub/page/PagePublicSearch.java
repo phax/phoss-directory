@@ -44,7 +44,6 @@ import com.helger.html.hc.html.grouping.HCOL;
 import com.helger.html.hc.html.grouping.HCUL;
 import com.helger.html.hc.html.grouping.IHCLI;
 import com.helger.html.hc.html.sections.HCH1;
-import com.helger.html.hc.html.textlevel.HCA;
 import com.helger.html.hc.html.textlevel.HCSpan;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.peppol.identifier.doctype.ComparatorDocumentTypeIdentifier;
@@ -54,7 +53,10 @@ import com.helger.photon.bootstrap3.CBootstrapCSS;
 import com.helger.photon.bootstrap3.alert.BootstrapInfoBox;
 import com.helger.photon.bootstrap3.alert.BootstrapWarnBox;
 import com.helger.photon.bootstrap3.badge.BootstrapBadge;
+import com.helger.photon.bootstrap3.button.BootstrapButton;
 import com.helger.photon.bootstrap3.button.BootstrapSubmitButton;
+import com.helger.photon.bootstrap3.button.EBootstrapButtonSize;
+import com.helger.photon.bootstrap3.button.EBootstrapButtonType;
 import com.helger.photon.bootstrap3.grid.BootstrapRow;
 import com.helger.photon.bootstrap3.inputgroup.BootstrapInputGroup;
 import com.helger.photon.bootstrap3.nav.BootstrapTabBox;
@@ -169,7 +171,7 @@ public final class PagePublicSearch extends AbstractAppWebPage
 
           final BootstrapTabBox aTabBox = aNodeList.addAndReturnChild (new BootstrapTabBox ());
 
-          // Buisness information
+          // Business information
           {
             final HCNodeList aOL = new HCNodeList ();
             int nIndex = 1;
@@ -224,6 +226,9 @@ public final class PagePublicSearch extends AbstractAppWebPage
                                                                                     sQuery);
         // Search all documents
         final List <PYPStoredDocument> aResultDocs = PYPMetaManager.getStorageMgr ().getAllDocuments (aLuceneQuery);
+
+        s_aLogger.info ("  Result for " + aLuceneQuery + " are " + aResultDocs.size () + " documents");
+
         // Group by participant ID
         final Map <String, List <PYPStoredDocument>> aGroupedDocs = PYPStorageManager.getGroupedByParticipantID (aResultDocs);
 
@@ -248,11 +253,17 @@ public final class PagePublicSearch extends AbstractAppWebPage
             aHeadRow.addChild (sDocParticipantID);
             if (aDocs.size () > 1)
               aHeadRow.addChild (" (" + aDocs.size () + " entities)");
-            aHeadRow.addChild (new HCA (aWPEC.getSelfHref ()
-                                             .add (FIELD_QUERY, sQuery)
-                                             .add (CPageParam.PARAM_ACTION, CPageParam.ACTION_VIEW)
-                                             .add (FIELD_PARTICIPANT_ID,
-                                                   sDocParticipantID)).addChild (EDefaultIcon.MAGNIFIER.getAsNode ()));
+            aHeadRow.addChild (" ")
+                    .addChild (new BootstrapButton (EBootstrapButtonType.SUCCESS,
+                                                    EBootstrapButtonSize.MINI).addChild ("Show details")
+                                                                              .setIcon (EDefaultIcon.MAGNIFIER)
+                                                                              .setOnClick (aWPEC.getSelfHref ()
+                                                                                                .add (FIELD_QUERY,
+                                                                                                      sQuery)
+                                                                                                .add (CPageParam.PARAM_ACTION,
+                                                                                                      CPageParam.ACTION_VIEW)
+                                                                                                .add (FIELD_PARTICIPANT_ID,
+                                                                                                      sDocParticipantID)));
 
             // Show all entities of the stored document
             final HCUL aUL = aResultItem.addAndReturnChild (new HCUL ());

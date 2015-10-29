@@ -114,7 +114,7 @@ public final class PYPQueryManager
 
     // Split into terms
     final List <String> aParts = getSplitIntoTerms (aAnalyzerProvider, sQueryString);
-    assert!aParts.isEmpty ();
+    assert !aParts.isEmpty ();
 
     if (s_aLogger.isDebugEnabled ())
       s_aLogger.debug ("Split query string: '" + sQueryString + "' ==> " + aParts);
