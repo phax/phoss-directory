@@ -14,6 +14,7 @@ import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.WildcardQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,6 +96,11 @@ public final class PYPQueryManager
     }
   }
 
+  private static Query _createSimpleAllFieldsQuery (@Nonnull final String sText)
+  {
+    return new WildcardQuery (new Term (CPYPStorage.FIELD_ALL_FIELDS, "*" + sText + "*"));
+  }
+
   /**
    * Convert a query string as entered by the used into a Lucene query.
    *
@@ -123,14 +129,14 @@ public final class PYPQueryManager
     if (aParts.size () == 1)
     {
       // Single term - simple query
-      aQuery = new TermQuery (new Term (CPYPStorage.FIELD_ALL_FIELDS, aParts.get (0)));
+      aQuery = _createSimpleAllFieldsQuery (aParts.get (0));
     }
     else
     {
       // All parts must be matched
       final BooleanQuery.Builder aBuilder = new BooleanQuery.Builder ();
       for (final String sPart : aParts)
-        aBuilder.add (new TermQuery (new Term (CPYPStorage.FIELD_ALL_FIELDS, sPart)), Occur.MUST);
+        aBuilder.add (_createSimpleAllFieldsQuery (sPart), Occur.MUST);
       aQuery = aBuilder.build ();
     }
 
