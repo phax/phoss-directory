@@ -36,7 +36,7 @@ import com.helger.jaxb.AbstractJAXBMarshaller;
 public class PDBusinessInformationMarshaller extends AbstractJAXBMarshaller <BusinessInformationType>
 {
   /** XSD resources */
-  public static final List <? extends IReadableResource> BUSINESS_CARD_XSDS = CollectionHelper.newUnmodifiableList (new ClassPathResource ("/schemas/pyp-business-information-201505.xsd"));
+  public static final List <? extends IReadableResource> BUSINESS_CARD_XSDS = CollectionHelper.newUnmodifiableList (new ClassPathResource ("/schemas/pd-business-information-201511.xsd"));
 
   /**
    * Constructor

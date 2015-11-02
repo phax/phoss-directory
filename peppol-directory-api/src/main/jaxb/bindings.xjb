@@ -24,7 +24,7 @@
           xmlns="http://java.sun.com/xml/ns/jaxb">
   <globalBindings typesafeEnumMaxMembers="2000" typesafeEnumMemberName="generateError">
   </globalBindings>
-  <bindings schemaLocation="../resources/schemas/pyp-business-information-201505.xsd" node="/xs:schema">
+  <bindings schemaLocation="../resources/schemas/pd-business-information-201511.xsd" node="/xs:schema">
     <schemaBindings>
       <package name="com.helger.pd.businessinformation" />
     </schemaBindings>

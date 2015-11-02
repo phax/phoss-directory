@@ -12,7 +12,7 @@ import com.helger.peppol.identifier.participant.SimpleParticipantIdentifier;
  *
  * @author Philip Helger
  */
-public class SMPBusinessInformationProviderTest
+public final class SMPBusinessInformationProviderTest
 {
   @Test
   public void testFetch ()
