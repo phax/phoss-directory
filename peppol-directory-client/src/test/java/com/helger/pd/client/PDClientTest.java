@@ -2,6 +2,7 @@ package com.helger.pd.client;
 
 import org.junit.Test;
 
+import com.helger.commons.exception.InitializationException;
 import com.helger.peppol.identifier.participant.SimpleParticipantIdentifier;
 
 /**
@@ -21,8 +22,15 @@ public final class PDClientTest
   {
     final SimpleParticipantIdentifier aPI = SimpleParticipantIdentifier.createWithDefaultScheme ("9999:client-test");
     final PDClient aClient = PDClient.createDefaultClient ();
-    aClient.deleteServiceGroupFromIndex (aPI);
-    aClient.isServiceGroupRegistered (aPI);
-    aClient.addServiceGroupToIndex (aPI);
+    try
+    {
+      aClient.deleteServiceGroupFromIndex (aPI);
+      aClient.isServiceGroupRegistered (aPI);
+      aClient.addServiceGroupToIndex (aPI);
+    }
+    catch (final InitializationException ex)
+    {
+      ex.printStackTrace ();
+    }
   }
 }
