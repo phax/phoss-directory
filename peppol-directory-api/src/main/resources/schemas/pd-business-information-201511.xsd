@@ -31,8 +31,13 @@
        Author: Philip Helger, Bundesrechenzentrum GmbH
 
        History: 
-         2015-11-02, changed target namespace URI, Philip Helger
-         2015-05-29, initial version, Philip Helger
+         2015-11-02, Philip Helger
+           Changed target namespace URI
+           Made country code and entity Name mandatory
+           Added element WebSite
+           Added element BusinessContact
+         2015-05-29, Philip Helger
+           initial version
     </xs:documentation>
   </xs:annotation>
   
@@ -60,9 +65,39 @@
     </xs:simpleContent>
   </xs:complexType>
 
+  <xs:complexType name="BusinessContactType">
+    <xs:annotation>
+      <xs:documentation>
+        This type resembles the structure of a single business contact.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Description" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>The type of the contact (sales, support, etc.)</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name=Name minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>The name of the contact (individual or organisational unit)</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PhoneNumber" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>The public telephone number of the contact</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Email" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>The public email address of the contact</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
   <xs:complexType name="EntityType">
     <xs:sequence>
-      <xs:element name="Name" type="xs:string" minOccurs="0" maxOccurs="1">
+      <xs:element name="Name" type="xs:string" minOccurs="1" maxOccurs="1">
         <xs:annotation>
           <xs:documentation>
             The name of the entity.
@@ -80,8 +115,23 @@
       <xs:element name="Identifier" type="IdentifierType" minOccurs="0" maxOccurs="unbounded">
         <xs:annotation>
           <xs:documentation>
-            This element is meant o contain additional identifiers for this
+            This element is meant to contain additional identifiers for this
             entity like VAT number, national organisation number etc.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="WebSite" type="xs:anyURI" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>
+            This element may contain URIs linking to the business entity website.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="BusinessContact" type="BusinessContactType" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>
+            This element is meant to contain business contact points to get in touch
+            with the respective business entity.
           </xs:documentation>
         </xs:annotation>
       </xs:element>
@@ -94,10 +144,10 @@
         </xs:annotation>
       </xs:element>
     </xs:sequence>
-    <xs:attribute name="countryCode" type="xs:token" use="optional">
+    <xs:attribute name="countryCode" type="xs:token" use="required">
       <xs:annotation>
         <xs:documentation>
-          The optional ISO 3166-2 country code (e.g. "AT" for Austria or "NO" for Norway).
+          The mandatory ISO 3166-2 country code (e.g. "AT" for Austria or "NO" for Norway).
         </xs:documentation>
       </xs:annotation>
     </xs:attribute>
@@ -119,7 +169,7 @@
   <xs:element name="BusinessInformation" type="BusinessInformationType">
     <xs:annotation>
       <xs:documentation>
-        This is the root element for the PYP business information.
+        This is the root element for the PEPPOL Directory business information.
       </xs:documentation>
     </xs:annotation>
   </xs:element>
