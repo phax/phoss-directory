@@ -54,6 +54,8 @@ import com.helger.commons.collection.CollectionHelper;
 import com.helger.commons.collection.multimap.IMultiMapListBased;
 import com.helger.commons.collection.multimap.MultiLinkedHashMapArrayListBased;
 import com.helger.commons.state.ESuccess;
+import com.helger.commons.string.StringHelper;
+import com.helger.pd.businessinformation.PDBusinessContactType;
 import com.helger.pd.businessinformation.PDBusinessInformationType;
 import com.helger.pd.businessinformation.PDEntityType;
 import com.helger.pd.businessinformation.PDExtendedBusinessInformation;
@@ -173,60 +175,79 @@ public final class PDStorageManager implements Closeable
       {
         // Convert entity to Lucene document
         final Document aDoc = new Document ();
-        final StringBuilder aSB = new StringBuilder ();
+        final StringBuilder aSBAllFields = new StringBuilder ();
 
         aDoc.add (new StringField (CPDStorage.FIELD_PARTICIPANTID, aParticipantID.getURIEncoded (), Store.YES));
-        aSB.append (aParticipantID.getURIEncoded ()).append (' ');
+        aSBAllFields.append (aParticipantID.getURIEncoded ()).append (' ');
 
         // Add all document types to all documents
         for (final IDocumentTypeIdentifier aDocTypeID : aExtBI.getAllDocumentTypeIDs ())
         {
           final String sDocTypeID = IdentifierHelper.getIdentifierURIEncoded (aDocTypeID);
           aDoc.add (new StringField (CPDStorage.FIELD_DOCUMENT_TYPE_ID, sDocTypeID, Store.YES));
-          aSB.append (sDocTypeID).append (' ');
+          aSBAllFields.append (sDocTypeID).append (' ');
         }
 
         if (aEntity.getCountryCode () != null)
         {
           aDoc.add (new StringField (CPDStorage.FIELD_COUNTRY_CODE, aEntity.getCountryCode (), Store.YES));
-          aSB.append (aEntity.getCountryCode ()).append (' ');
+          aSBAllFields.append (aEntity.getCountryCode ()).append (' ');
         }
 
         if (aEntity.getName () != null)
         {
           aDoc.add (new TextField (CPDStorage.FIELD_NAME, aEntity.getName (), Store.YES));
-          aSB.append (aEntity.getName ()).append (' ');
+          aSBAllFields.append (aEntity.getName ()).append (' ');
         }
 
         if (aEntity.getGeoInfo () != null)
         {
           aDoc.add (new TextField (CPDStorage.FIELD_GEOINFO, aEntity.getGeoInfo (), Store.YES));
-          aSB.append (aEntity.getGeoInfo ()).append (' ');
+          aSBAllFields.append (aEntity.getGeoInfo ()).append (' ');
         }
 
         for (final PDIdentifierType aIdentifier : aEntity.getIdentifier ())
         {
           aDoc.add (new TextField (CPDStorage.FIELD_IDENTIFIER_TYPE, aIdentifier.getType (), Store.YES));
-          aSB.append (aIdentifier.getType ()).append (' ');
+          aSBAllFields.append (aIdentifier.getType ()).append (' ');
 
           aDoc.add (new TextField (CPDStorage.FIELD_IDENTIFIER, aIdentifier.getValue (), Store.YES));
-          aSB.append (aIdentifier.getValue ()).append (' ');
+          aSBAllFields.append (aIdentifier.getValue ()).append (' ');
         }
 
         for (final String sWebSite : aEntity.getWebSite ())
         {
           aDoc.add (new TextField (CPDStorage.FIELD_WEBSITE, sWebSite, Store.YES));
-          aSB.append (sWebSite).append (' ');
+          aSBAllFields.append (sWebSite).append (' ');
+        }
+
+        for (final PDBusinessContactType aBusinessContact : aEntity.getBusinessContact ())
+        {
+          final String sDescription = StringHelper.getNotNull (aBusinessContact.getDescription ());
+          aDoc.add (new TextField (CPDStorage.FIELD_BUSINESS_CONTACT_DESCRIPTION, sDescription, Store.YES));
+          aSBAllFields.append (sDescription).append (' ');
+
+          final String sName = StringHelper.getNotNull (aBusinessContact.getName ());
+          aDoc.add (new TextField (CPDStorage.FIELD_BUSINESS_CONTACT_NAME, sName, Store.YES));
+          aSBAllFields.append (sName).append (' ');
+
+          final String sPhone = StringHelper.getNotNull (aBusinessContact.getPhoneNumber ());
+          aDoc.add (new TextField (CPDStorage.FIELD_BUSINESS_CONTACT_PHONE, sPhone, Store.YES));
+          aSBAllFields.append (sPhone).append (' ');
+
+          final String sEmail = StringHelper.getNotNull (aBusinessContact.getEmail ());
+          aDoc.add (new TextField (CPDStorage.FIELD_BUSINESS_CONTACT_EMAIL, sEmail, Store.YES));
+          aSBAllFields.append (sEmail).append (' ');
         }
 
         if (aEntity.getFreeText () != null)
         {
           aDoc.add (new TextField (CPDStorage.FIELD_FREETEXT, aEntity.getFreeText (), Store.YES));
-          aSB.append (aEntity.getFreeText ()).append (' ');
+          aSBAllFields.append (aEntity.getFreeText ()).append (' ');
         }
 
-        // Add the "all" field
-        aDoc.add (new TextField (CPDStorage.FIELD_ALL_FIELDS, aSB.toString (), Store.NO));
+        // Add the "all" field - no need to store
+        aDoc.add (new TextField (CPDStorage.FIELD_ALL_FIELDS, aSBAllFields.toString (), Store.NO));
 
         // Add meta data (not part of the "all field" field!)
         aDoc.add (new LongField (CPDStorage.FIELD_METADATA_CREATIONDT, aMetaData.getCreationDTMillis (), Store.YES));

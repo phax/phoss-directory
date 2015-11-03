@@ -55,6 +55,7 @@ public class PDStoredDocument
   private String m_sGeoInfo;
   private final List <PDStoredIdentifier> m_aIdentifiers = new ArrayList <> ();
   private final List <String> m_aWebSites = new ArrayList <> ();
+  private final List <PDStoredBusinessContact> m_aBusinessContacts = new ArrayList <> ();
   private String m_sFreeText;
   private PDDocumentMetaData m_aMetaData;
   private boolean m_bDeleted;
@@ -208,6 +209,36 @@ public class PDStoredDocument
     return CollectionHelper.isNotEmpty (m_aWebSites);
   }
 
+  public void addBusinessContact (@Nonnull final PDStoredBusinessContact aBusinessContact)
+  {
+    ValueEnforcer.notNull (aBusinessContact, "BusinessContact");
+    m_aBusinessContacts.add (aBusinessContact);
+  }
+
+  @Nonnull
+  @ReturnsMutableCopy
+  public List <PDStoredBusinessContact> getAllBusinessContacts ()
+  {
+    return CollectionHelper.newList (m_aBusinessContacts);
+  }
+
+  @Nonnegative
+  public int getBusinessContactCount ()
+  {
+    return m_aBusinessContacts.size ();
+  }
+
+  @Nullable
+  public PDStoredBusinessContact getBusinessContactAtIndex (@Nonnegative final int nIndex)
+  {
+    return CollectionHelper.getSafe (m_aBusinessContacts, nIndex);
+  }
+
+  public boolean hasAnyBusinessContact ()
+  {
+    return CollectionHelper.isNotEmpty (m_aBusinessContacts);
+  }
+
   public void setFreeText (@Nullable final String sFreeText)
   {
     m_sFreeText = sFreeText;
@@ -255,7 +286,8 @@ public class PDStoredDocument
                                        .append ("Name", m_sName)
                                        .append ("GeoInfo", m_sGeoInfo)
                                        .append ("Identifiers", m_aIdentifiers)
-                                       .append ("webSites", m_aWebSites)
+                                       .append ("WebSites", m_aWebSites)
+                                       .append ("BusinessContacts", m_aBusinessContacts)
                                        .append ("FreeText", m_sFreeText)
                                        .append ("MetaData", m_aMetaData)
                                        .append ("Deleted", m_bDeleted)
@@ -297,6 +329,19 @@ public class PDStoredDocument
     final String [] aWebSites = aDoc.getValues (CPDStorage.FIELD_WEBSITE);
     for (final String sWebSite : aWebSites)
       ret.addWebSite (sWebSite);
+
+    final String [] aBCDescription = aDoc.getValues (CPDStorage.FIELD_BUSINESS_CONTACT_DESCRIPTION);
+    final String [] aBCName = aDoc.getValues (CPDStorage.FIELD_BUSINESS_CONTACT_NAME);
+    final String [] aBCPhone = aDoc.getValues (CPDStorage.FIELD_BUSINESS_CONTACT_PHONE);
+    final String [] aBCEmail = aDoc.getValues (CPDStorage.FIELD_BUSINESS_CONTACT_EMAIL);
+    if (aBCDescription.length != aBCName.length)
+      throw new IllegalStateException ("Different number of business contact descriptions and names");
+    if (aBCDescription.length != aBCPhone.length)
+      throw new IllegalStateException ("Different number of business contact descriptions and phones");
+    if (aBCDescription.length != aBCEmail.length)
+      throw new IllegalStateException ("Different number of business contact descriptions and emails");
+    for (int i = 0; i < aBCDescription.length; ++i)
+      ret.addBusinessContact (new PDStoredBusinessContact (aBCDescription[i], aBCName[i], aBCPhone[i], aBCEmail[i]));
 
     {
       final IndexableField aFieldMetadata = aDoc.getField (CPDStorage.FIELD_METADATA_CREATIONDT);

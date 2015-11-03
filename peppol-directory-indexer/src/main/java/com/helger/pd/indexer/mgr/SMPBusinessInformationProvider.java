@@ -178,7 +178,7 @@ public final class SMPBusinessInformationProvider implements IPDBusinessInformat
       if (aExtensionContainer instanceof IMicroElement)
       {
         final IMicroElement eExtensionContainer = (IMicroElement) aExtensionContainer;
-        if ("ExtensionContainer".equals (eExtensionContainer.getLocalName ()))
+        if ("ExtensionContainer".equals (eExtensionContainer.getTagName ()))
         {
           for (final IMicroElement eExtensionElement : eExtensionContainer.getAllChildElements ("ExtensionElement"))
             if ("business information".equals (eExtensionElement.getAttributeValue ("type")))
@@ -203,7 +203,7 @@ public final class SMPBusinessInformationProvider implements IPDBusinessInformat
         }
         else
         {
-          s_aLogger.warn ("Extension content is expected to be an 'ExtensionContainer' but it is a '" + eExtensionContainer.getLocalName () + "'");
+          s_aLogger.warn ("Extension content is expected to be an 'ExtensionContainer' but it is a '" + eExtensionContainer.getTagName () + "'");
         }
       }
       else

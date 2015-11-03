@@ -34,6 +34,10 @@ public final class CPDStorage
   public static final String FIELD_IDENTIFIER_TYPE = "identifiertype";
   public static final String FIELD_IDENTIFIER = "identifier";
   public static final String FIELD_WEBSITE = "website";
+  public static final String FIELD_BUSINESS_CONTACT_DESCRIPTION = "bc-description";
+  public static final String FIELD_BUSINESS_CONTACT_NAME = "bc-name";
+  public static final String FIELD_BUSINESS_CONTACT_PHONE = "bc-phone";
+  public static final String FIELD_BUSINESS_CONTACT_EMAIL = "bc-email";
   public static final String FIELD_FREETEXT = "freetext";
   public static final String FIELD_METADATA_CREATIONDT = "md-creationdt";
   public static final String FIELD_METADATA_OWNERID = "md-ownerid";
