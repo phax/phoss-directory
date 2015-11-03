@@ -33,6 +33,7 @@ public final class CPDStorage
   public static final String FIELD_GEOINFO = "geoinfo";
   public static final String FIELD_IDENTIFIER_TYPE = "identifiertype";
   public static final String FIELD_IDENTIFIER = "identifier";
+  public static final String FIELD_WEBSITE = "website";
   public static final String FIELD_FREETEXT = "freetext";
   public static final String FIELD_METADATA_CREATIONDT = "md-creationdt";
   public static final String FIELD_METADATA_OWNERID = "md-ownerid";

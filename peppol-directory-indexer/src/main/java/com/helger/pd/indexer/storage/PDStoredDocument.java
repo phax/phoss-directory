@@ -54,6 +54,7 @@ public class PDStoredDocument
   private String m_sName;
   private String m_sGeoInfo;
   private final List <PDStoredIdentifier> m_aIdentifiers = new ArrayList <> ();
+  private final List <String> m_aWebSites = new ArrayList <> ();
   private String m_sFreeText;
   private PDDocumentMetaData m_aMetaData;
   private boolean m_bDeleted;
@@ -177,6 +178,36 @@ public class PDStoredDocument
     return CollectionHelper.isNotEmpty (m_aIdentifiers);
   }
 
+  public void addWebSite (@Nonnull @Nonempty final String sWebSite)
+  {
+    ValueEnforcer.notEmpty (sWebSite, "WebSite");
+    m_aWebSites.add (sWebSite);
+  }
+
+  @Nonnull
+  @ReturnsMutableCopy
+  public List <String> getAllWebSites ()
+  {
+    return CollectionHelper.newList (m_aWebSites);
+  }
+
+  @Nonnegative
+  public int getWebSiteCount ()
+  {
+    return m_aWebSites.size ();
+  }
+
+  @Nullable
+  public String getWebSiteAtIndex (@Nonnegative final int nIndex)
+  {
+    return CollectionHelper.getSafe (m_aWebSites, nIndex);
+  }
+
+  public boolean hasAnyWebSite ()
+  {
+    return CollectionHelper.isNotEmpty (m_aWebSites);
+  }
+
   public void setFreeText (@Nullable final String sFreeText)
   {
     m_sFreeText = sFreeText;
@@ -224,6 +255,7 @@ public class PDStoredDocument
                                        .append ("Name", m_sName)
                                        .append ("GeoInfo", m_sGeoInfo)
                                        .append ("Identifiers", m_aIdentifiers)
+                                       .append ("webSites", m_aWebSites)
                                        .append ("FreeText", m_sFreeText)
                                        .append ("MetaData", m_aMetaData)
                                        .append ("Deleted", m_bDeleted)
@@ -243,25 +275,35 @@ public class PDStoredDocument
   public static PDStoredDocument create (@Nonnull final Document aDoc)
   {
     final PDStoredDocument ret = new PDStoredDocument ();
+
     ret.setParticipantID (aDoc.get (CPDStorage.FIELD_PARTICIPANTID));
+
     for (final String sDocTypeID : aDoc.getValues (CPDStorage.FIELD_DOCUMENT_TYPE_ID))
       ret.addDocumentTypeID (SimpleDocumentTypeIdentifier.createFromURIPart (sDocTypeID));
+
     ret.setCountryCode (aDoc.get (CPDStorage.FIELD_COUNTRY_CODE));
+
     ret.setName (aDoc.get (CPDStorage.FIELD_NAME));
+
     ret.setGeoInfo (aDoc.get (CPDStorage.FIELD_GEOINFO));
+
     final String [] aIDTypes = aDoc.getValues (CPDStorage.FIELD_IDENTIFIER_TYPE);
     final String [] aIDValues = aDoc.getValues (CPDStorage.FIELD_IDENTIFIER);
     if (aIDTypes.length != aIDValues.length)
       throw new IllegalStateException ("Different number of identifier types and values");
     for (int i = 0; i < aIDTypes.length; ++i)
       ret.addIdentifier (new PDStoredIdentifier (aIDTypes[i], aIDValues[i]));
+
+    final String [] aWebSites = aDoc.getValues (CPDStorage.FIELD_WEBSITE);
+    for (final String sWebSite : aWebSites)
+      ret.addWebSite (sWebSite);
+
     {
       final IndexableField aFieldMetadata = aDoc.getField (CPDStorage.FIELD_METADATA_CREATIONDT);
-      final PDDocumentMetaData aMetaData = new PDDocumentMetaData (PDTFactory.createDateTimeFromMillis (aFieldMetadata.numericValue ()
-                                                                                                                        .longValue ())
-                                                                               .toLocalDateTime (),
-                                                                     aDoc.get (CPDStorage.FIELD_METADATA_OWNERID),
-                                                                     aDoc.get (CPDStorage.FIELD_METADATA_REQUESTING_HOST));
+      final PDDocumentMetaData aMetaData = new PDDocumentMetaData (PDTFactory.createDateTimeFromMillis (aFieldMetadata.numericValue ().longValue ())
+                                                                             .toLocalDateTime (),
+                                                                   aDoc.get (CPDStorage.FIELD_METADATA_OWNERID),
+                                                                   aDoc.get (CPDStorage.FIELD_METADATA_REQUESTING_HOST));
       ret.setMetaData (aMetaData);
     }
     ret.setFreeText (aDoc.get (CPDStorage.FIELD_FREETEXT));

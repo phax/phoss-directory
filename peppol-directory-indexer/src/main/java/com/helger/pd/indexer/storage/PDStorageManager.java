@@ -213,6 +213,12 @@ public final class PDStorageManager implements Closeable
           aSB.append (aIdentifier.getValue ()).append (' ');
         }
 
+        for (final String sWebSite : aEntity.getWebSite ())
+        {
+          aDoc.add (new TextField (CPDStorage.FIELD_WEBSITE, sWebSite, Store.YES));
+          aSB.append (sWebSite).append (' ');
+        }
+
         if (aEntity.getFreeText () != null)
         {
           aDoc.add (new TextField (CPDStorage.FIELD_FREETEXT, aEntity.getFreeText (), Store.YES));
