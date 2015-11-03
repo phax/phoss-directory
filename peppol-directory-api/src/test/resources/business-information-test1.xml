@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<BusinessInformation xmlns="http://www.peppol.eu/schema/pd/businessinformation/20151103/">
+  <Entity countryCode="AT">
+    <Name>Austrian Federal Government</Name>
+    <GeoInfo>Spread all over Austria</GeoInfo>
+    <Identifier type="ZIPCode">1010</Identifier>
+    <WebSite>https://www.erechnung.gv.at</WebSite>
+    <WebSite>https://www.e-rechnung.gv.at</WebSite>
+    <BusinessContact>
+      <Name>e-Rechnung.gv.at support</Name>
+      <Email>support-erb@brz.gv.at</Email>
+    </BusinessContact>
+    <FreeText>
+      This is the free text of the first entity.
+      You can write anything in here...
+      Feel free to write your personal biography :)
+    </FreeText>
+  </Entity>
+  <Entity countryCode="AT">
+    <Name>Austrian Federal Government2</Name>
+    <GeoInfo>Spread all over Austria2</GeoInfo>
+    <Identifier type="ZIPCode">1020</Identifier>
+    <WebSite>https://www.erb.gv.at</WebSite>
+    <BusinessContact>
+      <Name>e-Rechnung.gv.at support2</Name>
+      <Email>support-erb@brz.gv.at</Email>
+    </BusinessContact>
+    <FreeText>
+      This is the free text of the second entity.
+    </FreeText>
+  </Entity>
+</BusinessInformation>
