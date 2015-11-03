@@ -72,22 +72,22 @@
       </xs:documentation>
     </xs:annotation>
     <xs:sequence>
-      <xs:element name="Description" minOccurs="0" maxOccurs="1">
+      <xs:element name="Description" type="xs:string" minOccurs="0" maxOccurs="1">
         <xs:annotation>
           <xs:documentation>The type of the contact (sales, support, etc.)</xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="Name" minOccurs="0" maxOccurs="1">
+      <xs:element name="Name" type="xs:string" minOccurs="0" maxOccurs="1">
         <xs:annotation>
           <xs:documentation>The name of the contact (individual or organisational unit)</xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="PhoneNumber" minOccurs="0" maxOccurs="1">
+      <xs:element name="PhoneNumber" type="xs:string" minOccurs="0" maxOccurs="1">
         <xs:annotation>
           <xs:documentation>The public telephone number of the contact</xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="Email" minOccurs="0" maxOccurs="1">
+      <xs:element name="Email" type="xs:string" minOccurs="0" maxOccurs="1">
         <xs:annotation>
           <xs:documentation>The public email address of the contact</xs:documentation>
         </xs:annotation>
