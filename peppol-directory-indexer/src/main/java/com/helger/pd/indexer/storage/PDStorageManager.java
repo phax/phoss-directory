@@ -54,10 +54,10 @@ import com.helger.commons.collection.CollectionHelper;
 import com.helger.commons.collection.multimap.IMultiMapListBased;
 import com.helger.commons.collection.multimap.MultiLinkedHashMapArrayListBased;
 import com.helger.commons.state.ESuccess;
-import com.helger.pd.businessinformation.BusinessInformationType;
-import com.helger.pd.businessinformation.EntityType;
-import com.helger.pd.businessinformation.IdentifierType;
+import com.helger.pd.businessinformation.PDBusinessInformationType;
+import com.helger.pd.businessinformation.PDEntityType;
 import com.helger.pd.businessinformation.PDExtendedBusinessInformation;
+import com.helger.pd.businessinformation.PDIdentifierType;
 import com.helger.pd.indexer.lucene.AllDocumentsCollector;
 import com.helger.pd.indexer.lucene.PDLucene;
 import com.helger.peppol.identifier.IDocumentTypeIdentifier;
@@ -152,10 +152,7 @@ public final class PDStorageManager implements Closeable
       }
 
       s_aLogger.info ("Marked " + aDocuments.size () + " Lucene documents as deleted");
-      AuditHelper.onAuditExecuteSuccess ("pyp-indexer-delete",
-                                         aParticipantID.getURIEncoded (),
-                                         Integer.valueOf (aDocuments.size ()),
-                                         aMetaData);
+      AuditHelper.onAuditExecuteSuccess ("pyp-indexer-delete", aParticipantID.getURIEncoded (), Integer.valueOf (aDocuments.size ()), aMetaData);
     });
   }
 
@@ -171,8 +168,8 @@ public final class PDStorageManager implements Closeable
     return m_aLucene.runAtomic ( () -> {
       final List <Document> aDocs = new ArrayList <> ();
 
-      final BusinessInformationType aBI = aExtBI.getBusinessInformation ();
-      for (final EntityType aEntity : aBI.getEntity ())
+      final PDBusinessInformationType aBI = aExtBI.getBusinessInformation ();
+      for (final PDEntityType aEntity : aBI.getEntity ())
       {
         // Convert entity to Lucene document
         final Document aDoc = new Document ();
@@ -207,7 +204,7 @@ public final class PDStorageManager implements Closeable
           aSB.append (aEntity.getGeoInfo ()).append (' ');
         }
 
-        for (final IdentifierType aIdentifier : aEntity.getIdentifier ())
+        for (final PDIdentifierType aIdentifier : aEntity.getIdentifier ())
         {
           aDoc.add (new TextField (CPDStorage.FIELD_IDENTIFIER_TYPE, aIdentifier.getType (), Store.YES));
           aSB.append (aIdentifier.getType ()).append (' ');
@@ -228,9 +225,7 @@ public final class PDStorageManager implements Closeable
         // Add meta data (not part of the "all field" field!)
         aDoc.add (new LongField (CPDStorage.FIELD_METADATA_CREATIONDT, aMetaData.getCreationDTMillis (), Store.YES));
         aDoc.add (new StringField (CPDStorage.FIELD_METADATA_OWNERID, aMetaData.getOwnerID (), Store.YES));
-        aDoc.add (new StringField (CPDStorage.FIELD_METADATA_REQUESTING_HOST,
-                                   aMetaData.getRequestingHost (),
-                                   Store.YES));
+        aDoc.add (new StringField (CPDStorage.FIELD_METADATA_REQUESTING_HOST, aMetaData.getRequestingHost (), Store.YES));
 
         aDocs.add (aDoc);
       }
@@ -238,8 +233,7 @@ public final class PDStorageManager implements Closeable
       if (!aDocs.isEmpty ())
       {
         // Add "group end" marker
-        CollectionHelper.getLastElement (aDocs)
-                        .add (new Field (CPDStorage.FIELD_GROUP_END, VALUE_GROUP_END, TYPE_GROUP_END));
+        CollectionHelper.getLastElement (aDocs).add (new Field (CPDStorage.FIELD_GROUP_END, VALUE_GROUP_END, TYPE_GROUP_END));
       }
 
       // Delete all existing documents of the participant ID
@@ -247,10 +241,7 @@ public final class PDStorageManager implements Closeable
       m_aLucene.updateDocuments (_createParticipantTerm (aParticipantID), aDocs);
 
       s_aLogger.info ("Added " + aDocs.size () + " Lucene documents");
-      AuditHelper.onAuditExecuteSuccess ("pyp-indexer-create",
-                                         aParticipantID.getURIEncoded (),
-                                         Integer.valueOf (aDocs.size ()),
-                                         aMetaData);
+      AuditHelper.onAuditExecuteSuccess ("pyp-indexer-create", aParticipantID.getURIEncoded (), Integer.valueOf (aDocs.size ()), aMetaData);
     });
   }
 
@@ -300,14 +291,12 @@ public final class PDStorageManager implements Closeable
    * @see #searchAtomic(Query, Collector)
    * @see #getAllDocuments(Query)
    */
-  public void searchAllDocuments (@Nonnull final Query aQuery,
-                                  @Nonnull final Consumer <PDStoredDocument> aConsumer) throws IOException
+  public void searchAllDocuments (@Nonnull final Query aQuery, @Nonnull final Consumer <PDStoredDocument> aConsumer) throws IOException
   {
     ValueEnforcer.notNull (aQuery, "Query");
     ValueEnforcer.notNull (aConsumer, "Consumer");
 
-    searchAtomic (aQuery,
-                  new AllDocumentsCollector (m_aLucene, aDoc -> aConsumer.accept (PDStoredDocument.create (aDoc))));
+    searchAtomic (aQuery, new AllDocumentsCollector (m_aLucene, aDoc -> aConsumer.accept (PDStoredDocument.create (aDoc))));
   }
 
   /**
@@ -361,13 +350,10 @@ public final class PDStorageManager implements Closeable
   public Set <String> getAllContainedParticipantIDs ()
   {
     final Set <String> aTargetList = new TreeSet <> ();
-    final Query aQuery = PDQueryManager.andNotDeleted (new WildcardQuery (new Term (CPDStorage.FIELD_ALL_FIELDS,
-                                                                                     "*")));
+    final Query aQuery = PDQueryManager.andNotDeleted (new WildcardQuery (new Term (CPDStorage.FIELD_ALL_FIELDS, "*")));
     try
     {
-      searchAtomic (aQuery,
-                    new AllDocumentsCollector (m_aLucene,
-                                               aDoc -> aTargetList.add (aDoc.get (CPDStorage.FIELD_PARTICIPANTID))));
+      searchAtomic (aQuery, new AllDocumentsCollector (m_aLucene, aDoc -> aTargetList.add (aDoc.get (CPDStorage.FIELD_PARTICIPANTID))));
     }
     catch (final IOException ex)
     {

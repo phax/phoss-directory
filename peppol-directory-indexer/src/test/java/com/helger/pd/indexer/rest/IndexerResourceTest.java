@@ -48,10 +48,10 @@ import com.helger.commons.collection.CollectionHelper;
 import com.helger.commons.mock.CommonsTestHelper;
 import com.helger.commons.random.VerySecureRandom;
 import com.helger.commons.thread.ThreadHelper;
-import com.helger.pd.businessinformation.BusinessInformationType;
-import com.helger.pd.businessinformation.EntityType;
-import com.helger.pd.businessinformation.IdentifierType;
+import com.helger.pd.businessinformation.PDBusinessInformationType;
+import com.helger.pd.businessinformation.PDEntityType;
 import com.helger.pd.businessinformation.PDExtendedBusinessInformation;
+import com.helger.pd.businessinformation.PDIdentifierType;
 import com.helger.pd.indexer.PYPIndexerTestRule;
 import com.helger.pd.indexer.clientcert.ClientCertificateValidator;
 import com.helger.pd.indexer.mgr.PDIndexerManager;
@@ -81,16 +81,16 @@ public final class IndexerResourceTest
   @Nonnull
   private static PDExtendedBusinessInformation _createMockBI (@Nonnull final IPeppolParticipantIdentifier aParticipantID)
   {
-    final BusinessInformationType aBI = new BusinessInformationType ();
+    final PDBusinessInformationType aBI = new PDBusinessInformationType ();
     {
-      final EntityType aEntity = new EntityType ();
+      final PDEntityType aEntity = new PDEntityType ();
       aEntity.setCountryCode ("AT");
       aEntity.setName ("Philip's mock PEPPOL receiver");
-      IdentifierType aID = new IdentifierType ();
+      PDIdentifierType aID = new PDIdentifierType ();
       aID.setType ("mock");
       aID.setValue ("12345678");
       aEntity.addIdentifier (aID);
-      aID = new IdentifierType ();
+      aID = new PDIdentifierType ();
       aID.setType ("provided");
       aID.setValue (aParticipantID.getURIEncoded ());
       aEntity.addIdentifier (aID);
@@ -98,10 +98,10 @@ public final class IndexerResourceTest
       aBI.addEntity (aEntity);
     }
     {
-      final EntityType aEntity = new EntityType ();
+      final PDEntityType aEntity = new PDEntityType ();
       aEntity.setCountryCode ("NO");
       aEntity.setName ("Philip's mock PEPPOL receiver 2");
-      final IdentifierType aID = new IdentifierType ();
+      final PDIdentifierType aID = new PDIdentifierType ();
       aID.setType ("mock");
       aID.setValue ("abcdefgh");
       aEntity.addIdentifier (aID);
@@ -109,7 +109,7 @@ public final class IndexerResourceTest
       aBI.addEntity (aEntity);
     }
     return new PDExtendedBusinessInformation (aBI,
-                                               CollectionHelper.newList (EPredefinedDocumentTypeIdentifier.INVOICE_T010_BIS5A_V20.getAsDocumentTypeIdentifier ()));
+                                              CollectionHelper.newList (EPredefinedDocumentTypeIdentifier.INVOICE_T010_BIS5A_V20.getAsDocumentTypeIdentifier ()));
   }
 
   @Before
@@ -117,7 +117,7 @@ public final class IndexerResourceTest
   {
     // Set test BI provider
     PDMetaManager.setIndexerMgrFactory (aStorageMgr -> new PDIndexerManager (aStorageMgr).setBusinessInformationProvider (aParticipantID -> _createMockBI (aParticipantID))
-                                                                                           .readAndQueueInitialData ());
+                                                                                         .readAndQueueInitialData ());
     PDMetaManager.getInstance ();
 
     final File aTestClientCertificateKeyStore = new File ("src/test/resources/smp.pilot.jks");
@@ -126,8 +126,7 @@ public final class IndexerResourceTest
       // https
       m_aServer = MockServer.startSecureServer ();
 
-      final KeyStore aKeyStore = KeyStoreHelper.loadKeyStore (aTestClientCertificateKeyStore.getAbsolutePath (),
-                                                              "peppol");
+      final KeyStore aKeyStore = KeyStoreHelper.loadKeyStore (aTestClientCertificateKeyStore.getAbsolutePath (), "peppol");
       // Try to create the socket factory from the provided key store
       final KeyManagerFactory aKeyManagerFactory = KeyManagerFactory.getInstance ("SunX509");
       aKeyManagerFactory.init (aKeyStore, "peppol".toCharArray ());
@@ -136,10 +135,7 @@ public final class IndexerResourceTest
       aSSLContext.init (aKeyManagerFactory.getKeyManagers (),
                         new TrustManager [] { new DoNothingTrustManager (false) },
                         VerySecureRandom.getInstance ());
-      final Client aClient = ClientBuilder.newBuilder ()
-                                          .sslContext (aSSLContext)
-                                          .hostnameVerifier (new HostnameVerifierAlwaysTrue (false))
-                                          .build ();
+      final Client aClient = ClientBuilder.newBuilder ().sslContext (aSSLContext).hostnameVerifier (new HostnameVerifierAlwaysTrue (false)).build ();
       m_aTarget = aClient.target (MockServer.BASE_URI_HTTPS);
     }
     else
@@ -170,11 +166,9 @@ public final class IndexerResourceTest
     final int nCount = 4;
     CommonsTestHelper.testInParallel (nCount, (Runnable) () -> {
       // Create
-      final SimpleParticipantIdentifier aPI = SimpleParticipantIdentifier.createWithDefaultScheme ("9915:test" +
-                                                                                                   aIndex.getAndIncrement ());
+      final SimpleParticipantIdentifier aPI = SimpleParticipantIdentifier.createWithDefaultScheme ("9915:test" + aIndex.getAndIncrement ());
 
-      final String sResponseMsg = m_aTarget.path ("1.0").request ().put (Entity.text (aPI.getURIEncoded ()),
-                                                                         String.class);
+      final String sResponseMsg = m_aTarget.path ("1.0").request ().put (Entity.text (aPI.getURIEncoded ()), String.class);
       assertEquals ("", sResponseMsg);
     });
 
@@ -184,8 +178,7 @@ public final class IndexerResourceTest
     aIndex.set (0);
     CommonsTestHelper.testInParallel (nCount, (Runnable) () -> {
       // Delete
-      final SimpleParticipantIdentifier aPI = SimpleParticipantIdentifier.createWithDefaultScheme ("9915:test" +
-                                                                                                   aIndex.getAndIncrement ());
+      final SimpleParticipantIdentifier aPI = SimpleParticipantIdentifier.createWithDefaultScheme ("9915:test" + aIndex.getAndIncrement ());
 
       final String sResponseMsg = m_aTarget.path ("1.0").path (aPI.getURIEncoded ()).request ().delete (String.class);
       assertEquals ("", sResponseMsg);

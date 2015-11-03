@@ -17,9 +17,9 @@
     limitations under the License.
 
 -->
-<xs:schema xmlns="http://www.peppol.eu/schema/pd/businessinformation/201511/" 
+<xs:schema xmlns="http://www.peppol.eu/schema/pd/businessinformation/20151103/" 
            xmlns:xs="http://www.w3.org/2001/XMLSchema" 
-           targetNamespace="http://www.peppol.eu/schema/pd/businessinformation/201511/" 
+           targetNamespace="http://www.peppol.eu/schema/pd/businessinformation/20151103/" 
            elementFormDefault="qualified"
            attributeFormDefault="unqualified">
   <xs:annotation>
@@ -31,7 +31,7 @@
        Author: Philip Helger, Bundesrechenzentrum GmbH
 
        History: 
-         2015-11-02, Philip Helger
+         2015-11-03, Philip Helger
            Changed target namespace URI
            Made country code and entity Name mandatory
            Added element WebSite

@@ -15,10 +15,10 @@ import org.junit.rules.TestRule;
 
 import com.helger.commons.collection.CollectionHelper;
 import com.helger.datetime.PDTFactory;
-import com.helger.pd.businessinformation.BusinessInformationType;
-import com.helger.pd.businessinformation.EntityType;
-import com.helger.pd.businessinformation.IdentifierType;
+import com.helger.pd.businessinformation.PDBusinessInformationType;
+import com.helger.pd.businessinformation.PDEntityType;
 import com.helger.pd.businessinformation.PDExtendedBusinessInformation;
+import com.helger.pd.businessinformation.PDIdentifierType;
 import com.helger.pd.indexer.PYPIndexerTestRule;
 import com.helger.pd.indexer.lucene.PDLucene;
 import com.helger.peppol.identifier.doctype.EPredefinedDocumentTypeIdentifier;
@@ -44,17 +44,17 @@ public final class PYPStorageManagerTest
   @Nonnull
   private static PDExtendedBusinessInformation _createMockBI (@Nonnull final IPeppolParticipantIdentifier aParticipantID)
   {
-    final BusinessInformationType aBI = new BusinessInformationType ();
+    final PDBusinessInformationType aBI = new PDBusinessInformationType ();
     {
-      final EntityType aEntity = new EntityType ();
+      final PDEntityType aEntity = new PDEntityType ();
       aEntity.setCountryCode ("AT");
       aEntity.setName ("Philip's mock PEPPOL receiver");
       aEntity.setGeoInfo ("Rome");
-      IdentifierType aID = new IdentifierType ();
+      PDIdentifierType aID = new PDIdentifierType ();
       aID.setType ("mock");
       aID.setValue ("12345678");
       aEntity.addIdentifier (aID);
-      aID = new IdentifierType ();
+      aID = new PDIdentifierType ();
       aID.setType ("provided");
       aID.setValue (aParticipantID.getURIEncoded ());
       aEntity.addIdentifier (aID);
@@ -62,11 +62,11 @@ public final class PYPStorageManagerTest
       aBI.addEntity (aEntity);
     }
     {
-      final EntityType aEntity = new EntityType ();
+      final PDEntityType aEntity = new PDEntityType ();
       aEntity.setCountryCode ("NO");
       for (int i = 0; i < 10; ++i)
       {
-        final IdentifierType aID = new IdentifierType ();
+        final PDIdentifierType aID = new PDIdentifierType ();
         aID.setType ("type" + i);
         aID.setValue ("value" + i);
         aEntity.addIdentifier (aID);
@@ -74,8 +74,7 @@ public final class PYPStorageManagerTest
       aEntity.setFreeText ("This is another mock entry for testing purposes only");
       aBI.addEntity (aEntity);
     }
-    return new PDExtendedBusinessInformation (aBI,
-                                               CollectionHelper.newList (EPredefinedDocumentTypeIdentifier.INVOICE_T010_BIS5A_V20));
+    return new PDExtendedBusinessInformation (aBI, CollectionHelper.newList (EPredefinedDocumentTypeIdentifier.INVOICE_T010_BIS5A_V20));
   }
 
   @Test

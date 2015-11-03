@@ -27,28 +27,28 @@ import com.helger.commons.io.resource.IReadableResource;
 import com.helger.jaxb.AbstractJAXBMarshaller;
 
 /**
- * This is the reader and writer for {@link BusinessInformationType} documents.
- * This class may be derived to override protected methods from
+ * This is the reader and writer for {@link PDBusinessInformationType}
+ * documents. This class may be derived to override protected methods from
  * {@link AbstractJAXBMarshaller}.
  *
  * @author Philip Helger
  */
-public class PDBusinessInformationMarshaller extends AbstractJAXBMarshaller <BusinessInformationType>
+public class PDBusinessInformationMarshaller extends AbstractJAXBMarshaller <PDBusinessInformationType>
 {
   /** XSD resources */
-  public static final List <? extends IReadableResource> BUSINESS_CARD_XSDS = CollectionHelper.newUnmodifiableList (new ClassPathResource ("/schemas/pd-business-information-201511.xsd"));
+  public static final List <? extends IReadableResource> BUSINESS_INFORMATION_XSDS = CollectionHelper.newUnmodifiableList (new ClassPathResource ("/schemas/peppol-directory-business-information-20151103.xsd"));
 
   /**
    * Constructor
    */
   public PDBusinessInformationMarshaller ()
   {
-    super (BusinessInformationType.class, BUSINESS_CARD_XSDS);
+    super (PDBusinessInformationType.class, BUSINESS_INFORMATION_XSDS);
   }
 
   @Override
   @Nonnull
-  protected final JAXBElement <BusinessInformationType> wrapObject (final BusinessInformationType aCodeListDocument)
+  protected final JAXBElement <PDBusinessInformationType> wrapObject (final PDBusinessInformationType aCodeListDocument)
   {
     return new ObjectFactory ().createBusinessInformation (aCodeListDocument);
   }

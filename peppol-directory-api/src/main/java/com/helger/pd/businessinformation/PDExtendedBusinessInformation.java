@@ -17,20 +17,20 @@ import com.helger.peppol.identifier.doctype.SimpleDocumentTypeIdentifier;
 
 /**
  * This class encapsulates all the data to be added to the Lucene index. It
- * consists of the main {@link BusinessInformationType} object as retrieved from
- * the SMP plus a list of all document types supported by the respective service
- * group.
+ * consists of the main {@link PDBusinessInformationType} object as retrieved
+ * from the SMP plus a list of all document types supported by the respective
+ * service group.
  *
  * @author Philip Helger
  */
 @Immutable
 public class PDExtendedBusinessInformation
 {
-  private final BusinessInformationType m_aBusinessInfo;
+  private final PDBusinessInformationType m_aBusinessInfo;
   private final List <IDocumentTypeIdentifier> m_aDocumentTypeIDs = new ArrayList <> ();
 
-  public PDExtendedBusinessInformation (@Nonnull final BusinessInformationType aBusinessInfo,
-                                         @Nullable final List <IDocumentTypeIdentifier> aDocumentTypeIDs)
+  public PDExtendedBusinessInformation (@Nonnull final PDBusinessInformationType aBusinessInfo,
+                                        @Nullable final List <IDocumentTypeIdentifier> aDocumentTypeIDs)
   {
     m_aBusinessInfo = ValueEnforcer.notNull (aBusinessInfo, "BusinessInfo");
     if (aDocumentTypeIDs != null)
@@ -40,12 +40,12 @@ public class PDExtendedBusinessInformation
   }
 
   /**
-   * @return The mutable {@link BusinessInformationType} object as provided in
+   * @return The mutable {@link PDBusinessInformationType} object as provided in
    *         the constructor. Never <code>null</code>.
    */
   @Nonnull
   @ReturnsMutableObject ("design")
-  public BusinessInformationType getBusinessInformation ()
+  public PDBusinessInformationType getBusinessInformation ()
   {
     return m_aBusinessInfo;
   }
@@ -64,8 +64,6 @@ public class PDExtendedBusinessInformation
   @Override
   public String toString ()
   {
-    return new ToStringGenerator (this).append ("BusinessInfo", m_aBusinessInfo)
-                                       .append ("DocTypeIDs", m_aDocumentTypeIDs)
-                                       .toString ();
+    return new ToStringGenerator (this).append ("BusinessInfo", m_aBusinessInfo).append ("DocTypeIDs", m_aDocumentTypeIDs).toString ();
   }
 }

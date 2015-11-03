@@ -49,9 +49,9 @@ import com.helger.commons.microdom.serialize.MicroWriter;
 import com.helger.commons.url.SimpleURL;
 import com.helger.commons.url.URLHelper;
 import com.helger.commons.xml.XMLDebug;
-import com.helger.pd.businessinformation.BusinessInformationType;
 import com.helger.pd.businessinformation.IPDBusinessInformationProvider;
 import com.helger.pd.businessinformation.PDBusinessInformationMarshaller;
+import com.helger.pd.businessinformation.PDBusinessInformationType;
 import com.helger.pd.businessinformation.PDExtendedBusinessInformation;
 import com.helger.pd.settings.PDSettings;
 import com.helger.peppol.identifier.IDocumentTypeIdentifier;
@@ -103,8 +103,7 @@ public final class SMPBusinessInformationProvider implements IPDBusinessInformat
       {
         final Element aElement = (Element) aNode;
         final String sNamespaceURI = aElement.getNamespaceURI ();
-        final IMicroElement eElement = sNamespaceURI != null ? new MicroElement (sNamespaceURI,
-                                                                                 aElement.getLocalName ())
+        final IMicroElement eElement = sNamespaceURI != null ? new MicroElement (sNamespaceURI, aElement.getLocalName ())
                                                              : new MicroElement (aElement.getTagName ());
         final NamedNodeMap aAttrs = aNode.getAttributes ();
         if (aAttrs != null)
@@ -171,7 +170,7 @@ public final class SMPBusinessInformationProvider implements IPDBusinessInformat
   }
 
   @Nullable
-  public static BusinessInformationType extractBusinessInformation (@Nullable final ExtensionType aExtension)
+  public static PDBusinessInformationType extractBusinessInformation (@Nullable final ExtensionType aExtension)
   {
     if (aExtension != null && aExtension.getAny () != null)
     {
@@ -188,7 +187,7 @@ public final class SMPBusinessInformationProvider implements IPDBusinessInformat
               if (eBussinessInfo != null)
               {
                 final String sBusinessInfo = MicroWriter.getXMLString (eBussinessInfo);
-                final BusinessInformationType aBI = new PDBusinessInformationMarshaller ().read (sBusinessInfo);
+                final PDBusinessInformationType aBI = new PDBusinessInformationMarshaller ().read (sBusinessInfo);
                 if (aBI != null)
                 {
                   // Finally we're done
@@ -204,15 +203,12 @@ public final class SMPBusinessInformationProvider implements IPDBusinessInformat
         }
         else
         {
-          s_aLogger.warn ("Extension content is expected to be an 'ExtensionContainer' but it is a '" +
-                          eExtensionContainer.getLocalName () +
-                          "'");
+          s_aLogger.warn ("Extension content is expected to be an 'ExtensionContainer' but it is a '" + eExtensionContainer.getLocalName () + "'");
         }
       }
       else
       {
-        s_aLogger.warn ("Extension content is not an element but a " +
-                        XMLDebug.getNodeTypeAsString (aExtension.getAny ().getNodeType ()));
+        s_aLogger.warn ("Extension content is not an element but a " + XMLDebug.getNodeTypeAsString (aExtension.getAny ().getNodeType ()));
       }
     }
 
@@ -235,43 +231,32 @@ public final class SMPBusinessInformationProvider implements IPDBusinessInformat
       return null;
     }
 
-    final BusinessInformationType aBI = extractBusinessInformation (aServiceGroup.getExtension ());
+    final PDBusinessInformationType aBI = extractBusinessInformation (aServiceGroup.getExtension ());
     if (aBI == null)
     {
       // No extension present - no need to try again
-      s_aLogger.warn ("Failed to get SMP BusinessInformation from Extension of service group " +
-                      aParticipantID.getURIEncoded ());
+      s_aLogger.warn ("Failed to get SMP BusinessInformation from Extension of service group " + aParticipantID.getURIEncoded ());
       return null;
     }
 
     final List <IDocumentTypeIdentifier> aDocumentTypeIDs = new ArrayList <> ();
-    for (final ServiceMetadataReferenceType aRef : aServiceGroup.getServiceMetadataReferenceCollection ()
-                                                                .getServiceMetadataReference ())
+    for (final ServiceMetadataReferenceType aRef : aServiceGroup.getServiceMetadataReferenceCollection ().getServiceMetadataReference ())
     {
       // Extract the path in case there are parameters or anchors attached
       final String sHref = new SimpleURL (aRef.getHref ()).getPath ();
       final int nIndex = sHref.indexOf (URL_PART_SERVICES);
       if (nIndex < 0)
       {
-        s_aLogger.error ("Invalid href when querying service group '" +
-                         aParticipantID.getURIEncoded () +
-                         "': '" +
-                         sHref +
-                         "'");
+        s_aLogger.error ("Invalid href when querying service group '" + aParticipantID.getURIEncoded () + "': '" + sHref + "'");
       }
       else
       {
         // URL decode because of encoded '#' and ':' characters
-        final String sDocumentTypeID = URLHelper.urlDecode (sHref.substring (nIndex + URL_PART_SERVICES.length ()),
-                                                            CCharset.CHARSET_UTF_8_OBJ);
+        final String sDocumentTypeID = URLHelper.urlDecode (sHref.substring (nIndex + URL_PART_SERVICES.length ()), CCharset.CHARSET_UTF_8_OBJ);
         final SimpleDocumentTypeIdentifier aDocTypeID = IdentifierHelper.createDocumentTypeIdentifierFromURIPartOrNull (sDocumentTypeID);
         if (aDocTypeID == null)
         {
-          s_aLogger.error ("Invalid document type when querying service group '" +
-                           aParticipantID.getURIEncoded () +
-                           "': '" +
-                           sDocumentTypeID +
-                           "'");
+          s_aLogger.error ("Invalid document type when querying service group '" + aParticipantID.getURIEncoded () + "': '" + sDocumentTypeID + "'");
         }
         else
         {
