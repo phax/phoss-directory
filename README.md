@@ -1,4 +1,6 @@
 # peppol-directory
+
+[![Join the chat at https://gitter.im/phax/peppol-directory](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/phax/peppol-directory?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 The official PEPPOL Directory (PD; former PEPPOL Yellow Pages - PYP) software. It is split into the following sub-projects:
   * `peppol-directory-api` - the common API for the indexer and the publisher incl. Lucene handling
   * `peppol-directory-indexer` - the PD indexer part
