@@ -29,6 +29,7 @@ public final class CPDStorage
   public static final String FIELD_PARTICIPANTID = "participantid";
   public static final String FIELD_DOCUMENT_TYPE_ID = "doctypeid";
   public static final String FIELD_COUNTRY_CODE = "country";
+  public static final String FIELD_REGISTRATION_DATE = "registrationdate";
   public static final String FIELD_NAME = "name";
   public static final String FIELD_GEOINFO = "geoinfo";
   public static final String FIELD_IDENTIFIER_TYPE = "identifiertype";

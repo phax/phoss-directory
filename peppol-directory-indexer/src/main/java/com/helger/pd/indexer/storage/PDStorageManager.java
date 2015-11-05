@@ -66,6 +66,7 @@ import com.helger.peppol.identifier.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.IdentifierHelper;
 import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
 import com.helger.photon.basic.security.audit.AuditHelper;
+import com.helger.web.datetime.PDTWebDateHelper;
 
 /**
  * The global storage manager that wraps the used Lucene index.
@@ -128,8 +129,7 @@ public final class PDStorageManager implements Closeable
   }
 
   @Nonnull
-  public ESuccess deleteEntry (@Nonnull final IPeppolParticipantIdentifier aParticipantID,
-                               @Nonnull final PDDocumentMetaData aMetaData) throws IOException
+  public ESuccess deleteEntry (@Nonnull final IPeppolParticipantIdentifier aParticipantID, @Nonnull final PDDocumentMetaData aMetaData) throws IOException
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
     ValueEnforcer.notNull (aMetaData, "MetaData");
@@ -140,8 +140,7 @@ public final class PDStorageManager implements Closeable
       // Get all documents to be marked as deleted
       final IndexSearcher aSearcher = m_aLucene.getSearcher ();
       if (aSearcher != null)
-        aSearcher.search (new TermQuery (_createParticipantTerm (aParticipantID)),
-                          new AllDocumentsCollector (m_aLucene, aDoc -> aDocuments.add (aDoc)));
+        aSearcher.search (new TermQuery (_createParticipantTerm (aParticipantID)), new AllDocumentsCollector (m_aLucene, aDoc -> aDocuments.add (aDoc)));
 
       if (!aDocuments.isEmpty ())
       {
@@ -192,6 +191,13 @@ public final class PDStorageManager implements Closeable
         {
           aDoc.add (new StringField (CPDStorage.FIELD_COUNTRY_CODE, aEntity.getCountryCode (), Store.YES));
           aSBAllFields.append (aEntity.getCountryCode ()).append (' ');
+        }
+
+        if (aEntity.getRegistrationDate () != null)
+        {
+          final String sDate = PDTWebDateHelper.getAsStringXSD (aEntity.getRegistrationDate ());
+          aDoc.add (new StringField (CPDStorage.FIELD_REGISTRATION_DATE, sDate, Store.YES));
+          aSBAllFields.append (sDate).append (' ');
         }
 
         if (aEntity.getName () != null)

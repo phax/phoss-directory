@@ -17,9 +17,9 @@
     limitations under the License.
 
 -->
-<xs:schema xmlns="http://www.peppol.eu/schema/pd/businessinformation/20151103/" 
+<xs:schema xmlns="http://www.peppol.eu/schema/pd/businessinformation/20151104/" 
            xmlns:xs="http://www.w3.org/2001/XMLSchema" 
-           targetNamespace="http://www.peppol.eu/schema/pd/businessinformation/20151103/" 
+           targetNamespace="http://www.peppol.eu/schema/pd/businessinformation/20151104/" 
            elementFormDefault="qualified"
            attributeFormDefault="unqualified">
   <xs:annotation>
@@ -31,6 +31,8 @@
        Author: Philip Helger, Bundesrechenzentrum GmbH
 
        History: 
+         2015-11-05, Philip Helger
+           Added optional registration date
          2015-11-03, Philip Helger
            Changed target namespace URI
            Made country code and entity Name mandatory
@@ -148,6 +150,14 @@
       <xs:annotation>
         <xs:documentation>
           The mandatory ISO 3166-2 country code (e.g. "AT" for Austria or "NO" for Norway).
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="registrationDate" type="xs:date" use="optional">
+      <xs:annotation>
+        <xs:documentation>
+          The date when this participant was registered for PEPPOL.
+          This attribute is optional.
         </xs:documentation>
       </xs:annotation>
     </xs:attribute>

@@ -26,6 +26,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexableField;
+import org.joda.time.LocalDate;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
@@ -36,6 +37,7 @@ import com.helger.commons.string.ToStringGenerator;
 import com.helger.datetime.PDTFactory;
 import com.helger.peppol.identifier.doctype.IPeppolDocumentTypeIdentifier;
 import com.helger.peppol.identifier.doctype.SimpleDocumentTypeIdentifier;
+import com.helger.web.datetime.PDTWebDateHelper;
 
 /**
  * This class represents a document stored in the Lucene index but with a nicer
@@ -51,6 +53,7 @@ public class PDStoredDocument
   private String m_sParticipantID;
   private final List <SimpleDocumentTypeIdentifier> m_aDocumentTypeIDs = new ArrayList <> ();
   private String m_sCountryCode;
+  private LocalDate m_aRegistrationDate;
   private String m_sName;
   private String m_sGeoInfo;
   private final List <PDStoredIdentifier> m_aIdentifiers = new ArrayList <> ();
@@ -115,6 +118,22 @@ public class PDStoredDocument
   public boolean hasCountryCode ()
   {
     return StringHelper.hasText (m_sCountryCode);
+  }
+
+  public void setRegistrationDate (@Nullable final LocalDate aRegistrationDate)
+  {
+    m_aRegistrationDate = aRegistrationDate;
+  }
+
+  @Nullable
+  public LocalDate getRegistrationDate ()
+  {
+    return m_aRegistrationDate;
+  }
+
+  public boolean hasRegistrationDate ()
+  {
+    return m_aRegistrationDate != null;
   }
 
   public void setName (@Nullable final String sName)
@@ -283,6 +302,7 @@ public class PDStoredDocument
     return new ToStringGenerator (this).append ("ParticipantID", m_sParticipantID)
                                        .append ("DocumentTypeIDs", m_aDocumentTypeIDs)
                                        .append ("CountryCode", m_sCountryCode)
+                                       .append ("RegistrationDate", m_aRegistrationDate)
                                        .append ("Name", m_sName)
                                        .append ("GeoInfo", m_sGeoInfo)
                                        .append ("Identifiers", m_aIdentifiers)
@@ -315,6 +335,8 @@ public class PDStoredDocument
 
     ret.setCountryCode (aDoc.get (CPDStorage.FIELD_COUNTRY_CODE));
 
+    ret.setRegistrationDate (PDTWebDateHelper.getLocalDateFromXSD (aDoc.get (CPDStorage.FIELD_REGISTRATION_DATE)));
+
     ret.setName (aDoc.get (CPDStorage.FIELD_NAME));
 
     ret.setGeoInfo (aDoc.get (CPDStorage.FIELD_GEOINFO));
@@ -345,8 +367,7 @@ public class PDStoredDocument
 
     {
       final IndexableField aFieldMetadata = aDoc.getField (CPDStorage.FIELD_METADATA_CREATIONDT);
-      final PDDocumentMetaData aMetaData = new PDDocumentMetaData (PDTFactory.createDateTimeFromMillis (aFieldMetadata.numericValue ().longValue ())
-                                                                             .toLocalDateTime (),
+      final PDDocumentMetaData aMetaData = new PDDocumentMetaData (PDTFactory.createDateTimeFromMillis (aFieldMetadata.numericValue ().longValue ()).toLocalDateTime (),
                                                                    aDoc.get (CPDStorage.FIELD_METADATA_OWNERID),
                                                                    aDoc.get (CPDStorage.FIELD_METADATA_REQUESTING_HOST));
       ret.setMetaData (aMetaData);

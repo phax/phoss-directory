@@ -14,25 +14,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pd.businessinformation;
+package com.helger.pd.jaxb;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
+import org.joda.time.LocalDate;
 import org.junit.Test;
 
-import com.helger.commons.io.resource.ClassPathResource;
+import com.helger.datetime.PDTFactory;
 
 /**
- * Test class for class {@link PDBusinessInformationMarshaller}.
+ * Test class for class {@link DateAdapter}.
  *
  * @author Philip Helger
  */
-public final class PDBusinessInformationMarshallerTest
+public final class DateAdapterTest
 {
   @Test
   public void testBasic ()
   {
-    final PDBusinessInformationMarshaller aMarshaller = new PDBusinessInformationMarshaller ();
-    assertNotNull (aMarshaller.read (new ClassPathResource ("business-information-test1.xml")));
+    assertNull (DateAdapter.getLocalDateAsStringXSD (null));
+    assertNull (DateAdapter.getLocalDateFromXSD (null));
+
+    final LocalDate aLocalDate = PDTFactory.getCurrentLocalDate ();
+    final String s = DateAdapter.getLocalDateAsStringXSD (aLocalDate);
+    assertNotNull (s);
+    final LocalDate aBack = DateAdapter.getLocalDateFromXSD (s);
+    assertNotNull (aBack);
+    assertEquals (aLocalDate, aBack);
   }
 }

@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<BusinessInformation xmlns="http://www.peppol.eu/schema/pd/businessinformation/20151103/">
-  <Entity countryCode="AT">
+<BusinessInformation xmlns="http://www.peppol.eu/schema/pd/businessinformation/20151105/">
+  <Entity countryCode="AT" registrationDate="2010-07-06">
     <Name>Austrian Federal Government</Name>
     <GeoInfo>Spread all over Austria</GeoInfo>
     <Identifier type="ZIPCode">1010</Identifier>
     <WebSite>https://www.erechnung.gv.at</WebSite>
     <WebSite>https://www.e-rechnung.gv.at</WebSite>
     <BusinessContact>
+      <Description>Support contact</Description>
       <Name>e-Rechnung.gv.at support</Name>
       <Email>support-erb@brz.gv.at</Email>
     </BusinessContact>
@@ -22,6 +23,7 @@
     <Identifier type="ZIPCode">1020</Identifier>
     <WebSite>https://www.erb.gv.at</WebSite>
     <BusinessContact>
+      <Description>Support contact</Description>
       <Name>e-Rechnung.gv.at support2</Name>
       <Email>support-erb@brz.gv.at</Email>
     </BusinessContact>
