@@ -17,9 +17,9 @@
     limitations under the License.
 
 -->
-<xs:schema xmlns="http://www.peppol.eu/schema/pd/businessinformation/20151104/" 
+<xs:schema xmlns="http://www.peppol.eu/schema/pd/businessinformation/20151105/" 
            xmlns:xs="http://www.w3.org/2001/XMLSchema" 
-           targetNamespace="http://www.peppol.eu/schema/pd/businessinformation/20151104/" 
+           targetNamespace="http://www.peppol.eu/schema/pd/businessinformation/20151105/" 
            elementFormDefault="qualified"
            attributeFormDefault="unqualified">
   <xs:annotation>
