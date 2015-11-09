@@ -129,10 +129,8 @@ public final class PagePublicSearch extends AbstractAppWebPage
       final BootstrapRow aHeaderRow = aNodeList.addAndReturnChild (new BootstrapRow ());
       // A PYP logo would be nice
       aHeaderRow.createColumn (12, 12, 1, 2).addClass (CBootstrapCSS.HIDDEN_SM);
-      aHeaderRow.createColumn (12, 6, 5, 4)
-                .addChild (new HCExtImg (new SimpleURL ("/imgs/pyplogo.png")).addClass (CBootstrapCSS.PULL_LEFT));
-      aHeaderRow.createColumn (12, 6, 5, 4)
-                .addChild (new HCExtImg (new SimpleURL ("/imgs/peppol.png")).addClass (CBootstrapCSS.PULL_RIGHT));
+      aHeaderRow.createColumn (12, 6, 5, 4).addChild (new HCExtImg (new SimpleURL ("/imgs/pd-logo.png")).addClass (CBootstrapCSS.PULL_LEFT));
+      aHeaderRow.createColumn (12, 6, 5, 4).addChild (new HCExtImg (new SimpleURL ("/imgs/peppol.png")).addClass (CBootstrapCSS.PULL_RIGHT));
       aHeaderRow.createColumn (12, 12, 1, 2).addClass (CBootstrapCSS.HIDDEN_SM);
     }
 
@@ -149,8 +147,7 @@ public final class PagePublicSearch extends AbstractAppWebPage
         aNodeList.addChild (_createSmallQueryBox (aWPEC));
 
         // Search document matching participant ID
-        final List <PDStoredDocument> aResultDocs = PDMetaManager.getStorageMgr ()
-                                                                   .getAllDocumentsOfParticipant (aParticipantID);
+        final List <PDStoredDocument> aResultDocs = PDMetaManager.getStorageMgr ().getAllDocumentsOfParticipant (aParticipantID);
         // Group by participant ID
         final Map <String, List <PDStoredDocument>> aGroupedDocs = PDStorageManager.getGroupedByParticipantID (aResultDocs);
         if (aGroupedDocs.isEmpty ())
@@ -158,11 +155,7 @@ public final class PagePublicSearch extends AbstractAppWebPage
         else
         {
           if (aGroupedDocs.size () > 1)
-            s_aLogger.warn ("Found " +
-                            aGroupedDocs.size () +
-                            " entries for participant identifier '" +
-                            sParticipantID +
-                            "' - weird");
+            s_aLogger.warn ("Found " + aGroupedDocs.size () + " entries for participant identifier '" + sParticipantID + "' - weird");
           // Get the first one
           final List <PDStoredDocument> aDocuments = CollectionHelper.getFirstElement (aGroupedDocs.values ());
           bShowQuery = false;
@@ -192,8 +185,7 @@ public final class PagePublicSearch extends AbstractAppWebPage
           // Document types
           {
             final HCOL aDocTypeCtrl = new HCOL ();
-            final List <IPeppolDocumentTypeIdentifier> aDocTypeIDs = CollectionHelper.getSorted (aResultDocs.get (0)
-                                                                                                            .getAllDocumentTypeIDs (),
+            final List <IPeppolDocumentTypeIdentifier> aDocTypeIDs = CollectionHelper.getSorted (aResultDocs.get (0).getAllDocumentTypeIDs (),
                                                                                                  new ComparatorDocumentTypeIdentifier ());
             for (final IPeppolDocumentTypeIdentifier aDocTypeID : aDocTypeIDs)
             {
@@ -222,8 +214,7 @@ public final class PagePublicSearch extends AbstractAppWebPage
         s_aLogger.info ("Searching for '" + sQuery + "'");
 
         // Build Lucene query
-        final Query aLuceneQuery = PDQueryManager.convertQueryStringToLuceneQuery (PDMetaManager.getLucene (),
-                                                                                    sQuery);
+        final Query aLuceneQuery = PDQueryManager.convertQueryStringToLuceneQuery (PDMetaManager.getLucene (), sQuery);
         // Search all documents
         final List <PDStoredDocument> aResultDocs = PDMetaManager.getStorageMgr ().getAllDocuments (aLuceneQuery);
 
@@ -258,12 +249,9 @@ public final class PagePublicSearch extends AbstractAppWebPage
                                                     EBootstrapButtonSize.MINI).addChild ("Show details")
                                                                               .setIcon (EDefaultIcon.MAGNIFIER)
                                                                               .setOnClick (aWPEC.getSelfHref ()
-                                                                                                .add (FIELD_QUERY,
-                                                                                                      sQuery)
-                                                                                                .add (CPageParam.PARAM_ACTION,
-                                                                                                      CPageParam.ACTION_VIEW)
-                                                                                                .add (FIELD_PARTICIPANT_ID,
-                                                                                                      sDocParticipantID)));
+                                                                                                .add (FIELD_QUERY, sQuery)
+                                                                                                .add (CPageParam.PARAM_ACTION, CPageParam.ACTION_VIEW)
+                                                                                                .add (FIELD_PARTICIPANT_ID, sDocParticipantID)));
 
             // Show all entities of the stored document
             final HCUL aUL = aResultItem.addAndReturnChild (new HCUL ());
@@ -275,21 +263,17 @@ public final class PagePublicSearch extends AbstractAppWebPage
               {
                 // Add country flag (if available)
                 aDocHeadRow.addChild (PDCommonUI.getFlagNode (aStoredDoc.getCountryCode ()));
-                aDocHeadRow.addChild (new HCSpan ().addChild (aStoredDoc.getCountryCode ())
-                                                   .addClass (CSS_CLASS_RESULT_DOC_COUNTRY_CODE));
+                aDocHeadRow.addChild (new HCSpan ().addChild (aStoredDoc.getCountryCode ()).addClass (CSS_CLASS_RESULT_DOC_COUNTRY_CODE));
               }
               if (aStoredDoc.hasName ())
-                aDocHeadRow.addChild (new HCSpan ().addChild (aStoredDoc.getName ())
-                                                   .addClass (CSS_CLASS_RESULT_DOC_NAME));
+                aDocHeadRow.addChild (new HCSpan ().addChild (aStoredDoc.getName ()).addClass (CSS_CLASS_RESULT_DOC_NAME));
               if (aDocHeadRow.hasChildren ())
                 aLI.addChild (aDocHeadRow);
 
               if (aStoredDoc.hasGeoInfo ())
-                aLI.addChild (new HCDiv ().addChildren (HCExtHelper.nl2divList (aStoredDoc.getGeoInfo ()))
-                                          .addClass (CSS_CLASS_RESULT_DOC_GEOINFO));
+                aLI.addChild (new HCDiv ().addChildren (HCExtHelper.nl2divList (aStoredDoc.getGeoInfo ())).addClass (CSS_CLASS_RESULT_DOC_GEOINFO));
               if (aStoredDoc.hasFreeText ())
-                aLI.addChild (new HCDiv ().addChildren (HCExtHelper.nl2divList (aStoredDoc.getFreeText ()))
-                                          .addClass (CSS_CLASS_RESULT_DOC_FREETEXT));
+                aLI.addChild (new HCDiv ().addChildren (HCExtHelper.nl2divList (aStoredDoc.getFreeText ())).addClass (CSS_CLASS_RESULT_DOC_FREETEXT));
             }
 
             aOL.addItem (aResultItem);
@@ -307,8 +291,7 @@ public final class PagePublicSearch extends AbstractAppWebPage
         final HCForm aBigQueryBox = new HCForm ().setAction (aWPEC.getSelfHref ()).setMethod (EHCFormMethod.GET);
         aBigQueryBox.addChild (new HCDiv ().addClass (CSS_CLASS_BIG_QUERY_BOX).addChild (_createQueryEdit ()));
         aBigQueryBox.addChild (new HCDiv ().addClass (CSS_CLASS_BIG_QUERY_BUTTONS)
-                                           .addChild (new BootstrapSubmitButton ().addChild ("Search PYP")
-                                                                                  .setIcon (EDefaultIcon.MAGNIFIER)));
+                                           .addChild (new BootstrapSubmitButton ().addChild ("Search PYP").setIcon (EDefaultIcon.MAGNIFIER)));
 
         final BootstrapRow aBodyRow = aNodeList.addAndReturnChild (new BootstrapRow ());
         aBodyRow.createColumn (12, 1, 2, 3).addClass (CBootstrapCSS.HIDDEN_XS);
