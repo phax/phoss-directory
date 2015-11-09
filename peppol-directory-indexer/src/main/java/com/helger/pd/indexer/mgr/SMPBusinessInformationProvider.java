@@ -22,6 +22,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.apache.http.HttpHost;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,28 +70,42 @@ public final class SMPBusinessInformationProvider implements IPDBusinessInformat
       if (aExtensionContainer instanceof IMicroElement)
       {
         final IMicroElement eExtensionContainer = (IMicroElement) aExtensionContainer;
+        // Must be an ExtensionContainer element
         if ("ExtensionContainer".equals (eExtensionContainer.getTagName ()))
         {
+          // Find ExtensionElement with "type" attribute value "business
+          // information"
           for (final IMicroElement eExtensionElement : eExtensionContainer.getAllChildElements ("ExtensionElement"))
             if ("business information".equals (eExtensionElement.getAttributeValue ("type")))
             {
+              // Get the "BusinessInformation" child element
               final IMicroElement eBussinessInfo = eExtensionElement.getFirstChildElement ("BusinessInformation");
               if (eBussinessInfo != null)
               {
-                final String sBusinessInfo = MicroWriter.getXMLString (eBussinessInfo);
-                final PDBusinessInformationType aBI = new PDBusinessInformationMarshaller ().read (sBusinessInfo);
-                if (aBI != null)
+                // Check the namespace URI
+                if (PDBusinessInformationMarshaller.BUSINESS_INFORMATION_NS_URI.equals (eBussinessInfo.getNamespaceURI ()))
                 {
-                  // Finally we're done
-                  return aBI;
+                  final String sBusinessInfo = MicroWriter.getXMLString (eBussinessInfo);
+                  final PDBusinessInformationType aBI = new PDBusinessInformationMarshaller ().read (sBusinessInfo);
+                  if (aBI != null)
+                  {
+                    // Finally we're done
+                    return aBI;
+                  }
+                  s_aLogger.warn ("Failed to parse business information data:\n" + sBusinessInfo);
                 }
-                s_aLogger.warn ("Failed to parse business information data:\n" + sBusinessInfo);
+                else
+                  s_aLogger.warn ("The 'BusinessInformation' element has the wrong namespace URI '" +
+                                  eBussinessInfo.getNamespaceURI () +
+                                  "'. Was expecting namespace URI '" +
+                                  PDBusinessInformationMarshaller.BUSINESS_INFORMATION_NS_URI +
+                                  "'");
               }
               else
-                s_aLogger.warn ("The 'ExtensionElement' for business information does not contain a 'BusinessInformation' child element");
+                s_aLogger.warn ("The 'ExtensionElement' for 'business information' does not contain a 'BusinessInformation' child element");
               break;
             }
-          s_aLogger.warn ("'ExtensionContainer' does not contain an 'ExtensionElement' with @type 'business information'");
+          s_aLogger.warn ("'ExtensionContainer' does not contain an 'ExtensionElement' with attribute 'type' with 'business information'");
         }
         else
         {
@@ -106,11 +121,28 @@ public final class SMPBusinessInformationProvider implements IPDBusinessInformat
     return null;
   }
 
+  /**
+   * @return The HttpProxy object to be used by SMP clients based on the Java
+   *         System properties "http.proxyHost" and "http.proxyPort". Note:
+   *         https is not needed, because SMPs must run on http only.
+   */
+  @Nullable
+  public HttpHost getHttpProxy ()
+  {
+    final String sProxyHost = PDSettings.getSettingsObject ().getStringValue ("http.proxyHost");
+    final int nProxyPort = PDSettings.getSettingsObject ().getIntValue ("http.proxyPort", 0);
+    if (sProxyHost != null && nProxyPort > 0)
+      return new HttpHost (sProxyHost, nProxyPort);
+
+    return null;
+  }
+
   @Nullable
   public PDExtendedBusinessInformation getBusinessInformation (@Nonnull final IPeppolParticipantIdentifier aParticipantID)
   {
     // Fetch data
     final SMPClientReadOnly aSMPClient = new SMPClientReadOnly (aParticipantID, PDSettings.getSMLToUse ());
+    aSMPClient.setProxy (getHttpProxy ());
     ServiceGroupType aServiceGroup;
     try
     {
