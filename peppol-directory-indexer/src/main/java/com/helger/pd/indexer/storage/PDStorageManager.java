@@ -129,7 +129,8 @@ public final class PDStorageManager implements Closeable
   }
 
   @Nonnull
-  public ESuccess deleteEntry (@Nonnull final IPeppolParticipantIdentifier aParticipantID, @Nonnull final PDDocumentMetaData aMetaData) throws IOException
+  public ESuccess deleteEntry (@Nonnull final IPeppolParticipantIdentifier aParticipantID,
+                               @Nonnull final PDDocumentMetaData aMetaData) throws IOException
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
     ValueEnforcer.notNull (aMetaData, "MetaData");
@@ -140,7 +141,8 @@ public final class PDStorageManager implements Closeable
       // Get all documents to be marked as deleted
       final IndexSearcher aSearcher = m_aLucene.getSearcher ();
       if (aSearcher != null)
-        aSearcher.search (new TermQuery (_createParticipantTerm (aParticipantID)), new AllDocumentsCollector (m_aLucene, aDoc -> aDocuments.add (aDoc)));
+        aSearcher.search (new TermQuery (_createParticipantTerm (aParticipantID)),
+                          new AllDocumentsCollector (m_aLucene, aDoc -> aDocuments.add (aDoc)));
 
       if (!aDocuments.isEmpty ())
       {
@@ -271,6 +273,8 @@ public final class PDStorageManager implements Closeable
 
       // Delete all existing documents of the participant ID
       // and add the new ones to the index
+      if (false)
+        m_aLucene.deleteDocuments (_createParticipantTerm (aParticipantID));
       m_aLucene.updateDocuments (_createParticipantTerm (aParticipantID), aDocs);
 
       s_aLogger.info ("Added " + aDocs.size () + " Lucene documents");
