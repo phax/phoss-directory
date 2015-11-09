@@ -273,9 +273,13 @@ public final class PDStorageManager implements Closeable
 
       // Delete all existing documents of the participant ID
       // and add the new ones to the index
-      if (false)
+      if (true)
+      {
         m_aLucene.deleteDocuments (_createParticipantTerm (aParticipantID));
-      m_aLucene.updateDocuments (_createParticipantTerm (aParticipantID), aDocs);
+        m_aLucene.updateDocuments (null, aDocs);
+      }
+      else
+        m_aLucene.updateDocuments (_createParticipantTerm (aParticipantID), aDocs);
 
       s_aLogger.info ("Added " + aDocs.size () + " Lucene documents");
       AuditHelper.onAuditExecuteSuccess ("pyp-indexer-create", aParticipantID.getURIEncoded (), Integer.valueOf (aDocs.size ()), aMetaData);
