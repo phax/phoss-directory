@@ -52,7 +52,7 @@ import com.helger.pd.businessinformation.PDBusinessInformationType;
 import com.helger.pd.businessinformation.PDEntityType;
 import com.helger.pd.businessinformation.PDExtendedBusinessInformation;
 import com.helger.pd.businessinformation.PDIdentifierType;
-import com.helger.pd.indexer.PYPIndexerTestRule;
+import com.helger.pd.indexer.PDIndexerTestRule;
 import com.helger.pd.indexer.clientcert.ClientCertificateValidator;
 import com.helger.pd.indexer.mgr.PDIndexerManager;
 import com.helger.pd.indexer.mgr.PDMetaManager;
@@ -73,7 +73,7 @@ public final class IndexerResourceTest
   private static final Logger s_aLogger = LoggerFactory.getLogger (IndexerResourceTest.class);
 
   @Rule
-  public final TestRule m_aRule = new PYPIndexerTestRule ();
+  public final TestRule m_aRule = new PDIndexerTestRule ();
 
   private HttpServer m_aServer;
   private WebTarget m_aTarget;

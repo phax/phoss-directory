@@ -27,7 +27,7 @@ import com.helger.commons.string.ToStringGenerator;
 import com.helger.datetime.PDTFactory;
 
 /**
- * This class contains all the metadata stored in a document.
+ * This class contains all the metadata stored in a {@link PDStoredDocument}.
  *
  * @author Philip Helger
  */
@@ -39,8 +39,8 @@ public final class PDDocumentMetaData
   private final String m_sRequestingHost;
 
   public PDDocumentMetaData (@Nonnull final LocalDateTime aCreationDT,
-                              @Nonnull @Nonempty final String sOwnerID,
-                              @Nonnull @Nonempty final String sRequestingHost)
+                             @Nonnull @Nonempty final String sOwnerID,
+                             @Nonnull @Nonempty final String sRequestingHost)
   {
     ValueEnforcer.notNull (aCreationDT, "CreationDT");
     ValueEnforcer.notNull (sOwnerID, "OwnerID");

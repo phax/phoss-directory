@@ -46,12 +46,13 @@ import com.helger.photon.basic.app.dao.impl.DAOException;
 import com.helger.photon.basic.app.dao.impl.EDAOActionType;
 
 /**
- * This is the global re-index work queue.
+ * This is the global re-index work queue. It is solely used in the
+ * {@link PDIndexerManager}.
  *
  * @author Philip Helger
  */
 @ThreadSafe
-final class ReIndexWorkItemList extends AbstractWALDAO <ReIndexWorkItem>
+final class ReIndexWorkItemList extends AbstractWALDAO <ReIndexWorkItem> implements IReIndexWorkItemList
 {
   private static final Logger s_aLogger = LoggerFactory.getLogger (ReIndexWorkItemList.class);
   private static final String ELEMENT_ROOT = "root";
@@ -125,39 +126,23 @@ final class ReIndexWorkItemList extends AbstractWALDAO <ReIndexWorkItem>
    */
   public void addItem (@Nonnull final ReIndexWorkItem aItem) throws IllegalStateException
   {
-    m_aRWLock.writeLock ().lock ();
-    try
-    {
+    m_aRWLock.writeLocked ( () -> {
       _addItem (aItem);
       markAsChanged (aItem, EDAOActionType.CREATE);
-    }
-    finally
-    {
-      m_aRWLock.writeLock ().unlock ();
-    }
+    });
     s_aLogger.info ("Added " + aItem.getLogText () + " to re-try list for retry #" + (aItem.getRetryCount () + 1));
   }
 
   public void incRetryCountAndAddItem (@Nonnull final ReIndexWorkItem aItem)
   {
-    m_aRWLock.writeLock ().lock ();
-    try
-    {
-      aItem.incRetryCount ();
-    }
-    finally
-    {
-      m_aRWLock.writeLock ().unlock ();
-    }
+    m_aRWLock.writeLocked ( () -> aItem.incRetryCount ());
     addItem (aItem);
   }
 
   @Nullable
   public ReIndexWorkItem getAndRemoveEntry (@Nonnull final Predicate <ReIndexWorkItem> aPred)
   {
-    m_aRWLock.writeLock ().lock ();
-    try
-    {
+    return m_aRWLock.writeLocked ( () -> {
       // Operate on a copy for removal!
       for (final ReIndexWorkItem aWorkItem : CollectionHelper.newList (m_aMap.values ()))
         if (aPred.test (aWorkItem))
@@ -167,20 +152,14 @@ final class ReIndexWorkItemList extends AbstractWALDAO <ReIndexWorkItem>
           return aWorkItem;
         }
       return null;
-    }
-    finally
-    {
-      m_aRWLock.writeLock ().unlock ();
-    }
+    });
   }
 
   @Nonnull
   @ReturnsMutableCopy
   public List <ReIndexWorkItem> getAndRemoveAllEntries (@Nonnull final Predicate <ReIndexWorkItem> aPred)
   {
-    m_aRWLock.writeLock ().lock ();
-    try
-    {
+    return m_aRWLock.writeLocked ( () -> {
       final List <ReIndexWorkItem> ret = new ArrayList <> ();
       // Operate on a copy for removal!
       for (final ReIndexWorkItem aWorkItem : CollectionHelper.newList (m_aMap.values ()))
@@ -191,26 +170,14 @@ final class ReIndexWorkItemList extends AbstractWALDAO <ReIndexWorkItem>
           markAsChanged (aWorkItem, EDAOActionType.DELETE);
         }
       return ret;
-    }
-    finally
-    {
-      m_aRWLock.writeLock ().unlock ();
-    }
+    });
   }
 
   @Nonnull
   @ReturnsMutableCopy
   public List <ReIndexWorkItem> getAllItems ()
   {
-    m_aRWLock.readLock ().lock ();
-    try
-    {
-      return CollectionHelper.newList (m_aMap.values ());
-    }
-    finally
-    {
-      m_aRWLock.readLock ().unlock ();
-    }
+    return m_aRWLock.readLocked ( () -> CollectionHelper.newList (m_aMap.values ()));
   }
 
   @Override

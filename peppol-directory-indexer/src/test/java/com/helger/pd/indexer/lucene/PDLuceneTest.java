@@ -51,7 +51,7 @@ import com.helger.photon.basic.mock.PhotonBasicTestRule;
  *
  * @author Philip Helger
  */
-public final class PYPLuceneTest
+public final class PDLuceneTest
 {
   @Rule
   public final TestRule m_aRule = new PhotonBasicTestRule ();

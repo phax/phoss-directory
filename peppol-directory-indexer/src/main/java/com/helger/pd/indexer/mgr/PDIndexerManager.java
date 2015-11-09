@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.annotation.ReturnsMutableCopy;
 import com.helger.commons.concurrent.SimpleReadWriteLock;
 import com.helger.commons.microdom.IMicroDocument;
 import com.helger.commons.microdom.IMicroElement;
@@ -429,10 +428,19 @@ public final class PDIndexerManager implements Closeable
    *         <code>null</code> but maybe empty.
    */
   @Nonnull
-  @ReturnsMutableCopy
-  public List <ReIndexWorkItem> getAllDeadListItems ()
+  public IReIndexWorkItemList getReIndexList ()
   {
-    return m_aDeadList.getAllItems ();
+    return m_aReIndexList;
+  }
+
+  /**
+   * @return A list with all items where the re-index period has expired. Never
+   *         <code>null</code> but maybe empty.
+   */
+  @Nonnull
+  public IReIndexWorkItemList getDeadList ()
+  {
+    return m_aDeadList;
   }
 
   @Override

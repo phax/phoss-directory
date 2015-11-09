@@ -164,8 +164,7 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
       }
 
       // Is a new reader required because the index changed?
-      final DirectoryReader aNewReader = m_aIndexReader != null ? DirectoryReader.openIfChanged (m_aIndexReader)
-                                                                : DirectoryReader.open (m_aDir);
+      final DirectoryReader aNewReader = m_aIndexReader != null ? DirectoryReader.openIfChanged (m_aIndexReader) : DirectoryReader.open (m_aDir);
       if (aNewReader != null)
       {
         // Something changed in the index
@@ -252,8 +251,7 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
    * @throws IOException
    *         if there is a low-level IO error
    */
-  public void updateDocument (@Nullable final Term aDelTerm,
-                              @Nonnull final Iterable <? extends IndexableField> aDoc) throws IOException
+  public void updateDocument (@Nullable final Term aDelTerm, @Nonnull final Iterable <? extends IndexableField> aDoc) throws IOException
   {
     _getWriter ().updateDocument (aDelTerm, aDoc);
     m_aWriterChanges.incrementAndGet ();
@@ -326,7 +324,7 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
 
   /**
    * Run the provided action within a locked section.<br>
-   * Note: because of a problem with JDK 1.8.60 (+) commandline compiler, this
+   * Note: because of a problem with JDK 1.8.60 (+) command line compiler, this
    * method uses type "Exception" instead of "IOException" in the parameter
    * signature
    *

@@ -35,6 +35,9 @@ import com.helger.jaxb.AbstractJAXBMarshaller;
  */
 public class PDBusinessInformationMarshaller extends AbstractJAXBMarshaller <PDBusinessInformationType>
 {
+  /** The namespace URI of the BusinessInformation element */
+  public static final String BUSINESS_INFORMATION_NS_URI = ObjectFactory._BusinessInformation_QNAME.getNamespaceURI ();
+
   /** XSD resources */
   public static final List <? extends IReadableResource> BUSINESS_INFORMATION_XSDS = CollectionHelper.newUnmodifiableList (new ClassPathResource ("/schemas/peppol-directory-business-information-20151105.xsd"));
 

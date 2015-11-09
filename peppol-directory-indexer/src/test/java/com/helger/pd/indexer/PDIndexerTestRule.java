@@ -34,7 +34,7 @@ import com.helger.photon.basic.mock.PhotonBasicWebTestRule;
  *
  * @author Philip Helger
  */
-public class PYPIndexerTestRule extends PhotonBasicWebTestRule
+public class PDIndexerTestRule extends PhotonBasicWebTestRule
 {
   static
   {
@@ -42,7 +42,7 @@ public class PYPIndexerTestRule extends PhotonBasicWebTestRule
     SLF4JBridgeHandler.install ();
   }
 
-  public PYPIndexerTestRule ()
+  public PDIndexerTestRule ()
   {
     super (new File (PDSettings.getDataPath ()), ScopeTestRule.STORAGE_PATH);
   }

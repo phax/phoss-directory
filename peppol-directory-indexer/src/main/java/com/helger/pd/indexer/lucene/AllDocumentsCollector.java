@@ -12,7 +12,7 @@ import org.apache.lucene.search.SimpleCollector;
 import com.helger.commons.ValueEnforcer;
 
 /**
- * A Lucene {@link Collector} that always collets all {@link Document} objects.
+ * A Lucene {@link Collector} that always collects all {@link Document} objects.
  *
  * @author Philip Helger
  */
@@ -21,8 +21,7 @@ public class AllDocumentsCollector extends SimpleCollector
   private final ILuceneDocumentProvider m_aDocProvider;
   private final Consumer <Document> m_aConsumer;
 
-  public AllDocumentsCollector (@Nonnull final ILuceneDocumentProvider aDocProvider,
-                                @Nonnull final Consumer <Document> aConsumer)
+  public AllDocumentsCollector (@Nonnull final ILuceneDocumentProvider aDocProvider, @Nonnull final Consumer <Document> aConsumer)
   {
     m_aDocProvider = ValueEnforcer.notNull (aDocProvider, "DocProvider");
     m_aConsumer = ValueEnforcer.notNull (aConsumer, "Consumer");
