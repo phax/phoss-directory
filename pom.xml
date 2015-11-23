@@ -67,70 +67,37 @@
     <jetty.version>9.3.5.v20151012</jetty.version>
     <lucene.version>5.3.1</lucene.version>
     <jersey.version>2.22.1</jersey.version>
-    <ph-oton.version>6.1.0</ph-oton.version>
   </properties>
   
   <dependencyManagement>
     <dependencies>
       <dependency>
         <groupId>com.helger</groupId>
-        <artifactId>ph-commons</artifactId>
-        <version>6.2.1</version>
+        <artifactId>ph-commons-parent-pom</artifactId>
+        <version>6.2.3</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
       <dependency>
         <groupId>com.helger</groupId>
-        <artifactId>ph-jaxb</artifactId>
-        <version>6.2.1</version>
-      </dependency>
-      <dependency>
-        <groupId>com.helger</groupId>
-        <artifactId>ph-datetime</artifactId>
+        <artifactId>ph-datetime-parent-pom</artifactId>
         <version>4.2.1</version>
-      </dependency>
-      <dependency>
-        <groupId>com.helger</groupId>
-        <artifactId>ph-settings</artifactId>
-        <version>2.0.0</version>
-      </dependency>
-      <dependency>
-        <groupId>com.helger</groupId>
-        <artifactId>ph-web</artifactId>
-        <version>7.0.2</version>
-      </dependency>
-      <dependency>
-        <groupId>com.helger</groupId>
-        <artifactId>ph-schedule</artifactId>
-        <version>2.1.0</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
       <dependency>
         <groupId>com.helger</groupId>
         <artifactId>ph-oton-basic</artifactId>
-        <version>${ph-oton.version}</version>
+        <version>6.1.0</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
       <dependency>
         <groupId>com.helger</groupId>
-        <artifactId>ph-oton-core</artifactId>
-        <version>${ph-oton.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.helger</groupId>
-        <artifactId>ph-oton-bootstrap3-stub</artifactId>
-        <version>${ph-oton.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.helger</groupId>
-        <artifactId>peppol-commons</artifactId>
+        <artifactId>peppol-commons-parent-pom</artifactId>
         <version>4.3.1</version>
-      </dependency>
-      <dependency>
-        <groupId>com.helger</groupId>
-        <artifactId>peppol-sml-client</artifactId>
-        <version>4.3.1</version>
-      </dependency>
-      <dependency>
-        <groupId>com.helger</groupId>
-        <artifactId>peppol-smp-client</artifactId>
-        <version>4.3.1</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
       
       <dependency>
