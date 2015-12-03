@@ -31,9 +31,6 @@ import com.helger.html.hc.html.textlevel.HCStrong;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.publisher.app.AppCommonUI;
 import com.helger.pd.publisher.app.pub.AppRendererPublic;
-import com.helger.photon.basic.security.login.LoggedInUserManager;
-import com.helger.photon.basic.security.user.IUser;
-import com.helger.photon.basic.security.util.SecurityHelper;
 import com.helger.photon.bootstrap3.CBootstrapCSS;
 import com.helger.photon.bootstrap3.base.BootstrapContainer;
 import com.helger.photon.bootstrap3.breadcrumbs.BootstrapBreadcrumbs;
@@ -53,6 +50,9 @@ import com.helger.photon.core.app.layout.ILayoutAreaContentProvider;
 import com.helger.photon.core.servlet.AbstractPublicApplicationServlet;
 import com.helger.photon.core.servlet.LogoutServlet;
 import com.helger.photon.core.url.LinkHelper;
+import com.helger.photon.security.login.LoggedInUserManager;
+import com.helger.photon.security.user.IUser;
+import com.helger.photon.security.util.SecurityHelper;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 
 /**

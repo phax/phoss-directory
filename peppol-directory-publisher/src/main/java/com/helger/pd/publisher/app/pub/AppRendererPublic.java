@@ -24,6 +24,7 @@ import javax.annotation.Nonnull;
 
 import com.helger.commons.string.StringHelper;
 import com.helger.commons.url.ISimpleURL;
+import com.helger.commons.url.SimpleURL;
 import com.helger.css.property.CCSSProperties;
 import com.helger.html.css.DefaultCSSClassProvider;
 import com.helger.html.css.ICSSClassProvider;
@@ -46,10 +47,6 @@ import com.helger.photon.basic.app.menu.IMenuObject;
 import com.helger.photon.basic.app.menu.IMenuSeparator;
 import com.helger.photon.basic.app.menu.IMenuTree;
 import com.helger.photon.basic.app.menu.MenuItemDeterminatorCallback;
-import com.helger.photon.basic.security.AccessManager;
-import com.helger.photon.basic.security.login.LoggedInUserManager;
-import com.helger.photon.basic.security.user.IUser;
-import com.helger.photon.basic.security.util.SecurityHelper;
 import com.helger.photon.bootstrap3.CBootstrapCSS;
 import com.helger.photon.bootstrap3.alert.BootstrapErrorBox;
 import com.helger.photon.bootstrap3.base.BootstrapContainer;
@@ -70,6 +67,9 @@ import com.helger.photon.core.app.redirect.ForcedRedirectManager;
 import com.helger.photon.core.servlet.AbstractSecureApplicationServlet;
 import com.helger.photon.core.servlet.LogoutServlet;
 import com.helger.photon.core.url.LinkHelper;
+import com.helger.photon.security.login.LoggedInUserManager;
+import com.helger.photon.security.user.IUser;
+import com.helger.photon.security.util.SecurityHelper;
 import com.helger.photon.uicore.page.IWebPage;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
@@ -101,7 +101,7 @@ public final class AppRendererPublic implements ILayoutAreaContentProvider <Layo
     final IUser aUser = LoggedInUserManager.getInstance ().getCurrentUser ();
     if (aUser != null)
     {
-      if (AccessManager.getInstance ().hasUserRole (aUser.getID (), AppSecurity.ROLE_CONFIG_ID))
+      if (SecurityHelper.hasUserRole (aUser.getID (), AppSecurity.ROLE_CONFIG_ID))
       {
         aNavbar.addButton (EBootstrapNavbarPosition.COLLAPSIBLE_DEFAULT,
                            new BootstrapButton ().addChild ("Goto secure area")
@@ -256,14 +256,11 @@ public final class AppRendererPublic implements ILayoutAreaContentProvider <Layo
       final BootstrapContainer aDiv = new BootstrapContainer ().setFluid (true).setID (CLayout.LAYOUT_AREAID_FOOTER);
 
       aDiv.addChild (new HCP ().addChild ("PEPPOL Directory. Sources are available on ")
-                               .addChild (new HCA ("https://github.com/phax/peppol-directory").addChild ("GitHub"))
-                               .addChild (", based on ")
-                               .addChild (new HCA ("https://github.com/phax/ph-oton").addChild ("ph-oton"))
-                               .addChild (" stack"));
+                               .addChild (new HCA (new SimpleURL ("https://github.com/phax/peppol-directory")).addChild ("GitHub")));
       aDiv.addChild (new HCP ().addChild ("Created by ")
-                               .addChild (new HCA ("https://github.com/phax").addChild ("Philip Helger"))
+                               .addChild (new HCA (new SimpleURL ("https://github.com/phax")).addChild ("Philip Helger"))
                                .addChild (" for PEPPOL - Twitter: ")
-                               .addChild (new HCA ("https://twitter.com/philiphelger").addChild ("@philiphelger")));
+                               .addChild (new HCA (new SimpleURL ("https://twitter.com/philiphelger")).addChild ("@philiphelger")));
 
       final BootstrapMenuItemRendererHorz aRenderer = new BootstrapMenuItemRendererHorz (aDisplayLocale);
       final HCUL aUL = aDiv.addAndReturnChild (new HCUL ().addClass (CSS_CLASS_FOOTER_LINKS));

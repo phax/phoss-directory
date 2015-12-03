@@ -65,7 +65,7 @@ import com.helger.pd.indexer.lucene.PDLucene;
 import com.helger.peppol.identifier.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.IdentifierHelper;
 import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
-import com.helger.photon.basic.security.audit.AuditHelper;
+import com.helger.photon.basic.audit.AuditHelper;
 import com.helger.web.datetime.PDTWebDateHelper;
 
 /**

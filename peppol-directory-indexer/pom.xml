@@ -64,6 +64,10 @@
     </dependency>
     <dependency>
       <groupId>com.helger</groupId>
+      <artifactId>ph-oton-security</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.helger</groupId>
       <artifactId>peppol-directory-api</artifactId>
     </dependency>
     <dependency>

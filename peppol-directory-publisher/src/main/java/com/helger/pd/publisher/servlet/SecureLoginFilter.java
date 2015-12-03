@@ -25,10 +25,10 @@ import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.state.EContinue;
 import com.helger.pd.publisher.app.AppLoginManager;
 import com.helger.pd.publisher.app.AppSecurity;
-import com.helger.photon.basic.security.AccessManager;
-import com.helger.photon.basic.security.login.LoggedInUserManager;
 import com.helger.photon.core.app.CApplication;
 import com.helger.photon.core.servlet.AbstractUnifiedResponseFilter;
+import com.helger.photon.security.login.LoggedInUserManager;
+import com.helger.photon.security.util.SecurityHelper;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 import com.helger.web.servlet.response.UnifiedResponse;
 
@@ -70,7 +70,7 @@ public final class SecureLoginFilter extends AbstractUnifiedResponseFilter
 
     // Check if the currently logged in user has the required roles
     final String sCurrentUserID = LoggedInUserManager.getInstance ().getCurrentUserID ();
-    if (!AccessManager.getInstance ().hasUserAllRoles (sCurrentUserID, AppSecurity.REQUIRED_ROLE_IDS_CONFIG))
+    if (!SecurityHelper.hasUserAllRoles (sCurrentUserID, AppSecurity.REQUIRED_ROLE_IDS_CONFIG))
     {
       aUnifiedResponse.setStatus (HttpServletResponse.SC_FORBIDDEN);
       return EContinue.BREAK;

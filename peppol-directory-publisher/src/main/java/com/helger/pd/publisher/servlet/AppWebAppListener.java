@@ -37,6 +37,9 @@ import com.helger.photon.bootstrap3.servlet.AbstractWebAppListenerMultiAppBootst
 import com.helger.photon.core.app.CApplication;
 import com.helger.photon.core.app.context.LayoutExecutionContext;
 import com.helger.photon.core.app.init.IApplicationInitializer;
+import com.helger.photon.security.role.RoleManager;
+import com.helger.photon.security.user.UserManager;
+import com.helger.photon.security.usergroup.UserGroupManager;
 
 /**
  * This listener is invoked during the servlet initialization. This is basically
@@ -90,6 +93,11 @@ public final class AppWebAppListener extends AbstractWebAppListenerMultiAppBoots
     VendorInfo.setVendorEmail ("pyp@helger.com");
     VendorInfo.setVendorLocation ("Vienna, Austria");
     VendorInfo.setInceptionYear (2015);
+
+    // Call before accessing PhotonSecurityManager!
+    RoleManager.setCreateDefaults (false);
+    UserManager.setCreateDefaults (false);
+    UserGroupManager.setCreateDefaults (false);
 
     super.initGlobals ();
 
