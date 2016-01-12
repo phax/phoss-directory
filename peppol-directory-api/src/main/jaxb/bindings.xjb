@@ -27,9 +27,9 @@
               parseMethod="com.helger.pd.jaxb.DateAdapter.getLocalDateFromXSD"
               printMethod="com.helger.pd.jaxb.DateAdapter.getLocalDateAsStringXSD" />
   </globalBindings>
-  <bindings schemaLocation="../resources/schemas/peppol-directory-business-information-20151105.xsd" node="/xs:schema">
+  <bindings schemaLocation="../resources/schemas/peppol-directory-business-card-20160112.xsd" node="/xs:schema">
     <schemaBindings>
-      <package name="com.helger.pd.businessinformation" />
+      <package name="com.helger.pd.businesscard" />
       <nameXmlTransform>
         <typeName prefix="PD" />
       </nameXmlTransform>

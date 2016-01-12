@@ -17,36 +17,39 @@
     limitations under the License.
 
 -->
-<BusinessInformation xmlns="http://www.peppol.eu/schema/pd/businessinformation/20151105/">
-  <Entity countryCode="AT" registrationDate="2010-07-06">
+<BusinessCard xmlns="http://www.peppol.eu/schema/pd/businesscard/20160112/">
+  <ParticipantIdentifier scheme="iso6523-actorid-upis">9915:b</ParticipantIdentifier>
+  <BusinessEntity registrationDate="2010-07-06">
     <Name>Austrian Federal Government</Name>
-    <GeoInfo>Spread all over Austria</GeoInfo>
-    <Identifier type="ZIPCode">1010</Identifier>
-    <WebSite>https://www.erechnung.gv.at</WebSite>
-    <WebSite>https://www.e-rechnung.gv.at</WebSite>
-    <BusinessContact>
-      <Description>Support contact</Description>
+    <CountryCode>AT</CountryCode>
+    <GeographicalInformation>Spread all over Austria</GeographicalInformation>
+    <Identifier scheme="ZIPCode">1010</Identifier>
+    <WebsiteURI>https://www.erechnung.gv.at</WebsiteURI>
+    <WebsiteURI>https://www.e-rechnung.gv.at</WebsiteURI>
+    <Contact>
+      <Type>Support contact</Type>
       <Name>e-Rechnung.gv.at support</Name>
       <Email>support-erb@brz.gv.at</Email>
-    </BusinessContact>
-    <FreeText>
+    </Contact>
+    <AdditionalInformation>
       This is the free text of the first entity.
       You can write anything in here...
       Feel free to write your personal biography :)
-    </FreeText>
-  </Entity>
-  <Entity countryCode="AT">
+    </AdditionalInformation>
+  </BusinessEntity>
+  <BusinessEntity>
     <Name>Austrian Federal Government2</Name>
-    <GeoInfo>Spread all over Austria2</GeoInfo>
-    <Identifier type="ZIPCode">1020</Identifier>
-    <WebSite>https://www.erb.gv.at</WebSite>
-    <BusinessContact>
-      <Description>Support contact</Description>
+    <CountryCode>AT</CountryCode>
+    <GeographicalInformation>Spread all over Austria2</GeographicalInformation>
+    <Identifier scheme="ZIPCode">1020</Identifier>
+    <WebsiteURI>https://www.erb.gv.at</WebsiteURI>
+    <Contact>
+      <Type>Support contact</Type>
       <Name>e-Rechnung.gv.at support2</Name>
       <Email>support-erb@brz.gv.at</Email>
-    </BusinessContact>
-    <FreeText>
+    </Contact>
+    <AdditionalInformation>
       This is the free text of the second entity.
-    </FreeText>
-  </Entity>
-</BusinessInformation>
+    </AdditionalInformation>
+  </BusinessEntity>
+</BusinessCard>

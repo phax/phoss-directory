@@ -25,34 +25,36 @@ import com.helger.commons.collection.CollectionHelper;
 import com.helger.commons.io.resource.ClassPathResource;
 import com.helger.commons.io.resource.IReadableResource;
 import com.helger.jaxb.AbstractJAXBMarshaller;
+import com.helger.pd.businesscard.ObjectFactory;
+import com.helger.pd.businesscard.PDBusinessCardType;
 
 /**
- * This is the reader and writer for {@link PDBusinessInformationType}
- * documents. This class may be derived to override protected methods from
+ * This is the reader and writer for {@link PDBusinessCardType} documents. This
+ * class may be derived to override protected methods from
  * {@link AbstractJAXBMarshaller}.
  *
  * @author Philip Helger
  */
-public class PDBusinessInformationMarshaller extends AbstractJAXBMarshaller <PDBusinessInformationType>
+public class PDBusinessInformationMarshaller extends AbstractJAXBMarshaller <PDBusinessCardType>
 {
   /** The namespace URI of the BusinessInformation element */
-  public static final String BUSINESS_INFORMATION_NS_URI = ObjectFactory._BusinessInformation_QNAME.getNamespaceURI ();
+  public static final String BUSINESS_INFORMATION_NS_URI = ObjectFactory._BusinessCard_QNAME.getNamespaceURI ();
 
   /** XSD resources */
-  public static final List <? extends IReadableResource> BUSINESS_INFORMATION_XSDS = CollectionHelper.newUnmodifiableList (new ClassPathResource ("/schemas/peppol-directory-business-information-20151105.xsd"));
+  public static final List <? extends IReadableResource> BUSINESS_INFORMATION_XSDS = CollectionHelper.newUnmodifiableList (new ClassPathResource ("/schemas/peppol-directory-business-card-20160112.xsd"));
 
   /**
    * Constructor
    */
   public PDBusinessInformationMarshaller ()
   {
-    super (PDBusinessInformationType.class, BUSINESS_INFORMATION_XSDS);
+    super (PDBusinessCardType.class, BUSINESS_INFORMATION_XSDS);
   }
 
   @Override
   @Nonnull
-  protected final JAXBElement <PDBusinessInformationType> wrapObject (final PDBusinessInformationType aCodeListDocument)
+  protected final JAXBElement <PDBusinessCardType> wrapObject (final PDBusinessCardType aCodeListDocument)
   {
-    return new ObjectFactory ().createBusinessInformation (aCodeListDocument);
+    return new ObjectFactory ().createBusinessCard (aCodeListDocument);
   }
 }
