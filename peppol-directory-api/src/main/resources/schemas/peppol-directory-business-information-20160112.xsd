@@ -107,7 +107,7 @@
     </xs:sequence>
   </xs:complexType>
 
-  <xs:complexType name="EntityType">
+  <xs:complexType name="BusinessEntityType">
     <xs:sequence>
       <xs:element name="Name" type="xs:string" minOccurs="1" maxOccurs="1">
         <xs:annotation>
@@ -173,7 +173,7 @@
     </xs:attribute>
   </xs:complexType>  
 
-  <xs:complexType name="BusinessInformationType">
+  <xs:complexType name="BusinessCardType">
     <xs:sequence>
       <xs:element name="ParticipantIdentifier" type="ParticipantIdentifierType" minOccurs="1" maxOccurs="1">
         <xs:annotation>
@@ -182,7 +182,7 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="Entity" type="EntityType" minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="BusinessEntity" type="BusinessEntityType" minOccurs="0" maxOccurs="unbounded">
         <xs:annotation>
           <xs:documentation>
             This is the unbounded list of entities (companies or public administration 
@@ -193,10 +193,10 @@
     </xs:sequence>
   </xs:complexType>  
     
-  <xs:element name="BusinessInformation" type="BusinessInformationType">
+  <xs:element name="BusinessCard" type="BusinessCardType">
     <xs:annotation>
       <xs:documentation>
-        This is the root element for the PEPPOL Directory business information.
+        This is the root element for a single PEPPOL Directory business card.
       </xs:documentation>
     </xs:annotation>
   </xs:element>
