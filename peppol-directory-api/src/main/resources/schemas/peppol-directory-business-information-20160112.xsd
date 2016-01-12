@@ -78,14 +78,14 @@
     </xs:simpleContent>
   </xs:complexType>
 
-  <xs:complexType name="BusinessContactType">
+  <xs:complexType name="ContactType">
     <xs:annotation>
       <xs:documentation>
         This type resembles the structure of a single business contact.
       </xs:documentation>
     </xs:annotation>
     <xs:sequence>
-      <xs:element name="Description" type="xs:string" minOccurs="0" maxOccurs="1">
+      <xs:element name="Type" type="xs:string" minOccurs="0" maxOccurs="1">
         <xs:annotation>
           <xs:documentation>The type of the contact (sales, support, etc.)</xs:documentation>
         </xs:annotation>
@@ -140,14 +140,14 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="WebSite" type="xs:anyURI" minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="WebsiteURI" type="xs:anyURI" minOccurs="0" maxOccurs="unbounded">
         <xs:annotation>
           <xs:documentation>
-            This element may contain URIs linking to the business entity website.
+            This element may contain URIs linking to the business entity websites.
           </xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="BusinessContact" type="BusinessContactType" minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="Contact" type="ContactType" minOccurs="0" maxOccurs="unbounded">
         <xs:annotation>
           <xs:documentation>
             This element is meant to contain business contact points to get in touch
@@ -155,7 +155,7 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="FreeText" type="xs:string" minOccurs="0" maxOccurs="1">
+      <xs:element name="AdditionalInformation" type="xs:string" minOccurs="0" maxOccurs="1">
         <xs:annotation>
           <xs:documentation>
             This element contains all other information that might be relevant but is not
@@ -167,8 +167,7 @@
     <xs:attribute name="registrationDate" type="xs:date" use="optional">
       <xs:annotation>
         <xs:documentation>
-          The date when this participant was registered for PEPPOL.
-          This attribute is optional.
+          The optional date when the participant was registered for PEPPOL.
         </xs:documentation>
       </xs:annotation>
     </xs:attribute>
