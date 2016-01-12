@@ -20,7 +20,7 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 
-import com.helger.pd.businessinformation.PDExtendedBusinessCard;
+import com.helger.pd.businesscard.PDExtendedBusinessCard;
 import com.helger.peppol.identifier.participant.SimpleParticipantIdentifier;
 
 /**

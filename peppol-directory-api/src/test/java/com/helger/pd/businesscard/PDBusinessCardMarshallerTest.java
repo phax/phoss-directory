@@ -14,13 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pd.businessinformation;
+package com.helger.pd.businesscard;
 
 import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 
 import com.helger.commons.io.resource.ClassPathResource;
+import com.helger.pd.businesscard.PDBusinessCardMarshaller;
 
 /**
  * Test class for class {@link PDBusinessCardMarshaller}.
