@@ -45,14 +45,6 @@
     </xs:documentation>
   </xs:annotation>
 
-  <xs:complexType name="ParticipantIdentifierType">
-    <xs:simpleContent>
-      <xs:extension base="xs:string">
-        <xs:attribute name="scheme" type="xs:string" />
-      </xs:extension>
-    </xs:simpleContent>
-  </xs:complexType>
-
   <xs:simpleType name="CountryCodeType">
     <xs:restriction base="xs:token">
       <xs:minLength value="2"/>
@@ -63,7 +55,7 @@
   <xs:complexType name="IdentifierType">
     <xs:annotation>
       <xs:documentation>
-        This type resembles the structure of a single (non-PEPPOL) identifier.
+        This type resembles the structure of a single (PEPPOL and non-PEPPOL) identifier.
       </xs:documentation>
     </xs:annotation>
     <xs:simpleContent>
@@ -73,10 +65,12 @@
         </xs:documentation>
       </xs:annotation>
       <xs:extension base="xs:string">
-        <xs:attribute name="type" type="xs:string" use="required">
+        <xs:attribute name="scheme" type="xs:string" use="required">
           <xs:annotation>
             <xs:documentation>
-              The type of this identifier.
+              The scheme of this identifier.
+              For PEPPOL this will be "iso6523-actorid-upis" for non-PEPPOL identifiers
+              this can be any human interpretable text
             </xs:documentation>
           </xs:annotation>
         </xs:attribute>
@@ -116,6 +110,13 @@
 
   <xs:complexType name="BusinessEntityType">
     <xs:sequence>
+      <xs:element name="Name" type="xs:string" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>
+            The name of the business entity.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
       <xs:element name="CountryCode" type="CountryCodeType" minOccurs="1" maxOccurs="1">
         <xs:annotation>
           <xs:documentation>
@@ -123,14 +124,7 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="Name" type="xs:string" minOccurs="1" maxOccurs="1">
-        <xs:annotation>
-          <xs:documentation>
-            The name of the entity.
-          </xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element name="GeoInfo" type="xs:string" minOccurs="0" maxOccurs="1">
+      <xs:element name="GeographicalInformation" type="xs:string" minOccurs="0" maxOccurs="1">
         <xs:annotation>
           <xs:documentation>
             This element may contain specific geographic information.
@@ -182,7 +176,7 @@
 
   <xs:complexType name="BusinessCardType">
     <xs:sequence>
-      <xs:element name="ParticipantIdentifier" type="ParticipantIdentifierType" minOccurs="1" maxOccurs="1">
+      <xs:element name="ParticipantIdentifier" type="IdentifierType" minOccurs="1" maxOccurs="1">
         <xs:annotation>
           <xs:documentation>
             The PEPPOL participant identifier (service group) to which this business information belongs.
@@ -192,8 +186,8 @@
       <xs:element name="BusinessEntity" type="BusinessEntityType" minOccurs="0" maxOccurs="unbounded">
         <xs:annotation>
           <xs:documentation>
-            This is the unbounded list of entities (companies or public administration 
-            bodies) that can be reached via this ServiceGroup.
+            This is the unbounded list of business entities (companies or public administration 
+            bodies) that can be reached via the ServiceGroup.
           </xs:documentation>
         </xs:annotation>
       </xs:element>
