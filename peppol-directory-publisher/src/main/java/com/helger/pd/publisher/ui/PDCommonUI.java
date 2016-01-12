@@ -108,9 +108,9 @@ public final class PDCommonUI
     {
       final BootstrapTable aIDTable = new BootstrapTable (HCCol.star (), HCCol.star ()).setStriped (true)
                                                                                        .setBordered (true);
-      aIDTable.addHeaderRow ().addCells ("Type", "Value");
+      aIDTable.addHeaderRow ().addCells ("Scheme", "Value");
       for (final PDStoredIdentifier aStoredID : aStoredDoc.getAllIdentifiers ())
-        aIDTable.addBodyRow ().addCells (aStoredID.getType (), aStoredID.getValue ());
+        aIDTable.addBodyRow ().addCells (aStoredID.getScheme (), aStoredID.getValue ());
       aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Additional identifiers").setCtrl (aIDTable));
     }
     if (aStoredDoc.hasAdditionalInformation ())
