@@ -52,6 +52,13 @@
       </xs:extension>
     </xs:simpleContent>
   </xs:complexType>
+
+  <xs:simpleType name="CountryCodeType">
+    <xs:restriction base="xs:token">
+      <xs:minLength value="2"/>
+      <xs:maxLength value="2"/>
+    </xs:restriction>
+  </xs:simpleType>
   
   <xs:complexType name="IdentifierType">
     <xs:annotation>
@@ -109,6 +116,13 @@
 
   <xs:complexType name="BusinessEntityType">
     <xs:sequence>
+      <xs:element name="CountryCode" type="CountryCodeType" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>
+            The mandatory ISO 3166-2 country code (e.g. "AT" for Austria or "NO" for Norway).
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
       <xs:element name="Name" type="xs:string" minOccurs="1" maxOccurs="1">
         <xs:annotation>
           <xs:documentation>
@@ -156,13 +170,6 @@
         </xs:annotation>
       </xs:element>
     </xs:sequence>
-    <xs:attribute name="countryCode" type="xs:token" use="required">
-      <xs:annotation>
-        <xs:documentation>
-          The mandatory ISO 3166-2 country code (e.g. "AT" for Austria or "NO" for Norway).
-        </xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
     <xs:attribute name="registrationDate" type="xs:date" use="optional">
       <xs:annotation>
         <xs:documentation>
