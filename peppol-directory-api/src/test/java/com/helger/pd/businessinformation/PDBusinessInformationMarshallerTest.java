@@ -33,6 +33,6 @@ public final class PDBusinessInformationMarshallerTest
   public void testBasic ()
   {
     final PDBusinessInformationMarshaller aMarshaller = new PDBusinessInformationMarshaller ();
-    assertNotNull (aMarshaller.read (new ClassPathResource ("example/business-information-test1.xml")));
+    assertNotNull (aMarshaller.read (new ClassPathResource ("example/business-card-test1.xml")));
   }
 }

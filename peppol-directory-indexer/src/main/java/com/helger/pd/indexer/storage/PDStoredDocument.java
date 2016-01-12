@@ -339,23 +339,23 @@ public class PDStoredDocument
 
     ret.setName (aDoc.get (CPDStorage.FIELD_NAME));
 
-    ret.setGeoInfo (aDoc.get (CPDStorage.FIELD_GEOINFO));
+    ret.setGeoInfo (aDoc.get (CPDStorage.FIELD_GEOGRAPHICAL_INFORMATION));
 
-    final String [] aIDTypes = aDoc.getValues (CPDStorage.FIELD_IDENTIFIER_TYPE);
+    final String [] aIDTypes = aDoc.getValues (CPDStorage.FIELD_IDENTIFIER_SCHEME);
     final String [] aIDValues = aDoc.getValues (CPDStorage.FIELD_IDENTIFIER);
     if (aIDTypes.length != aIDValues.length)
       throw new IllegalStateException ("Different number of identifier types and values");
     for (int i = 0; i < aIDTypes.length; ++i)
       ret.addIdentifier (new PDStoredIdentifier (aIDTypes[i], aIDValues[i]));
 
-    final String [] aWebSites = aDoc.getValues (CPDStorage.FIELD_WEBSITE);
+    final String [] aWebSites = aDoc.getValues (CPDStorage.FIELD_WEBSITEURI);
     for (final String sWebSite : aWebSites)
       ret.addWebSite (sWebSite);
 
-    final String [] aBCDescription = aDoc.getValues (CPDStorage.FIELD_BUSINESS_CONTACT_DESCRIPTION);
-    final String [] aBCName = aDoc.getValues (CPDStorage.FIELD_BUSINESS_CONTACT_NAME);
-    final String [] aBCPhone = aDoc.getValues (CPDStorage.FIELD_BUSINESS_CONTACT_PHONE);
-    final String [] aBCEmail = aDoc.getValues (CPDStorage.FIELD_BUSINESS_CONTACT_EMAIL);
+    final String [] aBCDescription = aDoc.getValues (CPDStorage.FIELD_CONTACT_TYPE);
+    final String [] aBCName = aDoc.getValues (CPDStorage.FIELD_CONTACT_NAME);
+    final String [] aBCPhone = aDoc.getValues (CPDStorage.FIELD_CONTACT_PHONE);
+    final String [] aBCEmail = aDoc.getValues (CPDStorage.FIELD_CONTACT_EMAIL);
     if (aBCDescription.length != aBCName.length)
       throw new IllegalStateException ("Different number of business contact descriptions and names");
     if (aBCDescription.length != aBCPhone.length)
@@ -372,7 +372,7 @@ public class PDStoredDocument
                                                                    aDoc.get (CPDStorage.FIELD_METADATA_REQUESTING_HOST));
       ret.setMetaData (aMetaData);
     }
-    ret.setFreeText (aDoc.get (CPDStorage.FIELD_FREETEXT));
+    ret.setFreeText (aDoc.get (CPDStorage.FIELD_ADDITIONAL_INFORMATION));
     ret.setDeleted (aDoc.getField (CPDStorage.FIELD_DELETED) != null);
     return ret;
   }

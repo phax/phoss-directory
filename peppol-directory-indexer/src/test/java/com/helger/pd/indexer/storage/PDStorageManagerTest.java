@@ -32,13 +32,14 @@ import org.junit.rules.TestRule;
 
 import com.helger.commons.collection.CollectionHelper;
 import com.helger.datetime.PDTFactory;
-import com.helger.pd.businessinformation.PDBusinessContactType;
-import com.helger.pd.businessinformation.PDBusinessInformationType;
-import com.helger.pd.businessinformation.PDEntityType;
-import com.helger.pd.businessinformation.PDExtendedBusinessInformation;
-import com.helger.pd.businessinformation.PDIdentifierType;
+import com.helger.pd.businesscard.PDBusinessCardType;
+import com.helger.pd.businesscard.PDBusinessEntityType;
+import com.helger.pd.businesscard.PDContactType;
+import com.helger.pd.businesscard.PDIdentifierType;
+import com.helger.pd.businessinformation.PDExtendedBusinessCard;
 import com.helger.pd.indexer.PDIndexerTestRule;
 import com.helger.pd.indexer.lucene.PDLucene;
+import com.helger.peppol.identifier.CIdentifier;
 import com.helger.peppol.identifier.doctype.EPredefinedDocumentTypeIdentifier;
 import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
 import com.helger.peppol.identifier.participant.SimpleParticipantIdentifier;
@@ -60,55 +61,62 @@ public final class PDStorageManagerTest
   }
 
   @Nonnull
-  private static PDExtendedBusinessInformation _createMockBI (@Nonnull final IPeppolParticipantIdentifier aParticipantID)
+  private static PDExtendedBusinessCard _createMockBI (@Nonnull final IPeppolParticipantIdentifier aParticipantID)
   {
-    final PDBusinessInformationType aBI = new PDBusinessInformationType ();
+    final PDBusinessCardType aBI = new PDBusinessCardType ();
     {
-      final PDEntityType aEntity = new PDEntityType ();
+      final PDIdentifierType aID = new PDIdentifierType ();
+      aID.setScheme (CIdentifier.DEFAULT_PARTICIPANT_IDENTIFIER_SCHEME);
+      aID.setValue ("9915:mock");
+      aBI.setParticipantIdentifier (aID);
+    }
+    {
+      final PDBusinessEntityType aEntity = new PDBusinessEntityType ();
       aEntity.setCountryCode ("AT");
       aEntity.setRegistrationDate (PDTFactory.createLocalDate (2015, DateTimeConstants.JULY, 6));
       aEntity.setName ("Philip's mock PEPPOL receiver");
-      aEntity.setGeoInfo ("Vienna");
+      aEntity.setGeographicalInformation ("Vienna");
 
       for (int i = 0; i < 10; ++i)
       {
         final PDIdentifierType aID = new PDIdentifierType ();
-        aID.setType ("type" + i);
+        aID.setScheme ("type" + i);
         aID.setValue ("value" + i);
         aEntity.addIdentifier (aID);
       }
 
-      aEntity.addWebSite ("http://www.peppol.eu");
+      aEntity.addWebsiteURI ("http://www.peppol.eu");
 
-      final PDBusinessContactType aBC = new PDBusinessContactType ();
-      aBC.setDescription ("support");
+      final PDContactType aBC = new PDContactType ();
+      aBC.setType ("support");
       aBC.setName ("BC name");
       aBC.setEmail ("test@example.org");
       aBC.setPhoneNumber ("12345");
-      aEntity.addBusinessContact (aBC);
+      aEntity.addContact (aBC);
 
-      aEntity.setFreeText ("This is a mock entry for testing purposes only");
-      aBI.addEntity (aEntity);
+      aEntity.setAdditionalInformation ("This is a mock entry for testing purposes only");
+      aBI.addBusinessEntity (aEntity);
     }
     {
-      final PDEntityType aEntity = new PDEntityType ();
+      final PDBusinessEntityType aEntity = new PDBusinessEntityType ();
       aEntity.setCountryCode ("NO");
       aEntity.setName ("Entity2");
 
       PDIdentifierType aID = new PDIdentifierType ();
-      aID.setType ("mock");
+      aID.setScheme ("mock");
       aID.setValue ("12345678");
       aEntity.addIdentifier (aID);
 
       aID = new PDIdentifierType ();
-      aID.setType ("provided");
+      aID.setScheme ("provided");
       aID.setValue (aParticipantID.getURIEncoded ());
       aEntity.addIdentifier (aID);
 
-      aEntity.setFreeText ("This is another mock entry for testing purposes only");
-      aBI.addEntity (aEntity);
+      aEntity.setAdditionalInformation ("This is another mock entry for testing purposes only");
+      aBI.addBusinessEntity (aEntity);
     }
-    return new PDExtendedBusinessInformation (aBI, CollectionHelper.newList (EPredefinedDocumentTypeIdentifier.INVOICE_T010_BIS5A_V20));
+    return new PDExtendedBusinessCard (aBI,
+                                              CollectionHelper.newList (EPredefinedDocumentTypeIdentifier.INVOICE_T010_BIS5A_V20));
   }
 
   @Test

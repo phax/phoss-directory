@@ -41,15 +41,15 @@ import com.helger.peppol.identifier.doctype.SimpleDocumentTypeIdentifier;
  * @author Philip Helger
  */
 @Immutable
-public class PDExtendedBusinessInformation
+public class PDExtendedBusinessCard
 {
-  private final PDBusinessCardType m_aBusinessInfo;
+  private final PDBusinessCardType m_aBusinessCard;
   private final List <IDocumentTypeIdentifier> m_aDocumentTypeIDs = new ArrayList <> ();
 
-  public PDExtendedBusinessInformation (@Nonnull final PDBusinessCardType aBusinessInfo,
-                                        @Nullable final List <IDocumentTypeIdentifier> aDocumentTypeIDs)
+  public PDExtendedBusinessCard (@Nonnull final PDBusinessCardType aBusinessCard,
+                                 @Nullable final List <IDocumentTypeIdentifier> aDocumentTypeIDs)
   {
-    m_aBusinessInfo = ValueEnforcer.notNull (aBusinessInfo, "BusinessInfo");
+    m_aBusinessCard = ValueEnforcer.notNull (aBusinessCard, "BusinessInfo");
     if (aDocumentTypeIDs != null)
       for (final IDocumentTypeIdentifier aDocTypeID : aDocumentTypeIDs)
         if (aDocTypeID != null)
@@ -62,9 +62,9 @@ public class PDExtendedBusinessInformation
    */
   @Nonnull
   @ReturnsMutableObject ("design")
-  public PDBusinessCardType getBusinessInformation ()
+  public PDBusinessCardType getBusinessCard ()
   {
-    return m_aBusinessInfo;
+    return m_aBusinessCard;
   }
 
   /**
@@ -81,7 +81,7 @@ public class PDExtendedBusinessInformation
   @Override
   public String toString ()
   {
-    return new ToStringGenerator (this).append ("BusinessInfo", m_aBusinessInfo)
+    return new ToStringGenerator (this).append ("BusinessCard", m_aBusinessCard)
                                        .append ("DocTypeIDs", m_aDocumentTypeIDs)
                                        .toString ();
   }

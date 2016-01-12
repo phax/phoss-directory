@@ -55,11 +55,11 @@ import com.helger.commons.collection.multimap.IMultiMapListBased;
 import com.helger.commons.collection.multimap.MultiLinkedHashMapArrayListBased;
 import com.helger.commons.state.ESuccess;
 import com.helger.commons.string.StringHelper;
-import com.helger.pd.businessinformation.PDBusinessContactType;
-import com.helger.pd.businessinformation.PDBusinessInformationType;
-import com.helger.pd.businessinformation.PDEntityType;
-import com.helger.pd.businessinformation.PDExtendedBusinessInformation;
-import com.helger.pd.businessinformation.PDIdentifierType;
+import com.helger.pd.businesscard.PDBusinessCardType;
+import com.helger.pd.businesscard.PDBusinessEntityType;
+import com.helger.pd.businesscard.PDContactType;
+import com.helger.pd.businesscard.PDIdentifierType;
+import com.helger.pd.businessinformation.PDExtendedBusinessCard;
 import com.helger.pd.indexer.lucene.AllDocumentsCollector;
 import com.helger.pd.indexer.lucene.PDLucene;
 import com.helger.peppol.identifier.IDocumentTypeIdentifier;
@@ -155,13 +155,16 @@ public final class PDStorageManager implements Closeable
       }
 
       s_aLogger.info ("Marked " + aDocuments.size () + " Lucene documents as deleted");
-      AuditHelper.onAuditExecuteSuccess ("pyp-indexer-delete", aParticipantID.getURIEncoded (), Integer.valueOf (aDocuments.size ()), aMetaData);
+      AuditHelper.onAuditExecuteSuccess ("pyp-indexer-delete",
+                                         aParticipantID.getURIEncoded (),
+                                         Integer.valueOf (aDocuments.size ()),
+                                         aMetaData);
     });
   }
 
   @Nonnull
   public ESuccess createOrUpdateEntry (@Nonnull final IPeppolParticipantIdentifier aParticipantID,
-                                       @Nonnull final PDExtendedBusinessInformation aExtBI,
+                                       @Nonnull final PDExtendedBusinessCard aExtBI,
                                        @Nonnull final PDDocumentMetaData aMetaData) throws IOException
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
@@ -171,8 +174,8 @@ public final class PDStorageManager implements Closeable
     return m_aLucene.runAtomic ( () -> {
       final List <Document> aDocs = new ArrayList <> ();
 
-      final PDBusinessInformationType aBI = aExtBI.getBusinessInformation ();
-      for (final PDEntityType aEntity : aBI.getEntity ())
+      final PDBusinessCardType aBI = aExtBI.getBusinessCard ();
+      for (final PDBusinessEntityType aBusinessEntity : aBI.getBusinessEntity ())
       {
         // Convert entity to Lucene document
         final Document aDoc = new Document ();
@@ -180,6 +183,18 @@ public final class PDStorageManager implements Closeable
 
         aDoc.add (new StringField (CPDStorage.FIELD_PARTICIPANTID, aParticipantID.getURIEncoded (), Store.YES));
         aSBAllFields.append (aParticipantID.getURIEncoded ()).append (' ');
+
+        if (aBusinessEntity.getName () != null)
+        {
+          aDoc.add (new TextField (CPDStorage.FIELD_NAME, aBusinessEntity.getName (), Store.YES));
+          aSBAllFields.append (aBusinessEntity.getName ()).append (' ');
+        }
+
+        if (aBusinessEntity.getCountryCode () != null)
+        {
+          aDoc.add (new StringField (CPDStorage.FIELD_COUNTRY_CODE, aBusinessEntity.getCountryCode (), Store.YES));
+          aSBAllFields.append (aBusinessEntity.getCountryCode ()).append (' ');
+        }
 
         // Add all document types to all documents
         for (final IDocumentTypeIdentifier aDocTypeID : aExtBI.getAllDocumentTypeIDs ())
@@ -189,69 +204,61 @@ public final class PDStorageManager implements Closeable
           aSBAllFields.append (sDocTypeID).append (' ');
         }
 
-        if (aEntity.getCountryCode () != null)
+        if (aBusinessEntity.getGeographicalInformation () != null)
         {
-          aDoc.add (new StringField (CPDStorage.FIELD_COUNTRY_CODE, aEntity.getCountryCode (), Store.YES));
-          aSBAllFields.append (aEntity.getCountryCode ()).append (' ');
+          aDoc.add (new TextField (CPDStorage.FIELD_GEOGRAPHICAL_INFORMATION,
+                                   aBusinessEntity.getGeographicalInformation (),
+                                   Store.YES));
+          aSBAllFields.append (aBusinessEntity.getGeographicalInformation ()).append (' ');
         }
 
-        if (aEntity.getRegistrationDate () != null)
+        for (final PDIdentifierType aIdentifier : aBusinessEntity.getIdentifier ())
         {
-          final String sDate = PDTWebDateHelper.getAsStringXSD (aEntity.getRegistrationDate ());
-          aDoc.add (new StringField (CPDStorage.FIELD_REGISTRATION_DATE, sDate, Store.YES));
-          aSBAllFields.append (sDate).append (' ');
-        }
-
-        if (aEntity.getName () != null)
-        {
-          aDoc.add (new TextField (CPDStorage.FIELD_NAME, aEntity.getName (), Store.YES));
-          aSBAllFields.append (aEntity.getName ()).append (' ');
-        }
-
-        if (aEntity.getGeoInfo () != null)
-        {
-          aDoc.add (new TextField (CPDStorage.FIELD_GEOINFO, aEntity.getGeoInfo (), Store.YES));
-          aSBAllFields.append (aEntity.getGeoInfo ()).append (' ');
-        }
-
-        for (final PDIdentifierType aIdentifier : aEntity.getIdentifier ())
-        {
-          aDoc.add (new TextField (CPDStorage.FIELD_IDENTIFIER_TYPE, aIdentifier.getType (), Store.YES));
-          aSBAllFields.append (aIdentifier.getType ()).append (' ');
+          aDoc.add (new TextField (CPDStorage.FIELD_IDENTIFIER_SCHEME, aIdentifier.getScheme (), Store.YES));
+          aSBAllFields.append (aIdentifier.getScheme ()).append (' ');
 
           aDoc.add (new TextField (CPDStorage.FIELD_IDENTIFIER, aIdentifier.getValue (), Store.YES));
           aSBAllFields.append (aIdentifier.getValue ()).append (' ');
         }
 
-        for (final String sWebSite : aEntity.getWebSite ())
+        for (final String sWebSite : aBusinessEntity.getWebsiteURI ())
         {
-          aDoc.add (new TextField (CPDStorage.FIELD_WEBSITE, sWebSite, Store.YES));
+          aDoc.add (new TextField (CPDStorage.FIELD_WEBSITEURI, sWebSite, Store.YES));
           aSBAllFields.append (sWebSite).append (' ');
         }
 
-        for (final PDBusinessContactType aBusinessContact : aEntity.getBusinessContact ())
+        for (final PDContactType aContact : aBusinessEntity.getContact ())
         {
-          final String sDescription = StringHelper.getNotNull (aBusinessContact.getDescription ());
-          aDoc.add (new TextField (CPDStorage.FIELD_BUSINESS_CONTACT_DESCRIPTION, sDescription, Store.YES));
-          aSBAllFields.append (sDescription).append (' ');
+          final String sType = StringHelper.getNotNull (aContact.getType ());
+          aDoc.add (new TextField (CPDStorage.FIELD_CONTACT_TYPE, sType, Store.YES));
+          aSBAllFields.append (sType).append (' ');
 
-          final String sName = StringHelper.getNotNull (aBusinessContact.getName ());
-          aDoc.add (new TextField (CPDStorage.FIELD_BUSINESS_CONTACT_NAME, sName, Store.YES));
+          final String sName = StringHelper.getNotNull (aContact.getName ());
+          aDoc.add (new TextField (CPDStorage.FIELD_CONTACT_NAME, sName, Store.YES));
           aSBAllFields.append (sName).append (' ');
 
-          final String sPhone = StringHelper.getNotNull (aBusinessContact.getPhoneNumber ());
-          aDoc.add (new TextField (CPDStorage.FIELD_BUSINESS_CONTACT_PHONE, sPhone, Store.YES));
+          final String sPhone = StringHelper.getNotNull (aContact.getPhoneNumber ());
+          aDoc.add (new TextField (CPDStorage.FIELD_CONTACT_PHONE, sPhone, Store.YES));
           aSBAllFields.append (sPhone).append (' ');
 
-          final String sEmail = StringHelper.getNotNull (aBusinessContact.getEmail ());
-          aDoc.add (new TextField (CPDStorage.FIELD_BUSINESS_CONTACT_EMAIL, sEmail, Store.YES));
+          final String sEmail = StringHelper.getNotNull (aContact.getEmail ());
+          aDoc.add (new TextField (CPDStorage.FIELD_CONTACT_EMAIL, sEmail, Store.YES));
           aSBAllFields.append (sEmail).append (' ');
         }
 
-        if (aEntity.getFreeText () != null)
+        if (aBusinessEntity.getAdditionalInformation () != null)
         {
-          aDoc.add (new TextField (CPDStorage.FIELD_FREETEXT, aEntity.getFreeText (), Store.YES));
-          aSBAllFields.append (aEntity.getFreeText ()).append (' ');
+          aDoc.add (new TextField (CPDStorage.FIELD_ADDITIONAL_INFORMATION,
+                                   aBusinessEntity.getAdditionalInformation (),
+                                   Store.YES));
+          aSBAllFields.append (aBusinessEntity.getAdditionalInformation ()).append (' ');
+        }
+
+        if (aBusinessEntity.getRegistrationDate () != null)
+        {
+          final String sDate = PDTWebDateHelper.getAsStringXSD (aBusinessEntity.getRegistrationDate ());
+          aDoc.add (new StringField (CPDStorage.FIELD_REGISTRATION_DATE, sDate, Store.YES));
+          aSBAllFields.append (sDate).append (' ');
         }
 
         // Add the "all" field - no need to store
@@ -260,7 +267,9 @@ public final class PDStorageManager implements Closeable
         // Add meta data (not part of the "all field" field!)
         aDoc.add (new LongField (CPDStorage.FIELD_METADATA_CREATIONDT, aMetaData.getCreationDTMillis (), Store.YES));
         aDoc.add (new StringField (CPDStorage.FIELD_METADATA_OWNERID, aMetaData.getOwnerID (), Store.YES));
-        aDoc.add (new StringField (CPDStorage.FIELD_METADATA_REQUESTING_HOST, aMetaData.getRequestingHost (), Store.YES));
+        aDoc.add (new StringField (CPDStorage.FIELD_METADATA_REQUESTING_HOST,
+                                   aMetaData.getRequestingHost (),
+                                   Store.YES));
 
         aDocs.add (aDoc);
       }
@@ -268,7 +277,8 @@ public final class PDStorageManager implements Closeable
       if (!aDocs.isEmpty ())
       {
         // Add "group end" marker
-        CollectionHelper.getLastElement (aDocs).add (new Field (CPDStorage.FIELD_GROUP_END, VALUE_GROUP_END, TYPE_GROUP_END));
+        CollectionHelper.getLastElement (aDocs)
+                        .add (new Field (CPDStorage.FIELD_GROUP_END, VALUE_GROUP_END, TYPE_GROUP_END));
       }
 
       // Delete all existing documents of the participant ID
@@ -282,7 +292,10 @@ public final class PDStorageManager implements Closeable
         m_aLucene.updateDocuments (_createParticipantTerm (aParticipantID), aDocs);
 
       s_aLogger.info ("Added " + aDocs.size () + " Lucene documents");
-      AuditHelper.onAuditExecuteSuccess ("pyp-indexer-create", aParticipantID.getURIEncoded (), Integer.valueOf (aDocs.size ()), aMetaData);
+      AuditHelper.onAuditExecuteSuccess ("pyp-indexer-create",
+                                         aParticipantID.getURIEncoded (),
+                                         Integer.valueOf (aDocs.size ()),
+                                         aMetaData);
     });
   }
 
@@ -332,12 +345,14 @@ public final class PDStorageManager implements Closeable
    * @see #searchAtomic(Query, Collector)
    * @see #getAllDocuments(Query)
    */
-  public void searchAllDocuments (@Nonnull final Query aQuery, @Nonnull final Consumer <PDStoredDocument> aConsumer) throws IOException
+  public void searchAllDocuments (@Nonnull final Query aQuery,
+                                  @Nonnull final Consumer <PDStoredDocument> aConsumer) throws IOException
   {
     ValueEnforcer.notNull (aQuery, "Query");
     ValueEnforcer.notNull (aConsumer, "Consumer");
 
-    searchAtomic (aQuery, new AllDocumentsCollector (m_aLucene, aDoc -> aConsumer.accept (PDStoredDocument.create (aDoc))));
+    searchAtomic (aQuery,
+                  new AllDocumentsCollector (m_aLucene, aDoc -> aConsumer.accept (PDStoredDocument.create (aDoc))));
   }
 
   /**
@@ -394,7 +409,9 @@ public final class PDStorageManager implements Closeable
     final Query aQuery = PDQueryManager.andNotDeleted (new WildcardQuery (new Term (CPDStorage.FIELD_ALL_FIELDS, "*")));
     try
     {
-      searchAtomic (aQuery, new AllDocumentsCollector (m_aLucene, aDoc -> aTargetList.add (aDoc.get (CPDStorage.FIELD_PARTICIPANTID))));
+      searchAtomic (aQuery,
+                    new AllDocumentsCollector (m_aLucene,
+                                               aDoc -> aTargetList.add (aDoc.get (CPDStorage.FIELD_PARTICIPANTID))));
     }
     catch (final IOException ex)
     {

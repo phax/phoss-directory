@@ -20,11 +20,11 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 
-import com.helger.pd.businessinformation.PDExtendedBusinessInformation;
+import com.helger.pd.businessinformation.PDExtendedBusinessCard;
 import com.helger.peppol.identifier.participant.SimpleParticipantIdentifier;
 
 /**
- * Test class for class {@link SMPBusinessInformationProvider}.
+ * Test class for class {@link SMPBusinessCardProvider}.
  *
  * @author Philip Helger
  */
@@ -33,8 +33,8 @@ public final class SMPBusinessInformationProviderTest
   @Test
   public void testFetch ()
   {
-    final SMPBusinessInformationProvider aBI = new SMPBusinessInformationProvider ();
-    final PDExtendedBusinessInformation aExtBI = aBI.getBusinessInformation (SimpleParticipantIdentifier.createWithDefaultScheme ("9915:test"));
+    final SMPBusinessCardProvider aBI = new SMPBusinessCardProvider ();
+    final PDExtendedBusinessCard aExtBI = aBI.getBusinessCard (SimpleParticipantIdentifier.createWithDefaultScheme ("9915:test"));
     assertNotNull (aExtBI);
     System.out.println (aExtBI);
   }
