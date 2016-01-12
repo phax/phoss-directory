@@ -272,8 +272,8 @@ public final class PagePublicSearch extends AbstractAppWebPage
 
               if (aStoredDoc.hasGeoInfo ())
                 aLI.addChild (new HCDiv ().addChildren (HCExtHelper.nl2divList (aStoredDoc.getGeoInfo ())).addClass (CSS_CLASS_RESULT_DOC_GEOINFO));
-              if (aStoredDoc.hasFreeText ())
-                aLI.addChild (new HCDiv ().addChildren (HCExtHelper.nl2divList (aStoredDoc.getFreeText ())).addClass (CSS_CLASS_RESULT_DOC_FREETEXT));
+              if (aStoredDoc.hasAdditionalInformation ())
+                aLI.addChild (new HCDiv ().addChildren (HCExtHelper.nl2divList (aStoredDoc.getAdditionalInformation ())).addClass (CSS_CLASS_RESULT_DOC_FREETEXT));
             }
 
             aOL.addItem (aResultItem);

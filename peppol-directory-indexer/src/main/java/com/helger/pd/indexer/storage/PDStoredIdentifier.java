@@ -33,20 +33,20 @@ import com.helger.commons.string.ToStringGenerator;
 @Immutable
 public final class PDStoredIdentifier
 {
-  private final String m_sType;
+  private final String m_sScheme;
   private final String m_sValue;
 
-  public PDStoredIdentifier (@Nonnull @Nonempty final String sType, @Nonnull @Nonempty final String sValue)
+  public PDStoredIdentifier (@Nonnull @Nonempty final String sScheme, @Nonnull @Nonempty final String sValue)
   {
-    m_sType = ValueEnforcer.notEmpty (sType, "Type");
+    m_sScheme = ValueEnforcer.notEmpty (sScheme, "Scheme");
     m_sValue = ValueEnforcer.notEmpty (sValue, "Value");
   }
 
   @Nonnull
   @Nonempty
-  public String getType ()
+  public String getScheme ()
   {
-    return m_sType;
+    return m_sScheme;
   }
 
   @Nonnull
@@ -64,18 +64,18 @@ public final class PDStoredIdentifier
     if (o == null || !getClass ().equals (o.getClass ()))
       return false;
     final PDStoredIdentifier rhs = (PDStoredIdentifier) o;
-    return m_sType.equals (rhs.m_sType) && m_sValue.equals (rhs.m_sValue);
+    return m_sScheme.equals (rhs.m_sScheme) && m_sValue.equals (rhs.m_sValue);
   }
 
   @Override
   public int hashCode ()
   {
-    return new HashCodeGenerator (this).append (m_sType).append (m_sValue).getHashCode ();
+    return new HashCodeGenerator (this).append (m_sScheme).append (m_sValue).getHashCode ();
   }
 
   @Override
   public String toString ()
   {
-    return new ToStringGenerator (this).append ("Type", m_sType).append ("Value", m_sValue).toString ();
+    return new ToStringGenerator (this).append ("Scheme", m_sScheme).append ("Value", m_sValue).toString ();
   }
 }

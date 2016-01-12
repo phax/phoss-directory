@@ -80,7 +80,7 @@ public final class PDStorageManagerTest
       for (int i = 0; i < 10; ++i)
       {
         final PDIdentifierType aID = new PDIdentifierType ();
-        aID.setScheme ("type" + i);
+        aID.setScheme ("scheme" + i);
         aID.setValue ("value" + i);
         aEntity.addIdentifier (aID);
       }
@@ -116,7 +116,7 @@ public final class PDStorageManagerTest
       aBI.addBusinessEntity (aEntity);
     }
     return new PDExtendedBusinessCard (aBI,
-                                              CollectionHelper.newList (EPredefinedDocumentTypeIdentifier.INVOICE_T010_BIS5A_V20));
+                                       CollectionHelper.newList (EPredefinedDocumentTypeIdentifier.INVOICE_T010_BIS5A_V20));
   }
 
   @Test
@@ -142,20 +142,20 @@ public final class PDStorageManagerTest
         assertEquals (10, aDoc1.getIdentifierCount ());
         for (int i = 0; i < aDoc1.getIdentifierCount (); ++i)
         {
-          assertEquals ("type" + i, aDoc1.getIdentifierAtIndex (i).getType ());
+          assertEquals ("scheme" + i, aDoc1.getIdentifierAtIndex (i).getScheme ());
           assertEquals ("value" + i, aDoc1.getIdentifierAtIndex (i).getValue ());
         }
 
-        assertEquals (1, aDoc1.getWebSiteCount ());
-        assertEquals ("http://www.peppol.eu", aDoc1.getWebSiteAtIndex (0));
+        assertEquals (1, aDoc1.getWebsiteURICount ());
+        assertEquals ("http://www.peppol.eu", aDoc1.getWebsiteURIAtIndex (0));
 
-        assertEquals (1, aDoc1.getBusinessContactCount ());
-        assertEquals ("support", aDoc1.getBusinessContactAtIndex (0).getDescription ());
-        assertEquals ("BC name", aDoc1.getBusinessContactAtIndex (0).getName ());
-        assertEquals ("test@example.org", aDoc1.getBusinessContactAtIndex (0).getEmail ());
-        assertEquals ("12345", aDoc1.getBusinessContactAtIndex (0).getPhone ());
+        assertEquals (1, aDoc1.getContactCount ());
+        assertEquals ("support", aDoc1.getContactAtIndex (0).getType ());
+        assertEquals ("BC name", aDoc1.getContactAtIndex (0).getName ());
+        assertEquals ("test@example.org", aDoc1.getContactAtIndex (0).getEmail ());
+        assertEquals ("12345", aDoc1.getContactAtIndex (0).getPhone ());
 
-        assertEquals ("This is a mock entry for testing purposes only", aDoc1.getFreeText ());
+        assertEquals ("This is a mock entry for testing purposes only", aDoc1.getAdditionalInformation ());
         assertFalse (aDoc1.isDeleted ());
       }
       finally

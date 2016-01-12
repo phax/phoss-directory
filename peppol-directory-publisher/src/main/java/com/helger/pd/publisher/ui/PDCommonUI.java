@@ -113,9 +113,9 @@ public final class PDCommonUI
         aIDTable.addBodyRow ().addCells (aStoredID.getType (), aStoredID.getValue ());
       aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Additional identifiers").setCtrl (aIDTable));
     }
-    if (aStoredDoc.hasFreeText ())
+    if (aStoredDoc.hasAdditionalInformation ())
       aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Free text")
-                                                       .setCtrl (HCExtHelper.nl2divList (aStoredDoc.getFreeText ())));
+                                                       .setCtrl (HCExtHelper.nl2divList (aStoredDoc.getAdditionalInformation ())));
     return aViewForm;
   }
 

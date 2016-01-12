@@ -52,14 +52,14 @@ public class PDStoredDocument
 {
   private String m_sParticipantID;
   private final List <SimpleDocumentTypeIdentifier> m_aDocumentTypeIDs = new ArrayList <> ();
-  private String m_sCountryCode;
-  private LocalDate m_aRegistrationDate;
   private String m_sName;
+  private String m_sCountryCode;
   private String m_sGeoInfo;
   private final List <PDStoredIdentifier> m_aIdentifiers = new ArrayList <> ();
-  private final List <String> m_aWebSites = new ArrayList <> ();
-  private final List <PDStoredBusinessContact> m_aBusinessContacts = new ArrayList <> ();
-  private String m_sFreeText;
+  private final List <String> m_aWebsiteURIs = new ArrayList <> ();
+  private final List <PDStoredContact> m_aContacts = new ArrayList <> ();
+  private String m_sAdditionalInformation;
+  private LocalDate m_aRegistrationDate;
   private PDDocumentMetaData m_aMetaData;
   private boolean m_bDeleted;
 
@@ -104,38 +104,6 @@ public class PDStoredDocument
     return CollectionHelper.getSafe (m_aDocumentTypeIDs, nIndex);
   }
 
-  public void setCountryCode (@Nullable final String sCountryCode)
-  {
-    m_sCountryCode = sCountryCode;
-  }
-
-  @Nullable
-  public String getCountryCode ()
-  {
-    return m_sCountryCode;
-  }
-
-  public boolean hasCountryCode ()
-  {
-    return StringHelper.hasText (m_sCountryCode);
-  }
-
-  public void setRegistrationDate (@Nullable final LocalDate aRegistrationDate)
-  {
-    m_aRegistrationDate = aRegistrationDate;
-  }
-
-  @Nullable
-  public LocalDate getRegistrationDate ()
-  {
-    return m_aRegistrationDate;
-  }
-
-  public boolean hasRegistrationDate ()
-  {
-    return m_aRegistrationDate != null;
-  }
-
   public void setName (@Nullable final String sName)
   {
     m_sName = sName;
@@ -150,6 +118,22 @@ public class PDStoredDocument
   public boolean hasName ()
   {
     return StringHelper.hasText (m_sName);
+  }
+
+  public void setCountryCode (@Nullable final String sCountryCode)
+  {
+    m_sCountryCode = sCountryCode;
+  }
+
+  @Nullable
+  public String getCountryCode ()
+  {
+    return m_sCountryCode;
+  }
+
+  public boolean hasCountryCode ()
+  {
+    return StringHelper.hasText (m_sCountryCode);
   }
 
   public void setGeoInfo (@Nullable final String sGeoInfo)
@@ -198,80 +182,96 @@ public class PDStoredDocument
     return CollectionHelper.isNotEmpty (m_aIdentifiers);
   }
 
-  public void addWebSite (@Nonnull @Nonempty final String sWebSite)
+  public void addWebsiteURI (@Nonnull @Nonempty final String sWebsiteURI)
   {
-    ValueEnforcer.notEmpty (sWebSite, "WebSite");
-    m_aWebSites.add (sWebSite);
+    ValueEnforcer.notEmpty (sWebsiteURI, "WebSite");
+    m_aWebsiteURIs.add (sWebsiteURI);
   }
 
   @Nonnull
   @ReturnsMutableCopy
-  public List <String> getAllWebSites ()
+  public List <String> getAllWebsiteURIs ()
   {
-    return CollectionHelper.newList (m_aWebSites);
+    return CollectionHelper.newList (m_aWebsiteURIs);
   }
 
   @Nonnegative
-  public int getWebSiteCount ()
+  public int getWebsiteURICount ()
   {
-    return m_aWebSites.size ();
+    return m_aWebsiteURIs.size ();
   }
 
   @Nullable
-  public String getWebSiteAtIndex (@Nonnegative final int nIndex)
+  public String getWebsiteURIAtIndex (@Nonnegative final int nIndex)
   {
-    return CollectionHelper.getSafe (m_aWebSites, nIndex);
+    return CollectionHelper.getSafe (m_aWebsiteURIs, nIndex);
   }
 
-  public boolean hasAnyWebSite ()
+  public boolean hasAnyWebsiteURIs ()
   {
-    return CollectionHelper.isNotEmpty (m_aWebSites);
+    return CollectionHelper.isNotEmpty (m_aWebsiteURIs);
   }
 
-  public void addBusinessContact (@Nonnull final PDStoredBusinessContact aBusinessContact)
+  public void addContact (@Nonnull final PDStoredContact aContact)
   {
-    ValueEnforcer.notNull (aBusinessContact, "BusinessContact");
-    m_aBusinessContacts.add (aBusinessContact);
+    ValueEnforcer.notNull (aContact, "Contact");
+    m_aContacts.add (aContact);
   }
 
   @Nonnull
   @ReturnsMutableCopy
-  public List <PDStoredBusinessContact> getAllBusinessContacts ()
+  public List <PDStoredContact> getAllContacts ()
   {
-    return CollectionHelper.newList (m_aBusinessContacts);
+    return CollectionHelper.newList (m_aContacts);
   }
 
   @Nonnegative
-  public int getBusinessContactCount ()
+  public int getContactCount ()
   {
-    return m_aBusinessContacts.size ();
+    return m_aContacts.size ();
   }
 
   @Nullable
-  public PDStoredBusinessContact getBusinessContactAtIndex (@Nonnegative final int nIndex)
+  public PDStoredContact getContactAtIndex (@Nonnegative final int nIndex)
   {
-    return CollectionHelper.getSafe (m_aBusinessContacts, nIndex);
+    return CollectionHelper.getSafe (m_aContacts, nIndex);
   }
 
-  public boolean hasAnyBusinessContact ()
+  public boolean hasAnyContact ()
   {
-    return CollectionHelper.isNotEmpty (m_aBusinessContacts);
+    return CollectionHelper.isNotEmpty (m_aContacts);
   }
 
-  public void setFreeText (@Nullable final String sFreeText)
+  public void setAdditionalInformation (@Nullable final String sAdditionalInformation)
   {
-    m_sFreeText = sFreeText;
+    m_sAdditionalInformation = sAdditionalInformation;
   }
 
   @Nonnull
-  public String getFreeText ()
+  public String getAdditionalInformation ()
   {
-    return m_sFreeText;
+    return m_sAdditionalInformation;
   }
 
-  public boolean hasFreeText ()
+  public boolean hasAdditionalInformation ()
   {
-    return StringHelper.hasText (m_sFreeText);
+    return StringHelper.hasText (m_sAdditionalInformation);
+  }
+
+  public void setRegistrationDate (@Nullable final LocalDate aRegistrationDate)
+  {
+    m_aRegistrationDate = aRegistrationDate;
+  }
+
+  @Nullable
+  public LocalDate getRegistrationDate ()
+  {
+    return m_aRegistrationDate;
+  }
+
+  public boolean hasRegistrationDate ()
+  {
+    return m_aRegistrationDate != null;
   }
 
   @Nonnull
@@ -306,9 +306,9 @@ public class PDStoredDocument
                                        .append ("Name", m_sName)
                                        .append ("GeoInfo", m_sGeoInfo)
                                        .append ("Identifiers", m_aIdentifiers)
-                                       .append ("WebSites", m_aWebSites)
-                                       .append ("BusinessContacts", m_aBusinessContacts)
-                                       .append ("FreeText", m_sFreeText)
+                                       .append ("WebsiteURIs", m_aWebsiteURIs)
+                                       .append ("Contacts", m_aContacts)
+                                       .append ("AdditionalInformation", m_sAdditionalInformation)
                                        .append ("MetaData", m_aMetaData)
                                        .append ("Deleted", m_bDeleted)
                                        .toString ();
@@ -350,7 +350,7 @@ public class PDStoredDocument
 
     final String [] aWebSites = aDoc.getValues (CPDStorage.FIELD_WEBSITEURI);
     for (final String sWebSite : aWebSites)
-      ret.addWebSite (sWebSite);
+      ret.addWebsiteURI (sWebSite);
 
     final String [] aBCDescription = aDoc.getValues (CPDStorage.FIELD_CONTACT_TYPE);
     final String [] aBCName = aDoc.getValues (CPDStorage.FIELD_CONTACT_NAME);
@@ -363,16 +363,18 @@ public class PDStoredDocument
     if (aBCDescription.length != aBCEmail.length)
       throw new IllegalStateException ("Different number of business contact descriptions and emails");
     for (int i = 0; i < aBCDescription.length; ++i)
-      ret.addBusinessContact (new PDStoredBusinessContact (aBCDescription[i], aBCName[i], aBCPhone[i], aBCEmail[i]));
+      ret.addContact (new PDStoredContact (aBCDescription[i], aBCName[i], aBCPhone[i], aBCEmail[i]));
 
     {
       final IndexableField aFieldMetadata = aDoc.getField (CPDStorage.FIELD_METADATA_CREATIONDT);
-      final PDDocumentMetaData aMetaData = new PDDocumentMetaData (PDTFactory.createDateTimeFromMillis (aFieldMetadata.numericValue ().longValue ()).toLocalDateTime (),
+      final PDDocumentMetaData aMetaData = new PDDocumentMetaData (PDTFactory.createDateTimeFromMillis (aFieldMetadata.numericValue ()
+                                                                                                                      .longValue ())
+                                                                             .toLocalDateTime (),
                                                                    aDoc.get (CPDStorage.FIELD_METADATA_OWNERID),
                                                                    aDoc.get (CPDStorage.FIELD_METADATA_REQUESTING_HOST));
       ret.setMetaData (aMetaData);
     }
-    ret.setFreeText (aDoc.get (CPDStorage.FIELD_ADDITIONAL_INFORMATION));
+    ret.setAdditionalInformation (aDoc.get (CPDStorage.FIELD_ADDITIONAL_INFORMATION));
     ret.setDeleted (aDoc.getField (CPDStorage.FIELD_DELETED) != null);
     return ret;
   }
