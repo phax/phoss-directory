@@ -27,7 +27,7 @@ import com.helger.commons.io.resource.ClassPathResource;
  *
  * @author Philip Helger
  */
-public final class PDBusinessInformationMarshallerTest
+public final class PDBusinessCardMarshallerTest
 {
   @Test
   public void testBasic ()
