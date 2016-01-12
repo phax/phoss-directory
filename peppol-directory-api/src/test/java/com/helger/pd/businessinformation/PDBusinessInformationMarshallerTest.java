@@ -23,7 +23,7 @@ import org.junit.Test;
 import com.helger.commons.io.resource.ClassPathResource;
 
 /**
- * Test class for class {@link PDBusinessInformationMarshaller}.
+ * Test class for class {@link PDBusinessCardMarshaller}.
  *
  * @author Philip Helger
  */
@@ -32,7 +32,7 @@ public final class PDBusinessInformationMarshallerTest
   @Test
   public void testBasic ()
   {
-    final PDBusinessInformationMarshaller aMarshaller = new PDBusinessInformationMarshaller ();
+    final PDBusinessCardMarshaller aMarshaller = new PDBusinessCardMarshaller ();
     assertNotNull (aMarshaller.read (new ClassPathResource ("example/business-card-test1.xml")));
   }
 }

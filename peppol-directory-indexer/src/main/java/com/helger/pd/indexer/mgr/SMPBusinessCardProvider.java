@@ -36,7 +36,7 @@ import com.helger.commons.url.URLHelper;
 import com.helger.commons.xml.XMLDebug;
 import com.helger.pd.businesscard.PDBusinessCardType;
 import com.helger.pd.businessinformation.IPDBusinessCardProvider;
-import com.helger.pd.businessinformation.PDBusinessInformationMarshaller;
+import com.helger.pd.businessinformation.PDBusinessCardMarshaller;
 import com.helger.pd.businessinformation.PDExtendedBusinessCard;
 import com.helger.pd.settings.PDSettings;
 import com.helger.peppol.identifier.IDocumentTypeIdentifier;
@@ -83,10 +83,10 @@ public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
               if (eBussinessInfo != null)
               {
                 // Check the namespace URI
-                if (PDBusinessInformationMarshaller.BUSINESS_INFORMATION_NS_URI.equals (eBussinessInfo.getNamespaceURI ()))
+                if (PDBusinessCardMarshaller.BUSINESS_INFORMATION_NS_URI.equals (eBussinessInfo.getNamespaceURI ()))
                 {
                   final String sBusinessInfo = MicroWriter.getXMLString (eBussinessInfo);
-                  final PDBusinessCardType aBI = new PDBusinessInformationMarshaller ().read (sBusinessInfo);
+                  final PDBusinessCardType aBI = new PDBusinessCardMarshaller ().read (sBusinessInfo);
                   if (aBI != null)
                   {
                     // Finally we're done
@@ -98,7 +98,7 @@ public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
                   s_aLogger.warn ("The 'BusinessInformation' element has the wrong namespace URI '" +
                                   eBussinessInfo.getNamespaceURI () +
                                   "'. Was expecting namespace URI '" +
-                                  PDBusinessInformationMarshaller.BUSINESS_INFORMATION_NS_URI +
+                                  PDBusinessCardMarshaller.BUSINESS_INFORMATION_NS_URI +
                                   "'");
               }
               else

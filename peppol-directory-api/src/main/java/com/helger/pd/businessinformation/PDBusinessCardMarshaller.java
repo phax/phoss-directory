@@ -35,7 +35,7 @@ import com.helger.pd.businesscard.PDBusinessCardType;
  *
  * @author Philip Helger
  */
-public class PDBusinessInformationMarshaller extends AbstractJAXBMarshaller <PDBusinessCardType>
+public class PDBusinessCardMarshaller extends AbstractJAXBMarshaller <PDBusinessCardType>
 {
   /** The namespace URI of the BusinessInformation element */
   public static final String BUSINESS_INFORMATION_NS_URI = ObjectFactory._BusinessCard_QNAME.getNamespaceURI ();
@@ -46,7 +46,7 @@ public class PDBusinessInformationMarshaller extends AbstractJAXBMarshaller <PDB
   /**
    * Constructor
    */
-  public PDBusinessInformationMarshaller ()
+  public PDBusinessCardMarshaller ()
   {
     super (PDBusinessCardType.class, BUSINESS_INFORMATION_XSDS);
   }
