@@ -17,16 +17,15 @@
     limitations under the License.
 
 -->
-<xs:schema xmlns="http://www.peppol.eu/schema/pd/businessinformation/20151105/" 
+<xs:schema xmlns="http://www.peppol.eu/schema/pd/businesscard/20160112/" 
            xmlns:xs="http://www.w3.org/2001/XMLSchema" 
-           targetNamespace="http://www.peppol.eu/schema/pd/businessinformation/20151105/" 
+           targetNamespace="http://www.peppol.eu/schema/pd/businesscard/20160112/" 
            elementFormDefault="qualified"
            attributeFormDefault="unqualified">
   <xs:annotation>
     <xs:documentation>
-       This is the XML schema for the Peppol Yellow Pages
-         business information to be stored in the Extension
-         of an SMP ServiceGroup entry.
+       This is the XML schema for the Peppol Directory
+         business information to be stored in an SMP.
        
        Author: Philip Helger, Bundesrechenzentrum GmbH
 
@@ -47,8 +46,8 @@
 
   <xs:simpleType name="CountryCodeType">
     <xs:restriction base="xs:token">
-      <xs:minLength value="2"/>
-      <xs:maxLength value="2"/>
+      <xs:minLength value="2" />
+      <xs:maxLength value="2" />
     </xs:restriction>
   </xs:simpleType>
   
