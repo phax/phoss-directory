@@ -28,7 +28,7 @@ import com.helger.peppol.identifier.participant.SimpleParticipantIdentifier;
  *
  * @author Philip Helger
  */
-public final class SMPBusinessInformationProviderTest
+public final class SMPBusinessCardProviderTest
 {
   @Test
   public void testFetch ()
