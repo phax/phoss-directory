@@ -20,8 +20,7 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 
-import com.helger.commons.io.resource.ClassPathResource;
-import com.helger.pd.businesscard.PDBusinessCardMarshaller;
+import com.helger.commons.io.resource.FileSystemResource;
 
 /**
  * Test class for class {@link PDBusinessCardMarshaller}.
@@ -34,6 +33,7 @@ public final class PDBusinessCardMarshallerTest
   public void testBasic ()
   {
     final PDBusinessCardMarshaller aMarshaller = new PDBusinessCardMarshaller ();
-    assertNotNull (aMarshaller.read (new ClassPathResource ("example/business-card-test1.xml")));
+    assertNotNull (aMarshaller.read (new FileSystemResource ("src/test/resources/example/business-card-test1.xml")));
+    assertNotNull (aMarshaller.read (new FileSystemResource ("src/test/resources/example/business-card-example-spec.xml")));
   }
 }
