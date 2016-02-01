@@ -28,7 +28,7 @@ import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.publisher.app.AppCommonUI;
 import com.helger.pd.publisher.app.AppInternalErrorHandler;
 import com.helger.pd.publisher.app.AppSecurity;
-import com.helger.pd.publisher.app.MetaManager;
+import com.helger.pd.publisher.app.PDPMetaManager;
 import com.helger.pd.publisher.app.pub.InitializerPublic;
 import com.helger.pd.publisher.app.secure.InitializerSecure;
 import com.helger.pd.settings.PDSettings;
@@ -111,7 +111,7 @@ public final class AppWebAppListener extends AbstractWebAppListenerMultiAppBoots
 
     // Load managers
     PDMetaManager.getInstance ();
-    MetaManager.getInstance ();
+    PDPMetaManager.getInstance ();
 
     // Setup error handler
     AppInternalErrorHandler.doSetup ();

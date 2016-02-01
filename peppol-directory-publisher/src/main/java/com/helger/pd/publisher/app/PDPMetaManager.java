@@ -31,13 +31,13 @@ import com.helger.commons.scope.singleton.AbstractGlobalSingleton;
  *
  * @author Philip Helger
  */
-public final class MetaManager extends AbstractGlobalSingleton
+public final class PDPMetaManager extends AbstractGlobalSingleton
 {
-  private static final Logger s_aLogger = LoggerFactory.getLogger (MetaManager.class);
+  private static final Logger s_aLogger = LoggerFactory.getLogger (PDPMetaManager.class);
 
   @Deprecated
   @UsedViaReflection
-  public MetaManager ()
+  public PDPMetaManager ()
   {}
 
   @Override
@@ -54,8 +54,8 @@ public final class MetaManager extends AbstractGlobalSingleton
   }
 
   @Nonnull
-  public static MetaManager getInstance ()
+  public static PDPMetaManager getInstance ()
   {
-    return getGlobalSingleton (MetaManager.class);
+    return getGlobalSingleton (PDPMetaManager.class);
   }
 }
