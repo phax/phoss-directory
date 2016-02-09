@@ -62,7 +62,7 @@
   </developers>
   
   <properties>
-    <slf4j.version>1.7.13</slf4j.version>
+    <slf4j.version>1.7.14</slf4j.version>
     <log4j.version>2.5</log4j.version>
     <jetty.version>9.3.7.v20160115</jetty.version>
     <lucene.version>5.4.0</lucene.version>
