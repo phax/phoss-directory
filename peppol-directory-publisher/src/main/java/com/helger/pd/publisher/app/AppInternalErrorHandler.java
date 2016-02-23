@@ -150,7 +150,7 @@ public final class AppInternalErrorHandler extends AbstractErrorCallback impleme
     final NamedSMTPSettings aNamedSettings = PhotonCoreManager.getSMTPSettingsMgr ()
                                                               .getSettings (CNamedSMTPSettings.NAMED_SMTP_SETTINGS_DEFAULT_ID);
     final ISMTPSettings aSMTPSettings = aNamedSettings == null ? null : aNamedSettings.getSMTPSettings ();
-    InternalErrorHandler.setSMTPSenderAddress (new EmailAddress ("pyp@helger.com", AppCommonUI.getApplicationTitle ()));
+    InternalErrorHandler.setSMTPSenderAddress (new EmailAddress ("pd@helger.com", AppCommonUI.getApplicationTitle ()));
     InternalErrorHandler.setSMTPReceiverAddress (new EmailAddress ("philip@helger.com", "Philip"));
     InternalErrorHandler.setSMTPSettings (aSMTPSettings);
   }

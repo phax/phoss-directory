@@ -32,8 +32,8 @@ import com.helger.commons.system.SystemProperties;
 import com.helger.peppol.utils.ConfigFile;
 
 /**
- * This class manages the configuration properties of the PYP client. The order
- * of the properties file resolving is as follows:
+ * This class manages the configuration properties of the PEPPOL Directory
+ * client. The order of the properties file resolving is as follows:
  * <ol>
  * <li>Check for the value of the system property
  * <code>pd.client.properties.path</code></li>
@@ -65,9 +65,9 @@ public final class PDClientConfiguration
 
     s_aConfigFile = new ConfigFile (ArrayHelper.newArray (aFilePaths, String.class));
     if (s_aConfigFile.isRead ())
-      s_aLogger.info ("Read PYP client properties from " + s_aConfigFile.getReadResource ().getPath ());
+      s_aLogger.info ("Read PEPPOL Directory client properties from " + s_aConfigFile.getReadResource ().getPath ());
     else
-      s_aLogger.warn ("Failed to read PYP client properties from any of the paths: " + aFilePaths);
+      s_aLogger.warn ("Failed to read PEPPOL Directory client properties from any of the paths: " + aFilePaths);
   }
 
   private PDClientConfiguration ()

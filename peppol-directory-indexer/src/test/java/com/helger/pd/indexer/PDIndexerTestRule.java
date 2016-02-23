@@ -30,7 +30,7 @@ import com.helger.photon.basic.app.io.WebIOIntIDFactory;
 import com.helger.photon.basic.mock.PhotonBasicWebTestRule;
 
 /**
- * Special PYP test rule with the correct data path from the settings file.
+ * Special PEPPOL Directory test rule with the correct data path from the settings file.
  *
  * @author Philip Helger
  */
@@ -52,7 +52,7 @@ public class PDIndexerTestRule extends PhotonBasicWebTestRule
   {
     super.before ();
     WebFileIO.getFileOpMgr ().deleteDirRecursiveIfExisting (PDLucene.getLuceneIndexDir ());
-    GlobalIDFactory.setPersistentIntIDFactory (new WebIOIntIDFactory ("pyp-ids.dat"));
+    GlobalIDFactory.setPersistentIntIDFactory (new WebIOIntIDFactory ("pd-ids.dat"));
     // Ensure the network system properties are assigned
     SMPClientConfiguration.getConfigFile ().applyAllNetworkSystemProperties ();
   }

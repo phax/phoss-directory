@@ -40,7 +40,7 @@ import com.helger.commons.regex.RegExHelper;
 import com.helger.pd.indexer.lucene.ILuceneAnalyzerProvider;
 
 /**
- * PYP Lucene Query manager
+ * PEPPOL Directory Lucene Query manager
  *
  * @author Philip Helger
  */

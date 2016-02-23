@@ -53,7 +53,7 @@ import com.helger.commons.state.ESuccess;
 import com.helger.photon.basic.app.io.WebFileIO;
 
 /**
- * The singleton wrapper around the Lucene index to be used in PYP.
+ * The singleton wrapper around the Lucene index to be used in PEPPOL Directory.
  *
  * @author Philip Helger
  */

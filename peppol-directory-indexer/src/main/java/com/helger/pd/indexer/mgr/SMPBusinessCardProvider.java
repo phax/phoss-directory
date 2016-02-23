@@ -52,7 +52,7 @@ import com.helger.peppol.smpclient.exception.SMPClientException;
 /**
  * The SMP based {@link IPDBusinessCardProvider} implementation. An SMP
  * lookup of the ServiceGroup is performed, and the <code>Extension</code>
- * element is parsed for the elements as specified in the PYP specification.
+ * element is parsed for the elements as specified in the PEPPOL Directory specification.
  *
  * @author Philip Helger
  */

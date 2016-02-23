@@ -155,7 +155,7 @@ public final class PDStorageManager implements Closeable
       }
 
       s_aLogger.info ("Marked " + aDocuments.size () + " Lucene documents as deleted");
-      AuditHelper.onAuditExecuteSuccess ("pyp-indexer-delete",
+      AuditHelper.onAuditExecuteSuccess ("pd-indexer-delete",
                                          aParticipantID.getURIEncoded (),
                                          Integer.valueOf (aDocuments.size ()),
                                          aMetaData);
@@ -292,7 +292,7 @@ public final class PDStorageManager implements Closeable
         m_aLucene.updateDocuments (_createParticipantTerm (aParticipantID), aDocs);
 
       s_aLogger.info ("Added " + aDocs.size () + " Lucene documents");
-      AuditHelper.onAuditExecuteSuccess ("pyp-indexer-create",
+      AuditHelper.onAuditExecuteSuccess ("pd-indexer-create",
                                          aParticipantID.getURIEncoded (),
                                          Integer.valueOf (aDocs.size ()),
                                          aMetaData);

@@ -127,7 +127,7 @@ public final class PagePublicSearch extends AbstractAppWebPage
 
     {
       final BootstrapRow aHeaderRow = aNodeList.addAndReturnChild (new BootstrapRow ());
-      // A PYP logo would be nice
+      // The logo
       aHeaderRow.createColumn (12, 12, 1, 2).addClass (CBootstrapCSS.HIDDEN_SM);
       aHeaderRow.createColumn (12, 6, 5, 4).addChild (new HCExtImg (new SimpleURL ("/imgs/pd-logo.png")).addClass (CBootstrapCSS.PULL_LEFT));
       aHeaderRow.createColumn (12, 6, 5, 4).addChild (new HCExtImg (new SimpleURL ("/imgs/peppol.png")).addClass (CBootstrapCSS.PULL_RIGHT));
@@ -291,7 +291,7 @@ public final class PagePublicSearch extends AbstractAppWebPage
         final HCForm aBigQueryBox = new HCForm ().setAction (aWPEC.getSelfHref ()).setMethod (EHCFormMethod.GET);
         aBigQueryBox.addChild (new HCDiv ().addClass (CSS_CLASS_BIG_QUERY_BOX).addChild (_createQueryEdit ()));
         aBigQueryBox.addChild (new HCDiv ().addClass (CSS_CLASS_BIG_QUERY_BUTTONS)
-                                           .addChild (new BootstrapSubmitButton ().addChild ("Search PYP").setIcon (EDefaultIcon.MAGNIFIER)));
+                                           .addChild (new BootstrapSubmitButton ().addChild ("Search PEPPOL Directory").setIcon (EDefaultIcon.MAGNIFIER)));
 
         final BootstrapRow aBodyRow = aNodeList.addAndReturnChild (new BootstrapRow ());
         aBodyRow.createColumn (12, 1, 2, 3).addClass (CBootstrapCSS.HIDDEN_XS);
