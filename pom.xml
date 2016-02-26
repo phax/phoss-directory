@@ -172,6 +172,11 @@
   
       <dependency>
         <groupId>com.helger</groupId>
+        <artifactId>peppol-directory-businesscard</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.helger</groupId>
         <artifactId>peppol-directory-api</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -210,6 +215,7 @@
   </dependencies>
   
   <modules>
+    <module>peppol-directory-businesscard</module>
     <module>peppol-directory-api</module>
     <module>peppol-directory-indexer</module>
     <module>peppol-directory-publisher</module>

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pd.jaxb;
+package com.helger.pd.businesscard.jaxb;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -24,6 +24,7 @@ import org.joda.time.LocalDate;
 import org.junit.Test;
 
 import com.helger.datetime.PDTFactory;
+import com.helger.pd.businesscard.jaxb.DateAdapter;
 
 /**
  * Test class for class {@link DateAdapter}.

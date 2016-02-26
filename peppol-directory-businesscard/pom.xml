@@ -24,11 +24,11 @@
     <artifactId>peppol-directory-parent-pom</artifactId>
     <version>0.1.0-SNAPSHOT</version>
   </parent>
-  <artifactId>peppol-directory-api</artifactId>
+  <artifactId>peppol-directory-businesscard</artifactId>
   <packaging>bundle</packaging>
-  <name>peppol-directory-api</name>
-  <description>The common parts of the PEPPOL Yellow Pages</description>
-  <url>https://github.com/phax/peppol-directory/peppol-directory-api</url>
+  <name>peppol-directory-business</name>
+  <description>The business card API of the PEPPOL Directory</description>
+  <url>https://github.com/phax/peppol-directory/peppol-directory-businesscard</url>
   <inceptionYear>2015</inceptionYear>
 
   <licenses>
@@ -56,15 +56,15 @@
   <dependencies>
     <dependency>
       <groupId>com.helger</groupId>
-      <artifactId>peppol-directory-businesscard</artifactId>
+      <artifactId>ph-commons</artifactId>
     </dependency>
     <dependency>
       <groupId>com.helger</groupId>
-      <artifactId>ph-settings</artifactId>
+      <artifactId>ph-jaxb</artifactId>
     </dependency>
     <dependency>
       <groupId>com.helger</groupId>
-      <artifactId>peppol-commons</artifactId>
+      <artifactId>ph-datetime</artifactId>
     </dependency>
   
     <dependency>
@@ -82,7 +82,7 @@
         <configuration>
           <instructions>
             <Export-Package>
-              com.helger.pd.*
+              com.helger.pd.businesscard.*
             </Export-Package>
             <Import-Package>
               !javax.annotation.*,*
@@ -91,13 +91,61 @@
         </configuration>
       </plugin>
       <plugin>
+        <groupId>org.jvnet.jaxb2.maven2</groupId>
+        <artifactId>maven-jaxb2-plugin</artifactId>
+        <version>0.13.1</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <bindingDirectory>${basedir}/src/main/jaxb</bindingDirectory>
+          <schemaDirectory>${basedir}/src/main/resources/schemas</schemaDirectory>
+          <extension>true</extension>
+          <specVersion>2.1</specVersion>
+          <args>
+            <arg>-no-header</arg>
+            <arg>-Xph-default-locale</arg>
+            <arg>en_US</arg>
+            <arg>-Xph-annotate</arg>
+            <arg>-Xph-fields-private</arg>
+            <arg>-Xph-code-quality</arg>
+            <arg>-Xph-implements</arg>
+            <arg>java.io.Serializable</arg>
+            <arg>-Xph-equalshashcode</arg>
+            <arg>-Xph-tostring</arg>
+            <arg>-Xph-list-extension</arg>
+            <arg>-Xph-csu</arg>
+          </args>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+            <version>2.2.11</version>
+          </dependency>
+          <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-xjc</artifactId>
+            <version>2.2.11</version>
+          </dependency>
+          <dependency>
+            <groupId>com.helger</groupId>
+            <artifactId>ph-jaxb22-plugin</artifactId>
+            <version>2.2.11.6</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+      <plugin>
         <groupId>com.mycila</groupId>
         <artifactId>license-maven-plugin</artifactId>
         <configuration>
           <excludes>
             <exclude>**/NOTICE</exclude>
             <exclude>**/LICENSE</exclude>
-            <exclude>**/*.jks</exclude>
           </excludes>
         </configuration>
       </plugin>
