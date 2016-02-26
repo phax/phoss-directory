@@ -23,6 +23,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.apache.http.HttpHost;
+import org.apache.http.client.fluent.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +40,7 @@ import com.helger.pd.businesscard.PDBusinessCardMarshaller;
 import com.helger.pd.businesscard.PDBusinessCardType;
 import com.helger.pd.businesscard.PDExtendedBusinessCard;
 import com.helger.pd.settings.PDSettings;
+import com.helger.peppol.httpclient.SMPHttpResponseHandlerUnsigned;
 import com.helger.peppol.identifier.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.IdentifierHelper;
 import com.helger.peppol.identifier.doctype.SimpleDocumentTypeIdentifier;
@@ -48,11 +50,12 @@ import com.helger.peppol.smp.ServiceGroupType;
 import com.helger.peppol.smp.ServiceMetadataReferenceType;
 import com.helger.peppol.smpclient.SMPClientReadOnly;
 import com.helger.peppol.smpclient.exception.SMPClientException;
+import com.helger.peppol.smpclient.exception.SMPClientNotFoundException;
 
 /**
- * The SMP based {@link IPDBusinessCardProvider} implementation. An SMP
- * lookup of the ServiceGroup is performed, and the <code>Extension</code>
- * element is parsed for the elements as specified in the PEPPOL Directory specification.
+ * The SMP based {@link IPDBusinessCardProvider} implementation. An SMP lookup
+ * of the ServiceGroup is performed, and the <code>Extension</code> element is
+ * parsed for the elements as specified in the PEPPOL Directory specification.
  *
  * @author Philip Helger
  */
@@ -143,29 +146,53 @@ public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
   @Nullable
   public PDExtendedBusinessCard getBusinessCard (@Nonnull final IPeppolParticipantIdentifier aParticipantID)
   {
-    // Fetch data
+    // Create SMP client
     final SMPClientReadOnly aSMPClient = new SMPClientReadOnly (aParticipantID, PDSettings.getSMLToUse ());
     aSMPClient.setProxy (getHttpProxy ());
+
+    // First query the service group
     ServiceGroupType aServiceGroup;
     try
     {
-      aServiceGroup = aSMPClient.getServiceGroup (aParticipantID);
+      aServiceGroup = aSMPClient.getServiceGroupOrNull (aParticipantID);
     }
     catch (final SMPClientException ex)
     {
-      s_aLogger.error ("Error querying SMP for service group '" + aParticipantID.getURIEncoded () + "'", ex);
+      s_aLogger.error ("Error querying SMP for ServiceGroup of '" + aParticipantID.getURIEncoded () + "'", ex);
       return null;
     }
 
-    final PDBusinessCardType aBI = extractBusinessInformation (aServiceGroup.getExtension ());
-    if (aBI == null)
+    // If the service group is present, try querying the business card
+    final PDBusinessCardType aBusinessCard;
+    try
+    {
+      // Use the optional business card API
+      final Request aRequest = Request.Get (aSMPClient.getSMPHostURI () +
+                                            "businesscard/" +
+                                            aParticipantID.getURIPercentEncoded ());
+
+      aBusinessCard = aSMPClient.executeGenericRequest (aRequest,
+                                                        SMPHttpResponseHandlerUnsigned.create (new PDBusinessCardMarshaller ()));
+    }
+    catch (final SMPClientNotFoundException ex)
+    {
+      s_aLogger.warn ("No BusinessCard available for '" + aParticipantID.getURIEncoded () + "'");
+      return null;
+    }
+    catch (final SMPClientException ex)
+    {
+      s_aLogger.error ("Error querying SMP for BusinessCard of '" + aParticipantID.getURIEncoded () + "'", ex);
+      return null;
+    }
+
+    if (aBusinessCard == null)
     {
       // No extension present - no need to try again
-      s_aLogger.warn ("Failed to get SMP BusinessInformation from Extension of service group " +
-                      aParticipantID.getURIEncoded ());
+      s_aLogger.warn ("Failed to get SMP BusinessCard of " + aParticipantID.getURIEncoded ());
       return null;
     }
 
+    // Query all document types
     final List <IDocumentTypeIdentifier> aDocumentTypeIDs = new ArrayList <> ();
     for (final ServiceMetadataReferenceType aRef : aServiceGroup.getServiceMetadataReferenceCollection ()
                                                                 .getServiceMetadataReference ())
@@ -203,6 +230,6 @@ public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
       }
     }
 
-    return new PDExtendedBusinessCard (aBI, aDocumentTypeIDs);
+    return new PDExtendedBusinessCard (aBusinessCard, aDocumentTypeIDs);
   }
 }
