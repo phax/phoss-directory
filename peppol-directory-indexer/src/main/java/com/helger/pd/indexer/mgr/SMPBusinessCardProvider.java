@@ -27,14 +27,10 @@ import org.apache.http.client.fluent.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.helger.commons.annotation.VisibleForTesting;
 import com.helger.commons.charset.CCharset;
-import com.helger.commons.microdom.IMicroElement;
-import com.helger.commons.microdom.IMicroNode;
-import com.helger.commons.microdom.serialize.MicroWriter;
-import com.helger.commons.microdom.util.MicroHelper;
 import com.helger.commons.url.SimpleURL;
 import com.helger.commons.url.URLHelper;
-import com.helger.commons.xml.XMLDebug;
 import com.helger.pd.businesscard.IPDBusinessCardProvider;
 import com.helger.pd.businesscard.PDBusinessCardMarshaller;
 import com.helger.pd.businesscard.PDBusinessCardType;
@@ -45,7 +41,6 @@ import com.helger.peppol.identifier.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.IdentifierHelper;
 import com.helger.peppol.identifier.doctype.SimpleDocumentTypeIdentifier;
 import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
-import com.helger.peppol.smp.ExtensionType;
 import com.helger.peppol.smp.ServiceGroupType;
 import com.helger.peppol.smp.ServiceMetadataReferenceType;
 import com.helger.peppol.smpclient.SMPClientReadOnly;
@@ -64,69 +59,6 @@ public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
   private static final String URL_PART_SERVICES = "/services/";
   private static final Logger s_aLogger = LoggerFactory.getLogger (SMPBusinessCardProvider.class);
 
-  @Nullable
-  public static PDBusinessCardType extractBusinessInformation (@Nullable final ExtensionType aExtension)
-  {
-    if (aExtension != null && aExtension.getAny () != null)
-    {
-      final IMicroNode aExtensionContainer = MicroHelper.convertToMicroNode (aExtension.getAny ());
-      if (aExtensionContainer instanceof IMicroElement)
-      {
-        final IMicroElement eExtensionContainer = (IMicroElement) aExtensionContainer;
-        // Must be an ExtensionContainer element
-        if ("ExtensionContainer".equals (eExtensionContainer.getTagName ()))
-        {
-          // Find ExtensionElement with "type" attribute value "business
-          // information"
-          for (final IMicroElement eExtensionElement : eExtensionContainer.getAllChildElements ("ExtensionElement"))
-            if ("business information".equals (eExtensionElement.getAttributeValue ("type")))
-            {
-              // Get the "BusinessInformation" child element
-              final IMicroElement eBussinessInfo = eExtensionElement.getFirstChildElement ("BusinessInformation");
-              if (eBussinessInfo != null)
-              {
-                // Check the namespace URI
-                if (PDBusinessCardMarshaller.BUSINESS_INFORMATION_NS_URI.equals (eBussinessInfo.getNamespaceURI ()))
-                {
-                  final String sBusinessInfo = MicroWriter.getXMLString (eBussinessInfo);
-                  final PDBusinessCardType aBI = new PDBusinessCardMarshaller ().read (sBusinessInfo);
-                  if (aBI != null)
-                  {
-                    // Finally we're done
-                    return aBI;
-                  }
-                  s_aLogger.warn ("Failed to parse business information data:\n" + sBusinessInfo);
-                }
-                else
-                  s_aLogger.warn ("The 'BusinessInformation' element has the wrong namespace URI '" +
-                                  eBussinessInfo.getNamespaceURI () +
-                                  "'. Was expecting namespace URI '" +
-                                  PDBusinessCardMarshaller.BUSINESS_INFORMATION_NS_URI +
-                                  "'");
-              }
-              else
-                s_aLogger.warn ("The 'ExtensionElement' for 'business information' does not contain a 'BusinessInformation' child element");
-              break;
-            }
-          s_aLogger.warn ("'ExtensionContainer' does not contain an 'ExtensionElement' with attribute 'type' with 'business information'");
-        }
-        else
-        {
-          s_aLogger.warn ("Extension content is expected to be an 'ExtensionContainer' but it is a '" +
-                          eExtensionContainer.getTagName () +
-                          "'");
-        }
-      }
-      else
-      {
-        s_aLogger.warn ("Extension content is not an element but a " +
-                        XMLDebug.getNodeTypeAsString (aExtension.getAny ().getNodeType ()));
-      }
-    }
-
-    return null;
-  }
-
   /**
    * @return The HttpProxy object to be used by SMP clients based on the Java
    *         System properties "http.proxyHost" and "http.proxyPort". Note:
@@ -144,10 +76,11 @@ public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
   }
 
   @Nullable
-  public PDExtendedBusinessCard getBusinessCard (@Nonnull final IPeppolParticipantIdentifier aParticipantID)
+  @VisibleForTesting
+  PDExtendedBusinessCard getBusinessCard (@Nonnull final IPeppolParticipantIdentifier aParticipantID,
+                                          @Nonnull final SMPClientReadOnly aSMPClient)
   {
     // Create SMP client
-    final SMPClientReadOnly aSMPClient = new SMPClientReadOnly (aParticipantID, PDSettings.getSMLToUse ());
     aSMPClient.setProxy (getHttpProxy ());
 
     // First query the service group
@@ -231,5 +164,13 @@ public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
     }
 
     return new PDExtendedBusinessCard (aBusinessCard, aDocumentTypeIDs);
+  }
+
+  @Nullable
+  public PDExtendedBusinessCard getBusinessCard (@Nonnull final IPeppolParticipantIdentifier aParticipantID)
+  {
+    // Create SMP client
+    final SMPClientReadOnly aSMPClient = new SMPClientReadOnly (aParticipantID, PDSettings.getSMLToUse ());
+    return getBusinessCard (aParticipantID, aSMPClient);
   }
 }

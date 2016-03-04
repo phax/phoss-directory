@@ -21,8 +21,10 @@ import static org.junit.Assert.assertNotNull;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import com.helger.commons.url.URLHelper;
 import com.helger.pd.businesscard.PDExtendedBusinessCard;
 import com.helger.peppol.identifier.participant.SimpleParticipantIdentifier;
+import com.helger.peppol.smpclient.SMPClientReadOnly;
 
 /**
  * Test class for class {@link SMPBusinessCardProvider}.
@@ -37,6 +39,17 @@ public final class SMPBusinessCardProviderTest
   {
     final SMPBusinessCardProvider aBI = new SMPBusinessCardProvider ();
     final PDExtendedBusinessCard aExtBI = aBI.getBusinessCard (SimpleParticipantIdentifier.createWithDefaultScheme ("9915:test"));
+    assertNotNull (aExtBI);
+    System.out.println (aExtBI);
+  }
+
+  @Test
+  @Ignore ("Only for on demand testing :)")
+  public void testFetchLocal ()
+  {
+    final SMPBusinessCardProvider aBI = new SMPBusinessCardProvider ();
+    final PDExtendedBusinessCard aExtBI = aBI.getBusinessCard (SimpleParticipantIdentifier.createWithDefaultScheme ("9999:ghx"),
+                                                               new SMPClientReadOnly (URLHelper.getAsURI ("http://localhost:90")));
     assertNotNull (aExtBI);
     System.out.println (aExtBI);
   }
