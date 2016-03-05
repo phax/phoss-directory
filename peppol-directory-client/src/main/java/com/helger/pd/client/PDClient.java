@@ -18,9 +18,11 @@ package com.helger.pd.client;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.net.Socket;
 import java.net.URI;
 import java.nio.charset.CodingErrorAction;
 import java.security.KeyStore;
+import java.util.Map;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -50,6 +52,8 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.ssl.PrivateKeyDetails;
+import org.apache.http.ssl.PrivateKeyStrategy;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
@@ -165,10 +169,15 @@ public class PDClient implements Closeable
       final SSLContext aSSLContext = SSLContexts.custom ()
                                                 .loadKeyMaterial (aKeyStore,
                                                                   PDClientConfiguration.getKeyStoreKeyPassword (),
-                                                                  (aAliases, aSocket) -> {
-                                                                    final String sAlias = PDClientConfiguration.getKeyStoreKeyAlias ();
-                                                                    return aAliases.containsKey (sAlias) ? sAlias
-                                                                                                         : null;
+                                                                  new PrivateKeyStrategy ()
+                                                                  {
+                                                                    public String chooseAlias (final Map <String, PrivateKeyDetails> aAliases,
+                                                                                               final Socket aSocket)
+                                                                    {
+                                                                      final String sAlias = PDClientConfiguration.getKeyStoreKeyAlias ();
+                                                                      return aAliases.containsKey (sAlias) ? sAlias
+                                                                                                           : null;
+                                                                    }
                                                                   })
                                                 .build ();
       // Allow TLSv1 protocol only
