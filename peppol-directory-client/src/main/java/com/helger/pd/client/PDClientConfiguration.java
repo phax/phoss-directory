@@ -36,6 +36,8 @@ import com.helger.peppol.utils.ConfigFile;
  * client. The order of the properties file resolving is as follows:
  * <ol>
  * <li>Check for the value of the system property
+ * <code>peppol.pd.client.properties.path</code></li>
+ * <li>Check for the value of the system property
  * <code>pd.client.properties.path</code></li>
  * <li>The filename <code>private-pd-client.properties</code> in the root of the
  * classpath</li>
@@ -53,9 +55,12 @@ public final class PDClientConfiguration
 
   static
   {
-    final List <String> aFilePaths = new ArrayList <String> ();
+    final List <String> aFilePaths = new ArrayList<> ();
     // Check if the system property is present
-    final String sPropertyPath = SystemProperties.getPropertyValue ("pd.client.properties.path");
+    String sPropertyPath = SystemProperties.getPropertyValue ("peppol.pd.client.properties.path");
+    if (StringHelper.hasText (sPropertyPath))
+      aFilePaths.add (sPropertyPath);
+    sPropertyPath = SystemProperties.getPropertyValue ("pd.client.properties.path");
     if (StringHelper.hasText (sPropertyPath))
       aFilePaths.add (sPropertyPath);
 
