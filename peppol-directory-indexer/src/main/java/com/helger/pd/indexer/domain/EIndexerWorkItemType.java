@@ -22,22 +22,25 @@ import javax.annotation.Nullable;
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.id.IHasID;
 import com.helger.commons.lang.EnumHelper;
+import com.helger.commons.name.IHasDisplayName;
 
 /**
  * The work item action types to use.
  *
  * @author Philip Helger
  */
-public enum EIndexerWorkItemType implements IHasID <String>
+public enum EIndexerWorkItemType implements IHasID <String>, IHasDisplayName
 {
-  CREATE_UPDATE ("create"),
-  DELETE ("delete");
+  CREATE_UPDATE ("create", "Create/update"),
+  DELETE ("delete", "Delete");
 
   private final String m_sID;
+  private final String m_sDisplayName;
 
-  private EIndexerWorkItemType (@Nonnull @Nonempty final String sID)
+  private EIndexerWorkItemType (@Nonnull @Nonempty final String sID, @Nonnull @Nonempty final String sDisplayName)
   {
     m_sID = sID;
+    m_sDisplayName = sDisplayName;
   }
 
   @Nonnull
@@ -45,6 +48,13 @@ public enum EIndexerWorkItemType implements IHasID <String>
   public String getID ()
   {
     return m_sID;
+  }
+
+  @Nonnull
+  @Nonempty
+  public String getDisplayName ()
+  {
+    return m_sDisplayName;
   }
 
   @Nullable

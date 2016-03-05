@@ -22,7 +22,9 @@ import javax.annotation.concurrent.Immutable;
 import com.helger.pd.publisher.app.AppCommonUI;
 import com.helger.pd.publisher.app.AppSecurity;
 import com.helger.pd.publisher.app.secure.page.PageSecureAllParticipants;
+import com.helger.pd.publisher.app.secure.page.PageSecureDeadIndexList;
 import com.helger.pd.publisher.app.secure.page.PageSecureIndexManually;
+import com.helger.pd.publisher.app.secure.page.PageSecureReIndexList;
 import com.helger.photon.basic.app.menu.IMenuItemPage;
 import com.helger.photon.basic.app.menu.IMenuTree;
 import com.helger.photon.bootstrap3.pages.BootstrapPagesMenuConfigurator;
@@ -44,20 +46,22 @@ public final class MenuSecure
 
     // Indexer
     {
-      final IMenuItemPage aIndexer = aMenuTree.createRootItem (new BasePageShowChildren <> (CMenuSecure.MENU_INDEXER,
-                                                                                            "Indexer",
-                                                                                            aMenuTree));
+      final IMenuItemPage aIndexer = aMenuTree.createRootItem (new BasePageShowChildren<> (CMenuSecure.MENU_INDEXER,
+                                                                                           "Indexer",
+                                                                                           aMenuTree));
       aMenuTree.createItem (aIndexer, new PageSecureAllParticipants (CMenuSecure.MENU_ALL_PARTICIPANTS));
       aMenuTree.createItem (aIndexer, new PageSecureIndexManually (CMenuSecure.MENU_INDEX_MANUALLY));
+      aMenuTree.createItem (aIndexer, new PageSecureReIndexList (CMenuSecure.MENU_REINDEX_LIST));
+      aMenuTree.createItem (aIndexer, new PageSecureDeadIndexList (CMenuSecure.MENU_DEADINDEX_LIST));
     }
 
     // Administrator
     {
-      final IMenuItemPage aAdmin = aMenuTree.createRootItem (new BasePageShowChildren <> (CMenuSecure.MENU_ADMIN,
-                                                                                          "Administration",
-                                                                                          aMenuTree));
+      final IMenuItemPage aAdmin = aMenuTree.createRootItem (new BasePageShowChildren<> (CMenuSecure.MENU_ADMIN,
+                                                                                         "Administration",
+                                                                                         aMenuTree));
 
-      aMenuTree.createItem (aAdmin, new BasePageSecurityChangePassword <> (CMenuSecure.MENU_CHANGE_PASSWORD));
+      aMenuTree.createItem (aAdmin, new BasePageSecurityChangePassword<> (CMenuSecure.MENU_CHANGE_PASSWORD));
       BootstrapPagesMenuConfigurator.addAllItems (aMenuTree, aAdmin, aFilterAdministrators, AppCommonUI.DEFAULT_LOCALE);
     }
 
