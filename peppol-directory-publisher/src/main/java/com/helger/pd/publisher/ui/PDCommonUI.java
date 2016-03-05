@@ -36,13 +36,16 @@ import com.helger.datetime.format.PeriodFormatMultilingual;
 import com.helger.html.hc.IHCNode;
 import com.helger.html.hc.ext.HCExtHelper;
 import com.helger.html.hc.html.grouping.HCDiv;
+import com.helger.html.hc.html.grouping.HCOL;
 import com.helger.html.hc.html.grouping.HCUL;
 import com.helger.html.hc.html.tabular.HCCol;
+import com.helger.html.hc.html.textlevel.HCA;
 import com.helger.html.hc.html.textlevel.HCCode;
 import com.helger.html.hc.html.textlevel.HCStrong;
 import com.helger.html.hc.html.textlevel.HCWBR;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.html.hc.impl.HCTextNode;
+import com.helger.pd.indexer.storage.PDStoredContact;
 import com.helger.pd.indexer.storage.PDStoredDocument;
 import com.helger.pd.indexer.storage.PDStoredIdentifier;
 import com.helger.peppol.identifier.doctype.EPredefinedDocumentTypeIdentifier;
@@ -113,9 +116,34 @@ public final class PDCommonUI
         aIDTable.addBodyRow ().addCells (aStoredID.getScheme (), aStoredID.getValue ());
       aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Additional identifiers").setCtrl (aIDTable));
     }
+    if (aStoredDoc.hasAnyWebsiteURIs ())
+    {
+      final HCOL aOL = new HCOL ();
+      for (final String sWebsiteURI : aStoredDoc.getAllWebsiteURIs ())
+        aOL.addItem (HCA.createLinkedWebsite (sWebsiteURI));
+      aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Website URIs").setCtrl (aOL));
+    }
+    if (aStoredDoc.hasAnyContact ())
+    {
+      final BootstrapTable aContactTable = new BootstrapTable (HCCol.star (),
+                                                               HCCol.star (),
+                                                               HCCol.star (),
+                                                               HCCol.star ()).setStriped (true).setBordered (true);
+      aContactTable.addHeaderRow ().addCells ("Type", "Name", "Phone Number", "Email");
+      for (final PDStoredContact aStoredContact : aStoredDoc.getAllContacts ())
+        aContactTable.addBodyRow ().addCells (aStoredContact.getType (),
+                                              aStoredContact.getName (),
+                                              aStoredContact.getPhone (),
+                                              aStoredContact.getEmail ());
+      aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Contacts").setCtrl (aContactTable));
+    }
     if (aStoredDoc.hasAdditionalInformation ())
-      aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Free text")
+      aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Additional information")
                                                        .setCtrl (HCExtHelper.nl2divList (aStoredDoc.getAdditionalInformation ())));
+    if (aStoredDoc.hasRegistrationDate ())
+      aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Registration date")
+                                                       .setCtrl (PDTToString.getAsString (aStoredDoc.getRegistrationDate (),
+                                                                                          aDisplayLocale)));
     return aViewForm;
   }
 
