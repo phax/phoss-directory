@@ -2,6 +2,8 @@
 
 [![Join the chat at https://gitter.im/phax/peppol-directory](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/phax/peppol-directory?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
+Current release (on Maven central): **0.2.0**
+
 The official PEPPOL Directory (PD; former PEPPOL Yellow Pages - PYP) software. It is split into the following sub-projects:
   * `peppol-directory-businesscard` - the common Business Card API (Java 1.6)
   * `peppol-directory-api` - the common API for the indexer and the publisher incl. Lucene handling (Java 1.8)
