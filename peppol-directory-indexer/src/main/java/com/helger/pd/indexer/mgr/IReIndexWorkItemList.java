@@ -19,13 +19,22 @@ package com.helger.pd.indexer.mgr;
 import java.util.List;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import com.helger.commons.annotation.ReturnsMutableCopy;
 import com.helger.pd.indexer.domain.ReIndexWorkItem;
 
+/**
+ * Base interface for {@link ReIndexWorkItem} objects.
+ * 
+ * @author Philip Helger
+ */
 public interface IReIndexWorkItemList
 {
   @Nonnull
   @ReturnsMutableCopy
   List <ReIndexWorkItem> getAllItems ();
+
+  @Nullable
+  ReIndexWorkItem getItemOfID (@Nullable String sID);
 }

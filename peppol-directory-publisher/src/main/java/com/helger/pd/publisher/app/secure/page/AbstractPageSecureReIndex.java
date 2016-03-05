@@ -19,26 +19,34 @@ package com.helger.pd.publisher.app.secure.page;
 import java.util.Locale;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.compare.ESortOrder;
+import com.helger.commons.errorlist.FormErrors;
 import com.helger.commons.type.EBaseType;
+import com.helger.commons.url.ISimpleURL;
 import com.helger.datetime.format.PDTToString;
 import com.helger.html.hc.html.tabular.HCRow;
 import com.helger.html.hc.html.tabular.HCTable;
+import com.helger.html.hc.html.textlevel.HCA;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.domain.IndexerWorkItem;
 import com.helger.pd.indexer.domain.ReIndexWorkItem;
 import com.helger.pd.indexer.mgr.IReIndexWorkItemList;
-import com.helger.pd.publisher.ui.AbstractAppWebPage;
+import com.helger.pd.publisher.ui.AbstractAppWebPageForm;
 import com.helger.photon.bootstrap3.button.BootstrapButton;
 import com.helger.photon.bootstrap3.button.BootstrapButtonToolbar;
+import com.helger.photon.bootstrap3.form.BootstrapForm;
+import com.helger.photon.bootstrap3.form.BootstrapFormGroup;
+import com.helger.photon.bootstrap3.form.BootstrapViewForm;
 import com.helger.photon.bootstrap3.uictrls.datatables.BootstrapDataTables;
 import com.helger.photon.uicore.icon.EDefaultIcon;
+import com.helger.photon.uicore.page.EWebPageFormAction;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 import com.helger.photon.uictrls.datatables.column.DTCol;
 
-public abstract class AbstractPageSecureReIndex extends AbstractAppWebPage
+public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <ReIndexWorkItem>
 {
   public AbstractPageSecureReIndex (@Nonnull @Nonempty final String sID, @Nonnull final String sName)
   {
@@ -49,7 +57,76 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPage
   protected abstract IReIndexWorkItemList getReIndexWorkItemList ();
 
   @Override
-  protected void fillContent (final WebPageExecutionContext aWPEC)
+  protected ReIndexWorkItem getSelectedObject (@Nonnull final WebPageExecutionContext aWPEC, final String sID)
+  {
+    return getReIndexWorkItemList ().getItemOfID (sID);
+  }
+
+  @Override
+  protected boolean isActionAllowed (@Nonnull final WebPageExecutionContext aWPEC,
+                                     @Nonnull final EWebPageFormAction eFormAction,
+                                     @Nullable final ReIndexWorkItem aSelectedObject)
+  {
+    if (eFormAction.isWriting ())
+      return false;
+    return super.isActionAllowed (aWPEC, eFormAction, aSelectedObject);
+  }
+
+  @Override
+  protected void showSelectedObject (@Nonnull final WebPageExecutionContext aWPEC,
+                                     @Nonnull final ReIndexWorkItem aSelectedObject)
+  {
+    final HCNodeList aNodeList = aWPEC.getNodeList ();
+    final Locale aDisplayLocale = aWPEC.getDisplayLocale ();
+
+    final IndexerWorkItem aWorkItem = aSelectedObject.getWorkItem ();
+
+    final BootstrapViewForm aViewForm = aNodeList.addAndReturnChild (new BootstrapViewForm ());
+    aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Creation datetime")
+                                                     .setCtrl (PDTToString.getAsString (aWorkItem.getCreationDT (),
+                                                                                        aDisplayLocale)));
+    aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Participant ID")
+                                                     .setCtrl (aWorkItem.getParticipantID ().getURIEncoded ()));
+    aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Action type")
+                                                     .setCtrl (aWorkItem.getType ().getDisplayName ()));
+    aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Owner").setCtrl (aWorkItem.getOwnerID ()));
+    aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Requesting host")
+                                                     .setCtrl (aWorkItem.getRequestingHost ()));
+    aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Retries so far")
+                                                     .setCtrl (Integer.toString (aSelectedObject.getRetryCount ())));
+    if (aSelectedObject.hasPreviousRetryDT ())
+      aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Previous retry")
+                                                       .setCtrl (PDTToString.getAsString (aSelectedObject.getPreviousRetryDT (),
+                                                                                          aDisplayLocale)));
+    aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Next retry")
+                                                     .setCtrl (PDTToString.getAsString (aSelectedObject.getNextRetryDT (),
+                                                                                        aDisplayLocale)));
+    aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Last retry")
+                                                     .setCtrl (PDTToString.getAsString (aSelectedObject.getMaxRetryDT (),
+                                                                                        aDisplayLocale)));
+  }
+
+  @Override
+  protected void validateAndSaveInputParameters (@Nonnull final WebPageExecutionContext aWPEC,
+                                                 @Nullable final ReIndexWorkItem aSelectedObject,
+                                                 @Nonnull final FormErrors aFormErrors,
+                                                 @Nonnull final EWebPageFormAction eFormAction)
+  {
+    throw new UnsupportedOperationException ();
+  }
+
+  @Override
+  protected void showInputForm (@Nonnull final WebPageExecutionContext aWPEC,
+                                @Nullable final ReIndexWorkItem aSelectedObject,
+                                @Nonnull final BootstrapForm aForm,
+                                @Nonnull final EWebPageFormAction eFormAction,
+                                @Nonnull final FormErrors aFormErrors)
+  {
+    throw new UnsupportedOperationException ();
+  }
+
+  @Override
+  protected void showListOfExistingObjects (@Nonnull final WebPageExecutionContext aWPEC)
   {
     final HCNodeList aNodeList = aWPEC.getNodeList ();
     final Locale aDisplayLocale = aWPEC.getDisplayLocale ();
@@ -65,7 +142,7 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPage
     final HCTable aTable = new HCTable (new DTCol ("Reg date").setDisplayType (EBaseType.DATETIME, aDisplayLocale)
                                                               .setInitialSorting (ESortOrder.DESCENDING),
                                         new DTCol ("Participant"),
-                                        new DTCol ("Type"),
+                                        new DTCol ("Action"),
                                         new DTCol ("Retries").setDisplayType (EBaseType.INT, aDisplayLocale),
                                         new DTCol ("Next retry").setDisplayType (EBaseType.DATETIME, aDisplayLocale),
                                         new DTCol ("Last retry").setDisplayType (EBaseType.DATETIME,
@@ -73,10 +150,12 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPage
 
     for (final ReIndexWorkItem aItem : getReIndexWorkItemList ().getAllItems ())
     {
+      final ISimpleURL aViewLink = createViewURL (aWPEC, aItem);
       final IndexerWorkItem aWorkItem = aItem.getWorkItem ();
 
       final HCRow aRow = aTable.addBodyRow ();
-      aRow.addCell (PDTToString.getAsString (aWorkItem.getCreationDT (), aDisplayLocale));
+      aRow.addCell (new HCA (aViewLink).addChild (PDTToString.getAsString (aWorkItem.getCreationDT (),
+                                                                           aDisplayLocale)));
       aRow.addCell (aWorkItem.getParticipantID ().getURIEncoded ());
       aRow.addCell (aWorkItem.getType ().getDisplayName ());
       aRow.addCell (Integer.toString (aItem.getRetryCount ()));

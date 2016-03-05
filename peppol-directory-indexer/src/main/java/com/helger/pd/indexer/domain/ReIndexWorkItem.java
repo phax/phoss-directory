@@ -145,6 +145,11 @@ public class ReIndexWorkItem implements IHasID <String>, Serializable
     return m_aPreviousRetryDT;
   }
 
+  public boolean hasPreviousRetryDT ()
+  {
+    return m_aPreviousRetryDT != null;
+  }
+
   /**
    * @return The next retry date time. Never <code>null</code>.
    */

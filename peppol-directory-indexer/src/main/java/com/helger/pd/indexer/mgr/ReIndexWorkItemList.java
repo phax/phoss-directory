@@ -39,6 +39,7 @@ import com.helger.commons.microdom.IMicroElement;
 import com.helger.commons.microdom.MicroDocument;
 import com.helger.commons.microdom.convert.MicroTypeConverter;
 import com.helger.commons.state.EChange;
+import com.helger.commons.string.StringHelper;
 import com.helger.commons.string.ToStringGenerator;
 import com.helger.pd.indexer.domain.ReIndexWorkItem;
 import com.helger.photon.basic.app.dao.impl.AbstractWALDAO;
@@ -178,6 +179,15 @@ final class ReIndexWorkItemList extends AbstractWALDAO <ReIndexWorkItem> impleme
   public List <ReIndexWorkItem> getAllItems ()
   {
     return m_aRWLock.readLocked ( () -> CollectionHelper.newList (m_aMap.values ()));
+  }
+
+  @Nullable
+  public ReIndexWorkItem getItemOfID (@Nullable final String sID)
+  {
+    if (StringHelper.hasNoText (sID))
+      return null;
+
+    return m_aRWLock.readLocked ( () -> m_aMap.get (sID));
   }
 
   @Override
