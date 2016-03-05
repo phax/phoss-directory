@@ -116,7 +116,7 @@ public final class IndexerResourceTest
       aBI.addBusinessEntity (aEntity);
     }
     return new PDExtendedBusinessCard (aBI,
-                                              CollectionHelper.newList (EPredefinedDocumentTypeIdentifier.INVOICE_T010_BIS5A_V20.getAsDocumentTypeIdentifier ()));
+                                       CollectionHelper.newList (EPredefinedDocumentTypeIdentifier.INVOICE_T010_BIS5A_V20.getAsDocumentTypeIdentifier ()));
   }
 
   @Before

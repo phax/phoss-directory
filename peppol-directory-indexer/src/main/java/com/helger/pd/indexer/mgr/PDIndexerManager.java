@@ -79,7 +79,7 @@ public final class PDIndexerManager implements Closeable
   private final ReIndexWorkItemList m_aDeadList;
   private final TriggerKey m_aTriggerKey;
   @GuardedBy ("m_aRWLock")
-  private final Set <IndexerWorkItem> m_aUniqueItems = new HashSet <> ();
+  private final Set <IndexerWorkItem> m_aUniqueItems = new HashSet<> ();
   @GuardedBy ("m_aRWLock")
   private IPDBusinessCardProvider m_aBIProvider = new SMPBusinessCardProvider ();
 
@@ -109,8 +109,8 @@ public final class PDIndexerManager implements Closeable
    * directly after the constructor. But please note that the queuing of the
    * items might directly trigger the usage of the
    * {@link #getBusinessInformationProvider()} so make sure to call
-   * {@link #setBusinessInformationProvider(IPDBusinessCardProvider)}
-   * before calling this method.
+   * {@link #setBusinessInformationProvider(IPDBusinessCardProvider)} before
+   * calling this method.
    *
    * @return this for chaining
    */
@@ -172,8 +172,8 @@ public final class PDIndexerManager implements Closeable
   }
 
   /**
-   * @return The global {@link IPDBusinessCardProvider}. Never
-   *         <code>null</code>.
+   * @return The global {@link IPDBusinessCardProvider}. Never <code>null</code>
+   *         .
    */
   @Nonnull
   public IPDBusinessCardProvider getBusinessInformationProvider ()
@@ -182,8 +182,8 @@ public final class PDIndexerManager implements Closeable
   }
 
   /**
-   * Set the global {@link IPDBusinessCardProvider} that is used for
-   * future create/update requests.
+   * Set the global {@link IPDBusinessCardProvider} that is used for future
+   * create/update requests.
    *
    * @param aBIProvider
    *        Business information provider to be used. May not be

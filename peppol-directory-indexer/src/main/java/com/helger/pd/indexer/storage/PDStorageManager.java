@@ -136,7 +136,7 @@ public final class PDStorageManager implements Closeable
     ValueEnforcer.notNull (aMetaData, "MetaData");
 
     return m_aLucene.runAtomic ( () -> {
-      final List <Document> aDocuments = new ArrayList <> ();
+      final List <Document> aDocuments = new ArrayList<> ();
 
       // Get all documents to be marked as deleted
       final IndexSearcher aSearcher = m_aLucene.getSearcher ();
@@ -172,7 +172,7 @@ public final class PDStorageManager implements Closeable
     ValueEnforcer.notNull (aMetaData, "MetaData");
 
     return m_aLucene.runAtomic ( () -> {
-      final List <Document> aDocs = new ArrayList <> ();
+      final List <Document> aDocs = new ArrayList<> ();
 
       final PDBusinessCardType aBI = aExtBI.getBusinessCard ();
       for (final PDBusinessEntityType aBusinessEntity : aBI.getBusinessEntity ())
@@ -368,7 +368,7 @@ public final class PDStorageManager implements Closeable
   @ReturnsMutableCopy
   public List <PDStoredDocument> getAllDocuments (@Nonnull final Query aQuery)
   {
-    final List <PDStoredDocument> aTargetList = new ArrayList <> ();
+    final List <PDStoredDocument> aTargetList = new ArrayList<> ();
     try
     {
       searchAllDocuments (aQuery, aDoc -> aTargetList.add (aDoc));
@@ -405,7 +405,7 @@ public final class PDStorageManager implements Closeable
   @ReturnsMutableCopy
   public Set <String> getAllContainedParticipantIDs ()
   {
-    final Set <String> aTargetList = new TreeSet <> ();
+    final Set <String> aTargetList = new TreeSet<> ();
     final Query aQuery = PDQueryManager.andNotDeleted (new WildcardQuery (new Term (CPDStorage.FIELD_ALL_FIELDS, "*")));
     try
     {
@@ -432,7 +432,7 @@ public final class PDStorageManager implements Closeable
   @ReturnsMutableCopy
   public static IMultiMapListBased <String, PDStoredDocument> getGroupedByParticipantID (@Nonnull final List <PDStoredDocument> aDocs)
   {
-    final MultiLinkedHashMapArrayListBased <String, PDStoredDocument> ret = new MultiLinkedHashMapArrayListBased <> ();
+    final MultiLinkedHashMapArrayListBased <String, PDStoredDocument> ret = new MultiLinkedHashMapArrayListBased<> ();
     for (final PDStoredDocument aDoc : aDocs)
       ret.putSingle (aDoc.getParticipantID (), aDoc);
     return ret;

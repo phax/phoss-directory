@@ -89,9 +89,9 @@ public class IndexerResource
 
     // Queue for handling
     PDMetaManager.getIndexerMgr ().queueWorkItem (aPI,
-                                                   EIndexerWorkItemType.CREATE_UPDATE,
-                                                   aResult.getClientID (),
-                                                   _getRequestingHost (aHttpServletRequest));
+                                                  EIndexerWorkItemType.CREATE_UPDATE,
+                                                  aResult.getClientID (),
+                                                  _getRequestingHost (aHttpServletRequest));
 
     // And done
     return Response.noContent ().build ();
@@ -114,9 +114,9 @@ public class IndexerResource
 
     // Queue for handling
     PDMetaManager.getIndexerMgr ().queueWorkItem (aPI,
-                                                   EIndexerWorkItemType.DELETE,
-                                                   aResult.getClientID (),
-                                                   _getRequestingHost (aHttpServletRequest));
+                                                  EIndexerWorkItemType.DELETE,
+                                                  aResult.getClientID (),
+                                                  _getRequestingHost (aHttpServletRequest));
 
     // And done
     return Response.noContent ().build ();

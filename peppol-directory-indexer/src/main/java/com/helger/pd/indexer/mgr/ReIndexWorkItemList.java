@@ -58,7 +58,7 @@ final class ReIndexWorkItemList extends AbstractWALDAO <ReIndexWorkItem> impleme
   private static final String ELEMENT_ROOT = "root";
   private static final String ELEMENT_ITEM = "item";
 
-  private final Map <String, ReIndexWorkItem> m_aMap = new HashMap <> ();
+  private final Map <String, ReIndexWorkItem> m_aMap = new HashMap<> ();
 
   public ReIndexWorkItemList (@Nullable final String sFilename) throws DAOException
   {
@@ -160,7 +160,7 @@ final class ReIndexWorkItemList extends AbstractWALDAO <ReIndexWorkItem> impleme
   public List <ReIndexWorkItem> getAndRemoveAllEntries (@Nonnull final Predicate <ReIndexWorkItem> aPred)
   {
     return m_aRWLock.writeLocked ( () -> {
-      final List <ReIndexWorkItem> ret = new ArrayList <> ();
+      final List <ReIndexWorkItem> ret = new ArrayList<> ();
       // Operate on a copy for removal!
       for (final ReIndexWorkItem aWorkItem : CollectionHelper.newList (m_aMap.values ()))
         if (aPred.test (aWorkItem))

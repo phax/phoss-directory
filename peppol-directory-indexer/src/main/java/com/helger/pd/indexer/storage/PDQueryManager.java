@@ -90,7 +90,7 @@ public final class PDQueryManager
     try (final TokenStream aTokenStream = aAnalyzerProvider.getAnalyzer ().tokenStream (CPDStorage.FIELD_ALL_FIELDS,
                                                                                         sQueryString))
     {
-      final List <String> ret = new ArrayList <> ();
+      final List <String> ret = new ArrayList<> ();
       final CharTermAttribute aCharTermAttribute = aTokenStream.addAttribute (CharTermAttribute.class);
       aTokenStream.reset ();
       while (aTokenStream.incrementToken ())

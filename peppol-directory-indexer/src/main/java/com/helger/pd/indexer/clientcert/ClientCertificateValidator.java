@@ -68,7 +68,7 @@ public final class ClientCertificateValidator
   private static X509Certificate s_aPeppolSMPRootCertAlternative;
 
   /** Sorted list with all issuers we're accepting. Never empty. */
-  private static List <X500Principal> s_aSearchIssuers = new ArrayList <> ();
+  private static List <X500Principal> s_aSearchIssuers = new ArrayList<> ();
 
   /**
    * This method is only for testing purposes to disable the complete client

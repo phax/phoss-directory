@@ -37,7 +37,8 @@ public class AllDocumentsCollector extends SimpleCollector
   private final ILuceneDocumentProvider m_aDocProvider;
   private final Consumer <Document> m_aConsumer;
 
-  public AllDocumentsCollector (@Nonnull final ILuceneDocumentProvider aDocProvider, @Nonnull final Consumer <Document> aConsumer)
+  public AllDocumentsCollector (@Nonnull final ILuceneDocumentProvider aDocProvider,
+                                @Nonnull final Consumer <Document> aConsumer)
   {
     m_aDocProvider = ValueEnforcer.notNull (aDocProvider, "DocProvider");
     m_aConsumer = ValueEnforcer.notNull (aConsumer, "Consumer");

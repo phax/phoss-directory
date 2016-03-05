@@ -164,7 +164,8 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
       }
 
       // Is a new reader required because the index changed?
-      final DirectoryReader aNewReader = m_aIndexReader != null ? DirectoryReader.openIfChanged (m_aIndexReader) : DirectoryReader.open (m_aDir);
+      final DirectoryReader aNewReader = m_aIndexReader != null ? DirectoryReader.openIfChanged (m_aIndexReader)
+                                                                : DirectoryReader.open (m_aDir);
       if (aNewReader != null)
       {
         // Something changed in the index
@@ -251,7 +252,8 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
    * @throws IOException
    *         if there is a low-level IO error
    */
-  public void updateDocument (@Nullable final Term aDelTerm, @Nonnull final Iterable <? extends IndexableField> aDoc) throws IOException
+  public void updateDocument (@Nullable final Term aDelTerm,
+                              @Nonnull final Iterable <? extends IndexableField> aDoc) throws IOException
   {
     _getWriter ().updateDocument (aDelTerm, aDoc);
     m_aWriterChanges.incrementAndGet ();

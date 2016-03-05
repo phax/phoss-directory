@@ -30,8 +30,8 @@ import com.helger.commons.lang.EnumHelper;
  */
 public enum EIndexerWorkItemType implements IHasID <String>
 {
- CREATE_UPDATE ("create"),
- DELETE ("delete");
+  CREATE_UPDATE ("create"),
+  DELETE ("delete");
 
   private final String m_sID;
 

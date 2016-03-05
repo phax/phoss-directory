@@ -126,7 +126,7 @@ public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
     }
 
     // Query all document types
-    final List <IDocumentTypeIdentifier> aDocumentTypeIDs = new ArrayList <> ();
+    final List <IDocumentTypeIdentifier> aDocumentTypeIDs = new ArrayList<> ();
     for (final ServiceMetadataReferenceType aRef : aServiceGroup.getServiceMetadataReferenceCollection ()
                                                                 .getServiceMetadataReference ())
     {

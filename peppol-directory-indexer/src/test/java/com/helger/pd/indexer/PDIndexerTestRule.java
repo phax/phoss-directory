@@ -30,7 +30,8 @@ import com.helger.photon.basic.app.io.WebIOIntIDFactory;
 import com.helger.photon.basic.mock.PhotonBasicWebTestRule;
 
 /**
- * Special PEPPOL Directory test rule with the correct data path from the settings file.
+ * Special PEPPOL Directory test rule with the correct data path from the
+ * settings file.
  *
  * @author Philip Helger
  */
