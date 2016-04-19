@@ -33,7 +33,7 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.IntPoint;
-import org.apache.lucene.document.LegacyLongField;
+import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexOptions;
@@ -266,9 +266,7 @@ public final class PDStorageManager implements Closeable
         // Add meta data (not part of the "all field" field!)
         // Lucene6: cannot yet use a LongPoint because it has no way to create a
         // stored one
-        aDoc.add (new LegacyLongField (CPDStorage.FIELD_METADATA_CREATIONDT,
-                                       aMetaData.getCreationDTMillis (),
-                                       Store.YES));
+        aDoc.add (new StoredField (CPDStorage.FIELD_METADATA_CREATIONDT, aMetaData.getCreationDTMillis ()));
         aDoc.add (new StringField (CPDStorage.FIELD_METADATA_OWNERID, aMetaData.getOwnerID (), Store.YES));
         aDoc.add (new StringField (CPDStorage.FIELD_METADATA_REQUESTING_HOST,
                                    aMetaData.getRequestingHost (),
