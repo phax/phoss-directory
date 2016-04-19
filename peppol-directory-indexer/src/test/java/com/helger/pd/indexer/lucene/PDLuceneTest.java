@@ -32,7 +32,7 @@ import javax.annotation.Nullable;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.LongField;
+import org.apache.lucene.document.LongPoint;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.Term;
@@ -70,9 +70,7 @@ public final class PDLuceneTest
 
     // Add the last big lucene version birthday which we don't want to store
     // but to be indexed nevertheless to be filterable
-    doc.add (new LongField ("lastVersionBirthday",
-                            new GregorianCalendar (2015, 1, 20).getTimeInMillis (),
-                            Field.Store.NO));
+    doc.add (new LongPoint ("lastVersionBirthday", new GregorianCalendar (2015, 1, 20).getTimeInMillis ()));
 
     // The version info content should be searchable also be tokens,
     // this is why we use a TextField; as we use a reader, the content is

@@ -51,13 +51,13 @@ import com.helger.web.datetime.PDTWebDateHelper;
 public class PDStoredDocument
 {
   private String m_sParticipantID;
-  private final List <SimpleDocumentTypeIdentifier> m_aDocumentTypeIDs = new ArrayList<> ();
+  private final List <SimpleDocumentTypeIdentifier> m_aDocumentTypeIDs = new ArrayList <> ();
   private String m_sName;
   private String m_sCountryCode;
   private String m_sGeoInfo;
-  private final List <PDStoredIdentifier> m_aIdentifiers = new ArrayList<> ();
-  private final List <String> m_aWebsiteURIs = new ArrayList<> ();
-  private final List <PDStoredContact> m_aContacts = new ArrayList<> ();
+  private final List <PDStoredIdentifier> m_aIdentifiers = new ArrayList <> ();
+  private final List <String> m_aWebsiteURIs = new ArrayList <> ();
+  private final List <PDStoredContact> m_aContacts = new ArrayList <> ();
   private String m_sAdditionalInformation;
   private LocalDate m_aRegistrationDate;
   private PDDocumentMetaData m_aMetaData;

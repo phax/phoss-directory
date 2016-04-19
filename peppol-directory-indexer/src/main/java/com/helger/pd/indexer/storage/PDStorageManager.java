@@ -32,8 +32,8 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.FieldType;
-import org.apache.lucene.document.IntField;
-import org.apache.lucene.document.LongField;
+import org.apache.lucene.document.IntPoint;
+import org.apache.lucene.document.LegacyLongField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexOptions;
@@ -77,7 +77,6 @@ import com.helger.web.datetime.PDTWebDateHelper;
 public final class PDStorageManager implements Closeable
 {
   private static final Logger s_aLogger = LoggerFactory.getLogger (PDStorageManager.class);
-  private static final IntField FIELD_VALUE_DELETED = new IntField (CPDStorage.FIELD_DELETED, 1, Store.NO);
   private static final FieldType TYPE_GROUP_END = new FieldType ();
   private static final String VALUE_GROUP_END = "x";
 
@@ -136,7 +135,7 @@ public final class PDStorageManager implements Closeable
     ValueEnforcer.notNull (aMetaData, "MetaData");
 
     return m_aLucene.runAtomic ( () -> {
-      final List <Document> aDocuments = new ArrayList<> ();
+      final List <Document> aDocuments = new ArrayList <> ();
 
       // Get all documents to be marked as deleted
       final IndexSearcher aSearcher = m_aLucene.getSearcher ();
@@ -148,7 +147,7 @@ public final class PDStorageManager implements Closeable
       {
         // Mark document as deleted
         for (final Document aDocument : aDocuments)
-          aDocument.add (FIELD_VALUE_DELETED);
+          aDocument.add (new IntPoint (CPDStorage.FIELD_DELETED, 1));
 
         // Update the documents
         m_aLucene.updateDocuments (_createParticipantTerm (aParticipantID), aDocuments);
@@ -172,7 +171,7 @@ public final class PDStorageManager implements Closeable
     ValueEnforcer.notNull (aMetaData, "MetaData");
 
     return m_aLucene.runAtomic ( () -> {
-      final List <Document> aDocs = new ArrayList<> ();
+      final List <Document> aDocs = new ArrayList <> ();
 
       final PDBusinessCardType aBI = aExtBI.getBusinessCard ();
       for (final PDBusinessEntityType aBusinessEntity : aBI.getBusinessEntity ())
@@ -265,7 +264,11 @@ public final class PDStorageManager implements Closeable
         aDoc.add (new TextField (CPDStorage.FIELD_ALL_FIELDS, aSBAllFields.toString (), Store.NO));
 
         // Add meta data (not part of the "all field" field!)
-        aDoc.add (new LongField (CPDStorage.FIELD_METADATA_CREATIONDT, aMetaData.getCreationDTMillis (), Store.YES));
+        // Lucene6: cannot yet use a LongPoint because it has no way to create a
+        // stored one
+        aDoc.add (new LegacyLongField (CPDStorage.FIELD_METADATA_CREATIONDT,
+                                       aMetaData.getCreationDTMillis (),
+                                       Store.YES));
         aDoc.add (new StringField (CPDStorage.FIELD_METADATA_OWNERID, aMetaData.getOwnerID (), Store.YES));
         aDoc.add (new StringField (CPDStorage.FIELD_METADATA_REQUESTING_HOST,
                                    aMetaData.getRequestingHost (),
@@ -368,7 +371,7 @@ public final class PDStorageManager implements Closeable
   @ReturnsMutableCopy
   public List <PDStoredDocument> getAllDocuments (@Nonnull final Query aQuery)
   {
-    final List <PDStoredDocument> aTargetList = new ArrayList<> ();
+    final List <PDStoredDocument> aTargetList = new ArrayList <> ();
     try
     {
       searchAllDocuments (aQuery, aDoc -> aTargetList.add (aDoc));
@@ -405,7 +408,7 @@ public final class PDStorageManager implements Closeable
   @ReturnsMutableCopy
   public Set <String> getAllContainedParticipantIDs ()
   {
-    final Set <String> aTargetList = new TreeSet<> ();
+    final Set <String> aTargetList = new TreeSet <> ();
     final Query aQuery = PDQueryManager.andNotDeleted (new WildcardQuery (new Term (CPDStorage.FIELD_ALL_FIELDS, "*")));
     try
     {
@@ -432,7 +435,7 @@ public final class PDStorageManager implements Closeable
   @ReturnsMutableCopy
   public static IMultiMapListBased <String, PDStoredDocument> getGroupedByParticipantID (@Nonnull final List <PDStoredDocument> aDocs)
   {
-    final MultiLinkedHashMapArrayListBased <String, PDStoredDocument> ret = new MultiLinkedHashMapArrayListBased<> ();
+    final MultiLinkedHashMapArrayListBased <String, PDStoredDocument> ret = new MultiLinkedHashMapArrayListBased <> ();
     for (final PDStoredDocument aDoc : aDocs)
       ret.putSingle (aDoc.getParticipantID (), aDoc);
     return ret;
