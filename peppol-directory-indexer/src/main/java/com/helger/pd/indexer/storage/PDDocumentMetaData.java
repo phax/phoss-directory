@@ -16,10 +16,10 @@
  */
 package com.helger.pd.indexer.storage;
 
+import java.time.LocalDateTime;
+
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
-
-import org.joda.time.LocalDateTime;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
@@ -67,7 +67,7 @@ public final class PDDocumentMetaData
    */
   public long getCreationDTMillis ()
   {
-    return PDTFactory.createDateTime (m_aCreationDT).getMillis ();
+    return PDTFactory.getMillis (m_aCreationDT);
   }
 
   /**

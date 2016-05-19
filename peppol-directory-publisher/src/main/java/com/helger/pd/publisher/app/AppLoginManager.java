@@ -21,18 +21,19 @@ import java.util.Collection;
 import javax.annotation.Nonnull;
 
 import com.helger.commons.annotation.ReturnsImmutableObject;
+import com.helger.photon.basic.auth.credentials.ICredentialValidationResult;
 import com.helger.photon.bootstrap3.uictrls.ext.BootstrapLoginHTMLProvider;
 import com.helger.photon.core.app.html.IHTMLProvider;
 import com.helger.photon.core.login.LoginManager;
-import com.helger.photon.security.login.ELoginResult;
 
 public final class AppLoginManager extends LoginManager
 {
   @Override
-  protected IHTMLProvider createLoginScreen (final boolean bLoginError, @Nonnull final ELoginResult eLoginResult)
+  protected IHTMLProvider createLoginScreen (final boolean bLoginError,
+                                             @Nonnull final ICredentialValidationResult aLoginResult)
   {
     return new BootstrapLoginHTMLProvider (bLoginError,
-                                           eLoginResult,
+                                           aLoginResult,
                                            AppCommonUI.getApplicationTitle () + " Administration - Login");
   }
 

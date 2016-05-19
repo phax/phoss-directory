@@ -48,6 +48,8 @@ import com.helger.commons.collection.CollectionHelper;
 import com.helger.commons.mock.CommonsTestHelper;
 import com.helger.commons.random.VerySecureRandom;
 import com.helger.commons.thread.ThreadHelper;
+import com.helger.commons.ws.HostnameVerifierVerifyAll;
+import com.helger.commons.ws.TrustManagerTrustAll;
 import com.helger.pd.businesscard.PDBusinessCardType;
 import com.helger.pd.businesscard.PDBusinessEntityType;
 import com.helger.pd.businesscard.PDExtendedBusinessCard;
@@ -61,8 +63,6 @@ import com.helger.peppol.identifier.doctype.EPredefinedDocumentTypeIdentifier;
 import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
 import com.helger.peppol.identifier.participant.SimpleParticipantIdentifier;
 import com.helger.peppol.utils.KeyStoreHelper;
-import com.helger.web.https.DoNothingTrustManager;
-import com.helger.web.https.HostnameVerifierAlwaysTrue;
 
 /**
  * Test class for class {@link IndexerResource}.
@@ -141,11 +141,11 @@ public final class IndexerResourceTest
 
       final SSLContext aSSLContext = SSLContext.getInstance ("TLS");
       aSSLContext.init (aKeyManagerFactory.getKeyManagers (),
-                        new TrustManager [] { new DoNothingTrustManager (false) },
+                        new TrustManager [] { new TrustManagerTrustAll (false) },
                         VerySecureRandom.getInstance ());
       final Client aClient = ClientBuilder.newBuilder ()
                                           .sslContext (aSSLContext)
-                                          .hostnameVerifier (new HostnameVerifierAlwaysTrue (false))
+                                          .hostnameVerifier (new HostnameVerifierVerifyAll (false))
                                           .build ();
       m_aTarget = aClient.target (MockServer.BASE_URI_HTTPS);
     }
@@ -175,7 +175,7 @@ public final class IndexerResourceTest
     final SimpleParticipantIdentifier aPI_0 = SimpleParticipantIdentifier.createWithDefaultScheme ("9915:test0");
 
     final int nCount = 4;
-    CommonsTestHelper.testInParallel (nCount, (Runnable) () -> {
+    CommonsTestHelper.testInParallel (nCount, () -> {
       // Create
       final SimpleParticipantIdentifier aPI = SimpleParticipantIdentifier.createWithDefaultScheme ("9915:test" +
                                                                                                    aIndex.getAndIncrement ());
@@ -189,7 +189,7 @@ public final class IndexerResourceTest
     assertTrue (PDMetaManager.getStorageMgr ().containsEntry (aPI_0));
 
     aIndex.set (0);
-    CommonsTestHelper.testInParallel (nCount, (Runnable) () -> {
+    CommonsTestHelper.testInParallel (nCount, () -> {
       // Delete
       final SimpleParticipantIdentifier aPI = SimpleParticipantIdentifier.createWithDefaultScheme ("9915:test" +
                                                                                                    aIndex.getAndIncrement ());

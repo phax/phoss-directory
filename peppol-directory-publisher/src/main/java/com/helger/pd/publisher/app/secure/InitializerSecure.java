@@ -20,13 +20,14 @@ import javax.annotation.Nonnull;
 
 import com.helger.commons.io.resource.ClassPathResource;
 import com.helger.pd.publisher.app.AppCommonUI;
+import com.helger.pd.publisher.app.AppInternalErrorHandler;
 import com.helger.photon.basic.app.locale.ILocaleManager;
 import com.helger.photon.basic.app.menu.IMenuTree;
 import com.helger.photon.bootstrap3.pages.sysinfo.ConfigurationFile;
 import com.helger.photon.bootstrap3.pages.sysinfo.ConfigurationFileManager;
 import com.helger.photon.core.ajax.IAjaxInvoker;
 import com.helger.photon.core.app.context.LayoutExecutionContext;
-import com.helger.photon.core.app.init.DefaultApplicationInitializer;
+import com.helger.photon.core.app.init.IApplicationInitializer;
 import com.helger.photon.core.app.layout.CLayout;
 import com.helger.photon.core.app.layout.ILayoutManager;
 import com.helger.photon.uictrls.prism.EPrismLanguage;
@@ -36,7 +37,7 @@ import com.helger.photon.uictrls.prism.EPrismLanguage;
  *
  * @author Philip Helger
  */
-public final class InitializerSecure extends DefaultApplicationInitializer <LayoutExecutionContext>
+public final class InitializerSecure implements IApplicationInitializer <LayoutExecutionContext>
 {
   @Override
   public void initLocales (@Nonnull final ILocaleManager aLocaleMgr)
@@ -64,10 +65,12 @@ public final class InitializerSecure extends DefaultApplicationInitializer <Layo
   @Override
   public void initRest ()
   {
+    AppInternalErrorHandler.doSetup ();
+
     final ConfigurationFileManager aCfgMgr = ConfigurationFileManager.getInstance ();
     aCfgMgr.registerConfigurationFile (new ConfigurationFile (new ClassPathResource ("log4j2.xml")).setDescription ("log4j configuration file")
                                                                                                    .setSyntaxHighlightLanguage (EPrismLanguage.MARKUP));
     aCfgMgr.registerConfigurationFile (new ConfigurationFile (new ClassPathResource ("pd.properties")).setDescription ("PEPPOL Directory properties")
-                                                                                                       .setSyntaxHighlightLanguage (EPrismLanguage.APACHECONF));
+                                                                                                      .setSyntaxHighlightLanguage (EPrismLanguage.APACHECONF));
   }
 }

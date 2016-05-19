@@ -19,6 +19,10 @@ package com.helger.pd.publisher.ui;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPublicKey;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.Period;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Locale;
 
@@ -26,13 +30,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
-import org.joda.time.LocalDateTime;
-import org.joda.time.Period;
-
+import com.helger.commons.CGlobal;
 import com.helger.commons.locale.country.CountryCache;
 import com.helger.datetime.PDTFactory;
 import com.helger.datetime.format.PDTToString;
-import com.helger.datetime.format.PeriodFormatMultilingual;
 import com.helger.html.hc.IHCNode;
 import com.helger.html.hc.ext.HCExtHelper;
 import com.helger.html.hc.html.grouping.HCDiv;
@@ -214,6 +215,27 @@ public final class PDCommonUI
     return aUL;
   }
 
+  private static String _getPeriodText (@Nonnull final Period aPeriod, @Nonnull final Duration aDuration)
+  {
+    long nSecs = aDuration.getSeconds ();
+    final long nHours = nSecs / CGlobal.SECONDS_PER_HOUR;
+    nSecs -= nHours * CGlobal.SECONDS_PER_HOUR;
+    final long nMinutes = nSecs / CGlobal.SECONDS_PER_MINUTE;
+    nSecs -= nMinutes * CGlobal.SECONDS_PER_MINUTE;
+    return aPeriod.getYears () +
+           " years, " +
+           aPeriod.getMonths () +
+           " months, " +
+           aPeriod.getDays () +
+           " days, " +
+           nHours +
+           " hours, " +
+           nMinutes +
+           " minutes and " +
+           nSecs +
+           " seconds";
+  }
+
   @Nonnull
   public static BootstrapTable createCertificateDetailsTable (@Nonnull final X509Certificate aX509Cert,
                                                               @Nonnull final LocalDateTime aNowLDT,
@@ -237,9 +259,12 @@ public final class PDCommonUI
                 .addCell (new HCTextNode (PDTToString.getAsString (aNotAfter, aDisplayLocale)),
                           aNowLDT.isAfter (aNotAfter) ? new HCStrong ().addChild (" !!!NO LONGER VALID!!!")
                                                       : new HCDiv ().addChild ("Valid for: " +
-                                                                               PeriodFormatMultilingual.getFormatterLong (aDisplayLocale)
-                                                                                                       .print (new Period (aNowLDT,
-                                                                                                                           aNotAfter))));
+                                                                               _getPeriodText (Period.between (aNowLDT.toLocalDate (),
+                                                                                                               aNotAfter.toLocalDate ()),
+                                                                                               Duration.between (aNowLDT.toLocalTime (),
+                                                                                                                 aNotAfter.toLocalTime ()
+                                                                                                                          .plus (1,
+                                                                                                                                 ChronoUnit.DAYS)))));
 
     if (aPublicKey instanceof RSAPublicKey)
     {

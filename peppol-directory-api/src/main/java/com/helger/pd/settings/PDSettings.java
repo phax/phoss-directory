@@ -69,7 +69,7 @@ public final class PDSettings extends AbstractGlobalSingleton
   @Nullable
   public static String getGlobalDebug ()
   {
-    return s_aSettings.getStringValue ("global.debug");
+    return s_aSettings.getAsString ("global.debug");
   }
 
   /**
@@ -79,7 +79,7 @@ public final class PDSettings extends AbstractGlobalSingleton
   @Nullable
   public static String getGlobalProduction ()
   {
-    return s_aSettings.getStringValue ("global.production");
+    return s_aSettings.getAsString ("global.production");
   }
 
   /**
@@ -88,7 +88,7 @@ public final class PDSettings extends AbstractGlobalSingleton
   @Nullable
   public static String getDataPath ()
   {
-    return s_aSettings.getStringValue ("webapp.datapath");
+    return s_aSettings.getAsString ("webapp.datapath");
   }
 
   /**
@@ -98,7 +98,7 @@ public final class PDSettings extends AbstractGlobalSingleton
    */
   public static boolean isCheckFileAccess ()
   {
-    return s_aSettings.getBooleanValue ("webapp.checkfileaccess", true);
+    return s_aSettings.getAsBoolean ("webapp.checkfileaccess", true);
   }
 
   /**
@@ -107,12 +107,12 @@ public final class PDSettings extends AbstractGlobalSingleton
    */
   public static boolean isTestVersion ()
   {
-    return s_aSettings.getBooleanValue ("webapp.testversion", GlobalDebug.isDebugMode ());
+    return s_aSettings.getAsBoolean ("webapp.testversion", GlobalDebug.isDebugMode ());
   }
 
   public static boolean isClientCertificateValidationActive ()
   {
-    return s_aSettings.getBooleanValue ("indexer.clientcert.validation", true);
+    return s_aSettings.getAsBoolean ("indexer.clientcert.validation", true);
   }
 
   /**
@@ -121,7 +121,7 @@ public final class PDSettings extends AbstractGlobalSingleton
   @Nullable
   public static String getClientCertIssuer ()
   {
-    return s_aSettings.getStringValue ("clientcert.issuer");
+    return s_aSettings.getAsString ("clientcert.issuer");
   }
 
   /**
@@ -131,43 +131,43 @@ public final class PDSettings extends AbstractGlobalSingleton
   @Nullable
   public static String getClientCertIssuerAlternative ()
   {
-    return s_aSettings.getStringValue ("clientcert-alt.issuer");
+    return s_aSettings.getAsString ("clientcert-alt.issuer");
   }
 
   @Nonnull
   public static String getTruststoreLocation ()
   {
-    return s_aSettings.getStringValue ("truststore.path", KeyStoreHelper.TRUSTSTORE_PRODUCTION_CLASSPATH);
+    return s_aSettings.getAsString ("truststore.path", KeyStoreHelper.TRUSTSTORE_PRODUCTION_CLASSPATH);
   }
 
   @Nonnull
   public static String getTruststorePassword ()
   {
-    return s_aSettings.getStringValue ("truststore.password", KeyStoreHelper.TRUSTSTORE_PASSWORD);
+    return s_aSettings.getAsString ("truststore.password", KeyStoreHelper.TRUSTSTORE_PASSWORD);
   }
 
   @Nonnull
   public static String getTruststoreAlias ()
   {
-    return s_aSettings.getStringValue ("truststore.alias", KeyStoreHelper.TRUSTSTORE_PRODUCTION_ALIAS_SMP);
+    return s_aSettings.getAsString ("truststore.alias", KeyStoreHelper.TRUSTSTORE_PRODUCTION_ALIAS_SMP);
   }
 
   @Nullable
   public static String getTruststoreLocationAlternative ()
   {
-    return s_aSettings.getStringValue ("truststore-alt.path", KeyStoreHelper.TRUSTSTORE_PILOT_CLASSPATH);
+    return s_aSettings.getAsString ("truststore-alt.path", KeyStoreHelper.TRUSTSTORE_PILOT_CLASSPATH);
   }
 
   @Nullable
   public static String getTruststorePasswordAlternative ()
   {
-    return s_aSettings.getStringValue ("truststore-alt.password", KeyStoreHelper.TRUSTSTORE_PASSWORD);
+    return s_aSettings.getAsString ("truststore-alt.password", KeyStoreHelper.TRUSTSTORE_PASSWORD);
   }
 
   @Nullable
   public static String getTruststoreAliasAlternative ()
   {
-    return s_aSettings.getStringValue ("truststore-alt.alias", KeyStoreHelper.TRUSTSTORE_PILOT_ALIAS_SMP);
+    return s_aSettings.getAsString ("truststore-alt.alias", KeyStoreHelper.TRUSTSTORE_PILOT_ALIAS_SMP);
   }
 
   /**
@@ -177,7 +177,7 @@ public final class PDSettings extends AbstractGlobalSingleton
   @Nonnegative
   public static int getReIndexMaxRetryHours ()
   {
-    final int ret = s_aSettings.getIntValue ("reindex.maxretryhours", 24);
+    final int ret = s_aSettings.getAsInt ("reindex.maxretryhours", 24);
     if (ret < 0)
       throw new IllegalStateException ("The reindex.maxretryhours property must be >= 0!");
     return ret;
@@ -189,7 +189,7 @@ public final class PDSettings extends AbstractGlobalSingleton
   @Nonnegative
   public static int getReIndexRetryMinutes ()
   {
-    final int ret = s_aSettings.getIntValue ("reindex.retryminutes", 5);
+    final int ret = s_aSettings.getAsInt ("reindex.retryminutes", 5);
     if (ret <= 0)
       throw new IllegalStateException ("The reindex.retryminutes property must be > 0!");
     return ret;
@@ -202,7 +202,7 @@ public final class PDSettings extends AbstractGlobalSingleton
   @Nonnull
   public static ESML getSMLToUse ()
   {
-    final String sID = s_aSettings.getStringValue ("sml.id");
+    final String sID = s_aSettings.getAsString ("sml.id");
     return ESML.getFromIDOrDefault (sID, ESML.DIGIT_PRODUCTION);
   }
 }

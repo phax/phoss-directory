@@ -24,7 +24,6 @@ import javax.annotation.Nullable;
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.compare.ESortOrder;
 import com.helger.commons.errorlist.FormErrors;
-import com.helger.commons.type.EBaseType;
 import com.helger.commons.url.ISimpleURL;
 import com.helger.datetime.format.PDTToString;
 import com.helger.html.hc.html.tabular.HCRow;
@@ -45,6 +44,7 @@ import com.helger.photon.uicore.icon.EDefaultIcon;
 import com.helger.photon.uicore.page.EWebPageFormAction;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 import com.helger.photon.uictrls.datatables.column.DTCol;
+import com.helger.photon.uictrls.datatables.column.EDTColType;
 
 public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <ReIndexWorkItem>
 {
@@ -139,13 +139,13 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
                                                .setOnClick (aWPEC.getSelfHref ()));
     }
 
-    final HCTable aTable = new HCTable (new DTCol ("Reg date").setDisplayType (EBaseType.DATETIME, aDisplayLocale)
+    final HCTable aTable = new HCTable (new DTCol ("Reg date").setDisplayType (EDTColType.DATETIME, aDisplayLocale)
                                                               .setInitialSorting (ESortOrder.DESCENDING),
                                         new DTCol ("Participant"),
                                         new DTCol ("Action"),
-                                        new DTCol ("Retries").setDisplayType (EBaseType.INT, aDisplayLocale),
-                                        new DTCol ("Next retry").setDisplayType (EBaseType.DATETIME, aDisplayLocale),
-                                        new DTCol ("Last retry").setDisplayType (EBaseType.DATETIME,
+                                        new DTCol ("Retries").setDisplayType (EDTColType.INT, aDisplayLocale),
+                                        new DTCol ("Next retry").setDisplayType (EDTColType.DATETIME, aDisplayLocale),
+                                        new DTCol ("Last retry").setDisplayType (EDTColType.DATETIME,
                                                                                  aDisplayLocale)).setID (getID ());
 
     for (final ReIndexWorkItem aItem : getReIndexWorkItemList ().getAllItems ())

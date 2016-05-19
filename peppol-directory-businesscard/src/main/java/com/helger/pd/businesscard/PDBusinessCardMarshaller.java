@@ -18,15 +18,10 @@ package com.helger.pd.businesscard;
 
 import java.util.List;
 
-import javax.annotation.Nonnull;
-import javax.xml.bind.JAXBElement;
-
-import com.helger.commons.collection.CollectionHelper;
+import com.helger.commons.collection.ext.CommonsArrayList;
 import com.helger.commons.io.resource.ClassPathResource;
 import com.helger.commons.io.resource.IReadableResource;
 import com.helger.jaxb.AbstractJAXBMarshaller;
-import com.helger.pd.businesscard.ObjectFactory;
-import com.helger.pd.businesscard.PDBusinessCardType;
 
 /**
  * This is the reader and writer for {@link PDBusinessCardType} documents. This
@@ -41,20 +36,13 @@ public class PDBusinessCardMarshaller extends AbstractJAXBMarshaller <PDBusiness
   public static final String BUSINESS_INFORMATION_NS_URI = ObjectFactory._BusinessCard_QNAME.getNamespaceURI ();
 
   /** XSD resources */
-  public static final List <? extends IReadableResource> BUSINESS_INFORMATION_XSDS = CollectionHelper.newUnmodifiableList (new ClassPathResource ("/schemas/peppol-directory-business-card-20160112.xsd"));
+  public static final List <? extends IReadableResource> BUSINESS_INFORMATION_XSDS = new CommonsArrayList <> (new ClassPathResource ("/schemas/peppol-directory-business-card-20160112.xsd")).getAsUnmodifiable ();
 
   /**
    * Constructor
    */
   public PDBusinessCardMarshaller ()
   {
-    super (PDBusinessCardType.class, BUSINESS_INFORMATION_XSDS);
-  }
-
-  @Override
-  @Nonnull
-  protected final JAXBElement <PDBusinessCardType> wrapObject (final PDBusinessCardType aCodeListDocument)
-  {
-    return new ObjectFactory ().createBusinessCard (aCodeListDocument);
+    super (PDBusinessCardType.class, BUSINESS_INFORMATION_XSDS, o -> new ObjectFactory ().createBusinessCard (o));
   }
 }

@@ -16,8 +16,7 @@
  */
 package com.helger.pd.indexer.storage;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDate;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -26,18 +25,18 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexableField;
-import org.joda.time.LocalDate;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.annotation.ReturnsMutableCopy;
-import com.helger.commons.collection.CollectionHelper;
+import com.helger.commons.collection.ext.CommonsArrayList;
+import com.helger.commons.collection.ext.ICommonsList;
 import com.helger.commons.string.StringHelper;
 import com.helger.commons.string.ToStringGenerator;
 import com.helger.datetime.PDTFactory;
+import com.helger.datetime.util.PDTWebDateHelper;
 import com.helger.peppol.identifier.doctype.IPeppolDocumentTypeIdentifier;
 import com.helger.peppol.identifier.doctype.SimpleDocumentTypeIdentifier;
-import com.helger.web.datetime.PDTWebDateHelper;
 
 /**
  * This class represents a document stored in the Lucene index but with a nicer
@@ -51,13 +50,13 @@ import com.helger.web.datetime.PDTWebDateHelper;
 public class PDStoredDocument
 {
   private String m_sParticipantID;
-  private final List <SimpleDocumentTypeIdentifier> m_aDocumentTypeIDs = new ArrayList <> ();
+  private final ICommonsList <SimpleDocumentTypeIdentifier> m_aDocumentTypeIDs = new CommonsArrayList <> ();
   private String m_sName;
   private String m_sCountryCode;
   private String m_sGeoInfo;
-  private final List <PDStoredIdentifier> m_aIdentifiers = new ArrayList <> ();
-  private final List <String> m_aWebsiteURIs = new ArrayList <> ();
-  private final List <PDStoredContact> m_aContacts = new ArrayList <> ();
+  private final ICommonsList <PDStoredIdentifier> m_aIdentifiers = new CommonsArrayList <> ();
+  private final ICommonsList <String> m_aWebsiteURIs = new CommonsArrayList <> ();
+  private final ICommonsList <PDStoredContact> m_aContacts = new CommonsArrayList <> ();
   private String m_sAdditionalInformation;
   private LocalDate m_aRegistrationDate;
   private PDDocumentMetaData m_aMetaData;
@@ -87,9 +86,9 @@ public class PDStoredDocument
 
   @Nonnull
   @ReturnsMutableCopy
-  public List <IPeppolDocumentTypeIdentifier> getAllDocumentTypeIDs ()
+  public ICommonsList <? extends IPeppolDocumentTypeIdentifier> getAllDocumentTypeIDs ()
   {
-    return CollectionHelper.newList (m_aDocumentTypeIDs);
+    return m_aDocumentTypeIDs.getClone ();
   }
 
   @Nonnegative
@@ -101,7 +100,7 @@ public class PDStoredDocument
   @Nullable
   public IPeppolDocumentTypeIdentifier getDocumentTypeIDAtIndex (@Nonnegative final int nIndex)
   {
-    return CollectionHelper.getSafe (m_aDocumentTypeIDs, nIndex);
+    return m_aDocumentTypeIDs.getAtIndex (nIndex);
   }
 
   public void setName (@Nullable final String sName)
@@ -160,9 +159,9 @@ public class PDStoredDocument
 
   @Nonnull
   @ReturnsMutableCopy
-  public List <PDStoredIdentifier> getAllIdentifiers ()
+  public ICommonsList <PDStoredIdentifier> getAllIdentifiers ()
   {
-    return CollectionHelper.newList (m_aIdentifiers);
+    return m_aIdentifiers.getClone ();
   }
 
   @Nonnegative
@@ -174,12 +173,12 @@ public class PDStoredDocument
   @Nullable
   public PDStoredIdentifier getIdentifierAtIndex (@Nonnegative final int nIndex)
   {
-    return CollectionHelper.getSafe (m_aIdentifiers, nIndex);
+    return m_aIdentifiers.getAtIndex (nIndex);
   }
 
   public boolean hasAnyIdentifier ()
   {
-    return CollectionHelper.isNotEmpty (m_aIdentifiers);
+    return m_aIdentifiers.isNotEmpty ();
   }
 
   public void addWebsiteURI (@Nonnull @Nonempty final String sWebsiteURI)
@@ -190,9 +189,9 @@ public class PDStoredDocument
 
   @Nonnull
   @ReturnsMutableCopy
-  public List <String> getAllWebsiteURIs ()
+  public ICommonsList <String> getAllWebsiteURIs ()
   {
-    return CollectionHelper.newList (m_aWebsiteURIs);
+    return m_aWebsiteURIs.getClone ();
   }
 
   @Nonnegative
@@ -204,12 +203,12 @@ public class PDStoredDocument
   @Nullable
   public String getWebsiteURIAtIndex (@Nonnegative final int nIndex)
   {
-    return CollectionHelper.getSafe (m_aWebsiteURIs, nIndex);
+    return m_aWebsiteURIs.getAtIndex (nIndex);
   }
 
   public boolean hasAnyWebsiteURIs ()
   {
-    return CollectionHelper.isNotEmpty (m_aWebsiteURIs);
+    return m_aWebsiteURIs.isNotEmpty ();
   }
 
   public void addContact (@Nonnull final PDStoredContact aContact)
@@ -220,9 +219,9 @@ public class PDStoredDocument
 
   @Nonnull
   @ReturnsMutableCopy
-  public List <PDStoredContact> getAllContacts ()
+  public ICommonsList <PDStoredContact> getAllContacts ()
   {
-    return CollectionHelper.newList (m_aContacts);
+    return m_aContacts.getClone ();
   }
 
   @Nonnegative
@@ -234,12 +233,12 @@ public class PDStoredDocument
   @Nullable
   public PDStoredContact getContactAtIndex (@Nonnegative final int nIndex)
   {
-    return CollectionHelper.getSafe (m_aContacts, nIndex);
+    return m_aContacts.getAtIndex (nIndex);
   }
 
   public boolean hasAnyContact ()
   {
-    return CollectionHelper.isNotEmpty (m_aContacts);
+    return m_aContacts.isNotEmpty ();
   }
 
   public void setAdditionalInformation (@Nullable final String sAdditionalInformation)
@@ -367,9 +366,8 @@ public class PDStoredDocument
 
     {
       final IndexableField aFieldMetadata = aDoc.getField (CPDStorage.FIELD_METADATA_CREATIONDT);
-      final PDDocumentMetaData aMetaData = new PDDocumentMetaData (PDTFactory.createDateTimeFromMillis (aFieldMetadata.numericValue ()
-                                                                                                                      .longValue ())
-                                                                             .toLocalDateTime (),
+      final PDDocumentMetaData aMetaData = new PDDocumentMetaData (PDTFactory.createLocalDateTime (aFieldMetadata.numericValue ()
+                                                                                                                 .longValue ()),
                                                                    aDoc.get (CPDStorage.FIELD_METADATA_OWNERID),
                                                                    aDoc.get (CPDStorage.FIELD_METADATA_REQUESTING_HOST));
       ret.setMetaData (aMetaData);

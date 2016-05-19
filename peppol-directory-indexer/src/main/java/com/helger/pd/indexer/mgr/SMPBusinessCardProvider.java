@@ -67,8 +67,8 @@ public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
   @Nullable
   public HttpHost getHttpProxy ()
   {
-    final String sProxyHost = PDSettings.getSettingsObject ().getStringValue ("http.proxyHost");
-    final int nProxyPort = PDSettings.getSettingsObject ().getIntValue ("http.proxyPort", 0);
+    final String sProxyHost = PDSettings.getSettingsObject ().getAsString ("http.proxyHost");
+    final int nProxyPort = PDSettings.getSettingsObject ().getAsInt ("http.proxyPort", 0);
     if (sProxyHost != null && nProxyPort > 0)
       return new HttpHost (sProxyHost, nProxyPort);
 
@@ -126,7 +126,7 @@ public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
     }
 
     // Query all document types
-    final List <IDocumentTypeIdentifier> aDocumentTypeIDs = new ArrayList<> ();
+    final List <IDocumentTypeIdentifier> aDocumentTypeIDs = new ArrayList <> ();
     for (final ServiceMetadataReferenceType aRef : aServiceGroup.getServiceMetadataReferenceCollection ()
                                                                 .getServiceMetadataReference ())
     {

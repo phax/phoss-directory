@@ -34,7 +34,7 @@ public class HCExtImg extends AbstractHCImg <HCExtImg>
     // Remove the session ID (if any)
     final String sPureSrc = new SimpleURL (RequestHelper.getWithoutSessionID (aSrc.getPath ()),
                                            aSrc.getAllParams (),
-                                           aSrc.getAnchor ()).getAsString ();
+                                           aSrc.getAnchor ()).getAsStringWithEncodedParameters ();
     setExtent (ImageDataManager.getInstance ().getImageSize (WebFileIO.getServletContextIO ().getResource (sPureSrc)));
   }
 }

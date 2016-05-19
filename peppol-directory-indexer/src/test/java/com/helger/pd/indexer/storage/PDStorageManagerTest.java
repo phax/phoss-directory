@@ -21,11 +21,11 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
+import java.time.Month;
 import java.util.List;
 
 import javax.annotation.Nonnull;
 
-import org.joda.time.DateTimeConstants;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -73,7 +73,7 @@ public final class PDStorageManagerTest
     {
       final PDBusinessEntityType aEntity = new PDBusinessEntityType ();
       aEntity.setCountryCode ("AT");
-      aEntity.setRegistrationDate (PDTFactory.createLocalDate (2015, DateTimeConstants.JULY, 6));
+      aEntity.setRegistrationDate (PDTFactory.createLocalDate (2015, Month.JULY, 6));
       aEntity.setName ("Philip's mock PEPPOL receiver");
       aEntity.setGeographicalInformation ("Vienna");
 
@@ -135,7 +135,7 @@ public final class PDStorageManagerTest
         assertEquals (aParticipantID.getURIEncoded (), aDoc1.getParticipantID ());
         assertEquals ("junittest", aDoc1.getMetaData ().getOwnerID ());
         assertEquals ("AT", aDoc1.getCountryCode ());
-        assertEquals (PDTFactory.createLocalDate (2015, DateTimeConstants.JULY, 6), aDoc1.getRegistrationDate ());
+        assertEquals (PDTFactory.createLocalDate (2015, Month.JULY, 6), aDoc1.getRegistrationDate ());
         assertNotNull (aDoc1.getName ());
         assertEquals ("Vienna", aDoc1.getGeoInfo ());
 

@@ -19,6 +19,7 @@ package com.helger.pd.indexer.mgr;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -26,7 +27,6 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 
-import org.joda.time.LocalDateTime;
 import org.quartz.SimpleScheduleBuilder;
 import org.quartz.TriggerKey;
 import org.slf4j.Logger;

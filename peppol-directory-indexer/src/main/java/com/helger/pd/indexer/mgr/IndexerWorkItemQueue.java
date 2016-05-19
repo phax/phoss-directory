@@ -28,10 +28,10 @@ import javax.annotation.Nonnull;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.ReturnsMutableCopy;
-import com.helger.commons.callback.IThrowingRunnableWithParameter;
 import com.helger.commons.concurrent.ExtendedDefaultThreadFactory;
 import com.helger.commons.concurrent.ManagedExecutorService;
 import com.helger.commons.concurrent.collector.ConcurrentCollectorSingle;
+import com.helger.commons.concurrent.collector.IConcurrentPerformer;
 import com.helger.pd.indexer.domain.IndexerWorkItem;
 
 /**
@@ -52,9 +52,9 @@ final class IndexerWorkItemQueue
                                                                               new SynchronousQueue <Runnable> (),
                                                                               m_aThreadFactory);
 
-  public IndexerWorkItemQueue (@Nonnull final IThrowingRunnableWithParameter <IndexerWorkItem, Exception> aPerformer)
+  public IndexerWorkItemQueue (@Nonnull final IConcurrentPerformer <IndexerWorkItem> aPerformer)
   {
-    m_aImmediateCollector = new ConcurrentCollectorSingle<> (new LinkedBlockingQueue<> ());
+    m_aImmediateCollector = new ConcurrentCollectorSingle <> (new LinkedBlockingQueue <> ());
     m_aImmediateCollector.setPerformer (aPerformer);
 
     // Start the collector

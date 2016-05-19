@@ -20,8 +20,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.function.Consumer;
 
 import javax.annotation.Nonnull;
@@ -51,10 +49,15 @@ import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.ReturnsMutableCopy;
 import com.helger.commons.callback.IThrowingCallable;
 import com.helger.commons.collection.CollectionHelper;
+import com.helger.commons.collection.ext.CommonsArrayList;
+import com.helger.commons.collection.ext.CommonsTreeSet;
+import com.helger.commons.collection.ext.ICommonsList;
+import com.helger.commons.collection.ext.ICommonsSortedSet;
 import com.helger.commons.collection.multimap.IMultiMapListBased;
 import com.helger.commons.collection.multimap.MultiLinkedHashMapArrayListBased;
 import com.helger.commons.state.ESuccess;
 import com.helger.commons.string.StringHelper;
+import com.helger.datetime.util.PDTWebDateHelper;
 import com.helger.pd.businesscard.PDBusinessCardType;
 import com.helger.pd.businesscard.PDBusinessEntityType;
 import com.helger.pd.businesscard.PDContactType;
@@ -66,7 +69,6 @@ import com.helger.peppol.identifier.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.IdentifierHelper;
 import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
 import com.helger.photon.basic.audit.AuditHelper;
-import com.helger.web.datetime.PDTWebDateHelper;
 
 /**
  * The global storage manager that wraps the used Lucene index.
@@ -135,19 +137,21 @@ public final class PDStorageManager implements Closeable
     ValueEnforcer.notNull (aMetaData, "MetaData");
 
     return m_aLucene.runAtomic ( () -> {
-      final List <Document> aDocuments = new ArrayList <> ();
+      final ICommonsList <Document> aDocuments = new CommonsArrayList <> ();
 
       // Get all documents to be marked as deleted
       final IndexSearcher aSearcher = m_aLucene.getSearcher ();
       if (aSearcher != null)
+      {
+        // Main searching
         aSearcher.search (new TermQuery (_createParticipantTerm (aParticipantID)),
                           new AllDocumentsCollector (m_aLucene, aDoc -> aDocuments.add (aDoc)));
+      }
 
       if (!aDocuments.isEmpty ())
       {
         // Mark document as deleted
-        for (final Document aDocument : aDocuments)
-          aDocument.add (new IntPoint (CPDStorage.FIELD_DELETED, 1));
+        aDocuments.forEach (aDocument -> aDocument.add (new IntPoint (CPDStorage.FIELD_DELETED, 1)));
 
         // Update the documents
         m_aLucene.updateDocuments (_createParticipantTerm (aParticipantID), aDocuments);
@@ -367,9 +371,9 @@ public final class PDStorageManager implements Closeable
    */
   @Nonnull
   @ReturnsMutableCopy
-  public List <PDStoredDocument> getAllDocuments (@Nonnull final Query aQuery)
+  public ICommonsList <PDStoredDocument> getAllDocuments (@Nonnull final Query aQuery)
   {
-    final List <PDStoredDocument> aTargetList = new ArrayList <> ();
+    final ICommonsList <PDStoredDocument> aTargetList = new CommonsArrayList <> ();
     try
     {
       searchAllDocuments (aQuery, aDoc -> aTargetList.add (aDoc));
@@ -382,7 +386,7 @@ public final class PDStorageManager implements Closeable
   }
 
   @Nonnull
-  public List <PDStoredDocument> getAllDocumentsOfParticipant (@Nonnull final IPeppolParticipantIdentifier aParticipantID)
+  public ICommonsList <PDStoredDocument> getAllDocumentsOfParticipant (@Nonnull final IPeppolParticipantIdentifier aParticipantID)
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
     return getAllDocuments (new TermQuery (_createParticipantTerm (aParticipantID)));
@@ -396,7 +400,7 @@ public final class PDStorageManager implements Closeable
    * @return Non-<code>null</code> but maybe empty list of documents
    */
   @Nonnull
-  public List <PDStoredDocument> getAllDocumentsOfCountryCode (@Nonnull final String sCountryCode)
+  public ICommonsList <PDStoredDocument> getAllDocumentsOfCountryCode (@Nonnull final String sCountryCode)
   {
     ValueEnforcer.notNull (sCountryCode, "CountryCode");
     return getAllDocuments (new TermQuery (new Term (CPDStorage.FIELD_COUNTRY_CODE, sCountryCode)));
@@ -404,9 +408,9 @@ public final class PDStorageManager implements Closeable
 
   @Nonnull
   @ReturnsMutableCopy
-  public Set <String> getAllContainedParticipantIDs ()
+  public ICommonsSortedSet <String> getAllContainedParticipantIDs ()
   {
-    final Set <String> aTargetList = new TreeSet <> ();
+    final ICommonsSortedSet <String> aTargetList = new CommonsTreeSet <> ();
     final Query aQuery = PDQueryManager.andNotDeleted (new WildcardQuery (new Term (CPDStorage.FIELD_ALL_FIELDS, "*")));
     try
     {
