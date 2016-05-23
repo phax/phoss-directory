@@ -215,8 +215,12 @@ public final class PDCommonUI
     return aUL;
   }
 
-  private static String _getPeriodText (@Nonnull final Period aPeriod, @Nonnull final Duration aDuration)
+  private static String _getPeriodText (@Nonnull final LocalDateTime aNowLDT, @Nonnull final LocalDateTime aNotAfter)
   {
+    final Period aPeriod = Period.between (aNowLDT.toLocalDate (), aNotAfter.toLocalDate ());
+    final Duration aDuration = Duration.between (aNowLDT.toLocalTime (),
+                                                 aNotAfter.plus (1, ChronoUnit.DAYS).toLocalTime ());
+
     long nSecs = aDuration.getSeconds ();
     final long nHours = nSecs / CGlobal.SECONDS_PER_HOUR;
     nSecs -= nHours * CGlobal.SECONDS_PER_HOUR;
@@ -259,12 +263,7 @@ public final class PDCommonUI
                 .addCell (new HCTextNode (PDTToString.getAsString (aNotAfter, aDisplayLocale)),
                           aNowLDT.isAfter (aNotAfter) ? new HCStrong ().addChild (" !!!NO LONGER VALID!!!")
                                                       : new HCDiv ().addChild ("Valid for: " +
-                                                                               _getPeriodText (Period.between (aNowLDT.toLocalDate (),
-                                                                                                               aNotAfter.toLocalDate ()),
-                                                                                               Duration.between (aNowLDT.toLocalTime (),
-                                                                                                                 aNotAfter.toLocalTime ()
-                                                                                                                          .plus (1,
-                                                                                                                                 ChronoUnit.DAYS)))));
+                                                                               _getPeriodText (aNowLDT, aNotAfter)));
 
     if (aPublicKey instanceof RSAPublicKey)
     {
