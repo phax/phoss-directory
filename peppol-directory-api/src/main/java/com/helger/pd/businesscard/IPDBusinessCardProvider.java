@@ -22,18 +22,18 @@ import javax.annotation.Nullable;
 import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
 
 /**
- * Abstract interface to retrieve the {@link PDExtendedBusinessCard}
- * from a provided PEPPOL participant ID. By default the SMP must be queried and
- * the <code>Extension</code> element queried. Nevertheless for testing purposes
- * it may be possible to provide mock data.
+ * Abstract interface to retrieve the {@link PDExtendedBusinessCard} from a
+ * provided PEPPOL participant ID. By default the SMP must be queried and the
+ * <code>Extension</code> element queried. Nevertheless for testing purposes it
+ * may be possible to provide mock data.
  *
  * @author Philip Helger
  */
+@FunctionalInterface
 public interface IPDBusinessCardProvider
 {
   /**
-   * Get the {@link PDExtendedBusinessCard} for the given participant
-   * ID.
+   * Get the {@link PDExtendedBusinessCard} for the given participant ID.
    *
    * @param aParticipantID
    *        PEPPOL participant ID. May not be <code>null</code>.
