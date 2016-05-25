@@ -16,9 +16,6 @@
  */
 package com.helger.pd.indexer.mgr;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -29,6 +26,8 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.commons.annotation.VisibleForTesting;
 import com.helger.commons.charset.CCharset;
+import com.helger.commons.collection.ext.CommonsArrayList;
+import com.helger.commons.collection.ext.ICommonsList;
 import com.helger.commons.url.SimpleURL;
 import com.helger.commons.url.URLHelper;
 import com.helger.pd.businesscard.IPDBusinessCardProvider;
@@ -126,42 +125,43 @@ public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
     }
 
     // Query all document types
-    final List <IDocumentTypeIdentifier> aDocumentTypeIDs = new ArrayList <> ();
-    for (final ServiceMetadataReferenceType aRef : aServiceGroup.getServiceMetadataReferenceCollection ()
-                                                                .getServiceMetadataReference ())
-    {
-      // Extract the path in case there are parameters or anchors attached
-      final String sHref = new SimpleURL (aRef.getHref ()).getPath ();
-      final int nIndex = sHref.indexOf (URL_PART_SERVICES);
-      if (nIndex < 0)
+    final ICommonsList <IDocumentTypeIdentifier> aDocumentTypeIDs = new CommonsArrayList <> ();
+    if (aServiceGroup != null)
+      for (final ServiceMetadataReferenceType aRef : aServiceGroup.getServiceMetadataReferenceCollection ()
+                                                                  .getServiceMetadataReference ())
       {
-        s_aLogger.error ("Invalid href when querying service group '" +
-                         aParticipantID.getURIEncoded () +
-                         "': '" +
-                         sHref +
-                         "'");
-      }
-      else
-      {
-        // URL decode because of encoded '#' and ':' characters
-        final String sDocumentTypeID = URLHelper.urlDecode (sHref.substring (nIndex + URL_PART_SERVICES.length ()),
-                                                            CCharset.CHARSET_UTF_8_OBJ);
-        final SimpleDocumentTypeIdentifier aDocTypeID = IdentifierHelper.createDocumentTypeIdentifierFromURIPartOrNull (sDocumentTypeID);
-        if (aDocTypeID == null)
+        // Extract the path in case there are parameters or anchors attached
+        final String sHref = new SimpleURL (aRef.getHref ()).getPath ();
+        final int nIndex = sHref.indexOf (URL_PART_SERVICES);
+        if (nIndex < 0)
         {
-          s_aLogger.error ("Invalid document type when querying service group '" +
+          s_aLogger.error ("Invalid href when querying service group '" +
                            aParticipantID.getURIEncoded () +
                            "': '" +
-                           sDocumentTypeID +
+                           sHref +
                            "'");
         }
         else
         {
-          // Success
-          aDocumentTypeIDs.add (aDocTypeID);
+          // URL decode because of encoded '#' and ':' characters
+          final String sDocumentTypeID = URLHelper.urlDecode (sHref.substring (nIndex + URL_PART_SERVICES.length ()),
+                                                              CCharset.CHARSET_UTF_8_OBJ);
+          final SimpleDocumentTypeIdentifier aDocTypeID = IdentifierHelper.createDocumentTypeIdentifierFromURIPartOrNull (sDocumentTypeID);
+          if (aDocTypeID == null)
+          {
+            s_aLogger.error ("Invalid document type when querying service group '" +
+                             aParticipantID.getURIEncoded () +
+                             "': '" +
+                             sDocumentTypeID +
+                             "'");
+          }
+          else
+          {
+            // Success
+            aDocumentTypeIDs.add (aDocTypeID);
+          }
         }
       }
-    }
 
     return new PDExtendedBusinessCard (aBusinessCard, aDocumentTypeIDs);
   }
