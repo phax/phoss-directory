@@ -205,4 +205,15 @@ public final class PDSettings extends AbstractGlobalSingleton
     final String sID = s_aSettings.getAsString ("sml.id");
     return ESML.getFromIDOrDefault (sID, ESML.DIGIT_PRODUCTION);
   }
+
+  @Nullable
+  public static String getProxyHost ()
+  {
+    return s_aSettings.getAsString ("http.proxyHost");
+  }
+
+  public static int getProxyPort ()
+  {
+    return s_aSettings.getAsInt ("http.proxyPort", 0);
+  }
 }

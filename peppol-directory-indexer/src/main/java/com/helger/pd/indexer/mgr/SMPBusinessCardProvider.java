@@ -67,8 +67,8 @@ public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
   @Nullable
   public HttpHost getHttpProxy ()
   {
-    final String sProxyHost = PDSettings.getSettingsObject ().getAsString ("http.proxyHost");
-    final int nProxyPort = PDSettings.getSettingsObject ().getAsInt ("http.proxyPort", 0);
+    final String sProxyHost = PDSettings.getProxyHost ();
+    final int nProxyPort = PDSettings.getProxyPort ();
     if (sProxyHost != null && nProxyPort > 0)
       return new HttpHost (sProxyHost, nProxyPort);
 
