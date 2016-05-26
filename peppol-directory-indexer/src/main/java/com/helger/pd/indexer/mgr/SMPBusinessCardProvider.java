@@ -83,6 +83,12 @@ public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
     // Create SMP client
     aSMPClient.setProxy (getHttpProxy ());
 
+    s_aLogger.info ("Querying BusinessCard for '" +
+                    aParticipantID +
+                    "' from SMP '" +
+                    aSMPClient.getSMPHostURI () +
+                    "'");
+
     // First query the service group
     ServiceGroupType aServiceGroup;
     try
