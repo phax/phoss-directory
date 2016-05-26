@@ -25,6 +25,8 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexableField;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
@@ -49,14 +51,16 @@ import com.helger.peppol.identifier.doctype.SimpleDocumentTypeIdentifier;
 @NotThreadSafe
 public class PDStoredDocument
 {
+  private static final Logger s_aLogger = LoggerFactory.getLogger (PDStoredDocument.class);
+
   private String m_sParticipantID;
-  private final ICommonsList <SimpleDocumentTypeIdentifier> m_aDocumentTypeIDs = new CommonsArrayList <> ();
+  private final ICommonsList <SimpleDocumentTypeIdentifier> m_aDocumentTypeIDs = new CommonsArrayList<> ();
   private String m_sName;
   private String m_sCountryCode;
   private String m_sGeoInfo;
-  private final ICommonsList <PDStoredIdentifier> m_aIdentifiers = new CommonsArrayList <> ();
-  private final ICommonsList <String> m_aWebsiteURIs = new CommonsArrayList <> ();
-  private final ICommonsList <PDStoredContact> m_aContacts = new CommonsArrayList <> ();
+  private final ICommonsList <PDStoredIdentifier> m_aIdentifiers = new CommonsArrayList<> ();
+  private final ICommonsList <String> m_aWebsiteURIs = new CommonsArrayList<> ();
+  private final ICommonsList <PDStoredContact> m_aContacts = new CommonsArrayList<> ();
   private String m_sAdditionalInformation;
   private LocalDate m_aRegistrationDate;
   private PDDocumentMetaData m_aMetaData;
@@ -317,14 +321,18 @@ public class PDStoredDocument
    * Convert a stored Lucene {@link Document} to a {@link PDStoredDocument}.
    * This method resolves all Lucene fields to Java fields.
    *
+   * @param nDocID
+   *        Source document ID - informative only.
    * @param aDoc
    *        Source Lucene document. May not be <code>null</code>.
    * @return The new {@link PDStoredDocument}.
    */
   @Nonnull
   @ReturnsMutableCopy
-  public static PDStoredDocument create (@Nonnull final Document aDoc)
+  public static PDStoredDocument create (@Nonnegative final int nDocID, @Nonnull final Document aDoc)
   {
+    s_aLogger.info ("Creating PDStoredDocument from [" + nDocID + "] " + aDoc);
+
     final PDStoredDocument ret = new PDStoredDocument ();
 
     ret.setParticipantID (aDoc.get (CPDStorage.FIELD_PARTICIPANTID));

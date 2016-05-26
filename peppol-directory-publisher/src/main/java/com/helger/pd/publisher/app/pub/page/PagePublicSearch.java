@@ -201,7 +201,14 @@ public final class PagePublicSearch extends AbstractAppWebPage
             {
               final IHCLI <?> aLI = aDocTypeCtrl.addItem ();
               aLI.addChild (PDCommonUI.getDocumentTypeID (aDocTypeID));
-              aLI.addChild (PDCommonUI.getDocumentTypeIDDetails (aDocTypeID.getParts ()));
+              try
+              {
+                aLI.addChild (PDCommonUI.getDocumentTypeIDDetails (aDocTypeID.getParts ()));
+              }
+              catch (final IllegalArgumentException ex)
+              {
+                // Happens for non-PEPPOL identifiers
+              }
             }
             aTabBox.addTab ("doctypes",
                             new HCSpan ().addChild ("Document types ")
@@ -227,10 +234,13 @@ public final class PagePublicSearch extends AbstractAppWebPage
 
         // Build Lucene query
         final Query aLuceneQuery = PDQueryManager.convertQueryStringToLuceneQuery (PDMetaManager.getLucene (), sQuery);
+
+        s_aLogger.info ("Created query for '" + sQuery + "' is <" + aLuceneQuery + ">");
+
         // Search all documents
         final List <PDStoredDocument> aResultDocs = PDMetaManager.getStorageMgr ().getAllDocuments (aLuceneQuery);
 
-        s_aLogger.info ("  Result for " + aLuceneQuery + " are " + aResultDocs.size () + " documents");
+        s_aLogger.info ("  Result for <" + aLuceneQuery + "> are " + aResultDocs.size () + " documents");
 
         // Group by participant ID
         final IMultiMapListBased <String, PDStoredDocument> aGroupedDocs = PDStorageManager.getGroupedByParticipantID (aResultDocs);

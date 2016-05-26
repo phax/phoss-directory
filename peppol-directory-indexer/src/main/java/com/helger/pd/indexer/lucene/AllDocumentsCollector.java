@@ -17,7 +17,7 @@
 package com.helger.pd.indexer.lucene;
 
 import java.io.IOException;
-import java.util.function.Consumer;
+import java.util.function.ObjIntConsumer;
 
 import javax.annotation.Nonnull;
 
@@ -26,6 +26,7 @@ import org.apache.lucene.search.Collector;
 import org.apache.lucene.search.SimpleCollector;
 
 import com.helger.commons.ValueEnforcer;
+import com.helger.commons.string.ToStringGenerator;
 
 /**
  * A Lucene {@link Collector} that always collects all {@link Document} objects.
@@ -35,10 +36,19 @@ import com.helger.commons.ValueEnforcer;
 public class AllDocumentsCollector extends SimpleCollector
 {
   private final ILuceneDocumentProvider m_aDocProvider;
-  private final Consumer <Document> m_aConsumer;
+  private final ObjIntConsumer <Document> m_aConsumer;
 
+  /**
+   * Constructor
+   *
+   * @param aDocProvider
+   *        Basic document provider. May not be <code>null</code>.
+   * @param aConsumer
+   *        The consumer that will take the Lucene {@link Document} objects. May
+   *        not be <code>null</code>.
+   */
   public AllDocumentsCollector (@Nonnull final ILuceneDocumentProvider aDocProvider,
-                                @Nonnull final Consumer <Document> aConsumer)
+                                @Nonnull final ObjIntConsumer <Document> aConsumer)
   {
     m_aDocProvider = ValueEnforcer.notNull (aDocProvider, "DocProvider");
     m_aConsumer = ValueEnforcer.notNull (aConsumer, "Consumer");
@@ -52,7 +62,19 @@ public class AllDocumentsCollector extends SimpleCollector
   @Override
   public void collect (final int nDocID) throws IOException
   {
+    // Resolve document
     final Document aDoc = m_aDocProvider.getDocument (nDocID);
-    m_aConsumer.accept (aDoc);
+    if (aDoc == null)
+      throw new IllegalStateException ("Failed to resolve Lucene Document with ID " + nDocID);
+    // Pass to Consumer
+    m_aConsumer.accept (aDoc, nDocID);
+  }
+
+  @Override
+  public String toString ()
+  {
+    return new ToStringGenerator (this).append ("DocProvider", m_aDocProvider)
+                                       .append ("Consumer", m_aConsumer)
+                                       .toString ();
   }
 }

@@ -27,6 +27,7 @@ import org.apache.lucene.document.Document;
  *
  * @author Philip Helger
  */
+@FunctionalInterface
 public interface ILuceneDocumentProvider
 {
   /**

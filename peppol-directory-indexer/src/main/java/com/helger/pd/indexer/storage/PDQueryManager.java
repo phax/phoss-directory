@@ -112,8 +112,11 @@ public final class PDQueryManager
     }
   }
 
+  @Nonnull
   private static Query _createSimpleAllFieldsQuery (@Nonnull final String sText)
   {
+    if (false)
+      return new TermQuery (new Term (CPDStorage.FIELD_ALL_FIELDS, sText));
     return new WildcardQuery (new Term (CPDStorage.FIELD_ALL_FIELDS, "*" + sText + "*"));
   }
 
@@ -155,6 +158,9 @@ public final class PDQueryManager
         aBuilder.add (_createSimpleAllFieldsQuery (sPart), Occur.MUST);
       aQuery = aBuilder.build ();
     }
+
+    if (false)
+      return aQuery;
 
     // Alter the query so that only not-deleted documents are returned
     return andNotDeleted (aQuery);

@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.ObjIntConsumer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -137,7 +138,7 @@ public final class PDStorageManager implements Closeable
     ValueEnforcer.notNull (aMetaData, "MetaData");
 
     return m_aLucene.runAtomic ( () -> {
-      final ICommonsList <Document> aDocuments = new CommonsArrayList <> ();
+      final ICommonsList <Document> aDocuments = new CommonsArrayList<> ();
 
       // Get all documents to be marked as deleted
       final IndexSearcher aSearcher = m_aLucene.getSearcher ();
@@ -145,7 +146,7 @@ public final class PDStorageManager implements Closeable
       {
         // Main searching
         aSearcher.search (new TermQuery (_createParticipantTerm (aParticipantID)),
-                          new AllDocumentsCollector (m_aLucene, aDoc -> aDocuments.add (aDoc)));
+                          new AllDocumentsCollector (m_aLucene, (aDoc, nDocID) -> aDocuments.add (aDoc)));
       }
 
       if (!aDocuments.isEmpty ())
@@ -175,7 +176,7 @@ public final class PDStorageManager implements Closeable
     ValueEnforcer.notNull (aMetaData, "MetaData");
 
     return m_aLucene.runAtomic ( () -> {
-      final List <Document> aDocs = new ArrayList <> ();
+      final List <Document> aDocs = new ArrayList<> ();
 
       final PDBusinessCardType aBI = aExtBI.getBusinessCard ();
       for (final PDBusinessEntityType aBusinessEntity : aBI.getBusinessEntity ())
@@ -328,12 +329,11 @@ public final class PDStorageManager implements Closeable
         if (s_aLogger.isDebugEnabled ())
           s_aLogger.debug ("Searching Lucene: " + aQuery);
 
-        // Search all documents, convert them to StoredDocument and pass them to
-        // the provided consumer
+        // Search all documents, collect them
         aSearcher.search (aQuery, aCollector);
       }
       else
-        s_aLogger.warn ("Failed to obtain IndexSearcher");
+        s_aLogger.error ("Failed to obtain IndexSearcher");
     });
   }
 
@@ -356,8 +356,10 @@ public final class PDStorageManager implements Closeable
     ValueEnforcer.notNull (aQuery, "Query");
     ValueEnforcer.notNull (aConsumer, "Consumer");
 
-    searchAtomic (aQuery,
-                  new AllDocumentsCollector (m_aLucene, aDoc -> aConsumer.accept (PDStoredDocument.create (aDoc))));
+    final ObjIntConsumer <Document> aConverter = (aDoc,
+                                                  nDocID) -> aConsumer.accept (PDStoredDocument.create (nDocID, aDoc));
+    final Collector aCollector = new AllDocumentsCollector (m_aLucene, aConverter);
+    searchAtomic (aQuery, aCollector);
   }
 
   /**
@@ -373,7 +375,7 @@ public final class PDStorageManager implements Closeable
   @ReturnsMutableCopy
   public ICommonsList <PDStoredDocument> getAllDocuments (@Nonnull final Query aQuery)
   {
-    final ICommonsList <PDStoredDocument> aTargetList = new CommonsArrayList <> ();
+    final ICommonsList <PDStoredDocument> aTargetList = new CommonsArrayList<> ();
     try
     {
       searchAllDocuments (aQuery, aDoc -> aTargetList.add (aDoc));
@@ -410,19 +412,20 @@ public final class PDStorageManager implements Closeable
   @ReturnsMutableCopy
   public ICommonsSortedSet <String> getAllContainedParticipantIDs ()
   {
-    final ICommonsSortedSet <String> aTargetList = new CommonsTreeSet <> ();
+    final ICommonsSortedSet <String> aTargetSet = new CommonsTreeSet<> ();
     final Query aQuery = PDQueryManager.andNotDeleted (new WildcardQuery (new Term (CPDStorage.FIELD_ALL_FIELDS, "*")));
     try
     {
       searchAtomic (aQuery,
                     new AllDocumentsCollector (m_aLucene,
-                                               aDoc -> aTargetList.add (aDoc.get (CPDStorage.FIELD_PARTICIPANTID))));
+                                               (aDoc,
+                                                nDocID) -> aTargetSet.add (aDoc.get (CPDStorage.FIELD_PARTICIPANTID))));
     }
     catch (final IOException ex)
     {
       s_aLogger.error ("Error searching for documents with query " + aQuery, ex);
     }
-    return aTargetList;
+    return aTargetSet;
   }
 
   /**
@@ -437,7 +440,7 @@ public final class PDStorageManager implements Closeable
   @ReturnsMutableCopy
   public static IMultiMapListBased <String, PDStoredDocument> getGroupedByParticipantID (@Nonnull final List <PDStoredDocument> aDocs)
   {
-    final MultiLinkedHashMapArrayListBased <String, PDStoredDocument> ret = new MultiLinkedHashMapArrayListBased <> ();
+    final MultiLinkedHashMapArrayListBased <String, PDStoredDocument> ret = new MultiLinkedHashMapArrayListBased<> ();
     for (final PDStoredDocument aDoc : aDocs)
       ret.putSingle (aDoc.getParticipantID (), aDoc);
     return ret;
