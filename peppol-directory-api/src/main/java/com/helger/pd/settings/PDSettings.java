@@ -24,7 +24,6 @@ import com.helger.commons.annotation.UsedViaReflection;
 import com.helger.commons.debug.GlobalDebug;
 import com.helger.commons.io.resource.ClassPathResource;
 import com.helger.commons.scope.singleton.AbstractGlobalSingleton;
-import com.helger.peppol.sml.ESML;
 import com.helger.peppol.utils.KeyStoreHelper;
 import com.helger.settings.IMutableSettings;
 import com.helger.settings.ISettings;
@@ -193,17 +192,6 @@ public final class PDSettings extends AbstractGlobalSingleton
     if (ret <= 0)
       throw new IllegalStateException ("The reindex.retryminutes property must be > 0!");
     return ret;
-  }
-
-  /**
-   * @return The SML to be used. Never <code>null</code>. Defaults to
-   *         {@link ESML#DIGIT_PRODUCTION}.
-   */
-  @Nonnull
-  public static ESML getSMLToUse ()
-  {
-    final String sID = s_aSettings.getAsString ("sml.id");
-    return ESML.getFromIDOrDefault (sID, ESML.DIGIT_PRODUCTION);
   }
 
   @Nullable
