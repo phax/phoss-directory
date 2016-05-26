@@ -44,6 +44,16 @@ public final class SMPBusinessCardProviderTest
   }
 
   @Test
+  @Ignore ("Dont hammer server :)")
+  public void test9905LeckmaPeppol ()
+  {
+    final SMPBusinessCardProvider aBI = new SMPBusinessCardProvider ();
+    final PDExtendedBusinessCard aExtBI = aBI.getBusinessCard (SimpleParticipantIdentifier.createWithDefaultScheme ("9905:leckma-peppol"));
+    assertNotNull (aExtBI);
+    System.out.println (aExtBI);
+  }
+
+  @Test
   @Ignore ("Only for on demand testing :)")
   public void testFetchLocal ()
   {
