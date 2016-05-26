@@ -22,6 +22,7 @@ import java.util.function.ObjIntConsumer;
 import javax.annotation.Nonnull;
 
 import org.apache.lucene.document.Document;
+import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.search.Collector;
 import org.apache.lucene.search.SimpleCollector;
 
@@ -35,22 +36,23 @@ import com.helger.commons.string.ToStringGenerator;
  */
 public class AllDocumentsCollector extends SimpleCollector
 {
-  private final ILuceneDocumentProvider m_aDocProvider;
+  private final ILuceneDocumentProvider m_aDocumentProvider;
   private final ObjIntConsumer <Document> m_aConsumer;
+  private int m_nDocBase = 0;
 
   /**
    * Constructor
    *
-   * @param aDocProvider
-   *        Basic document provider. May not be <code>null</code>.
+   * @param aDocumentProvider
+   *        The overall Document provider. May not be <code>null</code>.
    * @param aConsumer
    *        The consumer that will take the Lucene {@link Document} objects. May
    *        not be <code>null</code>.
    */
-  public AllDocumentsCollector (@Nonnull final ILuceneDocumentProvider aDocProvider,
+  public AllDocumentsCollector (@Nonnull final ILuceneDocumentProvider aDocumentProvider,
                                 @Nonnull final ObjIntConsumer <Document> aConsumer)
   {
-    m_aDocProvider = ValueEnforcer.notNull (aDocProvider, "DocProvider");
+    m_aDocumentProvider = ValueEnforcer.notNull (aDocumentProvider, "DocumentProvider");
     m_aConsumer = ValueEnforcer.notNull (aConsumer, "Consumer");
   }
 
@@ -60,21 +62,26 @@ public class AllDocumentsCollector extends SimpleCollector
   }
 
   @Override
+  protected void doSetNextReader (@Nonnull final LeafReaderContext aCtx)
+  {
+    m_nDocBase = aCtx.docBase;
+  }
+
+  @Override
   public void collect (final int nDocID) throws IOException
   {
+    final int nAbsoluteDocID = m_nDocBase + nDocID;
     // Resolve document
-    final Document aDoc = m_aDocProvider.getDocument (nDocID);
+    final Document aDoc = m_aDocumentProvider.getDocument (nAbsoluteDocID);
     if (aDoc == null)
-      throw new IllegalStateException ("Failed to resolve Lucene Document with ID " + nDocID);
+      throw new IllegalStateException ("Failed to resolve Lucene Document with ID " + nAbsoluteDocID);
     // Pass to Consumer
-    m_aConsumer.accept (aDoc, nDocID);
+    m_aConsumer.accept (aDoc, nAbsoluteDocID);
   }
 
   @Override
   public String toString ()
   {
-    return new ToStringGenerator (this).append ("DocProvider", m_aDocProvider)
-                                       .append ("Consumer", m_aConsumer)
-                                       .toString ();
+    return new ToStringGenerator (this).append ("Consumer", m_aConsumer).toString ();
   }
 }

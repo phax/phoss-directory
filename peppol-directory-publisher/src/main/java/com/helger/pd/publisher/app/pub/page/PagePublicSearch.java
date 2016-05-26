@@ -235,10 +235,12 @@ public final class PagePublicSearch extends AbstractAppWebPage
         // Build Lucene query
         final Query aLuceneQuery = PDQueryManager.convertQueryStringToLuceneQuery (PDMetaManager.getLucene (), sQuery);
 
-        s_aLogger.info ("Created query for '" + sQuery + "' is <" + aLuceneQuery + ">");
+        if (s_aLogger.isDebugEnabled ())
+          s_aLogger.debug ("Created query for '" + sQuery + "' is <" + aLuceneQuery + ">");
 
         // Search all documents
-        final List <PDStoredDocument> aResultDocs = PDMetaManager.getStorageMgr ().getAllDocuments (aLuceneQuery);
+        final ICommonsList <PDStoredDocument> aResultDocs = PDMetaManager.getStorageMgr ()
+                                                                         .getAllDocuments (aLuceneQuery);
 
         s_aLogger.info ("  Result for <" + aLuceneQuery + "> are " + aResultDocs.size () + " documents");
 

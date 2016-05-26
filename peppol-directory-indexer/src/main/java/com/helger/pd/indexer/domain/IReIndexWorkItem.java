@@ -11,6 +11,12 @@ import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.type.ITypedObject;
 import com.helger.datetime.PDTFactory;
 
+/**
+ * This class holds a single item to be re-indexed. It is only invoked if
+ * regular indexing failed.
+ *
+ * @author Philip Helger
+ */
 public interface IReIndexWorkItem extends ITypedObject <String>, Serializable
 {
   /**

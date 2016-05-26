@@ -62,9 +62,12 @@ public final class PDQueryManager
    *         field.
    */
   @Nonnull
-  public static BooleanQuery andNotDeleted (@Nonnull final Query aQuery)
+  public static Query andNotDeleted (@Nonnull final Query aQuery)
   {
-    return new BooleanQuery.Builder ().add (aQuery, Occur.MUST)
+    if (false)
+      return aQuery;
+
+    return new BooleanQuery.Builder ().add (aQuery, Occur.FILTER)
                                       .add (new TermQuery (new Term (CPDStorage.FIELD_DELETED)), Occur.MUST_NOT)
                                       .build ();
   }
@@ -155,12 +158,9 @@ public final class PDQueryManager
       // All parts must be matched
       final BooleanQuery.Builder aBuilder = new BooleanQuery.Builder ();
       for (final String sPart : aParts)
-        aBuilder.add (_createSimpleAllFieldsQuery (sPart), Occur.MUST);
+        aBuilder.add (_createSimpleAllFieldsQuery (sPart), Occur.FILTER);
       aQuery = aBuilder.build ();
     }
-
-    if (false)
-      return aQuery;
 
     // Alter the query so that only not-deleted documents are returned
     return andNotDeleted (aQuery);

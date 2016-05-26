@@ -205,6 +205,9 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
   {
     _checkClosing ();
 
+    if (s_aLogger.isDebugEnabled ())
+      s_aLogger.debug ("getDocument(" + nDocID + ")");
+
     final IndexReader aReader = _getReader ();
     if (aReader == null)
       return null;
@@ -283,7 +286,17 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
   public void updateDocuments (@Nullable final Term aDelTerm,
                                @Nonnull final Iterable <? extends Iterable <? extends IndexableField>> aDocs) throws IOException
   {
-    _getWriter ().updateDocuments (aDelTerm, aDocs);
+    if (true)
+    {
+      // Delete and than add
+      _getWriter ().deleteDocuments (aDelTerm);
+      _getWriter ().updateDocuments (null, aDocs);
+    }
+    else
+    {
+      // Update directly
+      _getWriter ().updateDocuments (aDelTerm, aDocs);
+    }
     m_aWriterChanges.incrementAndGet ();
   }
 
@@ -291,16 +304,16 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
    * Deletes the document(s) containing any of the terms. All given deletes are
    * applied and flushed atomically at the same time.
    *
-   * @param terms
+   * @param aTerms
    *        array of terms to identify the documents to be deleted
    * @throws CorruptIndexException
    *         if the index is corrupt
    * @throws IOException
    *         if there is a low-level IO error
    */
-  public void deleteDocuments (final Term... terms) throws IOException
+  public void deleteDocuments (final Term... aTerms) throws IOException
   {
-    _getWriter ().deleteDocuments (terms);
+    _getWriter ().deleteDocuments (aTerms);
     m_aWriterChanges.incrementAndGet ();
   }
 

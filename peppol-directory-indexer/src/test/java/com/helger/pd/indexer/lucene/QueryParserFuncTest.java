@@ -13,7 +13,8 @@ public class QueryParserFuncTest
   {
     final QueryParser aQP = new QueryParser ("", PDLucene.createAnalyzer ());
     aQP.setDefaultOperator (Operator.AND);
-    final Query aQuery = aQP.parse ("(allfields:9905 AND allfields:leckma) NOT deleted");
-    System.out.println (aQuery.getClass () + " - " + aQuery);
+    aQP.setAllowLeadingWildcard (true);
+    final Query aQuery = aQP.parse ("(allfields:*9905* AND allfields:*leckma*) AND NOT deleted:(*)");
+    System.out.println (aQuery.getClass () + " -- " + aQuery);
   }
 }

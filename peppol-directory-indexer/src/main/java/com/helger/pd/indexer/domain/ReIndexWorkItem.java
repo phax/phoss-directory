@@ -32,8 +32,7 @@ import com.helger.datetime.PDTFactory;
 import com.helger.pd.settings.PDSettings;
 
 /**
- * This class holds a single item to be re-indexed. It is only invoked if
- * regular indexing failed.
+ * The default implementation of {@link IReIndexWorkItem}.
  *
  * @author Philip Helger
  */

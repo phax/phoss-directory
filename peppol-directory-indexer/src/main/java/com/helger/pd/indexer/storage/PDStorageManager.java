@@ -18,7 +18,6 @@ package com.helger.pd.indexer.storage;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.ObjIntConsumer;
@@ -39,6 +38,7 @@ import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Collector;
 import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
@@ -176,7 +176,7 @@ public final class PDStorageManager implements Closeable
     ValueEnforcer.notNull (aMetaData, "MetaData");
 
     return m_aLucene.runAtomic ( () -> {
-      final List <Document> aDocs = new ArrayList<> ();
+      final ICommonsList <Document> aDocs = new CommonsArrayList<> ();
 
       final PDBusinessCardType aBI = aExtBI.getBusinessCard ();
       for (final PDBusinessEntityType aBusinessEntity : aBI.getBusinessEntity ())
@@ -280,7 +280,7 @@ public final class PDStorageManager implements Closeable
         aDocs.add (aDoc);
       }
 
-      if (!aDocs.isEmpty ())
+      if (aDocs.isNotEmpty ())
       {
         // Add "group end" marker
         CollectionHelper.getLastElement (aDocs)
@@ -289,13 +289,7 @@ public final class PDStorageManager implements Closeable
 
       // Delete all existing documents of the participant ID
       // and add the new ones to the index
-      if (true)
-      {
-        m_aLucene.deleteDocuments (_createParticipantTerm (aParticipantID));
-        m_aLucene.updateDocuments (null, aDocs);
-      }
-      else
-        m_aLucene.updateDocuments (_createParticipantTerm (aParticipantID), aDocs);
+      m_aLucene.updateDocuments (_createParticipantTerm (aParticipantID), aDocs);
 
       s_aLogger.info ("Added " + aDocs.size () + " Lucene documents");
       AuditHelper.onAuditExecuteSuccess ("pd-indexer-create",
@@ -356,8 +350,7 @@ public final class PDStorageManager implements Closeable
     ValueEnforcer.notNull (aQuery, "Query");
     ValueEnforcer.notNull (aConsumer, "Consumer");
 
-    final ObjIntConsumer <Document> aConverter = (aDoc,
-                                                  nDocID) -> aConsumer.accept (PDStoredDocument.create (nDocID, aDoc));
+    final ObjIntConsumer <Document> aConverter = (aDoc, nDocID) -> aConsumer.accept (PDStoredDocument.create (aDoc));
     final Collector aCollector = new AllDocumentsCollector (m_aLucene, aConverter);
     searchAtomic (aQuery, aCollector);
   }
@@ -413,13 +406,15 @@ public final class PDStorageManager implements Closeable
   public ICommonsSortedSet <String> getAllContainedParticipantIDs ()
   {
     final ICommonsSortedSet <String> aTargetSet = new CommonsTreeSet<> ();
-    final Query aQuery = PDQueryManager.andNotDeleted (new WildcardQuery (new Term (CPDStorage.FIELD_ALL_FIELDS, "*")));
+    final Query aQuery = PDQueryManager.andNotDeleted (true ? new MatchAllDocsQuery ()
+                                                            : new WildcardQuery (new Term (CPDStorage.FIELD_ALL_FIELDS,
+                                                                                           "*")));
     try
     {
-      searchAtomic (aQuery,
-                    new AllDocumentsCollector (m_aLucene,
-                                               (aDoc,
-                                                nDocID) -> aTargetSet.add (aDoc.get (CPDStorage.FIELD_PARTICIPANTID))));
+      final ObjIntConsumer <Document> aConsumer = (aDoc,
+                                                   nDocID) -> aTargetSet.add (aDoc.get (CPDStorage.FIELD_PARTICIPANTID));
+      final Collector aCollector = new AllDocumentsCollector (m_aLucene, aConsumer);
+      searchAtomic (aQuery, aCollector);
     }
     catch (final IOException ex)
     {

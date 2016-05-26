@@ -320,18 +320,17 @@ public class PDStoredDocument
   /**
    * Convert a stored Lucene {@link Document} to a {@link PDStoredDocument}.
    * This method resolves all Lucene fields to Java fields.
-   *
-   * @param nDocID
-   *        Source document ID - informative only.
+   * 
    * @param aDoc
    *        Source Lucene document. May not be <code>null</code>.
    * @return The new {@link PDStoredDocument}.
    */
   @Nonnull
   @ReturnsMutableCopy
-  public static PDStoredDocument create (@Nonnegative final int nDocID, @Nonnull final Document aDoc)
+  public static PDStoredDocument create (@Nonnull final Document aDoc)
   {
-    s_aLogger.info ("Creating PDStoredDocument from [" + nDocID + "] " + aDoc);
+    if (s_aLogger.isDebugEnabled ())
+      s_aLogger.debug ("Creating PDStoredDocument from " + aDoc);
 
     final PDStoredDocument ret = new PDStoredDocument ();
 
