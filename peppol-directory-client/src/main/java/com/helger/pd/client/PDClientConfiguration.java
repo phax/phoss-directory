@@ -55,7 +55,7 @@ public final class PDClientConfiguration
 
   static
   {
-    final List <String> aFilePaths = new ArrayList<> ();
+    final List <String> aFilePaths = new ArrayList <String> ();
     // Check if the system property is present
     String sPropertyPath = SystemProperties.getPropertyValue ("peppol.pd.client.properties.path");
     if (StringHelper.hasText (sPropertyPath))
