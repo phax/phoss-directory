@@ -16,9 +16,7 @@
  */
 package com.helger.pd.businesscard;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -26,7 +24,8 @@ import javax.annotation.concurrent.Immutable;
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.ReturnsMutableCopy;
 import com.helger.commons.annotation.ReturnsMutableObject;
-import com.helger.commons.collection.CollectionHelper;
+import com.helger.commons.collection.ext.CommonsArrayList;
+import com.helger.commons.collection.ext.ICommonsList;
 import com.helger.commons.string.ToStringGenerator;
 import com.helger.peppol.identifier.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.doctype.SimpleDocumentTypeIdentifier;
@@ -43,10 +42,10 @@ import com.helger.peppol.identifier.doctype.SimpleDocumentTypeIdentifier;
 public class PDExtendedBusinessCard
 {
   private final PDBusinessCardType m_aBusinessCard;
-  private final List <IDocumentTypeIdentifier> m_aDocumentTypeIDs = new ArrayList <> ();
+  private final ICommonsList <IDocumentTypeIdentifier> m_aDocumentTypeIDs = new CommonsArrayList<> ();
 
   public PDExtendedBusinessCard (@Nonnull final PDBusinessCardType aBusinessCard,
-                                 @Nullable final List <IDocumentTypeIdentifier> aDocumentTypeIDs)
+                                 @Nullable final Iterable <? extends IDocumentTypeIdentifier> aDocumentTypeIDs)
   {
     m_aBusinessCard = ValueEnforcer.notNull (aBusinessCard, "BusinessInfo");
     if (aDocumentTypeIDs != null)
@@ -72,9 +71,18 @@ public class PDExtendedBusinessCard
    */
   @Nonnull
   @ReturnsMutableCopy
-  public List <IDocumentTypeIdentifier> getAllDocumentTypeIDs ()
+  public ICommonsList <IDocumentTypeIdentifier> getAllDocumentTypeIDs ()
   {
-    return CollectionHelper.newList (m_aDocumentTypeIDs);
+    return m_aDocumentTypeIDs.getClone ();
+  }
+
+  /**
+   * @return The number of contained document types. Always &ge; 0.
+   */
+  @Nonnegative
+  public int getDocumentTypeCount ()
+  {
+    return m_aDocumentTypeIDs.size ();
   }
 
   @Override

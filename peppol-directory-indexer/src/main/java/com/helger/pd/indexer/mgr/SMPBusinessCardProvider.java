@@ -109,7 +109,10 @@ public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
     }
     catch (final SMPClientNotFoundException ex)
     {
-      s_aLogger.warn ("No BusinessCard available for '" + aParticipantID.getURIEncoded () + "' - not in SML???");
+      s_aLogger.warn ("No BusinessCard available for '" +
+                      aParticipantID.getURIEncoded () +
+                      "' - not in SMK/SML? - " +
+                      ex.getMessage ());
       return null;
     }
     catch (final SMPClientException ex)
@@ -179,6 +182,12 @@ public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
       final SMPClientReadOnly aSMPClientSMK = new SMPClientReadOnly (aParticipantID, ESML.DIGIT_TEST);
       aBC = getBusinessCard (aParticipantID, aSMPClientSMK);
     }
+    if (aBC != null)
+      s_aLogger.info ("Found BusinessCard for '" +
+                      aParticipantID.getURIEncoded () +
+                      "' with " +
+                      aBC.getDocumentTypeCount () +
+                      " document types");
     return aBC;
   }
 }
