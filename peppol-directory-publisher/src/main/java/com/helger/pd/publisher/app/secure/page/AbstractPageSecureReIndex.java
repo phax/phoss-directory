@@ -30,8 +30,8 @@ import com.helger.html.hc.html.tabular.HCRow;
 import com.helger.html.hc.html.tabular.HCTable;
 import com.helger.html.hc.html.textlevel.HCA;
 import com.helger.html.hc.impl.HCNodeList;
+import com.helger.pd.indexer.domain.IReIndexWorkItem;
 import com.helger.pd.indexer.domain.IndexerWorkItem;
-import com.helger.pd.indexer.domain.ReIndexWorkItem;
 import com.helger.pd.indexer.mgr.IReIndexWorkItemList;
 import com.helger.pd.publisher.ui.AbstractAppWebPageForm;
 import com.helger.photon.bootstrap3.button.BootstrapButton;
@@ -46,7 +46,7 @@ import com.helger.photon.uicore.page.WebPageExecutionContext;
 import com.helger.photon.uictrls.datatables.column.DTCol;
 import com.helger.photon.uictrls.datatables.column.EDTColType;
 
-public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <ReIndexWorkItem>
+public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <IReIndexWorkItem>
 {
   public AbstractPageSecureReIndex (@Nonnull @Nonempty final String sID, @Nonnull final String sName)
   {
@@ -57,7 +57,7 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
   protected abstract IReIndexWorkItemList getReIndexWorkItemList ();
 
   @Override
-  protected ReIndexWorkItem getSelectedObject (@Nonnull final WebPageExecutionContext aWPEC, final String sID)
+  protected IReIndexWorkItem getSelectedObject (@Nonnull final WebPageExecutionContext aWPEC, final String sID)
   {
     return getReIndexWorkItemList ().getItemOfID (sID);
   }
@@ -65,7 +65,7 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
   @Override
   protected boolean isActionAllowed (@Nonnull final WebPageExecutionContext aWPEC,
                                      @Nonnull final EWebPageFormAction eFormAction,
-                                     @Nullable final ReIndexWorkItem aSelectedObject)
+                                     @Nullable final IReIndexWorkItem aSelectedObject)
   {
     if (eFormAction.isWriting ())
       return false;
@@ -74,7 +74,7 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
 
   @Override
   protected void showSelectedObject (@Nonnull final WebPageExecutionContext aWPEC,
-                                     @Nonnull final ReIndexWorkItem aSelectedObject)
+                                     @Nonnull final IReIndexWorkItem aSelectedObject)
   {
     final HCNodeList aNodeList = aWPEC.getNodeList ();
     final Locale aDisplayLocale = aWPEC.getDisplayLocale ();
@@ -108,7 +108,7 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
 
   @Override
   protected void validateAndSaveInputParameters (@Nonnull final WebPageExecutionContext aWPEC,
-                                                 @Nullable final ReIndexWorkItem aSelectedObject,
+                                                 @Nullable final IReIndexWorkItem aSelectedObject,
                                                  @Nonnull final FormErrors aFormErrors,
                                                  @Nonnull final EWebPageFormAction eFormAction)
   {
@@ -117,7 +117,7 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
 
   @Override
   protected void showInputForm (@Nonnull final WebPageExecutionContext aWPEC,
-                                @Nullable final ReIndexWorkItem aSelectedObject,
+                                @Nullable final IReIndexWorkItem aSelectedObject,
                                 @Nonnull final BootstrapForm aForm,
                                 @Nonnull final EWebPageFormAction eFormAction,
                                 @Nonnull final FormErrors aFormErrors)
@@ -148,7 +148,7 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
                                         new DTCol ("Last retry").setDisplayType (EDTColType.DATETIME,
                                                                                  aDisplayLocale)).setID (getID ());
 
-    for (final ReIndexWorkItem aItem : getReIndexWorkItemList ().getAllItems ())
+    for (final IReIndexWorkItem aItem : getReIndexWorkItemList ().getAllItems ())
     {
       final ISimpleURL aViewLink = createViewURL (aWPEC, aItem);
       final IndexerWorkItem aWorkItem = aItem.getWorkItem ();

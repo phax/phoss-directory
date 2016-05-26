@@ -16,10 +16,6 @@
  */
 package com.helger.pd.indexer.mgr;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.function.Predicate;
 
 import javax.annotation.Nonnull;
@@ -30,21 +26,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.commons.ValueEnforcer;
-import com.helger.commons.annotation.ELockType;
-import com.helger.commons.annotation.MustBeLocked;
 import com.helger.commons.annotation.ReturnsMutableCopy;
-import com.helger.commons.collection.CollectionHelper;
-import com.helger.commons.microdom.IMicroDocument;
-import com.helger.commons.microdom.IMicroElement;
-import com.helger.commons.microdom.MicroDocument;
-import com.helger.commons.microdom.convert.MicroTypeConverter;
-import com.helger.commons.state.EChange;
-import com.helger.commons.string.StringHelper;
-import com.helger.commons.string.ToStringGenerator;
+import com.helger.commons.collection.ext.CommonsArrayList;
+import com.helger.commons.collection.ext.ICommonsList;
+import com.helger.pd.indexer.domain.IReIndexWorkItem;
 import com.helger.pd.indexer.domain.ReIndexWorkItem;
-import com.helger.photon.basic.app.dao.impl.AbstractWALDAO;
+import com.helger.photon.basic.app.dao.impl.AbstractMapBasedWALDAO;
 import com.helger.photon.basic.app.dao.impl.DAOException;
-import com.helger.photon.basic.app.dao.impl.EDAOActionType;
 
 /**
  * This is the global re-index work queue. It is solely used in the
@@ -53,68 +41,15 @@ import com.helger.photon.basic.app.dao.impl.EDAOActionType;
  * @author Philip Helger
  */
 @ThreadSafe
-final class ReIndexWorkItemList extends AbstractWALDAO <ReIndexWorkItem> implements IReIndexWorkItemList
+final class ReIndexWorkItemList extends AbstractMapBasedWALDAO <IReIndexWorkItem, ReIndexWorkItem>
+                                implements IReIndexWorkItemList
 {
   private static final Logger s_aLogger = LoggerFactory.getLogger (ReIndexWorkItemList.class);
-  private static final String ELEMENT_ROOT = "root";
   private static final String ELEMENT_ITEM = "item";
-
-  private final Map <String, ReIndexWorkItem> m_aMap = new HashMap<> ();
 
   public ReIndexWorkItemList (@Nullable final String sFilename) throws DAOException
   {
-    super (ReIndexWorkItem.class, sFilename);
-    initialRead ();
-  }
-
-  @Override
-  protected void onRecoveryCreate (@Nonnull final ReIndexWorkItem aElement)
-  {
-    m_aMap.put (aElement.getID (), aElement);
-  }
-
-  @Override
-  protected void onRecoveryUpdate (@Nonnull final ReIndexWorkItem aElement)
-  {
-    m_aMap.put (aElement.getID (), aElement);
-  }
-
-  @Override
-  protected void onRecoveryDelete (@Nonnull final ReIndexWorkItem aElement)
-  {
-    m_aMap.remove (aElement.getID ());
-  }
-
-  @Override
-  @Nonnull
-  protected EChange onRead (@Nonnull final IMicroDocument aDoc)
-  {
-    for (final IMicroElement aItem : aDoc.getDocumentElement ().getAllChildElements (ELEMENT_ITEM))
-      _addItem (MicroTypeConverter.convertToNative (aItem, ReIndexWorkItem.class));
-    return EChange.UNCHANGED;
-  }
-
-  @Override
-  @Nonnull
-  @MustBeLocked (ELockType.WRITE)
-  protected IMicroDocument createWriteData ()
-  {
-    final IMicroDocument aDoc = new MicroDocument ();
-    final IMicroElement aRoot = aDoc.appendElement (ELEMENT_ROOT);
-    for (final ReIndexWorkItem aWorkItem : CollectionHelper.getSortedByKey (m_aMap).values ())
-      aRoot.appendChild (MicroTypeConverter.convertToMicroElement (aWorkItem, ELEMENT_ITEM));
-    return aDoc;
-  }
-
-  @MustBeLocked (ELockType.WRITE)
-  private void _addItem (@Nonnull final ReIndexWorkItem aItem)
-  {
-    ValueEnforcer.notNull (aItem, "Item");
-
-    final String sID = aItem.getID ();
-    if (m_aMap.containsKey (sID))
-      throw new IllegalStateException ("Work item with ID '" + sID + "' is already contained!");
-    m_aMap.put (sID, aItem);
+    super (ReIndexWorkItem.class, sFilename, ELEMENT_ITEM);
   }
 
   /**
@@ -127,72 +62,66 @@ final class ReIndexWorkItemList extends AbstractWALDAO <ReIndexWorkItem> impleme
    */
   public void addItem (@Nonnull final ReIndexWorkItem aItem) throws IllegalStateException
   {
+    ValueEnforcer.notNull (aItem, "Item");
     m_aRWLock.writeLocked ( () -> {
-      _addItem (aItem);
-      markAsChanged (aItem, EDAOActionType.CREATE);
+      internalCreateItem (aItem);
     });
     s_aLogger.info ("Added " + aItem.getLogText () + " to re-try list for retry #" + (aItem.getRetryCount () + 1));
   }
 
-  public void incRetryCountAndAddItem (@Nonnull final ReIndexWorkItem aItem)
+  public void incRetryCountAndAddItem (@Nonnull final IReIndexWorkItem aItem)
   {
-    m_aRWLock.writeLocked ( () -> aItem.incRetryCount ());
-    addItem (aItem);
+    ValueEnforcer.notNull (aItem, "Item");
+
+    final ReIndexWorkItem aRealItem = getOfID (aItem.getID ());
+    if (aRealItem != null)
+    {
+      m_aRWLock.writeLocked ( () -> aRealItem.incRetryCount ());
+      addItem (aRealItem);
+    }
   }
 
   @Nullable
-  public ReIndexWorkItem getAndRemoveEntry (@Nonnull final Predicate <ReIndexWorkItem> aPred)
+  public IReIndexWorkItem getAndRemoveEntry (@Nonnull final Predicate <? super IReIndexWorkItem> aPred)
   {
-    return m_aRWLock.writeLocked ( () -> {
-      // Operate on a copy for removal!
-      for (final ReIndexWorkItem aWorkItem : CollectionHelper.newList (m_aMap.values ()))
-        if (aPred.test (aWorkItem))
-        {
-          m_aMap.remove (aWorkItem.getID ());
-          markAsChanged (aWorkItem, EDAOActionType.DELETE);
-          return aWorkItem;
-        }
+    final IReIndexWorkItem aWorkItem = findFirst (aPred);
+    if (aWorkItem == null)
       return null;
+
+    m_aRWLock.writeLocked ( () -> {
+      internalDeleteItem (aWorkItem.getID ());
     });
+    return aWorkItem;
   }
 
   @Nonnull
   @ReturnsMutableCopy
-  public List <ReIndexWorkItem> getAndRemoveAllEntries (@Nonnull final Predicate <ReIndexWorkItem> aPred)
+  public ICommonsList <IReIndexWorkItem> getAndRemoveAllEntries (@Nonnull final Predicate <? super IReIndexWorkItem> aPred)
   {
-    return m_aRWLock.writeLocked ( () -> {
-      final List <ReIndexWorkItem> ret = new ArrayList<> ();
+    final ICommonsList <? extends IReIndexWorkItem> aCopyOfAll = getAll ();
+    final ICommonsList <IReIndexWorkItem> ret = new CommonsArrayList<> ();
+    m_aRWLock.writeLocked ( () -> {
       // Operate on a copy for removal!
-      for (final ReIndexWorkItem aWorkItem : CollectionHelper.newList (m_aMap.values ()))
+      for (final IReIndexWorkItem aWorkItem : aCopyOfAll)
         if (aPred.test (aWorkItem))
         {
           ret.add (aWorkItem);
-          m_aMap.remove (aWorkItem.getID ());
-          markAsChanged (aWorkItem, EDAOActionType.DELETE);
+          internalDeleteItem (aWorkItem.getID ());
         }
-      return ret;
     });
+    return ret;
   }
 
   @Nonnull
   @ReturnsMutableCopy
-  public List <ReIndexWorkItem> getAllItems ()
+  public ICommonsList <? extends IReIndexWorkItem> getAllItems ()
   {
-    return m_aRWLock.readLocked ( () -> CollectionHelper.newList (m_aMap.values ()));
+    return getAll ();
   }
 
   @Nullable
-  public ReIndexWorkItem getItemOfID (@Nullable final String sID)
+  public IReIndexWorkItem getItemOfID (@Nullable final String sID)
   {
-    if (StringHelper.hasNoText (sID))
-      return null;
-
-    return m_aRWLock.readLocked ( () -> m_aMap.get (sID));
-  }
-
-  @Override
-  public String toString ()
-  {
-    return ToStringGenerator.getDerived (super.toString ()).append ("Map", m_aMap).toString ();
+    return getOfID (sID);
   }
 }

@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
+import com.helger.commons.collection.ext.ICommonsList;
 import com.helger.commons.concurrent.SimpleReadWriteLock;
 import com.helger.commons.microdom.IMicroDocument;
 import com.helger.commons.microdom.IMicroElement;
@@ -48,6 +49,7 @@ import com.helger.datetime.PDTFactory;
 import com.helger.pd.businesscard.IPDBusinessCardProvider;
 import com.helger.pd.businesscard.PDExtendedBusinessCard;
 import com.helger.pd.indexer.domain.EIndexerWorkItemType;
+import com.helger.pd.indexer.domain.IReIndexWorkItem;
 import com.helger.pd.indexer.domain.IndexerWorkItem;
 import com.helger.pd.indexer.domain.ReIndexWorkItem;
 import com.helger.pd.indexer.job.ReIndexJob;
@@ -382,17 +384,17 @@ public final class PDIndexerManager implements Closeable
   public void expireOldEntries ()
   {
     // Expire old entries
-    final List <ReIndexWorkItem> aExpiredItems = m_aReIndexList.getAndRemoveAllEntries (aWorkItem -> aWorkItem.isExpired ());
-    if (!aExpiredItems.isEmpty ())
+    final ICommonsList <IReIndexWorkItem> aExpiredItems = m_aReIndexList.getAndRemoveAllEntries (IReIndexWorkItem::isExpired);
+    if (aExpiredItems.isNotEmpty ())
     {
       s_aLogger.info ("Expiring " + aExpiredItems.size () + " re-index work items");
 
       m_aRWLock.writeLocked ( () -> {
         // remove them from the overall list but move to dead item list
-        for (final ReIndexWorkItem aItem : aExpiredItems)
+        for (final IReIndexWorkItem aItem : aExpiredItems)
         {
           m_aUniqueItems.remove (aItem.getWorkItem ());
-          m_aDeadList.addItem (aItem);
+          m_aDeadList.addItem ((ReIndexWorkItem) aItem);
         }
       });
     }
@@ -405,12 +407,12 @@ public final class PDIndexerManager implements Closeable
   {
     // Get and remove all items to re-index "now"
     final LocalDateTime aNow = PDTFactory.getCurrentLocalDateTime ();
-    final List <ReIndexWorkItem> aReIndexNowItems = m_aReIndexList.getAndRemoveAllEntries (aWorkItem -> aWorkItem.isRetryPossible (aNow));
+    final List <IReIndexWorkItem> aReIndexNowItems = m_aReIndexList.getAndRemoveAllEntries (aWorkItem -> aWorkItem.isRetryPossible (aNow));
 
     if (s_aLogger.isDebugEnabled ())
       s_aLogger.debug ("Re-indexing " + aReIndexNowItems.size () + " work items");
 
-    for (final ReIndexWorkItem aReIndexItem : aReIndexNowItems)
+    for (final IReIndexWorkItem aReIndexItem : aReIndexNowItems)
     {
       if (s_aLogger.isDebugEnabled ())
         s_aLogger.debug ("Try to re-index " + aReIndexItem.getLogText ());

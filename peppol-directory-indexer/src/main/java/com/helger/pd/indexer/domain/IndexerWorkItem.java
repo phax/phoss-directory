@@ -16,7 +16,6 @@
  */
 package com.helger.pd.indexer.domain;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import javax.annotation.Nonnull;
@@ -26,9 +25,9 @@ import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.annotation.ReturnsMutableCopy;
 import com.helger.commons.hashcode.HashCodeGenerator;
-import com.helger.commons.id.IHasID;
 import com.helger.commons.id.factory.GlobalIDFactory;
 import com.helger.commons.string.ToStringGenerator;
+import com.helger.commons.type.ObjectType;
 import com.helger.datetime.PDTFactory;
 import com.helger.pd.indexer.storage.PDDocumentMetaData;
 import com.helger.peppol.identifier.IParticipantIdentifier;
@@ -41,8 +40,10 @@ import com.helger.peppol.identifier.participant.SimpleParticipantIdentifier;
  * @author Philip Helger
  */
 @Immutable
-public final class IndexerWorkItem implements Serializable, IHasID <String>
+public final class IndexerWorkItem implements IIndexWorkItem
 {
+  public static final ObjectType OT = new ObjectType ("IndexerWorkItem");
+
   private final String m_sID;
   private final LocalDateTime m_aCreationDT;
   private final IPeppolParticipantIdentifier m_aParticpantID;
@@ -84,6 +85,12 @@ public final class IndexerWorkItem implements Serializable, IHasID <String>
     m_eType = eType;
     m_sOwnerID = sOwnerID;
     m_sRequestingHost = sRequestingHost;
+  }
+
+  @Nonnull
+  public ObjectType getObjectType ()
+  {
+    return OT;
   }
 
   @Nonnull

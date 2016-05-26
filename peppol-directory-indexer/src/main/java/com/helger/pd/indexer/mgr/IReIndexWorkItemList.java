@@ -16,25 +16,25 @@
  */
 package com.helger.pd.indexer.mgr;
 
-import java.util.List;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.helger.commons.annotation.ReturnsMutableCopy;
+import com.helger.commons.collection.ext.ICommonsList;
+import com.helger.pd.indexer.domain.IReIndexWorkItem;
 import com.helger.pd.indexer.domain.ReIndexWorkItem;
 
 /**
  * Base interface for {@link ReIndexWorkItem} objects.
- * 
+ *
  * @author Philip Helger
  */
 public interface IReIndexWorkItemList
 {
   @Nonnull
   @ReturnsMutableCopy
-  List <ReIndexWorkItem> getAllItems ();
+  ICommonsList <? extends IReIndexWorkItem> getAllItems ();
 
   @Nullable
-  ReIndexWorkItem getItemOfID (@Nullable String sID);
+  IReIndexWorkItem getItemOfID (@Nullable String sID);
 }

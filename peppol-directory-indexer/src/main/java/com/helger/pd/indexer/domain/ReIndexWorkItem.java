@@ -16,7 +16,6 @@
  */
 package com.helger.pd.indexer.domain;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import javax.annotation.Nonnegative;
@@ -27,8 +26,8 @@ import javax.annotation.concurrent.NotThreadSafe;
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.hashcode.HashCodeGenerator;
-import com.helger.commons.id.IHasID;
 import com.helger.commons.string.ToStringGenerator;
+import com.helger.commons.type.ObjectType;
 import com.helger.datetime.PDTFactory;
 import com.helger.pd.settings.PDSettings;
 
@@ -39,8 +38,10 @@ import com.helger.pd.settings.PDSettings;
  * @author Philip Helger
  */
 @NotThreadSafe
-public class ReIndexWorkItem implements IHasID <String>, Serializable
+public class ReIndexWorkItem implements IReIndexWorkItem
 {
+  public static final ObjectType OT = new ObjectType ("ReIndexWorkItem");
+
   private final IndexerWorkItem m_aWorkItem;
   private final LocalDateTime m_aMaxRetryDT;
   private int m_nRetries;
@@ -72,30 +73,10 @@ public class ReIndexWorkItem implements IHasID <String>, Serializable
     m_aNextRetryDT = ValueEnforcer.notNull (aNextRetryDT, "NextRetryDT");
   }
 
-  /**
-   * @return <code>true</code> if this item is to be expired, because the
-   *         retry-time has been exceeded.
-   */
-  public boolean isExpired ()
+  @Nonnull
+  public ObjectType getObjectType ()
   {
-    return m_aMaxRetryDT.isBefore (PDTFactory.getCurrentLocalDateTime ());
-  }
-
-  /**
-   * @param aDT
-   *        The date time to check
-   * @return <code>true</code> if the time for the next retry is here.
-   */
-  public boolean isRetryPossible (@Nonnull final LocalDateTime aDT)
-  {
-    return m_aNextRetryDT.isBefore (aDT);
-  }
-
-  public void incRetryCount ()
-  {
-    m_nRetries++;
-    m_aPreviousRetryDT = PDTFactory.getCurrentLocalDateTime ();
-    m_aNextRetryDT = m_aPreviousRetryDT.plusMinutes (PDSettings.getReIndexRetryMinutes ());
+    return OT;
   }
 
   @Nonnull
@@ -105,57 +86,41 @@ public class ReIndexWorkItem implements IHasID <String>, Serializable
     return m_aWorkItem.getID ();
   }
 
-  /**
-   * @return The original work item. Never <code>null</code>.
-   */
   @Nonnull
   public IndexerWorkItem getWorkItem ()
   {
     return m_aWorkItem;
   }
 
-  /**
-   * @return The maximum date and time until which the retry of this item
-   *         occurs.
-   */
   @Nonnull
   public LocalDateTime getMaxRetryDT ()
   {
     return m_aMaxRetryDT;
   }
 
-  /**
-   * @return The number of retries performed so far. This counter does NOT
-   *         include the original try!
-   */
   @Nonnegative
   public int getRetryCount ()
   {
     return m_nRetries;
   }
 
-  /**
-   * @return The previous retry date time. If no retry happened so far, this
-   *         will be <code>null</code>.
-   */
   @Nullable
   public LocalDateTime getPreviousRetryDT ()
   {
     return m_aPreviousRetryDT;
   }
 
-  public boolean hasPreviousRetryDT ()
-  {
-    return m_aPreviousRetryDT != null;
-  }
-
-  /**
-   * @return The next retry date time. Never <code>null</code>.
-   */
   @Nonnull
   public LocalDateTime getNextRetryDT ()
   {
     return m_aNextRetryDT;
+  }
+
+  public void incRetryCount ()
+  {
+    m_nRetries++;
+    m_aPreviousRetryDT = PDTFactory.getCurrentLocalDateTime ();
+    m_aNextRetryDT = m_aPreviousRetryDT.plusMinutes (PDSettings.getReIndexRetryMinutes ());
   }
 
   @Nonnull

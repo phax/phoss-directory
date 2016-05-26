@@ -77,6 +77,12 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
     return WebFileIO.getDataIO ().getFile ("lucene-index");
   }
 
+  @Nonnull
+  public static Analyzer createAnalyzer ()
+  {
+    return new StandardAnalyzer ();
+  }
+
   public PDLucene () throws IOException
   {
     // Where to store the index files
@@ -84,7 +90,7 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
     m_aDir = FSDirectory.open (aPath);
 
     // Analyzer to use
-    m_aAnalyzer = new StandardAnalyzer ();
+    m_aAnalyzer = createAnalyzer ();
 
     // Create the index writer
     final IndexWriterConfig aWriterConfig = new IndexWriterConfig (m_aAnalyzer);
