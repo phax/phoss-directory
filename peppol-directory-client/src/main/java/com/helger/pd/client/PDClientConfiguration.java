@@ -23,7 +23,6 @@ import javax.annotation.concurrent.Immutable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.commons.collection.ArrayHelper;
 import com.helger.commons.collection.ext.CommonsArrayList;
 import com.helger.commons.collection.ext.ICommonsList;
 import com.helger.commons.string.StringHelper;
@@ -67,7 +66,7 @@ public final class PDClientConfiguration
     aFilePaths.add ("private-pd-client.properties");
     aFilePaths.add ("pd-client.properties");
 
-    s_aConfigFile = new ConfigFile (aFilePaths.toArray (ArrayHelper.EMPTY_STRING_ARRAY));
+    s_aConfigFile = new ConfigFile (aFilePaths);
     if (s_aConfigFile.isRead ())
       s_aLogger.info ("Read PEPPOL Directory client properties from " + s_aConfigFile.getReadResource ().getPath ());
     else
