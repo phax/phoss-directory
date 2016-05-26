@@ -14,13 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pd.client;
+package com.helger.pd.client.jdk6;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.net.Socket;
 import java.net.URI;
 import java.nio.charset.CodingErrorAction;
 import java.security.KeyStore;
+import java.util.Map;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -50,6 +52,8 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.ssl.PrivateKeyDetails;
+import org.apache.http.ssl.PrivateKeyStrategy;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
@@ -165,10 +169,15 @@ public class PDClient implements Closeable
       final SSLContext aSSLContext = SSLContexts.custom ()
                                                 .loadKeyMaterial (aKeyStore,
                                                                   PDClientConfiguration.getKeyStoreKeyPassword (),
-                                                                  (aAliases, aSocket) -> {
-                                                                    final String sAlias = PDClientConfiguration.getKeyStoreKeyAlias ();
-                                                                    return aAliases.containsKey (sAlias) ? sAlias
-                                                                                                         : null;
+                                                                  new PrivateKeyStrategy ()
+                                                                  {
+                                                                    public String chooseAlias (final Map <String, PrivateKeyDetails> aAliases,
+                                                                                               final Socket aSocket)
+                                                                    {
+                                                                      final String sAlias = PDClientConfiguration.getKeyStoreKeyAlias ();
+                                                                      return aAliases.containsKey (sAlias) ? sAlias
+                                                                                                           : null;
+                                                                    }
                                                                   })
                                                 .build ();
       // Allow TLSv1 protocol only
@@ -276,8 +285,10 @@ public class PDClient implements Closeable
 
     final HttpGet aGet = new HttpGet (m_sPDIndexerURL +
                                       IdentifierHelper.getIdentifierURIPercentEncoded (aParticipantID));
-    try (final CloseableHttpResponse aResponse = executeRequest (aGet))
+    CloseableHttpResponse aResponse = null;
+    try
     {
+      aResponse = executeRequest (aGet);
       final String sResponse = _getResponseString (aResponse);
 
       // Check result
@@ -298,6 +309,10 @@ public class PDClient implements Closeable
     {
       s_aLogger.error ("Error performing request " + aGet.getRequestLine (), ex);
     }
+    finally
+    {
+      StreamHelper.close (aResponse);
+    }
     return false;
   }
 
@@ -309,8 +324,10 @@ public class PDClient implements Closeable
 
     final HttpPut aPut = new HttpPut (m_sPDIndexerURL);
     aPut.setEntity (new StringEntity (sParticipantID, CCharset.CHARSET_UTF_8_OBJ));
-    try (final CloseableHttpResponse aResponse = executeRequest (aPut))
+    CloseableHttpResponse aResponse = null;
+    try
     {
+      aResponse = executeRequest (aPut);
       final String sResponse = _getResponseString (aResponse);
 
       // Check result
@@ -333,6 +350,10 @@ public class PDClient implements Closeable
     {
       s_aLogger.error ("Error performing request " + aPut.getRequestLine (), ex);
     }
+    finally
+    {
+      StreamHelper.close (aResponse);
+    }
     return ESuccess.FAILURE;
   }
 
@@ -343,8 +364,10 @@ public class PDClient implements Closeable
 
     final HttpDelete aDelete = new HttpDelete (m_sPDIndexerURL +
                                                IdentifierHelper.getIdentifierURIPercentEncoded (aParticipantID));
-    try (final CloseableHttpResponse aResponse = executeRequest (aDelete))
+    CloseableHttpResponse aResponse = null;
+    try
     {
+      aResponse = executeRequest (aDelete);
       final String sResponse = _getResponseString (aResponse);
 
       // Check result
@@ -367,6 +390,10 @@ public class PDClient implements Closeable
     catch (final IOException ex)
     {
       s_aLogger.error ("Error performing request " + aDelete.getRequestLine (), ex);
+    }
+    finally
+    {
+      StreamHelper.close (aResponse);
     }
     return ESuccess.FAILURE;
   }

@@ -14,7 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pd.client;
+package com.helger.pd.client.jdk6;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -24,8 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.commons.collection.ArrayHelper;
-import com.helger.commons.collection.ext.CommonsArrayList;
-import com.helger.commons.collection.ext.ICommonsList;
 import com.helger.commons.string.StringHelper;
 import com.helger.commons.system.SystemProperties;
 import com.helger.peppol.utils.ConfigFile;
@@ -54,7 +55,7 @@ public final class PDClientConfiguration
 
   static
   {
-    final ICommonsList <String> aFilePaths = new CommonsArrayList<> ();
+    final List <String> aFilePaths = new ArrayList <String> ();
     // Check if the system property is present
     String sPropertyPath = SystemProperties.getPropertyValue ("peppol.pd.client.properties.path");
     if (StringHelper.hasText (sPropertyPath))
@@ -67,7 +68,7 @@ public final class PDClientConfiguration
     aFilePaths.add ("private-pd-client.properties");
     aFilePaths.add ("pd-client.properties");
 
-    s_aConfigFile = new ConfigFile (aFilePaths.toArray (ArrayHelper.EMPTY_STRING_ARRAY));
+    s_aConfigFile = new ConfigFile (ArrayHelper.newArray (aFilePaths, String.class));
     if (s_aConfigFile.isRead ())
       s_aLogger.info ("Read PEPPOL Directory client properties from " + s_aConfigFile.getReadResource ().getPath ());
     else
