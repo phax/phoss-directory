@@ -19,11 +19,17 @@ package com.helger.pd.publisher.app.secure.page;
 import javax.annotation.Nonnull;
 
 import com.helger.commons.annotation.Nonempty;
+import com.helger.commons.url.ISimpleURL;
 import com.helger.html.hc.html.grouping.HCUL;
+import com.helger.html.hc.html.textlevel.HCA;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.mgr.PDMetaManager;
+import com.helger.pd.publisher.app.pub.CMenuPublic;
+import com.helger.pd.publisher.app.pub.page.PagePublicSearch;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.photon.bootstrap3.alert.BootstrapInfoBox;
+import com.helger.photon.core.app.CApplication;
+import com.helger.photon.uicore.css.CPageParam;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 
 public final class PageSecureAllParticipants extends AbstractAppWebPage
@@ -40,7 +46,13 @@ public final class PageSecureAllParticipants extends AbstractAppWebPage
 
     final HCUL aUL = new HCUL ();
     for (final String sParticipantID : PDMetaManager.getStorageMgr ().getAllContainedParticipantIDs ())
-      aUL.addItem (sParticipantID);
+    {
+      final ISimpleURL aShowDetails = aWPEC.getLinkToMenuItem (CApplication.APP_ID_PUBLIC, CMenuPublic.MENU_SEARCH)
+                                           .add (PagePublicSearch.FIELD_QUERY, sParticipantID)
+                                           .add (CPageParam.PARAM_ACTION, CPageParam.ACTION_VIEW)
+                                           .add (PagePublicSearch.FIELD_PARTICIPANT_ID, sParticipantID);
+      aUL.addItem (new HCA (aShowDetails).addChild (sParticipantID));
+    }
 
     if (aUL.hasChildren ())
       aNodeList.addChild (aUL);

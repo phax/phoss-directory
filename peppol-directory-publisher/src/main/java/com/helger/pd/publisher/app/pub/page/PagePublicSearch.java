@@ -77,9 +77,9 @@ import com.helger.photon.uicore.page.WebPageExecutionContext;
 
 public final class PagePublicSearch extends AbstractAppWebPage
 {
+  public static final String FIELD_QUERY = "q";
+  public static final String FIELD_PARTICIPANT_ID = "partid";
   private static final Logger s_aLogger = LoggerFactory.getLogger (PagePublicSearch.class);
-  private static final String FIELD_QUERY = "q";
-  private static final String FIELD_PARTICIPANT_ID = "partid";
 
   private static final ICSSClassProvider CSS_CLASS_BIG_QUERY_BOX = DefaultCSSClassProvider.create ("big-querybox");
   private static final ICSSClassProvider CSS_CLASS_BIG_QUERY_BUTTONS = DefaultCSSClassProvider.create ("big-querybuttons");
