@@ -24,8 +24,8 @@ import javax.annotation.Nullable;
 import com.helger.commons.microdom.IMicroElement;
 import com.helger.commons.microdom.MicroElement;
 import com.helger.commons.microdom.convert.IMicroTypeConverter;
-import com.helger.peppol.identifier.IParticipantIdentifier;
-import com.helger.peppol.identifier.IdentifierHelper;
+import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
+import com.helger.peppol.identifier.peppol.participant.PeppolParticipantIdentifier;
 
 public final class IndexerWorkItemMicroTypeConverter implements IMicroTypeConverter
 {
@@ -61,7 +61,7 @@ public final class IndexerWorkItemMicroTypeConverter implements IMicroTypeConver
                                                                                 LocalDateTime.class);
 
     final String sParticipantID = aElement.getAttributeValue (ATTR_PARTICIPANT_ID);
-    final IParticipantIdentifier aParticipantID = IdentifierHelper.createParticipantIdentifierFromURIPart (sParticipantID);
+    final IParticipantIdentifier aParticipantID = PeppolParticipantIdentifier.createFromURIPart (sParticipantID);
     if (aParticipantID == null)
       throw new IllegalStateException ("Failed to parse participant identifier '" + sParticipantID + "'");
 

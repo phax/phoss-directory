@@ -27,8 +27,8 @@ import com.helger.commons.annotation.ReturnsMutableObject;
 import com.helger.commons.collection.ext.CommonsArrayList;
 import com.helger.commons.collection.ext.ICommonsList;
 import com.helger.commons.string.ToStringGenerator;
-import com.helger.peppol.identifier.IDocumentTypeIdentifier;
-import com.helger.peppol.identifier.doctype.SimpleDocumentTypeIdentifier;
+import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
+import com.helger.peppol.identifier.generic.doctype.SimpleDocumentTypeIdentifier;
 
 /**
  * This class encapsulates all the data to be added to the Lucene index. It

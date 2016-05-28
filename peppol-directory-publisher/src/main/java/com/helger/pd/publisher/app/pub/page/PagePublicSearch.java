@@ -55,9 +55,9 @@ import com.helger.pd.indexer.storage.PDStoredDocument;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.pd.publisher.ui.HCExtImg;
 import com.helger.pd.publisher.ui.PDCommonUI;
-import com.helger.peppol.identifier.IDocumentTypeIdentifier;
-import com.helger.peppol.identifier.doctype.IPeppolDocumentTypeIdentifier;
-import com.helger.peppol.identifier.participant.SimpleParticipantIdentifier;
+import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
+import com.helger.peppol.identifier.peppol.doctype.IPeppolDocumentTypeIdentifier;
+import com.helger.peppol.identifier.peppol.participant.PeppolParticipantIdentifier;
 import com.helger.photon.bootstrap3.CBootstrapCSS;
 import com.helger.photon.bootstrap3.alert.BootstrapInfoBox;
 import com.helger.photon.bootstrap3.alert.BootstrapWarnBox;
@@ -144,7 +144,7 @@ public final class PagePublicSearch extends AbstractAppWebPage
 
     if (aWPEC.hasAction (CPageParam.ACTION_VIEW) && StringHelper.hasText (sParticipantID))
     {
-      final SimpleParticipantIdentifier aParticipantID = SimpleParticipantIdentifier.createFromURIPartOrNull (sParticipantID);
+      final PeppolParticipantIdentifier aParticipantID = PeppolParticipantIdentifier.createFromURIPartOrNull (sParticipantID);
       if (aParticipantID != null)
       {
         // Show small query box

@@ -37,8 +37,8 @@ import com.helger.commons.string.StringHelper;
 import com.helger.commons.string.ToStringGenerator;
 import com.helger.datetime.PDTFactory;
 import com.helger.datetime.util.PDTWebDateHelper;
-import com.helger.peppol.identifier.doctype.IPeppolDocumentTypeIdentifier;
-import com.helger.peppol.identifier.doctype.SimpleDocumentTypeIdentifier;
+import com.helger.peppol.identifier.peppol.doctype.IPeppolDocumentTypeIdentifier;
+import com.helger.peppol.identifier.peppol.doctype.PeppolDocumentTypeIdentifier;
 
 /**
  * This class represents a document stored in the Lucene index but with a nicer
@@ -54,7 +54,7 @@ public class PDStoredDocument
   private static final Logger s_aLogger = LoggerFactory.getLogger (PDStoredDocument.class);
 
   private String m_sParticipantID;
-  private final ICommonsList <SimpleDocumentTypeIdentifier> m_aDocumentTypeIDs = new CommonsArrayList<> ();
+  private final ICommonsList <PeppolDocumentTypeIdentifier> m_aDocumentTypeIDs = new CommonsArrayList<> ();
   private String m_sName;
   private String m_sCountryCode;
   private String m_sGeoInfo;
@@ -82,7 +82,7 @@ public class PDStoredDocument
     return m_sParticipantID;
   }
 
-  public void addDocumentTypeID (@Nonnull final SimpleDocumentTypeIdentifier aDocumentTypeID)
+  public void addDocumentTypeID (@Nonnull final PeppolDocumentTypeIdentifier aDocumentTypeID)
   {
     ValueEnforcer.notNull (aDocumentTypeID, "DocumentTypeID");
     m_aDocumentTypeIDs.add (aDocumentTypeID);
@@ -320,7 +320,7 @@ public class PDStoredDocument
   /**
    * Convert a stored Lucene {@link Document} to a {@link PDStoredDocument}.
    * This method resolves all Lucene fields to Java fields.
-   * 
+   *
    * @param aDoc
    *        Source Lucene document. May not be <code>null</code>.
    * @return The new {@link PDStoredDocument}.
@@ -337,7 +337,7 @@ public class PDStoredDocument
     ret.setParticipantID (aDoc.get (CPDStorage.FIELD_PARTICIPANTID));
 
     for (final String sDocTypeID : aDoc.getValues (CPDStorage.FIELD_DOCUMENT_TYPE_ID))
-      ret.addDocumentTypeID (SimpleDocumentTypeIdentifier.createFromURIPart (sDocTypeID));
+      ret.addDocumentTypeID (PeppolDocumentTypeIdentifier.createFromURIPart (sDocTypeID));
 
     ret.setCountryCode (aDoc.get (CPDStorage.FIELD_COUNTRY_CODE));
 

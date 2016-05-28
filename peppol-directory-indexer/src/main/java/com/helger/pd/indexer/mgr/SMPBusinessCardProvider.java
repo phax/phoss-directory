@@ -36,10 +36,9 @@ import com.helger.pd.businesscard.PDBusinessCardType;
 import com.helger.pd.businesscard.PDExtendedBusinessCard;
 import com.helger.pd.settings.PDSettings;
 import com.helger.peppol.httpclient.SMPHttpResponseHandlerUnsigned;
-import com.helger.peppol.identifier.IDocumentTypeIdentifier;
-import com.helger.peppol.identifier.IdentifierHelper;
-import com.helger.peppol.identifier.doctype.SimpleDocumentTypeIdentifier;
-import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
+import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
+import com.helger.peppol.identifier.peppol.doctype.PeppolDocumentTypeIdentifier;
+import com.helger.peppol.identifier.peppol.participant.IPeppolParticipantIdentifier;
 import com.helger.peppol.sml.ESML;
 import com.helger.peppol.smp.ServiceGroupType;
 import com.helger.peppol.smp.ServiceMetadataReferenceType;
@@ -156,7 +155,7 @@ public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
           // URL decode because of encoded '#' and ':' characters
           final String sDocumentTypeID = URLHelper.urlDecode (sHref.substring (nIndex + URL_PART_SERVICES.length ()),
                                                               CCharset.CHARSET_UTF_8_OBJ);
-          final SimpleDocumentTypeIdentifier aDocTypeID = IdentifierHelper.createDocumentTypeIdentifierFromURIPartOrNull (sDocumentTypeID);
+          final IDocumentTypeIdentifier aDocTypeID = PeppolDocumentTypeIdentifier.createFromURIPartOrNull (sDocumentTypeID);
           if (aDocTypeID == null)
           {
             s_aLogger.error ("Invalid document type when querying service group '" +

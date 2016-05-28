@@ -66,9 +66,9 @@ import com.helger.pd.businesscard.PDExtendedBusinessCard;
 import com.helger.pd.businesscard.PDIdentifierType;
 import com.helger.pd.indexer.lucene.AllDocumentsCollector;
 import com.helger.pd.indexer.lucene.PDLucene;
-import com.helger.peppol.identifier.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.IdentifierHelper;
-import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
+import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
+import com.helger.peppol.identifier.peppol.participant.IPeppolParticipantIdentifier;
 import com.helger.photon.basic.audit.AuditHelper;
 
 /**

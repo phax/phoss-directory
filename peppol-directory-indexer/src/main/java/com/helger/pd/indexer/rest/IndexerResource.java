@@ -36,7 +36,7 @@ import com.helger.pd.indexer.clientcert.ClientCertificateValidationResult;
 import com.helger.pd.indexer.clientcert.ClientCertificateValidator;
 import com.helger.pd.indexer.domain.EIndexerWorkItemType;
 import com.helger.pd.indexer.mgr.PDMetaManager;
-import com.helger.peppol.identifier.participant.SimpleParticipantIdentifier;
+import com.helger.peppol.identifier.peppol.participant.PeppolParticipantIdentifier;
 
 /**
  * Indexer resource (exposed at "1.0" path)
@@ -85,7 +85,7 @@ public class IndexerResource
       return Response.status (Response.Status.FORBIDDEN).build ();
 
     // Parse identifier
-    final SimpleParticipantIdentifier aPI = SimpleParticipantIdentifier.createFromURIPart (sParticipantID);
+    final PeppolParticipantIdentifier aPI = PeppolParticipantIdentifier.createFromURIPart (sParticipantID);
 
     // Queue for handling
     PDMetaManager.getIndexerMgr ().queueWorkItem (aPI,
@@ -107,7 +107,7 @@ public class IndexerResource
       return Response.status (Response.Status.FORBIDDEN).build ();
 
     // Parse identifier
-    final SimpleParticipantIdentifier aPI = SimpleParticipantIdentifier.createFromURIPart (sParticipantID);
+    final PeppolParticipantIdentifier aPI = PeppolParticipantIdentifier.createFromURIPart (sParticipantID);
 
     // Don't check for existence of the PI as it might be in the queue for
     // creation
@@ -132,7 +132,7 @@ public class IndexerResource
       return Response.status (Response.Status.FORBIDDEN).build ();
 
     // Parse identifier
-    final SimpleParticipantIdentifier aPI = SimpleParticipantIdentifier.createFromURIPart (sParticipantID);
+    final PeppolParticipantIdentifier aPI = PeppolParticipantIdentifier.createFromURIPart (sParticipantID);
 
     // Queue for handling
     if (!PDMetaManager.getStorageMgr ().containsEntry (aPI))

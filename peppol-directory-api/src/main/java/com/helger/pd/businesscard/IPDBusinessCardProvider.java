@@ -19,7 +19,7 @@ package com.helger.pd.businesscard;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
+import com.helger.peppol.identifier.peppol.participant.IPeppolParticipantIdentifier;
 
 /**
  * Abstract interface to retrieve the {@link PDExtendedBusinessCard} from a

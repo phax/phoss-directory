@@ -58,10 +58,10 @@ import com.helger.pd.indexer.PDIndexerTestRule;
 import com.helger.pd.indexer.clientcert.ClientCertificateValidator;
 import com.helger.pd.indexer.mgr.PDIndexerManager;
 import com.helger.pd.indexer.mgr.PDMetaManager;
-import com.helger.peppol.identifier.CIdentifier;
-import com.helger.peppol.identifier.doctype.EPredefinedDocumentTypeIdentifier;
-import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
-import com.helger.peppol.identifier.participant.SimpleParticipantIdentifier;
+import com.helger.peppol.identifier.generic.participant.SimpleParticipantIdentifier;
+import com.helger.peppol.identifier.peppol.doctype.EPredefinedDocumentTypeIdentifier;
+import com.helger.peppol.identifier.peppol.participant.IPeppolParticipantIdentifier;
+import com.helger.peppol.identifier.peppol.participant.PeppolParticipantIdentifier;
 import com.helger.peppol.utils.KeyStoreHelper;
 
 /**
@@ -85,7 +85,7 @@ public final class IndexerResourceTest
     final PDBusinessCardType aBI = new PDBusinessCardType ();
     {
       final PDIdentifierType aID = new PDIdentifierType ();
-      aID.setScheme (CIdentifier.DEFAULT_PARTICIPANT_IDENTIFIER_SCHEME);
+      aID.setScheme (IPeppolParticipantIdentifier.DEFAULT_SCHEME);
       aID.setValue ("9915:mock");
       aBI.setParticipantIdentifier (aID);
     }
@@ -172,12 +172,12 @@ public final class IndexerResourceTest
   public void testCreateAndDeleteParticipant () throws IOException
   {
     final AtomicInteger aIndex = new AtomicInteger (0);
-    final SimpleParticipantIdentifier aPI_0 = SimpleParticipantIdentifier.createWithDefaultScheme ("9915:test0");
+    final PeppolParticipantIdentifier aPI_0 = PeppolParticipantIdentifier.createWithDefaultScheme ("9915:test0");
 
     final int nCount = 4;
     CommonsTestHelper.testInParallel (nCount, () -> {
       // Create
-      final SimpleParticipantIdentifier aPI = SimpleParticipantIdentifier.createWithDefaultScheme ("9915:test" +
+      final SimpleParticipantIdentifier aPI = PeppolParticipantIdentifier.createWithDefaultScheme ("9915:test" +
                                                                                                    aIndex.getAndIncrement ());
 
       final String sResponseMsg = m_aTarget.path ("1.0").request ().put (Entity.text (aPI.getURIEncoded ()),
@@ -191,7 +191,7 @@ public final class IndexerResourceTest
     aIndex.set (0);
     CommonsTestHelper.testInParallel (nCount, () -> {
       // Delete
-      final SimpleParticipantIdentifier aPI = SimpleParticipantIdentifier.createWithDefaultScheme ("9915:test" +
+      final SimpleParticipantIdentifier aPI = PeppolParticipantIdentifier.createWithDefaultScheme ("9915:test" +
                                                                                                    aIndex.getAndIncrement ());
 
       final String sResponseMsg = m_aTarget.path ("1.0").path (aPI.getURIEncoded ()).request ().delete (String.class);

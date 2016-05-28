@@ -30,9 +30,9 @@ import com.helger.commons.string.ToStringGenerator;
 import com.helger.commons.type.ObjectType;
 import com.helger.datetime.PDTFactory;
 import com.helger.pd.indexer.storage.PDDocumentMetaData;
-import com.helger.peppol.identifier.IParticipantIdentifier;
-import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
-import com.helger.peppol.identifier.participant.SimpleParticipantIdentifier;
+import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
+import com.helger.peppol.identifier.peppol.participant.IPeppolParticipantIdentifier;
+import com.helger.peppol.identifier.peppol.participant.PeppolParticipantIdentifier;
 
 /**
  * This class represents a single work item for the indexer.
@@ -81,7 +81,7 @@ public final class IndexerWorkItem implements IIndexWorkItem
     m_sID = sID;
     m_aCreationDT = aCreationDT;
     // Ensure all objects have the same type
-    m_aParticpantID = new SimpleParticipantIdentifier (aParticpantID);
+    m_aParticpantID = new PeppolParticipantIdentifier (aParticpantID);
     m_eType = eType;
     m_sOwnerID = sOwnerID;
     m_sRequestingHost = sRequestingHost;

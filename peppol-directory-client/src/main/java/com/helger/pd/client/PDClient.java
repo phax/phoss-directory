@@ -61,8 +61,8 @@ import com.helger.commons.charset.CCharset;
 import com.helger.commons.exception.InitializationException;
 import com.helger.commons.io.stream.StreamHelper;
 import com.helger.commons.state.ESuccess;
-import com.helger.peppol.identifier.IParticipantIdentifier;
 import com.helger.peppol.identifier.IdentifierHelper;
+import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.peppol.utils.KeyStoreHelper;
 
 /**

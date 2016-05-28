@@ -39,10 +39,9 @@ import com.helger.pd.businesscard.PDExtendedBusinessCard;
 import com.helger.pd.businesscard.PDIdentifierType;
 import com.helger.pd.indexer.PDIndexerTestRule;
 import com.helger.pd.indexer.lucene.PDLucene;
-import com.helger.peppol.identifier.CIdentifier;
-import com.helger.peppol.identifier.doctype.EPredefinedDocumentTypeIdentifier;
-import com.helger.peppol.identifier.participant.IPeppolParticipantIdentifier;
-import com.helger.peppol.identifier.participant.SimpleParticipantIdentifier;
+import com.helger.peppol.identifier.peppol.doctype.EPredefinedDocumentTypeIdentifier;
+import com.helger.peppol.identifier.peppol.participant.IPeppolParticipantIdentifier;
+import com.helger.peppol.identifier.peppol.participant.PeppolParticipantIdentifier;
 
 /**
  * Test class for class {@link PDStorageManager}.
@@ -66,7 +65,7 @@ public final class PDStorageManagerTest
     final PDBusinessCardType aBI = new PDBusinessCardType ();
     {
       final PDIdentifierType aID = new PDIdentifierType ();
-      aID.setScheme (CIdentifier.DEFAULT_PARTICIPANT_IDENTIFIER_SCHEME);
+      aID.setScheme (IPeppolParticipantIdentifier.DEFAULT_SCHEME);
       aID.setValue ("9915:mock");
       aBI.setParticipantIdentifier (aID);
     }
@@ -122,7 +121,7 @@ public final class PDStorageManagerTest
   @Test
   public void testGetAllDocumentsOfParticipant () throws IOException
   {
-    final SimpleParticipantIdentifier aParticipantID = SimpleParticipantIdentifier.createWithDefaultScheme ("0088:test");
+    final PeppolParticipantIdentifier aParticipantID = PeppolParticipantIdentifier.createWithDefaultScheme ("0088:test");
     try (PDStorageManager aMgr = new PDStorageManager (new PDLucene ()))
     {
       final PDDocumentMetaData aMetaData = _createMockMetaData ();
@@ -169,7 +168,7 @@ public final class PDStorageManagerTest
   @Test
   public void testGetAllDocumentsOfCountryCode () throws IOException
   {
-    final SimpleParticipantIdentifier aParticipantID = SimpleParticipantIdentifier.createWithDefaultScheme ("0088:test");
+    final PeppolParticipantIdentifier aParticipantID = PeppolParticipantIdentifier.createWithDefaultScheme ("0088:test");
     try (PDStorageManager aMgr = new PDStorageManager (new PDLucene ()))
     {
       final PDDocumentMetaData aMetaData = _createMockMetaData ();
