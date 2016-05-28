@@ -58,7 +58,6 @@ import com.helger.pd.indexer.PDIndexerTestRule;
 import com.helger.pd.indexer.clientcert.ClientCertificateValidator;
 import com.helger.pd.indexer.mgr.PDIndexerManager;
 import com.helger.pd.indexer.mgr.PDMetaManager;
-import com.helger.peppol.identifier.generic.participant.SimpleParticipantIdentifier;
 import com.helger.peppol.identifier.peppol.doctype.EPredefinedDocumentTypeIdentifier;
 import com.helger.peppol.identifier.peppol.participant.IPeppolParticipantIdentifier;
 import com.helger.peppol.identifier.peppol.participant.PeppolParticipantIdentifier;
@@ -177,7 +176,7 @@ public final class IndexerResourceTest
     final int nCount = 4;
     CommonsTestHelper.testInParallel (nCount, () -> {
       // Create
-      final SimpleParticipantIdentifier aPI = PeppolParticipantIdentifier.createWithDefaultScheme ("9915:test" +
+      final PeppolParticipantIdentifier aPI = PeppolParticipantIdentifier.createWithDefaultScheme ("9915:test" +
                                                                                                    aIndex.getAndIncrement ());
 
       final String sResponseMsg = m_aTarget.path ("1.0").request ().put (Entity.text (aPI.getURIEncoded ()),
@@ -191,7 +190,7 @@ public final class IndexerResourceTest
     aIndex.set (0);
     CommonsTestHelper.testInParallel (nCount, () -> {
       // Delete
-      final SimpleParticipantIdentifier aPI = PeppolParticipantIdentifier.createWithDefaultScheme ("9915:test" +
+      final PeppolParticipantIdentifier aPI = PeppolParticipantIdentifier.createWithDefaultScheme ("9915:test" +
                                                                                                    aIndex.getAndIncrement ());
 
       final String sResponseMsg = m_aTarget.path ("1.0").path (aPI.getURIEncoded ()).request ().delete (String.class);

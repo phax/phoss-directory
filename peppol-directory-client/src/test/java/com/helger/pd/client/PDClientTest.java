@@ -19,7 +19,6 @@ package com.helger.pd.client;
 import org.junit.Test;
 
 import com.helger.commons.exception.InitializationException;
-import com.helger.peppol.identifier.generic.participant.SimpleParticipantIdentifier;
 import com.helger.peppol.identifier.peppol.participant.PeppolParticipantIdentifier;
 
 /**
@@ -37,7 +36,7 @@ public final class PDClientTest
   @Test
   public void testBasic ()
   {
-    final SimpleParticipantIdentifier aPI = PeppolParticipantIdentifier.createWithDefaultScheme ("9999:client-test");
+    final PeppolParticipantIdentifier aPI = PeppolParticipantIdentifier.createWithDefaultScheme ("9999:client-test");
     final PDClient aClient = PDClient.createDefaultClient ();
     try
     {
