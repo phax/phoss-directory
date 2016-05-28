@@ -39,6 +39,7 @@ import com.helger.pd.businesscard.PDExtendedBusinessCard;
 import com.helger.pd.businesscard.PDIdentifierType;
 import com.helger.pd.indexer.PDIndexerTestRule;
 import com.helger.pd.indexer.lucene.PDLucene;
+import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.peppol.identifier.peppol.doctype.EPredefinedDocumentTypeIdentifier;
 import com.helger.peppol.identifier.peppol.participant.IPeppolParticipantIdentifier;
 import com.helger.peppol.identifier.peppol.participant.PeppolParticipantIdentifier;
@@ -60,7 +61,7 @@ public final class PDStorageManagerTest
   }
 
   @Nonnull
-  private static PDExtendedBusinessCard _createMockBI (@Nonnull final IPeppolParticipantIdentifier aParticipantID)
+  private static PDExtendedBusinessCard _createMockBI (@Nonnull final IParticipantIdentifier aParticipantID)
   {
     final PDBusinessCardType aBI = new PDBusinessCardType ();
     {

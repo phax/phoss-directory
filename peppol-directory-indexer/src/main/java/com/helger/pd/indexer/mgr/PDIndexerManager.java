@@ -55,7 +55,6 @@ import com.helger.pd.indexer.domain.ReIndexWorkItem;
 import com.helger.pd.indexer.job.ReIndexJob;
 import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
-import com.helger.peppol.identifier.peppol.participant.IPeppolParticipantIdentifier;
 import com.helger.photon.basic.app.dao.impl.DAOException;
 import com.helger.photon.basic.app.io.WebFileIO;
 import com.helger.photon.core.app.CApplication;
@@ -276,7 +275,7 @@ public final class PDIndexerManager implements Closeable
   @Nonnull
   private ESuccess _executeCreateOrUpdate (@Nonnull final IndexerWorkItem aWorkItem) throws IOException
   {
-    final IPeppolParticipantIdentifier aParticipantID = aWorkItem.getParticipantID ();
+    final IParticipantIdentifier aParticipantID = aWorkItem.getParticipantID ();
 
     // Get BI from participant
     final PDExtendedBusinessCard aBI = getBusinessInformationProvider ().getBusinessCard (aParticipantID);
@@ -303,7 +302,7 @@ public final class PDIndexerManager implements Closeable
   @Nonnull
   private ESuccess _executeDelete (@Nonnull final IndexerWorkItem aWorkItem) throws IOException
   {
-    final IPeppolParticipantIdentifier aParticipantID = aWorkItem.getParticipantID ();
+    final IParticipantIdentifier aParticipantID = aWorkItem.getParticipantID ();
 
     return m_aStorageMgr.deleteEntry (aParticipantID, aWorkItem.getAsMetaData ());
   }

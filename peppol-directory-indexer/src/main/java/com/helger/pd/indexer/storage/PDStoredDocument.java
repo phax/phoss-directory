@@ -37,7 +37,7 @@ import com.helger.commons.string.StringHelper;
 import com.helger.commons.string.ToStringGenerator;
 import com.helger.datetime.PDTFactory;
 import com.helger.datetime.util.PDTWebDateHelper;
-import com.helger.peppol.identifier.peppol.doctype.IPeppolDocumentTypeIdentifier;
+import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.peppol.doctype.PeppolDocumentTypeIdentifier;
 
 /**
@@ -54,7 +54,7 @@ public class PDStoredDocument
   private static final Logger s_aLogger = LoggerFactory.getLogger (PDStoredDocument.class);
 
   private String m_sParticipantID;
-  private final ICommonsList <PeppolDocumentTypeIdentifier> m_aDocumentTypeIDs = new CommonsArrayList<> ();
+  private final ICommonsList <IDocumentTypeIdentifier> m_aDocumentTypeIDs = new CommonsArrayList<> ();
   private String m_sName;
   private String m_sCountryCode;
   private String m_sGeoInfo;
@@ -90,7 +90,7 @@ public class PDStoredDocument
 
   @Nonnull
   @ReturnsMutableCopy
-  public ICommonsList <? extends IPeppolDocumentTypeIdentifier> getAllDocumentTypeIDs ()
+  public ICommonsList <? extends IDocumentTypeIdentifier> getAllDocumentTypeIDs ()
   {
     return m_aDocumentTypeIDs.getClone ();
   }
@@ -102,7 +102,7 @@ public class PDStoredDocument
   }
 
   @Nullable
-  public IPeppolDocumentTypeIdentifier getDocumentTypeIDAtIndex (@Nonnegative final int nIndex)
+  public IDocumentTypeIdentifier getDocumentTypeIDAtIndex (@Nonnegative final int nIndex)
   {
     return m_aDocumentTypeIDs.getAtIndex (nIndex);
   }

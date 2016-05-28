@@ -58,6 +58,7 @@ import com.helger.pd.indexer.PDIndexerTestRule;
 import com.helger.pd.indexer.clientcert.ClientCertificateValidator;
 import com.helger.pd.indexer.mgr.PDIndexerManager;
 import com.helger.pd.indexer.mgr.PDMetaManager;
+import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.peppol.identifier.peppol.doctype.EPredefinedDocumentTypeIdentifier;
 import com.helger.peppol.identifier.peppol.participant.IPeppolParticipantIdentifier;
 import com.helger.peppol.identifier.peppol.participant.PeppolParticipantIdentifier;
@@ -79,7 +80,7 @@ public final class IndexerResourceTest
   private WebTarget m_aTarget;
 
   @Nonnull
-  private static PDExtendedBusinessCard _createMockBI (@Nonnull final IPeppolParticipantIdentifier aParticipantID)
+  private static PDExtendedBusinessCard _createMockBI (@Nonnull final IParticipantIdentifier aParticipantID)
   {
     final PDBusinessCardType aBI = new PDBusinessCardType ();
     {

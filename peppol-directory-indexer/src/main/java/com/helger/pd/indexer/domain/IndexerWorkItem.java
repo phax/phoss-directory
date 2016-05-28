@@ -31,8 +31,7 @@ import com.helger.commons.type.ObjectType;
 import com.helger.datetime.PDTFactory;
 import com.helger.pd.indexer.storage.PDDocumentMetaData;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
-import com.helger.peppol.identifier.peppol.participant.IPeppolParticipantIdentifier;
-import com.helger.peppol.identifier.peppol.participant.PeppolParticipantIdentifier;
+import com.helger.peppol.identifier.generic.participant.SimpleParticipantIdentifier;
 
 /**
  * This class represents a single work item for the indexer.
@@ -46,7 +45,7 @@ public final class IndexerWorkItem implements IIndexWorkItem
 
   private final String m_sID;
   private final LocalDateTime m_aCreationDT;
-  private final IPeppolParticipantIdentifier m_aParticpantID;
+  private final IParticipantIdentifier m_aParticpantID;
   private final EIndexerWorkItemType m_eType;
   private final String m_sOwnerID;
   private final String m_sRequestingHost;
@@ -81,7 +80,7 @@ public final class IndexerWorkItem implements IIndexWorkItem
     m_sID = sID;
     m_aCreationDT = aCreationDT;
     // Ensure all objects have the same type
-    m_aParticpantID = new PeppolParticipantIdentifier (aParticpantID);
+    m_aParticpantID = new SimpleParticipantIdentifier (aParticpantID);
     m_eType = eType;
     m_sOwnerID = sOwnerID;
     m_sRequestingHost = sRequestingHost;
@@ -113,7 +112,7 @@ public final class IndexerWorkItem implements IIndexWorkItem
    * @return The participant identifier it is all about.
    */
   @Nonnull
-  public IPeppolParticipantIdentifier getParticipantID ()
+  public IParticipantIdentifier getParticipantID ()
   {
     return m_aParticpantID;
   }

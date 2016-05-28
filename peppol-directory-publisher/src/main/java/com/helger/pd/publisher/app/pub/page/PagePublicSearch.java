@@ -56,7 +56,8 @@ import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.pd.publisher.ui.HCExtImg;
 import com.helger.pd.publisher.ui.PDCommonUI;
 import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
-import com.helger.peppol.identifier.peppol.doctype.IPeppolDocumentTypeIdentifier;
+import com.helger.peppol.identifier.peppol.PeppolIdentifierHelper;
+import com.helger.peppol.identifier.peppol.doctype.IPeppolDocumentTypeIdentifierParts;
 import com.helger.peppol.identifier.peppol.participant.PeppolParticipantIdentifier;
 import com.helger.photon.bootstrap3.CBootstrapCSS;
 import com.helger.photon.bootstrap3.alert.BootstrapInfoBox;
@@ -194,16 +195,17 @@ public final class PagePublicSearch extends AbstractAppWebPage
           // Document types
           {
             final HCOL aDocTypeCtrl = new HCOL ();
-            final List <IPeppolDocumentTypeIdentifier> aDocTypeIDs = CollectionHelper.getSorted (aResultDocs.get (0)
-                                                                                                            .getAllDocumentTypeIDs (),
-                                                                                                 IDocumentTypeIdentifier.comparator ());
-            for (final IPeppolDocumentTypeIdentifier aDocTypeID : aDocTypeIDs)
+            final List <IDocumentTypeIdentifier> aDocTypeIDs = CollectionHelper.getSorted (aResultDocs.get (0)
+                                                                                                      .getAllDocumentTypeIDs (),
+                                                                                           IDocumentTypeIdentifier.comparator ());
+            for (final IDocumentTypeIdentifier aDocTypeID : aDocTypeIDs)
             {
               final IHCLI <?> aLI = aDocTypeCtrl.addItem ();
               aLI.addChild (PDCommonUI.getDocumentTypeID (aDocTypeID));
               try
               {
-                aLI.addChild (PDCommonUI.getDocumentTypeIDDetails (aDocTypeID.getParts ()));
+                final IPeppolDocumentTypeIdentifierParts aParts = PeppolIdentifierHelper.getDocumentTypeIdentifierParts (aDocTypeID);
+                aLI.addChild (PDCommonUI.getDocumentTypeIDDetails (aParts));
               }
               catch (final IllegalArgumentException ex)
               {

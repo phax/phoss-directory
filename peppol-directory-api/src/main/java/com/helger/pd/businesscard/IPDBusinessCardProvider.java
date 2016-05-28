@@ -19,7 +19,7 @@ package com.helger.pd.businesscard;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.helger.peppol.identifier.peppol.participant.IPeppolParticipantIdentifier;
+import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 
 /**
  * Abstract interface to retrieve the {@link PDExtendedBusinessCard} from a
@@ -40,5 +40,5 @@ public interface IPDBusinessCardProvider
    * @return <code>null</code> if lookup fails
    */
   @Nullable
-  PDExtendedBusinessCard getBusinessCard (@Nonnull IPeppolParticipantIdentifier aParticipantID);
+  PDExtendedBusinessCard getBusinessCard (@Nonnull IParticipantIdentifier aParticipantID);
 }

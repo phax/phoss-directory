@@ -68,7 +68,7 @@ import com.helger.pd.indexer.lucene.AllDocumentsCollector;
 import com.helger.pd.indexer.lucene.PDLucene;
 import com.helger.peppol.identifier.IdentifierHelper;
 import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
-import com.helger.peppol.identifier.peppol.participant.IPeppolParticipantIdentifier;
+import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.photon.basic.audit.AuditHelper;
 
 /**
@@ -104,12 +104,12 @@ public final class PDStorageManager implements Closeable
   }
 
   @Nonnull
-  private static Term _createParticipantTerm (@Nonnull final IPeppolParticipantIdentifier aParticipantID)
+  private static Term _createParticipantTerm (@Nonnull final IParticipantIdentifier aParticipantID)
   {
     return new Term (CPDStorage.FIELD_PARTICIPANTID, aParticipantID.getURIEncoded ());
   }
 
-  public boolean containsEntry (@Nullable final IPeppolParticipantIdentifier aParticipantID) throws IOException
+  public boolean containsEntry (@Nullable final IParticipantIdentifier aParticipantID) throws IOException
   {
     if (aParticipantID == null)
       return false;
@@ -131,7 +131,7 @@ public final class PDStorageManager implements Closeable
   }
 
   @Nonnull
-  public ESuccess deleteEntry (@Nonnull final IPeppolParticipantIdentifier aParticipantID,
+  public ESuccess deleteEntry (@Nonnull final IParticipantIdentifier aParticipantID,
                                @Nonnull final PDDocumentMetaData aMetaData) throws IOException
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
@@ -167,7 +167,7 @@ public final class PDStorageManager implements Closeable
   }
 
   @Nonnull
-  public ESuccess createOrUpdateEntry (@Nonnull final IPeppolParticipantIdentifier aParticipantID,
+  public ESuccess createOrUpdateEntry (@Nonnull final IParticipantIdentifier aParticipantID,
                                        @Nonnull final PDExtendedBusinessCard aExtBI,
                                        @Nonnull final PDDocumentMetaData aMetaData) throws IOException
   {
@@ -381,7 +381,7 @@ public final class PDStorageManager implements Closeable
   }
 
   @Nonnull
-  public ICommonsList <PDStoredDocument> getAllDocumentsOfParticipant (@Nonnull final IPeppolParticipantIdentifier aParticipantID)
+  public ICommonsList <PDStoredDocument> getAllDocumentsOfParticipant (@Nonnull final IParticipantIdentifier aParticipantID)
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
     return getAllDocuments (new TermQuery (_createParticipantTerm (aParticipantID)));

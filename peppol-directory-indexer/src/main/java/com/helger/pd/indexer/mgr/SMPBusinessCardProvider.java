@@ -37,8 +37,8 @@ import com.helger.pd.businesscard.PDExtendedBusinessCard;
 import com.helger.pd.settings.PDSettings;
 import com.helger.peppol.httpclient.SMPHttpResponseHandlerUnsigned;
 import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
+import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.peppol.identifier.peppol.doctype.PeppolDocumentTypeIdentifier;
-import com.helger.peppol.identifier.peppol.participant.IPeppolParticipantIdentifier;
 import com.helger.peppol.sml.ESML;
 import com.helger.peppol.smp.ServiceGroupType;
 import com.helger.peppol.smp.ServiceMetadataReferenceType;
@@ -76,7 +76,7 @@ public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
 
   @Nullable
   @VisibleForTesting
-  PDExtendedBusinessCard getBusinessCard (@Nonnull final IPeppolParticipantIdentifier aParticipantID,
+  PDExtendedBusinessCard getBusinessCard (@Nonnull final IParticipantIdentifier aParticipantID,
                                           @Nonnull final SMPClientReadOnly aSMPClient)
   {
     // Create SMP client
@@ -176,7 +176,7 @@ public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
   }
 
   @Nullable
-  public PDExtendedBusinessCard getBusinessCard (@Nonnull final IPeppolParticipantIdentifier aParticipantID)
+  public PDExtendedBusinessCard getBusinessCard (@Nonnull final IParticipantIdentifier aParticipantID)
   {
     // Create SMP client for SML first
     final SMPClientReadOnly aSMPClientSML = new SMPClientReadOnly (aParticipantID, ESML.DIGIT_PRODUCTION);
