@@ -38,7 +38,7 @@ import com.helger.commons.string.ToStringGenerator;
 import com.helger.datetime.PDTFactory;
 import com.helger.datetime.util.PDTWebDateHelper;
 import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
-import com.helger.peppol.identifier.peppol.doctype.PeppolDocumentTypeIdentifier;
+import com.helger.peppol.identifier.generic.doctype.SimpleDocumentTypeIdentifier;
 
 /**
  * This class represents a document stored in the Lucene index but with a nicer
@@ -82,7 +82,7 @@ public class PDStoredDocument
     return m_sParticipantID;
   }
 
-  public void addDocumentTypeID (@Nonnull final PeppolDocumentTypeIdentifier aDocumentTypeID)
+  public void addDocumentTypeID (@Nonnull final IDocumentTypeIdentifier aDocumentTypeID)
   {
     ValueEnforcer.notNull (aDocumentTypeID, "DocumentTypeID");
     m_aDocumentTypeIDs.add (aDocumentTypeID);
@@ -337,7 +337,7 @@ public class PDStoredDocument
     ret.setParticipantID (aDoc.get (CPDStorage.FIELD_PARTICIPANTID));
 
     for (final String sDocTypeID : aDoc.getValues (CPDStorage.FIELD_DOCUMENT_TYPE_ID))
-      ret.addDocumentTypeID (PeppolDocumentTypeIdentifier.createFromURIPart (sDocTypeID));
+      ret.addDocumentTypeID (SimpleDocumentTypeIdentifier.createFromURIPart (sDocTypeID));
 
     ret.setCountryCode (aDoc.get (CPDStorage.FIELD_COUNTRY_CODE));
 
