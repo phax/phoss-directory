@@ -50,10 +50,10 @@ import com.helger.pd.indexer.storage.PDStoredContact;
 import com.helger.pd.indexer.storage.PDStoredDocument;
 import com.helger.pd.indexer.storage.PDStoredIdentifier;
 import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
+import com.helger.peppol.identifier.generic.process.IProcessIdentifier;
 import com.helger.peppol.identifier.peppol.doctype.EPredefinedDocumentTypeIdentifier;
 import com.helger.peppol.identifier.peppol.doctype.IPeppolDocumentTypeIdentifierParts;
 import com.helger.peppol.identifier.peppol.process.EPredefinedProcessIdentifier;
-import com.helger.peppol.identifier.peppol.process.IPeppolProcessIdentifier;
 import com.helger.photon.bootstrap3.form.BootstrapFormGroup;
 import com.helger.photon.bootstrap3.form.BootstrapViewForm;
 import com.helger.photon.bootstrap3.label.BootstrapLabel;
@@ -180,7 +180,7 @@ public final class PDCommonUI
   }
 
   @Nonnull
-  public static IHCNode getProcessID (@Nonnull final IPeppolProcessIdentifier aDocTypeID)
+  public static IHCNode getProcessID (@Nonnull final IProcessIdentifier aDocTypeID)
   {
     EPredefinedProcessIdentifier ePredefined = null;
     for (final EPredefinedProcessIdentifier e : EPredefinedProcessIdentifier.values ())
