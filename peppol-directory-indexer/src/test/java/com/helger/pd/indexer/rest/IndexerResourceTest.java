@@ -59,8 +59,8 @@ import com.helger.pd.indexer.clientcert.ClientCertificateValidator;
 import com.helger.pd.indexer.mgr.PDIndexerManager;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
+import com.helger.peppol.identifier.peppol.PeppolIdentifierHelper;
 import com.helger.peppol.identifier.peppol.doctype.EPredefinedDocumentTypeIdentifier;
-import com.helger.peppol.identifier.peppol.participant.IPeppolParticipantIdentifier;
 import com.helger.peppol.identifier.peppol.participant.PeppolParticipantIdentifier;
 import com.helger.peppol.utils.KeyStoreHelper;
 
@@ -85,7 +85,7 @@ public final class IndexerResourceTest
     final PDBusinessCardType aBI = new PDBusinessCardType ();
     {
       final PDIdentifierType aID = new PDIdentifierType ();
-      aID.setScheme (IPeppolParticipantIdentifier.DEFAULT_SCHEME);
+      aID.setScheme (PeppolIdentifierHelper.DEFAULT_PARTICIPANT_SCHEME);
       aID.setValue ("9915:mock");
       aBI.setParticipantIdentifier (aID);
     }

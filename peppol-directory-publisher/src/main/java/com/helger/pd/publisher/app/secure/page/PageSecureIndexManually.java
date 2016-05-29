@@ -28,7 +28,7 @@ import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.peppol.identifier.CIdentifier;
 import com.helger.peppol.identifier.generic.participant.SimpleParticipantIdentifier;
-import com.helger.peppol.identifier.peppol.participant.IPeppolParticipantIdentifier;
+import com.helger.peppol.identifier.peppol.PeppolIdentifierHelper;
 import com.helger.photon.bootstrap3.alert.BootstrapSuccessBox;
 import com.helger.photon.bootstrap3.alert.BootstrapWarnBox;
 import com.helger.photon.bootstrap3.button.BootstrapButtonToolbar;
@@ -90,7 +90,7 @@ public final class PageSecureIndexManually extends AbstractAppWebPage
     final BootstrapForm aForm = aNodeList.addAndReturnChild (createFormSelf (aWPEC));
     aForm.addFormGroup (new BootstrapFormGroup ().setLabelMandatory ("Participant ID")
                                                  .setCtrl (new HCEdit (new RequestField (FIELD_PARTICIPANT_ID,
-                                                                                         IPeppolParticipantIdentifier.DEFAULT_SCHEME +
+                                                                                         PeppolIdentifierHelper.DEFAULT_PARTICIPANT_SCHEME +
                                                                                                                CIdentifier.URL_SCHEME_VALUE_SEPARATOR)))
                                                  .setHelpText ("Enter the fully qualified PEPPOL participant ID you want to index. Must contain the meta scheme!")
                                                  .setErrorList (aFormErrors.getListOfField (FIELD_PARTICIPANT_ID)));

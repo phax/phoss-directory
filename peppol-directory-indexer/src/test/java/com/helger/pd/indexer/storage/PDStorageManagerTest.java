@@ -40,8 +40,8 @@ import com.helger.pd.businesscard.PDIdentifierType;
 import com.helger.pd.indexer.PDIndexerTestRule;
 import com.helger.pd.indexer.lucene.PDLucene;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
+import com.helger.peppol.identifier.peppol.PeppolIdentifierHelper;
 import com.helger.peppol.identifier.peppol.doctype.EPredefinedDocumentTypeIdentifier;
-import com.helger.peppol.identifier.peppol.participant.IPeppolParticipantIdentifier;
 import com.helger.peppol.identifier.peppol.participant.PeppolParticipantIdentifier;
 
 /**
@@ -66,7 +66,7 @@ public final class PDStorageManagerTest
     final PDBusinessCardType aBI = new PDBusinessCardType ();
     {
       final PDIdentifierType aID = new PDIdentifierType ();
-      aID.setScheme (IPeppolParticipantIdentifier.DEFAULT_SCHEME);
+      aID.setScheme (PeppolIdentifierHelper.DEFAULT_PARTICIPANT_SCHEME);
       aID.setValue ("9915:mock");
       aBI.setParticipantIdentifier (aID);
     }
