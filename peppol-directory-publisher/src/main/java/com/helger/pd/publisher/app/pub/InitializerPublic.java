@@ -20,7 +20,6 @@ import javax.annotation.Nonnull;
 
 import com.helger.pd.publisher.ajax.CAjaxPublic;
 import com.helger.pd.publisher.app.AppCommonUI;
-import com.helger.pd.publisher.app.AppInternalErrorHandler;
 import com.helger.photon.basic.app.locale.ILocaleManager;
 import com.helger.photon.basic.app.menu.IMenuTree;
 import com.helger.photon.core.ajax.IAjaxInvoker;
@@ -64,7 +63,5 @@ public final class InitializerPublic implements IApplicationInitializer <LayoutE
 
   @Override
   public void initRest ()
-  {
-    AppInternalErrorHandler.doSetup ();
-  }
+  {}
 }

@@ -25,6 +25,7 @@ import com.helger.commons.collection.ext.ICommonsMap;
 import com.helger.commons.vendor.VendorInfo;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.publisher.app.AppCommonUI;
+import com.helger.pd.publisher.app.AppInternalErrorHandler;
 import com.helger.pd.publisher.app.AppSecurity;
 import com.helger.pd.publisher.app.PDPMetaManager;
 import com.helger.pd.publisher.app.pub.InitializerPublic;
@@ -92,6 +93,7 @@ public final class AppWebAppListener extends AbstractWebAppListenerMultiAppBoots
     super.initGlobals ();
 
     ApplicationRequestManager.getRequestMgr ().setUsePaths (true);
+    AppInternalErrorHandler.doSetup ();
 
     // UI stuff
     AppCommonUI.init ();
