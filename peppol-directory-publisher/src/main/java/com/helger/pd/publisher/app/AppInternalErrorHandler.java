@@ -49,7 +49,7 @@ public final class AppInternalErrorHandler extends AbstractErrorCallback impleme
 {
   private static final Logger s_aLogger = LoggerFactory.getLogger (AppInternalErrorHandler.class);
 
-  private final Set <String> m_aHandledLongRunning = new LRUSet <String> (1000);
+  private final Set <String> m_aHandledLongRunning = new LRUSet <> (1000);
 
   @Nonnull
   private static Locale _getSafeDisplayLocale ()
