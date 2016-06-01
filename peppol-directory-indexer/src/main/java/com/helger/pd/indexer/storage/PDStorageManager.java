@@ -428,8 +428,8 @@ public final class PDStorageManager implements Closeable
    *
    * @param aDocs
    *        The document list to group.
-   * @return A non-<code>null</code> LinkedHashMap with the results. Order is
-   *         like the order of the input list.
+   * @return A non-<code>null</code> ordered map with the results. Order is like
+   *         the order of the input list.
    */
   @Nonnull
   @ReturnsMutableCopy
