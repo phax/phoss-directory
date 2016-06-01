@@ -20,9 +20,7 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
@@ -34,7 +32,9 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
+import com.helger.commons.collection.ext.CommonsHashSet;
 import com.helger.commons.collection.ext.ICommonsList;
+import com.helger.commons.collection.ext.ICommonsSet;
 import com.helger.commons.concurrent.SimpleReadWriteLock;
 import com.helger.commons.datetime.PDTFactory;
 import com.helger.commons.microdom.IMicroDocument;
@@ -80,7 +80,7 @@ public final class PDIndexerManager implements Closeable
   private final ReIndexWorkItemList m_aDeadList;
   private final TriggerKey m_aTriggerKey;
   @GuardedBy ("m_aRWLock")
-  private final Set <IndexerWorkItem> m_aUniqueItems = new HashSet<> ();
+  private final ICommonsSet <IndexerWorkItem> m_aUniqueItems = new CommonsHashSet<> ();
   @GuardedBy ("m_aRWLock")
   private IPDBusinessCardProvider m_aBIProvider = new SMPBusinessCardProvider ();
 
