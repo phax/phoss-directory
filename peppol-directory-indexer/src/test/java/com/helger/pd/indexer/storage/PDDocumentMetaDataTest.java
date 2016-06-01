@@ -20,7 +20,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.helger.datetime.PDTFactory;
+import com.helger.commons.datetime.PDTFactory;
 
 public final class PDDocumentMetaDataTest
 {

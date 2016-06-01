@@ -23,8 +23,8 @@ import javax.annotation.concurrent.Immutable;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
+import com.helger.commons.datetime.PDTFactory;
 import com.helger.commons.string.ToStringGenerator;
-import com.helger.datetime.PDTFactory;
 
 /**
  * This class contains all the metadata stored in a {@link PDStoredDocument}.

@@ -31,7 +31,7 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 
 import com.helger.commons.collection.CollectionHelper;
-import com.helger.datetime.PDTFactory;
+import com.helger.commons.datetime.PDTFactory;
 import com.helger.pd.businesscard.PDBusinessCardType;
 import com.helger.pd.businesscard.PDBusinessEntityType;
 import com.helger.pd.businesscard.PDContactType;

@@ -24,8 +24,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.helger.commons.annotation.Nonempty;
+import com.helger.commons.datetime.PDTFactory;
 import com.helger.commons.type.ITypedObject;
-import com.helger.datetime.PDTFactory;
 
 /**
  * This class holds a single item to be re-indexed. It is only invoked if
