@@ -19,11 +19,9 @@ package com.helger.pd.indexer.clientcert;
 import java.security.KeyStore;
 import java.security.cert.CRL;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
@@ -41,6 +39,8 @@ import com.helger.commons.annotation.PresentForCodeCoverage;
 import com.helger.commons.annotation.VisibleForTesting;
 import com.helger.commons.collection.ArrayHelper;
 import com.helger.commons.collection.CollectionHelper;
+import com.helger.commons.collection.ext.CommonsArrayList;
+import com.helger.commons.collection.ext.ICommonsList;
 import com.helger.commons.exception.InitializationException;
 import com.helger.commons.string.StringHelper;
 import com.helger.pd.settings.PDSettings;
@@ -68,7 +68,7 @@ public final class ClientCertificateValidator
   private static X509Certificate s_aPeppolSMPRootCertAlternative;
 
   /** Sorted list with all issuers we're accepting. Never empty. */
-  private static List <X500Principal> s_aSearchIssuers = new ArrayList<> ();
+  private static ICommonsList <X500Principal> s_aSearchIssuers = new CommonsArrayList<> ();
 
   /**
    * This method is only for testing purposes to disable the complete client
@@ -314,7 +314,7 @@ public final class ClientCertificateValidator
     // OK, we have a non-empty, type checked Certificate array
 
     // TODO: determine CRLs
-    final Collection <CRL> aCRLs = new ArrayList <CRL> ();
+    final ICommonsList <CRL> aCRLs = new CommonsArrayList <CRL> ();
 
     // Verify for "now"
     final Date aVerificationDate = new Date ();

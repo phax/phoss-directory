@@ -17,8 +17,6 @@
 package com.helger.pd.indexer.storage;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
@@ -36,6 +34,8 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
+import com.helger.commons.collection.ext.CommonsArrayList;
+import com.helger.commons.collection.ext.ICommonsList;
 import com.helger.commons.regex.RegExHelper;
 import com.helger.pd.indexer.lucene.ILuceneAnalyzerProvider;
 
@@ -86,14 +86,14 @@ public final class PDQueryManager
    * @return The non-<code>null</code> list of all terms.
    */
   @Nonnull
-  public static List <String> getSplitIntoTerms (@Nonnull final ILuceneAnalyzerProvider aAnalyzerProvider,
-                                                 @Nonnull @Nonempty final String sQueryString)
+  public static ICommonsList <String> getSplitIntoTerms (@Nonnull final ILuceneAnalyzerProvider aAnalyzerProvider,
+                                                         @Nonnull @Nonempty final String sQueryString)
   {
     // Use the default analyzer to split the query string into fields
     try (final TokenStream aTokenStream = aAnalyzerProvider.getAnalyzer ().tokenStream (CPDStorage.FIELD_ALL_FIELDS,
                                                                                         sQueryString))
     {
-      final List <String> ret = new ArrayList<> ();
+      final ICommonsList <String> ret = new CommonsArrayList<> ();
       final CharTermAttribute aCharTermAttribute = aTokenStream.addAttribute (CharTermAttribute.class);
       aTokenStream.reset ();
       while (aTokenStream.incrementToken ())
@@ -141,7 +141,7 @@ public final class PDQueryManager
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
 
     // Split into terms
-    final List <String> aParts = getSplitIntoTerms (aAnalyzerProvider, sQueryString);
+    final ICommonsList <String> aParts = getSplitIntoTerms (aAnalyzerProvider, sQueryString);
     assert !aParts.isEmpty ();
 
     if (s_aLogger.isDebugEnabled ())
