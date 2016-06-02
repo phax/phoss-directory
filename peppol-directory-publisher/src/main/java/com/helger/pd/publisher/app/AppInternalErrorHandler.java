@@ -17,20 +17,16 @@
 package com.helger.pd.publisher.app;
 
 import java.util.Locale;
-import java.util.Set;
+import java.util.Map;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.quartz.Job;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.collection.lru.LRUSet;
 import com.helger.commons.email.EmailAddress;
-import com.helger.commons.scope.mgr.ScopeManager;
-import com.helger.photon.basic.app.request.ApplicationRequestManager;
+import com.helger.commons.url.SMap;
 import com.helger.photon.basic.longrun.ILongRunningJob;
 import com.helger.photon.core.app.error.InternalErrorBuilder;
 import com.helger.photon.core.app.error.InternalErrorHandler;
@@ -41,44 +37,21 @@ import com.helger.photon.core.smtp.NamedSMTPSettings;
 import com.helger.schedule.job.AbstractJob;
 import com.helger.schedule.job.IJobExceptionCallback;
 import com.helger.smtp.settings.ISMTPSettings;
-import com.helger.web.scope.IRequestWebScope;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
-import com.helger.web.scope.mgr.WebScopeManager;
 
 public final class AppInternalErrorHandler extends AbstractErrorCallback implements IJobExceptionCallback
 {
-  private static final Logger s_aLogger = LoggerFactory.getLogger (AppInternalErrorHandler.class);
-
-  private final Set <String> m_aHandledLongRunning = new LRUSet <> (1000);
-
-  @Nonnull
-  private static Locale _getSafeDisplayLocale ()
-  {
-    try
-    {
-      // This may fail, if a weird application context is used
-      return ApplicationRequestManager.getRequestMgr ().getRequestDisplayLocale ();
-    }
-    catch (final IllegalStateException ex)
-    {
-      // I just want to know, where and how this happens...
-      final IRequestWebScope aRequestScope = WebScopeManager.getRequestScopeOrNull ();
-      final String sAppID = aRequestScope == null ? "<no request scope present>"
-                                                  : ScopeManager.getRequestApplicationID (aRequestScope);
-      s_aLogger.warn ("Failed to retrieve default locale for application ID '" + sAppID + "'");
-      return AppCommonUI.DEFAULT_LOCALE;
-    }
-  }
-
   @Override
   protected void onError (@Nonnull final Throwable t,
                           @Nullable final IRequestWebScopeWithoutResponse aRequestScope,
-                          @Nonnull @Nonempty final String sErrorCode)
+                          @Nonnull @Nonempty final String sErrorCode,
+                          @Nullable final Map <String, String> aCustomAttrs)
   {
-    final Locale aDisplayLocale = _getSafeDisplayLocale ();
+    final Locale aDisplayLocale = getSafeDisplayLocale (AppCommonUI.DEFAULT_LOCALE);
     new InternalErrorBuilder ().setThrowable (t)
                                .setRequestScope (aRequestScope)
                                .addCustomData ("ErrorCode", sErrorCode)
+                               .addCustomData (aCustomAttrs)
                                .setDisplayLocale (aDisplayLocale)
                                .handle ();
   }
@@ -89,27 +62,10 @@ public final class AppInternalErrorHandler extends AbstractErrorCallback impleme
   {
     onError (t,
              null,
-             "Error executing" +
-                   (aJob instanceof ILongRunningJob ? " long running" : "") +
-                   " job " +
-                   sJobClassName +
-                   ": " +
-                   aJob);
-  }
-
-  @Override
-  public void onLongRunningRequest (@Nonnull final String sUniqueRequestID,
-                                    @Nonnull final IRequestWebScope aRequestScope,
-                                    final long nRunningMilliseconds)
-  {
-    if (m_aHandledLongRunning.add (sUniqueRequestID))
-    {
-      new InternalErrorBuilder ().addCustomData ("error message", "Long running request")
-                                 .addCustomData ("request ID", sUniqueRequestID)
-                                 .addCustomData ("request URL", aRequestScope.getURL ())
-                                 .addCustomData ("running milli seconds", Long.toString (nRunningMilliseconds))
-                                 .handle ();
-    }
+             "Error executing background Job " + sJobClassName,
+             new SMap ().add ("job-class", sJobClassName)
+                        .add ("job-object", aJob)
+                        .add ("long-running", Boolean.toString (aJob instanceof ILongRunningJob)));
   }
 
   public static void doSetup ()
