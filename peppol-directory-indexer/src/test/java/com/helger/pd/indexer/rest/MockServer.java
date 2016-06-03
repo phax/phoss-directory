@@ -17,7 +17,6 @@
 package com.helger.pd.indexer.rest;
 
 import java.net.URI;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
@@ -33,6 +32,8 @@ import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.glassfish.jersey.uri.UriComponent;
 
+import com.helger.commons.collection.ext.CommonsHashMap;
+import com.helger.commons.collection.ext.ICommonsMap;
 import com.helger.commons.io.resource.ClassPathResource;
 import com.helger.commons.io.stream.StreamHelper;
 import com.helger.peppol.utils.KeyStoreHelper;
@@ -83,7 +84,7 @@ final class MockServer
   @Nonnull
   private static WebappContext _createContext (final String sURI)
   {
-    final Map <String, String> aInitParams = new HashMap <String, String> ();
+    final ICommonsMap <String, String> aInitParams = new CommonsHashMap <> ();
     aInitParams.put ("jersey.config.server.provider.packages",
                      com.helger.pd.indexer.rest.IndexerResource.class.getPackage ().getName ());
     return _createContext (URI.create (sURI), ServletContainer.class, null, aInitParams, null);

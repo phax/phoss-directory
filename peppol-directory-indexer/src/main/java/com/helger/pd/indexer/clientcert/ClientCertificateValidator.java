@@ -21,8 +21,6 @@ import java.security.cert.CRL;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -40,7 +38,9 @@ import com.helger.commons.annotation.VisibleForTesting;
 import com.helger.commons.collection.ArrayHelper;
 import com.helger.commons.collection.CollectionHelper;
 import com.helger.commons.collection.ext.CommonsArrayList;
+import com.helger.commons.collection.ext.CommonsHashMap;
 import com.helger.commons.collection.ext.ICommonsList;
+import com.helger.commons.collection.ext.ICommonsMap;
 import com.helger.commons.exception.InitializationException;
 import com.helger.commons.string.StringHelper;
 import com.helger.pd.settings.PDSettings;
@@ -68,7 +68,7 @@ public final class ClientCertificateValidator
   private static X509Certificate s_aPeppolSMPRootCertAlternative;
 
   /** Sorted list with all issuers we're accepting. Never empty. */
-  private static ICommonsList <X500Principal> s_aSearchIssuers = new CommonsArrayList<> ();
+  private static ICommonsList <X500Principal> s_aSearchIssuers = new CommonsArrayList <> ();
 
   /**
    * This method is only for testing purposes to disable the complete client
@@ -254,7 +254,7 @@ public final class ClientCertificateValidator
       final LdapName aLdapName = new LdapName (aCert.getSubjectX500Principal ().getName ());
 
       // Make a map from type to name
-      final Map <String, Rdn> aParts = new HashMap <String, Rdn> ();
+      final ICommonsMap <String, Rdn> aParts = new CommonsHashMap <> ();
       for (final Rdn aRdn : aLdapName.getRdns ())
         aParts.put (aRdn.getType (), aRdn);
 
@@ -314,7 +314,7 @@ public final class ClientCertificateValidator
     // OK, we have a non-empty, type checked Certificate array
 
     // TODO: determine CRLs
-    final ICommonsList <CRL> aCRLs = new CommonsArrayList <CRL> ();
+    final ICommonsList <CRL> aCRLs = new CommonsArrayList <> ();
 
     // Verify for "now"
     final Date aVerificationDate = new Date ();
