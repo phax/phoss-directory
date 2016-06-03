@@ -4,20 +4,20 @@
 
 Current release (on Maven central): **0.2.0**
 
-The official PEPPOL Directory (PD; former PEPPOL Yellow Pages - PYP) software. It is split into the following sub-projects:
-  * `peppol-directory-businesscard` - the common Business Card API (Java 1.6)
-  * `peppol-directory-api` - the common API for the indexer and the publisher incl. Lucene handling (Java 1.8)
-  * `peppol-directory-indexer` - the PD indexer part (Java 1.8)
-  * `peppol-directory-publisher` - the PD publisher web application (Java 1.8)
-  * `peppol-directory-client` - a client library to be added to SMP servers to force indexing in the PD (Java 1.7)
+The official PEPPOL Directory (PD; former PEPPOL Yellow Pages - PYP) software. It is split into the following sub-projects (all require Java 8 except where noted):
+  * `peppol-directory-businesscard` - the common Business Card API
+  * `peppol-directory-api` - the common API for the indexer and the publisher incl. Lucene handling
+  * `peppol-directory-indexer` - the PD indexer part
+  * `peppol-directory-publisher` - the PD publisher web application
+  * `peppol-directory-client` - a client library to be added to SMP servers to force indexing in the PD
+  * `peppol-directory-client-jdk6` - a client library to be added to SMP servers to force indexing in the PD (Java 1.6)
   
-Status as per 2016-03-05:
-  * The first version is live on http://pyp.helger.com - search e.g. for "austria" 
+Status as per 2016-06-03:
+  * The current version is live on http://pyp.helger.com - search e.g. for "austria" 
   * The indexer part (incl. REST interface) looks quite good and only requires (currently) some documentation. Unit tests with concurrent indexing requests work flawlessly incl. Lucene based storage and lookup. The first real BusinessInformation lookup for `9915:test` also succeeded.
   * The publisher website was started and the search already works. Check the live demo at http://pyp.helger.com for tests.
-  * A Java library to be used in SMPs to communicate with the PD is feature complete (`peppol-directory-client`)
-  * The project was renamed from "PEPPOL Yellow Pages" to "PEPPOL Directory"
-  * [My PEPPOL SMP Server](https://github.com/phax/peppol-smp-server) supports starting with version 4.1.2-SNAPSHOT the graphical editing of Business Card incl. the new `/businesscard` API.
+  * A Java library to be used in SMPs to communicate with the PD is available (`peppol-directory-client` for JDK 1.8 and `peppol-directory-client-jdk6` for JDK 1.6)
+  * [My PEPPOL SMP Server](https://github.com/phax/peppol-smp-server) supports starting with version 4.1.2 the graphical editing of Business Card incl. the new `/businesscard` API.
   
 Open tasks according to the design document:
   * The REST query API must be added to the publisher
