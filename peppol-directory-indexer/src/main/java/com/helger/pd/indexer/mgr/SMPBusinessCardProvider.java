@@ -45,6 +45,8 @@ import com.helger.peppol.smp.ServiceMetadataReferenceType;
 import com.helger.peppol.smpclient.SMPClientReadOnly;
 import com.helger.peppol.smpclient.exception.SMPClientException;
 import com.helger.peppol.smpclient.exception.SMPClientNotFoundException;
+import com.helger.peppol.url.BDXURLProvider;
+import com.helger.peppol.url.IPeppolURLProvider;
 
 /**
  * The SMP based {@link IPDBusinessCardProvider} implementation. An SMP lookup
@@ -57,6 +59,7 @@ public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
 {
   private static final String URL_PART_SERVICES = "/services/";
   private static final Logger s_aLogger = LoggerFactory.getLogger (SMPBusinessCardProvider.class);
+  private static final IPeppolURLProvider URL_PROVIDER = new BDXURLProvider ();
 
   /**
    * @return The HttpProxy object to be used by SMP clients based on the Java
@@ -134,7 +137,7 @@ public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
     }
 
     // Query all document types
-    final ICommonsList <IDocumentTypeIdentifier> aDocumentTypeIDs = new CommonsArrayList<> ();
+    final ICommonsList <IDocumentTypeIdentifier> aDocumentTypeIDs = new CommonsArrayList <> ();
     if (aServiceGroup != null)
       for (final ServiceMetadataReferenceType aRef : aServiceGroup.getServiceMetadataReferenceCollection ()
                                                                   .getServiceMetadataReference ())
@@ -179,12 +182,12 @@ public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
   public PDExtendedBusinessCard getBusinessCard (@Nonnull final IParticipantIdentifier aParticipantID)
   {
     // Create SMP client for SML first
-    final SMPClientReadOnly aSMPClientSML = new SMPClientReadOnly (aParticipantID, ESML.DIGIT_PRODUCTION);
+    final SMPClientReadOnly aSMPClientSML = new SMPClientReadOnly (URL_PROVIDER, aParticipantID, ESML.DIGIT_PRODUCTION);
     PDExtendedBusinessCard aBC = getBusinessCard (aParticipantID, aSMPClientSML);
     if (aBC == null)
     {
       // Try with SMK upon failure
-      final SMPClientReadOnly aSMPClientSMK = new SMPClientReadOnly (aParticipantID, ESML.DIGIT_TEST);
+      final SMPClientReadOnly aSMPClientSMK = new SMPClientReadOnly (URL_PROVIDER, aParticipantID, ESML.DIGIT_TEST);
       aBC = getBusinessCard (aParticipantID, aSMPClientSMK);
     }
     if (aBC != null)
