@@ -45,11 +45,10 @@ final class ReIndexWorkItemList extends AbstractMapBasedWALDAO <IReIndexWorkItem
                                 implements IReIndexWorkItemList
 {
   private static final Logger s_aLogger = LoggerFactory.getLogger (ReIndexWorkItemList.class);
-  private static final String ELEMENT_ITEM = "item";
 
   public ReIndexWorkItemList (@Nullable final String sFilename) throws DAOException
   {
-    super (ReIndexWorkItem.class, sFilename, ELEMENT_ITEM);
+    super (ReIndexWorkItem.class, sFilename);
   }
 
   /**
