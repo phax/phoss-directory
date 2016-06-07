@@ -24,6 +24,7 @@ import javax.annotation.concurrent.Immutable;
 
 import com.helger.commons.collection.ext.CommonsArrayList;
 import com.helger.photon.security.CSecurity;
+import com.helger.photon.security.login.LoggedInUserManager;
 import com.helger.photon.security.mgr.PhotonSecurityManager;
 import com.helger.photon.security.role.RoleManager;
 import com.helger.photon.security.user.UserManager;
@@ -46,8 +47,8 @@ public final class AppSecurity
   public static final String ROLE_SG_OWNER_DESCRIPTION = null;
   public static final Map <String, String> ROLE_SG_OWNER_CUSTOMATTRS = null;
 
-  public static final List <String> REQUIRED_ROLE_IDS_CONFIG = new CommonsArrayList <> (ROLE_CONFIG_ID).getAsUnmodifiable ();
-  public static final List <String> REQUIRED_ROLE_IDS_VIEW = new CommonsArrayList <> (ROLE_VIEW_ID).getAsUnmodifiable ();
+  public static final List <String> REQUIRED_ROLE_IDS_CONFIG = new CommonsArrayList<> (ROLE_CONFIG_ID).getAsUnmodifiable ();
+  public static final List <String> REQUIRED_ROLE_IDS_VIEW = new CommonsArrayList<> (ROLE_VIEW_ID).getAsUnmodifiable ();
 
   // User groups
   public static final String USERGROUP_ADMINISTRATORS_ID = CSecurity.USERGROUP_ADMINISTRATORS_ID;
@@ -142,5 +143,8 @@ public final class AppSecurity
                                                USERGROUP_VIEW_DESCRIPTION,
                                                USERGROUP_VIEW_CUSTOMATTRS);
     aUserGroupMgr.assignRoleToUserGroup (USERGROUP_VIEW_ID, ROLE_VIEW_ID);
+
+    // Allow to kick old sessions
+    LoggedInUserManager.getInstance ().setLogoutAlreadyLoggedInUser (true);
   }
 }
