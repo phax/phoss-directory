@@ -16,26 +16,24 @@
  */
 package com.helger.pd.indexer.job;
 
-import java.util.Date;
-
 import javax.annotation.Nonnull;
 import javax.servlet.ServletContext;
 
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.quartz.ScheduleBuilder;
-import org.quartz.SimpleTrigger;
-import org.quartz.TriggerBuilder;
+import org.quartz.SimpleScheduleBuilder;
 import org.quartz.TriggerKey;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.annotation.OverrideOnDemand;
+import com.helger.commons.datetime.PDTFactory;
 import com.helger.pd.indexer.mgr.PDIndexerManager;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.photon.core.job.AbstractPhotonJob;
 import com.helger.schedule.quartz.GlobalQuartzScheduler;
+import com.helger.schedule.quartz.trigger.JDK8TriggerBuilder;
 import com.helger.web.mock.MockHttpServletRequest;
 import com.helger.web.mock.OfflineHttpServletRequest;
 import com.helger.web.scope.mgr.WebScopeManager;
@@ -91,17 +89,17 @@ public class ReIndexJob extends AbstractPhotonJob
    * @return The created trigger key for further usage. Never <code>null</code>.
    */
   @Nonnull
-  public static TriggerKey schedule (@Nonnull final ScheduleBuilder <SimpleTrigger> aScheduleBuilder,
+  public static TriggerKey schedule (@Nonnull final SimpleScheduleBuilder aScheduleBuilder,
                                      @Nonnull @Nonempty final String sApplicationID)
   {
     ValueEnforcer.notNull (aScheduleBuilder, "ScheduleBuilder");
 
     setApplicationScopeID (sApplicationID);
     return GlobalQuartzScheduler.getInstance ().scheduleJob (ReIndexJob.class.getName (),
-                                                             TriggerBuilder.newTrigger ()
-                                                                           .startAt (new Date (new Date ().getTime () +
-                                                                                               5000))
-                                                                           .withSchedule (aScheduleBuilder),
+                                                             JDK8TriggerBuilder.newTrigger ()
+                                                                               .startAt (PDTFactory.getCurrentLocalDateTime ()
+                                                                                                   .plusSeconds (5))
+                                                                               .withSchedule (aScheduleBuilder),
                                                              ReIndexJob.class,
                                                              null);
   }
