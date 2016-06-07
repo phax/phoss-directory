@@ -20,12 +20,12 @@ import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 
 import com.helger.commons.annotation.IsSPIImplementation;
-import com.helger.commons.microdom.convert.IMicroTypeConverterRegistrarSPI;
-import com.helger.commons.microdom.convert.IMicroTypeConverterRegistry;
 import com.helger.pd.indexer.domain.IndexerWorkItem;
 import com.helger.pd.indexer.domain.IndexerWorkItemMicroTypeConverter;
 import com.helger.pd.indexer.domain.ReIndexWorkItem;
 import com.helger.pd.indexer.domain.ReIndexWorkItemMicroTypeConverter;
+import com.helger.xml.microdom.convert.IMicroTypeConverterRegistrarSPI;
+import com.helger.xml.microdom.convert.IMicroTypeConverterRegistry;
 
 /**
  * Implementation of {@link IMicroTypeConverterRegistrarSPI} for indexer types
