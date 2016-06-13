@@ -76,18 +76,32 @@ public final class PDIndexerManager implements Closeable
   private final SimpleReadWriteLock m_aRWLock = new SimpleReadWriteLock ();
   private final IPDStorageManager m_aStorageMgr;
   private final File m_aIndexerWorkItemFile;
-  private final IndexerWorkItemQueue m_aIndexerWorkQueue;
   private final ReIndexWorkItemList m_aReIndexList;
   private final ReIndexWorkItemList m_aDeadList;
+  private final IndexerWorkItemQueue m_aIndexerWorkQueue;
   private final TriggerKey m_aTriggerKey;
   @GuardedBy ("m_aRWLock")
   private final ICommonsSet <IIndexerWorkItem> m_aUniqueItems = new CommonsHashSet <> ();
-  @GuardedBy ("m_aRWLock")
-  private IPDBusinessCardProvider m_aBCProvider = new SMPBusinessCardProvider ();
 
   // Status vars
   private final GlobalQuartzScheduler m_aScheduler;
 
+  /**
+   * Constructor.<br>
+   * Initialized the work item queue, the re-index queue and the dead-queue.<br>
+   * Schedules the re-index job.<br>
+   * Read all work items persisted to disk. This happens when the application is
+   * shutdown while elements are still in the queue.<br>
+   * Please note that the queuing of the items might directly trigger the usage
+   * of the {@link PDMetaManager#getBusinessCardProvider()} so make sure to call
+   * {@link PDMetaManager#setBusinessCardProvider(IPDBusinessCardProvider)}
+   * before calling this method.
+   *
+   * @param aStorageMgr
+   *        Storage manager to used. May not be <code>null</code>.
+   * @throws DAOException
+   *         If DAO initialization failed
+   */
   public PDIndexerManager (@Nonnull final IPDStorageManager aStorageMgr) throws DAOException
   {
     m_aStorageMgr = ValueEnforcer.notNull (aStorageMgr, "StorageMgr");
@@ -96,31 +110,19 @@ public final class PDIndexerManager implements Closeable
     // discarded
     m_aIndexerWorkItemFile = WebFileIO.getDataIO ().getFile ("indexer-work-items.xml");
 
-    m_aIndexerWorkQueue = new IndexerWorkItemQueue (new PDAsyncIndexer (aStorageMgr, this));
     m_aReIndexList = new ReIndexWorkItemList ("reindex-work-items.xml");
     m_aDeadList = new ReIndexWorkItemList ("dead-work-items.xml");
+    m_aIndexerWorkQueue = new IndexerWorkItemQueue (aQueueItem -> PDIndexExecutor.executeWorkItem (m_aStorageMgr,
+                                                                                                   aQueueItem,
+                                                                                                   aSuccesItem -> _onIndexSuccess (aSuccesItem),
+                                                                                                   aFailureItem -> m_aReIndexList.addItem (new ReIndexWorkItem (aFailureItem))));
 
     // Schedule re-index job
     m_aTriggerKey = ReIndexJob.schedule (SimpleScheduleBuilder.repeatMinutelyForever (1), CApplication.APP_ID_SECURE);
 
     // remember here
     m_aScheduler = GlobalQuartzScheduler.getInstance ();
-  }
 
-  /**
-   * Read all work items persisted to disk. This happens when the application is
-   * shutdown while elements are still in the queue. This should be called
-   * directly after the constructor. But please note that the queuing of the
-   * items might directly trigger the usage of the
-   * {@link #getBusinessCardProvider()} so make sure to call
-   * {@link #setBusinessCardProvider(IPDBusinessCardProvider)} before calling
-   * this method.
-   *
-   * @return this for chaining
-   */
-  @Nonnull
-  public PDIndexerManager readAndQueueInitialData ()
-  {
     // Read the file - may not be existing
     final IMicroDocument aDoc = MicroReader.readMicroXML (m_aIndexerWorkItemFile);
     if (aDoc != null)
@@ -137,35 +139,22 @@ public final class PDIndexerManager implements Closeable
       // Delete the files to ensure it is not read again next startup time
       WebFileIO.getFileOpMgr ().deleteFile (m_aIndexerWorkItemFile);
     }
-    return this;
-  }
-
-  /**
-   * Write all work items to a file.
-   *
-   * @param aItems
-   *        The items to be written. May not be <code>null</code> but maybe
-   *        empty.
-   */
-  private void _writeWorkItems (@Nonnull final ICommonsList <IIndexerWorkItem> aItems)
-  {
-    if (aItems.isNotEmpty ())
-    {
-      s_aLogger.info ("Persisting " + aItems.size () + " indexer work items");
-      final IMicroDocument aDoc = new MicroDocument ();
-      final IMicroElement eRoot = aDoc.appendElement (ELEMENT_ROOT);
-      for (final IIndexerWorkItem aItem : aItems)
-        eRoot.appendChild (MicroTypeConverter.convertToMicroElement (aItem, ELEMENT_ITEM));
-      if (MicroWriter.writeToFile (aDoc, m_aIndexerWorkItemFile).isFailure ())
-        throw new IllegalStateException ("Failed to write IndexerWorkItems to " + m_aIndexerWorkItemFile);
-    }
   }
 
   public void close () throws IOException
   {
     // Get all remaining objects and save them for late reuse
     final ICommonsList <IIndexerWorkItem> aRemainingWorkItems = m_aIndexerWorkQueue.stop ();
-    _writeWorkItems (aRemainingWorkItems);
+    if (aRemainingWorkItems.isNotEmpty ())
+    {
+      s_aLogger.info ("Persisting " + aRemainingWorkItems.size () + " indexer work items");
+      final IMicroDocument aDoc = new MicroDocument ();
+      final IMicroElement eRoot = aDoc.appendElement (ELEMENT_ROOT);
+      for (final IIndexerWorkItem aItem : aRemainingWorkItems)
+        eRoot.appendChild (MicroTypeConverter.convertToMicroElement (aItem, ELEMENT_ITEM));
+      if (MicroWriter.writeToFile (aDoc, m_aIndexerWorkItemFile).isFailure ())
+        throw new IllegalStateException ("Failed to write IndexerWorkItems to " + m_aIndexerWorkItemFile);
+    }
 
     // Unschedule the job to avoid problems on shutdown. Use the saved instance
     // because GlobalQuartzScheduler.getInstance() would fail because the global
@@ -174,32 +163,6 @@ public final class PDIndexerManager implements Closeable
 
     // Close Lucene index etc.
     m_aStorageMgr.close ();
-  }
-
-  /**
-   * @return The global {@link IPDBusinessCardProvider}. Never <code>null</code>
-   *         .
-   */
-  @Nonnull
-  public IPDBusinessCardProvider getBusinessCardProvider ()
-  {
-    return m_aRWLock.readLocked ( () -> m_aBCProvider);
-  }
-
-  /**
-   * Set the global {@link IPDBusinessCardProvider} that is used for future
-   * create/update requests.
-   *
-   * @param aBCProvider
-   *        Business card provider to be used. May not be <code>null</code>.
-   * @return this for chaining
-   */
-  @Nonnull
-  public PDIndexerManager setBusinessCardProvider (@Nonnull final IPDBusinessCardProvider aBCProvider)
-  {
-    ValueEnforcer.notNull (aBCProvider, "BCProvider");
-    m_aRWLock.writeLocked ( () -> m_aBCProvider = aBCProvider);
-    return this;
   }
 
   /**
@@ -266,7 +229,8 @@ public final class PDIndexerManager implements Closeable
   }
 
   /**
-   * Expire all re-index entries that are in the list for a too long time.
+   * Expire all re-index entries that are in the list for a too long time. This
+   * is called from a scheduled job only.
    */
   public void expireOldEntries ()
   {
@@ -288,12 +252,14 @@ public final class PDIndexerManager implements Closeable
   }
 
   /**
-   * Re-index all entries that are ready to be re-indexed now.
+   * Re-index all entries that are ready to be re-indexed now. This is called
+   * from a scheduled job only.
    */
   public void reIndexParticipantData ()
   {
-    // Get and remove all items to re-index "now"
     final LocalDateTime aNow = PDTFactory.getCurrentLocalDateTime ();
+
+    // Get and remove all items to re-index "now"
     final List <IReIndexWorkItem> aReIndexNowItems = m_aReIndexList.getAndRemoveAllEntries (aWorkItem -> aWorkItem.isRetryPossible (aNow));
 
     if (s_aLogger.isDebugEnabled ())
@@ -304,12 +270,16 @@ public final class PDIndexerManager implements Closeable
       if (s_aLogger.isDebugEnabled ())
         s_aLogger.debug ("Try to re-index " + aReIndexItem.getLogText ());
 
-      if (PDIndexExecutor.executeWorkItem (m_aStorageMgr, this, aReIndexItem.getWorkItem ()).isFailure ())
-      {
-        // Still no success. Add again to the retry list
-        m_aReIndexList.incRetryCountAndAddItem (aReIndexItem);
-      }
+      PDIndexExecutor.executeWorkItem (m_aStorageMgr,
+                                       aReIndexItem.getWorkItem (),
+                                       aSuccessItem -> _onIndexSuccess (aSuccessItem),
+                                       aFailureItem -> m_aReIndexList.incRetryCountAndAddItem (aReIndexItem));
     }
+  }
+
+  private void _onIndexSuccess (@Nonnull final IIndexerWorkItem aWorkItem)
+  {
+    m_aRWLock.writeLocked ( () -> m_aUniqueItems.remove (aWorkItem));
   }
 
   /**
@@ -332,17 +302,6 @@ public final class PDIndexerManager implements Closeable
     return m_aDeadList;
   }
 
-  void internalAfterSuccess (@Nonnull final IIndexerWorkItem aWorkItem)
-  {
-    m_aRWLock.writeLocked ( () -> m_aUniqueItems.remove (aWorkItem));
-  }
-
-  @Nonnull
-  ReIndexWorkItemList internalGetMutableReIndexList ()
-  {
-    return m_aReIndexList;
-  }
-
   @Override
   public String toString ()
   {
@@ -352,7 +311,6 @@ public final class PDIndexerManager implements Closeable
                             .append ("DeadList", m_aDeadList)
                             .append ("IndexerWorkQueue", m_aIndexerWorkQueue)
                             .append ("TriggerKey", m_aTriggerKey)
-                            .append ("BCProvider", m_aBCProvider)
                             .toString ();
   }
 }

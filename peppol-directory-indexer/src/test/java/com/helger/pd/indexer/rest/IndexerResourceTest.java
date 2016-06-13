@@ -56,7 +56,6 @@ import com.helger.pd.businesscard.PDExtendedBusinessCard;
 import com.helger.pd.businesscard.PDIdentifierType;
 import com.helger.pd.indexer.PDIndexerTestRule;
 import com.helger.pd.indexer.clientcert.ClientCertificateValidator;
-import com.helger.pd.indexer.mgr.PDIndexerManager;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.peppol.identifier.peppol.PeppolIdentifierHelper;
@@ -122,9 +121,8 @@ public final class IndexerResourceTest
   @Before
   public void setUp () throws GeneralSecurityException, IOException
   {
-    // Set test BI provider
-    PDMetaManager.setIndexerMgrFactory (aStorageMgr -> new PDIndexerManager (aStorageMgr).setBusinessCardProvider (aParticipantID -> _createMockBI (aParticipantID))
-                                                                                         .readAndQueueInitialData ());
+    // Set test BI provider first!
+    PDMetaManager.setBusinessCardProvider (aParticipantID -> _createMockBI (aParticipantID));
     PDMetaManager.getInstance ();
 
     final File aTestClientCertificateKeyStore = new File ("src/test/resources/smp.pilot.jks");

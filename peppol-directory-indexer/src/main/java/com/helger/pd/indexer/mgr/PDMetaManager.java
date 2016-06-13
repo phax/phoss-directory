@@ -23,16 +23,14 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.UsedViaReflection;
-import com.helger.commons.annotation.VisibleForTesting;
-import com.helger.commons.callback.IThrowingCallableWithParameter;
 import com.helger.commons.exception.InitializationException;
 import com.helger.commons.io.stream.StreamHelper;
 import com.helger.commons.lang.ClassHelper;
 import com.helger.commons.scope.IScope;
 import com.helger.commons.scope.singleton.AbstractGlobalSingleton;
+import com.helger.pd.businesscard.IPDBusinessCardProvider;
 import com.helger.pd.indexer.lucene.PDLucene;
 import com.helger.pd.indexer.storage.PDStorageManager;
-import com.helger.photon.basic.app.dao.impl.DAOException;
 
 /**
  * The PEPPOL Directory meta manager. It consists all the other managers for the
@@ -44,30 +42,10 @@ public final class PDMetaManager extends AbstractGlobalSingleton
 {
   private static final Logger s_aLogger = LoggerFactory.getLogger (PDMetaManager.class);
 
-  private static IThrowingCallableWithParameter <PDIndexerManager, PDStorageManager, DAOException> s_aFactoryIndexerMgr;
-
-  static
-  {
-    // Set default
-    setIndexerMgrFactory (aStorageMgr -> new PDIndexerManager (aStorageMgr).readAndQueueInitialData ());
-  }
-
+  private static IPDBusinessCardProvider s_aBCProvider = new SMPBusinessCardProvider ();
   private PDLucene m_aLucene;
   private PDStorageManager m_aStorageMgr;
   private PDIndexerManager m_aIndexerMgr;
-
-  /**
-   * Set the factory used to create the {@link PDIndexerManager} instance.
-   *
-   * @param aFactoryIndexerMgr
-   *        The factory to use. May not be <code>null</code>.
-   */
-  @VisibleForTesting
-  public static void setIndexerMgrFactory (@Nonnull final IThrowingCallableWithParameter <PDIndexerManager, PDStorageManager, DAOException> aFactoryIndexerMgr)
-  {
-    ValueEnforcer.notNull (aFactoryIndexerMgr, "FactoryIndexerMgr");
-    s_aFactoryIndexerMgr = aFactoryIndexerMgr;
-  }
 
   @Deprecated
   @UsedViaReflection
@@ -81,9 +59,7 @@ public final class PDMetaManager extends AbstractGlobalSingleton
     {
       m_aLucene = new PDLucene ();
       m_aStorageMgr = new PDStorageManager (m_aLucene);
-      m_aIndexerMgr = s_aFactoryIndexerMgr.call (m_aStorageMgr);
-      if (m_aIndexerMgr == null)
-        throw new IllegalStateException ("Failed to create IndexerManager using factory " + s_aFactoryIndexerMgr);
+      m_aIndexerMgr = new PDIndexerManager (m_aStorageMgr);
 
       s_aLogger.info (ClassHelper.getClassLocalName (this) + " was initialized");
     }
@@ -105,6 +81,29 @@ public final class PDMetaManager extends AbstractGlobalSingleton
   public static PDMetaManager getInstance ()
   {
     return getGlobalSingleton (PDMetaManager.class);
+  }
+
+  /**
+   * @return The global {@link IPDBusinessCardProvider}. Never <code>null</code>
+   *         .
+   */
+  @Nonnull
+  public static IPDBusinessCardProvider getBusinessCardProvider ()
+  {
+    return s_aBCProvider;
+  }
+
+  /**
+   * Set the global {@link IPDBusinessCardProvider} that is used for future
+   * create/update requests.
+   *
+   * @param aBCProvider
+   *        Business card provider to be used. May not be <code>null</code>.
+   */
+  public static void setBusinessCardProvider (@Nonnull final IPDBusinessCardProvider aBCProvider)
+  {
+    ValueEnforcer.notNull (aBCProvider, "BCProvider");
+    s_aBCProvider = aBCProvider;
   }
 
   @Nonnull

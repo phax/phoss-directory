@@ -1,5 +1,7 @@
 package com.helger.pd.indexer.mgr;
 
+import java.util.function.Consumer;
+
 import javax.annotation.Nonnull;
 
 import org.slf4j.Logger;
@@ -23,16 +25,19 @@ final class PDIndexExecutor
    *
    * @param aStorageMgr
    *        Storage manager.
-   * @param aIndexerMgr
-   *        Indexer manager.
    * @param aWorkItem
    *        The work item to be executed. May not be <code>null</code>.
+   * @param aSuccessHandler
+   *        A callback that is invoked upon success only.
+   * @param aFailureHandler
+   *        A callback that is invoked upon failure only.
    * @return {@link ESuccess}
    */
   @Nonnull
   public static ESuccess executeWorkItem (@Nonnull final IPDStorageManager aStorageMgr,
-                                          @Nonnull final PDIndexerManager aIndexerMgr,
-                                          @Nonnull final IIndexerWorkItem aWorkItem)
+                                          @Nonnull final IIndexerWorkItem aWorkItem,
+                                          @Nonnull final Consumer <IIndexerWorkItem> aSuccessHandler,
+                                          @Nonnull final Consumer <IIndexerWorkItem> aFailureHandler)
   {
     s_aLogger.info ("Execute work item " + aWorkItem.getLogText ());
 
@@ -46,7 +51,7 @@ final class PDIndexExecutor
         case CREATE_UPDATE:
         {
           // Get BI from participant (e.g. from SMP)
-          final PDExtendedBusinessCard aBI = aIndexerMgr.getBusinessCardProvider ().getBusinessCard (aParticipantID);
+          final PDExtendedBusinessCard aBI = PDMetaManager.getBusinessCardProvider ().getBusinessCard (aParticipantID);
           if (aBI == null)
           {
             // No/invalid extension present - no need to try again
@@ -71,7 +76,7 @@ final class PDIndexExecutor
       if (eSuccess.isSuccess ())
       {
         // Item handled - remove from overall list
-        aIndexerMgr.internalAfterSuccess (aWorkItem);
+        aSuccessHandler.accept (aWorkItem);
 
         // And we're done
         return ESuccess.SUCCESS;
@@ -84,6 +89,9 @@ final class PDIndexExecutor
       s_aLogger.error ("Error in executing work item " + aWorkItem.getLogText (), ex);
       // Fall through
     }
+
+    // Invoke failur handler
+    aFailureHandler.accept (aWorkItem);
 
     return ESuccess.FAILURE;
   }
