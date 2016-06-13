@@ -38,10 +38,8 @@ import com.helger.commons.collection.ext.ICommonsSet;
 import com.helger.commons.concurrent.SimpleReadWriteLock;
 import com.helger.commons.datetime.PDTFactory;
 import com.helger.commons.state.EChange;
-import com.helger.commons.state.ESuccess;
 import com.helger.commons.string.ToStringGenerator;
 import com.helger.pd.businesscard.IPDBusinessCardProvider;
-import com.helger.pd.businesscard.PDExtendedBusinessCard;
 import com.helger.pd.indexer.index.EIndexerWorkItemType;
 import com.helger.pd.indexer.index.IIndexerWorkItem;
 import com.helger.pd.indexer.index.IndexerWorkItem;
@@ -51,7 +49,6 @@ import com.helger.pd.indexer.reindex.IReIndexWorkItem;
 import com.helger.pd.indexer.reindex.IReIndexWorkItemList;
 import com.helger.pd.indexer.reindex.ReIndexWorkItem;
 import com.helger.pd.indexer.reindex.ReIndexWorkItemList;
-import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.photon.basic.app.dao.impl.DAOException;
 import com.helger.photon.basic.app.io.WebFileIO;
@@ -77,9 +74,9 @@ public final class PDIndexerManager implements Closeable
   private static final String ELEMENT_ITEM = "item";
 
   private final SimpleReadWriteLock m_aRWLock = new SimpleReadWriteLock ();
-  private final PDStorageManager m_aStorageMgr;
+  private final IPDStorageManager m_aStorageMgr;
   private final File m_aIndexerWorkItemFile;
-  private final IndexerWorkItemQueue m_aIndexerWorkQueue = new IndexerWorkItemQueue (this::_asyncFetchParticipantData);
+  private final IndexerWorkItemQueue m_aIndexerWorkQueue;
   private final ReIndexWorkItemList m_aReIndexList;
   private final ReIndexWorkItemList m_aDeadList;
   private final TriggerKey m_aTriggerKey;
@@ -91,15 +88,17 @@ public final class PDIndexerManager implements Closeable
   // Status vars
   private final GlobalQuartzScheduler m_aScheduler;
 
-  public PDIndexerManager (@Nonnull final PDStorageManager aStorageMgr) throws DAOException
+  public PDIndexerManager (@Nonnull final IPDStorageManager aStorageMgr) throws DAOException
   {
     m_aStorageMgr = ValueEnforcer.notNull (aStorageMgr, "StorageMgr");
-    m_aReIndexList = new ReIndexWorkItemList ("reindex-work-items.xml");
-    m_aDeadList = new ReIndexWorkItemList ("dead-work-items.xml");
 
     // Remember the file because upon shutdown WebFileIO may already be
     // discarded
     m_aIndexerWorkItemFile = WebFileIO.getDataIO ().getFile ("indexer-work-items.xml");
+
+    m_aIndexerWorkQueue = new IndexerWorkItemQueue (new PDAsyncIndexer (aStorageMgr, this));
+    m_aReIndexList = new ReIndexWorkItemList ("reindex-work-items.xml");
+    m_aDeadList = new ReIndexWorkItemList ("dead-work-items.xml");
 
     // Schedule re-index job
     m_aTriggerKey = ReIndexJob.schedule (SimpleScheduleBuilder.repeatMinutelyForever (1), CApplication.APP_ID_SECURE);
@@ -267,93 +266,6 @@ public final class PDIndexerManager implements Closeable
   }
 
   /**
-   * This method is responsible for executing the specified work item depending
-   * on its type.
-   *
-   * @param aWorkItem
-   *        The work item to be executed. May not be <code>null</code>.
-   * @return {@link ESuccess}
-   */
-  @Nonnull
-  private ESuccess _executeWorkItem (@Nonnull final IIndexerWorkItem aWorkItem)
-  {
-    s_aLogger.info ("Execute " + aWorkItem.getLogText ());
-
-    try
-    {
-      final IParticipantIdentifier aParticipantID = aWorkItem.getParticipantID ();
-
-      ESuccess eSuccess;
-      switch (aWorkItem.getType ())
-      {
-        case CREATE_UPDATE:
-        {
-          // Get BI from participant (e.g. from SMP)
-          final PDExtendedBusinessCard aBI = getBusinessCardProvider ().getBusinessCard (aParticipantID);
-          if (aBI == null)
-          {
-            // No/invalid extension present - no need to try again
-            eSuccess = ESuccess.FAILURE;
-          }
-          else
-          {
-            // Got data - put in storage
-            eSuccess = m_aStorageMgr.createOrUpdateEntry (aParticipantID, aBI, aWorkItem.getAsMetaData ());
-          }
-          break;
-        }
-        case DELETE:
-        {
-          eSuccess = m_aStorageMgr.deleteEntry (aParticipantID, aWorkItem.getAsMetaData ());
-          break;
-        }
-        default:
-          throw new IllegalStateException ("Unsupported work item type: " + aWorkItem);
-      }
-
-      if (eSuccess.isSuccess ())
-      {
-        // Item handled - remove from overall list
-        m_aRWLock.writeLocked ((Runnable) () -> m_aUniqueItems.remove (aWorkItem));
-
-        // And we're done
-        return ESuccess.SUCCESS;
-      }
-
-      // else error storing data
-    }
-    catch (final Exception ex)
-    {
-      s_aLogger.error ("Error in executing work item " + aWorkItem.getLogText (), ex);
-      // Fall through
-    }
-
-    return ESuccess.FAILURE;
-  }
-
-  /**
-   * This is the performer for the direct data fetching.
-   *
-   * @param aItem
-   *        The item to be fetched. Never <code>null</code>.
-   * @return {@link ESuccess}.
-   */
-  @Nonnull
-  private ESuccess _asyncFetchParticipantData (@Nonnull final IIndexerWorkItem aItem)
-  {
-    final ESuccess eSuccess = _executeWorkItem (aItem);
-
-    if (eSuccess.isFailure ())
-    {
-      s_aLogger.warn ("Error fetching " + aItem.getLogText ());
-      // Failed to fetch participant data - add to re-index queue and leave in
-      // the overall list
-      m_aReIndexList.addItem (new ReIndexWorkItem (aItem));
-    }
-    return eSuccess;
-  }
-
-  /**
    * Expire all re-index entries that are in the list for a too long time.
    */
   public void expireOldEntries ()
@@ -392,7 +304,7 @@ public final class PDIndexerManager implements Closeable
       if (s_aLogger.isDebugEnabled ())
         s_aLogger.debug ("Try to re-index " + aReIndexItem.getLogText ());
 
-      if (_executeWorkItem (aReIndexItem.getWorkItem ()).isFailure ())
+      if (PDIndexExecutor.executeWorkItem (m_aStorageMgr, this, aReIndexItem.getWorkItem ()).isFailure ())
       {
         // Still no success. Add again to the retry list
         m_aReIndexList.incRetryCountAndAddItem (aReIndexItem);
@@ -418,6 +330,17 @@ public final class PDIndexerManager implements Closeable
   public IReIndexWorkItemList getDeadList ()
   {
     return m_aDeadList;
+  }
+
+  void internalAfterSuccess (@Nonnull final IIndexerWorkItem aWorkItem)
+  {
+    m_aRWLock.writeLocked ( () -> m_aUniqueItems.remove (aWorkItem));
+  }
+
+  @Nonnull
+  ReIndexWorkItemList internalGetMutableReIndexList ()
+  {
+    return m_aReIndexList;
   }
 
   @Override

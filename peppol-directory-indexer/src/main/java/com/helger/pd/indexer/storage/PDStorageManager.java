@@ -16,7 +16,6 @@
  */
 package com.helger.pd.indexer.storage;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.util.List;
 import java.util.function.Consumer;
@@ -66,6 +65,7 @@ import com.helger.pd.businesscard.PDExtendedBusinessCard;
 import com.helger.pd.businesscard.PDIdentifierType;
 import com.helger.pd.indexer.lucene.AllDocumentsCollector;
 import com.helger.pd.indexer.lucene.PDLucene;
+import com.helger.pd.indexer.mgr.IPDStorageManager;
 import com.helger.peppol.identifier.IdentifierHelper;
 import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
@@ -77,7 +77,7 @@ import com.helger.photon.basic.audit.AuditHelper;
  * @author Philip Helger
  */
 @Immutable
-public final class PDStorageManager implements Closeable
+public final class PDStorageManager implements IPDStorageManager
 {
   private static final Logger s_aLogger = LoggerFactory.getLogger (PDStorageManager.class);
   private static final FieldType TYPE_GROUP_END = new FieldType ();
@@ -138,7 +138,7 @@ public final class PDStorageManager implements Closeable
     ValueEnforcer.notNull (aMetaData, "MetaData");
 
     return m_aLucene.runAtomic ( () -> {
-      final ICommonsList <Document> aDocuments = new CommonsArrayList<> ();
+      final ICommonsList <Document> aDocuments = new CommonsArrayList <> ();
 
       // Get all documents to be marked as deleted
       final IndexSearcher aSearcher = m_aLucene.getSearcher ();
@@ -176,7 +176,7 @@ public final class PDStorageManager implements Closeable
     ValueEnforcer.notNull (aMetaData, "MetaData");
 
     return m_aLucene.runAtomic ( () -> {
-      final ICommonsList <Document> aDocs = new CommonsArrayList<> ();
+      final ICommonsList <Document> aDocs = new CommonsArrayList <> ();
 
       final PDBusinessCardType aBI = aExtBI.getBusinessCard ();
       for (final PDBusinessEntityType aBusinessEntity : aBI.getBusinessEntity ())
@@ -368,7 +368,7 @@ public final class PDStorageManager implements Closeable
   @ReturnsMutableCopy
   public ICommonsList <PDStoredDocument> getAllDocuments (@Nonnull final Query aQuery)
   {
-    final ICommonsList <PDStoredDocument> aTargetList = new CommonsArrayList<> ();
+    final ICommonsList <PDStoredDocument> aTargetList = new CommonsArrayList <> ();
     try
     {
       searchAllDocuments (aQuery, aDoc -> aTargetList.add (aDoc));
@@ -405,7 +405,7 @@ public final class PDStorageManager implements Closeable
   @ReturnsMutableCopy
   public ICommonsSortedSet <String> getAllContainedParticipantIDs ()
   {
-    final ICommonsSortedSet <String> aTargetSet = new CommonsTreeSet<> ();
+    final ICommonsSortedSet <String> aTargetSet = new CommonsTreeSet <> ();
     final Query aQuery = PDQueryManager.andNotDeleted (true ? new MatchAllDocsQuery ()
                                                             : new WildcardQuery (new Term (CPDStorage.FIELD_ALL_FIELDS,
                                                                                            "*")));
@@ -435,7 +435,7 @@ public final class PDStorageManager implements Closeable
   @ReturnsMutableCopy
   public static IMultiMapListBased <String, PDStoredDocument> getGroupedByParticipantID (@Nonnull final List <PDStoredDocument> aDocs)
   {
-    final MultiLinkedHashMapArrayListBased <String, PDStoredDocument> ret = new MultiLinkedHashMapArrayListBased<> ();
+    final MultiLinkedHashMapArrayListBased <String, PDStoredDocument> ret = new MultiLinkedHashMapArrayListBased <> ();
     for (final PDStoredDocument aDoc : aDocs)
       ret.putSingle (aDoc.getParticipantID (), aDoc);
     return ret;

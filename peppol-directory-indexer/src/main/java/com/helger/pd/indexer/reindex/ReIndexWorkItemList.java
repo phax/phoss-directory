@@ -94,14 +94,14 @@ public final class ReIndexWorkItemList extends AbstractMapBasedWALDAO <IReIndexW
 
   @Nonnull
   @ReturnsMutableCopy
-  public ICommonsList <IReIndexWorkItem> getAndRemoveAllEntries (@Nonnull final Predicate <? super IReIndexWorkItem> aPred)
+  public ICommonsList <IReIndexWorkItem> getAndRemoveAllEntries (@Nonnull final Predicate <? super IReIndexWorkItem> aFilter)
   {
     final ICommonsList <? extends IReIndexWorkItem> aCopyOfAll = getAll ();
     final ICommonsList <IReIndexWorkItem> ret = new CommonsArrayList <> ();
     m_aRWLock.writeLocked ( () -> {
       // Operate on a copy for removal!
       for (final IReIndexWorkItem aWorkItem : aCopyOfAll)
-        if (aPred.test (aWorkItem))
+        if (aFilter.test (aWorkItem))
         {
           ret.add (aWorkItem);
           internalDeleteItem (aWorkItem.getID ());
