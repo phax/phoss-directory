@@ -41,13 +41,13 @@ public class ReIndexWorkItem implements IReIndexWorkItem
 {
   public static final ObjectType OT = new ObjectType ("ReIndexWorkItem");
 
-  private final IndexerWorkItem m_aWorkItem;
+  private final IIndexerWorkItem m_aWorkItem;
   private final LocalDateTime m_aMaxRetryDT;
   private int m_nRetries;
   private LocalDateTime m_aPreviousRetryDT;
   private LocalDateTime m_aNextRetryDT;
 
-  public ReIndexWorkItem (@Nonnull final IndexerWorkItem aWorkItem)
+  public ReIndexWorkItem (@Nonnull final IIndexerWorkItem aWorkItem)
   {
     // The next retry happens from now in the configured number of minutes
     this (aWorkItem,
@@ -57,7 +57,7 @@ public class ReIndexWorkItem implements IReIndexWorkItem
           PDTFactory.getCurrentLocalDateTime ().plusMinutes (PDSettings.getReIndexRetryMinutes ()));
   }
 
-  ReIndexWorkItem (@Nonnull final IndexerWorkItem aWorkItem,
+  ReIndexWorkItem (@Nonnull final IIndexerWorkItem aWorkItem,
                    @Nonnull final LocalDateTime aMaxRetryDT,
                    final int nRetries,
                    @Nullable final LocalDateTime aPreviousRetryDT,
@@ -86,7 +86,7 @@ public class ReIndexWorkItem implements IReIndexWorkItem
   }
 
   @Nonnull
-  public IndexerWorkItem getWorkItem ()
+  public IIndexerWorkItem getWorkItem ()
   {
     return m_aWorkItem;
   }

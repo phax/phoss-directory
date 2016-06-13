@@ -39,7 +39,7 @@ import com.helger.peppol.identifier.generic.participant.SimpleParticipantIdentif
  * @author Philip Helger
  */
 @Immutable
-public final class IndexerWorkItem implements IIndexWorkItem
+public final class IndexerWorkItem implements IIndexerWorkItem
 {
   public static final ObjectType OT = new ObjectType ("IndexerWorkItem");
 

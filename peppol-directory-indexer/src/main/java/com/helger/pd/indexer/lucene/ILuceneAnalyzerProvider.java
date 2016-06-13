@@ -23,10 +23,11 @@ import javax.annotation.Nullable;
 import org.apache.lucene.analysis.Analyzer;
 
 /**
- * {@link Analyzer} retrieval interface
+ * Lucene {@link Analyzer} retrieval interface
  *
  * @author Philip Helger
  */
+@FunctionalInterface
 public interface ILuceneAnalyzerProvider
 {
   /**

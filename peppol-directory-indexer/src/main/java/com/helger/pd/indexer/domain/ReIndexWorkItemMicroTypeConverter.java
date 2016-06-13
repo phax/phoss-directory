@@ -55,8 +55,8 @@ public final class ReIndexWorkItemMicroTypeConverter implements IMicroTypeConver
   @Nullable
   public ReIndexWorkItem convertToNative (@Nonnull final IMicroElement aElement)
   {
-    final IndexerWorkItem aWorkItem = MicroTypeConverter.convertToNative (aElement.getFirstChildElement (ELEMENT_WORK_ITEM),
-                                                                          IndexerWorkItem.class);
+    final IIndexerWorkItem aWorkItem = MicroTypeConverter.convertToNative (aElement.getFirstChildElement (ELEMENT_WORK_ITEM),
+                                                                           IndexerWorkItem.class);
 
     final LocalDateTime aMaxRetryDT = aElement.getAttributeValueWithConversion (ATTR_MAX_RETRY_DT, LocalDateTime.class);
 

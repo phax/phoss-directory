@@ -39,7 +39,7 @@ public interface IReIndexWorkItem extends ITypedObject <String>, Serializable
    * @return The original work item. Never <code>null</code>.
    */
   @Nonnull
-  IndexerWorkItem getWorkItem ();
+  IIndexerWorkItem getWorkItem ();
 
   /**
    * @return The maximum date and time until which the retry of this item

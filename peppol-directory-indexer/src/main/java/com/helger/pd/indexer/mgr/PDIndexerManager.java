@@ -43,6 +43,7 @@ import com.helger.commons.string.ToStringGenerator;
 import com.helger.pd.businesscard.IPDBusinessCardProvider;
 import com.helger.pd.businesscard.PDExtendedBusinessCard;
 import com.helger.pd.indexer.domain.EIndexerWorkItemType;
+import com.helger.pd.indexer.domain.IIndexerWorkItem;
 import com.helger.pd.indexer.domain.IReIndexWorkItem;
 import com.helger.pd.indexer.domain.IndexerWorkItem;
 import com.helger.pd.indexer.domain.ReIndexWorkItem;
@@ -80,7 +81,7 @@ public final class PDIndexerManager implements Closeable
   private final ReIndexWorkItemList m_aDeadList;
   private final TriggerKey m_aTriggerKey;
   @GuardedBy ("m_aRWLock")
-  private final ICommonsSet <IndexerWorkItem> m_aUniqueItems = new CommonsHashSet<> ();
+  private final ICommonsSet <IIndexerWorkItem> m_aUniqueItems = new CommonsHashSet <> ();
   @GuardedBy ("m_aRWLock")
   private IPDBusinessCardProvider m_aBIProvider = new SMPBusinessCardProvider ();
 
@@ -126,7 +127,7 @@ public final class PDIndexerManager implements Closeable
         s_aLogger.debug ("Reading persisted indexer work items from " + m_aIndexerWorkItemFile);
       for (final IMicroElement eItem : aDoc.getDocumentElement ().getAllChildElements (ELEMENT_ITEM))
       {
-        final IndexerWorkItem aWorkItem = MicroTypeConverter.convertToNative (eItem, IndexerWorkItem.class);
+        final IIndexerWorkItem aWorkItem = MicroTypeConverter.convertToNative (eItem, IndexerWorkItem.class);
         _queueUniqueWorkItem (aWorkItem);
       }
 
@@ -143,14 +144,14 @@ public final class PDIndexerManager implements Closeable
    *        The items to be written. May not be <code>null</code> but maybe
    *        empty.
    */
-  private void _writeWorkItems (@Nonnull final List <IndexerWorkItem> aItems)
+  private void _writeWorkItems (@Nonnull final List <IIndexerWorkItem> aItems)
   {
     if (!aItems.isEmpty ())
     {
       s_aLogger.info ("Persisting " + aItems.size () + " indexer work items");
       final IMicroDocument aDoc = new MicroDocument ();
       final IMicroElement eRoot = aDoc.appendElement (ELEMENT_ROOT);
-      for (final IndexerWorkItem aItem : aItems)
+      for (final IIndexerWorkItem aItem : aItems)
         eRoot.appendChild (MicroTypeConverter.convertToMicroElement (aItem, ELEMENT_ITEM));
       if (MicroWriter.writeToFile (aDoc, m_aIndexerWorkItemFile).isFailure ())
         throw new IllegalStateException ("Failed to write IndexerWorkItems to " + m_aIndexerWorkItemFile);
@@ -160,7 +161,7 @@ public final class PDIndexerManager implements Closeable
   public void close () throws IOException
   {
     // Get all remaining objects and save them for late reuse
-    final List <IndexerWorkItem> aRemainingWorkItems = m_aIndexerWorkQueue.stop ();
+    final ICommonsList <IIndexerWorkItem> aRemainingWorkItems = m_aIndexerWorkQueue.stop ();
     _writeWorkItems (aRemainingWorkItems);
 
     // Unschedule the job to avoid problems on shutdown. Use the saved instance
@@ -208,7 +209,7 @@ public final class PDIndexerManager implements Closeable
    * @return {@link EChange#CHANGED} if it was queued
    */
   @Nonnull
-  private EChange _queueUniqueWorkItem (@Nonnull final IndexerWorkItem aWorkItem)
+  private EChange _queueUniqueWorkItem (@Nonnull final IIndexerWorkItem aWorkItem)
   {
     ValueEnforcer.notNull (aWorkItem, "WorkItem");
 
@@ -257,7 +258,7 @@ public final class PDIndexerManager implements Closeable
                                 @Nonnull @Nonempty final String sRequestingHost)
   {
     // Build item
-    final IndexerWorkItem aWorkItem = new IndexerWorkItem (aParticipantID, eType, sOwnerID, sRequestingHost);
+    final IIndexerWorkItem aWorkItem = new IndexerWorkItem (aParticipantID, eType, sOwnerID, sRequestingHost);
     // And queue it
     return _queueUniqueWorkItem (aWorkItem);
   }
@@ -273,7 +274,7 @@ public final class PDIndexerManager implements Closeable
    *         On Lucene error
    */
   @Nonnull
-  private ESuccess _executeCreateOrUpdate (@Nonnull final IndexerWorkItem aWorkItem) throws IOException
+  private ESuccess _executeCreateOrUpdate (@Nonnull final IIndexerWorkItem aWorkItem) throws IOException
   {
     final IParticipantIdentifier aParticipantID = aWorkItem.getParticipantID ();
 
@@ -300,7 +301,7 @@ public final class PDIndexerManager implements Closeable
    *         On Lucene error
    */
   @Nonnull
-  private ESuccess _executeDelete (@Nonnull final IndexerWorkItem aWorkItem) throws IOException
+  private ESuccess _executeDelete (@Nonnull final IIndexerWorkItem aWorkItem) throws IOException
   {
     final IParticipantIdentifier aParticipantID = aWorkItem.getParticipantID ();
 
@@ -316,7 +317,7 @@ public final class PDIndexerManager implements Closeable
    * @return {@link ESuccess}
    */
   @Nonnull
-  private ESuccess _executeWorkItem (@Nonnull final IndexerWorkItem aWorkItem)
+  private ESuccess _executeWorkItem (@Nonnull final IIndexerWorkItem aWorkItem)
   {
     s_aLogger.info ("Execute " + aWorkItem.getLogText ());
 
@@ -363,7 +364,7 @@ public final class PDIndexerManager implements Closeable
    * @return {@link ESuccess}.
    */
   @Nonnull
-  private ESuccess _asyncFetchParticipantData (@Nonnull final IndexerWorkItem aItem)
+  private ESuccess _asyncFetchParticipantData (@Nonnull final IIndexerWorkItem aItem)
   {
     final ESuccess eSuccess = _executeWorkItem (aItem);
 

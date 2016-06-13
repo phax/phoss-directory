@@ -50,7 +50,8 @@ public class IndexerResource
   private static final Logger s_aLogger = LoggerFactory.getLogger (IndexerResource.class);
 
   /**
-   * Check if the current request contains a client certificate.
+   * Check if the current request contains a client certificate and whether it
+   * is valid.
    *
    * @param aHttpServletRequest
    *        The current servlet request.
@@ -133,7 +134,7 @@ public class IndexerResource
       return Response.status (Response.Status.FORBIDDEN).build ();
 
     // Parse identifier
-    final IParticipantIdentifier aPI = SimpleParticipantIdentifier.createFromURIPart (sParticipantID);
+    final IParticipantIdentifier aPI = SimpleParticipantIdentifier.createFromURIPartOrNull (sParticipantID);
 
     // Queue for handling
     if (!PDMetaManager.getStorageMgr ().containsEntry (aPI))

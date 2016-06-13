@@ -16,7 +16,6 @@
  */
 package com.helger.pd.indexer.mgr;
 
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.SynchronousQueue;
@@ -28,11 +27,12 @@ import javax.annotation.Nonnull;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.ReturnsMutableCopy;
+import com.helger.commons.collection.ext.ICommonsList;
 import com.helger.commons.concurrent.ExtendedDefaultThreadFactory;
 import com.helger.commons.concurrent.ManagedExecutorService;
 import com.helger.commons.concurrent.collector.ConcurrentCollectorSingle;
 import com.helger.commons.concurrent.collector.IConcurrentPerformer;
-import com.helger.pd.indexer.domain.IndexerWorkItem;
+import com.helger.pd.indexer.domain.IIndexerWorkItem;
 
 /**
  * The indexer queue that holds all items to be indexed initially. If indexing
@@ -43,7 +43,7 @@ import com.helger.pd.indexer.domain.IndexerWorkItem;
  */
 final class IndexerWorkItemQueue
 {
-  private final ConcurrentCollectorSingle <IndexerWorkItem> m_aImmediateCollector;
+  private final ConcurrentCollectorSingle <IIndexerWorkItem> m_aImmediateCollector;
   private final ThreadFactory m_aThreadFactory = new ExtendedDefaultThreadFactory ("IndexerWorkQueue");
   private final ExecutorService m_aSenderThreadPool = new ThreadPoolExecutor (1,
                                                                               1,
@@ -52,7 +52,7 @@ final class IndexerWorkItemQueue
                                                                               new SynchronousQueue <Runnable> (),
                                                                               m_aThreadFactory);
 
-  public IndexerWorkItemQueue (@Nonnull final IConcurrentPerformer <IndexerWorkItem> aPerformer)
+  public IndexerWorkItemQueue (@Nonnull final IConcurrentPerformer <IIndexerWorkItem> aPerformer)
   {
     m_aImmediateCollector = new ConcurrentCollectorSingle <> (new LinkedBlockingQueue <> ());
     m_aImmediateCollector.setPerformer (aPerformer);
@@ -69,13 +69,13 @@ final class IndexerWorkItemQueue
    */
   @Nonnull
   @ReturnsMutableCopy
-  public List <IndexerWorkItem> stop ()
+  public ICommonsList <IIndexerWorkItem> stop ()
   {
     // don't take any more actions
     m_aImmediateCollector.stopQueuingNewObjects ();
 
     // Get all remaining objects and save them for late reuse
-    final List <IndexerWorkItem> aRemainingItems = m_aImmediateCollector.drainQueue ();
+    final ICommonsList <IIndexerWorkItem> aRemainingItems = m_aImmediateCollector.drainQueue ();
 
     // Shutdown the thread pool afterwards
     ManagedExecutorService.shutdownAndWaitUntilAllTasksAreFinished (m_aSenderThreadPool);
@@ -83,7 +83,7 @@ final class IndexerWorkItemQueue
     return aRemainingItems;
   }
 
-  public void queueObject (@Nonnull final IndexerWorkItem aItem)
+  public void queueObject (@Nonnull final IIndexerWorkItem aItem)
   {
     ValueEnforcer.notNull (aItem, "Item");
     m_aImmediateCollector.queueObject (aItem);

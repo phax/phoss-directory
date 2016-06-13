@@ -64,6 +64,7 @@ public class AllDocumentsCollector extends SimpleCollector
   @Override
   protected void doSetNextReader (@Nonnull final LeafReaderContext aCtx)
   {
+    // Important to remember the current document base
     m_nDocBase = aCtx.docBase;
   }
 

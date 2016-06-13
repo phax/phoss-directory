@@ -36,7 +36,6 @@ import org.slf4j.LoggerFactory;
 import com.helger.commons.annotation.PresentForCodeCoverage;
 import com.helger.commons.annotation.VisibleForTesting;
 import com.helger.commons.collection.ArrayHelper;
-import com.helger.commons.collection.CollectionHelper;
 import com.helger.commons.collection.ext.CommonsArrayList;
 import com.helger.commons.collection.ext.CommonsHashMap;
 import com.helger.commons.collection.ext.ICommonsList;
@@ -259,9 +258,9 @@ public final class ClientCertificateValidator
         aParts.put (aRdn.getType (), aRdn);
 
       // Re-order - least important item comes first (=reverse order)!
-      final String sSubjectName = new LdapName (CollectionHelper.newList (aParts.get ("C"),
-                                                                          aParts.get ("O"),
-                                                                          aParts.get ("CN"))).toString ();
+      final String sSubjectName = new LdapName (new CommonsArrayList <> (aParts.get ("C"),
+                                                                         aParts.get ("O"),
+                                                                         aParts.get ("CN"))).toString ();
 
       // subject-name + ":" + serial number hexstring
       return sSubjectName + ':' + aCert.getSerialNumber ().toString (16);

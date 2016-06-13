@@ -30,8 +30,8 @@ import com.helger.html.hc.html.tabular.HCRow;
 import com.helger.html.hc.html.tabular.HCTable;
 import com.helger.html.hc.html.textlevel.HCA;
 import com.helger.html.hc.impl.HCNodeList;
+import com.helger.pd.indexer.domain.IIndexerWorkItem;
 import com.helger.pd.indexer.domain.IReIndexWorkItem;
-import com.helger.pd.indexer.domain.IndexerWorkItem;
 import com.helger.pd.indexer.mgr.IReIndexWorkItemList;
 import com.helger.pd.publisher.ui.AbstractAppWebPageForm;
 import com.helger.photon.bootstrap3.button.BootstrapButton;
@@ -79,7 +79,7 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
     final HCNodeList aNodeList = aWPEC.getNodeList ();
     final Locale aDisplayLocale = aWPEC.getDisplayLocale ();
 
-    final IndexerWorkItem aWorkItem = aSelectedObject.getWorkItem ();
+    final IIndexerWorkItem aWorkItem = aSelectedObject.getWorkItem ();
 
     final BootstrapViewForm aViewForm = aNodeList.addAndReturnChild (new BootstrapViewForm ());
     aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Creation datetime")
@@ -151,7 +151,7 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
     for (final IReIndexWorkItem aItem : getReIndexWorkItemList ().getAllItems ())
     {
       final ISimpleURL aViewLink = createViewURL (aWPEC, aItem);
-      final IndexerWorkItem aWorkItem = aItem.getWorkItem ();
+      final IIndexerWorkItem aWorkItem = aItem.getWorkItem ();
 
       final HCRow aRow = aTable.addBodyRow ();
       aRow.addCell (new HCA (aViewLink).addChild (PDTToString.getAsString (aWorkItem.getCreationDT (),
