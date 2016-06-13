@@ -44,7 +44,7 @@ public final class IndexerWorkItemMicroTypeConverter implements IMicroTypeConver
     final IIndexerWorkItem aValue = (IIndexerWorkItem) aObject;
     final IMicroElement aElement = new MicroElement (sNamespaceURI, sTagName);
     aElement.setAttribute (ATTR_ID, aValue.getID ());
-    aElement.setAttributeWithConversion (ATTR_CREATION_DATE_TIME, aValue.getCreationDT ());
+    aElement.setAttributeWithConversion (ATTR_CREATION_DATE_TIME, aValue.getCreationDateTime ());
     aElement.setAttribute (ATTR_PARTICIPANT_ID, aValue.getParticipantID ().getURIEncoded ());
     aElement.setAttribute (ATTR_TYPE, aValue.getType ().getID ());
     aElement.setAttribute (ATTR_OWNER_ID, aValue.getOwnerID ());

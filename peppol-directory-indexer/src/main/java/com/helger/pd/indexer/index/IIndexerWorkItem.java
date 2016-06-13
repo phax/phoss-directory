@@ -17,13 +17,13 @@
 package com.helger.pd.indexer.index;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 
 import javax.annotation.Nonnull;
 
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.annotation.ReturnsMutableCopy;
 import com.helger.commons.type.ITypedObject;
+import com.helger.datetime.domain.IHasCreationDateTime;
 import com.helger.pd.indexer.storage.PDDocumentMetaData;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 
@@ -32,14 +32,8 @@ import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
  *
  * @author Philip Helger
  */
-public interface IIndexerWorkItem extends ITypedObject <String>, Serializable
+public interface IIndexerWorkItem extends ITypedObject <String>, Serializable, IHasCreationDateTime
 {
-  /**
-   * @return The date time when the object was queued. Never <code>null</code>.
-   */
-  @Nonnull
-  LocalDateTime getCreationDT ();
-
   /**
    * @return The participant identifier it is all about.
    */

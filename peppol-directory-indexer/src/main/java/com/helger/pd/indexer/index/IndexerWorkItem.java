@@ -100,7 +100,7 @@ public final class IndexerWorkItem implements IIndexerWorkItem
   }
 
   @Nonnull
-  public LocalDateTime getCreationDT ()
+  public LocalDateTime getCreationDateTime ()
   {
     return m_aCreationDT;
   }

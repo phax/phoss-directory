@@ -83,7 +83,7 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
 
     final BootstrapViewForm aViewForm = aNodeList.addAndReturnChild (new BootstrapViewForm ());
     aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Creation datetime")
-                                                     .setCtrl (PDTToString.getAsString (aWorkItem.getCreationDT (),
+                                                     .setCtrl (PDTToString.getAsString (aWorkItem.getCreationDateTime (),
                                                                                         aDisplayLocale)));
     aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Participant ID")
                                                      .setCtrl (aWorkItem.getParticipantID ().getURIEncoded ()));
@@ -154,7 +154,7 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
       final IIndexerWorkItem aWorkItem = aItem.getWorkItem ();
 
       final HCRow aRow = aTable.addBodyRow ();
-      aRow.addCell (new HCA (aViewLink).addChild (PDTToString.getAsString (aWorkItem.getCreationDT (),
+      aRow.addCell (new HCA (aViewLink).addChild (PDTToString.getAsString (aWorkItem.getCreationDateTime (),
                                                                            aDisplayLocale)));
       aRow.addCell (aWorkItem.getParticipantID ().getURIEncoded ());
       aRow.addCell (aWorkItem.getType ().getDisplayName ());

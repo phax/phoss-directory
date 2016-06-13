@@ -52,7 +52,7 @@ public class ReIndexWorkItem implements IReIndexWorkItem
   {
     // The next retry happens from now in the configured number of minutes
     this (aWorkItem,
-          aWorkItem.getCreationDT ().plusHours (PDSettings.getReIndexMaxRetryHours ()),
+          aWorkItem.getCreationDateTime ().plusHours (PDSettings.getReIndexMaxRetryHours ()),
           0,
           (LocalDateTime) null,
           PDTFactory.getCurrentLocalDateTime ().plusMinutes (PDSettings.getReIndexRetryMinutes ()));
