@@ -14,15 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pd.indexer.mgr;
+package com.helger.pd.indexer.reindex;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.helger.commons.annotation.ReturnsMutableCopy;
 import com.helger.commons.collection.ext.ICommonsList;
-import com.helger.pd.indexer.domain.IReIndexWorkItem;
-import com.helger.pd.indexer.domain.ReIndexWorkItem;
 
 /**
  * Base interface for {@link ReIndexWorkItem} objects.

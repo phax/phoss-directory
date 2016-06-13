@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pd.indexer.domain;
+package com.helger.pd.indexer.index;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -61,9 +61,9 @@ public interface IIndexerWorkItem extends ITypedObject <String>, Serializable
   String getOwnerID ();
 
   /**
-   * @return The IP address of the host requesting this work item. If this
-   *         action is triggered by the scheduled SML exchange, this should be
-   *         <code>automatic</code>.
+   * @return The IP address/host name of the host requesting this work item. If
+   *         this action is triggered by the scheduled SML exchange, this should
+   *         be <code>automatic</code>.
    */
   @Nonnull
   String getRequestingHost ();

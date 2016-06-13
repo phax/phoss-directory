@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pd.indexer.domain;
+package com.helger.pd.indexer.reindex;
 
 import java.time.LocalDateTime;
 
@@ -29,6 +29,7 @@ import com.helger.commons.datetime.PDTFactory;
 import com.helger.commons.hashcode.HashCodeGenerator;
 import com.helger.commons.string.ToStringGenerator;
 import com.helger.commons.type.ObjectType;
+import com.helger.pd.indexer.index.IIndexerWorkItem;
 import com.helger.pd.settings.PDSettings;
 
 /**

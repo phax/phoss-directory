@@ -123,7 +123,7 @@ public final class IndexerResourceTest
   public void setUp () throws GeneralSecurityException, IOException
   {
     // Set test BI provider
-    PDMetaManager.setIndexerMgrFactory (aStorageMgr -> new PDIndexerManager (aStorageMgr).setBusinessInformationProvider (aParticipantID -> _createMockBI (aParticipantID))
+    PDMetaManager.setIndexerMgrFactory (aStorageMgr -> new PDIndexerManager (aStorageMgr).setBusinessCardProvider (aParticipantID -> _createMockBI (aParticipantID))
                                                                                          .readAndQueueInitialData ());
     PDMetaManager.getInstance ();
 

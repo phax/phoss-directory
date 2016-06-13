@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pd.indexer.domain;
+package com.helger.pd.indexer.reindex;
 
 import java.time.LocalDateTime;
 
@@ -22,6 +22,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.helger.commons.string.StringParser;
+import com.helger.pd.indexer.index.IIndexerWorkItem;
+import com.helger.pd.indexer.index.IndexerWorkItem;
 import com.helger.xml.microdom.IMicroElement;
 import com.helger.xml.microdom.MicroElement;
 import com.helger.xml.microdom.convert.IMicroTypeConverter;
@@ -40,7 +42,7 @@ public final class ReIndexWorkItemMicroTypeConverter implements IMicroTypeConver
                                               @Nullable final String sNamespaceURI,
                                               @Nonnull final String sTagName)
   {
-    final ReIndexWorkItem aValue = (ReIndexWorkItem) aObject;
+    final IReIndexWorkItem aValue = (IReIndexWorkItem) aObject;
     final IMicroElement aElement = new MicroElement (sNamespaceURI, sTagName);
     aElement.appendChild (MicroTypeConverter.convertToMicroElement (aValue.getWorkItem (),
                                                                     sNamespaceURI,

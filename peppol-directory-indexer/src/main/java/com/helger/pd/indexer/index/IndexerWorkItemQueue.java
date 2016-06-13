@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pd.indexer.mgr;
+package com.helger.pd.indexer.index;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -32,7 +32,6 @@ import com.helger.commons.concurrent.ExtendedDefaultThreadFactory;
 import com.helger.commons.concurrent.ManagedExecutorService;
 import com.helger.commons.concurrent.collector.ConcurrentCollectorSingle;
 import com.helger.commons.concurrent.collector.IConcurrentPerformer;
-import com.helger.pd.indexer.domain.IIndexerWorkItem;
 
 /**
  * The indexer queue that holds all items to be indexed initially. If indexing
@@ -41,7 +40,7 @@ import com.helger.pd.indexer.domain.IIndexerWorkItem;
  *
  * @author Philip Helger
  */
-final class IndexerWorkItemQueue
+public final class IndexerWorkItemQueue
 {
   private final ConcurrentCollectorSingle <IIndexerWorkItem> m_aImmediateCollector;
   private final ThreadFactory m_aThreadFactory = new ExtendedDefaultThreadFactory ("IndexerWorkQueue");

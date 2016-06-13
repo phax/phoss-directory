@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pd.indexer.mgr;
+package com.helger.pd.indexer.reindex;
 
 import java.util.function.Predicate;
 
@@ -29,20 +29,19 @@ import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.ReturnsMutableCopy;
 import com.helger.commons.collection.ext.CommonsArrayList;
 import com.helger.commons.collection.ext.ICommonsList;
-import com.helger.pd.indexer.domain.IReIndexWorkItem;
-import com.helger.pd.indexer.domain.ReIndexWorkItem;
 import com.helger.photon.basic.app.dao.impl.AbstractMapBasedWALDAO;
 import com.helger.photon.basic.app.dao.impl.DAOException;
 
 /**
- * This is the global re-index work queue. It is solely used in the
- * {@link PDIndexerManager}.
+ * This is the list with {@link IReIndexWorkItem} objects. It is solely used in
+ * the {@link com.helger.pd.indexer.mgr.PDIndexerManager} for "re-index" and
+ * "dead" work items.
  *
  * @author Philip Helger
  */
 @ThreadSafe
-final class ReIndexWorkItemList extends AbstractMapBasedWALDAO <IReIndexWorkItem, ReIndexWorkItem>
-                                implements IReIndexWorkItemList
+public final class ReIndexWorkItemList extends AbstractMapBasedWALDAO <IReIndexWorkItem, ReIndexWorkItem>
+                                       implements IReIndexWorkItemList
 {
   private static final Logger s_aLogger = LoggerFactory.getLogger (ReIndexWorkItemList.class);
 
@@ -98,7 +97,7 @@ final class ReIndexWorkItemList extends AbstractMapBasedWALDAO <IReIndexWorkItem
   public ICommonsList <IReIndexWorkItem> getAndRemoveAllEntries (@Nonnull final Predicate <? super IReIndexWorkItem> aPred)
   {
     final ICommonsList <? extends IReIndexWorkItem> aCopyOfAll = getAll ();
-    final ICommonsList <IReIndexWorkItem> ret = new CommonsArrayList<> ();
+    final ICommonsList <IReIndexWorkItem> ret = new CommonsArrayList <> ();
     m_aRWLock.writeLocked ( () -> {
       // Operate on a copy for removal!
       for (final IReIndexWorkItem aWorkItem : aCopyOfAll)

@@ -19,9 +19,9 @@ package com.helger.pd.publisher.app.secure.page;
 import javax.annotation.Nonnull;
 
 import com.helger.commons.annotation.Nonempty;
-import com.helger.pd.indexer.mgr.IReIndexWorkItemList;
 import com.helger.pd.indexer.mgr.PDIndexerManager;
 import com.helger.pd.indexer.mgr.PDMetaManager;
+import com.helger.pd.indexer.reindex.IReIndexWorkItemList;
 
 public final class PageSecureDeadIndexList extends AbstractPageSecureReIndex
 {

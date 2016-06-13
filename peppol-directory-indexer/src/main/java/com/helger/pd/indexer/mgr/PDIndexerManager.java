@@ -42,12 +42,15 @@ import com.helger.commons.state.ESuccess;
 import com.helger.commons.string.ToStringGenerator;
 import com.helger.pd.businesscard.IPDBusinessCardProvider;
 import com.helger.pd.businesscard.PDExtendedBusinessCard;
-import com.helger.pd.indexer.domain.EIndexerWorkItemType;
-import com.helger.pd.indexer.domain.IIndexerWorkItem;
-import com.helger.pd.indexer.domain.IReIndexWorkItem;
-import com.helger.pd.indexer.domain.IndexerWorkItem;
-import com.helger.pd.indexer.domain.ReIndexWorkItem;
+import com.helger.pd.indexer.index.EIndexerWorkItemType;
+import com.helger.pd.indexer.index.IIndexerWorkItem;
+import com.helger.pd.indexer.index.IndexerWorkItem;
+import com.helger.pd.indexer.index.IndexerWorkItemQueue;
 import com.helger.pd.indexer.job.ReIndexJob;
+import com.helger.pd.indexer.reindex.IReIndexWorkItem;
+import com.helger.pd.indexer.reindex.IReIndexWorkItemList;
+import com.helger.pd.indexer.reindex.ReIndexWorkItem;
+import com.helger.pd.indexer.reindex.ReIndexWorkItemList;
 import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.photon.basic.app.dao.impl.DAOException;
@@ -83,7 +86,7 @@ public final class PDIndexerManager implements Closeable
   @GuardedBy ("m_aRWLock")
   private final ICommonsSet <IIndexerWorkItem> m_aUniqueItems = new CommonsHashSet <> ();
   @GuardedBy ("m_aRWLock")
-  private IPDBusinessCardProvider m_aBIProvider = new SMPBusinessCardProvider ();
+  private IPDBusinessCardProvider m_aBCProvider = new SMPBusinessCardProvider ();
 
   // Status vars
   private final GlobalQuartzScheduler m_aScheduler;
@@ -110,9 +113,9 @@ public final class PDIndexerManager implements Closeable
    * shutdown while elements are still in the queue. This should be called
    * directly after the constructor. But please note that the queuing of the
    * items might directly trigger the usage of the
-   * {@link #getBusinessInformationProvider()} so make sure to call
-   * {@link #setBusinessInformationProvider(IPDBusinessCardProvider)} before
-   * calling this method.
+   * {@link #getBusinessCardProvider()} so make sure to call
+   * {@link #setBusinessCardProvider(IPDBusinessCardProvider)} before calling
+   * this method.
    *
    * @return this for chaining
    */
@@ -125,6 +128,7 @@ public final class PDIndexerManager implements Closeable
     {
       if (s_aLogger.isDebugEnabled ())
         s_aLogger.debug ("Reading persisted indexer work items from " + m_aIndexerWorkItemFile);
+
       for (final IMicroElement eItem : aDoc.getDocumentElement ().getAllChildElements (ELEMENT_ITEM))
       {
         final IIndexerWorkItem aWorkItem = MicroTypeConverter.convertToNative (eItem, IndexerWorkItem.class);
@@ -144,9 +148,9 @@ public final class PDIndexerManager implements Closeable
    *        The items to be written. May not be <code>null</code> but maybe
    *        empty.
    */
-  private void _writeWorkItems (@Nonnull final List <IIndexerWorkItem> aItems)
+  private void _writeWorkItems (@Nonnull final ICommonsList <IIndexerWorkItem> aItems)
   {
-    if (!aItems.isEmpty ())
+    if (aItems.isNotEmpty ())
     {
       s_aLogger.info ("Persisting " + aItems.size () + " indexer work items");
       final IMicroDocument aDoc = new MicroDocument ();
@@ -178,25 +182,24 @@ public final class PDIndexerManager implements Closeable
    *         .
    */
   @Nonnull
-  public IPDBusinessCardProvider getBusinessInformationProvider ()
+  public IPDBusinessCardProvider getBusinessCardProvider ()
   {
-    return m_aRWLock.readLocked ( () -> m_aBIProvider);
+    return m_aRWLock.readLocked ( () -> m_aBCProvider);
   }
 
   /**
    * Set the global {@link IPDBusinessCardProvider} that is used for future
    * create/update requests.
    *
-   * @param aBIProvider
-   *        Business information provider to be used. May not be
-   *        <code>null</code>.
+   * @param aBCProvider
+   *        Business card provider to be used. May not be <code>null</code>.
    * @return this for chaining
    */
   @Nonnull
-  public PDIndexerManager setBusinessInformationProvider (@Nonnull final IPDBusinessCardProvider aBIProvider)
+  public PDIndexerManager setBusinessCardProvider (@Nonnull final IPDBusinessCardProvider aBCProvider)
   {
-    ValueEnforcer.notNull (aBIProvider, "BIProvider");
-    m_aRWLock.writeLocked ( () -> m_aBIProvider = aBIProvider);
+    ValueEnforcer.notNull (aBCProvider, "BCProvider");
+    m_aRWLock.writeLocked ( () -> m_aBCProvider = aBCProvider);
     return this;
   }
 
@@ -264,51 +267,6 @@ public final class PDIndexerManager implements Closeable
   }
 
   /**
-   * Main action to create or update the business information of a participant.
-   * Here the business information is retrieved and put into the Lucene index.
-   *
-   * @param aWorkItem
-   *        Work item to execute.
-   * @return {@link ESuccess}
-   * @throws IOException
-   *         On Lucene error
-   */
-  @Nonnull
-  private ESuccess _executeCreateOrUpdate (@Nonnull final IIndexerWorkItem aWorkItem) throws IOException
-  {
-    final IParticipantIdentifier aParticipantID = aWorkItem.getParticipantID ();
-
-    // Get BI from participant
-    final PDExtendedBusinessCard aBI = getBusinessInformationProvider ().getBusinessCard (aParticipantID);
-    if (aBI == null)
-    {
-      // No/invalid extension present - no need to try again
-      return ESuccess.FAILURE;
-    }
-
-    // Got data - put in storage
-    return m_aStorageMgr.createOrUpdateEntry (aParticipantID, aBI, aWorkItem.getAsMetaData ());
-  }
-
-  /**
-   * Main action to delete the business information of a participant. Here the
-   * business information is removed from the Lucene index.
-   *
-   * @param aWorkItem
-   *        Work item to execute.
-   * @return {@link ESuccess}
-   * @throws IOException
-   *         On Lucene error
-   */
-  @Nonnull
-  private ESuccess _executeDelete (@Nonnull final IIndexerWorkItem aWorkItem) throws IOException
-  {
-    final IParticipantIdentifier aParticipantID = aWorkItem.getParticipantID ();
-
-    return m_aStorageMgr.deleteEntry (aParticipantID, aWorkItem.getAsMetaData ());
-  }
-
-  /**
    * This method is responsible for executing the specified work item depending
    * on its type.
    *
@@ -323,17 +281,34 @@ public final class PDIndexerManager implements Closeable
 
     try
     {
+      final IParticipantIdentifier aParticipantID = aWorkItem.getParticipantID ();
+
       ESuccess eSuccess;
       switch (aWorkItem.getType ())
       {
         case CREATE_UPDATE:
-          eSuccess = _executeCreateOrUpdate (aWorkItem);
+        {
+          // Get BI from participant (e.g. from SMP)
+          final PDExtendedBusinessCard aBI = getBusinessCardProvider ().getBusinessCard (aParticipantID);
+          if (aBI == null)
+          {
+            // No/invalid extension present - no need to try again
+            eSuccess = ESuccess.FAILURE;
+          }
+          else
+          {
+            // Got data - put in storage
+            eSuccess = m_aStorageMgr.createOrUpdateEntry (aParticipantID, aBI, aWorkItem.getAsMetaData ());
+          }
           break;
+        }
         case DELETE:
-          eSuccess = _executeDelete (aWorkItem);
+        {
+          eSuccess = m_aStorageMgr.deleteEntry (aParticipantID, aWorkItem.getAsMetaData ());
           break;
+        }
         default:
-          throw new IllegalStateException ("Unsupported item type: " + aWorkItem);
+          throw new IllegalStateException ("Unsupported work item type: " + aWorkItem);
       }
 
       if (eSuccess.isSuccess ())
@@ -454,7 +429,7 @@ public final class PDIndexerManager implements Closeable
                             .append ("DeadList", m_aDeadList)
                             .append ("IndexerWorkQueue", m_aIndexerWorkQueue)
                             .append ("TriggerKey", m_aTriggerKey)
-                            .append ("BIProvider", m_aBIProvider)
+                            .append ("BCProvider", m_aBCProvider)
                             .toString ();
   }
 }

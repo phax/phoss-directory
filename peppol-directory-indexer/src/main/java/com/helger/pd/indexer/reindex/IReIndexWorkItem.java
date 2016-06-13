@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pd.indexer.domain;
+package com.helger.pd.indexer.reindex;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -26,6 +26,7 @@ import javax.annotation.Nullable;
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.datetime.PDTFactory;
 import com.helger.commons.type.ITypedObject;
+import com.helger.pd.indexer.index.IIndexerWorkItem;
 
 /**
  * This class holds a single item to be re-indexed. It is only invoked if

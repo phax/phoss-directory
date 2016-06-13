@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pd.indexer.domain;
+package com.helger.pd.indexer.index;
 
 import java.time.LocalDateTime;
 
@@ -99,37 +99,24 @@ public final class IndexerWorkItem implements IIndexerWorkItem
     return m_sID;
   }
 
-  /**
-   * @return The date time when the object was queued. Never <code>null</code>.
-   */
   @Nonnull
   public LocalDateTime getCreationDT ()
   {
     return m_aCreationDT;
   }
 
-  /**
-   * @return The participant identifier it is all about.
-   */
   @Nonnull
   public IParticipantIdentifier getParticipantID ()
   {
     return m_aParticpantID;
   }
 
-  /**
-   * @return The action type to execute. Never <code>null</code>.
-   */
   @Nonnull
   public EIndexerWorkItemType getType ()
   {
     return m_eType;
   }
 
-  /**
-   * @return The ID of the client (based on the provided certificate) that
-   *         requested this action. Never <code>null</code>.
-   */
   @Nonnull
   @Nonempty
   public String getOwnerID ()
@@ -137,11 +124,6 @@ public final class IndexerWorkItem implements IIndexerWorkItem
     return m_sOwnerID;
   }
 
-  /**
-   * @return The IP address of the host requesting this work item. If this
-   *         action is triggered by the scheduled SML exchange, this should be
-   *         <code>automatic</code>.
-   */
   @Nonnull
   public String getRequestingHost ()
   {

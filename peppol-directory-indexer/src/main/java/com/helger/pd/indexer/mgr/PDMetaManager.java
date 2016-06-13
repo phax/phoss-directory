@@ -44,7 +44,13 @@ public final class PDMetaManager extends AbstractGlobalSingleton
 {
   private static final Logger s_aLogger = LoggerFactory.getLogger (PDMetaManager.class);
 
-  private static IThrowingCallableWithParameter <PDIndexerManager, PDStorageManager, DAOException> s_aFactoryIndexerMgr = aStorageMgr -> new PDIndexerManager (aStorageMgr).readAndQueueInitialData ();
+  private static IThrowingCallableWithParameter <PDIndexerManager, PDStorageManager, DAOException> s_aFactoryIndexerMgr;
+
+  static
+  {
+    // Set default
+    setIndexerMgrFactory (aStorageMgr -> new PDIndexerManager (aStorageMgr).readAndQueueInitialData ());
+  }
 
   private PDLucene m_aLucene;
   private PDStorageManager m_aStorageMgr;
