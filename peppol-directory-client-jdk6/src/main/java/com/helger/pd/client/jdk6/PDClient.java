@@ -159,8 +159,10 @@ public class PDClient implements Closeable
     m_aProxyCredentials = aProxyCredentials;
   }
 
+  @Nonnull
   protected HttpClientBuilder createClientBuilder ()
   {
+    SSLConnectionSocketFactory aSSLSocketFactory = null;
     try
     {
       // Set SSL context
@@ -181,16 +183,24 @@ public class PDClient implements Closeable
                                                                   })
                                                 .build ();
       // Allow TLSv1 protocol only
-      final SSLConnectionSocketFactory aSSLSocketFactory = new SSLConnectionSocketFactory (aSSLContext,
-                                                                                           new String [] { "TLSv1" },
-                                                                                           null,
-                                                                                           SSLConnectionSocketFactory.getDefaultHostnameVerifier ());
+      aSSLSocketFactory = new SSLConnectionSocketFactory (aSSLContext,
+                                                          new String [] { "TLSv1" },
+                                                          null,
+                                                          SSLConnectionSocketFactory.getDefaultHostnameVerifier ());
+    }
+    catch (final Throwable t)
+    {
+      s_aLogger.error ("Failed to initialize keystore for service connection! Can only use http now!", t);
+    }
 
-      final Registry <ConnectionSocketFactory> sfr = RegistryBuilder.<ConnectionSocketFactory> create ()
-                                                                    .register ("http",
-                                                                               PlainConnectionSocketFactory.getSocketFactory ())
-                                                                    .register ("https", aSSLSocketFactory)
-                                                                    .build ();
+    try
+    {
+      final RegistryBuilder <ConnectionSocketFactory> aRB = RegistryBuilder.<ConnectionSocketFactory> create ()
+                                                                           .register ("http",
+                                                                                      PlainConnectionSocketFactory.getSocketFactory ());
+      if (aSSLSocketFactory != null)
+        aRB.register ("https", aSSLSocketFactory);
+      final Registry <ConnectionSocketFactory> sfr = aRB.build ();
 
       final PoolingHttpClientConnectionManager aConnMgr = new PoolingHttpClientConnectionManager (sfr);
       aConnMgr.setDefaultMaxPerRoute (100);
