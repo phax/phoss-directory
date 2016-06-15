@@ -53,7 +53,7 @@ public final class PDClientConfiguration
 
   static
   {
-    final ICommonsList <String> aFilePaths = new CommonsArrayList<> ();
+    final ICommonsList <String> aFilePaths = new CommonsArrayList <> ();
     // Check if the system property is present
     String sPropertyPath = SystemProperties.getPropertyValue ("peppol.pd.client.properties.path");
     if (StringHelper.hasText (sPropertyPath))
@@ -66,7 +66,7 @@ public final class PDClientConfiguration
     aFilePaths.add ("private-pd-client.properties");
     aFilePaths.add ("pd-client.properties");
 
-    s_aConfigFile = new ConfigFile (aFilePaths);
+    s_aConfigFile = ConfigFile.create (aFilePaths);
     if (s_aConfigFile.isRead ())
       s_aLogger.info ("Read PEPPOL Directory client properties from " + s_aConfigFile.getReadResource ().getPath ());
     else
@@ -92,7 +92,7 @@ public final class PDClientConfiguration
   @Nullable
   public static String getKeyStorePath ()
   {
-    return s_aConfigFile.getString ("keystore.path");
+    return s_aConfigFile.getAsString ("keystore.path");
   }
 
   /**
@@ -102,7 +102,7 @@ public final class PDClientConfiguration
   @Nullable
   public static String getKeyStorePassword ()
   {
-    return s_aConfigFile.getString ("keystore.password");
+    return s_aConfigFile.getAsString ("keystore.password");
   }
 
   /**
@@ -112,7 +112,7 @@ public final class PDClientConfiguration
   @Nullable
   public static String getKeyStoreKeyAlias ()
   {
-    return s_aConfigFile.getString ("keystore.key.alias");
+    return s_aConfigFile.getAsString ("keystore.key.alias");
   }
 
   /**
@@ -122,7 +122,7 @@ public final class PDClientConfiguration
   @Nullable
   public static char [] getKeyStoreKeyPassword ()
   {
-    return s_aConfigFile.getCharArray ("keystore.key.password");
+    return s_aConfigFile.getAsCharArray ("keystore.key.password");
   }
 
   /**
@@ -133,7 +133,7 @@ public final class PDClientConfiguration
   @Nullable
   public static String getHttpProxyHost ()
   {
-    return s_aConfigFile.getString ("http.proxyHost");
+    return s_aConfigFile.getAsString ("http.proxyHost");
   }
 
   /**
@@ -142,7 +142,7 @@ public final class PDClientConfiguration
    */
   public static int getHttpProxyPort ()
   {
-    return s_aConfigFile.getInt ("http.proxyPort", 0);
+    return s_aConfigFile.getAsInt ("http.proxyPort", 0);
   }
 
   /**
@@ -153,7 +153,7 @@ public final class PDClientConfiguration
   @Nullable
   public static String getHttpsProxyHost ()
   {
-    return s_aConfigFile.getString ("https.proxyHost");
+    return s_aConfigFile.getAsString ("https.proxyHost");
   }
 
   /**
@@ -162,6 +162,6 @@ public final class PDClientConfiguration
    */
   public static int getHttpsProxyPort ()
   {
-    return s_aConfigFile.getInt ("https.proxyPort", 0);
+    return s_aConfigFile.getAsInt ("https.proxyPort", 0);
   }
 }
