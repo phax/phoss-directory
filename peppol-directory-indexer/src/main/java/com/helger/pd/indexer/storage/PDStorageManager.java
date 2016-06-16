@@ -66,7 +66,6 @@ import com.helger.pd.businesscard.PDIdentifierType;
 import com.helger.pd.indexer.lucene.AllDocumentsCollector;
 import com.helger.pd.indexer.lucene.PDLucene;
 import com.helger.pd.indexer.mgr.IPDStorageManager;
-import com.helger.peppol.identifier.IdentifierHelper;
 import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.photon.basic.audit.AuditHelper;
@@ -203,7 +202,7 @@ public final class PDStorageManager implements IPDStorageManager
         // Add all document types to all documents
         for (final IDocumentTypeIdentifier aDocTypeID : aExtBI.getAllDocumentTypeIDs ())
         {
-          final String sDocTypeID = IdentifierHelper.getIdentifierURIEncoded (aDocTypeID);
+          final String sDocTypeID = aDocTypeID.getURIEncoded ();
           aDoc.add (new StringField (CPDStorage.FIELD_DOCUMENT_TYPE_ID, sDocTypeID, Store.YES));
           aSBAllFields.append (sDocTypeID).append (' ');
         }

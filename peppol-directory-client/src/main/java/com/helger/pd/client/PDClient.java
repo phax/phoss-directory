@@ -61,7 +61,6 @@ import com.helger.commons.charset.CCharset;
 import com.helger.commons.exception.InitializationException;
 import com.helger.commons.io.stream.StreamHelper;
 import com.helger.commons.state.ESuccess;
-import com.helger.peppol.identifier.IdentifierHelper;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.peppol.utils.KeyStoreHelper;
 
@@ -284,8 +283,7 @@ public class PDClient implements Closeable
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
 
-    final HttpGet aGet = new HttpGet (m_sPDIndexerURL +
-                                      IdentifierHelper.getIdentifierURIPercentEncoded (aParticipantID));
+    final HttpGet aGet = new HttpGet (m_sPDIndexerURL + aParticipantID.getURIPercentEncoded ());
     try (final CloseableHttpResponse aResponse = executeRequest (aGet))
     {
       final String sResponse = _getResponseString (aResponse);
@@ -315,7 +313,7 @@ public class PDClient implements Closeable
   public ESuccess addServiceGroupToIndex (@Nonnull final IParticipantIdentifier aParticipantID)
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
-    final String sParticipantID = IdentifierHelper.getIdentifierURIEncoded (aParticipantID);
+    final String sParticipantID = aParticipantID.getURIEncoded ();
 
     final HttpPut aPut = new HttpPut (m_sPDIndexerURL);
     aPut.setEntity (new StringEntity (sParticipantID, CCharset.CHARSET_UTF_8_OBJ));
@@ -351,8 +349,7 @@ public class PDClient implements Closeable
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
 
-    final HttpDelete aDelete = new HttpDelete (m_sPDIndexerURL +
-                                               IdentifierHelper.getIdentifierURIPercentEncoded (aParticipantID));
+    final HttpDelete aDelete = new HttpDelete (m_sPDIndexerURL + aParticipantID.getURIPercentEncoded ());
     try (final CloseableHttpResponse aResponse = executeRequest (aDelete))
     {
       final String sResponse = _getResponseString (aResponse);
@@ -360,7 +357,7 @@ public class PDClient implements Closeable
       // Check result
       if (aResponse.getStatusLine ().getStatusCode () >= 200 && aResponse.getStatusLine ().getStatusCode () < 300)
       {
-        final String sParticipantID = IdentifierHelper.getIdentifierURIEncoded (aParticipantID);
+        final String sParticipantID = aParticipantID.getURIEncoded ();
         s_aLogger.info ("Removed service group '" +
                         sParticipantID +
                         "' from PEPPOL Directory index. May take some time until it is removed.");
