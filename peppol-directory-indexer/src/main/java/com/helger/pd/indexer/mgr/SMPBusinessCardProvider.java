@@ -45,8 +45,8 @@ import com.helger.peppol.smp.ServiceMetadataReferenceType;
 import com.helger.peppol.smpclient.SMPClientReadOnly;
 import com.helger.peppol.smpclient.exception.SMPClientException;
 import com.helger.peppol.smpclient.exception.SMPClientNotFoundException;
-import com.helger.peppol.url.PeppolURLProvider;
 import com.helger.peppol.url.IPeppolURLProvider;
+import com.helger.peppol.url.PeppolURLProvider;
 
 /**
  * The SMP based {@link IPDBusinessCardProvider} implementation. An SMP lookup
@@ -59,7 +59,7 @@ public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
 {
   private static final String URL_PART_SERVICES = "/services/";
   private static final Logger s_aLogger = LoggerFactory.getLogger (SMPBusinessCardProvider.class);
-  private static final IPeppolURLProvider URL_PROVIDER = new PeppolURLProvider ();
+  private static final IPeppolURLProvider URL_PROVIDER = PeppolURLProvider.INSTANCE;
 
   /**
    * @return The HttpProxy object to be used by SMP clients based on the Java
