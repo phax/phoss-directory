@@ -45,7 +45,6 @@ import com.helger.html.hc.html.grouping.HCLI;
 import com.helger.html.hc.html.grouping.HCOL;
 import com.helger.html.hc.html.grouping.HCUL;
 import com.helger.html.hc.html.grouping.IHCLI;
-import com.helger.html.hc.html.sections.HCH1;
 import com.helger.html.hc.html.textlevel.HCSpan;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.mgr.PDMetaManager;
@@ -171,7 +170,7 @@ public final class PagePublicSearch extends AbstractAppWebPage
           final List <PDStoredDocument> aDocuments = CollectionHelper.getFirstElement (aGroupedDocs.values ());
           bShowQuery = false;
 
-          aNodeList.addChild (new HCH1 ().addChild ("Details for " + sParticipantID));
+          aNodeList.addChild (getUIHandler ().createPageHeader ("Details for " + sParticipantID));
 
           final BootstrapTabBox aTabBox = aNodeList.addAndReturnChild (new BootstrapTabBox ());
 

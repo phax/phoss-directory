@@ -87,7 +87,7 @@ public final class PageSecureIndexManually extends AbstractAppWebPage
       }
     }
 
-    final BootstrapForm aForm = aNodeList.addAndReturnChild (createFormSelf (aWPEC));
+    final BootstrapForm aForm = aNodeList.addAndReturnChild (getUIHandler ().createFormSelf (aWPEC));
     aForm.addFormGroup (new BootstrapFormGroup ().setLabelMandatory ("Participant ID")
                                                  .setCtrl (new HCEdit (new RequestField (FIELD_PARTICIPANT_ID,
                                                                                          PeppolIdentifierHelper.DEFAULT_PARTICIPANT_SCHEME +
