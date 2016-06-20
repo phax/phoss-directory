@@ -88,6 +88,8 @@ public interface IReIndexWorkItem extends ITypedObject <String>, Serializable
   LocalDateTime getNextRetryDT ();
 
   /**
+   * Check if the passed date time qualifies the entry for the next retry.
+   * 
    * @param aDT
    *        The date time to check
    * @return <code>true</code> if the time for the next retry is here.

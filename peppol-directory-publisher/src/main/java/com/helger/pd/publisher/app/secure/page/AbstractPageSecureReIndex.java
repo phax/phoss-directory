@@ -26,6 +26,7 @@ import com.helger.commons.compare.ESortOrder;
 import com.helger.commons.errorlist.FormErrors;
 import com.helger.commons.url.ISimpleURL;
 import com.helger.datetime.format.PDTToString;
+import com.helger.html.hc.html.grouping.HCDiv;
 import com.helger.html.hc.html.tabular.HCRow;
 import com.helger.html.hc.html.tabular.HCTable;
 import com.helger.html.hc.html.textlevel.HCA;
@@ -34,6 +35,10 @@ import com.helger.pd.indexer.index.IIndexerWorkItem;
 import com.helger.pd.indexer.reindex.IReIndexWorkItem;
 import com.helger.pd.indexer.reindex.IReIndexWorkItemList;
 import com.helger.pd.publisher.ui.AbstractAppWebPageForm;
+import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
+import com.helger.peppol.sml.ESML;
+import com.helger.peppol.url.IPeppolURLProvider;
+import com.helger.peppol.url.PeppolURLProvider;
 import com.helger.photon.bootstrap3.button.BootstrapButton;
 import com.helger.photon.bootstrap3.button.BootstrapButtonToolbar;
 import com.helger.photon.bootstrap3.form.BootstrapForm;
@@ -48,9 +53,14 @@ import com.helger.photon.uictrls.datatables.column.EDTColType;
 
 public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <IReIndexWorkItem>
 {
-  public AbstractPageSecureReIndex (@Nonnull @Nonempty final String sID, @Nonnull final String sName)
+  private final boolean m_bDeadIndex;
+
+  public AbstractPageSecureReIndex (@Nonnull @Nonempty final String sID,
+                                    @Nonnull final String sName,
+                                    final boolean bDeadIndex)
   {
     super (sID, sName);
+    m_bDeadIndex = bDeadIndex;
   }
 
   @Nonnull
@@ -78,15 +88,29 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
   {
     final HCNodeList aNodeList = aWPEC.getNodeList ();
     final Locale aDisplayLocale = aWPEC.getDisplayLocale ();
+    final IPeppolURLProvider aURLProvider = PeppolURLProvider.INSTANCE;
 
     final IIndexerWorkItem aWorkItem = aSelectedObject.getWorkItem ();
+    final IParticipantIdentifier aParticipantID = aWorkItem.getParticipantID ();
 
     final BootstrapViewForm aViewForm = aNodeList.addAndReturnChild (new BootstrapViewForm ());
     aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Creation datetime")
                                                      .setCtrl (PDTToString.getAsString (aWorkItem.getCreationDateTime (),
                                                                                         aDisplayLocale)));
     aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Participant ID")
-                                                     .setCtrl (aWorkItem.getParticipantID ().getURIEncoded ()));
+                                                     .setCtrl (aParticipantID.getURIEncoded ()));
+
+    final String sBCSuffix = "/businesscard/" + aParticipantID.getURIPercentEncoded ();
+    aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Business Card URL")
+                                                     .setCtrl (new HCDiv ().addChild (HCA.createLinkedWebsite (aURLProvider.getSMPURIOfParticipant (aParticipantID,
+                                                                                                                                                    ESML.DIGIT_PRODUCTION)
+                                                                                                                           .toString () +
+                                                                                                               sBCSuffix)),
+                                                               new HCDiv ().addChild ("or"),
+                                                               new HCDiv ().addChild (HCA.createLinkedWebsite (aURLProvider.getSMPURIOfParticipant (aParticipantID,
+                                                                                                                                                    ESML.DIGIT_TEST)
+                                                                                                                           .toString () +
+                                                                                                               sBCSuffix))));
     aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Action type")
                                                      .setCtrl (aWorkItem.getType ().getDisplayName ()));
     aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Owner").setCtrl (aWorkItem.getOwnerID ()));
@@ -98,9 +122,10 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
       aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Previous retry")
                                                        .setCtrl (PDTToString.getAsString (aSelectedObject.getPreviousRetryDT (),
                                                                                           aDisplayLocale)));
-    aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Next retry")
-                                                     .setCtrl (PDTToString.getAsString (aSelectedObject.getNextRetryDT (),
-                                                                                        aDisplayLocale)));
+    if (!m_bDeadIndex)
+      aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Next retry")
+                                                       .setCtrl (PDTToString.getAsString (aSelectedObject.getNextRetryDT (),
+                                                                                          aDisplayLocale)));
     aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Last retry")
                                                      .setCtrl (PDTToString.getAsString (aSelectedObject.getMaxRetryDT (),
                                                                                         aDisplayLocale)));
@@ -144,7 +169,9 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
                                         new DTCol ("Participant"),
                                         new DTCol ("Action"),
                                         new DTCol ("Retries").setDisplayType (EDTColType.INT, aDisplayLocale),
-                                        new DTCol ("Next retry").setDisplayType (EDTColType.DATETIME, aDisplayLocale),
+                                        m_bDeadIndex ? null
+                                                     : new DTCol ("Next retry").setDisplayType (EDTColType.DATETIME,
+                                                                                                aDisplayLocale),
                                         new DTCol ("Last retry").setDisplayType (EDTColType.DATETIME,
                                                                                  aDisplayLocale)).setID (getID ());
 
@@ -159,7 +186,8 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
       aRow.addCell (aWorkItem.getParticipantID ().getURIEncoded ());
       aRow.addCell (aWorkItem.getType ().getDisplayName ());
       aRow.addCell (Integer.toString (aItem.getRetryCount ()));
-      aRow.addCell (PDTToString.getAsString (aItem.getNextRetryDT (), aDisplayLocale));
+      if (!m_bDeadIndex)
+        aRow.addCell (PDTToString.getAsString (aItem.getNextRetryDT (), aDisplayLocale));
       aRow.addCell (PDTToString.getAsString (aItem.getMaxRetryDT (), aDisplayLocale));
     }
 

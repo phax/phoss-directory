@@ -27,7 +27,7 @@ public final class PageSecureDeadIndexList extends AbstractPageSecureReIndex
 {
   public PageSecureDeadIndexList (@Nonnull @Nonempty final String sID)
   {
-    super (sID, "Dead Index List");
+    super (sID, "Dead Index List", true);
   }
 
   @Override

@@ -27,7 +27,7 @@ public final class PageSecureReIndexList extends AbstractPageSecureReIndex
 {
   public PageSecureReIndexList (@Nonnull @Nonempty final String sID)
   {
-    super (sID, "Re-Index List");
+    super (sID, "Re-Index List", false);
   }
 
   @Override
