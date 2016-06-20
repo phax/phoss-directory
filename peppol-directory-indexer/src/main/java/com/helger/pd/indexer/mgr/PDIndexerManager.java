@@ -81,7 +81,7 @@ public final class PDIndexerManager implements Closeable
   private final IndexerWorkItemQueue m_aIndexerWorkQueue;
   private final TriggerKey m_aTriggerKey;
   @GuardedBy ("m_aRWLock")
-  private final ICommonsSet <IIndexerWorkItem> m_aUniqueItems = new CommonsHashSet <> ();
+  private final ICommonsSet <IIndexerWorkItem> m_aUniqueItems = new CommonsHashSet<> ();
 
   // Status vars
   private final GlobalQuartzScheduler m_aScheduler;
@@ -114,6 +114,7 @@ public final class PDIndexerManager implements Closeable
     m_aDeadList = new ReIndexWorkItemList ("dead-work-items.xml");
     m_aIndexerWorkQueue = new IndexerWorkItemQueue (aQueueItem -> PDIndexExecutor.executeWorkItem (m_aStorageMgr,
                                                                                                    aQueueItem,
+                                                                                                   0,
                                                                                                    aSuccesItem -> _onIndexSuccess (aSuccesItem),
                                                                                                    aFailureItem -> m_aReIndexList.addItem (new ReIndexWorkItem (aFailureItem))));
 
@@ -272,6 +273,7 @@ public final class PDIndexerManager implements Closeable
 
       PDIndexExecutor.executeWorkItem (m_aStorageMgr,
                                        aReIndexItem.getWorkItem (),
+                                       1 + aReIndexItem.getRetryCount (),
                                        aSuccessItem -> _onIndexSuccess (aSuccessItem),
                                        aFailureItem -> m_aReIndexList.incRetryCountAndAddItem (aReIndexItem));
     }

@@ -2,6 +2,7 @@ package com.helger.pd.indexer.mgr;
 
 import java.util.function.Consumer;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import org.slf4j.Logger;
@@ -27,6 +28,9 @@ final class PDIndexExecutor
    *        Storage manager.
    * @param aWorkItem
    *        The work item to be executed. May not be <code>null</code>.
+   * @param nRetryCount
+   *        The retry count. For the initial indexing it is 0, for the first
+   *        retry 1 etc.
    * @param aSuccessHandler
    *        A callback that is invoked upon success only.
    * @param aFailureHandler
@@ -36,10 +40,14 @@ final class PDIndexExecutor
   @Nonnull
   public static ESuccess executeWorkItem (@Nonnull final IPDStorageManager aStorageMgr,
                                           @Nonnull final IIndexerWorkItem aWorkItem,
+                                          @Nonnegative final int nRetryCount,
                                           @Nonnull final Consumer <IIndexerWorkItem> aSuccessHandler,
                                           @Nonnull final Consumer <IIndexerWorkItem> aFailureHandler)
   {
-    s_aLogger.info ("Execute work item " + aWorkItem.getLogText ());
+    s_aLogger.info ("Execute work item " +
+                    aWorkItem.getLogText () +
+                    " - " +
+                    (nRetryCount > 0 ? "retry #" + nRetryCount : "initial try"));
 
     try
     {
@@ -90,7 +98,7 @@ final class PDIndexExecutor
       // Fall through
     }
 
-    // Invoke failur handler
+    // Invoke failure handler
     aFailureHandler.accept (aWorkItem);
 
     return ESuccess.FAILURE;
