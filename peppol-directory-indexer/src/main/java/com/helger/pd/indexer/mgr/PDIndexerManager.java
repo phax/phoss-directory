@@ -80,11 +80,39 @@ public final class PDIndexerManager implements Closeable
   private final ReIndexWorkItemList m_aDeadList;
   private final IndexerWorkItemQueue m_aIndexerWorkQueue;
   private final TriggerKey m_aTriggerKey;
+
+  /**
+   * This set contains all work items that are not yet finished. It contains all
+   * items in the indexer work queue as well as the ones in the re-index work
+   * item list. Once the items are moved to the dead list, they are removed from
+   * here.
+   */
   @GuardedBy ("m_aRWLock")
   private final ICommonsSet <IIndexerWorkItem> m_aUniqueItems = new CommonsHashSet<> ();
 
   // Status vars
   private final GlobalQuartzScheduler m_aScheduler;
+
+  private void _onIndexSuccess (@Nonnull final IIndexerWorkItem aWorkItem)
+  {
+    m_aRWLock.writeLocked ( () -> m_aUniqueItems.remove (aWorkItem));
+  }
+
+  private void _onIndexFailure (@Nonnull final IIndexerWorkItem aWorkItem)
+  {
+    m_aReIndexList.addItem (new ReIndexWorkItem (aWorkItem));
+    // Keep it in the "Unique items" list until re-indexing worked
+  }
+
+  private void _onReIndexSuccess (@Nonnull final IIndexerWorkItem aWorkItem)
+  {
+    _onIndexSuccess (aWorkItem);
+  }
+
+  private void _onReIndexFailure (@Nonnull final IReIndexWorkItem aReIndexItem)
+  {
+    m_aReIndexList.incRetryCountAndAddItem (aReIndexItem);
+  }
 
   /**
    * Constructor.<br>
@@ -115,8 +143,8 @@ public final class PDIndexerManager implements Closeable
     m_aIndexerWorkQueue = new IndexerWorkItemQueue (aQueueItem -> PDIndexExecutor.executeWorkItem (m_aStorageMgr,
                                                                                                    aQueueItem,
                                                                                                    0,
-                                                                                                   aSuccesItem -> _onIndexSuccess (aSuccesItem),
-                                                                                                   aFailureItem -> m_aReIndexList.addItem (new ReIndexWorkItem (aFailureItem))));
+                                                                                                   aSuccessItem -> _onIndexSuccess (aSuccessItem),
+                                                                                                   aFailureItem -> _onIndexFailure (aFailureItem)));
 
     // Schedule re-index job
     m_aTriggerKey = ReIndexJob.schedule (SimpleScheduleBuilder.repeatMinutelyForever (1), CApplication.APP_ID_SECURE);
@@ -185,7 +213,9 @@ public final class PDIndexerManager implements Closeable
     {
       if (!m_aUniqueItems.add (aWorkItem))
       {
-        s_aLogger.info ("Ignoring work item " + aWorkItem.getLogText () + " because it is already in the queue!");
+        s_aLogger.info ("Ignoring work item " +
+                        aWorkItem.getLogText () +
+                        " because it is already in the queue/re-index list!");
         return EChange.UNCHANGED;
       }
     }
@@ -196,9 +226,11 @@ public final class PDIndexerManager implements Closeable
 
     // Queue it
     m_aIndexerWorkQueue.queueObject (aWorkItem);
+    s_aLogger.info ("Queued work item " + aWorkItem.getLogText ());
 
-    if (s_aLogger.isDebugEnabled ())
-      s_aLogger.debug ("Queued work item " + aWorkItem.getLogText ());
+    // Remove the entry from the dead list to avoid spamming the dead list
+    if (m_aDeadList.getAndRemoveEntry (x -> x.getWorkItem ().equals (aWorkItem)) != null)
+      s_aLogger.info ("Removed the new work item " + aWorkItem.getLogText () + " from the dead list");
 
     return EChange.CHANGED;
   }
@@ -231,7 +263,8 @@ public final class PDIndexerManager implements Closeable
 
   /**
    * Expire all re-index entries that are in the list for a too long time. This
-   * is called from a scheduled job only.
+   * is called from a scheduled job only. All respective items are move from the
+   * re-index list to the dead list.
    */
   public void expireOldEntries ()
   {
@@ -239,16 +272,17 @@ public final class PDIndexerManager implements Closeable
     final ICommonsList <IReIndexWorkItem> aExpiredItems = m_aReIndexList.getAndRemoveAllEntries (IReIndexWorkItem::isExpired);
     if (aExpiredItems.isNotEmpty ())
     {
-      s_aLogger.info ("Expiring " + aExpiredItems.size () + " re-index work items");
+      s_aLogger.info ("Expiring " + aExpiredItems.size () + " re-index work items and move them to the dead list");
 
-      m_aRWLock.writeLocked ( () -> {
+      for (final IReIndexWorkItem aItem : aExpiredItems)
+      {
         // remove them from the overall list but move to dead item list
-        for (final IReIndexWorkItem aItem : aExpiredItems)
-        {
-          m_aUniqueItems.remove (aItem.getWorkItem ());
-          m_aDeadList.addItem ((ReIndexWorkItem) aItem);
-        }
-      });
+        m_aRWLock.writeLocked ( () -> m_aUniqueItems.remove (aItem.getWorkItem ()));
+
+        // move all to the dead item list
+        m_aDeadList.addItem ((ReIndexWorkItem) aItem);
+        s_aLogger.info ("Added " + aItem.getLogText () + " to the dead list");
+      }
     }
   }
 
@@ -268,20 +302,14 @@ public final class PDIndexerManager implements Closeable
 
     for (final IReIndexWorkItem aReIndexItem : aReIndexNowItems)
     {
-      if (s_aLogger.isDebugEnabled ())
-        s_aLogger.debug ("Try to re-index " + aReIndexItem.getLogText ());
+      s_aLogger.info ("Try to re-index " + aReIndexItem.getLogText ());
 
       PDIndexExecutor.executeWorkItem (m_aStorageMgr,
                                        aReIndexItem.getWorkItem (),
                                        1 + aReIndexItem.getRetryCount (),
-                                       aSuccessItem -> _onIndexSuccess (aSuccessItem),
-                                       aFailureItem -> m_aReIndexList.incRetryCountAndAddItem (aReIndexItem));
+                                       aSuccessItem -> _onReIndexSuccess (aSuccessItem),
+                                       aFailureItem -> _onReIndexFailure (aReIndexItem));
     }
-  }
-
-  private void _onIndexSuccess (@Nonnull final IIndexerWorkItem aWorkItem)
-  {
-    m_aRWLock.writeLocked ( () -> m_aUniqueItems.remove (aWorkItem));
   }
 
   /**

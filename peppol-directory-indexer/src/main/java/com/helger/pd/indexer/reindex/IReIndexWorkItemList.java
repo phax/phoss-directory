@@ -29,10 +29,21 @@ import com.helger.commons.collection.ext.ICommonsList;
  */
 public interface IReIndexWorkItemList
 {
+  /**
+   * @return A list of all re-index items currently in the list. Never
+   *         <code>null</code> but maybe empty.
+   */
   @Nonnull
   @ReturnsMutableCopy
   ICommonsList <? extends IReIndexWorkItem> getAllItems ();
 
+  /**
+   * Get the item with the specified ID.
+   * 
+   * @param sID
+   *        The ID to search. May be <code>null</code>.
+   * @return <code>null</code> if no such item exists.
+   */
   @Nullable
   IReIndexWorkItem getItemOfID (@Nullable String sID);
 }

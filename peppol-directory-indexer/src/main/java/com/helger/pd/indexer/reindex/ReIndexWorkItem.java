@@ -58,6 +58,21 @@ public class ReIndexWorkItem implements IReIndexWorkItem
           PDTFactory.getCurrentLocalDateTime ().plusMinutes (PDSettings.getReIndexRetryMinutes ()));
   }
 
+  /**
+   * Constructor
+   *
+   * @param aWorkItem
+   *        The original work item to be handled.
+   * @param aMaxRetryDT
+   *        The latest date time until which a retry is feasible.
+   * @param nRetries
+   *        The number of retries so far. Must be &ge; 0.
+   * @param aPreviousRetryDT
+   *        The last retry time. May be <code>null</code> if no retry happened
+   *        so far.
+   * @param aNextRetryDT
+   *        The next retry time. Must be &ge; now.
+   */
   ReIndexWorkItem (@Nonnull final IIndexerWorkItem aWorkItem,
                    @Nonnull final LocalDateTime aMaxRetryDT,
                    final int nRetries,
@@ -116,6 +131,10 @@ public class ReIndexWorkItem implements IReIndexWorkItem
     return m_aNextRetryDT;
   }
 
+  /**
+   * Increment the number of retries and update the previous and the next retry
+   * datetime.
+   */
   public void incRetryCount ()
   {
     m_nRetries++;
