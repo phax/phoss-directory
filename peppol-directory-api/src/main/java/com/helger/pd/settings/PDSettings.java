@@ -19,31 +19,63 @@ package com.helger.pd.settings;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.helger.commons.annotation.UsedViaReflection;
+import com.helger.commons.collection.ext.CommonsArrayList;
+import com.helger.commons.collection.ext.ICommonsList;
 import com.helger.commons.debug.GlobalDebug;
-import com.helger.commons.io.resource.ClassPathResource;
 import com.helger.commons.scope.singleton.AbstractGlobalSingleton;
+import com.helger.commons.string.StringHelper;
+import com.helger.commons.system.SystemProperties;
+import com.helger.peppol.utils.ConfigFile;
 import com.helger.peppol.utils.KeyStoreHelper;
-import com.helger.settings.IMutableSettings;
 import com.helger.settings.ISettings;
-import com.helger.settings.exchange.properties.SettingsPersistenceProperties;
 
 /**
- * This class provides access to the settings as contained in the
- * <code>webapp.properties</code> file.
+ * This class manages the configuration properties of the PEPPOL Directory
+ * Server. The order of the properties file resolving is as follows:
+ * <ol>
+ * <li>Check for the value of the system property
+ * <code>peppol.directory.server.properties.path</code></li>
+ * <li>Check for the value of the system property
+ * <code>directory.server.properties.path</code></li>
+ * <li>The filename <code>private-pd.properties</code> in the root of the
+ * classpath</li>
+ * <li>The filename <code>pd.properties</code> in the root of the classpath</li>
+ * </ol>
  *
  * @author Philip Helger
  */
+@Immutable
 public final class PDSettings extends AbstractGlobalSingleton
 {
-  /** The name of the file containing the settings */
-  public static final String FILENAME = "pd.properties";
-  private static final IMutableSettings s_aSettings;
+  private static final Logger s_aLogger = LoggerFactory.getLogger (PDSettings.class);
+  private static final ConfigFile s_aConfigFile;
 
   static
   {
-    s_aSettings = new SettingsPersistenceProperties ().readSettings (new ClassPathResource (FILENAME));
+    final ICommonsList <String> aFilePaths = new CommonsArrayList<> ();
+    // Check if the system property is present
+    String sPropertyPath = SystemProperties.getPropertyValue ("peppol.directory.server.properties.path");
+    if (StringHelper.hasText (sPropertyPath))
+      aFilePaths.add (sPropertyPath);
+    sPropertyPath = SystemProperties.getPropertyValue ("directory.server.properties.path");
+    if (StringHelper.hasText (sPropertyPath))
+      aFilePaths.add (sPropertyPath);
+
+    // Use the default paths
+    aFilePaths.add ("private-pd.properties");
+    aFilePaths.add ("pd.properties");
+
+    s_aConfigFile = ConfigFile.create (aFilePaths);
+    if (s_aConfigFile.isRead ())
+      s_aLogger.info ("Read PEPPOL Directory properties from " + s_aConfigFile.getReadResource ().getPath ());
+    else
+      s_aLogger.warn ("Failed to read PEPPOL Directory properties from any of the paths: " + aFilePaths);
   }
 
   @Deprecated
@@ -52,13 +84,22 @@ public final class PDSettings extends AbstractGlobalSingleton
   {}
 
   /**
+   * @return The global config file for the PEPPOL Directory server.
+   */
+  @Nonnull
+  public static ConfigFile getConfigFile ()
+  {
+    return s_aConfigFile;
+  }
+
+  /**
    * @return The underlying settings object. Use it to query non-standard
    *         settings. Never <code>null</code>.
    */
   @Nonnull
   public static ISettings getSettingsObject ()
   {
-    return s_aSettings;
+    return s_aConfigFile.getSettings ();
   }
 
   /**
@@ -68,7 +109,7 @@ public final class PDSettings extends AbstractGlobalSingleton
   @Nullable
   public static String getGlobalDebug ()
   {
-    return s_aSettings.getAsString ("global.debug");
+    return s_aConfigFile.getAsString ("global.debug");
   }
 
   /**
@@ -78,7 +119,7 @@ public final class PDSettings extends AbstractGlobalSingleton
   @Nullable
   public static String getGlobalProduction ()
   {
-    return s_aSettings.getAsString ("global.production");
+    return s_aConfigFile.getAsString ("global.production");
   }
 
   /**
@@ -87,7 +128,7 @@ public final class PDSettings extends AbstractGlobalSingleton
   @Nullable
   public static String getDataPath ()
   {
-    return s_aSettings.getAsString ("webapp.datapath");
+    return s_aConfigFile.getAsString ("webapp.datapath");
   }
 
   /**
@@ -97,7 +138,7 @@ public final class PDSettings extends AbstractGlobalSingleton
    */
   public static boolean isCheckFileAccess ()
   {
-    return s_aSettings.getAsBoolean ("webapp.checkfileaccess", true);
+    return s_aConfigFile.getAsBoolean ("webapp.checkfileaccess", true);
   }
 
   /**
@@ -106,12 +147,12 @@ public final class PDSettings extends AbstractGlobalSingleton
    */
   public static boolean isTestVersion ()
   {
-    return s_aSettings.getAsBoolean ("webapp.testversion", GlobalDebug.isDebugMode ());
+    return s_aConfigFile.getAsBoolean ("webapp.testversion", GlobalDebug.isDebugMode ());
   }
 
   public static boolean isClientCertificateValidationActive ()
   {
-    return s_aSettings.getAsBoolean ("indexer.clientcert.validation", true);
+    return s_aConfigFile.getAsBoolean ("indexer.clientcert.validation", true);
   }
 
   /**
@@ -120,7 +161,7 @@ public final class PDSettings extends AbstractGlobalSingleton
   @Nullable
   public static String getClientCertIssuer ()
   {
-    return s_aSettings.getAsString ("clientcert.issuer");
+    return s_aConfigFile.getAsString ("clientcert.issuer");
   }
 
   /**
@@ -130,43 +171,43 @@ public final class PDSettings extends AbstractGlobalSingleton
   @Nullable
   public static String getClientCertIssuerAlternative ()
   {
-    return s_aSettings.getAsString ("clientcert-alt.issuer");
+    return s_aConfigFile.getAsString ("clientcert-alt.issuer");
   }
 
   @Nonnull
   public static String getTruststoreLocation ()
   {
-    return s_aSettings.getAsString ("truststore.path", KeyStoreHelper.TRUSTSTORE_PRODUCTION_CLASSPATH);
+    return s_aConfigFile.getAsString ("truststore.path", KeyStoreHelper.TRUSTSTORE_PRODUCTION_CLASSPATH);
   }
 
   @Nonnull
   public static String getTruststorePassword ()
   {
-    return s_aSettings.getAsString ("truststore.password", KeyStoreHelper.TRUSTSTORE_PASSWORD);
+    return s_aConfigFile.getAsString ("truststore.password", KeyStoreHelper.TRUSTSTORE_PASSWORD);
   }
 
   @Nonnull
   public static String getTruststoreAlias ()
   {
-    return s_aSettings.getAsString ("truststore.alias", KeyStoreHelper.TRUSTSTORE_PRODUCTION_ALIAS_SMP);
+    return s_aConfigFile.getAsString ("truststore.alias", KeyStoreHelper.TRUSTSTORE_PRODUCTION_ALIAS_SMP);
   }
 
   @Nullable
   public static String getTruststoreLocationAlternative ()
   {
-    return s_aSettings.getAsString ("truststore-alt.path", KeyStoreHelper.TRUSTSTORE_PILOT_CLASSPATH);
+    return s_aConfigFile.getAsString ("truststore-alt.path", KeyStoreHelper.TRUSTSTORE_PILOT_CLASSPATH);
   }
 
   @Nullable
   public static String getTruststorePasswordAlternative ()
   {
-    return s_aSettings.getAsString ("truststore-alt.password", KeyStoreHelper.TRUSTSTORE_PASSWORD);
+    return s_aConfigFile.getAsString ("truststore-alt.password", KeyStoreHelper.TRUSTSTORE_PASSWORD);
   }
 
   @Nullable
   public static String getTruststoreAliasAlternative ()
   {
-    return s_aSettings.getAsString ("truststore-alt.alias", KeyStoreHelper.TRUSTSTORE_PILOT_ALIAS_SMP);
+    return s_aConfigFile.getAsString ("truststore-alt.alias", KeyStoreHelper.TRUSTSTORE_PILOT_ALIAS_SMP);
   }
 
   /**
@@ -176,7 +217,7 @@ public final class PDSettings extends AbstractGlobalSingleton
   @Nonnegative
   public static int getReIndexMaxRetryHours ()
   {
-    final int ret = s_aSettings.getAsInt ("reindex.maxretryhours", 24);
+    final int ret = s_aConfigFile.getAsInt ("reindex.maxretryhours", 24);
     if (ret < 0)
       throw new IllegalStateException ("The reindex.maxretryhours property must be >= 0!");
     return ret;
@@ -188,7 +229,7 @@ public final class PDSettings extends AbstractGlobalSingleton
   @Nonnegative
   public static int getReIndexRetryMinutes ()
   {
-    final int ret = s_aSettings.getAsInt ("reindex.retryminutes", 5);
+    final int ret = s_aConfigFile.getAsInt ("reindex.retryminutes", 5);
     if (ret <= 0)
       throw new IllegalStateException ("The reindex.retryminutes property must be > 0!");
     return ret;
@@ -197,11 +238,11 @@ public final class PDSettings extends AbstractGlobalSingleton
   @Nullable
   public static String getProxyHost ()
   {
-    return s_aSettings.getAsString ("http.proxyHost");
+    return s_aConfigFile.getAsString ("http.proxyHost");
   }
 
   public static int getProxyPort ()
   {
-    return s_aSettings.getAsInt ("http.proxyPort", 0);
+    return s_aConfigFile.getAsInt ("http.proxyPort", 0);
   }
 }
