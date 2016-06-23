@@ -71,12 +71,10 @@ public final class ReIndexWorkItemList extends AbstractMapBasedWALDAO <IReIndexW
   {
     ValueEnforcer.notNull (aItem, "Item");
 
-    final ReIndexWorkItem aRealItem = getOfID (aItem.getID ());
-    if (aRealItem != null)
-    {
-      m_aRWLock.writeLocked ( () -> aRealItem.incRetryCount ());
-      addItem (aRealItem);
-    }
+    // Item is not in the list anymore, therefore we need to cast it :(
+    final ReIndexWorkItem aRealItem = (ReIndexWorkItem) aItem;
+    m_aRWLock.writeLocked ( () -> aRealItem.incRetryCount ());
+    addItem (aRealItem);
   }
 
   @Nullable
@@ -86,10 +84,7 @@ public final class ReIndexWorkItemList extends AbstractMapBasedWALDAO <IReIndexW
     if (aWorkItem == null)
       return null;
 
-    m_aRWLock.writeLocked ( () -> {
-      internalDeleteItem (aWorkItem.getID ());
-    });
-    return aWorkItem;
+    return m_aRWLock.writeLocked ( () -> internalDeleteItem (aWorkItem.getID ()));
   }
 
   @Nonnull
