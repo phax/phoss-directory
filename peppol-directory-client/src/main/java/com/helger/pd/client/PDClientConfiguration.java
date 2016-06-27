@@ -52,14 +52,14 @@ public final class PDClientConfiguration
   {
     final ConfigFileBuilder aCFB = new ConfigFileBuilder ().addPathFromSystemProperty ("peppol.pd.client.properties.path")
                                                            .addPathFromSystemProperty ("pd.client.properties.path")
-                                                           .addPaths ("private-pd-client.properties",
-                                                                      "pd-client.properties");
+                                                           .addPath ("private-pd-client.properties")
+                                                           .addPath ("pd-client.properties");
 
     s_aConfigFile = aCFB.build ();
     if (s_aConfigFile.isRead ())
       s_aLogger.info ("Read PEPPOL Directory client properties from " + s_aConfigFile.getReadResource ().getPath ());
     else
-      s_aLogger.warn ("Failed to read PEPPOL Directory client properties");
+      s_aLogger.warn ("Failed to read PEPPOL Directory client properties from " + aCFB.getAllPaths ());
   }
 
   private PDClientConfiguration ()

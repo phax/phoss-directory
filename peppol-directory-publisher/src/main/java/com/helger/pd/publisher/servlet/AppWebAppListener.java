@@ -30,7 +30,7 @@ import com.helger.pd.publisher.app.AppSecurity;
 import com.helger.pd.publisher.app.PDPMetaManager;
 import com.helger.pd.publisher.app.pub.InitializerPublic;
 import com.helger.pd.publisher.app.secure.InitializerSecure;
-import com.helger.pd.settings.PDSettings;
+import com.helger.pd.settings.PDServerConfiguration;
 import com.helger.photon.basic.app.request.ApplicationRequestManager;
 import com.helger.photon.bootstrap3.servlet.AbstractWebAppListenerMultiAppBootstrap;
 import com.helger.photon.core.app.CApplication;
@@ -48,25 +48,25 @@ public final class AppWebAppListener extends AbstractWebAppListenerMultiAppBoots
   @Override
   protected String getInitParameterDebug (@Nonnull final ServletContext aSC)
   {
-    return PDSettings.getGlobalDebug ();
+    return PDServerConfiguration.getGlobalDebug ();
   }
 
   @Override
   protected String getInitParameterProduction (@Nonnull final ServletContext aSC)
   {
-    return PDSettings.getGlobalProduction ();
+    return PDServerConfiguration.getGlobalProduction ();
   }
 
   @Override
   protected String getDataPath (@Nonnull final ServletContext aSC)
   {
-    return PDSettings.getDataPath ();
+    return PDServerConfiguration.getDataPath ();
   }
 
   @Override
   protected boolean shouldCheckFileAccess (@Nonnull final ServletContext aSC)
   {
-    return PDSettings.isCheckFileAccess ();
+    return PDServerConfiguration.isCheckFileAccess ();
   }
 
   @Override

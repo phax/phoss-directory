@@ -23,9 +23,8 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 import com.helger.commons.id.factory.GlobalIDFactory;
 import com.helger.commons.scope.mock.ScopeTestRule;
 import com.helger.pd.indexer.lucene.PDLucene;
-import com.helger.pd.settings.PDSettings;
+import com.helger.pd.settings.PDServerConfiguration;
 import com.helger.peppol.smpclient.SMPClientConfiguration;
-import com.helger.peppol.utils.PeppolTechnicalSetup;
 import com.helger.photon.basic.app.io.WebFileIO;
 import com.helger.photon.basic.app.io.WebIOIntIDFactory;
 import com.helger.photon.basic.mock.PhotonBasicWebTestRule;
@@ -46,7 +45,7 @@ public class PDIndexerTestRule extends PhotonBasicWebTestRule
 
   public PDIndexerTestRule ()
   {
-    super (new File (PDSettings.getDataPath ()), ScopeTestRule.STORAGE_PATH);
+    super (new File (PDServerConfiguration.getDataPath ()), ScopeTestRule.STORAGE_PATH);
   }
 
   @Override
@@ -56,6 +55,6 @@ public class PDIndexerTestRule extends PhotonBasicWebTestRule
     WebFileIO.getFileOpMgr ().deleteDirRecursiveIfExisting (PDLucene.getLuceneIndexDir ());
     GlobalIDFactory.setPersistentIntIDFactory (new WebIOIntIDFactory ("pd-ids.dat"));
     // Ensure the network system properties are assigned
-    PeppolTechnicalSetup.applyAllNetworkSystemProperties (SMPClientConfiguration.getConfigFile ());
+    SMPClientConfiguration.getConfigFile ().applyAllNetworkSystemProperties ();
   }
 }

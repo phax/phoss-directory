@@ -72,7 +72,7 @@ public final class PDClientConfiguration
     if (s_aConfigFile.isRead ())
       s_aLogger.info ("Read PEPPOL Directory client properties from " + s_aConfigFile.getReadResource ().getPath ());
     else
-      s_aLogger.warn ("Failed to read PEPPOL Directory client properties from any of the paths: " + aFilePaths);
+      s_aLogger.warn ("Failed to read PEPPOL Directory client properties from " + aFilePaths);
   }
 
   private PDClientConfiguration ()

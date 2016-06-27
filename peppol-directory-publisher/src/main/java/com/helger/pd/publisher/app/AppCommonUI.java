@@ -39,7 +39,7 @@ import com.helger.html.jscode.JSVar;
 import com.helger.html.jscode.html.JSHtml;
 import com.helger.pd.publisher.ajax.AjaxExecutorPublicLogin;
 import com.helger.pd.publisher.ajax.CAjaxPublic;
-import com.helger.pd.settings.PDSettings;
+import com.helger.pd.settings.PDServerConfiguration;
 import com.helger.photon.bootstrap3.button.BootstrapButtonToolbar;
 import com.helger.photon.bootstrap3.form.BootstrapForm;
 import com.helger.photon.bootstrap3.form.BootstrapFormGroup;
@@ -78,7 +78,7 @@ public final class AppCommonUI
   @Nonnull
   public static String getApplicationTitle ()
   {
-    return APPLICATION_TITLE + (PDSettings.isTestVersion () ? " [TEST]" : "");
+    return APPLICATION_TITLE + (PDServerConfiguration.isTestVersion () ? " [TEST]" : "");
   }
 
   public static void init ()

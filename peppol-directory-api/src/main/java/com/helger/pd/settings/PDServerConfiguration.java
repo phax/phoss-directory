@@ -48,27 +48,28 @@ import com.helger.settings.exchange.configfile.ConfigFileBuilder;
  * @author Philip Helger
  */
 @Immutable
-public final class PDSettings extends AbstractGlobalSingleton
+public final class PDServerConfiguration extends AbstractGlobalSingleton
 {
-  private static final Logger s_aLogger = LoggerFactory.getLogger (PDSettings.class);
+  private static final Logger s_aLogger = LoggerFactory.getLogger (PDServerConfiguration.class);
   private static final ConfigFile s_aConfigFile;
 
   static
   {
     final ConfigFileBuilder aCFB = new ConfigFileBuilder ().addPathFromSystemProperty ("peppol.directory.server.properties.path")
                                                            .addPathFromSystemProperty ("directory.server.properties.path")
-                                                           .addPaths ("private-pd.properties", "pd.properties");
+                                                           .addPath ("private-pd.properties")
+                                                           .addPath ("pd.properties");
 
     s_aConfigFile = aCFB.build ();
     if (s_aConfigFile.isRead ())
-      s_aLogger.info ("Read PEPPOL Directory properties from " + s_aConfigFile.getReadResource ().getPath ());
+      s_aLogger.info ("Read PEPPOL Directory server properties from " + s_aConfigFile.getReadResource ().getPath ());
     else
-      s_aLogger.warn ("Failed to read PEPPOL Directory properties");
+      s_aLogger.warn ("Failed to read PEPPOL Directory server properties from " + aCFB.getAllPaths ());
   }
 
   @Deprecated
   @UsedViaReflection
-  private PDSettings ()
+  private PDServerConfiguration ()
   {}
 
   /**

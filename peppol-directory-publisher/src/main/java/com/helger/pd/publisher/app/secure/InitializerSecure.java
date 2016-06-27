@@ -20,7 +20,7 @@ import javax.annotation.Nonnull;
 
 import com.helger.commons.io.resource.ClassPathResource;
 import com.helger.pd.publisher.app.AppCommonUI;
-import com.helger.pd.settings.PDSettings;
+import com.helger.pd.settings.PDServerConfiguration;
 import com.helger.photon.basic.app.locale.ILocaleManager;
 import com.helger.photon.basic.app.menu.IMenuTree;
 import com.helger.photon.bootstrap3.pages.sysinfo.ConfigurationFile;
@@ -68,9 +68,9 @@ public final class InitializerSecure implements IApplicationInitializer <LayoutE
     final ConfigurationFileManager aCfgMgr = ConfigurationFileManager.getInstance ();
     aCfgMgr.registerConfigurationFile (new ConfigurationFile (new ClassPathResource ("log4j2.xml")).setDescription ("log4j configuration file")
                                                                                                    .setSyntaxHighlightLanguage (EPrismLanguage.MARKUP));
-    if (PDSettings.getConfigFile ().isRead ())
+    if (PDServerConfiguration.getConfigFile ().isRead ())
     {
-      aCfgMgr.registerConfigurationFile (new ConfigurationFile (PDSettings.getConfigFile ()
+      aCfgMgr.registerConfigurationFile (new ConfigurationFile (PDServerConfiguration.getConfigFile ()
                                                                           .getReadResource ()).setDescription ("PEPPOL Directory properties")
                                                                                               .setSyntaxHighlightLanguage (EPrismLanguage.APACHECONF));
     }

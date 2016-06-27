@@ -30,7 +30,7 @@ import com.helger.commons.hashcode.HashCodeGenerator;
 import com.helger.commons.string.ToStringGenerator;
 import com.helger.commons.type.ObjectType;
 import com.helger.pd.indexer.index.IIndexerWorkItem;
-import com.helger.pd.settings.PDSettings;
+import com.helger.pd.settings.PDServerConfiguration;
 
 /**
  * The default implementation of {@link IReIndexWorkItem}.
@@ -52,10 +52,10 @@ public class ReIndexWorkItem implements IReIndexWorkItem
   {
     // The next retry happens from now in the configured number of minutes
     this (aWorkItem,
-          aWorkItem.getCreationDateTime ().plusHours (PDSettings.getReIndexMaxRetryHours ()),
+          aWorkItem.getCreationDateTime ().plusHours (PDServerConfiguration.getReIndexMaxRetryHours ()),
           0,
           (LocalDateTime) null,
-          PDTFactory.getCurrentLocalDateTime ().plusMinutes (PDSettings.getReIndexRetryMinutes ()));
+          PDTFactory.getCurrentLocalDateTime ().plusMinutes (PDServerConfiguration.getReIndexRetryMinutes ()));
   }
 
   /**
@@ -139,7 +139,7 @@ public class ReIndexWorkItem implements IReIndexWorkItem
   {
     m_nRetries++;
     m_aPreviousRetryDT = PDTFactory.getCurrentLocalDateTime ();
-    m_aNextRetryDT = m_aPreviousRetryDT.plusMinutes (PDSettings.getReIndexRetryMinutes ());
+    m_aNextRetryDT = m_aPreviousRetryDT.plusMinutes (PDServerConfiguration.getReIndexRetryMinutes ());
   }
 
   @Nonnull

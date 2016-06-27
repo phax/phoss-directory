@@ -34,7 +34,7 @@ import com.helger.pd.businesscard.IPDBusinessCardProvider;
 import com.helger.pd.businesscard.PDBusinessCardMarshaller;
 import com.helger.pd.businesscard.PDBusinessCardType;
 import com.helger.pd.businesscard.PDExtendedBusinessCard;
-import com.helger.pd.settings.PDSettings;
+import com.helger.pd.settings.PDServerConfiguration;
 import com.helger.peppol.httpclient.SMPHttpResponseHandlerUnsigned;
 import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.generic.doctype.SimpleDocumentTypeIdentifier;
@@ -69,8 +69,8 @@ public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
   @Nullable
   public HttpHost getHttpProxy ()
   {
-    final String sProxyHost = PDSettings.getProxyHost ();
-    final int nProxyPort = PDSettings.getProxyPort ();
+    final String sProxyHost = PDServerConfiguration.getProxyHost ();
+    final int nProxyPort = PDServerConfiguration.getProxyPort ();
     if (sProxyHost != null && nProxyPort > 0)
       return new HttpHost (sProxyHost, nProxyPort);
 

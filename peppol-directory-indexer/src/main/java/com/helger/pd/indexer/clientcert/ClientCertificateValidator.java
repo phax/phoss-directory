@@ -42,7 +42,7 @@ import com.helger.commons.collection.ext.ICommonsList;
 import com.helger.commons.collection.ext.ICommonsMap;
 import com.helger.commons.exception.InitializationException;
 import com.helger.commons.string.StringHelper;
-import com.helger.pd.settings.PDSettings;
+import com.helger.pd.settings.PDServerConfiguration;
 import com.helger.peppol.utils.KeyStoreHelper;
 
 /**
@@ -62,7 +62,7 @@ public final class ClientCertificateValidator
   @PresentForCodeCoverage
   private static final ClientCertificateValidator s_aInstance = new ClientCertificateValidator ();
 
-  private static boolean s_bCheckDisabled = !PDSettings.isClientCertificateValidationActive ();
+  private static boolean s_bCheckDisabled = !PDServerConfiguration.isClientCertificateValidationActive ();
   private static X509Certificate s_aPeppolSMPRootCert;
   private static X509Certificate s_aPeppolSMPRootCertAlternative;
 
@@ -87,7 +87,7 @@ public final class ClientCertificateValidator
   private static void _initCertificateIssuers ()
   {
     // Get the certificate issuer we need
-    final String sIssuerToSearch = PDSettings.getClientCertIssuer ();
+    final String sIssuerToSearch = PDServerConfiguration.getClientCertIssuer ();
     if (StringHelper.hasNoText (sIssuerToSearch))
       throw new InitializationException ("The settings file is missing the entry for the client certificate issuer");
 
@@ -95,7 +95,7 @@ public final class ClientCertificateValidator
     s_aSearchIssuers.add (new X500Principal (sIssuerToSearch));
 
     // Optional alternative issuer
-    final String sIssuerToSearchAlternative = PDSettings.getClientCertIssuerAlternative ();
+    final String sIssuerToSearchAlternative = PDServerConfiguration.getClientCertIssuerAlternative ();
     if (StringHelper.hasText (sIssuerToSearchAlternative))
     {
       // Throws a runtime exception on syntax error anyway :)
@@ -108,9 +108,9 @@ public final class ClientCertificateValidator
   private static void _initRootCert ()
   {
     // Get data from config file
-    final String sTrustStorePath = PDSettings.getTruststoreLocation ();
-    final String sTrustStorePassword = PDSettings.getTruststorePassword ();
-    final String sTrustStoreAlias = PDSettings.getTruststoreAlias ();
+    final String sTrustStorePath = PDServerConfiguration.getTruststoreLocation ();
+    final String sTrustStorePassword = PDServerConfiguration.getTruststorePassword ();
+    final String sTrustStoreAlias = PDServerConfiguration.getTruststoreAlias ();
 
     // Load keystores
     try
@@ -141,9 +141,9 @@ public final class ClientCertificateValidator
   private static void _initRootCertAlternative ()
   {
     // Get data from config file
-    final String sTrustStorePath = PDSettings.getTruststoreLocationAlternative ();
-    final String sTrustStorePassword = PDSettings.getTruststorePasswordAlternative ();
-    final String sTrustStoreAlias = PDSettings.getTruststoreAliasAlternative ();
+    final String sTrustStorePath = PDServerConfiguration.getTruststoreLocationAlternative ();
+    final String sTrustStorePassword = PDServerConfiguration.getTruststorePasswordAlternative ();
+    final String sTrustStoreAlias = PDServerConfiguration.getTruststoreAliasAlternative ();
 
     if (StringHelper.hasText (sTrustStorePath) &&
         StringHelper.hasText (sTrustStorePassword) &&
