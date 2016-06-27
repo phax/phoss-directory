@@ -20,6 +20,7 @@ import org.junit.Test;
 
 import com.helger.commons.exception.InitializationException;
 import com.helger.peppol.identifier.peppol.participant.PeppolParticipantIdentifier;
+import com.helger.peppol.utils.PeppolTechnicalSetup;
 
 /**
  * Test class for class {@link PDClient}.
@@ -30,7 +31,7 @@ public final class PDClientTest
 {
   static
   {
-    PDClientConfiguration.getConfigFile ().applyAllNetworkSystemProperties ();
+    PeppolTechnicalSetup.applyAllNetworkSystemProperties (PDClientConfiguration.getConfigFile ());
   }
 
   @Test

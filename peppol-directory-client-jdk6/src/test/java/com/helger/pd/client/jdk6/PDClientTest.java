@@ -19,8 +19,6 @@ package com.helger.pd.client.jdk6;
 import org.junit.Test;
 
 import com.helger.commons.exception.InitializationException;
-import com.helger.pd.client.jdk6.PDClient;
-import com.helger.pd.client.jdk6.PDClientConfiguration;
 import com.helger.peppol.identifier.participant.SimpleParticipantIdentifier;
 
 /**

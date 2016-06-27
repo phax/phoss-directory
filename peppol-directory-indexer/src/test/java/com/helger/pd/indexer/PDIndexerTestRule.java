@@ -25,6 +25,7 @@ import com.helger.commons.scope.mock.ScopeTestRule;
 import com.helger.pd.indexer.lucene.PDLucene;
 import com.helger.pd.settings.PDSettings;
 import com.helger.peppol.smpclient.SMPClientConfiguration;
+import com.helger.peppol.utils.PeppolTechnicalSetup;
 import com.helger.photon.basic.app.io.WebFileIO;
 import com.helger.photon.basic.app.io.WebIOIntIDFactory;
 import com.helger.photon.basic.mock.PhotonBasicWebTestRule;
@@ -55,6 +56,6 @@ public class PDIndexerTestRule extends PhotonBasicWebTestRule
     WebFileIO.getFileOpMgr ().deleteDirRecursiveIfExisting (PDLucene.getLuceneIndexDir ());
     GlobalIDFactory.setPersistentIntIDFactory (new WebIOIntIDFactory ("pd-ids.dat"));
     // Ensure the network system properties are assigned
-    SMPClientConfiguration.getConfigFile ().applyAllNetworkSystemProperties ();
+    PeppolTechnicalSetup.applyAllNetworkSystemProperties (SMPClientConfiguration.getConfigFile ());
   }
 }

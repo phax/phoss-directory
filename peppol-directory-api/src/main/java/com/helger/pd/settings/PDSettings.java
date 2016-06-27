@@ -25,15 +25,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.commons.annotation.UsedViaReflection;
-import com.helger.commons.collection.ext.CommonsArrayList;
-import com.helger.commons.collection.ext.ICommonsList;
 import com.helger.commons.debug.GlobalDebug;
 import com.helger.commons.scope.singleton.AbstractGlobalSingleton;
-import com.helger.commons.string.StringHelper;
-import com.helger.commons.system.SystemProperties;
-import com.helger.peppol.utils.ConfigFile;
 import com.helger.peppol.utils.KeyStoreHelper;
 import com.helger.settings.ISettings;
+import com.helger.settings.exchange.configfile.ConfigFile;
+import com.helger.settings.exchange.configfile.ConfigFileBuilder;
 
 /**
  * This class manages the configuration properties of the PEPPOL Directory
@@ -58,24 +55,15 @@ public final class PDSettings extends AbstractGlobalSingleton
 
   static
   {
-    final ICommonsList <String> aFilePaths = new CommonsArrayList<> ();
-    // Check if the system property is present
-    String sPropertyPath = SystemProperties.getPropertyValue ("peppol.directory.server.properties.path");
-    if (StringHelper.hasText (sPropertyPath))
-      aFilePaths.add (sPropertyPath);
-    sPropertyPath = SystemProperties.getPropertyValue ("directory.server.properties.path");
-    if (StringHelper.hasText (sPropertyPath))
-      aFilePaths.add (sPropertyPath);
+    final ConfigFileBuilder aCFB = new ConfigFileBuilder ().addPathFromSystemProperty ("peppol.directory.server.properties.path")
+                                                           .addPathFromSystemProperty ("directory.server.properties.path")
+                                                           .addPaths ("private-pd.properties", "pd.properties");
 
-    // Use the default paths
-    aFilePaths.add ("private-pd.properties");
-    aFilePaths.add ("pd.properties");
-
-    s_aConfigFile = ConfigFile.create (aFilePaths);
+    s_aConfigFile = aCFB.build ();
     if (s_aConfigFile.isRead ())
       s_aLogger.info ("Read PEPPOL Directory properties from " + s_aConfigFile.getReadResource ().getPath ());
     else
-      s_aLogger.warn ("Failed to read PEPPOL Directory properties from any of the paths: " + aFilePaths);
+      s_aLogger.warn ("Failed to read PEPPOL Directory properties");
   }
 
   @Deprecated
