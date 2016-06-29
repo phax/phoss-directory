@@ -17,6 +17,8 @@
 package com.helger.pd.client;
 
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.helger.commons.exception.InitializationException;
 import com.helger.peppol.identifier.peppol.participant.PeppolParticipantIdentifier;
@@ -28,17 +30,13 @@ import com.helger.peppol.identifier.peppol.participant.PeppolParticipantIdentifi
  */
 public final class PDClientTest
 {
-  static
-  {
-    PDClientConfiguration.getConfigFile ().applyAllNetworkSystemProperties ();
-  }
+  private static final Logger LOG = LoggerFactory.getLogger (PDClientTest.class);
 
   @Test
   public void testBasic ()
   {
     final PeppolParticipantIdentifier aPI = PeppolParticipantIdentifier.createWithDefaultScheme ("9999:client-test");
-    final PDClient aClient = PDClient.createDefaultClient ();
-    try
+    try (final PDClient aClient = PDClient.createDefaultClient ())
     {
       aClient.deleteServiceGroupFromIndex (aPI);
       aClient.isServiceGroupRegistered (aPI);
@@ -46,7 +44,7 @@ public final class PDClientTest
     }
     catch (final InitializationException ex)
     {
-      ex.printStackTrace ();
+      LOG.error ("Failed to invoke PDClient", ex);
     }
   }
 }

@@ -25,19 +25,14 @@ import javax.annotation.Nullable;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
-import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
-import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +42,9 @@ import com.helger.commons.annotation.OverrideOnDemand;
 import com.helger.commons.charset.CCharset;
 import com.helger.commons.io.stream.StreamHelper;
 import com.helger.commons.state.ESuccess;
+import com.helger.commons.url.URLHelper;
+import com.helger.httpclient.HttpClientHelper;
+import com.helger.httpclient.HttpClientManager;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 
 /**
@@ -56,7 +54,7 @@ import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
  */
 public class PDClient implements Closeable
 {
-  static final Logger s_aLogger = LoggerFactory.getLogger (PDClient.class);
+  private static final Logger s_aLogger = LoggerFactory.getLogger (PDClient.class);
 
   /**
    * The string representation of the PEPPOL Directory host URL, always ending
@@ -65,9 +63,22 @@ public class PDClient implements Closeable
   private final String m_sPDHost;
   private final String m_sPDIndexerURL;
 
+  private final HttpClientManager m_aHttpClientMgr = new HttpClientManager ( () -> new PDHttpClientFactory ().createHttpClient ());
   private HttpHost m_aProxy;
   private Credentials m_aProxyCredentials;
-  private CloseableHttpClient m_aHttpClient;
+
+  /**
+   * Constructor with a direct PEPPOL Directory URL.
+   *
+   * @param sPDHost
+   *        The address of the PEPPOL Directory Server including the application
+   *        server context path but without the REST interface. May be http or
+   *        https. Example: http://pyp.helger.com/
+   */
+  public PDClient (@Nonnull final String sPDHost)
+  {
+    this (URLHelper.getAsURI (sPDHost));
+  }
 
   /**
    * Constructor with a direct PEPPOL Directory URL.
@@ -85,6 +96,20 @@ public class PDClient implements Closeable
     final String sSMPHost = aPDHost.toString ();
     m_sPDHost = sSMPHost.endsWith ("/") ? sSMPHost : sSMPHost + '/';
     m_sPDIndexerURL = m_sPDHost + "indexer/1.0/";
+
+    // Get proxy settings
+    final boolean bIsHttp = m_sPDHost.startsWith ("http:");
+    final String sProxyHost = bIsHttp ? PDClientConfiguration.getHttpProxyHost ()
+                                      : PDClientConfiguration.getHttpsProxyHost ();
+    final int nProxyPort = bIsHttp ? PDClientConfiguration.getHttpProxyPort ()
+                                   : PDClientConfiguration.getHttpsProxyPort ();
+    if (sProxyHost != null && nProxyPort > 0)
+      setProxy (new HttpHost (sProxyHost, nProxyPort));
+  }
+
+  public void close ()
+  {
+    StreamHelper.close (m_aHttpClientMgr);
   }
 
   /**
@@ -139,12 +164,6 @@ public class PDClient implements Closeable
     m_aProxyCredentials = aProxyCredentials;
   }
 
-  @Nonnull
-  protected HttpClientBuilder createClientBuilder ()
-  {
-    return new PDHttpClientWrapper (m_aProxy).createHttpClientBuilder ();
-  }
-
   /**
    * The main execution routine. Overwrite this method to add additional
    * properties to the call.
@@ -161,21 +180,9 @@ public class PDClient implements Closeable
   {
     // Contextual attributes set the local context level will take
     // precedence over those set at the client level.
-    final HttpClientContext aContext = HttpClientContext.create ();
-    if (m_aProxy != null && m_aProxyCredentials != null)
-    {
-      final CredentialsProvider aCredentialsProvider = new BasicCredentialsProvider ();
-      aCredentialsProvider.setCredentials (new AuthScope (m_aProxy), m_aProxyCredentials);
-      aContext.setCredentialsProvider (aCredentialsProvider);
-    }
+    final HttpContext aContext = HttpClientHelper.createHttpContext (m_aProxy, m_aProxyCredentials);
 
-    if (m_aHttpClient == null)
-      m_aHttpClient = createClientBuilder ().build ();
-
-    if (s_aLogger.isDebugEnabled ())
-      s_aLogger.debug ("Executing request " + aRequest.getRequestLine ());
-
-    return m_aHttpClient.execute (aRequest, aContext);
+    return m_aHttpClientMgr.execute (aRequest, aContext);
   }
 
   @Nullable
@@ -259,7 +266,7 @@ public class PDClient implements Closeable
     }
     catch (final IOException ex)
     {
-      s_aLogger.error ("Error performing request " + aPut.getRequestLine (), ex);
+      s_aLogger.error ("Error performing request: " + aPut.getRequestLine (), ex);
     }
     return ESuccess.FAILURE;
   }
@@ -298,26 +305,9 @@ public class PDClient implements Closeable
     return ESuccess.FAILURE;
   }
 
-  public void close () throws IOException
-  {
-    if (m_aHttpClient != null)
-      m_aHttpClient.close ();
-  }
-
   @Nonnull
   public static PDClient createDefaultClient ()
   {
-    final PDClient aClient = new PDClient (URI.create ("http://pyp.helger.com"));
-    final boolean bIsHttp = aClient.getPDHostURI ().startsWith ("http:");
-
-    // Get proxy settings
-    final String sProxyHost = bIsHttp ? PDClientConfiguration.getHttpProxyHost ()
-                                      : PDClientConfiguration.getHttpsProxyHost ();
-    final int nProxyPort = bIsHttp ? PDClientConfiguration.getHttpProxyPort ()
-                                   : PDClientConfiguration.getHttpsProxyPort ();
-    if (sProxyHost != null && nProxyPort > 0)
-      aClient.setProxy (new HttpHost (sProxyHost, nProxyPort));
-
-    return aClient;
+    return new PDClient ("http://pyp.helger.com");
   }
 }

@@ -19,12 +19,17 @@ package com.helger.pd.indexer.mgr;
 import static org.junit.Assert.assertNotNull;
 
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.helger.commons.url.URLHelper;
 import com.helger.pd.businesscard.PDExtendedBusinessCard;
 import com.helger.peppol.identifier.peppol.participant.PeppolParticipantIdentifier;
 import com.helger.peppol.smpclient.SMPClientReadOnly;
+import com.helger.web.scope.mock.WebScopeTestRule;
 
 /**
  * Test class for class {@link SMPBusinessCardProvider}.
@@ -33,14 +38,18 @@ import com.helger.peppol.smpclient.SMPClientReadOnly;
  */
 public final class SMPBusinessCardProviderTest
 {
+  private static final Logger LOG = LoggerFactory.getLogger (SMPBusinessCardProviderTest.class);
+
+  @Rule
+  public final TestRule m_aRule = new WebScopeTestRule ();
+
   @Test
-  @Ignore ("Does not work at the moment")
   public void testFetch ()
   {
     final SMPBusinessCardProvider aBI = new SMPBusinessCardProvider ();
     final PDExtendedBusinessCard aExtBI = aBI.getBusinessCard (PeppolParticipantIdentifier.createWithDefaultScheme ("9915:test"));
     assertNotNull (aExtBI);
-    System.out.println (aExtBI);
+    LOG.info (aExtBI.toString ());
   }
 
   @Test
@@ -50,7 +59,7 @@ public final class SMPBusinessCardProviderTest
     final SMPBusinessCardProvider aBI = new SMPBusinessCardProvider ();
     final PDExtendedBusinessCard aExtBI = aBI.getBusinessCard (PeppolParticipantIdentifier.createWithDefaultScheme ("9905:leckma-peppol"));
     assertNotNull (aExtBI);
-    System.out.println (aExtBI);
+    LOG.info (aExtBI.toString ());
   }
 
   @Test
@@ -61,6 +70,6 @@ public final class SMPBusinessCardProviderTest
     final PDExtendedBusinessCard aExtBI = aBI.getBusinessCard (PeppolParticipantIdentifier.createWithDefaultScheme ("9999:ghx"),
                                                                new SMPClientReadOnly (URLHelper.getAsURI ("http://localhost:90")));
     assertNotNull (aExtBI);
-    System.out.println (aExtBI);
+    LOG.info (aExtBI.toString ());
   }
 }

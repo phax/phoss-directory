@@ -16,11 +16,15 @@
  */
 package com.helger.pd.indexer.mgr;
 
+import java.io.IOException;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.apache.http.HttpHost;
-import org.apache.http.client.fluent.Request;
+import org.apache.http.client.HttpResponseException;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +34,7 @@ import com.helger.commons.collection.ext.CommonsArrayList;
 import com.helger.commons.collection.ext.ICommonsList;
 import com.helger.commons.url.SimpleURL;
 import com.helger.commons.url.URLHelper;
+import com.helger.httpclient.HttpClientHelper;
 import com.helger.pd.businesscard.IPDBusinessCardProvider;
 import com.helger.pd.businesscard.PDBusinessCardMarshaller;
 import com.helger.pd.businesscard.PDBusinessCardType;
@@ -44,7 +49,6 @@ import com.helger.peppol.smp.ServiceGroupType;
 import com.helger.peppol.smp.ServiceMetadataReferenceType;
 import com.helger.peppol.smpclient.SMPClientReadOnly;
 import com.helger.peppol.smpclient.exception.SMPClientException;
-import com.helger.peppol.smpclient.exception.SMPClientNotFoundException;
 import com.helger.peppol.url.IPeppolURLProvider;
 import com.helger.peppol.url.PeppolURLProvider;
 
@@ -83,10 +87,11 @@ public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
                                           @Nonnull final SMPClientReadOnly aSMPClient)
   {
     // Create SMP client
-    aSMPClient.setProxy (getHttpProxy ());
+    final HttpHost aProxy = getHttpProxy ();
+    aSMPClient.setProxy (aProxy);
 
     s_aLogger.info ("Querying BusinessCard for '" +
-                    aParticipantID +
+                    aParticipantID.getURIEncoded () +
                     "' from SMP '" +
                     aSMPClient.getSMPHostURI () +
                     "'");
@@ -108,24 +113,24 @@ public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
     try
     {
       // Use the optional business card API
-      final Request aRequest = Request.Get (aSMPClient.getSMPHostURI () +
+      final HttpGet aRequest = new HttpGet (aSMPClient.getSMPHostURI () +
                                             "businesscard/" +
                                             aParticipantID.getURIPercentEncoded ());
-
-      aBusinessCard = aSMPClient.executeGenericRequest (aRequest,
-                                                        SMPHttpResponseHandlerUnsigned.create (new PDBusinessCardMarshaller ()));
+      final HttpContext aContext = HttpClientHelper.createHttpContext (aProxy);
+      aBusinessCard = PDMetaManager.getHttpClientMgr ()
+                                   .execute (aRequest,
+                                             aContext,
+                                             SMPHttpResponseHandlerUnsigned.create (new PDBusinessCardMarshaller ()));
     }
-    catch (final SMPClientNotFoundException ex)
+    catch (final IOException ex)
     {
-      s_aLogger.warn ("No BusinessCard available for '" +
-                      aParticipantID.getURIEncoded () +
-                      "' - not in SMK/SML? - " +
-                      ex.getMessage ());
-      return null;
-    }
-    catch (final SMPClientException ex)
-    {
-      s_aLogger.error ("Error querying SMP for BusinessCard of '" + aParticipantID.getURIEncoded () + "'", ex);
+      if (ex instanceof HttpResponseException && ((HttpResponseException) ex).getStatusCode () == 404)
+        s_aLogger.warn ("No BusinessCard available for '" +
+                        aParticipantID.getURIEncoded () +
+                        "' - not in SMK/SML? - " +
+                        ex.getMessage ());
+      else
+        s_aLogger.error ("Error querying SMP for BusinessCard of '" + aParticipantID.getURIEncoded () + "'", ex);
       return null;
     }
 
@@ -137,7 +142,7 @@ public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
     }
 
     // Query all document types
-    final ICommonsList <IDocumentTypeIdentifier> aDocumentTypeIDs = new CommonsArrayList <> ();
+    final ICommonsList <IDocumentTypeIdentifier> aDocumentTypeIDs = new CommonsArrayList<> ();
     if (aServiceGroup != null)
       for (final ServiceMetadataReferenceType aRef : aServiceGroup.getServiceMetadataReferenceCollection ()
                                                                   .getServiceMetadataReference ())
