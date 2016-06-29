@@ -19,19 +19,15 @@ package com.helger.pd.client;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.URI;
-import java.security.GeneralSecurityException;
-import java.security.KeyStore;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.net.ssl.SSLContext;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
@@ -42,7 +38,6 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,9 +47,7 @@ import com.helger.commons.annotation.OverrideOnDemand;
 import com.helger.commons.charset.CCharset;
 import com.helger.commons.io.stream.StreamHelper;
 import com.helger.commons.state.ESuccess;
-import com.helger.httpclient.HttpClientWrapper;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
-import com.helger.peppol.utils.KeyStoreHelper;
 
 /**
  * This class is used for calling the PD indexer REST interface.
@@ -63,7 +56,7 @@ import com.helger.peppol.utils.KeyStoreHelper;
  */
 public class PDClient implements Closeable
 {
-  private static final Logger s_aLogger = LoggerFactory.getLogger (PDClient.class);
+  static final Logger s_aLogger = LoggerFactory.getLogger (PDClient.class);
 
   /**
    * The string representation of the PEPPOL Directory host URL, always ending
@@ -149,44 +142,7 @@ public class PDClient implements Closeable
   @Nonnull
   protected HttpClientBuilder createClientBuilder ()
   {
-    return new HttpClientWrapper ()
-    {
-      @Override
-      public SSLContext createSSLContext () throws GeneralSecurityException
-      {
-        try
-        {
-          // Set SSL context
-          final KeyStore aKeyStore = KeyStoreHelper.loadKeyStore (PDClientConfiguration.getKeyStorePath (),
-                                                                  PDClientConfiguration.getKeyStorePassword ());
-          return SSLContexts.custom ()
-                            .loadKeyMaterial (aKeyStore,
-                                              PDClientConfiguration.getKeyStoreKeyPassword (),
-                                              (aAliases, aSocket) -> {
-                                                final String sAlias = PDClientConfiguration.getKeyStoreKeyAlias ();
-                                                return aAliases.containsKey (sAlias) ? sAlias : null;
-                                              })
-                            .build ();
-        }
-        catch (final Throwable t)
-        {
-          s_aLogger.error ("Failed to initialize keystore for service connection! Can only use http now!", t);
-        }
-        return null;
-      }
-    }.createHttpClientBuilder ();
-  }
-
-  @Nonnull
-  @OverrideOnDemand
-  protected RequestConfig createRequestConfig ()
-  {
-    return RequestConfig.custom ()
-                        .setSocketTimeout (10000)
-                        .setConnectTimeout (5000)
-                        .setConnectionRequestTimeout (5000)
-                        .setProxy (m_aProxy)
-                        .build ();
+    return new PDHttpClientWrapper (m_aProxy).createHttpClientBuilder ();
   }
 
   /**
@@ -203,8 +159,6 @@ public class PDClient implements Closeable
   @OverrideOnDemand
   protected CloseableHttpResponse executeRequest (@Nonnull final HttpRequestBase aRequest) throws IOException
   {
-    aRequest.setConfig (createRequestConfig ());
-
     // Contextual attributes set the local context level will take
     // precedence over those set at the client level.
     final HttpClientContext aContext = HttpClientContext.create ();
