@@ -29,7 +29,7 @@ import com.helger.commons.url.URLHelper;
 import com.helger.pd.businesscard.PDExtendedBusinessCard;
 import com.helger.peppol.identifier.peppol.participant.PeppolParticipantIdentifier;
 import com.helger.peppol.smpclient.SMPClientReadOnly;
-import com.helger.web.scope.mock.WebScopeTestRule;
+import com.helger.photon.basic.mock.PhotonBasicWebTestRule;
 
 /**
  * Test class for class {@link SMPBusinessCardProvider}.
@@ -41,7 +41,7 @@ public final class SMPBusinessCardProviderTest
   private static final Logger LOG = LoggerFactory.getLogger (SMPBusinessCardProviderTest.class);
 
   @Rule
-  public final TestRule m_aRule = new WebScopeTestRule ();
+  public final TestRule m_aRule = new PhotonBasicWebTestRule ();
 
   @Test
   public void testFetch ()
