@@ -120,7 +120,7 @@ public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
       aBusinessCard = PDMetaManager.getHttpClientMgr ()
                                    .execute (aRequest,
                                              aContext,
-                                             SMPHttpResponseHandlerUnsigned.create (new PDBusinessCardMarshaller ()));
+                                             new SMPHttpResponseHandlerUnsigned<> (new PDBusinessCardMarshaller ()));
     }
     catch (final IOException ex)
     {
