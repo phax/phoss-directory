@@ -85,7 +85,7 @@ public final class AppSecurity
     final RoleManager aRoleMgr = PhotonSecurityManager.getRoleMgr ();
 
     // Standard users
-    if (!aUserMgr.containsUserWithID (USER_ADMINISTRATOR_ID))
+    if (!aUserMgr.containsWithID (USER_ADMINISTRATOR_ID))
     {
       final boolean bDisabled = false;
       aUserMgr.createPredefinedUser (USER_ADMINISTRATOR_ID,
@@ -101,21 +101,21 @@ public final class AppSecurity
     }
 
     // Create all roles
-    if (!aRoleMgr.containsRoleWithID (ROLE_CONFIG_ID))
+    if (!aRoleMgr.containsWithID (ROLE_CONFIG_ID))
       aRoleMgr.createPredefinedRole (ROLE_CONFIG_ID,
                                      ROLE_CONFIG_NAME,
                                      ROLE_CONFIG_DESCRIPTION,
                                      ROLE_CONFIG_CUSTOMATTRS);
-    if (!aRoleMgr.containsRoleWithID (ROLE_VIEW_ID))
+    if (!aRoleMgr.containsWithID (ROLE_VIEW_ID))
       aRoleMgr.createPredefinedRole (ROLE_VIEW_ID, ROLE_VIEW_NAME, ROLE_VIEW_DESCRIPTION, ROLE_VIEW_CUSTOMATTRS);
-    if (!aRoleMgr.containsRoleWithID (ROLE_SG_OWNER_ID))
+    if (!aRoleMgr.containsWithID (ROLE_SG_OWNER_ID))
       aRoleMgr.createPredefinedRole (ROLE_SG_OWNER_ID,
                                      ROLE_SG_OWNER_NAME,
                                      ROLE_SG_OWNER_DESCRIPTION,
                                      ROLE_SG_OWNER_CUSTOMATTRS);
 
     // User group Administrators
-    if (!aUserGroupMgr.containsUserGroupWithID (USERGROUP_ADMINISTRATORS_ID))
+    if (!aUserGroupMgr.containsWithID (USERGROUP_ADMINISTRATORS_ID))
     {
       aUserGroupMgr.createPredefinedUserGroup (USERGROUP_ADMINISTRATORS_ID,
                                                USERGROUP_ADMINISTRATORS_NAME,
@@ -129,7 +129,7 @@ public final class AppSecurity
     aUserGroupMgr.assignRoleToUserGroup (USERGROUP_ADMINISTRATORS_ID, ROLE_SG_OWNER_ID);
 
     // User group for Config users
-    if (!aUserGroupMgr.containsUserGroupWithID (USERGROUP_CONFIG_ID))
+    if (!aUserGroupMgr.containsWithID (USERGROUP_CONFIG_ID))
       aUserGroupMgr.createPredefinedUserGroup (USERGROUP_CONFIG_ID,
                                                USERGROUP_CONFIG_NAME,
                                                USERGROUP_CONFIG_DESCRIPTION,
@@ -137,7 +137,7 @@ public final class AppSecurity
     aUserGroupMgr.assignRoleToUserGroup (USERGROUP_CONFIG_ID, ROLE_CONFIG_ID);
 
     // User group for View users
-    if (!aUserGroupMgr.containsUserGroupWithID (USERGROUP_VIEW_ID))
+    if (!aUserGroupMgr.containsWithID (USERGROUP_VIEW_ID))
       aUserGroupMgr.createPredefinedUserGroup (USERGROUP_VIEW_ID,
                                                USERGROUP_VIEW_NAME,
                                                USERGROUP_VIEW_DESCRIPTION,
