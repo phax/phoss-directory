@@ -43,7 +43,7 @@ import com.helger.commons.collection.ext.ICommonsMap;
 import com.helger.commons.exception.InitializationException;
 import com.helger.commons.string.StringHelper;
 import com.helger.pd.settings.PDServerConfiguration;
-import com.helger.peppol.utils.KeyStoreHelper;
+import com.helger.security.keystore.KeyStoreHelper;
 
 /**
  * Extract certificates from HTTP requests. These are the client certificates
@@ -67,7 +67,7 @@ public final class ClientCertificateValidator
   private static X509Certificate s_aPeppolSMPRootCertAlternative;
 
   /** Sorted list with all issuers we're accepting. Never empty. */
-  private static ICommonsList <X500Principal> s_aSearchIssuers = new CommonsArrayList <> ();
+  private static ICommonsList <X500Principal> s_aSearchIssuers = new CommonsArrayList<> ();
 
   /**
    * This method is only for testing purposes to disable the complete client
@@ -115,7 +115,7 @@ public final class ClientCertificateValidator
     // Load keystores
     try
     {
-      final KeyStore aKS = KeyStoreHelper.loadKeyStore (sTrustStorePath, sTrustStorePassword);
+      final KeyStore aKS = KeyStoreHelper.loadKeyStoreDirect (sTrustStorePath, sTrustStorePassword);
       s_aPeppolSMPRootCert = (X509Certificate) aKS.getCertificate (sTrustStoreAlias);
     }
     catch (final Throwable t)
@@ -152,7 +152,7 @@ public final class ClientCertificateValidator
       // Load keystores
       try
       {
-        final KeyStore aKS = KeyStoreHelper.loadKeyStore (sTrustStorePath, sTrustStorePassword);
+        final KeyStore aKS = KeyStoreHelper.loadKeyStoreDirect (sTrustStorePath, sTrustStorePassword);
         s_aPeppolSMPRootCertAlternative = (X509Certificate) aKS.getCertificate (sTrustStoreAlias);
       }
       catch (final Throwable t)
@@ -253,14 +253,14 @@ public final class ClientCertificateValidator
       final LdapName aLdapName = new LdapName (aCert.getSubjectX500Principal ().getName ());
 
       // Make a map from type to name
-      final ICommonsMap <String, Rdn> aParts = new CommonsHashMap <> ();
+      final ICommonsMap <String, Rdn> aParts = new CommonsHashMap<> ();
       for (final Rdn aRdn : aLdapName.getRdns ())
         aParts.put (aRdn.getType (), aRdn);
 
       // Re-order - least important item comes first (=reverse order)!
-      final String sSubjectName = new LdapName (new CommonsArrayList <> (aParts.get ("C"),
-                                                                         aParts.get ("O"),
-                                                                         aParts.get ("CN"))).toString ();
+      final String sSubjectName = new LdapName (new CommonsArrayList<> (aParts.get ("C"),
+                                                                        aParts.get ("O"),
+                                                                        aParts.get ("CN"))).toString ();
 
       // subject-name + ":" + serial number hexstring
       return sSubjectName + ':' + aCert.getSerialNumber ().toString (16);
@@ -313,7 +313,7 @@ public final class ClientCertificateValidator
     // OK, we have a non-empty, type checked Certificate array
 
     // TODO: determine CRLs
-    final ICommonsList <CRL> aCRLs = new CommonsArrayList <> ();
+    final ICommonsList <CRL> aCRLs = new CommonsArrayList<> ();
 
     // Verify for "now"
     final Date aVerificationDate = new Date ();

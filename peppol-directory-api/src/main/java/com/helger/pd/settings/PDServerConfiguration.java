@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import com.helger.commons.annotation.UsedViaReflection;
 import com.helger.commons.debug.GlobalDebug;
 import com.helger.commons.scope.singleton.AbstractGlobalSingleton;
-import com.helger.peppol.utils.KeyStoreHelper;
+import com.helger.peppol.utils.PeppolKeyStoreHelper;
 import com.helger.settings.ISettings;
 import com.helger.settings.exchange.configfile.ConfigFile;
 import com.helger.settings.exchange.configfile.ConfigFileBuilder;
@@ -166,37 +166,37 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   @Nonnull
   public static String getTruststoreLocation ()
   {
-    return s_aConfigFile.getAsString ("truststore.path", KeyStoreHelper.TRUSTSTORE_PRODUCTION_CLASSPATH);
+    return s_aConfigFile.getAsString ("truststore.path", PeppolKeyStoreHelper.TRUSTSTORE_PRODUCTION_CLASSPATH);
   }
 
   @Nonnull
   public static String getTruststorePassword ()
   {
-    return s_aConfigFile.getAsString ("truststore.password", KeyStoreHelper.TRUSTSTORE_PASSWORD);
+    return s_aConfigFile.getAsString ("truststore.password", PeppolKeyStoreHelper.TRUSTSTORE_PASSWORD);
   }
 
   @Nonnull
   public static String getTruststoreAlias ()
   {
-    return s_aConfigFile.getAsString ("truststore.alias", KeyStoreHelper.TRUSTSTORE_PRODUCTION_ALIAS_SMP);
+    return s_aConfigFile.getAsString ("truststore.alias", PeppolKeyStoreHelper.TRUSTSTORE_PRODUCTION_ALIAS_SMP);
   }
 
   @Nullable
   public static String getTruststoreLocationAlternative ()
   {
-    return s_aConfigFile.getAsString ("truststore-alt.path", KeyStoreHelper.TRUSTSTORE_PILOT_CLASSPATH);
+    return s_aConfigFile.getAsString ("truststore-alt.path", PeppolKeyStoreHelper.TRUSTSTORE_PILOT_CLASSPATH);
   }
 
   @Nullable
   public static String getTruststorePasswordAlternative ()
   {
-    return s_aConfigFile.getAsString ("truststore-alt.password", KeyStoreHelper.TRUSTSTORE_PASSWORD);
+    return s_aConfigFile.getAsString ("truststore-alt.password", PeppolKeyStoreHelper.TRUSTSTORE_PASSWORD);
   }
 
   @Nullable
   public static String getTruststoreAliasAlternative ()
   {
-    return s_aConfigFile.getAsString ("truststore-alt.alias", KeyStoreHelper.TRUSTSTORE_PILOT_ALIAS_SMP);
+    return s_aConfigFile.getAsString ("truststore-alt.alias", PeppolKeyStoreHelper.TRUSTSTORE_PILOT_ALIAS_SMP);
   }
 
   /**

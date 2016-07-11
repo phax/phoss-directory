@@ -13,7 +13,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.httpclient.HttpClientFactory;
-import com.helger.peppol.utils.LoadedKeyStore;
+import com.helger.peppol.utils.PeppolKeyStoreHelper;
+import com.helger.security.keystore.KeyStoreHelper;
+import com.helger.security.keystore.LoadedKeyStore;
 
 public final class PDHttpClientFactory extends HttpClientFactory
 {
@@ -27,12 +29,12 @@ public final class PDHttpClientFactory extends HttpClientFactory
                                         KeyStoreException
   {
     // Load key store
-    final LoadedKeyStore aLoadedKeyStore = LoadedKeyStore.loadKeyStore (PDClientConfiguration.getKeyStorePath (),
+    final LoadedKeyStore aLoadedKeyStore = KeyStoreHelper.loadKeyStore (PDClientConfiguration.getKeyStorePath (),
                                                                         PDClientConfiguration.getKeyStorePassword ());
     if (aLoadedKeyStore.isFailure ())
     {
       s_aLogger.error ("Failed to initialize keystore for service connection! Can only use http now! Details: " +
-                       aLoadedKeyStore.getErrorMessage ());
+                       PeppolKeyStoreHelper.getLoadError (aLoadedKeyStore));
       return null;
     }
     return SSLContexts.custom ()

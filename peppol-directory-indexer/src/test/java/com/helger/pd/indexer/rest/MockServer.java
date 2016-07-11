@@ -36,7 +36,7 @@ import com.helger.commons.collection.ext.CommonsHashMap;
 import com.helger.commons.collection.ext.ICommonsMap;
 import com.helger.commons.io.resource.ClassPathResource;
 import com.helger.commons.io.stream.StreamHelper;
-import com.helger.peppol.utils.KeyStoreHelper;
+import com.helger.peppol.utils.PeppolKeyStoreHelper;
 
 /**
  * Main class.
@@ -125,8 +125,8 @@ final class MockServer
     aSSLContext.setKeyStoreFile ("src/test/resources/test-https-keystore.jks");
     aSSLContext.setKeyStorePass ("password");
     aSSLContext.setKeyStoreType ("JKS");
-    aSSLContext.setTrustStoreBytes (StreamHelper.getAllBytes (new ClassPathResource (KeyStoreHelper.TRUSTSTORE_COMPLETE_CLASSPATH)));
-    aSSLContext.setTrustStorePass (KeyStoreHelper.TRUSTSTORE_PASSWORD);
+    aSSLContext.setTrustStoreBytes (StreamHelper.getAllBytes (new ClassPathResource (PeppolKeyStoreHelper.TRUSTSTORE_COMPLETE_CLASSPATH)));
+    aSSLContext.setTrustStorePass (PeppolKeyStoreHelper.TRUSTSTORE_PASSWORD);
     aSSLContext.setTrustStoreType ("JKS");
     aSSLContext.setSecurityProtocol ("TLSv1.2");
 

@@ -61,7 +61,7 @@ import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.peppol.identifier.peppol.PeppolIdentifierHelper;
 import com.helger.peppol.identifier.peppol.doctype.EPredefinedDocumentTypeIdentifier;
 import com.helger.peppol.identifier.peppol.participant.PeppolParticipantIdentifier;
-import com.helger.peppol.utils.KeyStoreHelper;
+import com.helger.security.keystore.KeyStoreHelper;
 
 /**
  * Test class for class {@link IndexerResource}.
@@ -131,8 +131,8 @@ public final class IndexerResourceTest
       // https
       m_aServer = MockServer.startSecureServer ();
 
-      final KeyStore aKeyStore = KeyStoreHelper.loadKeyStore (aTestClientCertificateKeyStore.getAbsolutePath (),
-                                                              "peppol");
+      final KeyStore aKeyStore = KeyStoreHelper.loadKeyStoreDirect (aTestClientCertificateKeyStore.getAbsolutePath (),
+                                                                    "peppol");
       // Try to create the socket factory from the provided key store
       final KeyManagerFactory aKeyManagerFactory = KeyManagerFactory.getInstance ("SunX509");
       aKeyManagerFactory.init (aKeyStore, "peppol".toCharArray ());
