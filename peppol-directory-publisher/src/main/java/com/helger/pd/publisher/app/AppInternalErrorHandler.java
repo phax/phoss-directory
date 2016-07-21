@@ -22,8 +22,6 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import org.quartz.Job;
-
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.email.EmailAddress;
 import com.helger.commons.url.SMap;
@@ -34,6 +32,7 @@ import com.helger.photon.core.app.error.callback.AbstractErrorCallback;
 import com.helger.photon.core.mgr.PhotonCoreManager;
 import com.helger.photon.core.smtp.CNamedSMTPSettings;
 import com.helger.photon.core.smtp.NamedSMTPSettings;
+import com.helger.quartz.IJob;
 import com.helger.schedule.job.AbstractJob;
 import com.helger.schedule.job.IJobExceptionCallback;
 import com.helger.smtp.settings.ISMTPSettings;
@@ -58,14 +57,14 @@ public final class AppInternalErrorHandler extends AbstractErrorCallback impleme
 
   public void onScheduledJobException (@Nonnull final Throwable t,
                                        @Nullable final String sJobClassName,
-                                       @Nonnull final Job aJob)
+                                       @Nonnull final IJob aJob)
   {
     onError (t,
              null,
              "Error executing background Job " + sJobClassName,
-             new SMap ().add ("job-class", sJobClassName)
+             new SMap ().addIfNotNull ("job-class", sJobClassName)
                         .add ("job-object", aJob)
-                        .add ("long-running", Boolean.toString (aJob instanceof ILongRunningJob)));
+                        .add ("long-running", aJob instanceof ILongRunningJob));
   }
 
   public static void doSetup ()

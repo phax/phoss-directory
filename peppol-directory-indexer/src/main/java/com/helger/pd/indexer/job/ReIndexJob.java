@@ -19,12 +19,6 @@ package com.helger.pd.indexer.job;
 import javax.annotation.Nonnull;
 import javax.servlet.ServletContext;
 
-import org.quartz.DisallowConcurrentExecution;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-import org.quartz.SimpleScheduleBuilder;
-import org.quartz.TriggerKey;
-
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.annotation.OverrideOnDemand;
@@ -32,6 +26,11 @@ import com.helger.commons.datetime.PDTFactory;
 import com.helger.pd.indexer.mgr.PDIndexerManager;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.photon.core.job.AbstractPhotonJob;
+import com.helger.quartz.DisallowConcurrentExecution;
+import com.helger.quartz.IJobExecutionContext;
+import com.helger.quartz.JobExecutionException;
+import com.helger.quartz.SimpleScheduleBuilder;
+import com.helger.quartz.TriggerKey;
 import com.helger.schedule.quartz.GlobalQuartzScheduler;
 import com.helger.schedule.quartz.trigger.JDK8TriggerBuilder;
 import com.helger.web.mock.MockHttpServletRequest;
@@ -67,7 +66,7 @@ public class ReIndexJob extends AbstractPhotonJob
   }
 
   @Override
-  protected void onExecute (@Nonnull final JobExecutionContext aContext) throws JobExecutionException
+  protected void onExecute (@Nonnull final IJobExecutionContext aContext) throws JobExecutionException
   {
     final PDIndexerManager aIndexerMgr = PDMetaManager.getIndexerMgr ();
 
