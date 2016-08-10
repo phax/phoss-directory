@@ -2,7 +2,7 @@
 
 [![Join the chat at https://gitter.im/phax/peppol-directory](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/phax/peppol-directory?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Current release (on Maven central): **0.2.0**
+Current release (on Maven central): **0.3.0**
 
 The official PEPPOL Directory (PD; former PEPPOL Yellow Pages - PYP) software. It is split into the following sub-projects (all require Java 8 except where noted):
   * `peppol-directory-businesscard` - the common Business Card API
@@ -12,7 +12,7 @@ The official PEPPOL Directory (PD; former PEPPOL Yellow Pages - PYP) software. I
   * `peppol-directory-client` - a client library to be added to SMP servers to force indexing in the PD
   * `peppol-directory-client-jdk6` - a client library to be added to SMP servers to force indexing in the PD (Java 1.6)
   
-Status as per 2016-06-03:
+Status as per 2016-08-10:
   * The current version is live on http://pyp.helger.com - search e.g. for "austria" 
   * The indexer part (incl. REST interface) looks quite good and only requires (currently) some documentation. Unit tests with concurrent indexing requests work flawlessly incl. Lucene based storage and lookup. The first real BusinessInformation lookup for `9915:test` also succeeded.
   * The publisher website was started and the search already works. Check the live demo at http://pyp.helger.com for tests.
