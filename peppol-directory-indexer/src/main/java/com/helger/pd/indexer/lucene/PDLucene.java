@@ -46,8 +46,8 @@ import org.apache.lucene.store.FSDirectory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.commons.callback.IThrowingCallable;
 import com.helger.commons.callback.IThrowingRunnable;
+import com.helger.commons.function.IThrowingSupplier;
 import com.helger.commons.io.stream.StreamHelper;
 import com.helger.commons.state.ESuccess;
 import com.helger.photon.basic.app.io.WebFileIO;
@@ -358,19 +358,13 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
    *        Result type
    */
   @Nullable
-  public <T> T callAtomic (@Nonnull final IThrowingCallable <T, Exception> aRunnable) throws IOException
+  public <T> T callAtomic (@Nonnull final IThrowingSupplier <T, IOException> aRunnable) throws IOException
   {
     m_aLock.lock ();
     try
     {
       if (!isClosing ())
-        return aRunnable.call ();
-    }
-    catch (final Exception ex)
-    {
-      if (ex instanceof IOException)
-        throw (IOException) ex;
-      assert false;
+        return aRunnable.get ();
     }
     finally
     {

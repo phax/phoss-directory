@@ -47,7 +47,6 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.ReturnsMutableCopy;
-import com.helger.commons.callback.IThrowingCallable;
 import com.helger.commons.collection.CollectionHelper;
 import com.helger.commons.collection.ext.CommonsArrayList;
 import com.helger.commons.collection.ext.CommonsTreeSet;
@@ -55,6 +54,7 @@ import com.helger.commons.collection.ext.ICommonsList;
 import com.helger.commons.collection.ext.ICommonsSortedSet;
 import com.helger.commons.collection.multimap.IMultiMapListBased;
 import com.helger.commons.collection.multimap.MultiLinkedHashMapArrayListBased;
+import com.helger.commons.function.IThrowingSupplier;
 import com.helger.commons.state.ESuccess;
 import com.helger.commons.string.StringHelper;
 import com.helger.datetime.util.PDTWebDateHelper;
@@ -113,8 +113,7 @@ public final class PDStorageManager implements IPDStorageManager
     if (aParticipantID == null)
       return false;
 
-    // Must be "Exception" because of JDK commandline compiler issue
-    final IThrowingCallable <Boolean, Exception> cb = () -> {
+    final IThrowingSupplier <Boolean, IOException> cb = () -> {
       final IndexSearcher aSearcher = m_aLucene.getSearcher ();
       if (aSearcher != null)
       {
@@ -137,7 +136,7 @@ public final class PDStorageManager implements IPDStorageManager
     ValueEnforcer.notNull (aMetaData, "MetaData");
 
     return m_aLucene.runAtomic ( () -> {
-      final ICommonsList <Document> aDocuments = new CommonsArrayList <> ();
+      final ICommonsList <Document> aDocuments = new CommonsArrayList<> ();
 
       // Get all documents to be marked as deleted
       final IndexSearcher aSearcher = m_aLucene.getSearcher ();
@@ -175,7 +174,7 @@ public final class PDStorageManager implements IPDStorageManager
     ValueEnforcer.notNull (aMetaData, "MetaData");
 
     return m_aLucene.runAtomic ( () -> {
-      final ICommonsList <Document> aDocs = new CommonsArrayList <> ();
+      final ICommonsList <Document> aDocs = new CommonsArrayList<> ();
 
       final PDBusinessCardType aBI = aExtBI.getBusinessCard ();
       for (final PDBusinessEntityType aBusinessEntity : aBI.getBusinessEntity ())
@@ -367,7 +366,7 @@ public final class PDStorageManager implements IPDStorageManager
   @ReturnsMutableCopy
   public ICommonsList <PDStoredDocument> getAllDocuments (@Nonnull final Query aQuery)
   {
-    final ICommonsList <PDStoredDocument> aTargetList = new CommonsArrayList <> ();
+    final ICommonsList <PDStoredDocument> aTargetList = new CommonsArrayList<> ();
     try
     {
       searchAllDocuments (aQuery, aDoc -> aTargetList.add (aDoc));
@@ -404,7 +403,7 @@ public final class PDStorageManager implements IPDStorageManager
   @ReturnsMutableCopy
   public ICommonsSortedSet <String> getAllContainedParticipantIDs ()
   {
-    final ICommonsSortedSet <String> aTargetSet = new CommonsTreeSet <> ();
+    final ICommonsSortedSet <String> aTargetSet = new CommonsTreeSet<> ();
     final Query aQuery = PDQueryManager.andNotDeleted (true ? new MatchAllDocsQuery ()
                                                             : new WildcardQuery (new Term (CPDStorage.FIELD_ALL_FIELDS,
                                                                                            "*")));
@@ -434,7 +433,7 @@ public final class PDStorageManager implements IPDStorageManager
   @ReturnsMutableCopy
   public static IMultiMapListBased <String, PDStoredDocument> getGroupedByParticipantID (@Nonnull final List <PDStoredDocument> aDocs)
   {
-    final MultiLinkedHashMapArrayListBased <String, PDStoredDocument> ret = new MultiLinkedHashMapArrayListBased <> ();
+    final MultiLinkedHashMapArrayListBased <String, PDStoredDocument> ret = new MultiLinkedHashMapArrayListBased<> ();
     for (final PDStoredDocument aDoc : aDocs)
       ret.putSingle (aDoc.getParticipantID (), aDoc);
     return ret;
