@@ -22,7 +22,7 @@ import org.apache.lucene.queryparser.classic.QueryParser.Operator;
 import org.apache.lucene.search.Query;
 import org.junit.Test;
 
-public class QueryParserFuncTest
+public final class QueryParserFuncTest
 {
   @Test
   public void test () throws ParseException
