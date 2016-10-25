@@ -57,10 +57,10 @@ import com.helger.pd.businesscard.PDIdentifierType;
 import com.helger.pd.indexer.PDIndexerTestRule;
 import com.helger.pd.indexer.clientcert.ClientCertificateValidator;
 import com.helger.pd.indexer.mgr.PDMetaManager;
+import com.helger.peppol.identifier.factory.PeppolIdentifierFactory;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.peppol.identifier.peppol.PeppolIdentifierHelper;
 import com.helger.peppol.identifier.peppol.doctype.EPredefinedDocumentTypeIdentifier;
-import com.helger.peppol.identifier.peppol.participant.PeppolParticipantIdentifier;
 import com.helger.security.keystore.KeyStoreHelper;
 
 /**
@@ -170,13 +170,13 @@ public final class IndexerResourceTest
   public void testCreateAndDeleteParticipant () throws IOException
   {
     final AtomicInteger aIndex = new AtomicInteger (0);
-    final PeppolParticipantIdentifier aPI_0 = PeppolParticipantIdentifier.createWithDefaultScheme ("9915:test0");
+    final IParticipantIdentifier aPI_0 = PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9915:test0");
 
     final int nCount = 4;
     CommonsTestHelper.testInParallel (nCount, () -> {
       // Create
-      final PeppolParticipantIdentifier aPI = PeppolParticipantIdentifier.createWithDefaultScheme ("9915:test" +
-                                                                                                   aIndex.getAndIncrement ());
+      final IParticipantIdentifier aPI = PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9915:test" +
+                                                                                                                        aIndex.getAndIncrement ());
 
       final String sResponseMsg = m_aTarget.path ("1.0").request ().put (Entity.text (aPI.getURIEncoded ()),
                                                                          String.class);
@@ -189,8 +189,8 @@ public final class IndexerResourceTest
     aIndex.set (0);
     CommonsTestHelper.testInParallel (nCount, () -> {
       // Delete
-      final PeppolParticipantIdentifier aPI = PeppolParticipantIdentifier.createWithDefaultScheme ("9915:test" +
-                                                                                                   aIndex.getAndIncrement ());
+      final IParticipantIdentifier aPI = PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9915:test" +
+                                                                                                                        aIndex.getAndIncrement ());
 
       final String sResponseMsg = m_aTarget.path ("1.0").path (aPI.getURIEncoded ()).request ().delete (String.class);
       assertEquals ("", sResponseMsg);

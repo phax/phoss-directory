@@ -32,6 +32,8 @@ import com.helger.httpclient.HttpClientManager;
 import com.helger.pd.businesscard.IPDBusinessCardProvider;
 import com.helger.pd.indexer.lucene.PDLucene;
 import com.helger.pd.indexer.storage.PDStorageManager;
+import com.helger.peppol.identifier.factory.IIdentifierFactory;
+import com.helger.peppol.identifier.factory.SimpleIdentifierFactory;
 
 /**
  * The PEPPOL Directory meta manager. It consists all the other managers for the
@@ -132,5 +134,11 @@ public final class PDMetaManager extends AbstractGlobalSingleton
   public static HttpClientManager getHttpClientMgr ()
   {
     return getInstance ().m_aHttpClientMgr;
+  }
+
+  @Nonnull
+  public static IIdentifierFactory getIdentifierFactory ()
+  {
+    return SimpleIdentifierFactory.INSTANCE;
   }
 }

@@ -21,7 +21,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.commons.exception.InitializationException;
-import com.helger.peppol.identifier.peppol.participant.PeppolParticipantIdentifier;
+import com.helger.peppol.identifier.factory.PeppolIdentifierFactory;
+import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 
 /**
  * Test class for class {@link PDClient}.
@@ -35,7 +36,7 @@ public final class PDClientTest
   @Test
   public void testBasic ()
   {
-    final PeppolParticipantIdentifier aPI = PeppolParticipantIdentifier.createWithDefaultScheme ("9999:client-test");
+    final IParticipantIdentifier aPI = PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9999:client-test");
     try (final PDClient aClient = PDClient.createDefaultClient ())
     {
       aClient.deleteServiceGroupFromIndex (aPI);

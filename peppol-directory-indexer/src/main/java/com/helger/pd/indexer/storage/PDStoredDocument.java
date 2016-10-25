@@ -37,8 +37,9 @@ import com.helger.commons.datetime.PDTFactory;
 import com.helger.commons.string.StringHelper;
 import com.helger.commons.string.ToStringGenerator;
 import com.helger.datetime.util.PDTWebDateHelper;
+import com.helger.pd.indexer.mgr.PDMetaManager;
+import com.helger.peppol.identifier.factory.IIdentifierFactory;
 import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
-import com.helger.peppol.identifier.generic.doctype.SimpleDocumentTypeIdentifier;
 
 /**
  * This class represents a document stored in the Lucene index but with a nicer
@@ -332,12 +333,13 @@ public class PDStoredDocument
     if (s_aLogger.isDebugEnabled ())
       s_aLogger.debug ("Creating PDStoredDocument from " + aDoc);
 
+    final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
     final PDStoredDocument ret = new PDStoredDocument ();
 
     ret.setParticipantID (aDoc.get (CPDStorage.FIELD_PARTICIPANTID));
 
     for (final String sDocTypeID : aDoc.getValues (CPDStorage.FIELD_DOCUMENT_TYPE_ID))
-      ret.addDocumentTypeID (SimpleDocumentTypeIdentifier.createFromURIPart (sDocTypeID));
+      ret.addDocumentTypeID (aIdentifierFactory.parseDocumentTypeIdentifier (sDocTypeID));
 
     ret.setCountryCode (aDoc.get (CPDStorage.FIELD_COUNTRY_CODE));
 

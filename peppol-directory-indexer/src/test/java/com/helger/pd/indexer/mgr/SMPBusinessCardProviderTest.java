@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.commons.url.URLHelper;
 import com.helger.pd.businesscard.PDExtendedBusinessCard;
-import com.helger.peppol.identifier.peppol.participant.PeppolParticipantIdentifier;
+import com.helger.peppol.identifier.factory.PeppolIdentifierFactory;
 import com.helger.peppol.smpclient.SMPClientReadOnly;
 import com.helger.photon.basic.mock.PhotonBasicWebTestRule;
 
@@ -47,7 +47,7 @@ public final class SMPBusinessCardProviderTest
   public void testFetch ()
   {
     final SMPBusinessCardProvider aBI = new SMPBusinessCardProvider ();
-    final PDExtendedBusinessCard aExtBI = aBI.getBusinessCard (PeppolParticipantIdentifier.createWithDefaultScheme ("9915:test"));
+    final PDExtendedBusinessCard aExtBI = aBI.getBusinessCard (PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9915:test"));
     assertNotNull (aExtBI);
     LOG.info (aExtBI.toString ());
   }
@@ -57,7 +57,7 @@ public final class SMPBusinessCardProviderTest
   public void test9905LeckmaPeppol ()
   {
     final SMPBusinessCardProvider aBI = new SMPBusinessCardProvider ();
-    final PDExtendedBusinessCard aExtBI = aBI.getBusinessCard (PeppolParticipantIdentifier.createWithDefaultScheme ("9905:leckma-peppol"));
+    final PDExtendedBusinessCard aExtBI = aBI.getBusinessCard (PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9905:leckma-peppol"));
     assertNotNull (aExtBI);
     LOG.info (aExtBI.toString ());
   }
@@ -67,7 +67,7 @@ public final class SMPBusinessCardProviderTest
   public void testFetchLocal ()
   {
     final SMPBusinessCardProvider aBI = new SMPBusinessCardProvider ();
-    final PDExtendedBusinessCard aExtBI = aBI.getBusinessCard (PeppolParticipantIdentifier.createWithDefaultScheme ("9999:ghx"),
+    final PDExtendedBusinessCard aExtBI = aBI.getBusinessCard (PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9999:ghx"),
                                                                new SMPClientReadOnly (URLHelper.getAsURI ("http://localhost:90")));
     assertNotNull (aExtBI);
     LOG.info (aExtBI.toString ());

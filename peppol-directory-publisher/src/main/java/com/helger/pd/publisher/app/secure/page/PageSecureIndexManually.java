@@ -26,7 +26,8 @@ import com.helger.pd.indexer.index.EIndexerWorkItemType;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.peppol.identifier.CIdentifier;
-import com.helger.peppol.identifier.generic.participant.SimpleParticipantIdentifier;
+import com.helger.peppol.identifier.factory.IIdentifierFactory;
+import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.peppol.identifier.peppol.PeppolIdentifierHelper;
 import com.helger.photon.bootstrap3.alert.BootstrapSuccessBox;
 import com.helger.photon.bootstrap3.alert.BootstrapWarnBox;
@@ -52,12 +53,13 @@ public final class PageSecureIndexManually extends AbstractAppWebPage
   protected void fillContent (final WebPageExecutionContext aWPEC)
   {
     final HCNodeList aNodeList = aWPEC.getNodeList ();
+    final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
     final FormErrorList aFormErrors = new FormErrorList ();
 
     if (aWPEC.hasAction (CPageParam.ACTION_PERFORM))
     {
       final String sParticipantID = aWPEC.getAttributeAsString (FIELD_PARTICIPANT_ID);
-      final SimpleParticipantIdentifier aParticipantID = SimpleParticipantIdentifier.createFromURIPartOrNull (sParticipantID);
+      final IParticipantIdentifier aParticipantID = aIdentifierFactory.parseParticipantIdentifier (sParticipantID);
 
       if (StringHelper.hasNoText (sParticipantID))
         aFormErrors.addFieldError (FIELD_PARTICIPANT_ID, "A participant ID must be provided!");

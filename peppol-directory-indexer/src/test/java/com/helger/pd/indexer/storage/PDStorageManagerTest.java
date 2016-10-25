@@ -39,10 +39,10 @@ import com.helger.pd.businesscard.PDExtendedBusinessCard;
 import com.helger.pd.businesscard.PDIdentifierType;
 import com.helger.pd.indexer.PDIndexerTestRule;
 import com.helger.pd.indexer.lucene.PDLucene;
+import com.helger.peppol.identifier.factory.PeppolIdentifierFactory;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.peppol.identifier.peppol.PeppolIdentifierHelper;
 import com.helger.peppol.identifier.peppol.doctype.EPredefinedDocumentTypeIdentifier;
-import com.helger.peppol.identifier.peppol.participant.PeppolParticipantIdentifier;
 
 /**
  * Test class for class {@link PDStorageManager}.
@@ -122,7 +122,7 @@ public final class PDStorageManagerTest
   @Test
   public void testGetAllDocumentsOfParticipant () throws IOException
   {
-    final PeppolParticipantIdentifier aParticipantID = PeppolParticipantIdentifier.createWithDefaultScheme ("0088:test");
+    final IParticipantIdentifier aParticipantID = PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("0088:test");
     try (PDStorageManager aMgr = new PDStorageManager (new PDLucene ()))
     {
       final PDDocumentMetaData aMetaData = _createMockMetaData ();
@@ -169,7 +169,7 @@ public final class PDStorageManagerTest
   @Test
   public void testGetAllDocumentsOfCountryCode () throws IOException
   {
-    final PeppolParticipantIdentifier aParticipantID = PeppolParticipantIdentifier.createWithDefaultScheme ("0088:test");
+    final IParticipantIdentifier aParticipantID = PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("0088:test");
     try (PDStorageManager aMgr = new PDStorageManager (new PDLucene ()))
     {
       final PDDocumentMetaData aMetaData = _createMockMetaData ();

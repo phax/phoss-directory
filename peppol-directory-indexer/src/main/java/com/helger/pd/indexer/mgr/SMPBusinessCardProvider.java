@@ -41,8 +41,8 @@ import com.helger.pd.businesscard.PDBusinessCardType;
 import com.helger.pd.businesscard.PDExtendedBusinessCard;
 import com.helger.pd.settings.PDServerConfiguration;
 import com.helger.peppol.httpclient.SMPHttpResponseHandlerUnsigned;
+import com.helger.peppol.identifier.factory.IIdentifierFactory;
 import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
-import com.helger.peppol.identifier.generic.doctype.SimpleDocumentTypeIdentifier;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.peppol.sml.ESML;
 import com.helger.peppol.smp.ServiceGroupType;
@@ -142,6 +142,7 @@ public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
     }
 
     // Query all document types
+    final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
     final ICommonsList <IDocumentTypeIdentifier> aDocumentTypeIDs = new CommonsArrayList<> ();
     if (aServiceGroup != null)
       for (final ServiceMetadataReferenceType aRef : aServiceGroup.getServiceMetadataReferenceCollection ()
@@ -163,7 +164,7 @@ public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
           // URL decode because of encoded '#' and ':' characters
           final String sDocumentTypeID = URLHelper.urlDecode (sHref.substring (nIndex + URL_PART_SERVICES.length ()),
                                                               CCharset.CHARSET_UTF_8_OBJ);
-          final IDocumentTypeIdentifier aDocTypeID = SimpleDocumentTypeIdentifier.createFromURIPartOrNull (sDocumentTypeID);
+          final IDocumentTypeIdentifier aDocTypeID = aIdentifierFactory.parseDocumentTypeIdentifier (sDocumentTypeID);
           if (aDocTypeID == null)
           {
             s_aLogger.error ("Invalid document type when querying service group '" +

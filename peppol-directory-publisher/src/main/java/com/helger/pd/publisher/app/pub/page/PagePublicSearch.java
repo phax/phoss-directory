@@ -54,9 +54,9 @@ import com.helger.pd.indexer.storage.PDStoredDocument;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.pd.publisher.ui.HCExtImg;
 import com.helger.pd.publisher.ui.PDCommonUI;
+import com.helger.peppol.identifier.factory.IIdentifierFactory;
 import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
-import com.helger.peppol.identifier.generic.participant.SimpleParticipantIdentifier;
 import com.helger.peppol.identifier.peppol.PeppolIdentifierHelper;
 import com.helger.peppol.identifier.peppol.doctype.IPeppolDocumentTypeIdentifierParts;
 import com.helger.photon.bootstrap3.CBootstrapCSS;
@@ -127,6 +127,7 @@ public final class PagePublicSearch extends AbstractAppWebPage
   {
     final HCNodeList aNodeList = aWPEC.getNodeList ();
     final Locale aDisplayLocale = aWPEC.getDisplayLocale ();
+    final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
 
     {
       final BootstrapRow aHeaderRow = aNodeList.addAndReturnChild (new BootstrapRow ());
@@ -145,7 +146,7 @@ public final class PagePublicSearch extends AbstractAppWebPage
 
     if (aWPEC.hasAction (CPageParam.ACTION_VIEW) && StringHelper.hasText (sParticipantID))
     {
-      final IParticipantIdentifier aParticipantID = SimpleParticipantIdentifier.createFromURIPartOrNull (sParticipantID);
+      final IParticipantIdentifier aParticipantID = aIdentifierFactory.parseParticipantIdentifier (sParticipantID);
       if (aParticipantID != null)
       {
         // Show small query box
