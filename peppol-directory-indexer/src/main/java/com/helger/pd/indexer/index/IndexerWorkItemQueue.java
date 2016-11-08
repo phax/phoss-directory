@@ -28,7 +28,7 @@ import javax.annotation.Nonnull;
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.ReturnsMutableCopy;
 import com.helger.commons.collection.ext.ICommonsList;
-import com.helger.commons.concurrent.ExtendedDefaultThreadFactory;
+import com.helger.commons.concurrent.BasicThreadFactory;
 import com.helger.commons.concurrent.ManagedExecutorService;
 import com.helger.commons.concurrent.collector.ConcurrentCollectorSingle;
 import com.helger.commons.concurrent.collector.IConcurrentPerformer;
@@ -43,7 +43,10 @@ import com.helger.commons.concurrent.collector.IConcurrentPerformer;
 public final class IndexerWorkItemQueue
 {
   private final ConcurrentCollectorSingle <IIndexerWorkItem> m_aImmediateCollector;
-  private final ThreadFactory m_aThreadFactory = new ExtendedDefaultThreadFactory ("IndexerWorkQueue");
+  private final ThreadFactory m_aThreadFactory = new BasicThreadFactory.Builder ().setNamingPattern ("pd-indexer-%d")
+                                                                                  .setDaemon (false)
+                                                                                  .setPriority (Thread.NORM_PRIORITY)
+                                                                                  .build ();
   private final ExecutorService m_aSenderThreadPool = new ThreadPoolExecutor (1,
                                                                               1,
                                                                               60L,
@@ -53,7 +56,7 @@ public final class IndexerWorkItemQueue
 
   public IndexerWorkItemQueue (@Nonnull final IConcurrentPerformer <IIndexerWorkItem> aPerformer)
   {
-    m_aImmediateCollector = new ConcurrentCollectorSingle <> (new LinkedBlockingQueue <> ());
+    m_aImmediateCollector = new ConcurrentCollectorSingle<> (new LinkedBlockingQueue<> ());
     m_aImmediateCollector.setPerformer (aPerformer);
 
     // Start the collector
