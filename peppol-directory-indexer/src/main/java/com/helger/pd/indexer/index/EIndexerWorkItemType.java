@@ -31,7 +31,9 @@ import com.helger.commons.name.IHasDisplayName;
  */
 public enum EIndexerWorkItemType implements IHasID <String>, IHasDisplayName
 {
+  /** Use for create and/or update of business cards */
   CREATE_UPDATE ("create", "Create/update"),
+  /** Use for delete of a business card */
   DELETE ("delete", "Delete");
 
   private final String m_sID;

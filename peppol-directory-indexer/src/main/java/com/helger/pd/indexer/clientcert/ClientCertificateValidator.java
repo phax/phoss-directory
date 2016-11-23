@@ -67,21 +67,23 @@ public final class ClientCertificateValidator
   private static X509Certificate s_aPeppolSMPRootCertAlternative;
 
   /** Sorted list with all issuers we're accepting. Never empty. */
-  private static ICommonsList <X500Principal> s_aSearchIssuers = new CommonsArrayList<> ();
+  private static ICommonsList <X500Principal> s_aSearchIssuers = new CommonsArrayList <> ();
 
   /**
    * This method is only for testing purposes to disable the complete client
    * certificate check, so that the tests can be performed, even if no SMP
    * certificate for testing is present.
    *
-   * @param bAllowAll
+   * @param bCheckDisabled
    *        <code>true</code> to always return <code>true</code> for the client
-   *        certificate check
+   *        certificate check, <code>false</code> to enable client certificate
+   *        check.
+   * @see PDServerConfiguration#isClientCertificateValidationActive()
    */
   @VisibleForTesting
-  public static void allowAllForTests (final boolean bAllowAll)
+  public static void allowAllForTests (final boolean bCheckDisabled)
   {
-    s_bCheckDisabled = bAllowAll;
+    s_bCheckDisabled = bCheckDisabled;
   }
 
   private static void _initCertificateIssuers ()
@@ -253,14 +255,14 @@ public final class ClientCertificateValidator
       final LdapName aLdapName = new LdapName (aCert.getSubjectX500Principal ().getName ());
 
       // Make a map from type to name
-      final ICommonsMap <String, Rdn> aParts = new CommonsHashMap<> ();
+      final ICommonsMap <String, Rdn> aParts = new CommonsHashMap <> ();
       for (final Rdn aRdn : aLdapName.getRdns ())
         aParts.put (aRdn.getType (), aRdn);
 
       // Re-order - least important item comes first (=reverse order)!
-      final String sSubjectName = new LdapName (new CommonsArrayList<> (aParts.get ("C"),
-                                                                        aParts.get ("O"),
-                                                                        aParts.get ("CN"))).toString ();
+      final String sSubjectName = new LdapName (new CommonsArrayList <> (aParts.get ("C"),
+                                                                         aParts.get ("O"),
+                                                                         aParts.get ("CN"))).toString ();
 
       // subject-name + ":" + serial number hexstring
       return sSubjectName + ':' + aCert.getSerialNumber ().toString (16);
@@ -313,7 +315,7 @@ public final class ClientCertificateValidator
     // OK, we have a non-empty, type checked Certificate array
 
     // TODO: determine CRLs
-    final ICommonsList <CRL> aCRLs = new CommonsArrayList<> ();
+    final ICommonsList <CRL> aCRLs = new CommonsArrayList <> ();
 
     // Verify for "now"
     final Date aVerificationDate = new Date ();

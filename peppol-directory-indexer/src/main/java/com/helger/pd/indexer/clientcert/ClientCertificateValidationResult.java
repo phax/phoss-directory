@@ -25,7 +25,9 @@ import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.state.ISuccessIndicator;
 
 /**
- * This class contains the result of a single client certificate validation.
+ * This class contains the result of a single client certificate validation. Use
+ * the factory methods {@link #createSuccess(String)} and
+ * {@link #createFailure()} to create objects of this class.
  *
  * @author Philip Helger
  */
@@ -62,6 +64,13 @@ public final class ClientCertificateValidationResult implements ISuccessIndicato
     return m_sClientID;
   }
 
+  /**
+   * Client validation success
+   * 
+   * @param sClientID
+   *        Client ID to use. May neither be <code>null</code> nor empty.
+   * @return Never <code>null</code>.
+   */
   @Nonnull
   public static ClientCertificateValidationResult createSuccess (@Nonnull @Nonempty final String sClientID)
   {
@@ -69,6 +78,11 @@ public final class ClientCertificateValidationResult implements ISuccessIndicato
     return new ClientCertificateValidationResult (true, sClientID);
   }
 
+  /**
+   * Client validation failure
+   * 
+   * @return Never <code>null</code>.
+   */
   @Nonnull
   public static ClientCertificateValidationResult createFailure ()
   {

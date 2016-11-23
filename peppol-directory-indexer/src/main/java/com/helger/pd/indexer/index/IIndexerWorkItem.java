@@ -28,7 +28,7 @@ import com.helger.pd.indexer.storage.PDDocumentMetaData;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 
 /**
- * Base interface for indexer work items.
+ * Base interface for indexer work item with only reading methods.
  *
  * @author Philip Helger
  */
@@ -64,9 +64,15 @@ public interface IIndexerWorkItem extends ITypedObject <String>, Serializable, I
 
   @Nonnull
   @Nonempty
-  String getLogText ();
+  default String getLogText ()
+  {
+    return getOwnerID () + "@" + getType () + "[" + getParticipantID ().getURIEncoded () + "]";
+  }
 
   @Nonnull
   @ReturnsMutableCopy
-  PDDocumentMetaData getAsMetaData ();
+  default PDDocumentMetaData getAsMetaData ()
+  {
+    return new PDDocumentMetaData (getCreationDateTime (), getOwnerID (), getRequestingHost ());
+  }
 }

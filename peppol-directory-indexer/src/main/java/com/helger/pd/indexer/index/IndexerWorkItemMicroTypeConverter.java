@@ -28,6 +28,11 @@ import com.helger.xml.microdom.IMicroElement;
 import com.helger.xml.microdom.MicroElement;
 import com.helger.xml.microdom.convert.IMicroTypeConverter;
 
+/**
+ * {@link IMicroTypeConverter} implementation for {@link IndexerWorkItem}
+ * 
+ * @author Philip Helger
+ */
 public final class IndexerWorkItemMicroTypeConverter implements IMicroTypeConverter
 {
   private static final String ATTR_ID = "id";

@@ -48,15 +48,22 @@ public final class IndexerWorkItemQueue
                                                                                   .setPriority (Thread.NORM_PRIORITY)
                                                                                   .build ();
   private final ExecutorService m_aSenderThreadPool = new ThreadPoolExecutor (1,
-                                                                              1,
+                                                                              2,
                                                                               60L,
                                                                               TimeUnit.SECONDS,
                                                                               new SynchronousQueue <Runnable> (),
                                                                               m_aThreadFactory);
 
+  /**
+   * Constructor.
+   *
+   * @param aPerformer
+   *        The executor that will effective handle work items (e.g. retrieve
+   *        from SMP).
+   */
   public IndexerWorkItemQueue (@Nonnull final IConcurrentPerformer <IIndexerWorkItem> aPerformer)
   {
-    m_aImmediateCollector = new ConcurrentCollectorSingle<> (new LinkedBlockingQueue<> ());
+    m_aImmediateCollector = new ConcurrentCollectorSingle <> (new LinkedBlockingQueue <> ());
     m_aImmediateCollector.setPerformer (aPerformer);
 
     // Start the collector
@@ -85,6 +92,12 @@ public final class IndexerWorkItemQueue
     return aRemainingItems;
   }
 
+  /**
+   * Queue a work item and handle it asynchronously.
+   *
+   * @param aItem
+   *        The item to be added. May not be <code>null</code>.
+   */
   public void queueObject (@Nonnull final IIndexerWorkItem aItem)
   {
     ValueEnforcer.notNull (aItem, "Item");
