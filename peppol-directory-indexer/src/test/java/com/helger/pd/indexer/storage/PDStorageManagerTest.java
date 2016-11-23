@@ -32,11 +32,11 @@ import org.junit.rules.TestRule;
 
 import com.helger.commons.collection.CollectionHelper;
 import com.helger.commons.datetime.PDTFactory;
-import com.helger.pd.businesscard.PDBusinessCardType;
-import com.helger.pd.businesscard.PDBusinessEntityType;
-import com.helger.pd.businesscard.PDContactType;
 import com.helger.pd.businesscard.PDExtendedBusinessCard;
-import com.helger.pd.businesscard.PDIdentifierType;
+import com.helger.pd.businesscard.v1.PD1BusinessCardType;
+import com.helger.pd.businesscard.v1.PD1BusinessEntityType;
+import com.helger.pd.businesscard.v1.PD1ContactType;
+import com.helger.pd.businesscard.v1.PD1IdentifierType;
 import com.helger.pd.indexer.PDIndexerTestRule;
 import com.helger.pd.indexer.lucene.PDLucene;
 import com.helger.peppol.identifier.factory.PeppolIdentifierFactory;
@@ -63,15 +63,15 @@ public final class PDStorageManagerTest
   @Nonnull
   private static PDExtendedBusinessCard _createMockBI (@Nonnull final IParticipantIdentifier aParticipantID)
   {
-    final PDBusinessCardType aBI = new PDBusinessCardType ();
+    final PD1BusinessCardType aBI = new PD1BusinessCardType ();
     {
-      final PDIdentifierType aID = new PDIdentifierType ();
+      final PD1IdentifierType aID = new PD1IdentifierType ();
       aID.setScheme (PeppolIdentifierHelper.DEFAULT_PARTICIPANT_SCHEME);
       aID.setValue ("9915:mock");
       aBI.setParticipantIdentifier (aID);
     }
     {
-      final PDBusinessEntityType aEntity = new PDBusinessEntityType ();
+      final PD1BusinessEntityType aEntity = new PD1BusinessEntityType ();
       aEntity.setCountryCode ("AT");
       aEntity.setRegistrationDate (PDTFactory.createLocalDate (2015, Month.JULY, 6));
       aEntity.setName ("Philip's mock PEPPOL receiver");
@@ -79,7 +79,7 @@ public final class PDStorageManagerTest
 
       for (int i = 0; i < 10; ++i)
       {
-        final PDIdentifierType aID = new PDIdentifierType ();
+        final PD1IdentifierType aID = new PD1IdentifierType ();
         aID.setScheme ("scheme" + i);
         aID.setValue ("value" + i);
         aEntity.addIdentifier (aID);
@@ -87,7 +87,7 @@ public final class PDStorageManagerTest
 
       aEntity.addWebsiteURI ("http://www.peppol.eu");
 
-      final PDContactType aBC = new PDContactType ();
+      final PD1ContactType aBC = new PD1ContactType ();
       aBC.setType ("support");
       aBC.setName ("BC name");
       aBC.setEmail ("test@example.org");
@@ -98,16 +98,16 @@ public final class PDStorageManagerTest
       aBI.addBusinessEntity (aEntity);
     }
     {
-      final PDBusinessEntityType aEntity = new PDBusinessEntityType ();
+      final PD1BusinessEntityType aEntity = new PD1BusinessEntityType ();
       aEntity.setCountryCode ("NO");
       aEntity.setName ("Entity2");
 
-      PDIdentifierType aID = new PDIdentifierType ();
+      PD1IdentifierType aID = new PD1IdentifierType ();
       aID.setScheme ("mock");
       aID.setValue ("12345678");
       aEntity.addIdentifier (aID);
 
-      aID = new PDIdentifierType ();
+      aID = new PD1IdentifierType ();
       aID.setScheme ("provided");
       aID.setValue (aParticipantID.getURIEncoded ());
       aEntity.addIdentifier (aID);

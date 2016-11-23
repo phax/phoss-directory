@@ -36,11 +36,9 @@ import com.helger.commons.url.SimpleURL;
 import com.helger.commons.url.URLHelper;
 import com.helger.httpclient.HttpClientHelper;
 import com.helger.pd.businesscard.IPDBusinessCardProvider;
-import com.helger.pd.businesscard.PDBusinessCardMarshaller;
-import com.helger.pd.businesscard.PDBusinessCardType;
 import com.helger.pd.businesscard.PDExtendedBusinessCard;
+import com.helger.pd.businesscard.v1.PD1BusinessCardType;
 import com.helger.pd.settings.PDServerConfiguration;
-import com.helger.peppol.httpclient.SMPHttpResponseHandlerUnsigned;
 import com.helger.peppol.identifier.factory.IIdentifierFactory;
 import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
@@ -109,7 +107,7 @@ public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
     }
 
     // If the service group is present, try querying the business card
-    final PDBusinessCardType aBusinessCard;
+    final PD1BusinessCardType aBusinessCard;
     try
     {
       // Use the optional business card API
@@ -117,10 +115,9 @@ public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
                                             "businesscard/" +
                                             aParticipantID.getURIPercentEncoded ());
       final HttpContext aContext = HttpClientHelper.createHttpContext (aProxy);
-      aBusinessCard = PDMetaManager.getHttpClientMgr ()
-                                   .execute (aRequest,
-                                             aContext,
-                                             new SMPHttpResponseHandlerUnsigned<> (new PDBusinessCardMarshaller ()));
+      aBusinessCard = PDMetaManager.getHttpClientMgr ().execute (aRequest,
+                                                                 aContext,
+                                                                 new PDSMPHttpResponseHandlerUnsigned ());
     }
     catch (final IOException ex)
     {
@@ -143,7 +140,7 @@ public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
 
     // Query all document types
     final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
-    final ICommonsList <IDocumentTypeIdentifier> aDocumentTypeIDs = new CommonsArrayList<> ();
+    final ICommonsList <IDocumentTypeIdentifier> aDocumentTypeIDs = new CommonsArrayList <> ();
     if (aServiceGroup != null)
       for (final ServiceMetadataReferenceType aRef : aServiceGroup.getServiceMetadataReferenceCollection ()
                                                                   .getServiceMetadataReference ())

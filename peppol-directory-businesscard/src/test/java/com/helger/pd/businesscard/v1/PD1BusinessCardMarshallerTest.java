@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pd.businesscard;
+package com.helger.pd.businesscard.v1;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -23,19 +23,19 @@ import org.junit.Test;
 import com.helger.commons.io.resource.FileSystemResource;
 
 /**
- * Test class for class {@link PDBusinessCardMarshaller}.
+ * Test class for class {@link PD1BusinessCardMarshaller}.
  *
  * @author Philip Helger
  */
-public final class PDBusinessCardMarshallerTest
+public final class PD1BusinessCardMarshallerTest
 {
   @Test
   public void testBasic ()
   {
-    final PDBusinessCardMarshaller aMarshaller = new PDBusinessCardMarshaller ();
-    assertNotNull (aMarshaller.read (new FileSystemResource ("src/test/resources/example/business-card-test1.xml")));
-    assertNotNull (aMarshaller.read (new FileSystemResource ("src/test/resources/example/business-card-example-spec.xml")));
-    assertNotNull (aMarshaller.read (new FileSystemResource ("src/test/resources/example/bc-9915-leckma.xml")));
-    assertNotNull (aMarshaller.read (new FileSystemResource ("src/test/resources/example/bc-0088-5033466000005.xml")));
+    final PD1BusinessCardMarshaller aMarshaller = new PD1BusinessCardMarshaller ();
+    assertNotNull (aMarshaller.read (new FileSystemResource ("src/test/resources/example/v1/business-card-test1.xml")));
+    assertNotNull (aMarshaller.read (new FileSystemResource ("src/test/resources/example/v1/business-card-example-spec.xml")));
+    assertNotNull (aMarshaller.read (new FileSystemResource ("src/test/resources/example/v1/bc-9915-leckma.xml")));
+    assertNotNull (aMarshaller.read (new FileSystemResource ("src/test/resources/example/v1/bc-0088-5033466000005.xml")));
   }
 }

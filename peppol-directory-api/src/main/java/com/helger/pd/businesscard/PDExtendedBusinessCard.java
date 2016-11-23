@@ -27,12 +27,15 @@ import com.helger.commons.annotation.ReturnsMutableObject;
 import com.helger.commons.collection.ext.CommonsArrayList;
 import com.helger.commons.collection.ext.ICommonsList;
 import com.helger.commons.string.ToStringGenerator;
+import com.helger.pd.businesscard.v1.PD1BusinessCardType;
+import com.helger.pd.businesscard.v2.PD2BusinessCardMarshaller;
+import com.helger.pd.businesscard.v2.PD2BusinessCardType;
 import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.generic.doctype.SimpleDocumentTypeIdentifier;
 
 /**
  * This class encapsulates all the data to be added to the Lucene index. It
- * consists of the main {@link PDBusinessCardType} object as retrieved from the
+ * consists of the main {@link PD1BusinessCardType} object as retrieved from the
  * SMP plus a list of all document types supported by the respective service
  * group.
  *
@@ -41,26 +44,32 @@ import com.helger.peppol.identifier.generic.doctype.SimpleDocumentTypeIdentifier
 @Immutable
 public class PDExtendedBusinessCard
 {
-  private final PDBusinessCardType m_aBusinessCard;
-  private final ICommonsList <IDocumentTypeIdentifier> m_aDocumentTypeIDs = new CommonsArrayList<> ();
+  private final PD1BusinessCardType m_aBusinessCard;
+  private final ICommonsList <IDocumentTypeIdentifier> m_aDocumentTypeIDs = new CommonsArrayList <> ();
 
-  public PDExtendedBusinessCard (@Nonnull final PDBusinessCardType aBusinessCard,
+  public PDExtendedBusinessCard (@Nonnull final PD1BusinessCardType aBusinessCard,
                                  @Nullable final Iterable <? extends IDocumentTypeIdentifier> aDocumentTypeIDs)
   {
-    m_aBusinessCard = ValueEnforcer.notNull (aBusinessCard, "BusinessInfo");
+    m_aBusinessCard = ValueEnforcer.notNull (aBusinessCard, "BusinessCard");
     if (aDocumentTypeIDs != null)
       for (final IDocumentTypeIdentifier aDocTypeID : aDocumentTypeIDs)
         if (aDocTypeID != null)
           m_aDocumentTypeIDs.add (new SimpleDocumentTypeIdentifier (aDocTypeID));
   }
 
+  public PDExtendedBusinessCard (@Nonnull final PD2BusinessCardType aBusinessCard,
+                                 @Nullable final Iterable <? extends IDocumentTypeIdentifier> aDocumentTypeIDs)
+  {
+    this (PD2BusinessCardMarshaller.getAsV1 (aBusinessCard), aDocumentTypeIDs);
+  }
+
   /**
-   * @return The mutable {@link PDBusinessCardType} object as provided in the
+   * @return The mutable {@link PD1BusinessCardType} object as provided in the
    *         constructor. Never <code>null</code>.
    */
   @Nonnull
   @ReturnsMutableObject ("design")
-  public PDBusinessCardType getBusinessCard ()
+  public PD1BusinessCardType getBusinessCard ()
   {
     return m_aBusinessCard;
   }

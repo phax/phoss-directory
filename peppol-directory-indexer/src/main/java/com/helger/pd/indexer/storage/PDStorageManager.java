@@ -58,11 +58,11 @@ import com.helger.commons.function.IThrowingSupplier;
 import com.helger.commons.state.ESuccess;
 import com.helger.commons.string.StringHelper;
 import com.helger.datetime.util.PDTWebDateHelper;
-import com.helger.pd.businesscard.PDBusinessCardType;
-import com.helger.pd.businesscard.PDBusinessEntityType;
-import com.helger.pd.businesscard.PDContactType;
 import com.helger.pd.businesscard.PDExtendedBusinessCard;
-import com.helger.pd.businesscard.PDIdentifierType;
+import com.helger.pd.businesscard.v1.PD1BusinessCardType;
+import com.helger.pd.businesscard.v1.PD1BusinessEntityType;
+import com.helger.pd.businesscard.v1.PD1ContactType;
+import com.helger.pd.businesscard.v1.PD1IdentifierType;
 import com.helger.pd.indexer.lucene.AllDocumentsCollector;
 import com.helger.pd.indexer.lucene.PDLucene;
 import com.helger.pd.indexer.mgr.IPDStorageManager;
@@ -136,7 +136,7 @@ public final class PDStorageManager implements IPDStorageManager
     ValueEnforcer.notNull (aMetaData, "MetaData");
 
     return m_aLucene.runAtomic ( () -> {
-      final ICommonsList <Document> aDocuments = new CommonsArrayList<> ();
+      final ICommonsList <Document> aDocuments = new CommonsArrayList <> ();
 
       // Get all documents to be marked as deleted
       final IndexSearcher aSearcher = m_aLucene.getSearcher ();
@@ -174,10 +174,10 @@ public final class PDStorageManager implements IPDStorageManager
     ValueEnforcer.notNull (aMetaData, "MetaData");
 
     return m_aLucene.runAtomic ( () -> {
-      final ICommonsList <Document> aDocs = new CommonsArrayList<> ();
+      final ICommonsList <Document> aDocs = new CommonsArrayList <> ();
 
-      final PDBusinessCardType aBI = aExtBI.getBusinessCard ();
-      for (final PDBusinessEntityType aBusinessEntity : aBI.getBusinessEntity ())
+      final PD1BusinessCardType aBI = aExtBI.getBusinessCard ();
+      for (final PD1BusinessEntityType aBusinessEntity : aBI.getBusinessEntity ())
       {
         // Convert entity to Lucene document
         final Document aDoc = new Document ();
@@ -214,7 +214,7 @@ public final class PDStorageManager implements IPDStorageManager
           aSBAllFields.append (aBusinessEntity.getGeographicalInformation ()).append (' ');
         }
 
-        for (final PDIdentifierType aIdentifier : aBusinessEntity.getIdentifier ())
+        for (final PD1IdentifierType aIdentifier : aBusinessEntity.getIdentifier ())
         {
           aDoc.add (new TextField (CPDStorage.FIELD_IDENTIFIER_SCHEME, aIdentifier.getScheme (), Store.YES));
           aSBAllFields.append (aIdentifier.getScheme ()).append (' ');
@@ -229,7 +229,7 @@ public final class PDStorageManager implements IPDStorageManager
           aSBAllFields.append (sWebSite).append (' ');
         }
 
-        for (final PDContactType aContact : aBusinessEntity.getContact ())
+        for (final PD1ContactType aContact : aBusinessEntity.getContact ())
         {
           final String sType = StringHelper.getNotNull (aContact.getType ());
           aDoc.add (new TextField (CPDStorage.FIELD_CONTACT_TYPE, sType, Store.YES));
@@ -366,7 +366,7 @@ public final class PDStorageManager implements IPDStorageManager
   @ReturnsMutableCopy
   public ICommonsList <PDStoredDocument> getAllDocuments (@Nonnull final Query aQuery)
   {
-    final ICommonsList <PDStoredDocument> aTargetList = new CommonsArrayList<> ();
+    final ICommonsList <PDStoredDocument> aTargetList = new CommonsArrayList <> ();
     try
     {
       searchAllDocuments (aQuery, aDoc -> aTargetList.add (aDoc));
@@ -403,7 +403,7 @@ public final class PDStorageManager implements IPDStorageManager
   @ReturnsMutableCopy
   public ICommonsSortedSet <String> getAllContainedParticipantIDs ()
   {
-    final ICommonsSortedSet <String> aTargetSet = new CommonsTreeSet<> ();
+    final ICommonsSortedSet <String> aTargetSet = new CommonsTreeSet <> ();
     final Query aQuery = PDQueryManager.andNotDeleted (true ? new MatchAllDocsQuery ()
                                                             : new WildcardQuery (new Term (CPDStorage.FIELD_ALL_FIELDS,
                                                                                            "*")));
@@ -433,7 +433,7 @@ public final class PDStorageManager implements IPDStorageManager
   @ReturnsMutableCopy
   public static IMultiMapListBased <String, PDStoredDocument> getGroupedByParticipantID (@Nonnull final List <PDStoredDocument> aDocs)
   {
-    final MultiLinkedHashMapArrayListBased <String, PDStoredDocument> ret = new MultiLinkedHashMapArrayListBased<> ();
+    final MultiLinkedHashMapArrayListBased <String, PDStoredDocument> ret = new MultiLinkedHashMapArrayListBased <> ();
     for (final PDStoredDocument aDoc : aDocs)
       ret.putSingle (aDoc.getParticipantID (), aDoc);
     return ret;

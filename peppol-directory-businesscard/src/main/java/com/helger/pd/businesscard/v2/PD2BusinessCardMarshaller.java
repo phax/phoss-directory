@@ -1,0 +1,83 @@
+/**
+ * Copyright (C) 2015-2016 Philip Helger (www.helger.com)
+ * philip[at]helger[dot]com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.helger.pd.businesscard.v2;
+
+import java.util.List;
+
+import javax.annotation.Nonnull;
+
+import com.helger.commons.ValueEnforcer;
+import com.helger.commons.collection.ext.CommonsArrayList;
+import com.helger.commons.io.resource.ClassPathResource;
+import com.helger.commons.io.resource.IReadableResource;
+import com.helger.jaxb.AbstractJAXBMarshaller;
+import com.helger.pd.businesscard.v1.PD1BusinessCardType;
+import com.helger.pd.businesscard.v1.PD1BusinessEntityType;
+import com.helger.pd.businesscard.v1.PD1IdentifierType;
+
+/**
+ * This is the reader and writer for {@link PD2BusinessCardType} documents. This
+ * class may be derived to override protected methods from
+ * {@link AbstractJAXBMarshaller}.
+ *
+ * @author Philip Helger
+ */
+public class PD2BusinessCardMarshaller extends AbstractJAXBMarshaller <PD2BusinessCardType>
+{
+  /** The namespace URI of the BusinessInformation element */
+  public static final String BUSINESS_INFORMATION_NS_URI = ObjectFactory._BusinessCard_QNAME.getNamespaceURI ();
+
+  /** XSD resources */
+  public static final List <? extends IReadableResource> BUSINESS_CARD_XSDS = new CommonsArrayList <> (new ClassPathResource ("/schemas/peppol-directory-business-card-20161123.xsd")).getAsUnmodifiable ();
+
+  /**
+   * Constructor
+   */
+  public PD2BusinessCardMarshaller ()
+  {
+    super (PD2BusinessCardType.class, BUSINESS_CARD_XSDS, x -> new ObjectFactory ().createBusinessCard (x));
+  }
+
+  @Nonnull
+  private static PD1IdentifierType _getAsID1 (@Nonnull final PD2IdentifierType aID2)
+  {
+    final PD1IdentifierType aID1 = new PD1IdentifierType ();
+    aID1.setScheme (aID2.getScheme ());
+    aID1.setValue (aID2.getValue ());
+    return aID1;
+  }
+
+  @Nonnull
+  public static PD1BusinessCardType getAsV1 (@Nonnull final PD2BusinessCardType aBusinessCard)
+  {
+    ValueEnforcer.notNull (aBusinessCard, "BusinessCard");
+    final PD1BusinessCardType ret = new PD1BusinessCardType ();
+    ret.setParticipantIdentifier (_getAsID1 (aBusinessCard.getParticipantIdentifier ()));
+    for (final PD2BusinessEntityType aEntity2 : aBusinessCard.getBusinessEntity ())
+    {
+      final PD1BusinessEntityType aEntity1 = new PD1BusinessEntityType ();
+      aEntity1.setName (aEntity2.getName ());
+      aEntity1.setCountryCode (aEntity2.getCountryCode ());
+      aEntity1.setGeographicalInformation (aEntity2.getGeographicalInformation ());
+      for (final PD2IdentifierType aID2 : aEntity2.getIdentifier ())
+        aEntity1.addIdentifier (_getAsID1 (aID2));
+      aEntity1.setRegistrationDate (aEntity2.getRegistrationDate ());
+      ret.addBusinessEntity (aEntity1);
+    }
+    return ret;
+  }
+}

@@ -27,11 +27,19 @@
               parseMethod="com.helger.datetime.util.PDTWebDateHelper.getLocalDateFromXSD"
               printMethod="com.helger.datetime.util.PDTWebDateHelper.getAsStringXSD" />
   </globalBindings>
+  <bindings schemaLocation="../resources/schemas/peppol-directory-business-card-20161123.xsd" node="/xs:schema">
+    <schemaBindings>
+      <package name="com.helger.pd.businesscard.v2" />
+      <nameXmlTransform>
+        <typeName prefix="PD2" />
+      </nameXmlTransform>
+    </schemaBindings>
+  </bindings>
   <bindings schemaLocation="../resources/schemas/peppol-directory-business-card-20160112.xsd" node="/xs:schema">
     <schemaBindings>
-      <package name="com.helger.pd.businesscard" />
+      <package name="com.helger.pd.businesscard.v1" />
       <nameXmlTransform>
-        <typeName prefix="PD" />
+        <typeName prefix="PD1" />
       </nameXmlTransform>
     </schemaBindings>
   </bindings>

@@ -50,10 +50,10 @@ import com.helger.commons.random.RandomHelper;
 import com.helger.commons.thread.ThreadHelper;
 import com.helger.commons.ws.HostnameVerifierVerifyAll;
 import com.helger.commons.ws.TrustManagerTrustAll;
-import com.helger.pd.businesscard.PDBusinessCardType;
-import com.helger.pd.businesscard.PDBusinessEntityType;
 import com.helger.pd.businesscard.PDExtendedBusinessCard;
-import com.helger.pd.businesscard.PDIdentifierType;
+import com.helger.pd.businesscard.v1.PD1BusinessCardType;
+import com.helger.pd.businesscard.v1.PD1BusinessEntityType;
+import com.helger.pd.businesscard.v1.PD1IdentifierType;
 import com.helger.pd.indexer.PDIndexerTestRule;
 import com.helger.pd.indexer.clientcert.ClientCertificateValidator;
 import com.helger.pd.indexer.mgr.PDMetaManager;
@@ -81,22 +81,22 @@ public final class IndexerResourceTest
   @Nonnull
   private static PDExtendedBusinessCard _createMockBI (@Nonnull final IParticipantIdentifier aParticipantID)
   {
-    final PDBusinessCardType aBI = new PDBusinessCardType ();
+    final PD1BusinessCardType aBI = new PD1BusinessCardType ();
     {
-      final PDIdentifierType aID = new PDIdentifierType ();
+      final PD1IdentifierType aID = new PD1IdentifierType ();
       aID.setScheme (PeppolIdentifierHelper.DEFAULT_PARTICIPANT_SCHEME);
       aID.setValue ("9915:mock");
       aBI.setParticipantIdentifier (aID);
     }
     {
-      final PDBusinessEntityType aEntity = new PDBusinessEntityType ();
+      final PD1BusinessEntityType aEntity = new PD1BusinessEntityType ();
       aEntity.setName ("Philip's mock PEPPOL receiver");
       aEntity.setCountryCode ("AT");
-      PDIdentifierType aID = new PDIdentifierType ();
+      PD1IdentifierType aID = new PD1IdentifierType ();
       aID.setScheme ("mock");
       aID.setValue ("12345678");
       aEntity.addIdentifier (aID);
-      aID = new PDIdentifierType ();
+      aID = new PD1IdentifierType ();
       aID.setScheme ("provided");
       aID.setValue (aParticipantID.getURIEncoded ());
       aEntity.addIdentifier (aID);
@@ -104,10 +104,10 @@ public final class IndexerResourceTest
       aBI.addBusinessEntity (aEntity);
     }
     {
-      final PDBusinessEntityType aEntity = new PDBusinessEntityType ();
+      final PD1BusinessEntityType aEntity = new PD1BusinessEntityType ();
       aEntity.setName ("Philip's mock PEPPOL receiver 2");
       aEntity.setCountryCode ("NO");
-      final PDIdentifierType aID = new PDIdentifierType ();
+      final PD1IdentifierType aID = new PD1IdentifierType ();
       aID.setScheme ("mock");
       aID.setValue ("abcdefgh");
       aEntity.addIdentifier (aID);
