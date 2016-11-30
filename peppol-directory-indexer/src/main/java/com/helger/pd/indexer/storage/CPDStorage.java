@@ -27,8 +27,6 @@ import javax.annotation.concurrent.Immutable;
 public final class CPDStorage
 {
   public static final String FIELD_METADATA_CREATIONDT = "md-creationdt";
-  public static final String FIELD_METADATA_OWNERID = "md-ownerid";
-  public static final String FIELD_METADATA_REQUESTING_HOST = "md-requestinghost";
   public static final String FIELD_ALL_FIELDS = "allfields";
   public static final String FIELD_DELETED = "deleted";
   public static final String FIELD_GROUP_END = "groupend";

@@ -377,8 +377,8 @@ public class PDStoredDocument
       final IndexableField aFieldMetadata = aDoc.getField (CPDStorage.FIELD_METADATA_CREATIONDT);
       final PDDocumentMetaData aMetaData = new PDDocumentMetaData (PDTFactory.createLocalDateTime (aFieldMetadata.numericValue ()
                                                                                                                  .longValue ()),
-                                                                   aDoc.get (CPDStorage.FIELD_METADATA_OWNERID),
-                                                                   aDoc.get (CPDStorage.FIELD_METADATA_REQUESTING_HOST));
+                                                                   PDField.METADATA_OWNERID.getDocValue (aDoc),
+                                                                   PDField.METADATA_REQUESTING_HOST.getDocValue (aDoc));
       ret.setMetaData (aMetaData);
     }
     ret.setAdditionalInformation (PDField.ADDITIONAL_INFO.getDocValue (aDoc));

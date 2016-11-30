@@ -31,7 +31,6 @@ import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.IntPoint;
 import org.apache.lucene.document.StoredField;
-import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.search.Collector;
@@ -257,10 +256,8 @@ public final class PDStorageManager implements IPDStorageManager
         // Lucene6: cannot yet use a LongPoint because it has no way to create a
         // stored one
         aDoc.add (new StoredField (CPDStorage.FIELD_METADATA_CREATIONDT, aMetaData.getCreationDTMillis ()));
-        aDoc.add (new StringField (CPDStorage.FIELD_METADATA_OWNERID, aMetaData.getOwnerID (), Store.YES));
-        aDoc.add (new StringField (CPDStorage.FIELD_METADATA_REQUESTING_HOST,
-                                   aMetaData.getRequestingHost (),
-                                   Store.YES));
+        aDoc.add (PDField.METADATA_OWNERID.getAsField (aMetaData.getOwnerID ()));
+        aDoc.add (PDField.METADATA_REQUESTING_HOST.getAsField (aMetaData.getRequestingHost ()));
 
         aDocs.add (aDoc);
       }
