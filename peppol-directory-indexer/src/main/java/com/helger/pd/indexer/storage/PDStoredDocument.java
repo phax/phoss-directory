@@ -336,34 +336,34 @@ public class PDStoredDocument
     final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
     final PDStoredDocument ret = new PDStoredDocument ();
 
-    ret.setParticipantID (aDoc.get (CPDStorage.FIELD_PARTICIPANTID));
+    ret.setParticipantID (PDField.PARTICIPANT_ID.getDocValue (aDoc));
 
-    for (final String sDocTypeID : aDoc.getValues (CPDStorage.FIELD_DOCUMENT_TYPE_ID))
+    for (final String sDocTypeID : PDField.DOCTYPE_ID.getDocValues (aDoc))
       ret.addDocumentTypeID (aIdentifierFactory.parseDocumentTypeIdentifier (sDocTypeID));
 
-    ret.setCountryCode (aDoc.get (CPDStorage.FIELD_COUNTRY_CODE));
+    ret.setCountryCode (PDField.COUNTRY_CODE.getDocValue (aDoc));
 
-    ret.setRegistrationDate (PDTWebDateHelper.getLocalDateFromXSD (aDoc.get (CPDStorage.FIELD_REGISTRATION_DATE)));
+    ret.setRegistrationDate (PDTWebDateHelper.getLocalDateFromXSD (PDField.REGISTRATION_DATE.getDocValue (aDoc)));
 
-    ret.setName (aDoc.get (CPDStorage.FIELD_NAME));
+    ret.setName (PDField.NAME.getDocValue (aDoc));
 
-    ret.setGeoInfo (aDoc.get (CPDStorage.FIELD_GEOGRAPHICAL_INFORMATION));
+    ret.setGeoInfo (PDField.GEO_INFO.getDocValue (aDoc));
 
-    final String [] aIDTypes = aDoc.getValues (CPDStorage.FIELD_IDENTIFIER_SCHEME);
-    final String [] aIDValues = aDoc.getValues (CPDStorage.FIELD_IDENTIFIER);
+    final String [] aIDTypes = PDField.IDENTIFIER_SCHEME.getDocValues (aDoc);
+    final String [] aIDValues = PDField.IDENTIFIER_VALUE.getDocValues (aDoc);
     if (aIDTypes.length != aIDValues.length)
       throw new IllegalStateException ("Different number of identifier types and values");
     for (int i = 0; i < aIDTypes.length; ++i)
       ret.addIdentifier (new PDStoredIdentifier (aIDTypes[i], aIDValues[i]));
 
-    final String [] aWebSites = aDoc.getValues (CPDStorage.FIELD_WEBSITEURI);
+    final String [] aWebSites = PDField.WEBSITE_URI.getDocValues (aDoc);
     for (final String sWebSite : aWebSites)
       ret.addWebsiteURI (sWebSite);
 
-    final String [] aBCDescription = aDoc.getValues (CPDStorage.FIELD_CONTACT_TYPE);
-    final String [] aBCName = aDoc.getValues (CPDStorage.FIELD_CONTACT_NAME);
-    final String [] aBCPhone = aDoc.getValues (CPDStorage.FIELD_CONTACT_PHONE);
-    final String [] aBCEmail = aDoc.getValues (CPDStorage.FIELD_CONTACT_EMAIL);
+    final String [] aBCDescription = PDField.CONTACT_TYPE.getDocValues (aDoc);
+    final String [] aBCName = PDField.CONTACT_NAME.getDocValues (aDoc);
+    final String [] aBCPhone = PDField.CONTACT_PHONE.getDocValues (aDoc);
+    final String [] aBCEmail = PDField.CONTACT_EMAIL.getDocValues (aDoc);
     if (aBCDescription.length != aBCName.length)
       throw new IllegalStateException ("Different number of business contact descriptions and names");
     if (aBCDescription.length != aBCPhone.length)
@@ -381,7 +381,7 @@ public class PDStoredDocument
                                                                    aDoc.get (CPDStorage.FIELD_METADATA_REQUESTING_HOST));
       ret.setMetaData (aMetaData);
     }
-    ret.setAdditionalInformation (aDoc.get (CPDStorage.FIELD_ADDITIONAL_INFORMATION));
+    ret.setAdditionalInformation (PDField.ADDITIONAL_INFO.getDocValue (aDoc));
     ret.setDeleted (aDoc.getField (CPDStorage.FIELD_DELETED) != null);
     return ret;
   }

@@ -34,14 +34,12 @@ import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexOptions;
-import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Collector;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.search.WildcardQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,12 +100,6 @@ public final class PDStorageManager implements IPDStorageManager
     m_aLucene.close ();
   }
 
-  @Nonnull
-  private static Term _createParticipantTerm (@Nonnull final IParticipantIdentifier aParticipantID)
-  {
-    return new Term (CPDStorage.FIELD_PARTICIPANTID, aParticipantID.getURIEncoded ());
-  }
-
   public boolean containsEntry (@Nullable final IParticipantIdentifier aParticipantID) throws IOException
   {
     if (aParticipantID == null)
@@ -118,7 +110,7 @@ public final class PDStorageManager implements IPDStorageManager
       if (aSearcher != null)
       {
         // Search only documents that do not have the deleted field
-        final Query aQuery = new TermQuery (_createParticipantTerm (aParticipantID));
+        final Query aQuery = new TermQuery (PDField.PARTICIPANT_ID.getQueryTerm (aParticipantID));
         final TopDocs aTopDocs = aSearcher.search (PDQueryManager.andNotDeleted (aQuery), 1);
         if (aTopDocs.totalHits > 0)
           return Boolean.TRUE;
@@ -136,14 +128,14 @@ public final class PDStorageManager implements IPDStorageManager
     ValueEnforcer.notNull (aMetaData, "MetaData");
 
     return m_aLucene.runAtomic ( () -> {
-      final ICommonsList <Document> aDocuments = new CommonsArrayList <> ();
+      final ICommonsList <Document> aDocuments = new CommonsArrayList<> ();
 
       // Get all documents to be marked as deleted
       final IndexSearcher aSearcher = m_aLucene.getSearcher ();
       if (aSearcher != null)
       {
         // Main searching
-        aSearcher.search (new TermQuery (_createParticipantTerm (aParticipantID)),
+        aSearcher.search (new TermQuery (PDField.PARTICIPANT_ID.getQueryTerm (aParticipantID)),
                           new AllDocumentsCollector (m_aLucene, (aDoc, nDocID) -> aDocuments.add (aDoc)));
       }
 
@@ -153,7 +145,7 @@ public final class PDStorageManager implements IPDStorageManager
         aDocuments.forEach (aDocument -> aDocument.add (new IntPoint (CPDStorage.FIELD_DELETED, 1)));
 
         // Update the documents
-        m_aLucene.updateDocuments (_createParticipantTerm (aParticipantID), aDocuments);
+        m_aLucene.updateDocuments (PDField.PARTICIPANT_ID.getQueryTerm (aParticipantID), aDocuments);
       }
 
       s_aLogger.info ("Marked " + aDocuments.size () + " Lucene documents as deleted");
@@ -174,7 +166,7 @@ public final class PDStorageManager implements IPDStorageManager
     ValueEnforcer.notNull (aMetaData, "MetaData");
 
     return m_aLucene.runAtomic ( () -> {
-      final ICommonsList <Document> aDocs = new CommonsArrayList <> ();
+      final ICommonsList <Document> aDocs = new CommonsArrayList<> ();
 
       final PD1BusinessCardType aBI = aExtBI.getBusinessCard ();
       for (final PD1BusinessEntityType aBusinessEntity : aBI.getBusinessEntity ())
@@ -183,83 +175,78 @@ public final class PDStorageManager implements IPDStorageManager
         final Document aDoc = new Document ();
         final StringBuilder aSBAllFields = new StringBuilder ();
 
-        aDoc.add (new StringField (CPDStorage.FIELD_PARTICIPANTID, aParticipantID.getURIEncoded (), Store.YES));
-        aSBAllFields.append (aParticipantID.getURIEncoded ()).append (' ');
+        aDoc.add (PDField.PARTICIPANT_ID.getAsField (aParticipantID));
+        aSBAllFields.append (PDField.PARTICIPANT_ID.getAsStringValue (aParticipantID)).append (' ');
 
         if (aBusinessEntity.getName () != null)
         {
-          aDoc.add (new TextField (CPDStorage.FIELD_NAME, aBusinessEntity.getName (), Store.YES));
+          aDoc.add (PDField.NAME.getAsField (aBusinessEntity.getName ()));
           aSBAllFields.append (aBusinessEntity.getName ()).append (' ');
         }
 
         if (aBusinessEntity.getCountryCode () != null)
         {
-          aDoc.add (new StringField (CPDStorage.FIELD_COUNTRY_CODE, aBusinessEntity.getCountryCode (), Store.YES));
+          aDoc.add (PDField.COUNTRY_CODE.getAsField (aBusinessEntity.getCountryCode ()));
           aSBAllFields.append (aBusinessEntity.getCountryCode ()).append (' ');
         }
 
         // Add all document types to all documents
         for (final IDocumentTypeIdentifier aDocTypeID : aExtBI.getAllDocumentTypeIDs ())
         {
-          final String sDocTypeID = aDocTypeID.getURIEncoded ();
-          aDoc.add (new StringField (CPDStorage.FIELD_DOCUMENT_TYPE_ID, sDocTypeID, Store.YES));
-          aSBAllFields.append (sDocTypeID).append (' ');
+          aDoc.add (PDField.DOCTYPE_ID.getAsField (aDocTypeID));
+          aSBAllFields.append (PDField.DOCTYPE_ID.getAsStringValue (aDocTypeID)).append (' ');
         }
 
         if (aBusinessEntity.getGeographicalInformation () != null)
         {
-          aDoc.add (new TextField (CPDStorage.FIELD_GEOGRAPHICAL_INFORMATION,
-                                   aBusinessEntity.getGeographicalInformation (),
-                                   Store.YES));
+          aDoc.add (PDField.GEO_INFO.getAsField (aBusinessEntity.getGeographicalInformation ()));
           aSBAllFields.append (aBusinessEntity.getGeographicalInformation ()).append (' ');
         }
 
         for (final PD1IdentifierType aIdentifier : aBusinessEntity.getIdentifier ())
         {
-          aDoc.add (new TextField (CPDStorage.FIELD_IDENTIFIER_SCHEME, aIdentifier.getScheme (), Store.YES));
+          aDoc.add (PDField.IDENTIFIER_SCHEME.getAsField (aIdentifier.getScheme ()));
           aSBAllFields.append (aIdentifier.getScheme ()).append (' ');
 
-          aDoc.add (new TextField (CPDStorage.FIELD_IDENTIFIER, aIdentifier.getValue (), Store.YES));
+          aDoc.add (PDField.IDENTIFIER_VALUE.getAsField (aIdentifier.getValue ()));
           aSBAllFields.append (aIdentifier.getValue ()).append (' ');
         }
 
         for (final String sWebSite : aBusinessEntity.getWebsiteURI ())
         {
-          aDoc.add (new TextField (CPDStorage.FIELD_WEBSITEURI, sWebSite, Store.YES));
+          aDoc.add (PDField.WEBSITE_URI.getAsField (sWebSite));
           aSBAllFields.append (sWebSite).append (' ');
         }
 
         for (final PD1ContactType aContact : aBusinessEntity.getContact ())
         {
           final String sType = StringHelper.getNotNull (aContact.getType ());
-          aDoc.add (new TextField (CPDStorage.FIELD_CONTACT_TYPE, sType, Store.YES));
+          aDoc.add (PDField.CONTACT_TYPE.getAsField (sType));
           aSBAllFields.append (sType).append (' ');
 
           final String sName = StringHelper.getNotNull (aContact.getName ());
-          aDoc.add (new TextField (CPDStorage.FIELD_CONTACT_NAME, sName, Store.YES));
+          aDoc.add (PDField.CONTACT_NAME.getAsField (sName));
           aSBAllFields.append (sName).append (' ');
 
           final String sPhone = StringHelper.getNotNull (aContact.getPhoneNumber ());
-          aDoc.add (new TextField (CPDStorage.FIELD_CONTACT_PHONE, sPhone, Store.YES));
+          aDoc.add (PDField.CONTACT_PHONE.getAsField (sPhone));
           aSBAllFields.append (sPhone).append (' ');
 
           final String sEmail = StringHelper.getNotNull (aContact.getEmail ());
-          aDoc.add (new TextField (CPDStorage.FIELD_CONTACT_EMAIL, sEmail, Store.YES));
+          aDoc.add (PDField.CONTACT_EMAIL.getAsField (sEmail));
           aSBAllFields.append (sEmail).append (' ');
         }
 
         if (aBusinessEntity.getAdditionalInformation () != null)
         {
-          aDoc.add (new TextField (CPDStorage.FIELD_ADDITIONAL_INFORMATION,
-                                   aBusinessEntity.getAdditionalInformation (),
-                                   Store.YES));
+          aDoc.add (PDField.ADDITIONAL_INFO.getAsField (aBusinessEntity.getAdditionalInformation ()));
           aSBAllFields.append (aBusinessEntity.getAdditionalInformation ()).append (' ');
         }
 
         if (aBusinessEntity.getRegistrationDate () != null)
         {
           final String sDate = PDTWebDateHelper.getAsStringXSD (aBusinessEntity.getRegistrationDate ());
-          aDoc.add (new StringField (CPDStorage.FIELD_REGISTRATION_DATE, sDate, Store.YES));
+          aDoc.add (PDField.REGISTRATION_DATE.getAsField (sDate));
           aSBAllFields.append (sDate).append (' ');
         }
 
@@ -287,7 +274,7 @@ public final class PDStorageManager implements IPDStorageManager
 
       // Delete all existing documents of the participant ID
       // and add the new ones to the index
-      m_aLucene.updateDocuments (_createParticipantTerm (aParticipantID), aDocs);
+      m_aLucene.updateDocuments (PDField.PARTICIPANT_ID.getQueryTerm (aParticipantID), aDocs);
 
       s_aLogger.info ("Added " + aDocs.size () + " Lucene documents");
       AuditHelper.onAuditExecuteSuccess ("pd-indexer-create",
@@ -366,7 +353,7 @@ public final class PDStorageManager implements IPDStorageManager
   @ReturnsMutableCopy
   public ICommonsList <PDStoredDocument> getAllDocuments (@Nonnull final Query aQuery)
   {
-    final ICommonsList <PDStoredDocument> aTargetList = new CommonsArrayList <> ();
+    final ICommonsList <PDStoredDocument> aTargetList = new CommonsArrayList<> ();
     try
     {
       searchAllDocuments (aQuery, aDoc -> aTargetList.add (aDoc));
@@ -382,7 +369,7 @@ public final class PDStorageManager implements IPDStorageManager
   public ICommonsList <PDStoredDocument> getAllDocumentsOfParticipant (@Nonnull final IParticipantIdentifier aParticipantID)
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
-    return getAllDocuments (new TermQuery (_createParticipantTerm (aParticipantID)));
+    return getAllDocuments (new TermQuery (PDField.PARTICIPANT_ID.getQueryTerm (aParticipantID)));
   }
 
   /**
@@ -396,21 +383,19 @@ public final class PDStorageManager implements IPDStorageManager
   public ICommonsList <PDStoredDocument> getAllDocumentsOfCountryCode (@Nonnull final String sCountryCode)
   {
     ValueEnforcer.notNull (sCountryCode, "CountryCode");
-    return getAllDocuments (new TermQuery (new Term (CPDStorage.FIELD_COUNTRY_CODE, sCountryCode)));
+    return getAllDocuments (new TermQuery (PDField.COUNTRY_CODE.getQueryTerm (sCountryCode)));
   }
 
   @Nonnull
   @ReturnsMutableCopy
   public ICommonsSortedSet <String> getAllContainedParticipantIDs ()
   {
-    final ICommonsSortedSet <String> aTargetSet = new CommonsTreeSet <> ();
-    final Query aQuery = PDQueryManager.andNotDeleted (true ? new MatchAllDocsQuery ()
-                                                            : new WildcardQuery (new Term (CPDStorage.FIELD_ALL_FIELDS,
-                                                                                           "*")));
+    final ICommonsSortedSet <String> aTargetSet = new CommonsTreeSet<> ();
+    final Query aQuery = PDQueryManager.andNotDeleted (new MatchAllDocsQuery ());
     try
     {
       final ObjIntConsumer <Document> aConsumer = (aDoc,
-                                                   nDocID) -> aTargetSet.add (aDoc.get (CPDStorage.FIELD_PARTICIPANTID));
+                                                   nDocID) -> aTargetSet.add (PDField.PARTICIPANT_ID.getDocValue (aDoc));
       final Collector aCollector = new AllDocumentsCollector (m_aLucene, aConsumer);
       searchAtomic (aQuery, aCollector);
     }
@@ -433,7 +418,7 @@ public final class PDStorageManager implements IPDStorageManager
   @ReturnsMutableCopy
   public static IMultiMapListBased <String, PDStoredDocument> getGroupedByParticipantID (@Nonnull final List <PDStoredDocument> aDocs)
   {
-    final MultiLinkedHashMapArrayListBased <String, PDStoredDocument> ret = new MultiLinkedHashMapArrayListBased <> ();
+    final MultiLinkedHashMapArrayListBased <String, PDStoredDocument> ret = new MultiLinkedHashMapArrayListBased<> ();
     for (final PDStoredDocument aDoc : aDocs)
       ret.putSingle (aDoc.getParticipantID (), aDoc);
     return ret;

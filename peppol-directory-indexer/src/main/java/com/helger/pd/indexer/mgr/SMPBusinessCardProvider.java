@@ -140,7 +140,7 @@ public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
 
     // Query all document types
     final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
-    final ICommonsList <IDocumentTypeIdentifier> aDocumentTypeIDs = new CommonsArrayList <> ();
+    final ICommonsList <IDocumentTypeIdentifier> aDocumentTypeIDs = new CommonsArrayList<> ();
     if (aServiceGroup != null)
       for (final ServiceMetadataReferenceType aRef : aServiceGroup.getServiceMetadataReferenceCollection ()
                                                                   .getServiceMetadataReference ())

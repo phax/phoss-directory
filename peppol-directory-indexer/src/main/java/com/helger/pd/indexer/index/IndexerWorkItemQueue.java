@@ -63,7 +63,7 @@ public final class IndexerWorkItemQueue
    */
   public IndexerWorkItemQueue (@Nonnull final IConcurrentPerformer <IIndexerWorkItem> aPerformer)
   {
-    m_aImmediateCollector = new ConcurrentCollectorSingle <> (new LinkedBlockingQueue <> ());
+    m_aImmediateCollector = new ConcurrentCollectorSingle<> (new LinkedBlockingQueue<> ());
     m_aImmediateCollector.setPerformer (aPerformer);
 
     // Start the collector

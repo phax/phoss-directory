@@ -64,9 +64,6 @@ public final class PDQueryManager
   @Nonnull
   public static Query andNotDeleted (@Nonnull final Query aQuery)
   {
-    if (false)
-      return aQuery;
-
     return new BooleanQuery.Builder ().add (aQuery, Occur.FILTER)
                                       .add (new TermQuery (new Term (CPDStorage.FIELD_DELETED)), Occur.MUST_NOT)
                                       .build ();
