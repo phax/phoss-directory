@@ -28,9 +28,9 @@ public final class PDDocumentMetaDataTest
   public void testMillis ()
   {
     final long nMillis = System.currentTimeMillis ();
-    final long nMillis2 = new PDDocumentMetaData (PDTFactory.getCurrentLocalDateTime (),
-                                                  "me",
-                                                  "localhost").getCreationDTMillis ();
+    final long nMillis2 = PDTFactory.getMillis (new PDDocumentMetaData (PDTFactory.getCurrentLocalDateTime (),
+                                                                        "me",
+                                                                        "localhost").getCreationDT ());
     // Less than a second difference
     assertTrue (nMillis + " vs. " + nMillis2, Math.abs (nMillis2 - nMillis) <= 1000);
   }

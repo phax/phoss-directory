@@ -30,7 +30,6 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.IntPoint;
-import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.search.Collector;
@@ -109,7 +108,7 @@ public final class PDStorageManager implements IPDStorageManager
       if (aSearcher != null)
       {
         // Search only documents that do not have the deleted field
-        final Query aQuery = new TermQuery (PDField.PARTICIPANT_ID.getQueryTerm (aParticipantID));
+        final Query aQuery = new TermQuery (PDField.PARTICIPANT_ID.getTerm (aParticipantID));
         final TopDocs aTopDocs = aSearcher.search (PDQueryManager.andNotDeleted (aQuery), 1);
         if (aTopDocs.totalHits > 0)
           return Boolean.TRUE;
@@ -134,7 +133,7 @@ public final class PDStorageManager implements IPDStorageManager
       if (aSearcher != null)
       {
         // Main searching
-        aSearcher.search (new TermQuery (PDField.PARTICIPANT_ID.getQueryTerm (aParticipantID)),
+        aSearcher.search (new TermQuery (PDField.PARTICIPANT_ID.getTerm (aParticipantID)),
                           new AllDocumentsCollector (m_aLucene, (aDoc, nDocID) -> aDocuments.add (aDoc)));
       }
 
@@ -144,7 +143,7 @@ public final class PDStorageManager implements IPDStorageManager
         aDocuments.forEach (aDocument -> aDocument.add (new IntPoint (CPDStorage.FIELD_DELETED, 1)));
 
         // Update the documents
-        m_aLucene.updateDocuments (PDField.PARTICIPANT_ID.getQueryTerm (aParticipantID), aDocuments);
+        m_aLucene.updateDocuments (PDField.PARTICIPANT_ID.getTerm (aParticipantID), aDocuments);
       }
 
       s_aLogger.info ("Marked " + aDocuments.size () + " Lucene documents as deleted");
@@ -175,7 +174,7 @@ public final class PDStorageManager implements IPDStorageManager
         final StringBuilder aSBAllFields = new StringBuilder ();
 
         aDoc.add (PDField.PARTICIPANT_ID.getAsField (aParticipantID));
-        aSBAllFields.append (PDField.PARTICIPANT_ID.getAsStringValue (aParticipantID)).append (' ');
+        aSBAllFields.append (PDField.PARTICIPANT_ID.getAsStorageValue (aParticipantID)).append (' ');
 
         if (aBusinessEntity.getName () != null)
         {
@@ -193,7 +192,7 @@ public final class PDStorageManager implements IPDStorageManager
         for (final IDocumentTypeIdentifier aDocTypeID : aExtBI.getAllDocumentTypeIDs ())
         {
           aDoc.add (PDField.DOCTYPE_ID.getAsField (aDocTypeID));
-          aSBAllFields.append (PDField.DOCTYPE_ID.getAsStringValue (aDocTypeID)).append (' ');
+          aSBAllFields.append (PDField.DOCTYPE_ID.getAsStorageValue (aDocTypeID)).append (' ');
         }
 
         if (aBusinessEntity.getGeographicalInformation () != null)
@@ -255,7 +254,7 @@ public final class PDStorageManager implements IPDStorageManager
         // Add meta data (not part of the "all field" field!)
         // Lucene6: cannot yet use a LongPoint because it has no way to create a
         // stored one
-        aDoc.add (new StoredField (CPDStorage.FIELD_METADATA_CREATIONDT, aMetaData.getCreationDTMillis ()));
+        aDoc.add (PDField.METADATA_CREATIONDT.getAsField (aMetaData.getCreationDT ()));
         aDoc.add (PDField.METADATA_OWNERID.getAsField (aMetaData.getOwnerID ()));
         aDoc.add (PDField.METADATA_REQUESTING_HOST.getAsField (aMetaData.getRequestingHost ()));
 
@@ -271,7 +270,7 @@ public final class PDStorageManager implements IPDStorageManager
 
       // Delete all existing documents of the participant ID
       // and add the new ones to the index
-      m_aLucene.updateDocuments (PDField.PARTICIPANT_ID.getQueryTerm (aParticipantID), aDocs);
+      m_aLucene.updateDocuments (PDField.PARTICIPANT_ID.getTerm (aParticipantID), aDocs);
 
       s_aLogger.info ("Added " + aDocs.size () + " Lucene documents");
       AuditHelper.onAuditExecuteSuccess ("pd-indexer-create",
@@ -366,7 +365,7 @@ public final class PDStorageManager implements IPDStorageManager
   public ICommonsList <PDStoredDocument> getAllDocumentsOfParticipant (@Nonnull final IParticipantIdentifier aParticipantID)
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
-    return getAllDocuments (new TermQuery (PDField.PARTICIPANT_ID.getQueryTerm (aParticipantID)));
+    return getAllDocuments (new TermQuery (PDField.PARTICIPANT_ID.getTerm (aParticipantID)));
   }
 
   /**
@@ -380,14 +379,14 @@ public final class PDStorageManager implements IPDStorageManager
   public ICommonsList <PDStoredDocument> getAllDocumentsOfCountryCode (@Nonnull final String sCountryCode)
   {
     ValueEnforcer.notNull (sCountryCode, "CountryCode");
-    return getAllDocuments (new TermQuery (PDField.COUNTRY_CODE.getQueryTerm (sCountryCode)));
+    return getAllDocuments (new TermQuery (PDField.COUNTRY_CODE.getTerm (sCountryCode)));
   }
 
   @Nonnull
   @ReturnsMutableCopy
-  public ICommonsSortedSet <String> getAllContainedParticipantIDs ()
+  public ICommonsSortedSet <IParticipantIdentifier> getAllContainedParticipantIDs ()
   {
-    final ICommonsSortedSet <String> aTargetSet = new CommonsTreeSet<> ();
+    final ICommonsSortedSet <IParticipantIdentifier> aTargetSet = new CommonsTreeSet<> ();
     final Query aQuery = PDQueryManager.andNotDeleted (new MatchAllDocsQuery ());
     try
     {
@@ -413,9 +412,9 @@ public final class PDStorageManager implements IPDStorageManager
    */
   @Nonnull
   @ReturnsMutableCopy
-  public static IMultiMapListBased <String, PDStoredDocument> getGroupedByParticipantID (@Nonnull final List <PDStoredDocument> aDocs)
+  public static IMultiMapListBased <IParticipantIdentifier, PDStoredDocument> getGroupedByParticipantID (@Nonnull final List <PDStoredDocument> aDocs)
   {
-    final MultiLinkedHashMapArrayListBased <String, PDStoredDocument> ret = new MultiLinkedHashMapArrayListBased<> ();
+    final MultiLinkedHashMapArrayListBased <IParticipantIdentifier, PDStoredDocument> ret = new MultiLinkedHashMapArrayListBased<> ();
     for (final PDStoredDocument aDoc : aDocs)
       ret.putSingle (aDoc.getParticipantID (), aDoc);
     return ret;

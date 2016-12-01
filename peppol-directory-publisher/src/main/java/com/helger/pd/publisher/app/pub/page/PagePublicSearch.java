@@ -156,7 +156,7 @@ public final class PagePublicSearch extends AbstractAppWebPage
         final ICommonsList <PDStoredDocument> aResultDocs = PDMetaManager.getStorageMgr ()
                                                                          .getAllDocumentsOfParticipant (aParticipantID);
         // Group by participant ID
-        final IMultiMapListBased <String, PDStoredDocument> aGroupedDocs = PDStorageManager.getGroupedByParticipantID (aResultDocs);
+        final IMultiMapListBased <IParticipantIdentifier, PDStoredDocument> aGroupedDocs = PDStorageManager.getGroupedByParticipantID (aResultDocs);
         if (aGroupedDocs.isEmpty ())
           s_aLogger.warn ("No stored document matches participant identifier '" + sParticipantID + "'");
         else
@@ -248,7 +248,7 @@ public final class PagePublicSearch extends AbstractAppWebPage
         s_aLogger.info ("  Result for <" + aLuceneQuery + "> are " + aResultDocs.size () + " documents");
 
         // Group by participant ID
-        final IMultiMapListBased <String, PDStoredDocument> aGroupedDocs = PDStorageManager.getGroupedByParticipantID (aResultDocs);
+        final IMultiMapListBased <IParticipantIdentifier, PDStoredDocument> aGroupedDocs = PDStorageManager.getGroupedByParticipantID (aResultDocs);
 
         final int nMaxResults = 10;
 
@@ -260,15 +260,15 @@ public final class PagePublicSearch extends AbstractAppWebPage
         else
         {
           final HCOL aOL = new HCOL ().setStart (1);
-          for (final Map.Entry <String, ICommonsList <PDStoredDocument>> aEntry : aGroupedDocs.entrySet ())
+          for (final Map.Entry <IParticipantIdentifier, ICommonsList <PDStoredDocument>> aEntry : aGroupedDocs.entrySet ())
           {
-            final String sDocParticipantID = aEntry.getKey ();
+            final IParticipantIdentifier aDocParticipantID = aEntry.getKey ();
             final ICommonsList <PDStoredDocument> aDocs = aEntry.getValue ();
 
             // Start result document
             final HCDiv aResultItem = new HCDiv ().addClass (CSS_CLASS_RESULT_DOC);
             final HCDiv aHeadRow = aResultItem.addAndReturnChild (new HCDiv ());
-            aHeadRow.addChild (sDocParticipantID);
+            aHeadRow.addChild (aDocParticipantID.getURIEncoded ());
             if (aDocs.size () > 1)
               aHeadRow.addChild (" (" + aDocs.size () + " entities)");
             aHeadRow.addChild (" ")
@@ -281,7 +281,7 @@ public final class PagePublicSearch extends AbstractAppWebPage
                                                                                                 .add (CPageParam.PARAM_ACTION,
                                                                                                       CPageParam.ACTION_VIEW)
                                                                                                 .add (FIELD_PARTICIPANT_ID,
-                                                                                                      sDocParticipantID)));
+                                                                                                      aDocParticipantID.getURIEncoded ())));
 
             // Show all entities of the stored document
             final HCUL aUL = aResultItem.addAndReturnChild (new HCUL ());

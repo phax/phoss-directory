@@ -23,7 +23,6 @@ import javax.annotation.concurrent.Immutable;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.datetime.PDTFactory;
 import com.helger.commons.string.ToStringGenerator;
 
 /**
@@ -59,15 +58,6 @@ public final class PDDocumentMetaData
   public LocalDateTime getCreationDT ()
   {
     return m_aCreationDT;
-  }
-
-  /**
-   * @return The date time as milliseconds when the object was queued for
-   *         indexing.
-   */
-  public long getCreationDTMillis ()
-  {
-    return PDTFactory.getMillis (m_aCreationDT);
   }
 
   /**

@@ -39,7 +39,7 @@ import com.helger.pd.businesscard.v1.PD1ContactType;
 import com.helger.pd.businesscard.v1.PD1IdentifierType;
 import com.helger.pd.indexer.PDIndexerTestRule;
 import com.helger.pd.indexer.lucene.PDLucene;
-import com.helger.peppol.identifier.factory.PeppolIdentifierFactory;
+import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.peppol.identifier.peppol.PeppolIdentifierHelper;
 import com.helger.peppol.identifier.peppol.doctype.EPredefinedDocumentTypeIdentifier;
@@ -122,7 +122,8 @@ public final class PDStorageManagerTest
   @Test
   public void testGetAllDocumentsOfParticipant () throws IOException
   {
-    final IParticipantIdentifier aParticipantID = PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("0088:test");
+    final IParticipantIdentifier aParticipantID = PDMetaManager.getIdentifierFactory ()
+                                                               .createParticipantIdentifier ("myscheme", "0088:test");
     try (PDStorageManager aMgr = new PDStorageManager (new PDLucene ()))
     {
       final PDDocumentMetaData aMetaData = _createMockMetaData ();
@@ -132,7 +133,7 @@ public final class PDStorageManagerTest
         final List <PDStoredDocument> aDocs = aMgr.getAllDocumentsOfParticipant (aParticipantID);
         assertEquals (2, aDocs.size ());
         final PDStoredDocument aDoc1 = aDocs.get (0);
-        assertEquals (aParticipantID.getURIEncoded (), aDoc1.getParticipantID ());
+        assertEquals (aParticipantID, aDoc1.getParticipantID ());
         assertEquals ("junittest", aDoc1.getMetaData ().getOwnerID ());
         assertEquals ("AT", aDoc1.getCountryCode ());
         assertEquals (PDTFactory.createLocalDate (2015, Month.JULY, 6), aDoc1.getRegistrationDate ());
@@ -169,7 +170,8 @@ public final class PDStorageManagerTest
   @Test
   public void testGetAllDocumentsOfCountryCode () throws IOException
   {
-    final IParticipantIdentifier aParticipantID = PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("0088:test");
+    final IParticipantIdentifier aParticipantID = PDMetaManager.getIdentifierFactory ()
+                                                               .createParticipantIdentifier ("myscheme", "0088:test");
     try (PDStorageManager aMgr = new PDStorageManager (new PDLucene ()))
     {
       final PDDocumentMetaData aMetaData = _createMockMetaData ();
@@ -185,7 +187,7 @@ public final class PDStorageManagerTest
         assertEquals (1, aDocs.size ());
 
         final PDStoredDocument aSingleDoc = aDocs.get (0);
-        assertEquals (aParticipantID.getURIEncoded (), aSingleDoc.getParticipantID ());
+        assertEquals (aParticipantID, aSingleDoc.getParticipantID ());
         assertEquals ("junittest", aSingleDoc.getMetaData ().getOwnerID ());
         assertEquals ("NO", aSingleDoc.getCountryCode ());
       }

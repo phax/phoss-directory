@@ -1,80 +1,71 @@
 package com.helger.pd.indexer.storage;
 
-import java.util.function.Function;
+import java.time.LocalDateTime;
 
 import org.apache.lucene.document.Field;
 
-import com.helger.pd.indexer.storage.PDStringField.EPDTokenize;
+import com.helger.commons.datetime.PDTFactory;
+import com.helger.pd.indexer.storage.field.PDLongField;
+import com.helger.pd.indexer.storage.field.PDStringField;
+import com.helger.pd.indexer.storage.field.PDStringField.EPDTokenize;
 import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 
 public class PDField
 {
-  public static final PDStringField <IParticipantIdentifier> PARTICIPANT_ID = new PDStringField<> ("participantid",
-                                                                                                   x -> x.getURIEncoded (),
-                                                                                                   Field.Store.YES,
-                                                                                                   EPDTokenize.NO_TOKENIZE);
-  public static final PDStringField <IDocumentTypeIdentifier> DOCTYPE_ID = new PDStringField<> ("doctypeid",
-                                                                                                x -> x.getURIEncoded (),
-                                                                                                Field.Store.YES,
-                                                                                                EPDTokenize.NO_TOKENIZE);
-  public static final PDStringField <String> REGISTRATION_DATE = new PDStringField<> ("registrationdate",
-                                                                                      Function.identity (),
-                                                                                      Field.Store.YES,
-                                                                                      EPDTokenize.NO_TOKENIZE);
-  public static final PDStringField <String> NAME = new PDStringField<> ("name",
-                                                                         Function.identity (),
-                                                                         Field.Store.YES,
-                                                                         EPDTokenize.TOKENIZE);
-  public static final PDStringField <String> COUNTRY_CODE = new PDStringField<> ("country",
-                                                                                 Function.identity (),
-                                                                                 Field.Store.YES,
-                                                                                 EPDTokenize.NO_TOKENIZE);
-  public static final PDStringField <String> GEO_INFO = new PDStringField<> ("geoinfo",
-                                                                             Function.identity (),
-                                                                             Field.Store.YES,
-                                                                             EPDTokenize.TOKENIZE);
-  public static final PDStringField <String> IDENTIFIER_SCHEME = new PDStringField<> ("identifiertype",
-                                                                                      Function.identity (),
-                                                                                      Field.Store.YES,
-                                                                                      EPDTokenize.TOKENIZE);
-  public static final PDStringField <String> IDENTIFIER_VALUE = new PDStringField<> ("identifier",
-                                                                                     Function.identity (),
-                                                                                     Field.Store.YES,
-                                                                                     EPDTokenize.TOKENIZE);
-  public static final PDStringField <String> WEBSITE_URI = new PDStringField<> ("website",
-                                                                                Function.identity (),
-                                                                                Field.Store.YES,
-                                                                                EPDTokenize.TOKENIZE);
-  public static final PDStringField <String> CONTACT_TYPE = new PDStringField<> ("bc-description",
-                                                                                 Function.identity (),
-                                                                                 Field.Store.YES,
-                                                                                 EPDTokenize.TOKENIZE);
-  public static final PDStringField <String> CONTACT_NAME = new PDStringField<> ("bc-name",
-                                                                                 Function.identity (),
-                                                                                 Field.Store.YES,
-                                                                                 EPDTokenize.TOKENIZE);
-  public static final PDStringField <String> CONTACT_PHONE = new PDStringField<> ("bc-phone",
-                                                                                  Function.identity (),
-                                                                                  Field.Store.YES,
-                                                                                  EPDTokenize.TOKENIZE);
-  public static final PDStringField <String> CONTACT_EMAIL = new PDStringField<> ("bc-email",
-                                                                                  Function.identity (),
-                                                                                  Field.Store.YES,
-                                                                                  EPDTokenize.TOKENIZE);
-  public static final PDStringField <String> ADDITIONAL_INFO = new PDStringField<> ("freetext",
-                                                                                    Function.identity (),
-                                                                                    Field.Store.YES,
-                                                                                    EPDTokenize.TOKENIZE);
-
-  public static final PDStringField <String> METADATA_OWNERID = new PDStringField<> ("md-ownerid",
-                                                                                     Function.identity (),
-                                                                                     Field.Store.YES,
-                                                                                     EPDTokenize.NO_TOKENIZE);
-  public static final PDStringField <String> METADATA_REQUESTING_HOST = new PDStringField<> ("md-requestinghost",
-                                                                                             Function.identity (),
+  public static final PDStringField <IParticipantIdentifier> PARTICIPANT_ID = PDStringField.createParticipantIdentifier ("participantid",
+                                                                                                                         Field.Store.YES,
+                                                                                                                         EPDTokenize.NO_TOKENIZE);
+  public static final PDStringField <IDocumentTypeIdentifier> DOCTYPE_ID = PDStringField.createDocumentTypeIdentifier ("doctypeid",
+                                                                                                                       Field.Store.YES,
+                                                                                                                       EPDTokenize.NO_TOKENIZE);
+  public static final PDStringField <String> REGISTRATION_DATE = PDStringField.createString ("registrationdate",
                                                                                              Field.Store.YES,
                                                                                              EPDTokenize.NO_TOKENIZE);
+  public static final PDStringField <String> NAME = PDStringField.createString ("name",
+                                                                                Field.Store.YES,
+                                                                                EPDTokenize.TOKENIZE);
+  public static final PDStringField <String> COUNTRY_CODE = PDStringField.createString ("country",
+                                                                                        Field.Store.YES,
+                                                                                        EPDTokenize.NO_TOKENIZE);
+  public static final PDStringField <String> GEO_INFO = PDStringField.createString ("geoinfo",
+                                                                                    Field.Store.YES,
+                                                                                    EPDTokenize.TOKENIZE);
+  public static final PDStringField <String> IDENTIFIER_SCHEME = PDStringField.createString ("identifiertype",
+                                                                                             Field.Store.YES,
+                                                                                             EPDTokenize.TOKENIZE);
+  public static final PDStringField <String> IDENTIFIER_VALUE = PDStringField.createString ("identifier",
+                                                                                            Field.Store.YES,
+                                                                                            EPDTokenize.TOKENIZE);
+  public static final PDStringField <String> WEBSITE_URI = PDStringField.createString ("website",
+                                                                                       Field.Store.YES,
+                                                                                       EPDTokenize.TOKENIZE);
+  public static final PDStringField <String> CONTACT_TYPE = PDStringField.createString ("bc-description",
+                                                                                        Field.Store.YES,
+                                                                                        EPDTokenize.TOKENIZE);
+  public static final PDStringField <String> CONTACT_NAME = PDStringField.createString ("bc-name",
+                                                                                        Field.Store.YES,
+                                                                                        EPDTokenize.TOKENIZE);
+  public static final PDStringField <String> CONTACT_PHONE = PDStringField.createString ("bc-phone",
+                                                                                         Field.Store.YES,
+                                                                                         EPDTokenize.TOKENIZE);
+  public static final PDStringField <String> CONTACT_EMAIL = PDStringField.createString ("bc-email",
+                                                                                         Field.Store.YES,
+                                                                                         EPDTokenize.TOKENIZE);
+  public static final PDStringField <String> ADDITIONAL_INFO = PDStringField.createString ("freetext",
+                                                                                           Field.Store.YES,
+                                                                                           EPDTokenize.TOKENIZE);
+
+  public static final PDLongField <LocalDateTime> METADATA_CREATIONDT = new PDLongField<> ("md-creationdt",
+                                                                                           x -> Long.valueOf (PDTFactory.getMillis (x)),
+                                                                                           x -> PDTFactory.createLocalDateTime (x.longValue ()),
+                                                                                           Field.Store.YES);
+  public static final PDStringField <String> METADATA_OWNERID = PDStringField.createString ("md-ownerid",
+                                                                                            Field.Store.YES,
+                                                                                            EPDTokenize.NO_TOKENIZE);
+  public static final PDStringField <String> METADATA_REQUESTING_HOST = PDStringField.createString ("md-requestinghost",
+                                                                                                    Field.Store.YES,
+                                                                                                    EPDTokenize.NO_TOKENIZE);
 
   private PDField ()
   {}

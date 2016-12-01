@@ -24,7 +24,6 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.apache.lucene.document.Document;
-import org.apache.lucene.index.IndexableField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,13 +32,11 @@ import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.annotation.ReturnsMutableCopy;
 import com.helger.commons.collection.ext.CommonsArrayList;
 import com.helger.commons.collection.ext.ICommonsList;
-import com.helger.commons.datetime.PDTFactory;
 import com.helger.commons.string.StringHelper;
 import com.helger.commons.string.ToStringGenerator;
 import com.helger.datetime.util.PDTWebDateHelper;
-import com.helger.pd.indexer.mgr.PDMetaManager;
-import com.helger.peppol.identifier.factory.IIdentifierFactory;
 import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
+import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 
 /**
  * This class represents a document stored in the Lucene index but with a nicer
@@ -54,7 +51,7 @@ public class PDStoredDocument
 {
   private static final Logger s_aLogger = LoggerFactory.getLogger (PDStoredDocument.class);
 
-  private String m_sParticipantID;
+  private IParticipantIdentifier m_aParticipantID;
   private final ICommonsList <IDocumentTypeIdentifier> m_aDocumentTypeIDs = new CommonsArrayList<> ();
   private String m_sName;
   private String m_sCountryCode;
@@ -70,17 +67,16 @@ public class PDStoredDocument
   protected PDStoredDocument ()
   {}
 
-  public void setParticipantID (@Nonnull @Nonempty final String sParticipantID)
+  public void setParticipantID (@Nonnull final IParticipantIdentifier aParticipantID)
   {
-    ValueEnforcer.notEmpty (sParticipantID, "ParticipantID");
-    m_sParticipantID = sParticipantID;
+    ValueEnforcer.notNull (aParticipantID, "ParticipantID");
+    m_aParticipantID = aParticipantID;
   }
 
   @Nonnull
-  @Nonempty
-  public String getParticipantID ()
+  public IParticipantIdentifier getParticipantID ()
   {
-    return m_sParticipantID;
+    return m_aParticipantID;
   }
 
   public void addDocumentTypeID (@Nonnull final IDocumentTypeIdentifier aDocumentTypeID)
@@ -303,7 +299,7 @@ public class PDStoredDocument
   @Override
   public String toString ()
   {
-    return new ToStringGenerator (this).append ("ParticipantID", m_sParticipantID)
+    return new ToStringGenerator (this).append ("ParticipantID", m_aParticipantID)
                                        .append ("DocumentTypeIDs", m_aDocumentTypeIDs)
                                        .append ("CountryCode", m_sCountryCode)
                                        .append ("RegistrationDate", m_aRegistrationDate)
@@ -333,13 +329,12 @@ public class PDStoredDocument
     if (s_aLogger.isDebugEnabled ())
       s_aLogger.debug ("Creating PDStoredDocument from " + aDoc);
 
-    final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
     final PDStoredDocument ret = new PDStoredDocument ();
 
     ret.setParticipantID (PDField.PARTICIPANT_ID.getDocValue (aDoc));
 
-    for (final String sDocTypeID : PDField.DOCTYPE_ID.getDocValues (aDoc))
-      ret.addDocumentTypeID (aIdentifierFactory.parseDocumentTypeIdentifier (sDocTypeID));
+    for (final IDocumentTypeIdentifier aDocTypeID : PDField.DOCTYPE_ID.getDocValues (aDoc))
+      ret.addDocumentTypeID (aDocTypeID);
 
     ret.setCountryCode (PDField.COUNTRY_CODE.getDocValue (aDoc));
 
@@ -349,34 +344,34 @@ public class PDStoredDocument
 
     ret.setGeoInfo (PDField.GEO_INFO.getDocValue (aDoc));
 
-    final String [] aIDTypes = PDField.IDENTIFIER_SCHEME.getDocValues (aDoc);
-    final String [] aIDValues = PDField.IDENTIFIER_VALUE.getDocValues (aDoc);
-    if (aIDTypes.length != aIDValues.length)
+    final ICommonsList <String> aIDTypes = PDField.IDENTIFIER_SCHEME.getDocValues (aDoc);
+    final ICommonsList <String> aIDValues = PDField.IDENTIFIER_VALUE.getDocValues (aDoc);
+    if (aIDTypes.size () != aIDValues.size ())
       throw new IllegalStateException ("Different number of identifier types and values");
-    for (int i = 0; i < aIDTypes.length; ++i)
-      ret.addIdentifier (new PDStoredIdentifier (aIDTypes[i], aIDValues[i]));
+    for (int i = 0; i < aIDTypes.size (); ++i)
+      ret.addIdentifier (new PDStoredIdentifier (aIDTypes.get (i), aIDValues.get (i)));
 
-    final String [] aWebSites = PDField.WEBSITE_URI.getDocValues (aDoc);
-    for (final String sWebSite : aWebSites)
+    for (final String sWebSite : PDField.WEBSITE_URI.getDocValues (aDoc))
       ret.addWebsiteURI (sWebSite);
 
-    final String [] aBCDescription = PDField.CONTACT_TYPE.getDocValues (aDoc);
-    final String [] aBCName = PDField.CONTACT_NAME.getDocValues (aDoc);
-    final String [] aBCPhone = PDField.CONTACT_PHONE.getDocValues (aDoc);
-    final String [] aBCEmail = PDField.CONTACT_EMAIL.getDocValues (aDoc);
-    if (aBCDescription.length != aBCName.length)
+    final ICommonsList <String> aBCDescription = PDField.CONTACT_TYPE.getDocValues (aDoc);
+    final ICommonsList <String> aBCName = PDField.CONTACT_NAME.getDocValues (aDoc);
+    final ICommonsList <String> aBCPhone = PDField.CONTACT_PHONE.getDocValues (aDoc);
+    final ICommonsList <String> aBCEmail = PDField.CONTACT_EMAIL.getDocValues (aDoc);
+    if (aBCDescription.size () != aBCName.size ())
       throw new IllegalStateException ("Different number of business contact descriptions and names");
-    if (aBCDescription.length != aBCPhone.length)
+    if (aBCDescription.size () != aBCPhone.size ())
       throw new IllegalStateException ("Different number of business contact descriptions and phones");
-    if (aBCDescription.length != aBCEmail.length)
+    if (aBCDescription.size () != aBCEmail.size ())
       throw new IllegalStateException ("Different number of business contact descriptions and emails");
-    for (int i = 0; i < aBCDescription.length; ++i)
-      ret.addContact (new PDStoredContact (aBCDescription[i], aBCName[i], aBCPhone[i], aBCEmail[i]));
+    for (int i = 0; i < aBCDescription.size (); ++i)
+      ret.addContact (new PDStoredContact (aBCDescription.get (i),
+                                           aBCName.get (i),
+                                           aBCPhone.get (i),
+                                           aBCEmail.get (i)));
 
     {
-      final IndexableField aFieldMetadata = aDoc.getField (CPDStorage.FIELD_METADATA_CREATIONDT);
-      final PDDocumentMetaData aMetaData = new PDDocumentMetaData (PDTFactory.createLocalDateTime (aFieldMetadata.numericValue ()
-                                                                                                                 .longValue ()),
+      final PDDocumentMetaData aMetaData = new PDDocumentMetaData (PDField.METADATA_CREATIONDT.getDocValue (aDoc),
                                                                    PDField.METADATA_OWNERID.getDocValue (aDoc),
                                                                    PDField.METADATA_REQUESTING_HOST.getDocValue (aDoc));
       ret.setMetaData (aMetaData);

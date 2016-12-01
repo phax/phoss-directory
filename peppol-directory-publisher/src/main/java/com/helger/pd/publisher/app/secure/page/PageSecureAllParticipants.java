@@ -27,6 +27,7 @@ import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.publisher.app.pub.CMenuPublic;
 import com.helger.pd.publisher.app.pub.page.PagePublicSearch;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
+import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.photon.bootstrap3.alert.BootstrapInfoBox;
 import com.helger.photon.core.app.CApplication;
 import com.helger.photon.uicore.css.CPageParam;
@@ -45,8 +46,9 @@ public final class PageSecureAllParticipants extends AbstractAppWebPage
     final HCNodeList aNodeList = aWPEC.getNodeList ();
 
     final HCUL aUL = new HCUL ();
-    for (final String sParticipantID : PDMetaManager.getStorageMgr ().getAllContainedParticipantIDs ())
+    for (final IParticipantIdentifier aParticipantID : PDMetaManager.getStorageMgr ().getAllContainedParticipantIDs ())
     {
+      final String sParticipantID = aParticipantID.getURIEncoded ();
       final ISimpleURL aShowDetails = aWPEC.getLinkToMenuItem (CApplication.APP_ID_PUBLIC, CMenuPublic.MENU_SEARCH)
                                            .add (PagePublicSearch.FIELD_QUERY, sParticipantID)
                                            .add (CPageParam.PARAM_ACTION, CPageParam.ACTION_VIEW)
