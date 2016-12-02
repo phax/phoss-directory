@@ -11,12 +11,12 @@ import org.apache.lucene.index.IndexableField;
 
 import com.helger.commons.annotation.Nonempty;
 
-public class PDLongField <NATIVE_TYPE> extends AbstractPDField <NATIVE_TYPE, Number>
+public class PDNumericField <NATIVE_TYPE> extends AbstractPDField <NATIVE_TYPE, Number>
 {
-  public PDLongField (@Nonnull @Nonempty final String sFieldName,
-                      @Nonnull final Function <? super NATIVE_TYPE, ? extends Number> aConverterToStorage,
-                      @Nonnull final Function <? super Number, ? extends NATIVE_TYPE> aConverterFromStorage,
-                      @Nonnull final Field.Store eStore)
+  public PDNumericField (@Nonnull @Nonempty final String sFieldName,
+                         @Nonnull final Function <? super NATIVE_TYPE, ? extends Number> aConverterToStorage,
+                         @Nonnull final Function <? super Number, ? extends NATIVE_TYPE> aConverterFromStorage,
+                         @Nonnull final Field.Store eStore)
   {
     super (sFieldName, aConverterToStorage, aConverterFromStorage, eStore);
   }

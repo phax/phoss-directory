@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import org.apache.lucene.document.Field;
 
 import com.helger.commons.datetime.PDTFactory;
-import com.helger.pd.indexer.storage.field.PDLongField;
+import com.helger.pd.indexer.storage.field.PDNumericField;
 import com.helger.pd.indexer.storage.field.PDStringField;
 import com.helger.pd.indexer.storage.field.PDStringField.EPDTokenize;
 import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
@@ -56,7 +56,7 @@ public class PDField
                                                                                            Field.Store.YES,
                                                                                            EPDTokenize.TOKENIZE);
 
-  public static final PDLongField <LocalDateTime> METADATA_CREATIONDT = new PDLongField<> ("md-creationdt",
+  public static final PDNumericField <LocalDateTime> METADATA_CREATIONDT = new PDNumericField<> ("md-creationdt",
                                                                                            x -> Long.valueOf (PDTFactory.getMillis (x)),
                                                                                            x -> PDTFactory.createLocalDateTime (x.longValue ()),
                                                                                            Field.Store.YES);

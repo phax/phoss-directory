@@ -75,6 +75,7 @@ import com.helger.photon.basic.audit.AuditHelper;
 public final class PDStorageManager implements IPDStorageManager
 {
   private static final Logger s_aLogger = LoggerFactory.getLogger (PDStorageManager.class);
+  private static final String FIELD_GROUP_END = "groupend";
   private static final FieldType TYPE_GROUP_END = new FieldType ();
   private static final String VALUE_GROUP_END = "x";
 
@@ -264,8 +265,7 @@ public final class PDStorageManager implements IPDStorageManager
       if (aDocs.isNotEmpty ())
       {
         // Add "group end" marker
-        CollectionHelper.getLastElement (aDocs)
-                        .add (new Field (CPDStorage.FIELD_GROUP_END, VALUE_GROUP_END, TYPE_GROUP_END));
+        CollectionHelper.getLastElement (aDocs).add (new Field (FIELD_GROUP_END, VALUE_GROUP_END, TYPE_GROUP_END));
       }
 
       // Delete all existing documents of the participant ID

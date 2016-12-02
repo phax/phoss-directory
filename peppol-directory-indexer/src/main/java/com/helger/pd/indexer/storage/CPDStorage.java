@@ -28,7 +28,6 @@ public final class CPDStorage
 {
   public static final String FIELD_ALL_FIELDS = "allfields";
   public static final String FIELD_DELETED = "deleted";
-  public static final String FIELD_GROUP_END = "groupend";
 
   private CPDStorage ()
   {}
