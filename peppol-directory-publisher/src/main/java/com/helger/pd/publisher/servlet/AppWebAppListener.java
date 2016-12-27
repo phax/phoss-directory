@@ -31,7 +31,8 @@ import com.helger.pd.publisher.app.PDPMetaManager;
 import com.helger.pd.publisher.app.pub.InitializerPublic;
 import com.helger.pd.publisher.app.secure.InitializerSecure;
 import com.helger.pd.settings.PDServerConfiguration;
-import com.helger.photon.basic.app.request.ApplicationRequestManager;
+import com.helger.photon.basic.app.request.RequestParameterHandlerURLPathNamed;
+import com.helger.photon.basic.app.request.RequestParameterManager;
 import com.helger.photon.bootstrap3.servlet.AbstractWebAppListenerMultiAppBootstrap;
 import com.helger.photon.core.app.CApplication;
 import com.helger.photon.core.app.context.LayoutExecutionContext;
@@ -74,7 +75,7 @@ public final class AppWebAppListener extends AbstractWebAppListenerMultiAppBoots
   @Nonempty
   protected ICommonsMap <String, IApplicationInitializer <LayoutExecutionContext>> getAllInitializers ()
   {
-    final ICommonsMap <String, IApplicationInitializer <LayoutExecutionContext>> ret = new CommonsHashMap <> ();
+    final ICommonsMap <String, IApplicationInitializer <LayoutExecutionContext>> ret = new CommonsHashMap<> ();
     ret.put (CApplication.APP_ID_SECURE, new InitializerSecure ());
     ret.put (CApplication.APP_ID_PUBLIC, new InitializerPublic ());
     return ret;
@@ -92,7 +93,7 @@ public final class AppWebAppListener extends AbstractWebAppListenerMultiAppBoots
 
     super.initGlobals ();
 
-    ApplicationRequestManager.getRequestMgr ().setUsePaths (true);
+    RequestParameterManager.getInstance ().setParameterHandler (new RequestParameterHandlerURLPathNamed ());
     AppInternalErrorHandler.doSetup ();
 
     // UI stuff

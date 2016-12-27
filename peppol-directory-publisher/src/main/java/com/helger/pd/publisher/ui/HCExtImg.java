@@ -23,7 +23,7 @@ import com.helger.commons.url.ISimpleURL;
 import com.helger.commons.url.SimpleURL;
 import com.helger.html.hc.html.embedded.AbstractHCImg;
 import com.helger.photon.basic.app.io.WebFileIO;
-import com.helger.web.servlet.request.RequestHelper;
+import com.helger.servlet.request.RequestHelper;
 
 public class HCExtImg extends AbstractHCImg <HCExtImg>
 {
