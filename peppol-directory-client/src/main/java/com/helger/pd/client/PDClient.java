@@ -63,7 +63,7 @@ public class PDClient implements Closeable
   private final String m_sPDHost;
   private final String m_sPDIndexerURL;
 
-  private final HttpClientManager m_aHttpClientMgr = new HttpClientManager ( () -> new PDHttpClientFactory ().createHttpClient ());
+  private final HttpClientManager m_aHttpClientMgr = new HttpClientManager (new PDHttpClientFactory ());
   private HttpHost m_aProxy;
   private Credentials m_aProxyCredentials;
 
