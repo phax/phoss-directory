@@ -17,6 +17,7 @@
 package com.helger.pd.indexer.mgr;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -29,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.commons.annotation.VisibleForTesting;
-import com.helger.commons.charset.CCharset;
 import com.helger.commons.collection.ext.CommonsArrayList;
 import com.helger.commons.collection.ext.ICommonsList;
 import com.helger.commons.url.SimpleURL;
@@ -160,7 +160,7 @@ public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
         {
           // URL decode because of encoded '#' and ':' characters
           final String sDocumentTypeID = URLHelper.urlDecode (sHref.substring (nIndex + URL_PART_SERVICES.length ()),
-                                                              CCharset.CHARSET_UTF_8_OBJ);
+                                                              StandardCharsets.UTF_8);
           final IDocumentTypeIdentifier aDocTypeID = aIdentifierFactory.parseDocumentTypeIdentifier (sDocumentTypeID);
           if (aDocTypeID == null)
           {

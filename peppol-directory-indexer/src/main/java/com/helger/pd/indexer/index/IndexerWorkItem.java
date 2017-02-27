@@ -154,6 +154,6 @@ public final class IndexerWorkItem implements IIndexerWorkItem
                                        .append ("Type", m_eType)
                                        .append ("OwnerID", m_sOwnerID)
                                        .append ("RequestingHost", m_sRequestingHost)
-                                       .toString ();
+                                       .getToString ();
   }
 }

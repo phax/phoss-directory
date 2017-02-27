@@ -45,7 +45,7 @@ import com.helger.peppol.identifier.generic.doctype.SimpleDocumentTypeIdentifier
 public class PDExtendedBusinessCard
 {
   private final PD1BusinessCardType m_aBusinessCard;
-  private final ICommonsList <IDocumentTypeIdentifier> m_aDocumentTypeIDs = new CommonsArrayList <> ();
+  private final ICommonsList <IDocumentTypeIdentifier> m_aDocumentTypeIDs = new CommonsArrayList<> ();
 
   public PDExtendedBusinessCard (@Nonnull final PD1BusinessCardType aBusinessCard,
                                  @Nullable final Iterable <? extends IDocumentTypeIdentifier> aDocumentTypeIDs)
@@ -99,6 +99,6 @@ public class PDExtendedBusinessCard
   {
     return new ToStringGenerator (this).append ("BusinessCard", m_aBusinessCard)
                                        .append ("DocTypeIDs", m_aDocumentTypeIDs)
-                                       .toString ();
+                                       .getToString ();
   }
 }

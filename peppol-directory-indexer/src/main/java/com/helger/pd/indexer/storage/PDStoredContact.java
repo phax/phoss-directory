@@ -103,6 +103,6 @@ public final class PDStoredContact
                                        .append ("Name", m_sName)
                                        .append ("Phone", m_sPhone)
                                        .append ("Email", m_sEmail)
-                                       .toString ();
+                                       .getToString ();
   }
 }

@@ -88,6 +88,6 @@ public final class PDDocumentMetaData
     return new ToStringGenerator (this).append ("CreationDT", m_aCreationDT)
                                        .append ("OwnerID", m_sOwnerID)
                                        .append ("RequestingHost", m_sRequestingHost)
-                                       .toString ();
+                                       .getToString ();
   }
 }

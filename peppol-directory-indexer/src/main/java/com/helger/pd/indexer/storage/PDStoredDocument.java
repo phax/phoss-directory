@@ -311,7 +311,7 @@ public class PDStoredDocument
                                        .append ("AdditionalInformation", m_sAdditionalInformation)
                                        .append ("MetaData", m_aMetaData)
                                        .append ("Deleted", m_bDeleted)
-                                       .toString ();
+                                       .getToString ();
   }
 
   /**

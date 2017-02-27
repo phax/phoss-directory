@@ -83,6 +83,6 @@ public class AllDocumentsCollector extends SimpleCollector
   @Override
   public String toString ()
   {
-    return new ToStringGenerator (this).append ("Consumer", m_aConsumer).toString ();
+    return new ToStringGenerator (this).append ("Consumer", m_aConsumer).getToString ();
   }
 }

@@ -341,6 +341,6 @@ public final class PDIndexerManager implements Closeable
                             .append ("DeadList", m_aDeadList)
                             .append ("IndexerWorkQueue", m_aIndexerWorkQueue)
                             .append ("TriggerKey", m_aTriggerKey)
-                            .toString ();
+                            .getToString ();
   }
 }

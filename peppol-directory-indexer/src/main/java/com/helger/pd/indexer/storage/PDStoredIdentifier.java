@@ -76,6 +76,6 @@ public final class PDStoredIdentifier
   @Override
   public String toString ()
   {
-    return new ToStringGenerator (this).append ("Scheme", m_sScheme).append ("Value", m_sValue).toString ();
+    return new ToStringGenerator (this).append ("Scheme", m_sScheme).append ("Value", m_sValue).getToString ();
   }
 }

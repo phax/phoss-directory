@@ -174,6 +174,6 @@ public class ReIndexWorkItem implements IReIndexWorkItem
                                        .append ("Retries", m_nRetries)
                                        .append ("PreviousRetryDT", m_aPreviousRetryDT)
                                        .append ("NextRetryDT", m_aNextRetryDT)
-                                       .toString ();
+                                       .getToString ();
   }
 }
