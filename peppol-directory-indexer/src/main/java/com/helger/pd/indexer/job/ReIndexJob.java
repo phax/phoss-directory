@@ -22,6 +22,8 @@ import javax.servlet.ServletContext;
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.annotation.OverrideOnDemand;
+import com.helger.commons.collection.ext.CommonsHashMap;
+import com.helger.commons.collection.ext.ICommonsMap;
 import com.helger.commons.datetime.PDTFactory;
 import com.helger.pd.indexer.mgr.PDIndexerManager;
 import com.helger.pd.indexer.mgr.PDMetaManager;
@@ -95,13 +97,15 @@ public class ReIndexJob extends AbstractPhotonJob
   {
     ValueEnforcer.notNull (aScheduleBuilder, "ScheduleBuilder");
 
-    setApplicationScopeID (sApplicationID);
+    final ICommonsMap <String, Object> aJobDataMap = new CommonsHashMap<> ();
+    aJobDataMap.put (JOB_DATA_ATTR_APPLICATION_ID, sApplicationID);
+
     return GlobalQuartzScheduler.getInstance ().scheduleJob (ReIndexJob.class.getName (),
                                                              JDK8TriggerBuilder.newTrigger ()
                                                                                .startAt (PDTFactory.getCurrentLocalDateTime ()
                                                                                                    .plusSeconds (5))
                                                                                .withSchedule (aScheduleBuilder),
                                                              ReIndexJob.class,
-                                                             null);
+                                                             aJobDataMap);
   }
 }
