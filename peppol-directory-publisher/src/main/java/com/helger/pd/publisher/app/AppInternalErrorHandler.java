@@ -16,7 +16,6 @@
  */
 package com.helger.pd.publisher.app;
 
-import java.util.Locale;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
@@ -24,21 +23,16 @@ import javax.annotation.Nullable;
 
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.email.EmailAddress;
-import com.helger.commons.url.SMap;
-import com.helger.photon.basic.longrun.ILongRunningJob;
 import com.helger.photon.core.app.error.InternalErrorBuilder;
 import com.helger.photon.core.app.error.InternalErrorSettings;
 import com.helger.photon.core.app.error.callback.AbstractErrorCallback;
 import com.helger.photon.core.mgr.PhotonCoreManager;
 import com.helger.photon.core.smtp.CNamedSMTPSettings;
 import com.helger.photon.core.smtp.NamedSMTPSettings;
-import com.helger.quartz.IJob;
-import com.helger.schedule.job.AbstractJob;
-import com.helger.schedule.job.IJobExceptionCallback;
 import com.helger.smtp.settings.ISMTPSettings;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 
-public final class AppInternalErrorHandler extends AbstractErrorCallback implements IJobExceptionCallback
+public final class AppInternalErrorHandler extends AbstractErrorCallback
 {
   @Override
   protected void onError (@Nonnull final Throwable t,
@@ -46,33 +40,17 @@ public final class AppInternalErrorHandler extends AbstractErrorCallback impleme
                           @Nonnull @Nonempty final String sErrorCode,
                           @Nullable final Map <String, String> aCustomAttrs)
   {
-    final Locale aDisplayLocale = getSafeDisplayLocale (AppCommonUI.DEFAULT_LOCALE);
     new InternalErrorBuilder ().setThrowable (t)
                                .setRequestScope (aRequestScope)
-                               .addErrorMessage ("ErrorCode")
+                               .addErrorMessage (sErrorCode)
                                .addCustomData (aCustomAttrs)
-                               .setDisplayLocale (aDisplayLocale)
                                .handle ();
-  }
-
-  public void onScheduledJobException (@Nonnull final Throwable t,
-                                       @Nullable final String sJobClassName,
-                                       @Nonnull final IJob aJob)
-  {
-    onError (t,
-             null,
-             "Error executing background Job " + sJobClassName,
-             new SMap ().addIfNotNull ("job-class", sJobClassName)
-                        .add ("job-object", aJob)
-                        .add ("long-running", aJob instanceof ILongRunningJob));
   }
 
   public static void doSetup ()
   {
     // Set global internal error handlers
-    final AppInternalErrorHandler aIntErrHdl = new AppInternalErrorHandler ();
-    AbstractErrorCallback.install (aIntErrHdl);
-    AbstractJob.getExceptionCallbacks ().addCallback (aIntErrHdl);
+    new AppInternalErrorHandler ().install ();
 
     final NamedSMTPSettings aNamedSettings = PhotonCoreManager.getSMTPSettingsMgr ()
                                                               .getSettings (CNamedSMTPSettings.NAMED_SMTP_SETTINGS_DEFAULT_ID);
@@ -80,5 +58,6 @@ public final class AppInternalErrorHandler extends AbstractErrorCallback impleme
     InternalErrorSettings.setSMTPSenderAddress (new EmailAddress ("pd@helger.com", AppCommonUI.getApplicationTitle ()));
     InternalErrorSettings.setSMTPReceiverAddress (new EmailAddress ("philip@helger.com", "Philip"));
     InternalErrorSettings.setSMTPSettings (aSMTPSettings);
+    InternalErrorSettings.setFallbackLocale (AppCommonUI.DEFAULT_LOCALE);
   }
 }
