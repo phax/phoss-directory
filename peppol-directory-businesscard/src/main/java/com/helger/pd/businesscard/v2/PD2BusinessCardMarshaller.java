@@ -61,6 +61,14 @@ public class PD2BusinessCardMarshaller extends AbstractJAXBMarshaller <PD2Busine
     return aID1;
   }
 
+  /**
+   * Convert a V2 BusinessCard to a V1 Business Card. This is straight forward,
+   * as the V2 BC format is a total subset of the V1 BC format.
+   * 
+   * @param aBusinessCard
+   *        V2 (smaller) business card. May not be <code>null</code>.
+   * @return The V1 (bigger) business card. Will never be <code>null</code>.
+   */
   @Nonnull
   public static PD1BusinessCardType getAsV1 (@Nonnull final PD2BusinessCardType aBusinessCard)
   {

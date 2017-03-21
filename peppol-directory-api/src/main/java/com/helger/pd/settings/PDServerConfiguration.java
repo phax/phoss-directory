@@ -73,7 +73,8 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   {}
 
   /**
-   * @return The global config file for the PEPPOL Directory server.
+   * @return The global config file for the PEPPOL Directory server. Never
+   *         <code>null</code>.
    */
   @Nonnull
   public static ConfigFile getConfigFile ()
@@ -92,6 +93,8 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   }
 
   /**
+   * Read value of <code>global.debug</code>
+   *
    * @return The global debug flag to be used in
    *         {@link com.helger.commons.debug.GlobalDebug}.
    */
@@ -102,6 +105,8 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   }
 
   /**
+   * Read value of <code>global.production</code>
+   *
    * @return The global production flag to be used in
    *         {@link com.helger.commons.debug.GlobalDebug}.
    */
@@ -112,7 +117,9 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   }
 
   /**
-   * @return The data path where photon will store it's data.
+   * Read value of <code>webapp.datapath</code>
+   *
+   * @return The data path where the server will store it's data.
    */
   @Nullable
   public static String getDataPath ()
@@ -121,6 +128,9 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   }
 
   /**
+   * Read value of <code>webapp.checkfileaccess</code>. Defaults to
+   * <code>true</code>.
+   *
    * @return <code>true</code> to perform a readability check on all files in
    *         the web application directory to check for invalid OS user/access
    *         rights.
@@ -131,6 +141,9 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   }
 
   /**
+   * Read value of <code>webapp.testversion</code>. Defaults to
+   * <code>GlobalDebug.isDebugMode ()</code>.
+   *
    * @return <code>true</code> if this is a test version. Usually has only
    *         relevance on the UI for presentational purposes.
    */
@@ -139,13 +152,25 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
     return s_aConfigFile.getAsBoolean ("webapp.testversion", GlobalDebug.isDebugMode ());
   }
 
+  /**
+   * Read value of <code>indexer.clientcert.validation</code>. Defaults to
+   * <code>true</code>.
+   *
+   * @return <code>true</code> if client certificate validation is enabled (only
+   *         suitable if https is used), <code>false</code> otherwise.
+   */
   public static boolean isClientCertificateValidationActive ()
   {
     return s_aConfigFile.getAsBoolean ("indexer.clientcert.validation", true);
   }
 
   /**
+   * Read value of <code>indexer.clientcert.validation</code>. Defaults to
+   * <code>true</code>.
+   *
    * @return The issuer of the expected client certificate of the issuer.
+   *         Depends on whether the SMK/SML is used (production or pilot
+   *         certificates).
    */
   @Nullable
   public static String getClientCertIssuer ()
@@ -154,8 +179,11 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   }
 
   /**
+   * Read value of <code>clientcert-alt.issuer</code>.
+   *
    * @return The alternative (other) issuer of the expected client certificate
-   *         of the issuer.
+   *         of the issuer. Is needed to handle production and pilot on the same
+   *         server or to handle root certificate migration.
    */
   @Nullable
   public static String getClientCertIssuerAlternative ()
@@ -163,36 +191,72 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
     return s_aConfigFile.getAsString ("clientcert-alt.issuer");
   }
 
+  /**
+   * Read value of <code>truststore.path</code>. Defaults to
+   * <code>{@link PeppolKeyStoreHelper#TRUSTSTORE_PRODUCTION_CLASSPATH}</code>.
+   *
+   * @return The truststore location path.
+   */
   @Nonnull
   public static String getTruststoreLocation ()
   {
     return s_aConfigFile.getAsString ("truststore.path", PeppolKeyStoreHelper.TRUSTSTORE_PRODUCTION_CLASSPATH);
   }
 
+  /**
+   * Read value of <code>truststore.password</code>. Defaults to
+   * <code>{@link PeppolKeyStoreHelper#TRUSTSTORE_PASSWORD}</code>.
+   *
+   * @return The truststore password.
+   */
   @Nonnull
   public static String getTruststorePassword ()
   {
     return s_aConfigFile.getAsString ("truststore.password", PeppolKeyStoreHelper.TRUSTSTORE_PASSWORD);
   }
 
+  /**
+   * Read value of <code>truststore.alias</code>. Defaults to
+   * <code>{@link PeppolKeyStoreHelper#TRUSTSTORE_PRODUCTION_ALIAS_SMP}</code>.
+   *
+   * @return The truststore password.
+   */
   @Nonnull
   public static String getTruststoreAlias ()
   {
     return s_aConfigFile.getAsString ("truststore.alias", PeppolKeyStoreHelper.TRUSTSTORE_PRODUCTION_ALIAS_SMP);
   }
 
+  /**
+   * Read value of <code>truststore-alt.path</code>. Defaults to
+   * <code>{@link PeppolKeyStoreHelper#TRUSTSTORE_PILOT_CLASSPATH}</code>.
+   *
+   * @return The alternative truststore location path.
+   */
   @Nullable
   public static String getTruststoreLocationAlternative ()
   {
     return s_aConfigFile.getAsString ("truststore-alt.path", PeppolKeyStoreHelper.TRUSTSTORE_PILOT_CLASSPATH);
   }
 
+  /**
+   * Read value of <code>truststore-alt.password</code>. Defaults to
+   * <code>{@link PeppolKeyStoreHelper#TRUSTSTORE_PASSWORD}</code>.
+   *
+   * @return The alternative truststore password.
+   */
   @Nullable
   public static String getTruststorePasswordAlternative ()
   {
     return s_aConfigFile.getAsString ("truststore-alt.password", PeppolKeyStoreHelper.TRUSTSTORE_PASSWORD);
   }
 
+  /**
+   * Read value of <code>truststore-alt.alias</code>. Defaults to
+   * <code>{@link PeppolKeyStoreHelper#TRUSTSTORE_PILOT_ALIAS_SMP}</code>.
+   *
+   * @return The alternative truststore password.
+   */
   @Nullable
   public static String getTruststoreAliasAlternative ()
   {
@@ -200,8 +264,10 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   }
 
   /**
-   * @return The maximum number of hours a retry will happen. If not provided 24
-   *         hours is the default value.
+   * Read value of <code>reindex.maxretryhours</code>. Defaults to
+   * <code>24</code>.
+   *
+   * @return The maximum number of hours a retry will happen. Always &ge; 0.
    */
   @Nonnegative
   public static int getReIndexMaxRetryHours ()
@@ -213,7 +279,10 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   }
 
   /**
-   * @return The number of minutes between retries. Defaults to 5.
+   * Read value of <code>reindex.retryminutes</code>. Defaults to
+   * <code>5</code>.
+   *
+   * @return The number of minutes between retries. Always &ge; 0.
    */
   @Nonnegative
   public static int getReIndexRetryMinutes ()
@@ -224,12 +293,24 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
     return ret;
   }
 
+  /**
+   * Read value of <code>http.proxyHost</code>.
+   * 
+   * @return The optional proxy host to use. May be an IP address or a host name
+   *         WITHOUT a port number or a user.
+   */
   @Nullable
   public static String getProxyHost ()
   {
     return s_aConfigFile.getAsString ("http.proxyHost");
   }
 
+  /**
+   * Read value of <code>http.proxyPort</code>. Defaults to <code>0</code>.
+   *
+   * @return The proxy port to use. Only relevant is {@link #getProxyHost()} is
+   *         present.
+   */
   public static int getProxyPort ()
   {
     return s_aConfigFile.getAsInt ("http.proxyPort", 0);

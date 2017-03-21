@@ -37,7 +37,9 @@ import com.helger.peppol.identifier.generic.doctype.SimpleDocumentTypeIdentifier
  * This class encapsulates all the data to be added to the Lucene index. It
  * consists of the main {@link PD1BusinessCardType} object as retrieved from the
  * SMP plus a list of all document types supported by the respective service
- * group.
+ * group.<br>
+ * {@link PD1BusinessCardType} is used because the data model is bigger than the
+ * one of {@link PD2BusinessCardType}.
  *
  * @author Philip Helger
  */
@@ -45,8 +47,16 @@ import com.helger.peppol.identifier.generic.doctype.SimpleDocumentTypeIdentifier
 public class PDExtendedBusinessCard
 {
   private final PD1BusinessCardType m_aBusinessCard;
-  private final ICommonsList <IDocumentTypeIdentifier> m_aDocumentTypeIDs = new CommonsArrayList<> ();
+  private final ICommonsList <IDocumentTypeIdentifier> m_aDocumentTypeIDs = new CommonsArrayList <> ();
 
+  /**
+   * Constructor with V1 Business Card.
+   *
+   * @param aBusinessCard
+   *        Business Card to use. May not be <code>null</code>.
+   * @param aDocumentTypeIDs
+   *        Document types supported. May be <code>null</code>.
+   */
   public PDExtendedBusinessCard (@Nonnull final PD1BusinessCardType aBusinessCard,
                                  @Nullable final Iterable <? extends IDocumentTypeIdentifier> aDocumentTypeIDs)
   {
@@ -57,15 +67,24 @@ public class PDExtendedBusinessCard
           m_aDocumentTypeIDs.add (new SimpleDocumentTypeIdentifier (aDocTypeID));
   }
 
+  /**
+   * Constructor using the V2 Business Card.
+   *
+   * @param aBusinessCard
+   *        Business Card to use. May not be <code>null</code>.
+   * @param aDocumentTypeIDs
+   *        Document types supported. May be <code>null</code>.
+   */
   public PDExtendedBusinessCard (@Nonnull final PD2BusinessCardType aBusinessCard,
                                  @Nullable final Iterable <? extends IDocumentTypeIdentifier> aDocumentTypeIDs)
   {
+    // Convert to wider format
     this (PD2BusinessCardMarshaller.getAsV1 (aBusinessCard), aDocumentTypeIDs);
   }
 
   /**
    * @return The mutable {@link PD1BusinessCardType} object as provided in the
-   *         constructor. Never <code>null</code>.
+   *         constructor (or the converted object). Never <code>null</code>.
    */
   @Nonnull
   @ReturnsMutableObject ("design")
