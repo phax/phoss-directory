@@ -18,7 +18,6 @@ package com.helger.pd.client.jdk6;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 
 import javax.annotation.Nullable;
 
@@ -31,6 +30,7 @@ import org.apache.http.client.ResponseHandler;
 import org.apache.http.entity.ContentType;
 import org.apache.http.util.EntityUtils;
 
+import com.helger.commons.charset.CCharset;
 import com.helger.commons.state.ESuccess;
 
 /**
@@ -68,7 +68,7 @@ public class PDClientResponseHandler implements ResponseHandler <ESuccess>
       // Default to UTF-8 internally
       Charset aCharset = aContentType.getCharset ();
       if (aCharset == null)
-        aCharset = StandardCharsets.UTF_8;
+        aCharset = CCharset.CHARSET_UTF_8_OBJ;
 
       sContent = EntityUtils.toString (aEntity, aCharset);
     }

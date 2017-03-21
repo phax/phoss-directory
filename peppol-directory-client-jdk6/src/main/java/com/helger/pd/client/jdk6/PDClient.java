@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.URI;
 import java.nio.charset.CodingErrorAction;
-import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.util.Map;
 
@@ -60,6 +59,7 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.OverrideOnDemand;
+import com.helger.commons.charset.CCharset;
 import com.helger.commons.exception.InitializationException;
 import com.helger.commons.state.ESuccess;
 import com.helger.commons.url.URLHelper;
@@ -336,7 +336,7 @@ public class PDClient implements Closeable
     final String sParticipantID = IdentifierHelper.getIdentifierURIEncoded (aParticipantID);
 
     final HttpPut aPut = new HttpPut (m_sPDIndexerURL);
-    aPut.setEntity (new StringEntity (sParticipantID, StandardCharsets.UTF_8));
+    aPut.setEntity (new StringEntity (sParticipantID, CCharset.CHARSET_UTF_8_OBJ));
 
     try
     {
