@@ -31,13 +31,13 @@ import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
  */
 public final class PDClientTest
 {
-  private static final Logger LOG = LoggerFactory.getLogger (PDClientTest.class);
+  private static final Logger s_aLogger = LoggerFactory.getLogger (PDClientTest.class);
 
   @Test
   public void testBasic ()
   {
     final IParticipantIdentifier aPI = PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9999:client-test");
-    try (final PDClient aClient = PDClient.createDefaultClient ())
+    try (final PDClient aClient = new PDClient ("http://pyp.helger.com"))
     {
       aClient.deleteServiceGroupFromIndex (aPI);
       aClient.isServiceGroupRegistered (aPI);
@@ -45,7 +45,7 @@ public final class PDClientTest
     }
     catch (final InitializationException ex)
     {
-      LOG.error ("Failed to invoke PDClient", ex);
+      s_aLogger.error ("Failed to invoke PDClient", ex);
     }
   }
 }

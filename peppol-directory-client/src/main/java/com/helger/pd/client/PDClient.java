@@ -24,17 +24,15 @@ import java.nio.charset.StandardCharsets;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.Credentials;
-import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.protocol.HttpContext;
-import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,6 +52,9 @@ import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
  */
 public class PDClient implements Closeable
 {
+  /** The fixed part of the URL to the PD server */
+  public static final String PATH_INDEXER_10 = "indexer/1.0/";
+
   private static final Logger s_aLogger = LoggerFactory.getLogger (PDClient.class);
 
   /**
@@ -95,7 +96,7 @@ public class PDClient implements Closeable
     // Build string and ensure it ends with a "/"
     final String sSMPHost = aPDHost.toString ();
     m_sPDHost = sSMPHost.endsWith ("/") ? sSMPHost : sSMPHost + '/';
-    m_sPDIndexerURL = m_sPDHost + "indexer/1.0/";
+    m_sPDIndexerURL = m_sPDHost + PATH_INDEXER_10;
 
     // Get proxy settings
     final boolean bIsHttp = m_sPDHost.startsWith ("http:");
@@ -114,7 +115,7 @@ public class PDClient implements Closeable
 
   /**
    * @return The PEPPOL Directory host URI string we're operating on. Never
-   *         <code>null</code> . Always has a trailing "/".
+   *         <code>null</code>. Always has a trailing "/".
    */
   @Nonnull
   public String getPDHostURI ()
@@ -133,12 +134,13 @@ public class PDClient implements Closeable
   }
 
   /**
-   * Set the proxy to be used to access the PEPPOL Directory server.
+   * Set the proxy to be used to access the PEPPOL Directory server. By default
+   * the proxy is set in the constructor based on the client configuration.
    *
    * @param aProxy
    *        May be <code>null</code> to indicate no proxy.
    */
-  public void setProxy (@Nullable final HttpHost aProxy)
+  public final void setProxy (@Nullable final HttpHost aProxy)
   {
     m_aProxy = aProxy;
   }
@@ -170,30 +172,21 @@ public class PDClient implements Closeable
    *
    * @param aRequest
    *        The request to be executed. Never <code>null</code>.
-   * @return The HTTP execution response. Never <code>null</code>.
+   * @param aHandler
+   *        The response handler to be used. May not be <code>null</code>.
+   * @return The return value of the response handler. Never <code>null</code>.
    * @throws IOException
    *         On HTTP error
    */
   @Nonnull
   @OverrideOnDemand
-  protected CloseableHttpResponse executeRequest (@Nonnull final HttpRequestBase aRequest) throws IOException
+  protected <T> T executeRequest (@Nonnull final HttpRequestBase aRequest,
+                                  @Nonnull final ResponseHandler <T> aHandler) throws IOException
   {
     // Contextual attributes set the local context level will take
     // precedence over those set at the client level.
     final HttpContext aContext = HttpClientHelper.createHttpContext (m_aProxy, m_aProxyCredentials);
-
-    return m_aHttpClientMgr.execute (aRequest, aContext);
-  }
-
-  @Nullable
-  private static String _getResponseString (@Nonnull final CloseableHttpResponse aResponse) throws IOException
-  {
-    final HttpEntity aResponseEntity = aResponse.getEntity ();
-    final String sResponse = aResponseEntity == null ? null
-                                                     : StreamHelper.getAllBytesAsString (aResponseEntity.getContent (),
-                                                                                         StandardCharsets.UTF_8);
-    EntityUtils.consume (aResponseEntity);
-    return sResponse;
+    return m_aHttpClientMgr.execute (aRequest, aContext, aHandler);
   }
 
   /**
@@ -211,29 +204,15 @@ public class PDClient implements Closeable
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
 
     final HttpGet aGet = new HttpGet (m_sPDIndexerURL + aParticipantID.getURIPercentEncoded ());
-    try (final CloseableHttpResponse aResponse = executeRequest (aGet))
+    try
     {
-      final String sResponse = _getResponseString (aResponse);
-
-      // Check result
-      if (aResponse.getStatusLine ().getStatusCode () >= 200 && aResponse.getStatusLine ().getStatusCode () < 300)
-        return true;
-
-      if (aResponse.getStatusLine ().getStatusCode () == 404)
-        return false;
-
-      s_aLogger.warn ("Unexpected status returned from server for " +
-                      aGet.getRequestLine () +
-                      ": " +
-                      aResponse.getStatusLine () +
-                      "\n" +
-                      sResponse);
+      return executeRequest (aGet, new PDClientResponseHandler ()).isSuccess ();
     }
     catch (final IOException ex)
     {
-      s_aLogger.error ("Error performing request " + aGet.getRequestLine (), ex);
+      s_aLogger.info ("isServiceGroupRegistered internal error", ex);
+      return false;
     }
-    return false;
   }
 
   @Nonnull
@@ -244,29 +223,20 @@ public class PDClient implements Closeable
 
     final HttpPut aPut = new HttpPut (m_sPDIndexerURL);
     aPut.setEntity (new StringEntity (sParticipantID, StandardCharsets.UTF_8));
-    try (final CloseableHttpResponse aResponse = executeRequest (aPut))
-    {
-      final String sResponse = _getResponseString (aResponse);
 
-      // Check result
-      if (aResponse.getStatusLine ().getStatusCode () >= 200 && aResponse.getStatusLine ().getStatusCode () < 300)
+    try
+    {
+      if (executeRequest (aPut, new PDClientResponseHandler ()).isSuccess ())
       {
         s_aLogger.info ("Added service group '" +
                         sParticipantID +
                         "' to PEPPOL Directory index. May take some time until it shows up.");
         return ESuccess.SUCCESS;
       }
-
-      s_aLogger.warn ("Unexpected status returned from server for " +
-                      aPut.getRequestLine () +
-                      ": " +
-                      aResponse.getStatusLine () +
-                      "\n" +
-                      sResponse);
     }
     catch (final IOException ex)
     {
-      s_aLogger.error ("Error performing request: " + aPut.getRequestLine (), ex);
+      s_aLogger.info ("addServiceGroupToIndex internal error", ex);
     }
     return ESuccess.FAILURE;
   }
@@ -277,12 +247,9 @@ public class PDClient implements Closeable
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
 
     final HttpDelete aDelete = new HttpDelete (m_sPDIndexerURL + aParticipantID.getURIPercentEncoded ());
-    try (final CloseableHttpResponse aResponse = executeRequest (aDelete))
+    try
     {
-      final String sResponse = _getResponseString (aResponse);
-
-      // Check result
-      if (aResponse.getStatusLine ().getStatusCode () >= 200 && aResponse.getStatusLine ().getStatusCode () < 300)
+      if (executeRequest (aDelete, new PDClientResponseHandler ()).isSuccess ())
       {
         final String sParticipantID = aParticipantID.getURIEncoded ();
         s_aLogger.info ("Removed service group '" +
@@ -290,24 +257,11 @@ public class PDClient implements Closeable
                         "' from PEPPOL Directory index. May take some time until it is removed.");
         return ESuccess.SUCCESS;
       }
-
-      s_aLogger.warn ("Unexpected status returned from server for " +
-                      aDelete.getRequestLine () +
-                      ": " +
-                      aResponse.getStatusLine () +
-                      "\n" +
-                      sResponse);
     }
     catch (final IOException ex)
     {
-      s_aLogger.error ("Error performing request " + aDelete.getRequestLine (), ex);
+      s_aLogger.info ("deleteServiceGroupFromIndex internal error", ex);
     }
     return ESuccess.FAILURE;
-  }
-
-  @Nonnull
-  public static PDClient createDefaultClient ()
-  {
-    return new PDClient ("http://pyp.helger.com");
   }
 }

@@ -37,7 +37,7 @@ public final class PDClientTest
   public void testBasic ()
   {
     final SimpleParticipantIdentifier aPI = SimpleParticipantIdentifier.createWithDefaultScheme ("9999:client-test");
-    final PDClient aClient = PDClient.createDefaultClient ();
+    final PDClient aClient = new PDClient ("http://pyp.helger.com");
     try
     {
       aClient.deleteServiceGroupFromIndex (aPI);
