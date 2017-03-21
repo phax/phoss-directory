@@ -210,7 +210,7 @@ public class PDClient implements Closeable
                                                 .build ();
       // Allow TLSv1 protocol only
       aSSLSocketFactory = new SSLConnectionSocketFactory (aSSLContext,
-                                                          new String [] { "TLSv1" },
+                                                          new String [] { "TLSv1", "TLSv1.1", "TLSv1.2" },
                                                           null,
                                                           SSLConnectionSocketFactory.getDefaultHostnameVerifier ());
     }
