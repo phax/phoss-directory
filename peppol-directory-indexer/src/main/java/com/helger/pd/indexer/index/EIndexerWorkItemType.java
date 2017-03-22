@@ -25,7 +25,7 @@ import com.helger.commons.lang.EnumHelper;
 import com.helger.commons.name.IHasDisplayName;
 
 /**
- * The work item action types to use.
+ * The work item types to use.
  *
  * @author Philip Helger
  */

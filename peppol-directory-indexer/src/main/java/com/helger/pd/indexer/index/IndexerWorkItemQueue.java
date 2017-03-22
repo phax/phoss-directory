@@ -35,8 +35,9 @@ import com.helger.commons.concurrent.collector.IConcurrentPerformer;
 
 /**
  * The indexer queue that holds all items to be indexed initially. If indexing
- * fails, items are shifted to the re-index queue where graceful retries will
- * happen.
+ * fails, items are shifted to the re-index list (see
+ * {@link com.helger.pd.indexer.reindex.ReIndexWorkItemList}) where graceful
+ * retries will happen.
  *
  * @author Philip Helger
  */
@@ -47,6 +48,7 @@ public final class IndexerWorkItemQueue
                                                                                   .setDaemon (false)
                                                                                   .setPriority (Thread.NORM_PRIORITY)
                                                                                   .build ();
+
   private final ExecutorService m_aSenderThreadPool = new ThreadPoolExecutor (1,
                                                                               2,
                                                                               60L,
@@ -63,7 +65,9 @@ public final class IndexerWorkItemQueue
    */
   public IndexerWorkItemQueue (@Nonnull final IConcurrentPerformer <IIndexerWorkItem> aPerformer)
   {
-    m_aImmediateCollector = new ConcurrentCollectorSingle<> (new LinkedBlockingQueue<> ());
+    ValueEnforcer.notNull (aPerformer, "Performer");
+    // Use an indefinite queue for holding tasks
+    m_aImmediateCollector = new ConcurrentCollectorSingle <> (new LinkedBlockingQueue <> ());
     m_aImmediateCollector.setPerformer (aPerformer);
 
     // Start the collector

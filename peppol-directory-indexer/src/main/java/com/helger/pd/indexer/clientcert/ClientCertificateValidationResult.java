@@ -16,6 +16,8 @@
  */
 package com.helger.pd.indexer.clientcert;
 
+import java.io.Serializable;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -32,7 +34,7 @@ import com.helger.commons.state.ISuccessIndicator;
  * @author Philip Helger
  */
 @Immutable
-public final class ClientCertificateValidationResult implements ISuccessIndicator
+public final class ClientCertificateValidationResult implements ISuccessIndicator, Serializable
 {
   private final boolean m_bSuccess;
   private final String m_sClientID;
@@ -65,8 +67,8 @@ public final class ClientCertificateValidationResult implements ISuccessIndicato
   }
 
   /**
-   * Client validation success
-   * 
+   * Create client certificate validation success
+   *
    * @param sClientID
    *        Client ID to use. May neither be <code>null</code> nor empty.
    * @return Never <code>null</code>.
@@ -79,8 +81,8 @@ public final class ClientCertificateValidationResult implements ISuccessIndicato
   }
 
   /**
-   * Client validation failure
-   * 
+   * Create client certificate validation failure
+   *
    * @return Never <code>null</code>.
    */
   @Nonnull

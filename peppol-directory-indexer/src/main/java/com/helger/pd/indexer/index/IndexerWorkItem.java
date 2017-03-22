@@ -32,7 +32,8 @@ import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.peppol.identifier.generic.participant.SimpleParticipantIdentifier;
 
 /**
- * This class represents a single work item for the indexer.
+ * This class represents a single work item for the indexer. This is the default
+ * implementation of {@link IIndexerWorkItem}.
  *
  * @author Philip Helger
  */

@@ -19,8 +19,7 @@ package com.helger.pd.indexer.clientcert;
 import java.security.KeyStore;
 import java.security.cert.CRL;
 import java.security.cert.X509Certificate;
-import java.util.Collection;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -40,14 +39,16 @@ import com.helger.commons.collection.ext.CommonsArrayList;
 import com.helger.commons.collection.ext.CommonsHashMap;
 import com.helger.commons.collection.ext.ICommonsList;
 import com.helger.commons.collection.ext.ICommonsMap;
+import com.helger.commons.datetime.PDTFactory;
 import com.helger.commons.exception.InitializationException;
 import com.helger.commons.string.StringHelper;
 import com.helger.pd.settings.PDServerConfiguration;
 import com.helger.security.keystore.KeyStoreHelper;
 
 /**
- * Extract certificates from HTTP requests. These are the client certificates
- * submitted by the user.
+ * Extract provided certificates from HTTPS requests. These are the client
+ * certificates submitted by the user. Client requests are only present in HTTPS
+ * requests and will never be present in pure HTTP requests.
  *
  * @author Philip Helger
  */
@@ -67,7 +68,7 @@ public final class ClientCertificateValidator
   private static X509Certificate s_aPeppolSMPRootCertAlternative;
 
   /** Sorted list with all issuers we're accepting. Never empty. */
-  private static ICommonsList <X500Principal> s_aSearchIssuers = new CommonsArrayList<> ();
+  private static ICommonsList <X500Principal> s_aSearchIssuers = new CommonsArrayList <> ();
 
   /**
    * This method is only for testing purposes to disable the complete client
@@ -91,7 +92,7 @@ public final class ClientCertificateValidator
     // Get the certificate issuer we need
     final String sIssuerToSearch = PDServerConfiguration.getClientCertIssuer ();
     if (StringHelper.hasNoText (sIssuerToSearch))
-      throw new InitializationException ("The settings file is missing the entry for the client certificate issuer");
+      throw new InitializationException ("The configuration file is missing the entry for the client certificate issuer");
 
     // Throws a runtime exception on syntax error anyway :)
     s_aSearchIssuers.add (new X500Principal (sIssuerToSearch));
@@ -206,8 +207,8 @@ public final class ClientCertificateValidator
   @Nullable
   private static String _verifyCertificate (@Nonnull final X509Certificate aCert,
                                             @Nonnull final X509Certificate aTrustedRootCert,
-                                            @Nonnull final Collection <CRL> aCRLs,
-                                            @Nullable final Date aDT)
+                                            @Nonnull final Iterable <? extends CRL> aCRLs,
+                                            @Nullable final LocalDateTime aDT)
   {
     if (aCert.hasUnsupportedCriticalExtension ())
       return "Certificate has unsupported critical extension";
@@ -226,7 +227,7 @@ public final class ClientCertificateValidator
     try
     {
       if (aDT != null)
-        aCert.checkValidity (aDT);
+        aCert.checkValidity (PDTFactory.createDate (aDT));
       else
         aCert.checkValidity ();
     }
@@ -255,14 +256,14 @@ public final class ClientCertificateValidator
       final LdapName aLdapName = new LdapName (aCert.getSubjectX500Principal ().getName ());
 
       // Make a map from type to name
-      final ICommonsMap <String, Rdn> aParts = new CommonsHashMap<> ();
+      final ICommonsMap <String, Rdn> aParts = new CommonsHashMap <> ();
       for (final Rdn aRdn : aLdapName.getRdns ())
         aParts.put (aRdn.getType (), aRdn);
 
       // Re-order - least important item comes first (=reverse order)!
-      final String sSubjectName = new LdapName (new CommonsArrayList<> (aParts.get ("C"),
-                                                                        aParts.get ("O"),
-                                                                        aParts.get ("CN"))).toString ();
+      final String sSubjectName = new LdapName (new CommonsArrayList <> (aParts.get ("C"),
+                                                                         aParts.get ("O"),
+                                                                         aParts.get ("CN"))).toString ();
 
       // subject-name + ":" + serial number hexstring
       return sSubjectName + ':' + aCert.getSerialNumber ().toString (16);
@@ -315,10 +316,10 @@ public final class ClientCertificateValidator
     // OK, we have a non-empty, type checked Certificate array
 
     // TODO: determine CRLs
-    final ICommonsList <CRL> aCRLs = new CommonsArrayList<> ();
+    final ICommonsList <CRL> aCRLs = new CommonsArrayList <> ();
 
     // Verify for "now"
-    final Date aVerificationDate = new Date ();
+    final LocalDateTime aVerificationDate = PDTFactory.getCurrentLocalDateTime ();
 
     // Search the certificate from the request matching our required issuers
     X509Certificate aClientCertToVerify = null;
