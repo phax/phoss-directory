@@ -19,8 +19,10 @@ package com.helger.pd.publisher.app.secure.page;
 import javax.annotation.Nonnull;
 
 import com.helger.commons.annotation.Nonempty;
+import com.helger.commons.collection.ext.ICommonsSortedSet;
 import com.helger.commons.url.ISimpleURL;
 import com.helger.html.hc.html.grouping.HCUL;
+import com.helger.html.hc.html.sections.HCH3;
 import com.helger.html.hc.html.textlevel.HCA;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.mgr.PDMetaManager;
@@ -45,8 +47,12 @@ public final class PageSecureAllParticipants extends AbstractAppWebPage
   {
     final HCNodeList aNodeList = aWPEC.getNodeList ();
 
+    final ICommonsSortedSet <IParticipantIdentifier> aAllIDs = PDMetaManager.getStorageMgr ()
+                                                                            .getAllContainedParticipantIDs ();
+    aNodeList.addChild (new HCH3 ().addChild (aAllIDs.size () + " participants are contained"));
+
     final HCUL aUL = new HCUL ();
-    for (final IParticipantIdentifier aParticipantID : PDMetaManager.getStorageMgr ().getAllContainedParticipantIDs ())
+    for (final IParticipantIdentifier aParticipantID : aAllIDs)
     {
       final String sParticipantID = aParticipantID.getURIEncoded ();
       final ISimpleURL aShowDetails = aWPEC.getLinkToMenuItem (CApplication.APP_ID_PUBLIC, CMenuPublic.MENU_SEARCH)
