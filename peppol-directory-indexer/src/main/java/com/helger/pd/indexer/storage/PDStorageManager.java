@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.ReturnsMutableCopy;
+import com.helger.commons.callback.IThrowingRunnable;
 import com.helger.commons.collection.CollectionHelper;
 import com.helger.commons.collection.ext.CommonsArrayList;
 import com.helger.commons.collection.ext.CommonsTreeSet;
@@ -52,7 +53,10 @@ import com.helger.commons.collection.multimap.IMultiMapListBased;
 import com.helger.commons.collection.multimap.MultiLinkedHashMapArrayListBased;
 import com.helger.commons.function.IThrowingSupplier;
 import com.helger.commons.state.ESuccess;
+import com.helger.commons.statistics.IMutableStatisticsHandlerKeyedTimer;
+import com.helger.commons.statistics.StatisticsManager;
 import com.helger.commons.string.StringHelper;
+import com.helger.commons.timing.StopWatch;
 import com.helger.datetime.util.PDTWebDateHelper;
 import com.helger.pd.businesscard.PDExtendedBusinessCard;
 import com.helger.pd.businesscard.v1.PD1BusinessCardType;
@@ -78,6 +82,8 @@ public final class PDStorageManager implements IPDStorageManager
   private static final String FIELD_GROUP_END = "groupend";
   private static final FieldType TYPE_GROUP_END = new FieldType ();
   private static final String VALUE_GROUP_END = "x";
+  private static final IMutableStatisticsHandlerKeyedTimer s_aStatsQueryTimer = StatisticsManager.getKeyedTimerHandler (PDStorageManager.class.getName () +
+                                                                                                                        "$query");
 
   static
   {
@@ -109,14 +115,44 @@ public final class PDStorageManager implements IPDStorageManager
       if (aSearcher != null)
       {
         // Search only documents that do not have the deleted field
-        final Query aQuery = new TermQuery (PDField.PARTICIPANT_ID.getTerm (aParticipantID));
-        final TopDocs aTopDocs = aSearcher.search (PDQueryManager.andNotDeleted (aQuery), 1);
+        final Query aQuery = PDQueryManager.andNotDeleted (new TermQuery (PDField.PARTICIPANT_ID.getTerm (aParticipantID)));
+        final TopDocs aTopDocs = _timedSearch ( () -> aSearcher.search (aQuery, 1), aQuery);
         if (aTopDocs.totalHits > 0)
           return Boolean.TRUE;
       }
       return Boolean.FALSE;
     };
     return m_aLucene.callAtomic (cb).booleanValue ();
+  }
+
+  private static void _timedSearch (@Nonnull final IThrowingRunnable <IOException> aRunnable,
+                                    @Nonnull final Query aQuery) throws IOException
+  {
+    final StopWatch aSW = StopWatch.createdStarted ();
+    try
+    {
+      aRunnable.run ();
+    }
+    finally
+    {
+      final long nMillis = aSW.stopAndGetMillis ();
+      s_aStatsQueryTimer.addTime (aQuery.toString (), nMillis);
+    }
+  }
+
+  private static <T> T _timedSearch (@Nonnull final IThrowingSupplier <T, IOException> aRunnable,
+                                     @Nonnull final Query aQuery) throws IOException
+  {
+    final StopWatch aSW = StopWatch.createdStarted ();
+    try
+    {
+      return aRunnable.get ();
+    }
+    finally
+    {
+      final long nMillis = aSW.stopAndGetMillis ();
+      s_aStatsQueryTimer.addTime (aQuery.toString (), nMillis);
+    }
   }
 
   @Nonnull
@@ -134,8 +170,11 @@ public final class PDStorageManager implements IPDStorageManager
       if (aSearcher != null)
       {
         // Main searching
-        aSearcher.search (new TermQuery (PDField.PARTICIPANT_ID.getTerm (aParticipantID)),
-                          new AllDocumentsCollector (m_aLucene, (aDoc, nDocID) -> aDocuments.add (aDoc)));
+        final Query aQuery = new TermQuery (PDField.PARTICIPANT_ID.getTerm (aParticipantID));
+        _timedSearch ( () -> aSearcher.search (aQuery,
+                                               new AllDocumentsCollector (m_aLucene,
+                                                                          (aDoc, nDocID) -> aDocuments.add (aDoc))),
+                       aQuery);
       }
 
       if (!aDocuments.isEmpty ())
@@ -305,7 +344,7 @@ public final class PDStorageManager implements IPDStorageManager
           s_aLogger.debug ("Searching Lucene: " + aQuery);
 
         // Search all documents, collect them
-        aSearcher.search (aQuery, aCollector);
+        _timedSearch ( () -> aSearcher.search (aQuery, aCollector), aQuery);
       }
       else
         s_aLogger.error ("Failed to obtain IndexSearcher");
