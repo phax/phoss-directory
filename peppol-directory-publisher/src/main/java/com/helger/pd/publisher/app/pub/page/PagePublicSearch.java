@@ -31,6 +31,7 @@ import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.collection.CollectionHelper;
 import com.helger.commons.collection.ext.ICommonsList;
 import com.helger.commons.collection.multimap.IMultiMapListBased;
+import com.helger.commons.debug.GlobalDebug;
 import com.helger.commons.string.StringHelper;
 import com.helger.commons.url.SimpleURL;
 import com.helger.html.css.DefaultCSSClassProvider;
@@ -203,15 +204,16 @@ public final class PagePublicSearch extends AbstractAppWebPage
             {
               final IHCLI <?> aLI = aDocTypeCtrl.addItem ();
               aLI.addChild (PDCommonUI.getDocumentTypeID (aDocTypeID));
-              try
-              {
-                final IPeppolDocumentTypeIdentifierParts aParts = PeppolIdentifierHelper.getDocumentTypeIdentifierParts (aDocTypeID);
-                aLI.addChild (PDCommonUI.getDocumentTypeIDDetails (aParts));
-              }
-              catch (final IllegalArgumentException ex)
-              {
-                // Happens for non-PEPPOL identifiers
-              }
+              if (false && GlobalDebug.isDebugMode ())
+                try
+                {
+                  final IPeppolDocumentTypeIdentifierParts aParts = PeppolIdentifierHelper.getDocumentTypeIdentifierParts (aDocTypeID);
+                  aLI.addChild (PDCommonUI.getDocumentTypeIDDetails (aParts));
+                }
+                catch (final IllegalArgumentException ex)
+                {
+                  // Happens for non-PEPPOL identifiers
+                }
             }
             aTabBox.addTab ("doctypes",
                             new HCSpan ().addChild ("Document types ")

@@ -104,7 +104,7 @@ public final class AppRendererPublic implements ILayoutAreaContentProvider <Layo
     {
       if (SecurityHelper.hasUserRole (aUser.getID (), AppSecurity.ROLE_CONFIG_ID))
       {
-        aNavbar.addButton (EBootstrapNavbarPosition.COLLAPSIBLE_DEFAULT,
+        aNavbar.addButton (EBootstrapNavbarPosition.COLLAPSIBLE_LEFT,
                            new BootstrapButton ().addChild ("Goto secure area")
                                                  .setOnClick (LinkHelper.getURLWithContext (AbstractSecureApplicationServlet.SERVLET_DEFAULT_PATH +
                                                                                             "/")));
