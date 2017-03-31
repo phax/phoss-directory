@@ -30,6 +30,7 @@ import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.photon.bootstrap3.EBootstrapIcon;
+import com.helger.photon.bootstrap3.alert.BootstrapInfoBox;
 import com.helger.photon.bootstrap3.alert.BootstrapSuccessBox;
 import com.helger.photon.bootstrap3.button.BootstrapSubmitButton;
 import com.helger.photon.bootstrap3.form.BootstrapForm;
@@ -86,7 +87,7 @@ public final class PagePublicContact extends AbstractAppWebPage
       {
         final EmailData aEmailData = new EmailData (EEmailType.TEXT);
         aEmailData.setFrom (CPDPublisher.EMAIL_SENDER);
-        aEmailData.setTo (new EmailAddress ("support@peppol.eu"), new EmailAddress ("ph@helger.com"));
+        aEmailData.setTo (new EmailAddress ("support@peppol.eu"), new EmailAddress ("pd@helger.com"));
         aEmailData.setReplyTo (new EmailAddress (sEmail, sName));
         aEmailData.setSubject ("[PEPPOL Directory] Contact Form - " + sName);
 
@@ -107,6 +108,8 @@ public final class PagePublicContact extends AbstractAppWebPage
 
     if (bShowForm)
     {
+      aNodeList.addChild (new BootstrapInfoBox ().addChild ("Alternatively write an email to support[at]peppol.eu or pd[at]helger.com - usually using the below form is more effective!"));
+
       final BootstrapForm aForm = aNodeList.addAndReturnChild (getUIHandler ().createFormSelf (aWPEC));
       aForm.addFormGroup (new BootstrapFormGroup ().setLabelMandatory ("Your name")
                                                    .setCtrl (new HCEdit (new RequestField (FIELD_NAME)))
