@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014-2017 Philip Helger (www.helger.com)
+ * Copyright (C) 2015-2017 Philip Helger (www.helger.com)
  * philip[at]helger[dot]com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,6 +27,7 @@ import com.helger.commons.string.StringHelper;
 import com.helger.html.hc.html.forms.HCEdit;
 import com.helger.html.hc.html.forms.HCHiddenField;
 import com.helger.html.hc.impl.HCNodeList;
+import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.photon.bootstrap3.EBootstrapIcon;
 import com.helger.photon.bootstrap3.alert.BootstrapSuccessBox;
@@ -84,7 +85,7 @@ public final class PagePublicContact extends AbstractAppWebPage
       if (aFormErrors.isEmpty ())
       {
         final EmailData aEmailData = new EmailData (EEmailType.TEXT);
-        aEmailData.setFrom (new EmailAddress ("no-reply@helger.com"));
+        aEmailData.setFrom (CPDPublisher.EMAIL_SENDER);
         aEmailData.setTo (new EmailAddress ("support@peppol.eu"), new EmailAddress ("ph@helger.com"));
         aEmailData.setReplyTo (new EmailAddress (sEmail, sName));
         aEmailData.setSubject ("[PEPPOL Directory] Contact Form - " + sName);
