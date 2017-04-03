@@ -74,12 +74,15 @@ public final class PublicSearchServlet extends AbstractUnifiedResponseServlet
         eOutputFormat = EPDOutputFormat.XML;
       }
       s_aLogger.info ("Using REST API 1.0 with output format " + eOutputFormat + " (" + sPathInfo + ")");
-      aUnifiedResponse.setContentAndCharset ("dummy", StandardCharsets.UTF_8);
+
+      // TODO parse search term
+
+      aUnifiedResponse.setContentAndCharset ("<something-will-be-here-soon be=\"patient\" />", StandardCharsets.UTF_8);
     }
     else
     {
       s_aLogger.error ("Unsupported version provided (" + sPathInfo + ")");
-      aUnifiedResponse.setStatus (HttpServletResponse.SC_BAD_REQUEST);
+      aUnifiedResponse.setStatus (HttpServletResponse.SC_NOT_FOUND);
     }
   }
 }

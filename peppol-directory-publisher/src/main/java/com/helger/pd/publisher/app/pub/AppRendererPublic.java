@@ -29,6 +29,7 @@ import com.helger.css.property.CCSSProperties;
 import com.helger.html.css.DefaultCSSClassProvider;
 import com.helger.html.css.ICSSClassProvider;
 import com.helger.html.hc.IHCNode;
+import com.helger.html.hc.html.HC_Target;
 import com.helger.html.hc.html.IHCElement;
 import com.helger.html.hc.html.grouping.HCDiv;
 import com.helger.html.hc.html.grouping.HCP;
@@ -143,6 +144,8 @@ public final class AppRendererPublic implements ILayoutAreaContentProvider <Layo
                                                              .setLinkAction (LinkHelper.getURLWithContext ("/files/OpenPEPPOL Directory 2016-12-05.pdf")));
       aDropDown.addMenuItem (new BootstrapDropdownMenuItem ().setLabel ("Guide for SMP providers (PDF)")
                                                              .setLinkAction (LinkHelper.getURLWithContext ("/files/OpenPEPPOL Directory for SMP providers 2016-12-05.pdf")));
+      aDropDown.addMenuItem (new BootstrapDropdownMenuItem ().setLabel ("REST API")
+                                                             .setLinkAction (aLEC.getLinkToMenuItem (CMenuPublic.MENU_DOCS_REST_API)));
       aNavbar.addNav (EBootstrapNavbarPosition.COLLAPSIBLE_LEFT, aNav);
     }
 
@@ -151,9 +154,12 @@ public final class AppRendererPublic implements ILayoutAreaContentProvider <Layo
       final BootstrapNav aNav = new BootstrapNav ();
       final BootstrapDropdownMenu aDropDown = aNav.addDropdownMenu ("Support");
       aDropDown.addMenuItem (new BootstrapDropdownMenuItem ().setLabel ("Contact us")
-                                                             .setLinkAction (aLEC.getLinkToMenuItem (CMenuPublic.MENU_CONTACT_US)));
+                                                             .setLinkAction (aLEC.getLinkToMenuItem (CMenuPublic.MENU_SUPPORT_CONTACT_US)));
       aDropDown.addMenuItem (new BootstrapDropdownMenuItem ().setLabel ("Compliant SMP implementations")
-                                                             .setLinkAction (aLEC.getLinkToMenuItem (CMenuPublic.MENU_SMP_IMPLEMENTATIONS)));
+                                                             .setLinkAction (aLEC.getLinkToMenuItem (CMenuPublic.MENU_SUPPORT_SMP_IMPLEMENTATIONS)));
+      aDropDown.addMenuItem (new BootstrapDropdownMenuItem ().setLabel ("Issue tracker (external)")
+                                                             .setLinkAction (new SimpleURL ("https://github.com/phax/peppol-directory/issues"))
+                                                             .setTarget (HC_Target.BLANK));
       aNavbar.addNav (EBootstrapNavbarPosition.COLLAPSIBLE_LEFT, aNav);
     }
 

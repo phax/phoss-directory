@@ -35,10 +35,13 @@ public final class MenuPublic
   {
     // Not logged in
     aMenuTree.createRootItem (new PagePublicSearch (CMenuPublic.MENU_SEARCH));
-    aMenuTree.createRootItem (new PagePublicContact (CMenuPublic.MENU_CONTACT_US));
-    aMenuTree.createRootItem (new AppPageViewExternal (CMenuPublic.MENU_SMP_IMPLEMENTATIONS,
+    aMenuTree.createRootItem (new AppPageViewExternal (CMenuPublic.MENU_DOCS_REST_API,
+                                                       "REST API documentation",
+                                                       new ClassPathResource ("viewpages/en/docs_rest_api.xml")));
+    aMenuTree.createRootItem (new PagePublicContact (CMenuPublic.MENU_SUPPORT_CONTACT_US));
+    aMenuTree.createRootItem (new AppPageViewExternal (CMenuPublic.MENU_SUPPORT_SMP_IMPLEMENTATIONS,
                                                        "Compliant SMP Implementations",
-                                                       new ClassPathResource ("viewpages/en/docs_smp_implementations.xml")));
+                                                       new ClassPathResource ("viewpages/en/support_smp_implementations.xml")));
     aMenuTree.createRootItem (new AppPageViewExternal (CMenuPublic.MENU_ABOUT,
                                                        "About PEPPOL Directory",
                                                        new ClassPathResource ("viewpages/en/about.xml")));
