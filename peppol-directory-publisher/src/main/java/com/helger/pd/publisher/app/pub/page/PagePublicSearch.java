@@ -108,7 +108,7 @@ public final class PagePublicSearch extends AbstractAppWebPage
   @Nonnull
   private static HCEdit _createQueryEdit ()
   {
-    return new HCEdit (new RequestField (FIELD_QUERY)).setPlaceholder ("Your query goes here");
+    return new HCEdit (new RequestField (FIELD_QUERY)).setPlaceholder ("Ask PEPPOL Directory");
   }
 
   @Nonnull
