@@ -39,6 +39,9 @@ public final class MenuPublic
     aMenuTree.createRootItem (new AppPageViewExternal (CMenuPublic.MENU_SMP_IMPLEMENTATIONS,
                                                        "Compliant SMP Implementations",
                                                        new ClassPathResource ("viewpages/en/docs_smp_implementations.xml")));
+    aMenuTree.createRootItem (new AppPageViewExternal (CMenuPublic.MENU_ABOUT,
+                                                       "About PEPPOL Directory",
+                                                       new ClassPathResource ("viewpages/en/about.xml")));
 
     // Set default
     aMenuTree.setDefaultMenuItemID (CMenuPublic.MENU_SEARCH);

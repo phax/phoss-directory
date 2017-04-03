@@ -159,7 +159,11 @@ public final class AppRendererPublic implements ILayoutAreaContentProvider <Layo
 
     // About
     {
-      // TODO
+      final BootstrapNav aNav = new BootstrapNav ();
+      final BootstrapDropdownMenu aDropDown = aNav.addDropdownMenu ("About");
+      aDropDown.addMenuItem (new BootstrapDropdownMenuItem ().setLabel ("About PEPPOL Directory")
+                                                             .setLinkAction (aLEC.getLinkToMenuItem (CMenuPublic.MENU_ABOUT)));
+      aNavbar.addNav (EBootstrapNavbarPosition.COLLAPSIBLE_LEFT, aNav);
     }
   }
 
@@ -283,12 +287,11 @@ public final class AppRendererPublic implements ILayoutAreaContentProvider <Layo
     {
       final BootstrapContainer aDiv = new BootstrapContainer ().setFluid (true).setID (CLayout.LAYOUT_AREAID_FOOTER);
 
-      aDiv.addChild (new HCP ().addChild ("PEPPOL Directory. Sources are available on ")
-                               .addChild (new HCA (new SimpleURL ("https://github.com/phax/peppol-directory")).addChild ("GitHub")));
-      aDiv.addChild (new HCP ().addChild ("Created by ")
-                               .addChild (new HCA (new SimpleURL ("https://github.com/phax")).addChild ("Philip Helger"))
-                               .addChild (" for PEPPOL - Twitter: ")
-                               .addChild (new HCA (new SimpleURL ("https://twitter.com/philiphelger")).addChild ("@philiphelger")));
+      aDiv.addChild (new HCP ().addChild ("PEPPOL Directory - an ")
+                               .addChild (new HCA (new SimpleURL ("http://peppol.eu")).addChild ("OpenPEPPOL AISBL"))
+                               .addChild (" service"));
+      aDiv.addChild (new HCP ().addChild ("Follow us on Twitter: ")
+                               .addChild (new HCA (new SimpleURL ("https://twitter.com/PEPPOLDirectory")).addChild ("@PEPPOLDirectory")));
 
       final BootstrapMenuItemRendererHorz aRenderer = new BootstrapMenuItemRendererHorz (aDisplayLocale);
       final HCUL aUL = aDiv.addAndReturnChild (new HCUL ().addClass (CSS_CLASS_FOOTER_LINKS));
