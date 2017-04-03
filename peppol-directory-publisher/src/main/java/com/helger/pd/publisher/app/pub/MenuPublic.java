@@ -19,8 +19,10 @@ package com.helger.pd.publisher.app.pub;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 
+import com.helger.commons.io.resource.ClassPathResource;
 import com.helger.pd.publisher.app.pub.page.PagePublicContact;
 import com.helger.pd.publisher.app.pub.page.PagePublicSearch;
+import com.helger.pd.publisher.ui.AppPageViewExternal;
 import com.helger.photon.basic.app.menu.IMenuTree;
 
 @Immutable
@@ -33,7 +35,10 @@ public final class MenuPublic
   {
     // Not logged in
     aMenuTree.createRootItem (new PagePublicSearch (CMenuPublic.MENU_SEARCH));
-    aMenuTree.createRootItem (new PagePublicContact (CMenuPublic.MENU_CONTACT));
+    aMenuTree.createRootItem (new PagePublicContact (CMenuPublic.MENU_CONTACT_US));
+    aMenuTree.createRootItem (new AppPageViewExternal (CMenuPublic.MENU_SMP_IMPLEMENTATIONS,
+                                                       "Compliant SMP Implementations",
+                                                       new ClassPathResource ("viewpages/en/docs_smp_implementations.xml")));
 
     // Set default
     aMenuTree.setDefaultMenuItemID (CMenuPublic.MENU_SEARCH);

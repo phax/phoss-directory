@@ -59,7 +59,7 @@ public final class PagePublicContact extends AbstractAppWebPage
 
   public PagePublicContact (@Nonnull @Nonempty final String sID)
   {
-    super (sID, "Contact form");
+    super (sID, "Contact us");
   }
 
   @Override
@@ -126,6 +126,7 @@ public final class PagePublicContact extends AbstractAppWebPage
       aSelect.addOption ("SMP integration");
       aSelect.addOption ("Website");
       aSelect.addOption ("REST service");
+      aSelect.addOption ("SMP Statement of use");
       aSelect.addOption ("General question");
       aSelect.addOptionPleaseSelect (aDisplayLocale);
       aForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Topic")

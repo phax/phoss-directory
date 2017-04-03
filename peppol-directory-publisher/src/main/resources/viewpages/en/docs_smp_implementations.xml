@@ -1,0 +1,48 @@
+<!--
+
+    Copyright (C) 2014-2017 Philip Helger (www.helger.com)
+    philip[at]helger[dot]com
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<p>
+  The PEPPOL Directory specification is newer than the PEPPOL SMP specification and
+  therefore not all SMPs support PEPPOL Directory.
+  This page contains all SMP implementations that are known to support the PEPPOL Directory
+  specification.
+</p>
+
+<p>
+  If you want to be part of this list, use the 
+  <a href="/public/menuitem-contact-us">contact form</a>
+  and drop us a note - we will put you on the list.
+</p>
+
+<table class="table table-borded">
+  <thead>
+    <tr>
+      <th>Vendor</th>
+      <th>Website</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        Philip Helger - phoss SMP Server
+        <br /><small>Since version 5.0.0</small>
+      </td>
+      <td><a href="https://github.com/phax/peppol-smp-server">https://github.com/phax/peppol-smp-server</a></td>
+    </tr>
+  </tbody>
+</table>

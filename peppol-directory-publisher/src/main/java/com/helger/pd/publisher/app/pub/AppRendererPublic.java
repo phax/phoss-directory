@@ -146,13 +146,20 @@ public final class AppRendererPublic implements ILayoutAreaContentProvider <Layo
       aNavbar.addNav (EBootstrapNavbarPosition.COLLAPSIBLE_LEFT, aNav);
     }
 
-    // Documentation
+    // Support
     {
       final BootstrapNav aNav = new BootstrapNav ();
-      final BootstrapDropdownMenu aDropDown = aNav.addDropdownMenu ("Contact");
-      aDropDown.addMenuItem (new BootstrapDropdownMenuItem ().setLabel ("Contact form")
-                                                             .setLinkAction (aLEC.getLinkToMenuItem (CMenuPublic.MENU_CONTACT)));
+      final BootstrapDropdownMenu aDropDown = aNav.addDropdownMenu ("Support");
+      aDropDown.addMenuItem (new BootstrapDropdownMenuItem ().setLabel ("Contact us")
+                                                             .setLinkAction (aLEC.getLinkToMenuItem (CMenuPublic.MENU_CONTACT_US)));
+      aDropDown.addMenuItem (new BootstrapDropdownMenuItem ().setLabel ("Compliant SMP implementations")
+                                                             .setLinkAction (aLEC.getLinkToMenuItem (CMenuPublic.MENU_SMP_IMPLEMENTATIONS)));
       aNavbar.addNav (EBootstrapNavbarPosition.COLLAPSIBLE_LEFT, aNav);
+    }
+
+    // About
+    {
+      // TODO
     }
   }
 
