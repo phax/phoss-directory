@@ -17,6 +17,7 @@
 package com.helger.pd.publisher.servlet;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletResponse;
@@ -24,15 +25,17 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.helger.commons.annotation.ReturnsImmutableObject;
 import com.helger.commons.collection.ext.ICommonsList;
 import com.helger.commons.string.StringHelper;
+import com.helger.http.EHTTPMethod;
 import com.helger.pd.publisher.search.EPDOutputFormat;
 import com.helger.photon.core.servlet.AbstractUnifiedResponseServlet;
 import com.helger.servlet.response.UnifiedResponse;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 
 /**
- * The REST
+ * The REST search servlet. Handles only GET requests.
  *
  * @author Philip Helger
  */
@@ -40,6 +43,15 @@ public final class PublicSearchServlet extends AbstractUnifiedResponseServlet
 {
   private static final String VERSION1_PREFIX = "/1.0";
   private static final Logger s_aLogger = LoggerFactory.getLogger (PublicSearchServlet.class);
+
+  @Override
+  @Nonnull
+  @ReturnsImmutableObject
+  protected Set <EHTTPMethod> getAllowedHTTPMethods ()
+  {
+    // Only GET is allowed
+    return ALLOWED_METHDOS_GET;
+  }
 
   @Override
   protected void handleRequest (@Nonnull final IRequestWebScopeWithoutResponse aRequestScope,
