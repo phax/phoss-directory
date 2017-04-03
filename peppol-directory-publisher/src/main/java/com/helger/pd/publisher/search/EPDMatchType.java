@@ -16,13 +16,17 @@
  */
 package com.helger.pd.publisher.search;
 
+import java.util.Locale;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.helger.commons.annotation.Nonempty;
+import com.helger.commons.equals.EqualsHelper;
 import com.helger.commons.id.IHasID;
 import com.helger.commons.lang.EnumHelper;
 import com.helger.commons.name.IHasDisplayName;
+import com.helger.commons.string.StringHelper;
 
 /**
  * Defines the different search match types used in the different query terms.
@@ -31,18 +35,34 @@ import com.helger.commons.name.IHasDisplayName;
  */
 public enum EPDMatchType implements IHasID <String>, IHasDisplayName
 {
-  EXACT_MATCH_CS ("emcs", "Exact match (case sensitive)"),
-  EXACT_MATCH_CI ("emci", "Exact match (case insensitive)"),
-  PARTIAL_MATCH_CI ("pmci", "Partial match (case insensitive)"),
-  STARTSWITH_MATCH_CI ("swci", "Starts with match (case insensitive)");
+  EXACT_MATCH_CS ("emcs", "Exact match (case sensitive)", EqualsHelper::equals),
+  EXACT_MATCH_CI ("emci", "Exact match (case insensitive)", EqualsHelper::equalsIgnoreCase),
+  PARTIAL_MATCH_CI ("pmci",
+                    "Partial match (case insensitive)",
+                    (x, y) -> StringHelper.hasText (x) && StringHelper.hasText (y) && _unify (x).contains (_unify (y))),
+  STARTSWITH_MATCH_CI ("swci",
+                       "Starts with match (case insensitive)",
+                       (x, y) -> StringHelper.hasText (x) &&
+                                 StringHelper.hasText (y) &&
+                                 _unify (x).startsWith (_unify (y)));
 
   private final String m_sID;
   private final String m_sDisplayName;
+  private final IPDStringMatcher m_aMatcher;
 
-  private EPDMatchType (@Nonnull @Nonempty final String sID, @Nonnull @Nonempty final String sDisplayName)
+  @Nullable
+  static String _unify (@Nullable final String s)
+  {
+    return s == null ? null : s.toUpperCase (Locale.US);
+  }
+
+  private EPDMatchType (@Nonnull @Nonempty final String sID,
+                        @Nonnull @Nonempty final String sDisplayName,
+                        @Nonnull final IPDStringMatcher aMatcher)
   {
     m_sID = sID;
     m_sDisplayName = sDisplayName;
+    m_aMatcher = aMatcher;
   }
 
   @Nonnull
@@ -57,6 +77,11 @@ public enum EPDMatchType implements IHasID <String>, IHasDisplayName
   public String getDisplayName ()
   {
     return m_sDisplayName;
+  }
+
+  public boolean matches (@Nullable final String s1, @Nullable final String s2)
+  {
+    return m_aMatcher.matches (s1, s2);
   }
 
   @Nullable

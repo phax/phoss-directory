@@ -22,6 +22,8 @@ import javax.annotation.Nullable;
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.id.IHasID;
 import com.helger.commons.lang.EnumHelper;
+import com.helger.commons.mime.CMimeType;
+import com.helger.commons.mime.IMimeType;
 import com.helger.commons.name.IHasDisplayName;
 
 /**
@@ -31,16 +33,23 @@ import com.helger.commons.name.IHasDisplayName;
  */
 public enum EPDOutputFormat implements IHasID <String>, IHasDisplayName
 {
-  XML ("xml", "XML"),
-  JSON ("json", "JSON");
+  XML ("xml", "XML", CMimeType.APPLICATION_XML, ".xml"),
+  JSON ("json", "JSON", CMimeType.APPLICATION_JSON, ".json");
 
   private final String m_sID;
   private final String m_sDisplayName;
+  private final IMimeType m_aMimeType;
+  private final String m_sFileExtension;
 
-  private EPDOutputFormat (@Nonnull @Nonempty final String sID, @Nonnull @Nonempty final String sDisplayName)
+  private EPDOutputFormat (@Nonnull @Nonempty final String sID,
+                           @Nonnull @Nonempty final String sDisplayName,
+                           @Nonnull final IMimeType aMimeType,
+                           @Nonnull @Nonempty final String sFileExtension)
   {
     m_sID = sID;
     m_sDisplayName = sDisplayName;
+    m_aMimeType = aMimeType;
+    m_sFileExtension = sFileExtension;
   }
 
   @Nonnull
@@ -55,6 +64,26 @@ public enum EPDOutputFormat implements IHasID <String>, IHasDisplayName
   public String getDisplayName ()
   {
     return m_sDisplayName;
+  }
+
+  /**
+   * @return The MIME type to be used for this format. Never <code>null</code>.
+   */
+  @Nonnull
+  public IMimeType getMimeType ()
+  {
+    return m_aMimeType;
+  }
+
+  /**
+   * @return The filename extension for this output format. Neither
+   *         <code>null</code> nor empty and always starting with a dot!
+   */
+  @Nonnull
+  @Nonempty
+  public String getFileExtension ()
+  {
+    return m_sFileExtension;
   }
 
   @Nullable
