@@ -81,6 +81,15 @@
     <servlet-name>AppRootServlet</servlet-name>
     <url-pattern></url-pattern>
   </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>PublicSearchServlet</servlet-name>
+    <servlet-class>com.helger.pd.publisher.servlet.PublicSearchServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>PublicSearchServlet</servlet-name>
+    <url-pattern>/search/*</url-pattern>
+  </servlet-mapping>
 
   <!-- Jersey stuff -->
   <servlet>
