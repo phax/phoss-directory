@@ -88,7 +88,7 @@ public final class AppRendererPublic implements ILayoutAreaContentProvider <Layo
 
   public AppRendererPublic ()
   {
-    m_aFooterObjects = new CommonsArrayList<> ();
+    m_aFooterObjects = new CommonsArrayList <> ();
     ApplicationMenuTree.getTree ().iterateAllMenuObjects (aCurrentObject -> {
       if (aCurrentObject.containsAttribute (CMenuPublic.FLAG_FOOTER))
         m_aFooterObjects.add (aCurrentObject);
@@ -143,6 +143,15 @@ public final class AppRendererPublic implements ILayoutAreaContentProvider <Layo
                                                              .setLinkAction (LinkHelper.getURLWithContext ("/files/OpenPEPPOL Directory 2016-12-05.pdf")));
       aDropDown.addMenuItem (new BootstrapDropdownMenuItem ().setLabel ("Guide for SMP providers (PDF)")
                                                              .setLinkAction (LinkHelper.getURLWithContext ("/files/OpenPEPPOL Directory for SMP providers 2016-12-05.pdf")));
+      aNavbar.addNav (EBootstrapNavbarPosition.COLLAPSIBLE_LEFT, aNav);
+    }
+
+    // Documentation
+    {
+      final BootstrapNav aNav = new BootstrapNav ();
+      final BootstrapDropdownMenu aDropDown = aNav.addDropdownMenu ("Contact");
+      aDropDown.addMenuItem (new BootstrapDropdownMenuItem ().setLabel ("Contact form")
+                                                             .setLinkAction (aLEC.getLinkToMenuItem (CMenuPublic.MENU_CONTACT)));
       aNavbar.addNav (EBootstrapNavbarPosition.COLLAPSIBLE_LEFT, aNav);
     }
   }
