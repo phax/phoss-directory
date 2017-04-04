@@ -2,7 +2,7 @@
 
 [![Join the chat at https://gitter.im/phax/peppol-directory](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/phax/peppol-directory?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Current release (on Maven central): **0.3.0**
+Current release (on Maven central): **0.4.0**
 
 The official PEPPOL Directory (PD; former PEPPOL Yellow Pages - PYP) software. It is split into the following sub-projects (all require Java 8 except where noted):
   * `peppol-directory-businesscard` - the common Business Card API
@@ -12,9 +12,9 @@ The official PEPPOL Directory (PD; former PEPPOL Yellow Pages - PYP) software. I
   * `peppol-directory-client` - a client library to be added to SMP servers to force indexing in the PD
   * `peppol-directory-client-jdk6` - a client library to be added to SMP servers to force indexing in the PD (Java 1.6)
   
-Status as per 2016-11-23:
+Status as per 2017-04-44:
   * A test version is live on http://pyp.helger.com - search e.g. for "austria" 
-  * The indexer part (incl. REST interface) looks quite good and only requires (currently) some documentation. Unit tests with concurrent indexing requests work flawlessly incl. Lucene based storage and lookup. The first real BusinessInformation lookup for `9915:test` also succeeded.
+  * The indexer part (incl. REST interface) is working properly. It just requires some fine tuning in the administration area.
   * The publisher website was started and the search already works. Check the live demo at http://pyp.helger.com for tests.
   * A Java library to be used in SMPs to communicate with the PD is available (`peppol-directory-client` for JDK 1.8 and `peppol-directory-client-jdk6` for JDK 1.6)
   * [phoss SMP Server](https://github.com/phax/peppol-smp-server) supports starting with version 4.1.2 the graphical editing of Business Card incl. the new `/businesscard` API.
@@ -23,11 +23,10 @@ Open tasks according to the design document:
   * The REST query API must be added to the publisher
   * The extended search for the UI must be added
   * An administration GUI (e.g. auditing of index actions) would be nice
-  * A final logo must be decided upon :)
   * The final appearance should be running on https 
 
 # Building requirements
-To build the PD software you need at least Java 1.8 and Apache Maven 3.x. Configuration for usage with Eclipse 4.5 is contained in the repository.
+To build the PD software you need at least Java 1.8 and Apache Maven 3.x. Configuration for usage with Eclipse 4.6.x is contained in the repository.
 
 Additionally to the contained projects you MAY need the latest SNAPSHOT of [ph-oton](https://github.com/phax/ph-oton) as part of your build environment. 
 
