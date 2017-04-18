@@ -27,7 +27,7 @@ import com.helger.html.hc.html.textlevel.HCA;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.publisher.app.pub.CMenuPublic;
-import com.helger.pd.publisher.app.pub.page.PagePublicSearch;
+import com.helger.pd.publisher.app.pub.page.PagePublicSearchSimple;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.photon.bootstrap3.alert.BootstrapInfoBox;
@@ -56,9 +56,9 @@ public final class PageSecureAllParticipants extends AbstractAppWebPage
     {
       final String sParticipantID = aParticipantID.getURIEncoded ();
       final ISimpleURL aShowDetails = aWPEC.getLinkToMenuItem (CApplication.APP_ID_PUBLIC, CMenuPublic.MENU_SEARCH)
-                                           .add (PagePublicSearch.FIELD_QUERY, sParticipantID)
+                                           .add (PagePublicSearchSimple.FIELD_QUERY, sParticipantID)
                                            .add (CPageParam.PARAM_ACTION, CPageParam.ACTION_VIEW)
-                                           .add (PagePublicSearch.FIELD_PARTICIPANT_ID, sParticipantID);
+                                           .add (PagePublicSearchSimple.FIELD_PARTICIPANT_ID, sParticipantID);
       aUL.addItem (new HCA (aShowDetails).addChild (sParticipantID));
     }
 

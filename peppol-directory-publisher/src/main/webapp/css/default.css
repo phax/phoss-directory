@@ -63,6 +63,12 @@
 	margin-top: 1em;
 }
 
+.big-queryhelptext {
+	font-size: small;
+	color: #888;
+	margin: 0.5em;
+}
+
 .big-querybuttons {
   margin: 10px 0;
   text-align: center;

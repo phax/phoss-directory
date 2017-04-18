@@ -77,13 +77,14 @@ import com.helger.photon.uicore.css.CPageParam;
 import com.helger.photon.uicore.icon.EDefaultIcon;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 
-public final class PagePublicSearch extends AbstractAppWebPage
+public final class PagePublicSearchSimple extends AbstractAppWebPage
 {
   public static final String FIELD_QUERY = "q";
   public static final String FIELD_PARTICIPANT_ID = "partid";
-  private static final Logger s_aLogger = LoggerFactory.getLogger (PagePublicSearch.class);
+  private static final Logger s_aLogger = LoggerFactory.getLogger (PagePublicSearchSimple.class);
 
   private static final ICSSClassProvider CSS_CLASS_BIG_QUERY_BOX = DefaultCSSClassProvider.create ("big-querybox");
+  private static final ICSSClassProvider CSS_CLASS_BIG_QUERY_HELPTEXT = DefaultCSSClassProvider.create ("big-queryhelptext");
   private static final ICSSClassProvider CSS_CLASS_BIG_QUERY_BUTTONS = DefaultCSSClassProvider.create ("big-querybuttons");
   private static final ICSSClassProvider CSS_CLASS_SMALL_QUERY_BOX = DefaultCSSClassProvider.create ("small-querybox");
   private static final ICSSClassProvider CSS_CLASS_RESULT_DOC = DefaultCSSClassProvider.create ("result-doc");
@@ -93,7 +94,7 @@ public final class PagePublicSearch extends AbstractAppWebPage
   private static final ICSSClassProvider CSS_CLASS_RESULT_DOC_GEOINFO = DefaultCSSClassProvider.create ("result-doc-geoinfo");
   private static final ICSSClassProvider CSS_CLASS_RESULT_DOC_FREETEXT = DefaultCSSClassProvider.create ("result-doc-freetext");
 
-  public PagePublicSearch (@Nonnull @Nonempty final String sID)
+  public PagePublicSearchSimple (@Nonnull @Nonempty final String sID)
   {
     super (sID, "Search");
   }
@@ -326,6 +327,8 @@ public final class PagePublicSearch extends AbstractAppWebPage
         // Show big query box
         final HCForm aBigQueryBox = new HCForm ().setAction (aWPEC.getSelfHref ()).setMethod (EHCFormMethod.GET);
         aBigQueryBox.addChild (new HCDiv ().addClass (CSS_CLASS_BIG_QUERY_BOX).addChild (_createQueryEdit ()));
+        aBigQueryBox.addChild (new HCDiv ().addClass (CSS_CLASS_BIG_QUERY_HELPTEXT)
+                                           .addChild ("Enter the name, address, ID or any other keyword of the entity you are looking for."));
         aBigQueryBox.addChild (new HCDiv ().addClass (CSS_CLASS_BIG_QUERY_BUTTONS)
                                            .addChild (new BootstrapSubmitButton ().addChild ("Search PEPPOL Directory")
                                                                                   .setIcon (EDefaultIcon.MAGNIFIER)));
