@@ -46,7 +46,7 @@ public final class PageSecureIndexManually extends AbstractAppWebPage
 
   public PageSecureIndexManually (@Nonnull @Nonempty final String sID)
   {
-    super (sID, "Index participant");
+    super (sID, "Manually index participant");
   }
 
   @Override
