@@ -35,6 +35,9 @@ public final class MenuPublic
   {
     // Not logged in
     aMenuTree.createRootItem (new PagePublicSearchSimple (CMenuPublic.MENU_SEARCH));
+    aMenuTree.createRootItem (new AppPageViewExternal (CMenuPublic.MENU_DOCS_INTRODUCTION,
+                                                       "Introduction",
+                                                       new ClassPathResource ("viewpages/en/docs_introduction.xml")));
     aMenuTree.createRootItem (new AppPageViewExternal (CMenuPublic.MENU_DOCS_REST_API,
                                                        "REST API documentation",
                                                        new ClassPathResource ("viewpages/en/docs_rest_api.xml")));

@@ -1,0 +1,69 @@
+<!--
+
+    Copyright (C) 2014-2017 Philip Helger (www.helger.com)
+    philip[at]helger[dot]com
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<h2>What is PEPPOL Directory?</h2>
+
+<p>
+  The PEPPOL Directory contains information about entities participating in the <a href="http://www.peppol.eu">PEPPOL</a> network.
+  It is intended to support business cases that are concerned with finding PEPPOL participants registered 
+  on the PEPPOL network in order to start exchanging business documents with them.
+</p>
+
+<p>
+  The PEPPOL Directory aggregates public information from SMPs (Service Metadata Publisher) and provides them 
+  centrally in a structured way.
+</p>
+
+<h2>Target audience</h2>
+
+<p>
+  This page is intended for all users that are trying to locate their business partners in the PEPPOL network.
+  Both for onboarding as well for extending the scope of document exchange.
+</p>
+
+<h2>Who is listed here?</h2>
+
+<p>
+  Currently the publication of PEPPOL participant information in an SMP happens on a voluntary basis.
+  That implies that not all business entities are listed in the PEPPOL Directory which implies
+  that if your desired partner does not show up in here it doesn't mean that the entity is not
+  in the PEPPOL network!
+  On the other hand if an entity shows up in the PEPPOL Directory you can be sure that the
+  participant is a participant of the PEPPOL network. 
+</p>
+
+<h2>How to use it</h2>
+
+<p>
+  The PEPPOL Directory offers the following possibilities to search for participant information:
+</p>
+
+<ul>
+  <li>
+    <strong>Freetext search</strong> via a Webbrowser.
+    There is both a simple search interface (available)
+    as well as a more complex search interface to search for certain fields only (work in progress). 
+  </li>
+  <li>
+    <strong>Automatic search</strong> via a REST API (work in progress).
+    Details can be found on a <a href="/public/menuitem-docs-rest-api">separate page</a>
+  </li>
+  <li>
+    <strong>Download information</strong> and evaluate the information externally (work in progress).
+  </li>
+</ul>

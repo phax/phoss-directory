@@ -140,6 +140,8 @@ public final class AppRendererPublic implements ILayoutAreaContentProvider <Layo
     {
       final BootstrapNav aNav = new BootstrapNav ();
       final BootstrapDropdownMenu aDropDown = aNav.addDropdownMenu ("Documentation");
+      aDropDown.addMenuItem (new BootstrapDropdownMenuItem ().setLabel ("Introduction")
+                                                             .setLinkAction (aLEC.getLinkToMenuItem (CMenuPublic.MENU_DOCS_INTRODUCTION)));
       aDropDown.addMenuItem (new BootstrapDropdownMenuItem ().setLabel ("Specification draft (PDF)")
                                                              .setLinkAction (LinkHelper.getURLWithContext ("/files/OpenPEPPOL Directory 2016-12-05.pdf")));
       aDropDown.addMenuItem (new BootstrapDropdownMenuItem ().setLabel ("Guide for SMP providers (PDF)")
