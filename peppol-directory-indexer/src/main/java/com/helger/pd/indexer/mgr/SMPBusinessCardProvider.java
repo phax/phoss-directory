@@ -17,6 +17,7 @@
 package com.helger.pd.indexer.mgr;
 
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 
 import javax.annotation.Nonnull;
@@ -121,7 +122,8 @@ public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
     }
     catch (final IOException ex)
     {
-      if (ex instanceof HttpResponseException && ((HttpResponseException) ex).getStatusCode () == 404)
+      if ((ex instanceof HttpResponseException && ((HttpResponseException) ex).getStatusCode () == 404) ||
+          ex instanceof UnknownHostException)
         s_aLogger.warn ("No BusinessCard available for '" +
                         aParticipantID.getURIEncoded () +
                         "' - not in SMK/SML? - " +
@@ -140,7 +142,7 @@ public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
 
     // Query all document types
     final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
-    final ICommonsList <IDocumentTypeIdentifier> aDocumentTypeIDs = new CommonsArrayList<> ();
+    final ICommonsList <IDocumentTypeIdentifier> aDocumentTypeIDs = new CommonsArrayList <> ();
     if (aServiceGroup != null)
       for (final ServiceMetadataReferenceType aRef : aServiceGroup.getServiceMetadataReferenceCollection ()
                                                                   .getServiceMetadataReference ())
