@@ -32,6 +32,7 @@ import com.helger.commons.collection.CollectionHelper;
 import com.helger.commons.collection.ext.ICommonsList;
 import com.helger.commons.collection.multimap.IMultiMapListBased;
 import com.helger.commons.debug.GlobalDebug;
+import com.helger.commons.locale.country.CountryCache;
 import com.helger.commons.string.StringHelper;
 import com.helger.commons.url.SimpleURL;
 import com.helger.html.css.DefaultCSSClassProvider;
@@ -46,6 +47,8 @@ import com.helger.html.hc.html.grouping.HCLI;
 import com.helger.html.hc.html.grouping.HCOL;
 import com.helger.html.hc.html.grouping.HCUL;
 import com.helger.html.hc.html.grouping.IHCLI;
+import com.helger.html.hc.html.tabular.HCCol;
+import com.helger.html.hc.html.textlevel.HCCode;
 import com.helger.html.hc.html.textlevel.HCSpan;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.mgr.PDMetaManager;
@@ -70,8 +73,11 @@ import com.helger.photon.bootstrap3.button.EBootstrapButtonSize;
 import com.helger.photon.bootstrap3.button.EBootstrapButtonType;
 import com.helger.photon.bootstrap3.grid.BootstrapRow;
 import com.helger.photon.bootstrap3.inputgroup.BootstrapInputGroup;
+import com.helger.photon.bootstrap3.label.BootstrapLabel;
+import com.helger.photon.bootstrap3.label.EBootstrapLabelType;
 import com.helger.photon.bootstrap3.nav.BootstrapTabBox;
 import com.helger.photon.bootstrap3.panel.BootstrapPanel;
+import com.helger.photon.bootstrap3.table.BootstrapTable;
 import com.helger.photon.core.form.RequestField;
 import com.helger.photon.uicore.css.CPageParam;
 import com.helger.photon.uicore.icon.EDefaultIcon;
@@ -93,6 +99,7 @@ public final class PagePublicSearchSimple extends AbstractAppWebPage
   private static final ICSSClassProvider CSS_CLASS_RESULT_DOC_NAME = DefaultCSSClassProvider.create ("result-doc-name");
   private static final ICSSClassProvider CSS_CLASS_RESULT_DOC_GEOINFO = DefaultCSSClassProvider.create ("result-doc-geoinfo");
   private static final ICSSClassProvider CSS_CLASS_RESULT_DOC_FREETEXT = DefaultCSSClassProvider.create ("result-doc-freetext");
+  private static final ICSSClassProvider CSS_CLASS_RESULT_DOC_SDBUTTON = DefaultCSSClassProvider.create ("result-doc-sdbutton");
 
   public PagePublicSearchSimple (@Nonnull @Nonempty final String sID)
   {
@@ -262,6 +269,12 @@ public final class PagePublicSearchSimple extends AbstractAppWebPage
         }
         else
         {
+          aNodeList.addChild (new HCDiv ().addChild (new BootstrapLabel (EBootstrapLabelType.SUCCESS).addChild ("Found " +
+                                                                                                                aGroupedDocs.size () +
+                                                                                                                " entities matching '" +
+                                                                                                                sQuery +
+                                                                                                                "'")));
+
           final HCOL aOL = new HCOL ().setStart (1);
           for (final Map.Entry <IParticipantIdentifier, ICommonsList <PDStoredDocument>> aEntry : aGroupedDocs.entrySet ())
           {
@@ -269,51 +282,118 @@ public final class PagePublicSearchSimple extends AbstractAppWebPage
             final ICommonsList <PDStoredDocument> aDocs = aEntry.getValue ();
 
             // Start result document
-            final HCDiv aResultItem = new HCDiv ().addClass (CSS_CLASS_RESULT_DOC);
-            final HCDiv aHeadRow = aResultItem.addAndReturnChild (new HCDiv ());
-            aHeadRow.addChild (aDocParticipantID.getURIEncoded ());
-            if (aDocs.size () > 1)
-              aHeadRow.addChild (" (" + aDocs.size () + " entities)");
-            aHeadRow.addChild (" ")
-                    .addChild (new BootstrapButton (EBootstrapButtonType.SUCCESS,
-                                                    EBootstrapButtonSize.MINI).addChild ("Show details")
-                                                                              .setIcon (EDefaultIcon.MAGNIFIER)
-                                                                              .setOnClick (aWPEC.getSelfHref ()
-                                                                                                .add (FIELD_QUERY,
-                                                                                                      sQuery)
-                                                                                                .add (CPageParam.PARAM_ACTION,
-                                                                                                      CPageParam.ACTION_VIEW)
-                                                                                                .add (FIELD_PARTICIPANT_ID,
-                                                                                                      aDocParticipantID.getURIEncoded ())));
-
-            // Show all entities of the stored document
-            final HCUL aUL = aResultItem.addAndReturnChild (new HCUL ());
-            for (final PDStoredDocument aStoredDoc : aEntry.getValue ())
+            if (true)
             {
-              final IHCLI <?> aLI = aUL.addAndReturnItem (new HCLI ().addClass (CSS_CLASS_RESULT_DOC_HEADER));
-              final HCDiv aDocHeadRow = new HCDiv ();
-              if (aStoredDoc.hasCountryCode ())
+              // New layout #9
+              final HCDiv aResultItem = new HCDiv ().addClass (CSS_CLASS_RESULT_DOC);
+              final HCDiv aHeadRow = aResultItem.addAndReturnChild (new HCDiv ());
+              aHeadRow.addChild ("Participant ID: ")
+                      .addChild (new HCCode ().addChild (aDocParticipantID.getURIEncoded ()));
+              if (aDocs.size () > 1)
+                aHeadRow.addChild (" (" + aDocs.size () + " entities)");
+
+              // Show all entities of the stored document
+              final HCUL aUL = aResultItem.addAndReturnChild (new HCUL ());
+              for (final PDStoredDocument aStoredDoc : aEntry.getValue ())
               {
-                // Add country flag (if available)
-                aDocHeadRow.addChild (PDCommonUI.getFlagNode (aStoredDoc.getCountryCode ()));
-                aDocHeadRow.addChild (new HCSpan ().addChild (aStoredDoc.getCountryCode ())
-                                                   .addClass (CSS_CLASS_RESULT_DOC_COUNTRY_CODE));
+                final BootstrapTable aTable = new BootstrapTable (HCCol.perc (20), HCCol.star ());
+                aTable.setCondensed (true);
+                if (aStoredDoc.hasCountryCode ())
+                {
+                  // Add country flag (if available)
+                  final String sCountryCode = aStoredDoc.getCountryCode ();
+                  final Locale aCountry = CountryCache.getInstance ().getCountry (sCountryCode);
+                  aTable.addBodyRow ()
+                        .addCell ("Country:")
+                        .addCell (new HCNodeList ().addChild (PDCommonUI.getFlagNode (sCountryCode))
+                                                   .addChild (" ")
+                                                   .addChild (new HCSpan ().addChild (aCountry != null ? aCountry.getDisplayCountry (aDisplayLocale) +
+                                                                                                         " (" +
+                                                                                                         sCountryCode +
+                                                                                                         ")"
+                                                                                                       : sCountryCode)
+                                                                           .addClass (CSS_CLASS_RESULT_DOC_COUNTRY_CODE)));
+                }
+                if (aStoredDoc.hasName ())
+                  aTable.addBodyRow ()
+                        .addCell ("Name:")
+                        .addCell (new HCSpan ().addChild (aStoredDoc.getName ()).addClass (CSS_CLASS_RESULT_DOC_NAME));
+
+                if (aStoredDoc.hasGeoInfo ())
+                  aTable.addBodyRow ()
+                        .addCell ("Geographical information:")
+                        .addCell (new HCDiv ().addChildren (HCExtHelper.nl2divList (aStoredDoc.getGeoInfo ()))
+                                              .addClass (CSS_CLASS_RESULT_DOC_GEOINFO));
+                if (aStoredDoc.hasAdditionalInformation ())
+                  aTable.addBodyRow ()
+                        .addCell ("Additional information:")
+                        .addCell (new HCDiv ().addChildren (HCExtHelper.nl2divList (aStoredDoc.getAdditionalInformation ()))
+                                              .addClass (CSS_CLASS_RESULT_DOC_FREETEXT));
+                aUL.addAndReturnItem (aTable).addClass (CSS_CLASS_RESULT_DOC_HEADER);
               }
-              if (aStoredDoc.hasName ())
-                aDocHeadRow.addChild (new HCSpan ().addChild (aStoredDoc.getName ())
-                                                   .addClass (CSS_CLASS_RESULT_DOC_NAME));
-              if (aDocHeadRow.hasChildren ())
-                aLI.addChild (aDocHeadRow);
 
-              if (aStoredDoc.hasGeoInfo ())
-                aLI.addChild (new HCDiv ().addChildren (HCExtHelper.nl2divList (aStoredDoc.getGeoInfo ()))
-                                          .addClass (CSS_CLASS_RESULT_DOC_GEOINFO));
-              if (aStoredDoc.hasAdditionalInformation ())
-                aLI.addChild (new HCDiv ().addChildren (HCExtHelper.nl2divList (aStoredDoc.getAdditionalInformation ()))
-                                          .addClass (CSS_CLASS_RESULT_DOC_FREETEXT));
+              final BootstrapButton aShowDetailsBtn = new BootstrapButton (EBootstrapButtonType.SUCCESS,
+                                                                           EBootstrapButtonSize.DEFAULT).addChild ("Show details")
+                                                                                                        .setIcon (EDefaultIcon.MAGNIFIER)
+                                                                                                        .addClass (CSS_CLASS_RESULT_DOC_SDBUTTON)
+                                                                                                        .setOnClick (aWPEC.getSelfHref ()
+                                                                                                                          .add (FIELD_QUERY,
+                                                                                                                                sQuery)
+                                                                                                                          .add (CPageParam.PARAM_ACTION,
+                                                                                                                                CPageParam.ACTION_VIEW)
+                                                                                                                          .add (FIELD_PARTICIPANT_ID,
+                                                                                                                                aDocParticipantID.getURIEncoded ()));
+              aResultItem.addChild (new HCDiv ().addChild (aShowDetailsBtn));
+              aOL.addItem (aResultItem);
             }
+            else
+            {
+              // OLd version; #9
+              final HCDiv aResultItem = new HCDiv ().addClass (CSS_CLASS_RESULT_DOC);
+              final HCDiv aHeadRow = aResultItem.addAndReturnChild (new HCDiv ());
+              aHeadRow.addChild (aDocParticipantID.getURIEncoded ());
+              if (aDocs.size () > 1)
+                aHeadRow.addChild (" (" + aDocs.size () + " entities)");
+              final BootstrapButton aShowDetailsBtn = new BootstrapButton (EBootstrapButtonType.SUCCESS,
+                                                                           EBootstrapButtonSize.MINI).addChild ("Show details")
+                                                                                                     .setIcon (EDefaultIcon.MAGNIFIER)
+                                                                                                     .setOnClick (aWPEC.getSelfHref ()
+                                                                                                                       .add (FIELD_QUERY,
+                                                                                                                             sQuery)
+                                                                                                                       .add (CPageParam.PARAM_ACTION,
+                                                                                                                             CPageParam.ACTION_VIEW)
+                                                                                                                       .add (FIELD_PARTICIPANT_ID,
+                                                                                                                             aDocParticipantID.getURIEncoded ()));
+              aHeadRow.addChild (" ").addChild (aShowDetailsBtn);
 
-            aOL.addItem (aResultItem);
+              // Show all entities of the stored document
+              final HCUL aUL = aResultItem.addAndReturnChild (new HCUL ());
+              for (final PDStoredDocument aStoredDoc : aEntry.getValue ())
+              {
+                final HCLI aLI = aUL.addItem ().addClass (CSS_CLASS_RESULT_DOC_HEADER);
+                final HCDiv aDocHeadRow = new HCDiv ();
+                if (aStoredDoc.hasCountryCode ())
+                {
+                  // Add country flag (if available)
+                  aDocHeadRow.addChild (PDCommonUI.getFlagNode (aStoredDoc.getCountryCode ()));
+                  aDocHeadRow.addChild (new HCSpan ().addChild (aStoredDoc.getCountryCode ())
+                                                     .addClass (CSS_CLASS_RESULT_DOC_COUNTRY_CODE));
+                }
+                if (aStoredDoc.hasName ())
+                  aDocHeadRow.addChild (new HCSpan ().addChild (aStoredDoc.getName ())
+                                                     .addClass (CSS_CLASS_RESULT_DOC_NAME));
+                if (aDocHeadRow.hasChildren ())
+                  aLI.addChild (aDocHeadRow);
+
+                if (aStoredDoc.hasGeoInfo ())
+                  aLI.addChild (new HCDiv ().addChildren (HCExtHelper.nl2divList (aStoredDoc.getGeoInfo ()))
+                                            .addClass (CSS_CLASS_RESULT_DOC_GEOINFO));
+                if (aStoredDoc.hasAdditionalInformation ())
+                  aLI.addChild (new HCDiv ().addChildren (HCExtHelper.nl2divList (aStoredDoc.getAdditionalInformation ()))
+                                            .addClass (CSS_CLASS_RESULT_DOC_FREETEXT));
+              }
+              aOL.addItem (aResultItem);
+            }
 
             // Break at 10 results
             if (aOL.getChildCount () >= nMaxResults)
