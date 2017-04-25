@@ -55,14 +55,17 @@ import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.PDQueryManager;
 import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.pd.indexer.storage.PDStoredDocument;
+import com.helger.pd.publisher.app.AppCommonUI;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.pd.publisher.ui.HCExtImg;
 import com.helger.pd.publisher.ui.PDCommonUI;
 import com.helger.peppol.identifier.factory.IIdentifierFactory;
+import com.helger.peppol.identifier.factory.PeppolIdentifierFactory;
 import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.peppol.identifier.peppol.PeppolIdentifierHelper;
 import com.helger.peppol.identifier.peppol.doctype.IPeppolDocumentTypeIdentifierParts;
+import com.helger.peppol.identifier.peppol.issuingagency.IIdentifierIssuingAgency;
 import com.helger.photon.bootstrap3.CBootstrapCSS;
 import com.helger.photon.bootstrap3.alert.BootstrapInfoBox;
 import com.helger.photon.bootstrap3.alert.BootstrapWarnBox;
@@ -287,8 +290,25 @@ public final class PagePublicSearchSimple extends AbstractAppWebPage
               // New layout #9
               final HCDiv aResultItem = new HCDiv ().addClass (CSS_CLASS_RESULT_DOC);
               final HCDiv aHeadRow = aResultItem.addAndReturnChild (new HCDiv ());
-              aHeadRow.addChild ("Participant ID: ")
-                      .addChild (new HCCode ().addChild (aDocParticipantID.getURIEncoded ()));
+              {
+                final boolean bIsPeppolDefault = aDocParticipantID.hasScheme (PeppolIdentifierFactory.INSTANCE.getDefaultParticipantIdentifierScheme ());
+                IHCNode aParticipant = null;
+                if (bIsPeppolDefault)
+                {
+                  final IIdentifierIssuingAgency aIIA = AppCommonUI.getAgencyOfIdentifier (aDocParticipantID);
+                  if (aIIA != null)
+                    aParticipant = new HCNodeList ().addChild (aIIA.getSchemeAgency () + " ")
+                                                    .addChild (new HCCode ().addChild (aDocParticipantID.getValue ()
+                                                                                                        .substring (4 +
+                                                                                                                    1)));
+                }
+                if (aParticipant == null)
+                {
+                  // Fallback
+                  aParticipant = new HCCode ().addChild (aDocParticipantID.getURIEncoded ());
+                }
+                aHeadRow.addChild ("Participant ID: ").addChild (aParticipant);
+              }
               if (aDocs.size () > 1)
                 aHeadRow.addChild (" (" + aDocs.size () + " entities)");
 

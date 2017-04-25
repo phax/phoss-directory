@@ -40,6 +40,10 @@ import com.helger.html.jscode.html.JSHtml;
 import com.helger.pd.publisher.ajax.AjaxExecutorPublicLogin;
 import com.helger.pd.publisher.ajax.CAjaxPublic;
 import com.helger.pd.settings.PDServerConfiguration;
+import com.helger.peppol.identifier.factory.PeppolIdentifierFactory;
+import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
+import com.helger.peppol.identifier.peppol.issuingagency.IIdentifierIssuingAgency;
+import com.helger.peppol.identifier.peppol.issuingagency.IdentifierIssuingAgencyManager;
 import com.helger.photon.bootstrap3.button.BootstrapButtonToolbar;
 import com.helger.photon.bootstrap3.form.BootstrapForm;
 import com.helger.photon.bootstrap3.form.BootstrapFormGroup;
@@ -150,5 +154,20 @@ public final class AppCommonUI
     aOnClick._return (false);
     aToolbar.addSubmitButton (EPhotonCoreText.LOGIN_BUTTON_SUBMIT.getDisplayText (aDisplayLocale), aOnClick);
     return aForm;
+  }
+
+  // TODO use version from peppol-commons >= 5.2.5
+  @Nullable
+  public static IIdentifierIssuingAgency getAgencyOfIdentifier (@Nullable final IParticipantIdentifier aParticipantID)
+  {
+    if (aParticipantID != null &&
+        aParticipantID.hasScheme (PeppolIdentifierFactory.INSTANCE.getDefaultParticipantIdentifierScheme ()))
+    {
+      final String sValue = aParticipantID.getValue ();
+      // Value must be at least something like "1234:"
+      if (sValue.length () > 5)
+        return IdentifierIssuingAgencyManager.getAgencyOfISO6523Code (sValue.substring (0, 4));
+    }
+    return null;
   }
 }
