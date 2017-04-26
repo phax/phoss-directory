@@ -78,6 +78,7 @@
   margin: 10px 0;
 }
 
+/* Simple search - results */
 .result-doc {
 	margin:0.5em;
 	padding: 3px;
@@ -87,30 +88,6 @@ li:nth-of-type(2n+1) .result-doc {
   background: #ddd;
 }
 
-/* Old version */
-/*
-.result-doc-header {
-  margin-top: 0.5em;
-  padding-top: 0.5em;
-  border-top: solid 1px black;
-}
-
-.result-doc-header:first-child {
-  margin-top: 0;
-  padding-top: 0;
-  border-top: none;
-}
-
-.result-doc-geoinfo {
-  margin-top: 0.5em;
-}
-
-.result-doc-freetext {
-  margin-top: 0.5em;
-}
-*/
-
-/* New version; #9 */
 div.result-doc ul {
   padding-left: 1em;
 }
@@ -148,4 +125,12 @@ div.result-doc ul li{
 .result-doc-sdbutton {
   margin-top: 1em;
   margin-left: 1em;
+}
+
+.result-panel .form-group {
+  margin-bottom: 0;
+}
+
+.result-panel .form-group table {
+  margin-bottom: 0;
 }

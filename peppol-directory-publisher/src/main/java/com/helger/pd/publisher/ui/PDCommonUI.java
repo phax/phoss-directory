@@ -36,6 +36,7 @@ import com.helger.commons.locale.country.CountryCache;
 import com.helger.datetime.format.PDTToString;
 import com.helger.html.hc.IHCNode;
 import com.helger.html.hc.ext.HCExtHelper;
+import com.helger.html.hc.html.HC_Target;
 import com.helger.html.hc.html.grouping.HCDiv;
 import com.helger.html.hc.html.grouping.HCOL;
 import com.helger.html.hc.html.grouping.HCUL;
@@ -111,7 +112,8 @@ public final class PDCommonUI
     if (aStoredDoc.hasAnyIdentifier ())
     {
       final BootstrapTable aIDTable = new BootstrapTable (HCCol.star (), HCCol.star ()).setStriped (true)
-                                                                                       .setBordered (true);
+                                                                                       .setBordered (true)
+                                                                                       .setCondensed (true);
       aIDTable.addHeaderRow ().addCells ("Scheme", "Value");
       for (final PDStoredIdentifier aStoredID : aStoredDoc.getAllIdentifiers ())
         aIDTable.addBodyRow ().addCells (aStoredID.getScheme (), aStoredID.getValue ());
@@ -121,7 +123,7 @@ public final class PDCommonUI
     {
       final HCOL aOL = new HCOL ();
       for (final String sWebsiteURI : aStoredDoc.getAllWebsiteURIs ())
-        aOL.addItem (HCA.createLinkedWebsite (sWebsiteURI));
+        aOL.addItem (HCA.createLinkedWebsite (sWebsiteURI, HC_Target.BLANK));
       aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Website URIs").setCtrl (aOL));
     }
     if (aStoredDoc.hasAnyContact ())
