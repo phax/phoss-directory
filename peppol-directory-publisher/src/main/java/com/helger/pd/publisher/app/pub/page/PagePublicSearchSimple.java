@@ -44,6 +44,7 @@ import com.helger.html.hc.html.grouping.HCDiv;
 import com.helger.html.hc.html.grouping.HCOL;
 import com.helger.html.hc.html.grouping.HCUL;
 import com.helger.html.hc.html.grouping.IHCLI;
+import com.helger.html.hc.html.sections.HCH1;
 import com.helger.html.hc.html.tabular.HCCol;
 import com.helger.html.hc.html.textlevel.HCCode;
 import com.helger.html.hc.html.textlevel.HCSmall;
@@ -65,6 +66,7 @@ import com.helger.peppol.identifier.peppol.PeppolIdentifierHelper;
 import com.helger.peppol.identifier.peppol.doctype.IPeppolDocumentTypeIdentifierParts;
 import com.helger.peppol.identifier.peppol.issuingagency.IIdentifierIssuingAgency;
 import com.helger.photon.bootstrap3.CBootstrapCSS;
+import com.helger.photon.bootstrap3.alert.BootstrapErrorBox;
 import com.helger.photon.bootstrap3.alert.BootstrapInfoBox;
 import com.helger.photon.bootstrap3.alert.BootstrapWarnBox;
 import com.helger.photon.bootstrap3.badge.BootstrapBadge;
@@ -72,11 +74,14 @@ import com.helger.photon.bootstrap3.button.BootstrapButton;
 import com.helger.photon.bootstrap3.button.BootstrapSubmitButton;
 import com.helger.photon.bootstrap3.button.EBootstrapButtonSize;
 import com.helger.photon.bootstrap3.button.EBootstrapButtonType;
+import com.helger.photon.bootstrap3.form.BootstrapFormGroup;
+import com.helger.photon.bootstrap3.form.BootstrapViewForm;
 import com.helger.photon.bootstrap3.grid.BootstrapRow;
 import com.helger.photon.bootstrap3.inputgroup.BootstrapInputGroup;
 import com.helger.photon.bootstrap3.label.BootstrapLabel;
 import com.helger.photon.bootstrap3.label.EBootstrapLabelType;
 import com.helger.photon.bootstrap3.nav.BootstrapTabBox;
+import com.helger.photon.bootstrap3.pageheader.BootstrapPageHeader;
 import com.helger.photon.bootstrap3.panel.BootstrapPanel;
 import com.helger.photon.bootstrap3.table.BootstrapTable;
 import com.helger.photon.core.form.RequestField;
@@ -88,6 +93,7 @@ public final class PagePublicSearchSimple extends AbstractAppWebPage
 {
   public static final String FIELD_QUERY = "q";
   public static final String FIELD_PARTICIPANT_ID = "partid";
+  public static final String PARAM_MAX = "max";
   private static final Logger s_aLogger = LoggerFactory.getLogger (PagePublicSearchSimple.class);
 
   private static final ICSSClassProvider CSS_CLASS_BIG_QUERY_BOX = DefaultCSSClassProvider.create ("big-querybox");
@@ -133,8 +139,132 @@ public final class PagePublicSearchSimple extends AbstractAppWebPage
     return aBodyRow;
   }
 
+  @Nonnull
+  private static BootstrapRow _createInitialSearchForm (final WebPageExecutionContext aWPEC)
+  {
+    final HCForm aBigQueryBox = new HCForm ().setAction (aWPEC.getSelfHref ()).setMethod (EHCFormMethod.GET);
+    aBigQueryBox.addChild (new HCDiv ().addClass (CSS_CLASS_BIG_QUERY_BOX).addChild (_createQueryEdit ()));
+    aBigQueryBox.addChild (new HCDiv ().addClass (CSS_CLASS_BIG_QUERY_HELPTEXT)
+                                       .addChild ("Enter the name, address, ID or any other keyword of the entity you are looking for."));
+    aBigQueryBox.addChild (new HCDiv ().addClass (CSS_CLASS_BIG_QUERY_BUTTONS)
+                                       .addChild (new BootstrapSubmitButton ().addChild ("Search PEPPOL Directory")
+                                                                              .setIcon (EDefaultIcon.MAGNIFIER)));
+
+    final BootstrapRow aBodyRow = new BootstrapRow ();
+    aBodyRow.createColumn (12, 1, 2, 3).addClass (CBootstrapCSS.HIDDEN_XS);
+    aBodyRow.createColumn (12, 10, 8, 6).addChild (aBigQueryBox);
+    aBodyRow.createColumn (12, 1, 2, 3).addClass (CBootstrapCSS.HIDDEN_XS);
+    return aBodyRow;
+  }
+
+  @Nonnull
+  private HCNodeList _createParticipantDetails (final Locale aDisplayLocale,
+                                                final String sParticipantID,
+                                                final IParticipantIdentifier aParticipantID)
+  {
+    final HCNodeList aDetails = new HCNodeList ();
+
+    // Search document matching participant ID
+    final ICommonsList <PDStoredDocument> aResultDocs = PDMetaManager.getStorageMgr ()
+                                                                     .getAllDocumentsOfParticipant (aParticipantID);
+    // Group by participant ID
+    final IMultiMapListBased <IParticipantIdentifier, PDStoredDocument> aGroupedDocs = PDStorageManager.getGroupedByParticipantID (aResultDocs);
+    if (aGroupedDocs.isEmpty ())
+      s_aLogger.error ("No stored document matches participant identifier '" + sParticipantID + "'");
+    else
+    {
+      if (aGroupedDocs.size () > 1)
+        s_aLogger.warn ("Found " +
+                        aGroupedDocs.size () +
+                        " entries for participant identifier '" +
+                        sParticipantID +
+                        "' - weird");
+      // Get the first one
+      final ICommonsList <PDStoredDocument> aDocuments = aGroupedDocs.getFirstValue ();
+
+      // Details header
+      {
+        IHCNode aDetailsHeader = null;
+        final boolean bIsPeppolDefault = aParticipantID.hasScheme (PeppolIdentifierFactory.INSTANCE.getDefaultParticipantIdentifierScheme ());
+        if (bIsPeppolDefault)
+        {
+          final IIdentifierIssuingAgency aIIA = AppCommonUI.getAgencyOfIdentifier (aParticipantID);
+          if (aIIA != null)
+          {
+            aDetailsHeader = new BootstrapPageHeader ().addChild (new HCH1 ().addChild ("Details for: " +
+                                                                                        aParticipantID.getValue ())
+                                                                             .addChild (new HCSmall ().addChild (" (" +
+                                                                                                                 aIIA.getSchemeAgency () +
+                                                                                                                 ")")));
+          }
+        }
+        if (aDetailsHeader == null)
+        {
+          // Fallback
+          aDetailsHeader = getUIHandler ().createPageHeader ("Details for " + sParticipantID);
+        }
+        aDetails.addChild (aDetailsHeader);
+      }
+
+      final BootstrapTabBox aTabBox = new BootstrapTabBox ();
+
+      // Business information
+      {
+        final HCNodeList aOL = new HCNodeList ();
+        int nIndex = 1;
+        for (final PDStoredDocument aStoredDoc : aDocuments)
+        {
+          final BootstrapPanel aPanel = aOL.addAndReturnChild (new BootstrapPanel ());
+          aPanel.addClass (CSS_CLASS_RESULT_PANEL);
+          if (aDocuments.size () > 1)
+            aPanel.getOrCreateHeader ().addChild ("Business information entity " + nIndex);
+          final BootstrapViewForm aViewForm = PDCommonUI.showBusinessInfoDetails (aStoredDoc, aDisplayLocale);
+          aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Full technical participant ID")
+                                                           .setCtrl (new HCCode ().addChild (sParticipantID)));
+          aPanel.getBody ().addChild (aViewForm);
+          ++nIndex;
+        }
+        // Add whole list or just the first item?
+        final IHCNode aTabLabel = new HCSpan ().addChild ("Business information ")
+                                               .addChild (new BootstrapBadge ().addChild (Integer.toString (aDocuments.size ())));
+        aTabBox.addTab ("businessinfo", aTabLabel, aOL, true);
+      }
+
+      // Document types
+      {
+        final HCOL aDocTypeCtrl = new HCOL ();
+        final ICommonsList <? extends IDocumentTypeIdentifier> aDocTypeIDs = aResultDocs.get (0)
+                                                                                        .getAllDocumentTypeIDs ()
+                                                                                        .getSortedInline (IDocumentTypeIdentifier.comparator ());
+        for (final IDocumentTypeIdentifier aDocTypeID : aDocTypeIDs)
+        {
+          final IHCLI <?> aLI = aDocTypeCtrl.addItem ();
+          aLI.addChild (PDCommonUI.getDocumentTypeID (aDocTypeID));
+          if (false && GlobalDebug.isDebugMode ())
+            try
+            {
+              final IPeppolDocumentTypeIdentifierParts aParts = PeppolIdentifierHelper.getDocumentTypeIdentifierParts (aDocTypeID);
+              aLI.addChild (PDCommonUI.getDocumentTypeIDDetails (aParts));
+            }
+            catch (final IllegalArgumentException ex)
+            {
+              // Happens for non-PEPPOL identifiers
+            }
+        }
+        aTabBox.addTab ("doctypes",
+                        new HCSpan ().addChild ("Supported document types ")
+                                     .addChild (new BootstrapBadge ().addChild (Integer.toString (aDocTypeIDs.size ()))),
+                        aDocTypeCtrl.hasChildren () ? aDocTypeCtrl
+                                                    : new BootstrapWarnBox ().addChild ("This participant does not support any document types!"),
+                        false);
+      }
+      aDetails.addChild (aTabBox);
+    }
+    return aDetails;
+  }
+
   @Override
-  protected void fillContent (final WebPageExecutionContext aWPEC)
+  protected void fillContent (@Nonnull final WebPageExecutionContext aWPEC)
   {
     final HCNodeList aNodeList = aWPEC.getNodeList ();
     final Locale aDisplayLocale = aWPEC.getDisplayLocale ();
@@ -153,6 +283,7 @@ public final class PagePublicSearchSimple extends AbstractAppWebPage
 
     final String sQuery = aWPEC.getAttributeAsString (FIELD_QUERY);
     final String sParticipantID = aWPEC.getAttributeAsString (FIELD_PARTICIPANT_ID);
+    final int nMaxResults = aWPEC.getAttributeAsInt (PARAM_MAX, 50);
     boolean bShowQuery = true;
 
     if (aWPEC.hasAction (CPageParam.ACTION_VIEW) && StringHelper.hasText (sParticipantID))
@@ -163,103 +294,14 @@ public final class PagePublicSearchSimple extends AbstractAppWebPage
         // Show small query box
         aNodeList.addChild (_createSmallQueryBox (aWPEC));
 
-        // Search document matching participant ID
-        final ICommonsList <PDStoredDocument> aResultDocs = PDMetaManager.getStorageMgr ()
-                                                                         .getAllDocumentsOfParticipant (aParticipantID);
-        // Group by participant ID
-        final IMultiMapListBased <IParticipantIdentifier, PDStoredDocument> aGroupedDocs = PDStorageManager.getGroupedByParticipantID (aResultDocs);
-        if (aGroupedDocs.isEmpty ())
-          s_aLogger.warn ("No stored document matches participant identifier '" + sParticipantID + "'");
-        else
-        {
-          if (aGroupedDocs.size () > 1)
-            s_aLogger.warn ("Found " +
-                            aGroupedDocs.size () +
-                            " entries for participant identifier '" +
-                            sParticipantID +
-                            "' - weird");
-          // Get the first one
-          final ICommonsList <PDStoredDocument> aDocuments = aGroupedDocs.getFirstValue ();
-          bShowQuery = false;
-
-          {
-            final boolean bIsPeppolDefault = aParticipantID.hasScheme (PeppolIdentifierFactory.INSTANCE.getDefaultParticipantIdentifierScheme ());
-            IHCNode aParticipant = null;
-            if (bIsPeppolDefault)
-            {
-              final IIdentifierIssuingAgency aIIA = AppCommonUI.getAgencyOfIdentifier (aParticipantID);
-              if (aIIA != null)
-              {
-                aParticipant = new HCNodeList ().addChild (getUIHandler ().createPageHeader (aIIA.getSchemeAgency () +
-                                                                                             " " +
-                                                                                             aParticipantID.getValue ()
-                                                                                                           .substring (4 +
-                                                                                                                       1)))
-                                                .addChild (new HCDiv ().addChild ("Full ID: ")
-                                                                       .addChild (new HCSmall ().addChild (sParticipantID)));
-              }
-            }
-            if (aParticipant == null)
-            {
-              // Fallback
-              aParticipant = getUIHandler ().createPageHeader ("Details for " + sParticipantID);
-            }
-            aNodeList.addChild (aParticipant);
-          }
-
-          final BootstrapTabBox aTabBox = aNodeList.addAndReturnChild (new BootstrapTabBox ());
-
-          // Business information
-          {
-            final HCNodeList aOL = new HCNodeList ();
-            int nIndex = 1;
-            for (final PDStoredDocument aStoredDoc : aDocuments)
-            {
-              final BootstrapPanel aPanel = aOL.addAndReturnChild (new BootstrapPanel ());
-              aPanel.addClass (CSS_CLASS_RESULT_PANEL);
-              if (aDocuments.size () > 1)
-                aPanel.getOrCreateHeader ().addChild ("Business information entity " + nIndex);
-              aPanel.getBody ().addChild (PDCommonUI.showBusinessInfoDetails (aStoredDoc, aDisplayLocale));
-              ++nIndex;
-            }
-            // Add whole list or just the first item?
-            final IHCNode aTabLabel = new HCSpan ().addChild ("Business information ")
-                                                   .addChild (new BootstrapBadge ().addChild (Integer.toString (aDocuments.size ())));
-            aTabBox.addTab ("businessinfo", aTabLabel, aOL, true);
-          }
-
-          // Document types
-          {
-            final HCOL aDocTypeCtrl = new HCOL ();
-            final ICommonsList <? extends IDocumentTypeIdentifier> aDocTypeIDs = aResultDocs.get (0)
-                                                                                            .getAllDocumentTypeIDs ()
-                                                                                            .getSortedInline (IDocumentTypeIdentifier.comparator ());
-            for (final IDocumentTypeIdentifier aDocTypeID : aDocTypeIDs)
-            {
-              final IHCLI <?> aLI = aDocTypeCtrl.addItem ();
-              aLI.addChild (PDCommonUI.getDocumentTypeID (aDocTypeID));
-              if (false && GlobalDebug.isDebugMode ())
-                try
-                {
-                  final IPeppolDocumentTypeIdentifierParts aParts = PeppolIdentifierHelper.getDocumentTypeIdentifierParts (aDocTypeID);
-                  aLI.addChild (PDCommonUI.getDocumentTypeIDDetails (aParts));
-                }
-                catch (final IllegalArgumentException ex)
-                {
-                  // Happens for non-PEPPOL identifiers
-                }
-            }
-            aTabBox.addTab ("doctypes",
-                            new HCSpan ().addChild ("Document types ")
-                                         .addChild (new BootstrapBadge ().addChild (Integer.toString (aDocTypeIDs.size ()))),
-                            aDocTypeCtrl.hasChildren () ? aDocTypeCtrl
-                                                        : new BootstrapWarnBox ().addChild ("No document types available for this participant"),
-                            false);
-          }
-        }
+        final HCNodeList aDetails = _createParticipantDetails (aDisplayLocale, sParticipantID, aParticipantID);
+        aNodeList.addChild (aDetails);
+        bShowQuery = aDetails.hasNoChildren ();
       }
       else
-        s_aLogger.warn ("Failed to parse participant identifier '" + sParticipantID + "'");
+        aNodeList.addChild (new BootstrapErrorBox ().addChild ("Failed to parse participant identifier '" +
+                                                               sParticipantID +
+                                                               "'"));
     }
 
     if (bShowQuery)
@@ -281,12 +323,13 @@ public final class PagePublicSearchSimple extends AbstractAppWebPage
         final ICommonsList <PDStoredDocument> aResultDocs = PDMetaManager.getStorageMgr ()
                                                                          .getAllDocuments (aLuceneQuery);
 
-        s_aLogger.info ("  Result for <" + aLuceneQuery + "> are " + aResultDocs.size () + " documents");
+        s_aLogger.info ("  Result for <" +
+                        aLuceneQuery +
+                        "> " +
+                        (aResultDocs.size () == 1 ? "is 1 document" : "are " + aResultDocs.size () + " documents"));
 
         // Group by participant ID
         final IMultiMapListBased <IParticipantIdentifier, PDStoredDocument> aGroupedDocs = PDStorageManager.getGroupedByParticipantID (aResultDocs);
-
-        final int nMaxResults = 10;
 
         // Display results
         if (aGroupedDocs.isEmpty ())
@@ -300,7 +343,10 @@ public final class PagePublicSearchSimple extends AbstractAppWebPage
                                                                                                                 " entities matching '" +
                                                                                                                 sQuery +
                                                                                                                 "'")));
+          if (aGroupedDocs.size () > nMaxResults)
+            aNodeList.addChild (new HCDiv ().addChild (new BootstrapLabel (EBootstrapLabelType.WARNING).addChild ("Found many matches. Try to be nmore specific.")));
 
+          // Show basic information
           final HCOL aOL = new HCOL ().setStart (1);
           for (final Map.Entry <IParticipantIdentifier, ICommonsList <PDStoredDocument>> aEntry : aGroupedDocs.entrySet ())
           {
@@ -317,10 +363,10 @@ public final class PagePublicSearchSimple extends AbstractAppWebPage
               {
                 final IIdentifierIssuingAgency aIIA = AppCommonUI.getAgencyOfIdentifier (aDocParticipantID);
                 if (aIIA != null)
-                  aParticipant = new HCNodeList ().addChild (aIIA.getSchemeAgency () + " ")
-                                                  .addChild (new HCCode ().addChild (aDocParticipantID.getValue ()
-                                                                                                      .substring (4 +
-                                                                                                                  1)));
+                  aParticipant = new HCNodeList ().addChild (aDocParticipantID.getValue () +
+                                                             " (" +
+                                                             aIIA.getSchemeAgency () +
+                                                             ")");
               }
               if (aParticipant == null)
               {
@@ -386,9 +432,11 @@ public final class PagePublicSearchSimple extends AbstractAppWebPage
             aResultItem.addChild (new HCDiv ().addChild (aShowDetailsBtn));
             aOL.addItem (aResultItem);
 
-            // Break at 10 results
+            // Is the max result limit reached?
             if (aOL.getChildCount () >= nMaxResults)
+            {
               break;
+            }
           }
           aNodeList.addChild (aOL);
         }
@@ -396,18 +444,8 @@ public final class PagePublicSearchSimple extends AbstractAppWebPage
       else
       {
         // Show big query box
-        final HCForm aBigQueryBox = new HCForm ().setAction (aWPEC.getSelfHref ()).setMethod (EHCFormMethod.GET);
-        aBigQueryBox.addChild (new HCDiv ().addClass (CSS_CLASS_BIG_QUERY_BOX).addChild (_createQueryEdit ()));
-        aBigQueryBox.addChild (new HCDiv ().addClass (CSS_CLASS_BIG_QUERY_HELPTEXT)
-                                           .addChild ("Enter the name, address, ID or any other keyword of the entity you are looking for."));
-        aBigQueryBox.addChild (new HCDiv ().addClass (CSS_CLASS_BIG_QUERY_BUTTONS)
-                                           .addChild (new BootstrapSubmitButton ().addChild ("Search PEPPOL Directory")
-                                                                                  .setIcon (EDefaultIcon.MAGNIFIER)));
-
-        final BootstrapRow aBodyRow = aNodeList.addAndReturnChild (new BootstrapRow ());
-        aBodyRow.createColumn (12, 1, 2, 3).addClass (CBootstrapCSS.HIDDEN_XS);
-        aBodyRow.createColumn (12, 10, 8, 6).addChild (aBigQueryBox);
-        aBodyRow.createColumn (12, 1, 2, 3).addClass (CBootstrapCSS.HIDDEN_XS);
+        final BootstrapRow aBodyRow = _createInitialSearchForm (aWPEC);
+        aNodeList.addChild (aBodyRow);
       }
     }
   }
