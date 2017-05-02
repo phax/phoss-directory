@@ -16,8 +16,10 @@
  */
 package com.helger.pd.publisher.app.pub.page;
 
+import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Function;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -26,6 +28,7 @@ import org.apache.lucene.search.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.collection.ext.ICommonsList;
 import com.helger.commons.collection.multimap.IMultiMapListBased;
@@ -41,9 +44,9 @@ import com.helger.html.hc.html.forms.EHCFormMethod;
 import com.helger.html.hc.html.forms.HCEdit;
 import com.helger.html.hc.html.forms.HCForm;
 import com.helger.html.hc.html.grouping.HCDiv;
+import com.helger.html.hc.html.grouping.HCLI;
 import com.helger.html.hc.html.grouping.HCOL;
 import com.helger.html.hc.html.grouping.HCUL;
-import com.helger.html.hc.html.grouping.IHCLI;
 import com.helger.html.hc.html.sections.HCH1;
 import com.helger.html.hc.html.tabular.HCCol;
 import com.helger.html.hc.html.textlevel.HCCode;
@@ -158,6 +161,31 @@ public final class PagePublicSearchSimple extends AbstractAppWebPage
   }
 
   @Nonnull
+  private static <ELEMENTTYPE> String _getImplodedMapped (@Nonnull final String sSep,
+                                                          @Nonnull final String sLastSep,
+                                                          @Nullable final Collection <? extends ELEMENTTYPE> aElements,
+                                                          @Nonnull final Function <? super ELEMENTTYPE, String> aMapper)
+  {
+    ValueEnforcer.notNull (sSep, "Separator");
+    ValueEnforcer.notNull (aMapper, "Mapper");
+
+    final StringBuilder aSB = new StringBuilder ();
+    if (aElements != null)
+    {
+      final int nIndexOfLast = aElements.size () - 1;
+      int nIndex = 0;
+      for (final ELEMENTTYPE aElement : aElements)
+      {
+        if (nIndex > 0)
+          aSB.append (nIndex == nIndexOfLast ? sLastSep : sSep);
+        aSB.append (aMapper.apply (aElement));
+        nIndex++;
+      }
+    }
+    return aSB.toString ();
+  }
+
+  @Nonnull
   private HCNodeList _createParticipantDetails (final Locale aDisplayLocale,
                                                 final String sParticipantID,
                                                 final IParticipantIdentifier aParticipantID)
@@ -226,20 +254,32 @@ public final class PagePublicSearchSimple extends AbstractAppWebPage
         }
         // Add whole list or just the first item?
         final IHCNode aTabLabel = new HCSpan ().addChild ("Business information ")
-                                               .addChild (new BootstrapBadge ().addChild (Integer.toString (aDocuments.size ())));
+                                               .addChild (BootstrapBadge.createNumeric (aDocuments.size ()));
         aTabBox.addTab ("businessinfo", aTabLabel, aOL, true);
       }
 
       // Document types
       {
-        final HCOL aDocTypeCtrl = new HCOL ();
-        final ICommonsList <? extends IDocumentTypeIdentifier> aDocTypeIDs = aResultDocs.get (0)
+        final HCNodeList aDocTypeCtrl = new HCNodeList ();
+        aDocTypeCtrl.addChild (new BootstrapInfoBox ().addChild ("The following document types are supported by " +
+                                                                 _getImplodedMapped (", ",
+                                                                                     " and ",
+                                                                                     aDocuments,
+                                                                                     x -> "'" + x.getName () + "'") +
+                                                                 ":"));
+
+        HCOL aDocTypeOL = null;
+        final ICommonsList <? extends IDocumentTypeIdentifier> aDocTypeIDs = aResultDocs.getFirst ()
                                                                                         .getAllDocumentTypeIDs ()
                                                                                         .getSortedInline (IDocumentTypeIdentifier.comparator ());
         for (final IDocumentTypeIdentifier aDocTypeID : aDocTypeIDs)
         {
-          final IHCLI <?> aLI = aDocTypeCtrl.addItem ();
+          if (aDocTypeOL == null)
+            aDocTypeOL = aDocTypeCtrl.addAndReturnChild (new HCOL ());
+
+          final HCLI aLI = aDocTypeOL.addItem ();
           aLI.addChild (PDCommonUI.getDocumentTypeID (aDocTypeID));
+
           if (false && GlobalDebug.isDebugMode ())
             try
             {
@@ -251,11 +291,14 @@ public final class PagePublicSearchSimple extends AbstractAppWebPage
               // Happens for non-PEPPOL identifiers
             }
         }
+
+        if (aDocTypeOL == null)
+          aDocTypeCtrl.addChild (new BootstrapWarnBox ().addChild ("This participant does not support any document types!"));
+
         aTabBox.addTab ("doctypes",
                         new HCSpan ().addChild ("Supported document types ")
-                                     .addChild (new BootstrapBadge ().addChild (Integer.toString (aDocTypeIDs.size ()))),
-                        aDocTypeCtrl.hasChildren () ? aDocTypeCtrl
-                                                    : new BootstrapWarnBox ().addChild ("This participant does not support any document types!"),
+                                     .addChild (BootstrapBadge.createNumeric (aDocTypeIDs.size ())),
+                        aDocTypeCtrl,
                         false);
       }
       aDetails.addChild (aTabBox);
