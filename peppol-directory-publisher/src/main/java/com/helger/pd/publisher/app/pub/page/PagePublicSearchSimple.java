@@ -219,7 +219,7 @@ public final class PagePublicSearchSimple extends AbstractAppWebPage
           if (aDocuments.size () > 1)
             aPanel.getOrCreateHeader ().addChild ("Business information entity " + nIndex);
           final BootstrapViewForm aViewForm = PDCommonUI.showBusinessInfoDetails (aStoredDoc, aDisplayLocale);
-          aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Full technical participant ID")
+          aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Full PEPPOL participant ID")
                                                            .setCtrl (new HCCode ().addChild (sParticipantID)));
           aPanel.getBody ().addChild (aViewForm);
           ++nIndex;
