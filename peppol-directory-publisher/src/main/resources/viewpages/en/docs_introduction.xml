@@ -47,6 +47,26 @@
   participant is a participant of the PEPPOL network. 
 </p>
 
+<h3>Why only receiving capabilities are listed?</h3>
+
+<p>
+  The current administrative policy of the PEPPOL network requires that only Document Receiving capabilities 
+  of PEPPOL participants are registered on the network.
+  There are plans to expand this in future to also encompass Document senders.
+</p>  
+
+<p>
+  Until then, however, PEPPOL Directory can only natively index Receivers.
+  Until the PEPPOL Policy changes, PEPPOL Senders without receiving capabilities 
+  would thus be invisible to PEPPOL Directory.
+</p>
+
+<p>
+  If a Participant has connectivity to send PEPPOL documents (e.g. Invoices) but not yet receive (e.g. Purchase Orders), 
+  then they still can be set up on PEPPOL Directory by means of a workaround
+  (where their PEPPOL Provider creates a Dummy ID for indexing).
+</p>
+
 <h2>How to use it</h2>
 
 <p>
