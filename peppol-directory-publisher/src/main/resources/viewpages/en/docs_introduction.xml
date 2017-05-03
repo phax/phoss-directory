@@ -66,24 +66,3 @@
   then they still can be set up on PEPPOL Directory by means of a workaround
   (where their PEPPOL Provider creates a Dummy ID for indexing).
 </p>
-
-<h2>How to use it</h2>
-
-<p>
-  The PEPPOL Directory offers the following possibilities to search for participant information:
-</p>
-
-<ul>
-  <li>
-    <strong>Freetext search</strong> via a Webbrowser.
-    There is both a simple search interface (available)
-    as well as a more complex search interface to search for certain fields only (work in progress). 
-  </li>
-  <li>
-    <strong>Automatic search</strong> via a REST API (work in progress).
-    Details can be found on a <a href="/public/menuitem-docs-rest-api">separate page</a>
-  </li>
-  <li>
-    <strong>Download information</strong> and evaluate the information externally (work in progress).
-  </li>
-</ul>

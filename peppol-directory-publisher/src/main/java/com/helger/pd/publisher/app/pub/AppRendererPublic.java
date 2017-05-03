@@ -142,12 +142,14 @@ public final class AppRendererPublic implements ILayoutAreaContentProvider <Layo
       final BootstrapDropdownMenu aDropDown = aNav.addDropdownMenu ("Documentation");
       aDropDown.addMenuItem (new BootstrapDropdownMenuItem ().setLabel ("Introduction")
                                                              .setLinkAction (aLEC.getLinkToMenuItem (CMenuPublic.MENU_DOCS_INTRODUCTION)));
+      aDropDown.addMenuItem (new BootstrapDropdownMenuItem ().setLabel ("How to use it")
+                                                             .setLinkAction (aLEC.getLinkToMenuItem (CMenuPublic.MENU_DOCS_HOW_TO)));
+      aDropDown.addMenuItem (new BootstrapDropdownMenuItem ().setLabel ("REST API")
+                                                             .setLinkAction (aLEC.getLinkToMenuItem (CMenuPublic.MENU_DOCS_REST_API)));
       aDropDown.addMenuItem (new BootstrapDropdownMenuItem ().setLabel ("Specification draft (PDF)")
                                                              .setLinkAction (LinkHelper.getURLWithContext ("/files/OpenPEPPOL Directory 2016-12-05.pdf")));
       aDropDown.addMenuItem (new BootstrapDropdownMenuItem ().setLabel ("Guide for SMP providers (PDF)")
                                                              .setLinkAction (LinkHelper.getURLWithContext ("/files/OpenPEPPOL Directory for SMP providers 2016-12-05.pdf")));
-      aDropDown.addMenuItem (new BootstrapDropdownMenuItem ().setLabel ("REST API")
-                                                             .setLinkAction (aLEC.getLinkToMenuItem (CMenuPublic.MENU_DOCS_REST_API)));
       aNavbar.addNav (EBootstrapNavbarPosition.COLLAPSIBLE_LEFT, aNav);
     }
 

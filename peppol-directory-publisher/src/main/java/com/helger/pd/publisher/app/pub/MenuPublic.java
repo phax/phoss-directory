@@ -38,6 +38,9 @@ public final class MenuPublic
     aMenuTree.createRootItem (new AppPageViewExternal (CMenuPublic.MENU_DOCS_INTRODUCTION,
                                                        "Introduction",
                                                        new ClassPathResource ("viewpages/en/docs_introduction.xml")));
+    aMenuTree.createRootItem (new AppPageViewExternal (CMenuPublic.MENU_DOCS_HOW_TO,
+                                                       "How to use it",
+                                                       new ClassPathResource ("viewpages/en/docs_how_to.xml")));
     aMenuTree.createRootItem (new AppPageViewExternal (CMenuPublic.MENU_DOCS_REST_API,
                                                        "REST API documentation",
                                                        new ClassPathResource ("viewpages/en/docs_rest_api.xml")));
