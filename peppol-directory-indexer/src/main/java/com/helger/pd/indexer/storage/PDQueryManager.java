@@ -90,7 +90,7 @@ public final class PDQueryManager
     try (final TokenStream aTokenStream = aAnalyzerProvider.getAnalyzer ().tokenStream (CPDStorage.FIELD_ALL_FIELDS,
                                                                                         sQueryString))
     {
-      final ICommonsList <String> ret = new CommonsArrayList<> ();
+      final ICommonsList <String> ret = new CommonsArrayList <> ();
       final CharTermAttribute aCharTermAttribute = aTokenStream.addAttribute (CharTermAttribute.class);
       aTokenStream.reset ();
       while (aTokenStream.incrementToken ())
@@ -108,7 +108,7 @@ public final class PDQueryManager
                       "' into terms. Defaulting to regEx splitting",
                       ex);
       // Fall-back
-      return RegExHelper.getSplitToList (sQueryString, "\\s+");
+      return RegExHelper.getSplitToList (sQueryString.trim (), "\\s+");
     }
   }
 
