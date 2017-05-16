@@ -18,12 +18,11 @@ package com.helger.pd.businesscard.v1;
 
 import java.util.List;
 
+import com.helger.commons.annotation.CodingStyleguideUnaware;
 import com.helger.commons.collection.ext.CommonsArrayList;
 import com.helger.commons.io.resource.ClassPathResource;
 import com.helger.commons.io.resource.IReadableResource;
 import com.helger.jaxb.AbstractJAXBMarshaller;
-import com.helger.pd.businesscard.v1.ObjectFactory;
-import com.helger.pd.businesscard.v1.PD1BusinessCardType;
 
 /**
  * This is the reader and writer for {@link PD1BusinessCardType} documents. This
@@ -38,6 +37,7 @@ public class PD1BusinessCardMarshaller extends AbstractJAXBMarshaller <PD1Busine
   public static final String BUSINESS_INFORMATION_NS_URI = ObjectFactory._BusinessCard_QNAME.getNamespaceURI ();
 
   /** XSD resources */
+  @CodingStyleguideUnaware
   public static final List <? extends IReadableResource> BUSINESS_CARD_XSDS = new CommonsArrayList <> (new ClassPathResource ("/schemas/peppol-directory-business-card-20160112.xsd")).getAsUnmodifiable ();
 
   /**

@@ -21,6 +21,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 
 import com.helger.commons.ValueEnforcer;
+import com.helger.commons.annotation.CodingStyleguideUnaware;
 import com.helger.commons.collection.ext.CommonsArrayList;
 import com.helger.commons.io.resource.ClassPathResource;
 import com.helger.commons.io.resource.IReadableResource;
@@ -42,6 +43,7 @@ public class PD2BusinessCardMarshaller extends AbstractJAXBMarshaller <PD2Busine
   public static final String BUSINESS_INFORMATION_NS_URI = ObjectFactory._BusinessCard_QNAME.getNamespaceURI ();
 
   /** XSD resources */
+  @CodingStyleguideUnaware
   public static final List <? extends IReadableResource> BUSINESS_CARD_XSDS = new CommonsArrayList <> (new ClassPathResource ("/schemas/peppol-directory-business-card-20161123.xsd")).getAsUnmodifiable ();
 
   /**
@@ -64,7 +66,7 @@ public class PD2BusinessCardMarshaller extends AbstractJAXBMarshaller <PD2Busine
   /**
    * Convert a V2 BusinessCard to a V1 Business Card. This is straight forward,
    * as the V2 BC format is a total subset of the V1 BC format.
-   * 
+   *
    * @param aBusinessCard
    *        V2 (smaller) business card. May not be <code>null</code>.
    * @return The V1 (bigger) business card. Will never be <code>null</code>.
