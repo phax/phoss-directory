@@ -117,11 +117,15 @@ public final class PDQueryManager
   {
     if (false)
       return new TermQuery (new Term (CPDStorage.FIELD_ALL_FIELDS, sText));
+    // This works -> text ==> *text*
     return new WildcardQuery (new Term (CPDStorage.FIELD_ALL_FIELDS, "*" + sText + "*"));
   }
 
   /**
-   * Convert a query string as entered by the used into a Lucene query.
+   * Convert a query string as entered by the used into a Lucene query. This
+   * methods uses {@link #getSplitIntoTerms(ILuceneAnalyzerProvider, String)} to
+   * split the provided string into pieces and returns a boolean query that
+   * includes all terms (like an AND query).
    *
    * @param aAnalyzerProvider
    *        Lucene Analyzer provider
