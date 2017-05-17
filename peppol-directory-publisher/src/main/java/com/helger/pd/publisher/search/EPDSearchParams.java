@@ -33,4 +33,10 @@ public enum EPDSearchParams
   {
     return m_sParamName;
   }
+
+  @Nullable
+  public EPDMatchType getMatchType ()
+  {
+    return m_eMatchType;
+  }
 }

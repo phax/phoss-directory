@@ -48,6 +48,7 @@ import com.helger.pd.indexer.storage.PDQueryManager;
 import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.pd.indexer.storage.PDStoredDocument;
 import com.helger.pd.publisher.app.AppCommonUI;
+import com.helger.pd.publisher.search.EPDSearchParams;
 import com.helger.pd.publisher.ui.HCExtImg;
 import com.helger.pd.publisher.ui.PDCommonUI;
 import com.helger.peppol.identifier.factory.IIdentifierFactory;
@@ -73,7 +74,7 @@ import com.helger.photon.uicore.page.WebPageExecutionContext;
 
 public final class PagePublicSearchSimple extends AbstractPagePublicSearch
 {
-  public static final String FIELD_QUERY = "q";
+  public static final String FIELD_QUERY = EPDSearchParams.GENERIC_QUERY.getParamName ();
   public static final String FIELD_PARTICIPANT_ID = "partid";
   public static final String PARAM_MAX = "max";
   private static final Logger s_aLogger = LoggerFactory.getLogger (PagePublicSearchSimple.class);
