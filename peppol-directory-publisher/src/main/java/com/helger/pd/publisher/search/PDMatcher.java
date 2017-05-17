@@ -6,10 +6,14 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.MonthDay;
 import java.time.YearMonth;
+import java.time.format.DateTimeParseException;
 import java.util.Locale;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.helger.commons.CGlobal;
 import com.helger.commons.compare.CompareHelper;
@@ -18,7 +22,7 @@ import com.helger.commons.math.MathHelper;
 import com.helger.commons.regex.RegExHelper;
 import com.helger.commons.string.StringHelper;
 import com.helger.commons.typeconvert.TypeConverter;
-import com.helger.datetime.util.PDTHelper;
+import com.helger.commons.typeconvert.TypeConverterException;
 
 /**
  * Generic matcher. Compares a search value using a specified operator on a
@@ -28,6 +32,8 @@ import com.helger.datetime.util.PDTHelper;
  */
 public final class PDMatcher
 {
+  private static final Logger s_aLogger = LoggerFactory.getLogger (PDMatcher.class);
+
   private PDMatcher ()
   {}
 
@@ -119,9 +125,9 @@ public final class PDMatcher
                               eOperator,
                               TypeConverter.convertIfNecessary (aSearchValue, String.class));
       case INT_EVEN:
-        return aReferenceValue != null && MathHelper.isEqualToZero (aReferenceValue.mod (CGlobal.BIGINT_2));
+        return aReferenceValue != null && MathHelper.isEQ0 (aReferenceValue.mod (CGlobal.BIGINT_2));
       case INT_ODD:
-        return aReferenceValue != null && MathHelper.isNotEqualToZero (aReferenceValue.mod (CGlobal.BIGINT_2));
+        return aReferenceValue != null && MathHelper.isNE0 (aReferenceValue.mod (CGlobal.BIGINT_2));
       default:
         throw new IllegalArgumentException ("Unsupported Int search operator " + eOperator);
     }
@@ -178,15 +184,17 @@ public final class PDMatcher
       case NE:
         return !EqualsHelper.equals (aReferenceValue, aSearchValue);
       case LT:
-        return PDTHelper.isLess (TypeConverter.convertIfNecessary (aSearchValue, LocalDate.class), aReferenceValue);
+        return CompareHelper.compare (TypeConverter.convertIfNecessary (aSearchValue, LocalDate.class),
+                                      aReferenceValue) < 0;
       case LE:
-        return PDTHelper.isLessOrEqual (TypeConverter.convertIfNecessary (aSearchValue, LocalDate.class),
-                                        aReferenceValue);
+        return CompareHelper.compare (TypeConverter.convertIfNecessary (aSearchValue, LocalDate.class),
+                                      aReferenceValue) <= 0;
       case GT:
-        return PDTHelper.isGreater (TypeConverter.convertIfNecessary (aSearchValue, LocalDate.class), aReferenceValue);
+        return CompareHelper.compare (TypeConverter.convertIfNecessary (aSearchValue, LocalDate.class),
+                                      aReferenceValue) > 0;
       case GE:
-        return PDTHelper.isGreaterOrEqual (TypeConverter.convertIfNecessary (aSearchValue, LocalDate.class),
-                                           aReferenceValue);
+        return CompareHelper.compare (TypeConverter.convertIfNecessary (aSearchValue, LocalDate.class),
+                                      aReferenceValue) >= 0;
       case EMPTY:
         return aReferenceValue == null;
       case NOT_EMPTY:
@@ -220,15 +228,17 @@ public final class PDMatcher
       case NE:
         return !EqualsHelper.equals (aReferenceValue, aSearchValue);
       case LT:
-        return PDTHelper.isLess (TypeConverter.convertIfNecessary (aSearchValue, LocalTime.class), aReferenceValue);
+        return CompareHelper.compare (TypeConverter.convertIfNecessary (aSearchValue, LocalTime.class),
+                                      aReferenceValue) < 0;
       case LE:
-        return PDTHelper.isLessOrEqual (TypeConverter.convertIfNecessary (aSearchValue, LocalTime.class),
-                                        aReferenceValue);
+        return CompareHelper.compare (TypeConverter.convertIfNecessary (aSearchValue, LocalTime.class),
+                                      aReferenceValue) <= 0;
       case GT:
-        return PDTHelper.isGreater (TypeConverter.convertIfNecessary (aSearchValue, LocalTime.class), aReferenceValue);
+        return CompareHelper.compare (TypeConverter.convertIfNecessary (aSearchValue, LocalTime.class),
+                                      aReferenceValue) > 0;
       case GE:
-        return PDTHelper.isGreaterOrEqual (TypeConverter.convertIfNecessary (aSearchValue, LocalTime.class),
-                                           aReferenceValue);
+        return CompareHelper.compare (TypeConverter.convertIfNecessary (aSearchValue, LocalTime.class),
+                                      aReferenceValue) >= 0;
       case EMPTY:
         return aReferenceValue == null;
       case NOT_EMPTY:
@@ -268,38 +278,48 @@ public final class PDMatcher
                                  @Nonnull final EPDSearchOperator eOperator,
                                  @Nullable final Object aSearchValue)
   {
-    switch (eDataType)
+    try
     {
-      case STRING_CS:
-        return matchesString (TypeConverter.convertIfNecessary (aReferenceValue, String.class),
-                              eOperator,
-                              TypeConverter.convertIfNecessary (aSearchValue, String.class));
-      case STRING_CI:
-        return matchesString (unify (TypeConverter.convertIfNecessary (aReferenceValue, String.class)),
-                              eOperator,
-                              unify (TypeConverter.convertIfNecessary (aSearchValue, String.class)));
-      case INT:
-        return matchesInt (TypeConverter.convertIfNecessary (aReferenceValue, BigInteger.class),
-                           eOperator,
-                           aSearchValue);
-      case DOUBLE:
-        return matchesDouble (TypeConverter.convertIfNecessary (aReferenceValue, BigDecimal.class),
+      switch (eDataType)
+      {
+        case STRING_CS:
+          return matchesString (TypeConverter.convertIfNecessary (aReferenceValue, String.class),
+                                eOperator,
+                                TypeConverter.convertIfNecessary (aSearchValue, String.class));
+        case STRING_CI:
+          return matchesString (unify (TypeConverter.convertIfNecessary (aReferenceValue, String.class)),
+                                eOperator,
+                                unify (TypeConverter.convertIfNecessary (aSearchValue, String.class)));
+        case INT:
+          return matchesInt (TypeConverter.convertIfNecessary (aReferenceValue, BigInteger.class),
+                             eOperator,
+                             aSearchValue);
+        case DOUBLE:
+          return matchesDouble (TypeConverter.convertIfNecessary (aReferenceValue, BigDecimal.class),
+                                eOperator,
+                                aSearchValue);
+        case DATE:
+          return matchesDate (TypeConverter.convertIfNecessary (aReferenceValue, LocalDate.class),
                               eOperator,
                               aSearchValue);
-      case DATE:
-        return matchesDate (TypeConverter.convertIfNecessary (aReferenceValue, LocalDate.class),
-                            eOperator,
-                            aSearchValue);
-      case TIME:
-        return matchesTime (TypeConverter.convertIfNecessary (aReferenceValue, LocalTime.class),
-                            eOperator,
-                            aSearchValue);
-      case BOOLEAN:
-        return matchesBoolean (TypeConverter.convertIfNecessary (aReferenceValue, Boolean.class),
-                               eOperator,
-                               TypeConverter.convertIfNecessary (aSearchValue, Boolean.class));
-      default:
-        throw new IllegalStateException ("Unsupported data type: " + eDataType);
+        case TIME:
+          return matchesTime (TypeConverter.convertIfNecessary (aReferenceValue, LocalTime.class),
+                              eOperator,
+                              aSearchValue);
+        case BOOLEAN:
+          return matchesBoolean (TypeConverter.convertIfNecessary (aReferenceValue, Boolean.class),
+                                 eOperator,
+                                 TypeConverter.convertIfNecessary (aSearchValue, Boolean.class));
+        default:
+          throw new IllegalStateException ("Unsupported data type: " + eDataType);
+      }
+    }
+    catch (final TypeConverterException | DateTimeParseException ex)
+    {
+      // Doesn't matter - doesn't match
+      if (s_aLogger.isDebugEnabled ())
+        s_aLogger.debug ("Type conversion failed", ex);
+      return false;
     }
   }
 }
