@@ -30,7 +30,6 @@ import com.helger.commons.collection.ext.ICommonsList;
 import com.helger.commons.collection.multimap.IMultiMapListBased;
 import com.helger.commons.locale.country.CountryCache;
 import com.helger.commons.string.StringHelper;
-import com.helger.commons.url.SimpleURL;
 import com.helger.html.hc.IHCNode;
 import com.helger.html.hc.ext.HCExtHelper;
 import com.helger.html.hc.html.forms.EHCFormMethod;
@@ -49,7 +48,6 @@ import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.pd.indexer.storage.PDStoredDocument;
 import com.helger.pd.publisher.app.AppCommonUI;
 import com.helger.pd.publisher.search.EPDSearchParams;
-import com.helger.pd.publisher.ui.HCExtImg;
 import com.helger.pd.publisher.ui.PDCommonUI;
 import com.helger.peppol.identifier.factory.IIdentifierFactory;
 import com.helger.peppol.identifier.factory.PeppolIdentifierFactory;
@@ -74,8 +72,14 @@ import com.helger.photon.uicore.page.WebPageExecutionContext;
 
 public final class PagePublicSearchExtended extends AbstractPagePublicSearch
 {
-  public static final String FIELD_QUERY = EPDSearchParams.GENERIC_QUERY.getParamName ();
-  public static final String FIELD_PARTICIPANT_ID = "partid";
+  @Deprecated
+  private static final String FIELD_QUERY = "q";
+  public static final String FIELD_NAME = EPDSearchParams.NAME.getParamName ();
+  public static final String FIELD_COUNTRY = EPDSearchParams.COUNTRY.getParamName ();
+  public static final String FIELD_GEO_INFO = EPDSearchParams.GEO_INFO.getParamName ();
+  public static final String FIELD_IDENTIFIER = EPDSearchParams.IDENTIFIER.getParamName ();
+  public static final String FIELD_REGISTRATION_DATE = EPDSearchParams.REGISTRATION_DATE.getParamName ();
+  public static final String FIELD_PARTICIPANT_ID = EPDSearchParams.PARTICIPANT_ID.getParamName ();
   public static final String PARAM_MAX = "max";
   private static final Logger s_aLogger = LoggerFactory.getLogger (PagePublicSearchExtended.class);
 
@@ -127,16 +131,7 @@ public final class PagePublicSearchExtended extends AbstractPagePublicSearch
     final Locale aDisplayLocale = aWPEC.getDisplayLocale ();
     final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
 
-    {
-      final BootstrapRow aHeaderRow = aNodeList.addAndReturnChild (new BootstrapRow ());
-      // The logo
-      aHeaderRow.createColumn (12, 12, 1, 2).addClass (CBootstrapCSS.HIDDEN_SM);
-      aHeaderRow.createColumn (12, 6, 5, 4)
-                .addChild (new HCExtImg (new SimpleURL ("/imgs/pd-logo.png")).addClass (CBootstrapCSS.PULL_LEFT));
-      aHeaderRow.createColumn (12, 6, 5, 4)
-                .addChild (new HCExtImg (new SimpleURL ("/imgs/peppol.png")).addClass (CBootstrapCSS.PULL_RIGHT));
-      aHeaderRow.createColumn (12, 12, 1, 2).addClass (CBootstrapCSS.HIDDEN_SM);
-    }
+    aNodeList.addAndReturnChild (createLogoRow ());
 
     final String sQuery = aWPEC.getAttributeAsString (FIELD_QUERY);
     final String sParticipantID = aWPEC.getAttributeAsString (FIELD_PARTICIPANT_ID);
