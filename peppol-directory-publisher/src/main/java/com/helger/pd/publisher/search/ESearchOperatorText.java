@@ -10,7 +10,7 @@ import com.helger.commons.text.display.IHasDisplayText;
 import com.helger.commons.text.resolve.DefaultTextResolver;
 import com.helger.commons.text.util.TextHelper;
 
-public enum EPDSearchOperatorText implements IHasDisplayText
+public enum ESearchOperatorText implements IHasDisplayText
 {
   /** Equals */
   EQ ("="),
@@ -59,12 +59,12 @@ public enum EPDSearchOperatorText implements IHasDisplayText
 
   private final IMultilingualText m_aTP;
 
-  private EPDSearchOperatorText (@Nonnull final String sGeneric)
+  private ESearchOperatorText (@Nonnull final String sGeneric)
   {
     this (sGeneric, sGeneric);
   }
 
-  private EPDSearchOperatorText (@Nonnull final String sDE, @Nonnull final String sEN)
+  private ESearchOperatorText (@Nonnull final String sDE, @Nonnull final String sEN)
   {
     m_aTP = TextHelper.create_DE_EN (sDE, sEN);
   }

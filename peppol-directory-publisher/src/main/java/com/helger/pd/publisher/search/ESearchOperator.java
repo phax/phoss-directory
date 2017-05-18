@@ -12,62 +12,62 @@ import com.helger.commons.id.IHasID;
 import com.helger.commons.lang.EnumHelper;
 import com.helger.commons.text.display.IHasDisplayText;
 
-public enum EPDSearchOperator implements IHasDisplayText, IHasID <String>
+public enum ESearchOperator implements IHasDisplayText, IHasID <String>
 {
   /** Equals */
-  EQ ("eq", true, null, EPDSearchOperatorText.EQ),
+  EQ ("eq", true, null, ESearchOperatorText.EQ),
   /** Not equals */
-  NE ("ne", true, null, EPDSearchOperatorText.NE),
+  NE ("ne", true, null, ESearchOperatorText.NE),
   /** Lower than */
-  LT ("lt", true, null, EPDSearchOperatorText.LT),
+  LT ("lt", true, null, ESearchOperatorText.LT),
   /** Lower or equal */
-  LE ("le", true, null, EPDSearchOperatorText.LE),
+  LE ("le", true, null, ESearchOperatorText.LE),
   /** Greater than */
-  GT ("gt", true, null, EPDSearchOperatorText.GT),
+  GT ("gt", true, null, ESearchOperatorText.GT),
   /** Greater or equal */
-  GE ("ge", true, null, EPDSearchOperatorText.GE),
+  GE ("ge", true, null, ESearchOperatorText.GE),
   /** Is empty */
-  EMPTY ("empty", false, null, EPDSearchOperatorText.EMPTY),
+  EMPTY ("empty", false, null, ESearchOperatorText.EMPTY),
   /** Is not empty */
-  NOT_EMPTY ("notempty", false, null, EPDSearchOperatorText.NOT_EMPTY),
+  NOT_EMPTY ("notempty", false, null, ESearchOperatorText.NOT_EMPTY),
   /** String contains */
-  STRING_CONTAINS ("contains", true, String.class, EPDSearchOperatorText.STRING_CONTAINS),
+  STRING_CONTAINS ("contains", true, String.class, ESearchOperatorText.STRING_CONTAINS),
   /** String starts with */
-  STRING_STARTS_WITH ("startswith", true, String.class, EPDSearchOperatorText.STRING_STARTS_WITH),
+  STRING_STARTS_WITH ("startswith", true, String.class, ESearchOperatorText.STRING_STARTS_WITH),
   /** String ends with */
-  STRING_ENDS_WITH ("endswith", true, String.class, EPDSearchOperatorText.STRING_ENDS_WITH),
+  STRING_ENDS_WITH ("endswith", true, String.class, ESearchOperatorText.STRING_ENDS_WITH),
   /** String matches regular expression */
-  STRING_REGEX ("regex", true, String.class, EPDSearchOperatorText.STRING_REGEX),
+  STRING_REGEX ("regex", true, String.class, ESearchOperatorText.STRING_REGEX),
   /** Int even */
-  INT_EVEN ("even", false, null, EPDSearchOperatorText.INT_EVEN),
+  INT_EVEN ("even", false, null, ESearchOperatorText.INT_EVEN),
   /** Int odd */
-  INT_ODD ("odd", false, null, EPDSearchOperatorText.INT_ODD),
+  INT_ODD ("odd", false, null, ESearchOperatorText.INT_ODD),
   /** Year of date */
-  DATE_YEAR ("year", true, int.class, EPDSearchOperatorText.DATE_YEAR),
+  DATE_YEAR ("year", true, int.class, ESearchOperatorText.DATE_YEAR),
   /** Month of date */
-  DATE_MONTH ("month", true, int.class, EPDSearchOperatorText.DATE_MONTH),
+  DATE_MONTH ("month", true, int.class, ESearchOperatorText.DATE_MONTH),
   /** Day of date */
-  DATE_DAY ("day", true, int.class, EPDSearchOperatorText.DATE_DAY),
+  DATE_DAY ("day", true, int.class, ESearchOperatorText.DATE_DAY),
   /** Year and month of date */
-  DATE_YEAR_MONTH ("yearmonth", true, YearMonth.class, EPDSearchOperatorText.DATE_YEAR_MONTH),
+  DATE_YEAR_MONTH ("yearmonth", true, YearMonth.class, ESearchOperatorText.DATE_YEAR_MONTH),
   /** Month and day of date */
-  DATE_MONTH_DAY ("monthday", true, MonthDay.class, EPDSearchOperatorText.DATE_MONTH_DAY),
+  DATE_MONTH_DAY ("monthday", true, MonthDay.class, ESearchOperatorText.DATE_MONTH_DAY),
   /** Hour of time */
-  TIME_HOUR ("hour", true, int.class, EPDSearchOperatorText.TIME_HOUR),
+  TIME_HOUR ("hour", true, int.class, ESearchOperatorText.TIME_HOUR),
   /** Minute of time */
-  TIME_MINUTE ("minute", true, int.class, EPDSearchOperatorText.TIME_MINUTE),
+  TIME_MINUTE ("minute", true, int.class, ESearchOperatorText.TIME_MINUTE),
   /** Second of time */
-  TIME_SECOND ("second", true, int.class, EPDSearchOperatorText.TIME_SECOND);
+  TIME_SECOND ("second", true, int.class, ESearchOperatorText.TIME_SECOND);
 
   private final String m_sID;
   private final boolean m_bNeedsValue;
   private final Class <?> m_aSpecialValueClass;
-  private final EPDSearchOperatorText m_eDisplayText;
+  private final ESearchOperatorText m_eDisplayText;
 
-  private EPDSearchOperator (@Nonnull @Nonempty final String sID,
+  private ESearchOperator (@Nonnull @Nonempty final String sID,
                              final boolean bNeedsValue,
                              @Nullable final Class <?> aSpecialValueClass,
-                             @Nonnull final EPDSearchOperatorText eDisplayText)
+                             @Nonnull final ESearchOperatorText eDisplayText)
   {
     m_sID = sID;
     m_bNeedsValue = bNeedsValue;
@@ -118,8 +118,8 @@ public enum EPDSearchOperator implements IHasDisplayText, IHasID <String>
   }
 
   @Nullable
-  public static EPDSearchOperator getFromIDOrNull (@Nullable final String sID)
+  public static ESearchOperator getFromIDOrNull (@Nullable final String sID)
   {
-    return EnumHelper.getFromIDOrNull (EPDSearchOperator.class, sID);
+    return EnumHelper.getFromIDOrNull (ESearchOperator.class, sID);
   }
 }

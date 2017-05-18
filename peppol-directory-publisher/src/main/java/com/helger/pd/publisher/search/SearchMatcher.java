@@ -30,11 +30,11 @@ import com.helger.commons.typeconvert.TypeConverterException;
  *
  * @author Philip Helger
  */
-public final class PDMatcher
+public final class SearchMatcher
 {
-  private static final Logger s_aLogger = LoggerFactory.getLogger (PDMatcher.class);
+  private static final Logger s_aLogger = LoggerFactory.getLogger (SearchMatcher.class);
 
-  private PDMatcher ()
+  private SearchMatcher ()
   {}
 
   @Nullable
@@ -44,7 +44,7 @@ public final class PDMatcher
   }
 
   public static boolean matchesString (@Nullable final String sReferenceValue,
-                                       @Nonnull final EPDSearchOperator eOperator,
+                                       @Nonnull final ESearchOperator eOperator,
                                        @Nullable final String sSearchValue)
   {
     switch (eOperator)
@@ -90,7 +90,7 @@ public final class PDMatcher
   }
 
   public static boolean matchesInt (@Nullable final BigInteger aReferenceValue,
-                                    @Nonnull final EPDSearchOperator eOperator,
+                                    @Nonnull final ESearchOperator eOperator,
                                     @Nullable final Object aSearchValue)
   {
     switch (eOperator)
@@ -134,7 +134,7 @@ public final class PDMatcher
   }
 
   public static boolean matchesDouble (@Nullable final BigDecimal aReferenceValue,
-                                       @Nonnull final EPDSearchOperator eOperator,
+                                       @Nonnull final ESearchOperator eOperator,
                                        @Nullable final Object aSearchValue)
   {
     switch (eOperator)
@@ -174,7 +174,7 @@ public final class PDMatcher
   }
 
   public static boolean matchesDate (@Nullable final LocalDate aReferenceValue,
-                                     @Nonnull final EPDSearchOperator eOperator,
+                                     @Nonnull final ESearchOperator eOperator,
                                      @Nullable final Object aSearchValue)
   {
     switch (eOperator)
@@ -218,7 +218,7 @@ public final class PDMatcher
   }
 
   public static boolean matchesTime (@Nullable final LocalTime aReferenceValue,
-                                     @Nonnull final EPDSearchOperator eOperator,
+                                     @Nonnull final ESearchOperator eOperator,
                                      @Nullable final Object aSearchValue)
   {
     switch (eOperator)
@@ -255,7 +255,7 @@ public final class PDMatcher
   }
 
   public static boolean matchesBoolean (@Nullable final Boolean aReferenceValue,
-                                        @Nonnull final EPDSearchOperator eOperator,
+                                        @Nonnull final ESearchOperator eOperator,
                                         @Nullable final Boolean aSearchValue)
   {
     switch (eOperator)
@@ -274,8 +274,8 @@ public final class PDMatcher
   }
 
   public static boolean matches (@Nullable final Object aReferenceValue,
-                                 @Nonnull final EPDSearchDataType eDataType,
-                                 @Nonnull final EPDSearchOperator eOperator,
+                                 @Nonnull final ESearchDataType eDataType,
+                                 @Nonnull final ESearchOperator eOperator,
                                  @Nullable final Object aSearchValue)
   {
     ValueEnforcer.notNull (eDataType, "DataType");

@@ -29,7 +29,7 @@ import com.helger.html.hc.html.forms.HCEdit;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.publisher.search.EPDSearchParams;
-import com.helger.pd.publisher.ui.HCSearchOperatorSelect;
+import com.helger.pd.publisher.search.ui.HCSearchOperatorSelect;
 import com.helger.peppol.identifier.factory.IIdentifierFactory;
 import com.helger.photon.bootstrap3.form.BootstrapFormGroup;
 import com.helger.photon.bootstrap3.form.BootstrapViewForm;
