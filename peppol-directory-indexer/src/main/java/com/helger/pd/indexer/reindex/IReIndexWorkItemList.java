@@ -16,11 +16,14 @@
  */
 package com.helger.pd.indexer.reindex;
 
+import java.util.function.Predicate;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.helger.commons.annotation.ReturnsMutableCopy;
 import com.helger.commons.collection.ext.ICommonsList;
+import com.helger.commons.state.EChange;
 
 /**
  * Base interface for {@link ReIndexWorkItem} objects.
@@ -39,11 +42,27 @@ public interface IReIndexWorkItemList
 
   /**
    * Get the item with the specified ID.
-   * 
+   *
    * @param sID
    *        The ID to search. May be <code>null</code>.
    * @return <code>null</code> if no such item exists.
    */
   @Nullable
   IReIndexWorkItem getItemOfID (@Nullable String sID);
+
+  /**
+   * Find and remove the first work item matching the provided predicate.
+   *
+   * @param aPred
+   *        The predicate to use. May not be <code>null</code>.
+   * @return <code>null</code> if no such entry exists.
+   */
+  @Nullable
+  IReIndexWorkItem getAndRemoveEntry (@Nonnull Predicate <? super IReIndexWorkItem> aPred);
+
+  @Nonnull
+  default EChange deleteItem (@Nullable final String sID)
+  {
+    return EChange.valueOf (sID != null && getAndRemoveEntry (x -> x.getID ().equals (sID)) != null);
+  }
 }

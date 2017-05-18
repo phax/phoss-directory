@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.datetime.PDTFactory;
+import com.helger.commons.name.IHasDisplayName;
 import com.helger.commons.type.ITypedObject;
 import com.helger.pd.indexer.index.IIndexerWorkItem;
 
@@ -34,7 +35,7 @@ import com.helger.pd.indexer.index.IIndexerWorkItem;
  *
  * @author Philip Helger
  */
-public interface IReIndexWorkItem extends ITypedObject <String>, Serializable
+public interface IReIndexWorkItem extends ITypedObject <String>, IHasDisplayName, Serializable
 {
   /**
    * @return The original work item. Never <code>null</code>.
@@ -89,7 +90,7 @@ public interface IReIndexWorkItem extends ITypedObject <String>, Serializable
 
   /**
    * Check if the passed date time qualifies the entry for the next retry.
-   * 
+   *
    * @param aDT
    *        The date time to check
    * @return <code>true</code> if the time for the next retry is here.
@@ -102,4 +103,10 @@ public interface IReIndexWorkItem extends ITypedObject <String>, Serializable
   @Nonnull
   @Nonempty
   String getLogText ();
+
+  @Nonnull
+  default String getDisplayName ()
+  {
+    return getWorkItem ().getParticipantID ().getURIEncoded ();
+  }
 }

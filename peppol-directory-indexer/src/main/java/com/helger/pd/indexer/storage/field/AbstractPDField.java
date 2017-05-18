@@ -113,7 +113,7 @@ public abstract class AbstractPDField <NATIVE_TYPE, STORAGE_TYPE>
   @Nonnull
   public final ICommonsList <IndexableField> getDocFields (@Nonnull final Document aDoc)
   {
-    final ICommonsList <IndexableField> ret = new CommonsArrayList<> ();
+    final ICommonsList <IndexableField> ret = new CommonsArrayList <> ();
     for (final IndexableField aField : aDoc)
       if (aField.name ().equals (m_sFieldName))
         ret.add (aField);
@@ -123,6 +123,14 @@ public abstract class AbstractPDField <NATIVE_TYPE, STORAGE_TYPE>
   @Nonnull
   protected abstract NATIVE_TYPE getFieldNativeValue (@Nonnull IndexableField aField);
 
+  /**
+   * Get the value of this field in the provided document
+   * 
+   * @param aDoc
+   *        The Lucene result document
+   * @return <code>null</code> if no such field is present, the stored value
+   *         otherwise.
+   */
   @Nullable
   public final NATIVE_TYPE getDocValue (@Nonnull final Document aDoc)
   {
@@ -135,7 +143,7 @@ public abstract class AbstractPDField <NATIVE_TYPE, STORAGE_TYPE>
   @Nonnull
   public final ICommonsList <NATIVE_TYPE> getDocValues (@Nonnull final Document aDoc)
   {
-    final ICommonsList <NATIVE_TYPE> ret = new CommonsArrayList<> ();
+    final ICommonsList <NATIVE_TYPE> ret = new CommonsArrayList <> ();
     for (final IndexableField aField : getDocFields (aDoc))
       ret.add (getFieldNativeValue (aField));
     return ret;

@@ -28,6 +28,7 @@ import com.helger.datetime.format.PDTToString;
 import com.helger.html.hc.html.grouping.HCDiv;
 import com.helger.html.hc.html.tabular.HCRow;
 import com.helger.html.hc.html.tabular.HCTable;
+import com.helger.html.hc.html.tabular.IHCCell;
 import com.helger.html.hc.html.textlevel.HCA;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.index.IIndexerWorkItem;
@@ -38,11 +39,16 @@ import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.peppol.sml.ESML;
 import com.helger.peppol.url.IPeppolURLProvider;
 import com.helger.peppol.url.PeppolURLProvider;
+import com.helger.photon.bootstrap3.alert.BootstrapErrorBox;
+import com.helger.photon.bootstrap3.alert.BootstrapQuestionBox;
+import com.helger.photon.bootstrap3.alert.BootstrapSuccessBox;
 import com.helger.photon.bootstrap3.button.BootstrapButton;
 import com.helger.photon.bootstrap3.button.BootstrapButtonToolbar;
 import com.helger.photon.bootstrap3.form.BootstrapForm;
 import com.helger.photon.bootstrap3.form.BootstrapFormGroup;
 import com.helger.photon.bootstrap3.form.BootstrapViewForm;
+import com.helger.photon.bootstrap3.pages.handler.AbstractBootstrapWebPageActionHandlerDelete;
+import com.helger.photon.bootstrap3.uictrls.datatables.BootstrapDTColAction;
 import com.helger.photon.bootstrap3.uictrls.datatables.BootstrapDataTables;
 import com.helger.photon.core.form.FormErrorList;
 import com.helger.photon.uicore.icon.EDefaultIcon;
@@ -61,6 +67,32 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
   {
     super (sID, sName);
     m_bDeadIndex = bDeadIndex;
+    setDeleteHandler (new AbstractBootstrapWebPageActionHandlerDelete <IReIndexWorkItem, WebPageExecutionContext> ()
+    {
+      @Override
+      protected void showDeleteQuery (@Nonnull final WebPageExecutionContext aWPEC,
+                                      @Nonnull final BootstrapForm aForm,
+                                      @Nonnull final IReIndexWorkItem aSelectedObject)
+      {
+        aForm.addChild (new BootstrapQuestionBox ().addChild ("Are you sure to delete the item " +
+                                                              aSelectedObject.getDisplayName () +
+                                                              "?"));
+      }
+
+      @Override
+      protected void performDelete (@Nonnull final WebPageExecutionContext aWPEC,
+                                    @Nonnull final IReIndexWorkItem aSelectedObject)
+      {
+        if (getReIndexWorkItemList ().deleteItem (aSelectedObject.getID ()).isChanged ())
+          aWPEC.postRedirectGetInternal (new BootstrapSuccessBox ().addChild ("The item " +
+                                                                              aSelectedObject.getDisplayName () +
+                                                                              " was successfully deleted!"));
+        else
+          aWPEC.postRedirectGetInternal (new BootstrapErrorBox ().addChild ("Error deleting the item " +
+                                                                            aSelectedObject.getDisplayName () +
+                                                                            "!"));
+      }
+    });
   }
 
   @Nonnull
@@ -77,6 +109,8 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
                                      @Nonnull final EWebPageFormAction eFormAction,
                                      @Nullable final IReIndexWorkItem aSelectedObject)
   {
+    if (eFormAction.isDelete ())
+      return true;
     if (eFormAction.isWriting ())
       return false;
     return super.isActionAllowed (aWPEC, eFormAction, aSelectedObject);
@@ -172,8 +206,8 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
                                         m_bDeadIndex ? null
                                                      : new DTCol ("Next retry").setDisplayType (EDTColType.DATETIME,
                                                                                                 aDisplayLocale),
-                                        new DTCol ("Last retry").setDisplayType (EDTColType.DATETIME,
-                                                                                 aDisplayLocale)).setID (getID ());
+                                        new DTCol ("Last retry").setDisplayType (EDTColType.DATETIME, aDisplayLocale),
+                                        new BootstrapDTColAction (aDisplayLocale)).setID (getID ());
 
     for (final IReIndexWorkItem aItem : getReIndexWorkItemList ().getAllItems ())
     {
@@ -189,6 +223,9 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
       if (!m_bDeadIndex)
         aRow.addCell (PDTToString.getAsString (aItem.getNextRetryDT (), aDisplayLocale));
       aRow.addCell (PDTToString.getAsString (aItem.getMaxRetryDT (), aDisplayLocale));
+
+      final IHCCell <?> aActionCell = aRow.addCell ();
+      aActionCell.addChild (createDeleteLink (aWPEC, aItem));
     }
 
     aNodeList.addChild (aTable);
