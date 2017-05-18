@@ -273,13 +273,17 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
       final IParticipantIdentifier aParticipantID = aIdentifierFactory.parseParticipantIdentifier (sParticipantID);
       if (aParticipantID != null)
       {
-        // Show small query box
-        aNodeList.addChild (_createSmallQueryBox (aWPEC));
-
         // Show participant details
         final HCNodeList aDetails = createParticipantDetails (aDisplayLocale, sParticipantID, aParticipantID);
-        aNodeList.addChild (aDetails);
-        bShowQuery = aDetails.hasNoChildren ();
+        if (aDetails.hasChildren ())
+        {
+          // Show small query box
+          aNodeList.addChild (_createSmallQueryBox (aWPEC));
+
+          // Show details afterwards
+          aNodeList.addChild (aDetails);
+          bShowQuery = false;
+        }
       }
       else
       {

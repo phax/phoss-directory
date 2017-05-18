@@ -143,13 +143,17 @@ public final class PagePublicSearchExtended extends AbstractPagePublicSearch
       final IParticipantIdentifier aParticipantID = aIdentifierFactory.parseParticipantIdentifier (sParticipantID);
       if (aParticipantID != null)
       {
-        // Show small query box
-        aNodeList.addChild (_createSmallQueryBox (aWPEC));
-
         // Show participant details
         final HCNodeList aDetails = createParticipantDetails (aDisplayLocale, sParticipantID, aParticipantID);
-        aNodeList.addChild (aDetails);
-        bShowQuery = aDetails.hasNoChildren ();
+        if (aDetails.hasChildren ())
+        {
+          // Show small query box
+          aNodeList.addChild (_createSmallQueryBox (aWPEC));
+
+          // Show details afterwards
+          aNodeList.addChild (aDetails);
+          bShowQuery = false;
+        }
       }
       else
         aNodeList.addChild (new BootstrapErrorBox ().addChild ("Failed to parse participant identifier '" +
