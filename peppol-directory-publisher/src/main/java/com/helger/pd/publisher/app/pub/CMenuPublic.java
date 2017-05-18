@@ -21,7 +21,8 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public final class CMenuPublic
 {
-  public static final String MENU_SEARCH = "search";
+  public static final String MENU_SEARCH_SIMPLE = "search";
+  public static final String MENU_SEARCH_EXTENDED = "search-ext";
   public static final String MENU_DOCS_INTRODUCTION = "docs-introduction";
   public static final String MENU_DOCS_HOW_TO = "docs-how-to";
   public static final String MENU_DOCS_REST_API = "docs-rest-api";

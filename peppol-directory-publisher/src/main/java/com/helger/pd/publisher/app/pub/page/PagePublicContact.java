@@ -141,7 +141,7 @@ public final class PagePublicContact extends AbstractAppWebPage
       aForm.addChild (new BootstrapSubmitButton ().addChild ("Send message").setIcon (EBootstrapIcon.SEND));
       aForm.addChild (new BootstrapButton (EBootstrapButtonType.DEFAULT).addChild ("No thanks")
                                                                         .setIcon (EDefaultIcon.CANCEL)
-                                                                        .setOnClick (aWPEC.getLinkToMenuItem (CMenuPublic.MENU_SEARCH)));
+                                                                        .setOnClick (aWPEC.getLinkToMenuItem (CMenuPublic.MENU_SEARCH_SIMPLE)));
     }
   }
 }

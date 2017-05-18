@@ -21,6 +21,7 @@ import javax.annotation.concurrent.Immutable;
 
 import com.helger.commons.io.resource.ClassPathResource;
 import com.helger.pd.publisher.app.pub.page.PagePublicContact;
+import com.helger.pd.publisher.app.pub.page.PagePublicSearchExtended;
 import com.helger.pd.publisher.app.pub.page.PagePublicSearchSimple;
 import com.helger.pd.publisher.ui.AppPageViewExternal;
 import com.helger.photon.basic.app.menu.IMenuTree;
@@ -34,7 +35,8 @@ public final class MenuPublic
   public static void init (@Nonnull final IMenuTree aMenuTree)
   {
     // Not logged in
-    aMenuTree.createRootItem (new PagePublicSearchSimple (CMenuPublic.MENU_SEARCH));
+    aMenuTree.createRootItem (new PagePublicSearchSimple (CMenuPublic.MENU_SEARCH_SIMPLE));
+    aMenuTree.createRootItem (new PagePublicSearchExtended (CMenuPublic.MENU_SEARCH_EXTENDED));
     aMenuTree.createRootItem (new AppPageViewExternal (CMenuPublic.MENU_DOCS_INTRODUCTION,
                                                        "Introduction",
                                                        new ClassPathResource ("viewpages/en/docs_introduction.xml")));
@@ -53,6 +55,6 @@ public final class MenuPublic
                                                        new ClassPathResource ("viewpages/en/about.xml")));
 
     // Set default
-    aMenuTree.setDefaultMenuItemID (CMenuPublic.MENU_SEARCH);
+    aMenuTree.setDefaultMenuItemID (CMenuPublic.MENU_SEARCH_SIMPLE);
   }
 }
