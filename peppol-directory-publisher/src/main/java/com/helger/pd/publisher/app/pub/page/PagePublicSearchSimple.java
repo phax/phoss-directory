@@ -21,6 +21,7 @@ import java.util.Map;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.apache.lucene.search.Query;
 import org.slf4j.Logger;
@@ -81,6 +82,13 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
   public PagePublicSearchSimple (@Nonnull @Nonempty final String sID)
   {
     super (sID, "Search");
+  }
+
+  @Override
+  @Nullable
+  public String getHeaderText (@Nonnull final WebPageExecutionContext aWPEC)
+  {
+    return null;
   }
 
   @Nonnull

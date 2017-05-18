@@ -22,9 +22,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.commons.annotation.UsedViaReflection;
+import com.helger.commons.debug.GlobalDebug;
 import com.helger.commons.exception.InitializationException;
+import com.helger.commons.lang.ClassHelper;
 import com.helger.commons.scope.IScope;
 import com.helger.commons.scope.singleton.AbstractGlobalSingleton;
+import com.helger.photon.core.app.error.InternalErrorBuilder;
 
 /**
  * Central manager for all sub managers
@@ -45,11 +48,19 @@ public final class PDPMetaManager extends AbstractGlobalSingleton
   {
     try
     {
-      s_aLogger.info ("MetaManager was initialized");
+      // TODO add managers here
+      s_aLogger.info (ClassHelper.getClassLocalName (this) + " was initialized");
     }
-    catch (final Exception ex)
+    catch (final Throwable t)
     {
-      throw new InitializationException ("Failed to init MetaManager", ex);
+      if (GlobalDebug.isProductionMode ())
+      {
+        new InternalErrorBuilder ().setThrowable (t)
+                                   .addErrorMessage (ClassHelper.getClassLocalName (this) + " init failed")
+                                   .handle ();
+      }
+
+      throw new InitializationException ("Failed to init " + ClassHelper.getClassLocalName (this), t);
     }
   }
 

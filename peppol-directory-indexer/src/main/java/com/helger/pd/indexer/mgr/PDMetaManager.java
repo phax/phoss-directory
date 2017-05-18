@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.UsedViaReflection;
+import com.helger.commons.debug.GlobalDebug;
 import com.helger.commons.exception.InitializationException;
 import com.helger.commons.io.stream.StreamHelper;
 import com.helger.commons.lang.ClassHelper;
@@ -34,6 +35,7 @@ import com.helger.pd.indexer.lucene.PDLucene;
 import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.peppol.identifier.factory.IIdentifierFactory;
 import com.helger.peppol.identifier.factory.SimpleIdentifierFactory;
+import com.helger.photon.core.app.error.InternalErrorBuilder;
 
 /**
  * The PEPPOL Directory meta manager. It consists all the other managers for the
@@ -68,9 +70,16 @@ public final class PDMetaManager extends AbstractGlobalSingleton
 
       s_aLogger.info (ClassHelper.getClassLocalName (this) + " was initialized");
     }
-    catch (final Exception ex)
+    catch (final Throwable t)
     {
-      throw new InitializationException ("Failed to init " + ClassHelper.getClassLocalName (this), ex);
+      if (GlobalDebug.isProductionMode ())
+      {
+        new InternalErrorBuilder ().setThrowable (t)
+                                   .addErrorMessage (ClassHelper.getClassLocalName (this) + " init failed")
+                                   .handle ();
+      }
+
+      throw new InitializationException ("Failed to init " + ClassHelper.getClassLocalName (this), t);
     }
   }
 

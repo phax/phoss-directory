@@ -2,63 +2,84 @@ package com.helger.pd.publisher.search;
 
 import java.time.MonthDay;
 import java.time.YearMonth;
+import java.util.Locale;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public enum EPDSearchOperator
+import com.helger.commons.annotation.Nonempty;
+import com.helger.commons.id.IHasID;
+import com.helger.commons.lang.EnumHelper;
+import com.helger.commons.text.display.IHasDisplayText;
+
+public enum EPDSearchOperator implements IHasDisplayText, IHasID <String>
 {
   /** Equals */
-  EQ (true, null),
+  EQ ("eq", true, null, EPDSearchOperatorText.EQ),
   /** Not equals */
-  NE (true, null),
+  NE ("ne", true, null, EPDSearchOperatorText.NE),
   /** Lower than */
-  LT (true, null),
+  LT ("lt", true, null, EPDSearchOperatorText.LT),
   /** Lower or equal */
-  LE (true, null),
+  LE ("le", true, null, EPDSearchOperatorText.LE),
   /** Greater than */
-  GT (true, null),
+  GT ("gt", true, null, EPDSearchOperatorText.GT),
   /** Greater or equal */
-  GE (true, null),
+  GE ("ge", true, null, EPDSearchOperatorText.GE),
   /** Is empty */
-  EMPTY (false, null),
+  EMPTY ("empty", false, null, EPDSearchOperatorText.EMPTY),
   /** Is not empty */
-  NOT_EMPTY (false, null),
+  NOT_EMPTY ("notempty", false, null, EPDSearchOperatorText.NOT_EMPTY),
   /** String contains */
-  STRING_CONTAINS (true, String.class),
+  STRING_CONTAINS ("contains", true, String.class, EPDSearchOperatorText.STRING_CONTAINS),
   /** String starts with */
-  STRING_STARTS_WITH (true, String.class),
+  STRING_STARTS_WITH ("startswith", true, String.class, EPDSearchOperatorText.STRING_STARTS_WITH),
   /** String ends with */
-  STRING_ENDS_WITH (true, String.class),
+  STRING_ENDS_WITH ("endswith", true, String.class, EPDSearchOperatorText.STRING_ENDS_WITH),
   /** String matches regular expression */
-  STRING_REGEX (true, String.class),
+  STRING_REGEX ("regex", true, String.class, EPDSearchOperatorText.STRING_REGEX),
   /** Int even */
-  INT_EVEN (false, null),
+  INT_EVEN ("even", false, null, EPDSearchOperatorText.INT_EVEN),
   /** Int odd */
-  INT_ODD (false, null),
+  INT_ODD ("odd", false, null, EPDSearchOperatorText.INT_ODD),
   /** Year of date */
-  DATE_YEAR (true, int.class),
+  DATE_YEAR ("year", true, int.class, EPDSearchOperatorText.DATE_YEAR),
   /** Month of date */
-  DATE_MONTH (true, int.class),
+  DATE_MONTH ("month", true, int.class, EPDSearchOperatorText.DATE_MONTH),
   /** Day of date */
-  DATE_DAY (true, int.class),
+  DATE_DAY ("day", true, int.class, EPDSearchOperatorText.DATE_DAY),
   /** Year and month of date */
-  DATE_YEAR_MONTH (true, YearMonth.class),
+  DATE_YEAR_MONTH ("yearmonth", true, YearMonth.class, EPDSearchOperatorText.DATE_YEAR_MONTH),
   /** Month and day of date */
-  DATE_MONTH_DAY (true, MonthDay.class),
+  DATE_MONTH_DAY ("monthday", true, MonthDay.class, EPDSearchOperatorText.DATE_MONTH_DAY),
   /** Hour of time */
-  TIME_HOUR (true, int.class),
+  TIME_HOUR ("hour", true, int.class, EPDSearchOperatorText.TIME_HOUR),
   /** Minute of time */
-  TIME_MINUTE (true, int.class),
+  TIME_MINUTE ("minute", true, int.class, EPDSearchOperatorText.TIME_MINUTE),
   /** Second of time */
-  TIME_SECOND (true, int.class);
+  TIME_SECOND ("second", true, int.class, EPDSearchOperatorText.TIME_SECOND);
 
+  private final String m_sID;
   private final boolean m_bNeedsValue;
   private final Class <?> m_aSpecialValueClass;
+  private final EPDSearchOperatorText m_eDisplayText;
 
-  private EPDSearchOperator (final boolean bNeedsValue, @Nullable final Class <?> aSpecialValueClass)
+  private EPDSearchOperator (@Nonnull @Nonempty final String sID,
+                             final boolean bNeedsValue,
+                             @Nullable final Class <?> aSpecialValueClass,
+                             @Nonnull final EPDSearchOperatorText eDisplayText)
   {
+    m_sID = sID;
     m_bNeedsValue = bNeedsValue;
     m_aSpecialValueClass = aSpecialValueClass;
+    m_eDisplayText = eDisplayText;
+  }
+
+  @Nonnull
+  @Nonempty
+  public String getID ()
+  {
+    return m_sID;
   }
 
   /**
@@ -88,5 +109,17 @@ public enum EPDSearchOperator
   public boolean hasSpecialValueClass ()
   {
     return m_aSpecialValueClass != null;
+  }
+
+  @Nullable
+  public String getDisplayText (@Nonnull final Locale aContentLocale)
+  {
+    return m_eDisplayText.getDisplayText (aContentLocale);
+  }
+
+  @Nullable
+  public static EPDSearchOperator getFromIDOrNull (@Nullable final String sID)
+  {
+    return EnumHelper.getFromIDOrNull (EPDSearchOperator.class, sID);
   }
 }

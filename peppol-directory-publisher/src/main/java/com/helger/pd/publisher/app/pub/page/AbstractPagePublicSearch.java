@@ -66,7 +66,6 @@ import com.helger.photon.bootstrap3.nav.BootstrapTabBox;
 import com.helger.photon.bootstrap3.pageheader.BootstrapPageHeader;
 import com.helger.photon.bootstrap3.pages.BootstrapWebPageUIHandler;
 import com.helger.photon.bootstrap3.panel.BootstrapPanel;
-import com.helger.photon.uicore.page.WebPageExecutionContext;
 
 public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
 {
@@ -88,13 +87,6 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
   public AbstractPagePublicSearch (@Nonnull @Nonempty final String sID, @Nonnull final String sName)
   {
     super (sID, sName);
-  }
-
-  @Override
-  @Nullable
-  public String getHeaderText (@Nonnull final WebPageExecutionContext aWPEC)
-  {
-    return null;
   }
 
   @Nonnull

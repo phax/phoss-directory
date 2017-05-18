@@ -1,10 +1,14 @@
 package com.helger.pd.publisher.search;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import com.helger.commons.annotation.Nonempty;
 
+/**
+ * The PEPPOL Directory specific search terms
+ *
+ * @author Philip Helger
+ */
 public enum EPDSearchParams
 {
   PARTICIPANT_ID ("participant", EPDSearchDataType.STRING_CI),
@@ -16,12 +20,12 @@ public enum EPDSearchParams
   DOCUMENT_TYPE ("doctype", EPDSearchDataType.STRING_CS);
 
   private final String m_sParamName;
-  private final EPDSearchDataType m_eSearchType;
+  private final EPDSearchDataType m_eDataType;
 
-  private EPDSearchParams (@Nonnull @Nonempty final String sParamName, @Nullable final EPDSearchDataType eSearchType)
+  private EPDSearchParams (@Nonnull @Nonempty final String sParamName, @Nonnull final EPDSearchDataType eDataType)
   {
     m_sParamName = sParamName;
-    m_eSearchType = eSearchType;
+    m_eDataType = eDataType;
   }
 
   @Nonnull
@@ -31,9 +35,9 @@ public enum EPDSearchParams
     return m_sParamName;
   }
 
-  @Nullable
-  public EPDSearchDataType getSearchType ()
+  @Nonnull
+  public EPDSearchDataType getDataType ()
   {
-    return m_eSearchType;
+    return m_eDataType;
   }
 }

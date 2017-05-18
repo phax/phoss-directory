@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.commons.CGlobal;
+import com.helger.commons.ValueEnforcer;
 import com.helger.commons.compare.CompareHelper;
 import com.helger.commons.equals.EqualsHelper;
 import com.helger.commons.math.MathHelper;
@@ -277,6 +278,11 @@ public final class PDMatcher
                                  @Nonnull final EPDSearchOperator eOperator,
                                  @Nullable final Object aSearchValue)
   {
+    ValueEnforcer.notNull (eDataType, "DataType");
+    ValueEnforcer.notNull (eOperator, "Operator");
+    ValueEnforcer.isTrue (eDataType.isAllowedOperator (eOperator),
+                          () -> "The operator " + eOperator + " is not valid for data type " + eDataType);
+
     try
     {
       switch (eDataType)
