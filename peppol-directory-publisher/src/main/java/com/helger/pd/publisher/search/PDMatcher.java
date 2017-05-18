@@ -6,7 +6,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.MonthDay;
 import java.time.YearMonth;
-import java.time.format.DateTimeParseException;
 import java.util.Locale;
 
 import javax.annotation.Nonnull;
@@ -314,7 +313,7 @@ public final class PDMatcher
           throw new IllegalStateException ("Unsupported data type: " + eDataType);
       }
     }
-    catch (final TypeConverterException | DateTimeParseException ex)
+    catch (final TypeConverterException ex)
     {
       // Doesn't matter - doesn't match
       if (s_aLogger.isDebugEnabled ())
