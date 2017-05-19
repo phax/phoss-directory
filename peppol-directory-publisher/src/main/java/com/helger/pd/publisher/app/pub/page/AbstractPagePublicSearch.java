@@ -31,7 +31,6 @@ import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.collection.ext.ICommonsList;
 import com.helger.commons.collection.multimap.IMultiMapListBased;
 import com.helger.commons.debug.GlobalDebug;
-import com.helger.commons.url.SimpleURL;
 import com.helger.html.css.DefaultCSSClassProvider;
 import com.helger.html.css.ICSSClassProvider;
 import com.helger.html.hc.IHCNode;
@@ -45,6 +44,7 @@ import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.pd.indexer.storage.PDStoredDocument;
+import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.app.AppCommonUI;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.pd.publisher.ui.HCExtImg;
@@ -96,9 +96,9 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
     // The logo
     aHeaderRow.createColumn (12, 12, 1, 2).addClass (CBootstrapCSS.HIDDEN_SM);
     aHeaderRow.createColumn (12, 6, 5, 4)
-              .addChild (new HCExtImg (new SimpleURL ("/imgs/pd-logo.png")).addClass (CBootstrapCSS.PULL_LEFT));
+              .addChild (new HCExtImg (CPDPublisher.IMG_LOGO_PD).addClass (CBootstrapCSS.PULL_LEFT));
     aHeaderRow.createColumn (12, 6, 5, 4)
-              .addChild (new HCExtImg (new SimpleURL ("/imgs/peppol.png")).addClass (CBootstrapCSS.PULL_RIGHT));
+              .addChild (new HCExtImg (CPDPublisher.IMG_LOGO_PEPPOL).addClass (CBootstrapCSS.PULL_RIGHT));
     aHeaderRow.createColumn (12, 12, 1, 2).addClass (CBootstrapCSS.HIDDEN_SM);
     return aHeaderRow;
   }
@@ -130,8 +130,8 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
 
   @Nonnull
   protected static HCNodeList createParticipantDetails (@Nonnull final Locale aDisplayLocale,
-                                                        final String sParticipantID,
-                                                        final IParticipantIdentifier aParticipantID)
+                                                        @Nonnull final String sParticipantID,
+                                                        @Nonnull final IParticipantIdentifier aParticipantID)
   {
     final HCNodeList aDetails = new HCNodeList ();
 

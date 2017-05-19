@@ -24,15 +24,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.commons.annotation.Nonempty;
-import com.helger.html.hc.IHCNode;
 import com.helger.html.hc.html.forms.HCEdit;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.publisher.search.EPDSearchField;
+import com.helger.pd.publisher.search.ESearchOperator;
 import com.helger.pd.publisher.search.ui.HCSearchOperatorSelect;
 import com.helger.peppol.identifier.factory.IIdentifierFactory;
 import com.helger.photon.bootstrap3.form.BootstrapFormGroup;
 import com.helger.photon.bootstrap3.form.BootstrapViewForm;
+import com.helger.photon.bootstrap3.grid.BootstrapRow;
 import com.helger.photon.bootstrap3.uictrls.datetimepicker.BootstrapDateTimePicker;
 import com.helger.photon.core.form.RequestField;
 import com.helger.photon.core.form.RequestFieldDate;
@@ -51,19 +52,22 @@ public final class PagePublicSearchExtended extends AbstractPagePublicSearch
   }
 
   @Nonnull
-  private static IHCNode _createCtrl (@Nonnull final EPDSearchField eField, @Nonnull final Locale aDisplayLocale)
+  private static HCNodeList _createCtrl (@Nonnull final EPDSearchField eField, @Nonnull final Locale aDisplayLocale)
   {
     final String sFieldName = eField.getFieldName ();
+    final HCNodeList ret = new HCNodeList ();
     switch (eField)
     {
       case COUNTRY:
-        return new HCCountrySelect (new RequestField (sFieldName), aDisplayLocale);
+        ret.addChild (new HCCountrySelect (new RequestField (sFieldName), aDisplayLocale));
+        break;
       case REGISTRATION_DATE:
-        return new BootstrapDateTimePicker (new RequestFieldDate (sFieldName, aDisplayLocale));
-      default:
-        // Default to String
-        return new HCEdit (new RequestField (sFieldName));
+        ret.addChild (new BootstrapDateTimePicker (new RequestFieldDate (sFieldName, aDisplayLocale)));
+        break;
     }
+    // Default to String
+    ret.addChild (new HCEdit (new RequestField (sFieldName)));
+    return ret;
   }
 
   @Override
@@ -77,12 +81,17 @@ public final class PagePublicSearchExtended extends AbstractPagePublicSearch
     // Add all search fields
     for (final EPDSearchField eField : EPDSearchField.values ())
     {
+      final HCSearchOperatorSelect aSelect = new HCSearchOperatorSelect (new RequestField (PREFIX_OPERATOR +
+                                                                                           eField.getFieldName (),
+                                                                                           ESearchOperator.EQ.getID ()),
+                                                                         eField.getDataType (),
+                                                                         aDisplayLocale);
+      final HCNodeList aCtrl = _createCtrl (eField, aDisplayLocale);
+      final BootstrapRow aRow = new BootstrapRow ();
+      aRow.createColumn (2).addChild (aSelect);
+      aRow.createColumn (10).addChild (aCtrl);
       aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel (eField.getDisplayText (aDisplayLocale))
-                                                       .setCtrl (new HCSearchOperatorSelect (new RequestField (PREFIX_OPERATOR +
-                                                                                                               eField.getFieldName ()),
-                                                                                             eField.getDataType (),
-                                                                                             aDisplayLocale),
-                                                                 _createCtrl (eField, aDisplayLocale)));
+                                                       .setCtrl (aRow));
     }
     aNodeList.addChild (aViewForm);
   }

@@ -25,12 +25,13 @@ import com.helger.html.hc.IHCNode;
 import com.helger.html.hc.html.IHCElement;
 import com.helger.html.hc.html.grouping.HCDiv;
 import com.helger.html.hc.html.metadata.HCHead;
-import com.helger.html.hc.html.textlevel.HCA;
 import com.helger.html.hc.html.textlevel.HCSpan;
 import com.helger.html.hc.html.textlevel.HCStrong;
 import com.helger.html.hc.impl.HCNodeList;
+import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.app.AppCommonUI;
 import com.helger.pd.publisher.app.pub.AppRendererPublic;
+import com.helger.pd.publisher.ui.HCExtImg;
 import com.helger.photon.bootstrap3.CBootstrapCSS;
 import com.helger.photon.bootstrap3.base.BootstrapContainer;
 import com.helger.photon.bootstrap3.breadcrumbs.BootstrapBreadcrumbs;
@@ -78,29 +79,33 @@ public final class AppRendererSecure implements ILayoutAreaContentProvider <Layo
                                                                .addChild (" Administration")),
                       aLinkToStartPage);
 
-    aNavbar.addButton (EBootstrapNavbarPosition.COLLAPSIBLE_DEFAULT,
-                       new BootstrapButton ().addChild ("Goto public area")
-                                             .setOnClick (LinkHelper.getURLWithContext (AbstractPublicApplicationServlet.SERVLET_DEFAULT_PATH +
-                                                                                        "/")));
+    {
+      final BootstrapNav aNav = new BootstrapNav ();
+      final IUser aUser = LoggedInUserManager.getInstance ().getCurrentUser ();
+      aNav.addButton (new BootstrapButton ().addChild ("Goto public area")
+                                            .setOnClick (LinkHelper.getURLWithContext (AbstractPublicApplicationServlet.SERVLET_DEFAULT_PATH +
+                                                                                       "/")));
+      aNav.addItem (new HCSpan ().addClass (CBootstrapCSS.NAVBAR_TEXT)
+                                 .addChild ("Welcome ")
+                                 .addChild (new HCStrong ().addChild (SecurityHelper.getUserDisplayName (aUser,
+                                                                                                         aDisplayLocale))));
 
-    final BootstrapNav aNav = new BootstrapNav ();
-    final IUser aUser = LoggedInUserManager.getInstance ().getCurrentUser ();
-    aNav.addItem (new HCSpan ().addClass (CBootstrapCSS.NAVBAR_TEXT)
-                               .addChild ("Welcome ")
-                               .addChild (new HCStrong ().addChild (SecurityHelper.getUserDisplayName (aUser,
-                                                                                                       aDisplayLocale))));
-
-    aNav.addItem (new HCA (LinkHelper.getURLWithContext (aRequestScope,
-                                                         LogoutServlet.SERVLET_DEFAULT_PATH)).addChild (EPhotonCoreText.LOGIN_LOGOUT.getDisplayText (aDisplayLocale)));
-    aNavbar.addNav (EBootstrapNavbarPosition.COLLAPSIBLE_RIGHT, aNav);
+      aNav.addButton (new BootstrapButton ().setOnClick (LinkHelper.getURLWithContext (aRequestScope,
+                                                                                       LogoutServlet.SERVLET_DEFAULT_PATH))
+                                            .addChild (EPhotonCoreText.LOGIN_LOGOUT.getDisplayText (aDisplayLocale)));
+      aNavbar.addNav (EBootstrapNavbarPosition.COLLAPSIBLE_RIGHT, aNav);
+    }
     return aNavbar;
   }
 
   @Nonnull
-  public static IHCElement <?> getMenuContent (@Nonnull final LayoutExecutionContext aLEC)
+  public static IHCNode getMenuContent (@Nonnull final LayoutExecutionContext aLEC)
   {
     final IHCElement <?> ret = BootstrapMenuItemRenderer.createSideBarMenu (aLEC);
-    return ret;
+
+    return new HCNodeList ().addChild (ret)
+                            .addChild (new HCDiv ().addChild (new HCExtImg (CPDPublisher.IMG_LOGO_PD)))
+                            .addChild (new HCDiv ().addChild (new HCExtImg (CPDPublisher.IMG_LOGO_PEPPOL)));
   }
 
   @Nonnull

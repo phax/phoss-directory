@@ -54,6 +54,7 @@ import com.helger.photon.bootstrap3.base.BootstrapContainer;
 import com.helger.photon.bootstrap3.button.BootstrapButton;
 import com.helger.photon.bootstrap3.dropdown.BootstrapDropdownMenu;
 import com.helger.photon.bootstrap3.dropdown.BootstrapDropdownMenuItem;
+import com.helger.photon.bootstrap3.dropdown.EBootstrapDropdownMenuAlignment;
 import com.helger.photon.bootstrap3.ext.BootstrapSystemMessage;
 import com.helger.photon.bootstrap3.nav.BootstrapNav;
 import com.helger.photon.bootstrap3.navbar.BootstrapNavbar;
@@ -100,41 +101,7 @@ public final class AppRendererPublic implements ILayoutAreaContentProvider <Layo
                                              @Nonnull final BootstrapNavbar aNavbar)
   {
     final IRequestWebScopeWithoutResponse aRequestScope = aLEC.getRequestScope ();
-    final IUser aUser = LoggedInUserManager.getInstance ().getCurrentUser ();
-    if (aUser != null)
-    {
-      if (SecurityHelper.hasUserRole (aUser.getID (), AppSecurity.ROLE_CONFIG_ID))
-      {
-        aNavbar.addButton (EBootstrapNavbarPosition.COLLAPSIBLE_LEFT,
-                           new BootstrapButton ().addChild ("Goto secure area")
-                                                 .setOnClick (LinkHelper.getURLWithContext (AbstractSecureApplicationServlet.SERVLET_DEFAULT_PATH +
-                                                                                            "/")));
-      }
-
-      final Locale aDisplayLocale = aLEC.getDisplayLocale ();
-      final BootstrapNav aNav = new BootstrapNav ();
-
-      aNav.addItem (new HCSpan ().addClass (CBootstrapCSS.NAVBAR_TEXT)
-                                 .addChild ("Welcome ")
-                                 .addChild (new HCStrong ().addChild (SecurityHelper.getUserDisplayName (aUser,
-                                                                                                         aDisplayLocale))));
-      aNav.addItem (new HCA (LinkHelper.getURLWithContext (aRequestScope,
-                                                           LogoutServlet.SERVLET_DEFAULT_PATH)).addChild (EPhotonCoreText.LOGIN_LOGOUT.getDisplayText (aDisplayLocale)));
-      aNavbar.addNav (EBootstrapNavbarPosition.COLLAPSIBLE_RIGHT, aNav);
-    }
-    else
-    {
-      final BootstrapNav aNav = new BootstrapNav ();
-      final BootstrapDropdownMenu aDropDown = aNav.addDropdownMenu ("Login");
-      {
-        // 300px would lead to a messy layout - so 250px is fine
-        final HCDiv aDiv = new HCDiv ().addStyle (CCSSProperties.PADDING.newValue ("10px"))
-                                       .addStyle (CCSSProperties.WIDTH.newValue ("250px"));
-        aDiv.addChild (AppCommonUI.createViewLoginForm (aLEC, null, false).addClass (CBootstrapCSS.NAVBAR_FORM));
-        aDropDown.addItem (aDiv);
-      }
-      aNavbar.addNav (EBootstrapNavbarPosition.COLLAPSIBLE_LEFT, aNav);
-    }
+    final Locale aDisplayLocale = aLEC.getDisplayLocale ();
 
     // Documentation
     {
@@ -174,6 +141,41 @@ public final class AppRendererPublic implements ILayoutAreaContentProvider <Layo
       aDropDown.addMenuItem (new BootstrapDropdownMenuItem ().setLabel ("About PEPPOL Directory")
                                                              .setLinkAction (aLEC.getLinkToMenuItem (CMenuPublic.MENU_ABOUT)));
       aNavbar.addNav (EBootstrapNavbarPosition.COLLAPSIBLE_LEFT, aNav);
+    }
+
+    // Login etc
+    {
+      final BootstrapNav aNav = new BootstrapNav ();
+      final IUser aUser = LoggedInUserManager.getInstance ().getCurrentUser ();
+      if (aUser != null)
+      {
+        if (SecurityHelper.hasUserRole (aUser.getID (), AppSecurity.ROLE_CONFIG_ID))
+        {
+          aNav.addButton (new BootstrapButton ().addChild ("Goto secure area")
+                                                .setOnClick (LinkHelper.getURLWithContext (AbstractSecureApplicationServlet.SERVLET_DEFAULT_PATH +
+                                                                                           "/")));
+        }
+
+        aNav.addItem (new HCSpan ().addClass (CBootstrapCSS.NAVBAR_TEXT)
+                                   .addChild ("Welcome ")
+                                   .addChild (new HCStrong ().addChild (SecurityHelper.getUserDisplayName (aUser,
+                                                                                                           aDisplayLocale))));
+        aNav.addButton (new BootstrapButton ().setOnClick (LinkHelper.getURLWithContext (aRequestScope,
+                                                                                         LogoutServlet.SERVLET_DEFAULT_PATH))
+                                              .addChild (EPhotonCoreText.LOGIN_LOGOUT.getDisplayText (aDisplayLocale)));
+      }
+      else
+      {
+        final BootstrapDropdownMenu aDropDown = aNav.addDropdownMenu (EBootstrapDropdownMenuAlignment.RIGHT, "Login");
+        {
+          // 300px would lead to a messy layout - so 250px is fine
+          final HCDiv aDiv = new HCDiv ().addStyle (CCSSProperties.PADDING.newValue ("10px"))
+                                         .addStyle (CCSSProperties.WIDTH.newValue ("250px"));
+          aDiv.addChild (AppCommonUI.createViewLoginForm (aLEC, null, false).addClass (CBootstrapCSS.NAVBAR_FORM));
+          aDropDown.addItem (aDiv);
+        }
+      }
+      aNavbar.addNav (EBootstrapNavbarPosition.COLLAPSIBLE_RIGHT, aNav);
     }
   }
 
