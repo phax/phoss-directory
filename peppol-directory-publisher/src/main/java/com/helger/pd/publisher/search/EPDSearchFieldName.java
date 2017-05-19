@@ -24,6 +24,7 @@ public enum EPDSearchFieldName implements IHasDisplayText
   IDENTIFIER ("Andere ID", "Additional identifiers"),
   WEBSITE ("Website", "Web site"),
   CONTACT ("Kontaktperson", "Contact person"),
+  ADDITIONAL_INFORMATION ("Freitext", "Additional information"),
   REGISTRATION_DATE ("Registrierungsdatum", "Registration date"),
   DOCUMENT_TYPE ("Dokumentenart", "Document type");
 

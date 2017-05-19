@@ -10,11 +10,13 @@ import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.id.IHasID;
 import com.helger.commons.lang.EnumHelper;
 import com.helger.commons.text.display.IHasDisplayText;
+import com.helger.pd.indexer.storage.PDStoredDocument;
 import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 
 /**
- * The PEPPOL Directory specific search fields.
+ * The PEPPOL Directory specific search fields. The fields here should be
+ * conform to the fields in {@link PDStoredDocument}.
  *
  * @author Philip Helger
  */
@@ -29,12 +31,18 @@ public enum EPDSearchField implements IHasID <String>, IHasDisplayText
   GEO_INFO ("geoinfo", EPDSearchFieldName.GEO_INFO, ESearchDataType.STRING_CI, String.class),
   IDENTIFIER ("identifier", EPDSearchFieldName.IDENTIFIER, ESearchDataType.STRING_CS, String.class),
   WEBSITE ("website", EPDSearchFieldName.WEBSITE, ESearchDataType.STRING_CI, String.class),
+  CONTACT ("contact", EPDSearchFieldName.CONTACT, ESearchDataType.STRING_CI, String.class),
+  ADDITIONAL_INFORMATION ("addinfo",
+                          EPDSearchFieldName.ADDITIONAL_INFORMATION,
+                          ESearchDataType.STRING_CI,
+                          String.class),
   REGISTRATION_DATE ("regdate", EPDSearchFieldName.REGISTRATION_DATE, ESearchDataType.DATE, LocalDate.class),
   DOCUMENT_TYPE ("doctype", EPDSearchFieldName.DOCUMENT_TYPE, ESearchDataType.STRING_CS, IDocumentTypeIdentifier.class);
 
   private final String m_sID;
   private final ESearchDataType m_eDataType;
   private final EPDSearchFieldName m_eDisplayText;
+  private final Class <?> m_aNativeType;
 
   private EPDSearchField (@Nonnull @Nonempty final String sID,
                           @Nonnull final EPDSearchFieldName eDisplayText,
@@ -44,6 +52,7 @@ public enum EPDSearchField implements IHasID <String>, IHasDisplayText
     m_sID = sID;
     m_eDataType = eDataType;
     m_eDisplayText = eDisplayText;
+    m_aNativeType = aNativeType;
   }
 
   @Nonnull
@@ -70,6 +79,12 @@ public enum EPDSearchField implements IHasID <String>, IHasDisplayText
   public String getDisplayText (@Nonnull final Locale aContentLocale)
   {
     return m_eDisplayText.getDisplayText (aContentLocale);
+  }
+
+  @Nonnull
+  public Class <?> getNativeType ()
+  {
+    return m_aNativeType;
   }
 
   @Nullable
