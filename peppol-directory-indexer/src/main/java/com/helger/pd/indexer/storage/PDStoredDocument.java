@@ -42,7 +42,8 @@ import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
  * This class represents a document stored in the Lucene index but with a nicer
  * API to not work on a field basis. It contains the data at a certain point of
  * time and this might not necessarily be the most current data. Modifications
- * to this object have no impact on the underlying Lucene document!
+ * to this object have no impact on the underlying Lucene document. This is a
+ * like a temporary "view" on a Lucen document at a single point of time.
  *
  * @author Philip Helger
  */
@@ -52,15 +53,17 @@ public class PDStoredDocument
   private static final Logger s_aLogger = LoggerFactory.getLogger (PDStoredDocument.class);
 
   private IParticipantIdentifier m_aParticipantID;
-  private final ICommonsList <IDocumentTypeIdentifier> m_aDocumentTypeIDs = new CommonsArrayList<> ();
+  // Retrieved from SMP
   private String m_sName;
   private String m_sCountryCode;
   private String m_sGeoInfo;
-  private final ICommonsList <PDStoredIdentifier> m_aIdentifiers = new CommonsArrayList<> ();
-  private final ICommonsList <String> m_aWebsiteURIs = new CommonsArrayList<> ();
-  private final ICommonsList <PDStoredContact> m_aContacts = new CommonsArrayList<> ();
+  private final ICommonsList <PDStoredIdentifier> m_aIdentifiers = new CommonsArrayList <> ();
+  private final ICommonsList <String> m_aWebsiteURIs = new CommonsArrayList <> ();
+  private final ICommonsList <PDStoredContact> m_aContacts = new CommonsArrayList <> ();
   private String m_sAdditionalInformation;
   private LocalDate m_aRegistrationDate;
+  private final ICommonsList <IDocumentTypeIdentifier> m_aDocumentTypeIDs = new CommonsArrayList <> ();
+  // Status information from PD
   private PDDocumentMetaData m_aMetaData;
   private boolean m_bDeleted;
 
@@ -77,31 +80,6 @@ public class PDStoredDocument
   public IParticipantIdentifier getParticipantID ()
   {
     return m_aParticipantID;
-  }
-
-  public void addDocumentTypeID (@Nonnull final IDocumentTypeIdentifier aDocumentTypeID)
-  {
-    ValueEnforcer.notNull (aDocumentTypeID, "DocumentTypeID");
-    m_aDocumentTypeIDs.add (aDocumentTypeID);
-  }
-
-  @Nonnull
-  @ReturnsMutableCopy
-  public ICommonsList <? extends IDocumentTypeIdentifier> getAllDocumentTypeIDs ()
-  {
-    return m_aDocumentTypeIDs.getClone ();
-  }
-
-  @Nonnegative
-  public int getDocumentTypeIDCount ()
-  {
-    return m_aDocumentTypeIDs.size ();
-  }
-
-  @Nullable
-  public IDocumentTypeIdentifier getDocumentTypeIDAtIndex (@Nonnegative final int nIndex)
-  {
-    return m_aDocumentTypeIDs.getAtIndex (nIndex);
   }
 
   public void setName (@Nullable final String sName)
@@ -272,6 +250,31 @@ public class PDStoredDocument
   public boolean hasRegistrationDate ()
   {
     return m_aRegistrationDate != null;
+  }
+
+  public void addDocumentTypeID (@Nonnull final IDocumentTypeIdentifier aDocumentTypeID)
+  {
+    ValueEnforcer.notNull (aDocumentTypeID, "DocumentTypeID");
+    m_aDocumentTypeIDs.add (aDocumentTypeID);
+  }
+
+  @Nonnull
+  @ReturnsMutableCopy
+  public ICommonsList <? extends IDocumentTypeIdentifier> getAllDocumentTypeIDs ()
+  {
+    return m_aDocumentTypeIDs.getClone ();
+  }
+
+  @Nonnegative
+  public int getDocumentTypeIDCount ()
+  {
+    return m_aDocumentTypeIDs.size ();
+  }
+
+  @Nullable
+  public IDocumentTypeIdentifier getDocumentTypeIDAtIndex (@Nonnegative final int nIndex)
+  {
+    return m_aDocumentTypeIDs.getAtIndex (nIndex);
   }
 
   @Nonnull

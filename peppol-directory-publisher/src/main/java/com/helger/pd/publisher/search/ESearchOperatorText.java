@@ -10,6 +10,11 @@ import com.helger.commons.text.display.IHasDisplayText;
 import com.helger.commons.text.resolve.DefaultTextResolver;
 import com.helger.commons.text.util.TextHelper;
 
+/**
+ * Multilingual names for {@link ESearchOperator}.
+ *
+ * @author Philip Helger
+ */
 public enum ESearchOperatorText implements IHasDisplayText
 {
   /** Equals */
