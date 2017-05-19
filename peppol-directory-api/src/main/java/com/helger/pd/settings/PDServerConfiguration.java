@@ -295,7 +295,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
 
   /**
    * Read value of <code>http.proxyHost</code>.
-   * 
+   *
    * @return The optional proxy host to use. May be an IP address or a host name
    *         WITHOUT a port number or a user.
    */
@@ -314,5 +314,27 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   public static int getProxyPort ()
   {
     return s_aConfigFile.getAsInt ("http.proxyPort", 0);
+  }
+
+  /**
+   * Read value of <code>http.proxyUsername</code>.
+   *
+   * @return The optional proxy username to use. Maybe <code>null</code>.
+   */
+  @Nullable
+  public static String getProxyUsername ()
+  {
+    return s_aConfigFile.getAsString ("http.proxyUsername");
+  }
+
+  /**
+   * Read value of <code>http.proxyPassword</code>.
+   *
+   * @return The optional proxy password to use. Maybe <code>null</code>.
+   */
+  @Nullable
+  public static String getProxyPassword ()
+  {
+    return s_aConfigFile.getAsString ("http.proxyPassword");
   }
 }

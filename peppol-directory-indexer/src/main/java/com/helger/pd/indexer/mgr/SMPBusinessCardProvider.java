@@ -24,6 +24,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.apache.http.HttpHost;
+import org.apache.http.auth.Credentials;
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.protocol.HttpContext;
@@ -80,6 +82,20 @@ public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
     return null;
   }
 
+  /**
+   * @return The proxy credentials to be used. May be <code>null</code>.
+   */
+  @Nullable
+  public Credentials getHttpProxyCredentials ()
+  {
+    final String sProxyUsername = PDServerConfiguration.getProxyUsername ();
+    final String sProxyPassword = PDServerConfiguration.getProxyPassword ();
+    if (sProxyUsername != null && sProxyPassword != null)
+      return new UsernamePasswordCredentials (sProxyUsername, sProxyPassword);
+
+    return null;
+  }
+
   @Nullable
   @VisibleForTesting
   PDExtendedBusinessCard getBusinessCard (@Nonnull final IParticipantIdentifier aParticipantID,
@@ -87,7 +103,9 @@ public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
   {
     // Create SMP client
     final HttpHost aProxy = getHttpProxy ();
+    final Credentials aProxyCredentials = getHttpProxyCredentials ();
     aSMPClient.setProxy (aProxy);
+    aSMPClient.setProxyCredentials (aProxyCredentials);
 
     s_aLogger.info ("Querying BusinessCard for '" +
                     aParticipantID.getURIEncoded () +
@@ -115,7 +133,7 @@ public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
       final HttpGet aRequest = new HttpGet (aSMPClient.getSMPHostURI () +
                                             "businesscard/" +
                                             aParticipantID.getURIPercentEncoded ());
-      final HttpContext aContext = HttpClientHelper.createHttpContext (aProxy);
+      final HttpContext aContext = HttpClientHelper.createHttpContext (aProxy, aProxyCredentials);
       aBusinessCard = PDMetaManager.getHttpClientMgr ().execute (aRequest,
                                                                  aContext,
                                                                  new PDSMPHttpResponseHandlerUnsigned ());
