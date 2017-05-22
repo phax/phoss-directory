@@ -48,13 +48,13 @@ import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.PDQueryManager;
 import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.pd.indexer.storage.PDStoredDocument;
-import com.helger.pd.publisher.app.AppCommonUI;
 import com.helger.pd.publisher.search.EPDSearchField;
 import com.helger.pd.publisher.ui.PDCommonUI;
 import com.helger.peppol.identifier.factory.IIdentifierFactory;
 import com.helger.peppol.identifier.factory.PeppolIdentifierFactory;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.peppol.identifier.peppol.issuingagency.IIdentifierIssuingAgency;
+import com.helger.peppol.identifier.peppol.issuingagency.IdentifierIssuingAgencyManager;
 import com.helger.photon.bootstrap3.CBootstrapCSS;
 import com.helger.photon.bootstrap3.alert.BootstrapErrorBox;
 import com.helger.photon.bootstrap3.alert.BootstrapInfoBox;
@@ -183,7 +183,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
           IHCNode aParticipant = null;
           if (bIsPeppolDefault)
           {
-            final IIdentifierIssuingAgency aIIA = AppCommonUI.getAgencyOfIdentifier (aDocParticipantID);
+            final IIdentifierIssuingAgency aIIA = IdentifierIssuingAgencyManager.getAgencyOfIdentifier (aDocParticipantID);
             if (aIIA != null)
               aParticipant = new HCNodeList ().addChild (aDocParticipantID.getValue () +
                                                          " (" +

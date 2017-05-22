@@ -45,7 +45,6 @@ import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.pd.indexer.storage.PDStoredDocument;
 import com.helger.pd.publisher.CPDPublisher;
-import com.helger.pd.publisher.app.AppCommonUI;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.pd.publisher.ui.HCExtImg;
 import com.helger.pd.publisher.ui.PDCommonUI;
@@ -55,6 +54,7 @@ import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.peppol.identifier.peppol.PeppolIdentifierHelper;
 import com.helger.peppol.identifier.peppol.doctype.IPeppolDocumentTypeIdentifierParts;
 import com.helger.peppol.identifier.peppol.issuingagency.IIdentifierIssuingAgency;
+import com.helger.peppol.identifier.peppol.issuingagency.IdentifierIssuingAgencyManager;
 import com.helger.photon.bootstrap3.CBootstrapCSS;
 import com.helger.photon.bootstrap3.alert.BootstrapInfoBox;
 import com.helger.photon.bootstrap3.alert.BootstrapWarnBox;
@@ -159,7 +159,7 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
         final boolean bIsPeppolDefault = aParticipantID.hasScheme (PeppolIdentifierFactory.INSTANCE.getDefaultParticipantIdentifierScheme ());
         if (bIsPeppolDefault)
         {
-          final IIdentifierIssuingAgency aIIA = AppCommonUI.getAgencyOfIdentifier (aParticipantID);
+          final IIdentifierIssuingAgency aIIA = IdentifierIssuingAgencyManager.getAgencyOfIdentifier (aParticipantID);
           if (aIIA != null)
           {
             aDetailsHeader = new BootstrapPageHeader ().addChild (new HCH1 ().addChild ("Details for: " +
