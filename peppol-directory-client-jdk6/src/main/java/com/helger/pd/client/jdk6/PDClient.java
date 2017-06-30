@@ -26,7 +26,9 @@ import java.util.Map;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
 
 import org.apache.http.Consts;
 import org.apache.http.HttpHost;
@@ -95,7 +97,7 @@ public class PDClient implements Closeable
    * @param sPDHost
    *        The address of the PEPPOL Directory Server including the application
    *        server context path but without the REST interface. May be http or
-   *        https. Example: http://pyp.helger.com/
+   *        https. Example: https://directory.peppol.eu/
    */
   public PDClient (@Nonnull final String sPDHost)
   {
@@ -108,7 +110,7 @@ public class PDClient implements Closeable
    * @param aPDHost
    *        The address of the PEPPOL Directory Server including the application
    *        server context path but without the REST interface. May be http or
-   *        https. Example: http://pyp.helger.com/
+   *        https. Example: https://directory.peppol.eu/
    */
   public PDClient (@Nonnull final URI aPDHost)
   {
@@ -212,7 +214,15 @@ public class PDClient implements Closeable
       aSSLSocketFactory = new SSLConnectionSocketFactory (aSSLContext,
                                                           new String [] { "TLSv1", "TLSv1.1", "TLSv1.2" },
                                                           null,
-                                                          SSLConnectionSocketFactory.getDefaultHostnameVerifier ());
+                                                          new HostnameVerifier ()
+                                                          {
+                                                            public boolean verify (final String aHostname,
+                                                                                   final SSLSession aSession)
+                                                            {
+                                                              // trust all
+                                                              return true;
+                                                            }
+                                                          });
     }
     catch (final Throwable t)
     {

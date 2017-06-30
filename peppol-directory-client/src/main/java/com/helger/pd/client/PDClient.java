@@ -74,7 +74,7 @@ public class PDClient implements Closeable
    * @param sPDHost
    *        The address of the PEPPOL Directory Server including the application
    *        server context path but without the REST interface. May be http or
-   *        https. Example: http://pyp.helger.com/
+   *        https. Example: https://directory.peppol.eu/
    */
   public PDClient (@Nonnull final String sPDHost)
   {
@@ -87,7 +87,7 @@ public class PDClient implements Closeable
    * @param aPDHost
    *        The address of the PEPPOL Directory Server including the application
    *        server context path but without the REST interface. May be http or
-   *        https. Example: http://pyp.helger.com/
+   *        https. Example: https://directory.peppol.eu/
    */
   public PDClient (@Nonnull final URI aPDHost)
   {

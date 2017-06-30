@@ -28,6 +28,7 @@ import org.apache.http.ssl.SSLContexts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.helger.commons.ws.HostnameVerifierVerifyAll;
 import com.helger.httpclient.HttpClientFactory;
 import com.helger.peppol.utils.PeppolKeyStoreHelper;
 import com.helger.security.keystore.KeyStoreHelper;
@@ -36,6 +37,11 @@ import com.helger.security.keystore.LoadedKeyStore;
 public final class PDHttpClientFactory extends HttpClientFactory
 {
   private static final Logger s_aLogger = LoggerFactory.getLogger (PDHttpClientFactory.class);
+
+  public PDHttpClientFactory ()
+  {
+    setHostnameVerifier (new HostnameVerifierVerifyAll (false));
+  }
 
   @Override
   @Nullable
