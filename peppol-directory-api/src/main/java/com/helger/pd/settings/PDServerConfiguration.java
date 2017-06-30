@@ -156,6 +156,16 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   }
 
   /**
+   * @return <code>true</code> if all paths should be forced to the ROOT ("/")
+   *         context, <code>false</code> if the context should remain as it is.
+   *         Property <code>webapp.forceroot</code>.
+   */
+  public static boolean isForceRoot ()
+  {
+    return s_aConfigFile.getAsBoolean ("webapp.forceroot", false);
+  }
+
+  /**
    * Read value of <code>indexer.clientcert.validation</code>. Defaults to
    * <code>true</code>.
    *

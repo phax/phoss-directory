@@ -37,6 +37,7 @@ import com.helger.photon.bootstrap3.servlet.AbstractWebAppListenerMultiAppBootst
 import com.helger.photon.core.app.CApplication;
 import com.helger.photon.core.app.context.LayoutExecutionContext;
 import com.helger.photon.core.app.init.IApplicationInitializer;
+import com.helger.servlet.ServletContextPathHolder;
 
 /**
  * This listener is invoked during the servlet initialization. This is basically
@@ -92,6 +93,12 @@ public final class AppWebAppListener extends AbstractWebAppListenerMultiAppBoots
     VendorInfo.setInceptionYear (2015);
 
     super.initGlobals ();
+
+    if (PDServerConfiguration.isForceRoot ())
+    {
+      // Enforce an empty context path according to the specs!
+      ServletContextPathHolder.setCustomContextPath ("");
+    }
 
     RequestParameterManager.getInstance ().setParameterHandler (new RequestParameterHandlerURLPathNamed ());
     AppInternalErrorHandler.doSetup ();
