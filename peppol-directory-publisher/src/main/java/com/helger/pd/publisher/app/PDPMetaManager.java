@@ -27,6 +27,10 @@ import com.helger.commons.exception.InitializationException;
 import com.helger.commons.lang.ClassHelper;
 import com.helger.commons.scope.IScope;
 import com.helger.commons.scope.singleton.AbstractGlobalSingleton;
+import com.helger.pd.indexer.mgr.PDMetaManager;
+import com.helger.pd.indexer.mgr.SMPBusinessCardProvider;
+import com.helger.pd.settings.PDServerConfiguration;
+import com.helger.peppol.sml.ISMLInfo;
 import com.helger.photon.core.app.error.InternalErrorBuilder;
 
 /**
@@ -49,6 +53,13 @@ public final class PDPMetaManager extends AbstractGlobalSingleton
     try
     {
       // TODO add managers here
+
+      // Use only the configured SML (if any)
+      // By default both official PEPPOL SMLs are queried!
+      final ISMLInfo aSML = PDServerConfiguration.getSMLToUse ();
+      if (aSML != null)
+        PDMetaManager.setBusinessCardProvider (new SMPBusinessCardProvider (aSML));
+
       s_aLogger.info (ClassHelper.getClassLocalName (this) + " was initialized");
     }
     catch (final Throwable t)

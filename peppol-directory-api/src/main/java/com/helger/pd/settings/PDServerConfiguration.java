@@ -27,6 +27,9 @@ import org.slf4j.LoggerFactory;
 import com.helger.commons.annotation.UsedViaReflection;
 import com.helger.commons.debug.GlobalDebug;
 import com.helger.commons.scope.singleton.AbstractGlobalSingleton;
+import com.helger.commons.string.StringHelper;
+import com.helger.peppol.sml.ESML;
+import com.helger.peppol.sml.ISMLInfo;
 import com.helger.peppol.utils.PeppolKeyStoreHelper;
 import com.helger.settings.ISettings;
 import com.helger.settings.exchange.configfile.ConfigFile;
@@ -336,5 +339,21 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   public static String getProxyPassword ()
   {
     return s_aConfigFile.getAsString ("http.proxyPassword");
+  }
+
+  @Nullable
+  public static ISMLInfo getSMLToUse ()
+  {
+    final String sSMLID = s_aConfigFile.getAsString ("sml.id");
+    final ESML eSML = ESML.getFromIDOrNull (sSMLID);
+    if (eSML != null)
+      s_aLogger.info ("Using configured SML " + eSML + " only");
+    else
+      if (sSMLID != null)
+        s_aLogger.warn ("The provided SML-ID '" +
+                        sSMLID +
+                        "' is invalid. Valid values are: " +
+                        StringHelper.getImplodedMapped (", ", ESML.values (), ESML::getID));
+    return eSML;
   }
 }

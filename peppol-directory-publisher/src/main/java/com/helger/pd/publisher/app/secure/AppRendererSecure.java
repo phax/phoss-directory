@@ -28,10 +28,8 @@ import com.helger.html.hc.html.metadata.HCHead;
 import com.helger.html.hc.html.textlevel.HCSpan;
 import com.helger.html.hc.html.textlevel.HCStrong;
 import com.helger.html.hc.impl.HCNodeList;
-import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.app.AppCommonUI;
 import com.helger.pd.publisher.app.pub.AppRendererPublic;
-import com.helger.pd.publisher.ui.HCExtImg;
 import com.helger.photon.bootstrap3.CBootstrapCSS;
 import com.helger.photon.bootstrap3.base.BootstrapContainer;
 import com.helger.photon.bootstrap3.breadcrumbs.BootstrapBreadcrumbs;
@@ -103,8 +101,7 @@ public final class AppRendererSecure implements ILayoutAreaContentProvider <Layo
   {
     final IHCElement <?> ret = BootstrapMenuItemRenderer.createSideBarMenu (aLEC);
 
-    return new HCNodeList ().addChild (ret)
-                            .addChild (new HCDiv ().addChild (new HCExtImg (CPDPublisher.IMG_LOGO_PEPPOL)));
+    return new HCNodeList ().addChild (ret);
   }
 
   @Nonnull

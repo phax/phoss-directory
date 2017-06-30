@@ -266,7 +266,8 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     final HCDiv aLogo = new HCDiv ().addClass (CSS_CLASS_BIG_QUERY_IMAGE)
                                     .addStyle (CCSSProperties.BACKGROUND_IMAGE.newValue (CSSURLHelper.getAsCSSURL (CPDPublisher.IMG_LOGO_PEPPOL,
                                                                                                                    true)));
-    aNodeList.addChild (aLogoContainer.addChild (aLogo));
+    aLogoContainer.addChild (aLogo);
+    aNodeList.addChild (aLogoContainer);
 
     final String sQuery = aWPEC.getAttributeAsString (FIELD_QUERY);
     final String sParticipantID = aWPEC.getAttributeAsString (FIELD_PARTICIPANT_ID);

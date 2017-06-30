@@ -46,6 +46,7 @@ import com.helger.peppol.identifier.factory.IIdentifierFactory;
 import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.peppol.sml.ESML;
+import com.helger.peppol.sml.ISMLInfo;
 import com.helger.peppol.smp.ServiceGroupType;
 import com.helger.peppol.smp.ServiceMetadataReferenceType;
 import com.helger.peppol.smpclient.SMPClientReadOnly;
@@ -65,6 +66,18 @@ public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
   private static final String URL_PART_SERVICES = "/services/";
   private static final Logger s_aLogger = LoggerFactory.getLogger (SMPBusinessCardProvider.class);
   private static final IPeppolURLProvider URL_PROVIDER = PeppolURLProvider.INSTANCE;
+
+  private final ISMLInfo m_aSelectedSML;
+
+  public SMPBusinessCardProvider ()
+  {
+    this (null);
+  }
+
+  public SMPBusinessCardProvider (@Nullable final ISMLInfo aSelectedSML)
+  {
+    m_aSelectedSML = aSelectedSML;
+  }
 
   /**
    * @return The HttpProxy object to be used by SMP clients based on the Java
@@ -134,9 +147,8 @@ public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
                                             "businesscard/" +
                                             aParticipantID.getURIPercentEncoded ());
       final HttpContext aContext = HttpClientHelper.createHttpContext (aProxy, aProxyCredentials);
-      aBusinessCard = PDMetaManager.getHttpClientMgr ().execute (aRequest,
-                                                                 aContext,
-                                                                 new PDSMPHttpResponseHandlerUnsigned ());
+      aBusinessCard = PDMetaManager.getHttpClientMgr ()
+                                   .execute (aRequest, aContext, new PDSMPHttpResponseHandlerUnsigned ());
     }
     catch (final IOException ex)
     {
@@ -204,15 +216,30 @@ public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
   @Nullable
   public PDExtendedBusinessCard getBusinessCard (@Nonnull final IParticipantIdentifier aParticipantID)
   {
-    // Create SMP client for SML first
-    final SMPClientReadOnly aSMPClientSML = new SMPClientReadOnly (URL_PROVIDER, aParticipantID, ESML.DIGIT_PRODUCTION);
-    PDExtendedBusinessCard aBC = getBusinessCard (aParticipantID, aSMPClientSML);
-    if (aBC == null)
+    PDExtendedBusinessCard aBC;
+
+    if (m_aSelectedSML != null)
     {
-      // Try with SMK upon failure
-      final SMPClientReadOnly aSMPClientSMK = new SMPClientReadOnly (URL_PROVIDER, aParticipantID, ESML.DIGIT_TEST);
-      aBC = getBusinessCard (aParticipantID, aSMPClientSMK);
+      // Use selected SML only
+      final SMPClientReadOnly aSMPClientSML = new SMPClientReadOnly (URL_PROVIDER, aParticipantID, m_aSelectedSML);
+      aBC = getBusinessCard (aParticipantID, aSMPClientSML);
     }
+    else
+    {
+      // No SML specified - use both!
+      // Create SMP client for SML first
+      final SMPClientReadOnly aSMPClientSML = new SMPClientReadOnly (URL_PROVIDER,
+                                                                     aParticipantID,
+                                                                     ESML.DIGIT_PRODUCTION);
+      aBC = getBusinessCard (aParticipantID, aSMPClientSML);
+      if (aBC == null)
+      {
+        // Try with SMK upon failure
+        final SMPClientReadOnly aSMPClientSMK = new SMPClientReadOnly (URL_PROVIDER, aParticipantID, ESML.DIGIT_TEST);
+        aBC = getBusinessCard (aParticipantID, aSMPClientSMK);
+      }
+    }
+
     if (aBC != null)
       s_aLogger.info ("Found BusinessCard for '" +
                       aParticipantID.getURIEncoded () +
