@@ -40,6 +40,7 @@ public final class PDHttpClientFactory extends HttpClientFactory
 
   public PDHttpClientFactory ()
   {
+    // Required because certificate uses test.erb.gv.at
     setHostnameVerifier (new HostnameVerifierVerifyAll (false));
   }
 
@@ -66,6 +67,7 @@ public final class PDHttpClientFactory extends HttpClientFactory
                                           final String sAlias = PDClientConfiguration.getKeyStoreKeyAlias ();
                                           return aAliases.containsKey (sAlias) ? sAlias : null;
                                         })
+                      .loadTrustMaterial (null, (aChain, aAuthType) -> true)
                       .build ();
   }
 }

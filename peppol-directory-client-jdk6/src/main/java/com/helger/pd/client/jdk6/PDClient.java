@@ -22,6 +22,8 @@ import java.net.Socket;
 import java.net.URI;
 import java.nio.charset.CodingErrorAction;
 import java.security.KeyStore;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
@@ -48,6 +50,7 @@ import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -209,8 +212,18 @@ public class PDClient implements Closeable
                                                                                                            : null;
                                                                     }
                                                                   })
+                                                .loadTrustMaterial (null, new TrustStrategy ()
+                                                {
+                                                  public boolean isTrusted (final X509Certificate [] aChain,
+                                                                            final String aAuthType) throws CertificateException
+                                                  {
+                                                    // trust all
+                                                    return true;
+                                                  }
+                                                })
                                                 .build ();
       // Allow TLSv1 protocol only
+      // HostnameVerifier Required because certificate uses test.erb.gv.at
       aSSLSocketFactory = new SSLConnectionSocketFactory (aSSLContext,
                                                           new String [] { "TLSv1", "TLSv1.1", "TLSv1.2" },
                                                           null,
