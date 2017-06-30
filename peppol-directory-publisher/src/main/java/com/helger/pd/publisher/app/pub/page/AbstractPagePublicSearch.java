@@ -44,9 +44,7 @@ import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.pd.indexer.storage.PDStoredDocument;
-import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
-import com.helger.pd.publisher.ui.HCExtImg;
 import com.helger.pd.publisher.ui.PDCommonUI;
 import com.helger.peppol.identifier.factory.PeppolIdentifierFactory;
 import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
@@ -55,13 +53,11 @@ import com.helger.peppol.identifier.peppol.PeppolIdentifierHelper;
 import com.helger.peppol.identifier.peppol.doctype.IPeppolDocumentTypeIdentifierParts;
 import com.helger.peppol.identifier.peppol.issuingagency.IIdentifierIssuingAgency;
 import com.helger.peppol.identifier.peppol.issuingagency.IdentifierIssuingAgencyManager;
-import com.helger.photon.bootstrap3.CBootstrapCSS;
 import com.helger.photon.bootstrap3.alert.BootstrapInfoBox;
 import com.helger.photon.bootstrap3.alert.BootstrapWarnBox;
 import com.helger.photon.bootstrap3.badge.BootstrapBadge;
 import com.helger.photon.bootstrap3.form.BootstrapFormGroup;
 import com.helger.photon.bootstrap3.form.BootstrapViewForm;
-import com.helger.photon.bootstrap3.grid.BootstrapRow;
 import com.helger.photon.bootstrap3.nav.BootstrapTabBox;
 import com.helger.photon.bootstrap3.pageheader.BootstrapPageHeader;
 import com.helger.photon.bootstrap3.pages.BootstrapWebPageUIHandler;
@@ -71,10 +67,12 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
 {
   private static final Logger s_aLogger = LoggerFactory.getLogger (AbstractPagePublicSearch.class);
 
-  protected static final ICSSClassProvider CSS_CLASS_BIG_QUERY_BOX = DefaultCSSClassProvider.create ("big-querybox");
-  protected static final ICSSClassProvider CSS_CLASS_BIG_QUERY_HELPTEXT = DefaultCSSClassProvider.create ("big-queryhelptext");
-  protected static final ICSSClassProvider CSS_CLASS_BIG_QUERY_BUTTONS = DefaultCSSClassProvider.create ("big-querybuttons");
-  protected static final ICSSClassProvider CSS_CLASS_SMALL_QUERY_BOX = DefaultCSSClassProvider.create ("small-querybox");
+  protected static final ICSSClassProvider CSS_CLASS_BIG_QUERY_IMAGE_CONTAINER = DefaultCSSClassProvider.create ("big-query-image-container");
+  protected static final ICSSClassProvider CSS_CLASS_BIG_QUERY_IMAGE = DefaultCSSClassProvider.create ("big-query-image");
+  protected static final ICSSClassProvider CSS_CLASS_BIG_QUERY_BOX = DefaultCSSClassProvider.create ("big-query-box");
+  protected static final ICSSClassProvider CSS_CLASS_BIG_QUERY_HELPTEXT = DefaultCSSClassProvider.create ("big-query-helptext");
+  protected static final ICSSClassProvider CSS_CLASS_BIG_QUERY_BUTTONS = DefaultCSSClassProvider.create ("big-query-buttons");
+
   protected static final ICSSClassProvider CSS_CLASS_RESULT_DOC = DefaultCSSClassProvider.create ("result-doc");
   protected static final ICSSClassProvider CSS_CLASS_RESULT_DOC_HEADER = DefaultCSSClassProvider.create ("result-doc-header");
   protected static final ICSSClassProvider CSS_CLASS_RESULT_DOC_COUNTRY_CODE = DefaultCSSClassProvider.create ("result-doc-country-code");
@@ -87,20 +85,6 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
   public AbstractPagePublicSearch (@Nonnull @Nonempty final String sID, @Nonnull final String sName)
   {
     super (sID, sName);
-  }
-
-  @Nonnull
-  protected static BootstrapRow createLogoRow ()
-  {
-    final BootstrapRow aHeaderRow = new BootstrapRow ();
-    // The logo
-    aHeaderRow.createColumn (12, 12, 1, 2).addClass (CBootstrapCSS.HIDDEN_SM);
-    aHeaderRow.createColumn (12, 6, 5, 4)
-              .addChild (new HCExtImg (CPDPublisher.IMG_LOGO_PD).addClass (CBootstrapCSS.PULL_LEFT));
-    aHeaderRow.createColumn (12, 6, 5, 4)
-              .addChild (new HCExtImg (CPDPublisher.IMG_LOGO_PEPPOL).addClass (CBootstrapCSS.PULL_RIGHT));
-    aHeaderRow.createColumn (12, 12, 1, 2).addClass (CBootstrapCSS.HIDDEN_SM);
-    return aHeaderRow;
   }
 
   @Nonnull

@@ -32,6 +32,5 @@ public final class CPDPublisher
   // Email sender - depends on the used SMTP server
   public static final IEmailAddress EMAIL_SENDER = new EmailAddress ("no-reply@helger.com");
 
-  public static final ISimpleURL IMG_LOGO_PD = new SimpleURL ("/imgs/pd-logo.png");
   public static final ISimpleURL IMG_LOGO_PEPPOL = new SimpleURL ("/imgs/peppol.png");
 }

@@ -104,7 +104,6 @@ public final class AppRendererSecure implements ILayoutAreaContentProvider <Layo
     final IHCElement <?> ret = BootstrapMenuItemRenderer.createSideBarMenu (aLEC);
 
     return new HCNodeList ().addChild (ret)
-                            .addChild (new HCDiv ().addChild (new HCExtImg (CPDPublisher.IMG_LOGO_PD)))
                             .addChild (new HCDiv ().addChild (new HCExtImg (CPDPublisher.IMG_LOGO_PEPPOL)));
   }
 

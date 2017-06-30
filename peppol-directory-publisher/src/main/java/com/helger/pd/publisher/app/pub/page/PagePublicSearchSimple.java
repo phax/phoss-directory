@@ -32,6 +32,8 @@ import com.helger.commons.collection.ext.ICommonsList;
 import com.helger.commons.collection.multimap.IMultiMapListBased;
 import com.helger.commons.locale.country.CountryCache;
 import com.helger.commons.string.StringHelper;
+import com.helger.css.property.CCSSProperties;
+import com.helger.css.utils.CSSURLHelper;
 import com.helger.html.hc.IHCNode;
 import com.helger.html.hc.ext.HCExtHelper;
 import com.helger.html.hc.html.forms.EHCFormMethod;
@@ -48,6 +50,7 @@ import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.PDQueryManager;
 import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.pd.indexer.storage.PDStoredDocument;
+import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.search.EPDSearchField;
 import com.helger.pd.publisher.ui.PDCommonUI;
 import com.helger.peppol.identifier.factory.IIdentifierFactory;
@@ -63,7 +66,6 @@ import com.helger.photon.bootstrap3.button.BootstrapSubmitButton;
 import com.helger.photon.bootstrap3.button.EBootstrapButtonSize;
 import com.helger.photon.bootstrap3.button.EBootstrapButtonType;
 import com.helger.photon.bootstrap3.grid.BootstrapRow;
-import com.helger.photon.bootstrap3.inputgroup.BootstrapInputGroup;
 import com.helger.photon.bootstrap3.label.BootstrapLabel;
 import com.helger.photon.bootstrap3.label.EBootstrapLabelType;
 import com.helger.photon.bootstrap3.table.BootstrapTable;
@@ -94,19 +96,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
   @Nonnull
   private static HCEdit _createQueryEdit ()
   {
-    return new HCEdit (new RequestField (FIELD_QUERY)).setPlaceholder ("Query PEPPOL Directory");
-  }
-
-  @Nonnull
-  private BootstrapRow _createSmallQueryBox (@Nonnull final WebPageExecutionContext aWPEC)
-  {
-    final HCForm aSmallQueryBox = new HCForm ().setAction (aWPEC.getSelfHref ()).setMethod (EHCFormMethod.GET);
-    aSmallQueryBox.addChild (new BootstrapInputGroup (_createQueryEdit ()).addSuffix (new BootstrapSubmitButton ().setIcon (EDefaultIcon.MAGNIFIER))
-                                                                          .addClass (CSS_CLASS_SMALL_QUERY_BOX));
-
-    final BootstrapRow aBodyRow = new BootstrapRow ();
-    aBodyRow.createColumn (12, 6, 6, 6).addChild (aSmallQueryBox);
-    return aBodyRow;
+    return new HCEdit (new RequestField (FIELD_QUERY)).setPlaceholder ("Search PEPPOL Directory");
   }
 
   @Nonnull
@@ -118,7 +108,8 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
                                        .addChild ("Enter the name, address, ID or any other keyword of the entity you are looking for."));
     aBigQueryBox.addChild (new HCDiv ().addClass (CSS_CLASS_BIG_QUERY_BUTTONS)
                                        .addChild (new BootstrapSubmitButton ().addChild ("Search PEPPOL Directory")
-                                                                              .setIcon (EDefaultIcon.MAGNIFIER)));
+                                                                              .setIcon (EDefaultIcon.MAGNIFIER)
+                                                                              .setButtonType (EBootstrapButtonType.SUCCESS)));
 
     final BootstrapRow aBodyRow = new BootstrapRow ();
     aBodyRow.createColumn (12, 1, 2, 3).addClass (CBootstrapCSS.HIDDEN_XS);
@@ -269,7 +260,11 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     final Locale aDisplayLocale = aWPEC.getDisplayLocale ();
     final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
 
-    aNodeList.addAndReturnChild (createLogoRow ());
+    final HCDiv aLogoContainer = new HCDiv ().addClass (CSS_CLASS_BIG_QUERY_IMAGE_CONTAINER);
+    final HCDiv aLogo = new HCDiv ().addClass (CSS_CLASS_BIG_QUERY_IMAGE)
+                                    .addStyle (CCSSProperties.BACKGROUND_IMAGE.newValue (CSSURLHelper.getAsCSSURL (CPDPublisher.IMG_LOGO_PEPPOL,
+                                                                                                                   true)));
+    aNodeList.addChild (aLogoContainer.addChild (aLogo));
 
     final String sQuery = aWPEC.getAttributeAsString (FIELD_QUERY);
     final String sParticipantID = aWPEC.getAttributeAsString (FIELD_PARTICIPANT_ID);
@@ -278,6 +273,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
 
     if (aWPEC.hasAction (CPageParam.ACTION_VIEW) && StringHelper.hasText (sParticipantID))
     {
+      // Show details of a participant
       final IParticipantIdentifier aParticipantID = aIdentifierFactory.parseParticipantIdentifier (sParticipantID);
       if (aParticipantID != null)
       {
@@ -286,7 +282,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
         if (aDetails.hasChildren ())
         {
           // Show small query box
-          aNodeList.addChild (_createSmallQueryBox (aWPEC));
+          aLogo.addChild (_createInitialSearchForm (aWPEC));
 
           // Show details afterwards
           aNodeList.addChild (aDetails);
@@ -295,9 +291,9 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
       }
       else
       {
-        aNodeList.addChild (new BootstrapErrorBox ().addChild ("Failed to parse participant identifier '" +
-                                                               sParticipantID +
-                                                               "'"));
+        aLogo.addChild (new BootstrapErrorBox ().addChild ("Failed to parse participant identifier '" +
+                                                           sParticipantID +
+                                                           "'"));
       }
     }
 
@@ -306,14 +302,15 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
       if (StringHelper.hasText (sQuery))
       {
         // Show small query box
-        aNodeList.addChild (_createSmallQueryBox (aWPEC));
+        aLogo.addChild (_createInitialSearchForm (aWPEC));
+
+        // After Logo
         _showResultList (aWPEC, sQuery, nMaxResults);
       }
       else
       {
         // Show big query box
-        final BootstrapRow aBodyRow = _createInitialSearchForm (aWPEC);
-        aNodeList.addChild (aBodyRow);
+        aLogo.addChild (_createInitialSearchForm (aWPEC));
       }
     }
   }
