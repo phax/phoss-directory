@@ -152,8 +152,10 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     else
     {
       aNodeList.addChild (new HCDiv ().addChild (new BootstrapLabel (EBootstrapLabelType.SUCCESS).addChild ("Found " +
-                                                                                                            aGroupedDocs.size () +
-                                                                                                            " entities matching '" +
+                                                                                                            (aGroupedDocs.size () == 1 ? "1 entity"
+                                                                                                                                       : aGroupedDocs.size () +
+                                                                                                                                         " entities") +
+                                                                                                            " matching '" +
                                                                                                             sQuery +
                                                                                                             "'")));
       if (aGroupedDocs.size () > nMaxResults)
