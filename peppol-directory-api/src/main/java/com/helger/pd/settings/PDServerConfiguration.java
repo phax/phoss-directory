@@ -242,38 +242,38 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
 
   /**
    * Read value of <code>truststore-alt.path</code>. Defaults to
-   * <code>{@link PeppolKeyStoreHelper#TRUSTSTORE_PILOT_CLASSPATH}</code>.
+   * <code>null</code>.
    *
    * @return The alternative truststore location path.
    */
   @Nullable
   public static String getTruststoreLocationAlternative ()
   {
-    return s_aConfigFile.getAsString ("truststore-alt.path", PeppolKeyStoreHelper.TRUSTSTORE_PILOT_CLASSPATH);
+    return s_aConfigFile.getAsString ("truststore-alt.path");
   }
 
   /**
    * Read value of <code>truststore-alt.password</code>. Defaults to
-   * <code>{@link PeppolKeyStoreHelper#TRUSTSTORE_PASSWORD}</code>.
+   * <code>null</code>.
    *
    * @return The alternative truststore password.
    */
   @Nullable
   public static String getTruststorePasswordAlternative ()
   {
-    return s_aConfigFile.getAsString ("truststore-alt.password", PeppolKeyStoreHelper.TRUSTSTORE_PASSWORD);
+    return s_aConfigFile.getAsString ("truststore-alt.password");
   }
 
   /**
    * Read value of <code>truststore-alt.alias</code>. Defaults to
-   * <code>{@link PeppolKeyStoreHelper#TRUSTSTORE_PILOT_ALIAS_SMP}</code>.
+   * <code>null</code>.
    *
    * @return The alternative truststore password.
    */
   @Nullable
   public static String getTruststoreAliasAlternative ()
   {
-    return s_aConfigFile.getAsString ("truststore-alt.alias", PeppolKeyStoreHelper.TRUSTSTORE_PILOT_ALIAS_SMP);
+    return s_aConfigFile.getAsString ("truststore-alt.alias");
   }
 
   /**
