@@ -346,14 +346,11 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   {
     final String sSMLID = s_aConfigFile.getAsString ("sml.id");
     final ESML eSML = ESML.getFromIDOrNull (sSMLID);
-    if (eSML != null)
-      s_aLogger.info ("Using configured SML " + eSML + " only");
-    else
-      if (sSMLID != null)
-        s_aLogger.warn ("The provided SML-ID '" +
-                        sSMLID +
-                        "' is invalid. Valid values are: " +
-                        StringHelper.getImplodedMapped (", ", ESML.values (), ESML::getID));
+    if (eSML == null && sSMLID != null)
+      s_aLogger.warn ("The provided SML-ID '" +
+                      sSMLID +
+                      "' is invalid. Valid values are: " +
+                      StringHelper.getImplodedMapped (", ", ESML.values (), ESML::getID));
     return eSML;
   }
 }

@@ -156,7 +156,7 @@ public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
           ex instanceof UnknownHostException)
         s_aLogger.warn ("No BusinessCard available for '" +
                         aParticipantID.getURIEncoded () +
-                        "' - not in SMK/SML? - " +
+                        "' - not in configured SMK/SML? - " +
                         ex.getMessage ());
       else
         s_aLogger.error ("Error querying SMP for BusinessCard of '" + aParticipantID.getURIEncoded () + "'", ex);

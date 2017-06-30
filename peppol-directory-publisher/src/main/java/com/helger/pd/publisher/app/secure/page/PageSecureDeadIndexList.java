@@ -19,9 +19,12 @@ package com.helger.pd.publisher.app.secure.page;
 import javax.annotation.Nonnull;
 
 import com.helger.commons.annotation.Nonempty;
+import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.mgr.PDIndexerManager;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.reindex.IReIndexWorkItemList;
+import com.helger.photon.bootstrap3.alert.BootstrapInfoBox;
+import com.helger.photon.uicore.page.WebPageExecutionContext;
 
 public final class PageSecureDeadIndexList extends AbstractPageSecureReIndex
 {
@@ -36,5 +39,13 @@ public final class PageSecureDeadIndexList extends AbstractPageSecureReIndex
   {
     final PDIndexerManager aIndexerMgr = PDMetaManager.getIndexerMgr ();
     return aIndexerMgr.getDeadList ();
+  }
+
+  @Override
+  protected void showListOfExistingObjects (@Nonnull final WebPageExecutionContext aWPEC)
+  {
+    final HCNodeList aNodeList = aWPEC.getNodeList ();
+    aNodeList.addChild (new BootstrapInfoBox ().addChild ("This page contains all entries where indexing failed totally."));
+    super.showListOfExistingObjects (aWPEC);
   }
 }
