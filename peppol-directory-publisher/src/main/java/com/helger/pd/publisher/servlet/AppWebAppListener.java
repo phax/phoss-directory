@@ -75,7 +75,7 @@ public final class AppWebAppListener extends AbstractWebAppListenerMultiAppBoots
   @Nonempty
   protected ICommonsMap <String, IApplicationInitializer <LayoutExecutionContext>> getAllInitializers ()
   {
-    final ICommonsMap <String, IApplicationInitializer <LayoutExecutionContext>> ret = new CommonsHashMap<> ();
+    final ICommonsMap <String, IApplicationInitializer <LayoutExecutionContext>> ret = new CommonsHashMap <> ();
     ret.put (CApplication.APP_ID_SECURE, new InitializerSecure ());
     ret.put (CApplication.APP_ID_PUBLIC, new InitializerPublic ());
     return ret;

@@ -50,7 +50,7 @@ public final class PagePublicSearchExtended extends AbstractPagePublicSearch
 
   public PagePublicSearchExtended (@Nonnull @Nonempty final String sID)
   {
-    super (sID, "Extended Search");
+    super (sID, "Extended Search [DEBUG ONLY]");
   }
 
   @Nonnull

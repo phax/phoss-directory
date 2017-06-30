@@ -71,8 +71,8 @@ public final class InitializerSecure implements IApplicationInitializer <LayoutE
     if (PDServerConfiguration.getConfigFile ().isRead ())
     {
       aCfgMgr.registerConfigurationFile (new ConfigurationFile (PDServerConfiguration.getConfigFile ()
-                                                                          .getReadResource ()).setDescription ("PEPPOL Directory properties")
-                                                                                              .setSyntaxHighlightLanguage (EPrismLanguage.APACHECONF));
+                                                                                     .getReadResource ()).setDescription ("PEPPOL Directory properties")
+                                                                                                         .setSyntaxHighlightLanguage (EPrismLanguage.APACHECONF));
     }
   }
 }

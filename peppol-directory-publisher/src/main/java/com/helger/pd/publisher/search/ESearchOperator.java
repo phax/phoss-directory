@@ -65,9 +65,9 @@ public enum ESearchOperator implements IHasDisplayText, IHasID <String>
   private final ESearchOperatorText m_eDisplayText;
 
   private ESearchOperator (@Nonnull @Nonempty final String sID,
-                             final boolean bNeedsValue,
-                             @Nullable final Class <?> aSpecialValueClass,
-                             @Nonnull final ESearchOperatorText eDisplayText)
+                           final boolean bNeedsValue,
+                           @Nullable final Class <?> aSpecialValueClass,
+                           @Nonnull final ESearchOperatorText eDisplayText)
   {
     m_sID = sID;
     m_bNeedsValue = bNeedsValue;

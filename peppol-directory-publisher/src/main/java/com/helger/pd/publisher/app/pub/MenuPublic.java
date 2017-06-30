@@ -19,6 +19,7 @@ package com.helger.pd.publisher.app.pub;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 
+import com.helger.commons.debug.GlobalDebug;
 import com.helger.commons.io.resource.ClassPathResource;
 import com.helger.pd.publisher.app.pub.page.PagePublicContact;
 import com.helger.pd.publisher.app.pub.page.PagePublicSearchExtended;
@@ -36,7 +37,8 @@ public final class MenuPublic
   {
     // Not logged in
     aMenuTree.createRootItem (new PagePublicSearchSimple (CMenuPublic.MENU_SEARCH_SIMPLE));
-    aMenuTree.createRootItem (new PagePublicSearchExtended (CMenuPublic.MENU_SEARCH_EXTENDED));
+    if (GlobalDebug.isDebugMode ())
+      aMenuTree.createRootItem (new PagePublicSearchExtended (CMenuPublic.MENU_SEARCH_EXTENDED));
     aMenuTree.createRootItem (new AppPageViewExternal (CMenuPublic.MENU_DOCS_INTRODUCTION,
                                                        "Introduction",
                                                        new ClassPathResource ("viewpages/en/docs_introduction.xml")));

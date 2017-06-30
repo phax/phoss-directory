@@ -46,9 +46,9 @@ public final class MenuSecure
 
     // Indexer
     {
-      final IMenuItemPage aIndexer = aMenuTree.createRootItem (new BasePageShowChildren<> (CMenuSecure.MENU_INDEXER,
-                                                                                           "Indexer",
-                                                                                           aMenuTree));
+      final IMenuItemPage aIndexer = aMenuTree.createRootItem (new BasePageShowChildren <> (CMenuSecure.MENU_INDEXER,
+                                                                                            "Indexer",
+                                                                                            aMenuTree));
       aMenuTree.createItem (aIndexer, new PageSecureAllParticipants (CMenuSecure.MENU_ALL_PARTICIPANTS));
       aMenuTree.createItem (aIndexer, new PageSecureIndexManually (CMenuSecure.MENU_INDEX_MANUALLY));
       aMenuTree.createItem (aIndexer, new PageSecureReIndexList (CMenuSecure.MENU_REINDEX_LIST));
@@ -57,11 +57,11 @@ public final class MenuSecure
 
     // Administrator
     {
-      final IMenuItemPage aAdmin = aMenuTree.createRootItem (new BasePageShowChildren<> (CMenuSecure.MENU_ADMIN,
-                                                                                         "Administration",
-                                                                                         aMenuTree));
+      final IMenuItemPage aAdmin = aMenuTree.createRootItem (new BasePageShowChildren <> (CMenuSecure.MENU_ADMIN,
+                                                                                          "Administration",
+                                                                                          aMenuTree));
 
-      aMenuTree.createItem (aAdmin, new BasePageSecurityChangePassword<> (CMenuSecure.MENU_CHANGE_PASSWORD));
+      aMenuTree.createItem (aAdmin, new BasePageSecurityChangePassword <> (CMenuSecure.MENU_CHANGE_PASSWORD));
       BootstrapPagesMenuConfigurator.addAllItems (aMenuTree, aAdmin, aFilterAdministrators, AppCommonUI.DEFAULT_LOCALE);
     }
 
