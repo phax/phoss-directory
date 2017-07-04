@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.commons.exception.InitializationException;
+import com.helger.commons.io.resource.ClassPathResource;
 import com.helger.peppol.identifier.factory.PeppolIdentifierFactory;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 
@@ -35,11 +36,29 @@ public final class PDClientTest
   private static final Logger s_aLogger = LoggerFactory.getLogger (PDClientTest.class);
 
   @Test
-  @Ignore ("Test manually only!")
-  public void testBasic ()
+  public void testTestServer ()
   {
-    if (false)
-      System.setProperty ("javax.net.debug", "all");
+    final IParticipantIdentifier aPI = PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9915:test");
+    try (final PDClient aClient = new PDClient ("https://test-directory.peppol.eu"))
+    {
+      if (aClient.deleteServiceGroupFromIndex (aPI).isSuccess ())
+      {
+        aClient.isServiceGroupRegistered (aPI);
+        aClient.addServiceGroupToIndex (aPI);
+      }
+    }
+    catch (final InitializationException ex)
+    {
+      s_aLogger.error ("Failed to invoke PDClient", ex);
+    }
+  }
+
+  @Test
+  @Ignore ("Test manually only!")
+  public void testProductionServer ()
+  {
+    System.setProperty (PDClientConfiguration.SYSTEM_PROPERTY_PRIMARY,
+                        ClassPathResource.getAsFile ("private-pd-client-prod.properties").getAbsolutePath ());
 
     final IParticipantIdentifier aPI = PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9915:b");
     try (final PDClient aClient = new PDClient ("https://directory.peppol.eu"))
@@ -53,6 +72,10 @@ public final class PDClientTest
     catch (final InitializationException ex)
     {
       s_aLogger.error ("Failed to invoke PDClient", ex);
+    }
+    finally
+    {
+      System.clearProperty (PDClientConfiguration.SYSTEM_PROPERTY_PRIMARY);
     }
   }
 }

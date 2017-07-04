@@ -45,15 +45,20 @@ import com.helger.settings.exchange.configfile.ConfigFileBuilder;
 @Immutable
 public final class PDClientConfiguration
 {
+  public static final String SYSTEM_PROPERTY_PRIMARY = "peppol.pd.client.properties.path";
+  public static final String SYSTEM_PROPERTY_SECONDARY = "pd.client.properties.path";
+  public static final String PROPERTY_FILE_PRIMARY = "private-pd-client.properties";
+  public static final String PROPERTY_FILE_SECONDARY = "pd-client.properties";
+
   private static final Logger s_aLogger = LoggerFactory.getLogger (PDClientConfiguration.class);
   private static final ConfigFile s_aConfigFile;
 
   static
   {
-    final ConfigFileBuilder aCFB = new ConfigFileBuilder ().addPathFromSystemProperty ("peppol.pd.client.properties.path")
-                                                           .addPathFromSystemProperty ("pd.client.properties.path")
-                                                           .addPath ("private-pd-client.properties")
-                                                           .addPath ("pd-client.properties");
+    final ConfigFileBuilder aCFB = new ConfigFileBuilder ().addPathFromSystemProperty (SYSTEM_PROPERTY_PRIMARY)
+                                                           .addPathFromSystemProperty (SYSTEM_PROPERTY_SECONDARY)
+                                                           .addPath (PROPERTY_FILE_PRIMARY)
+                                                           .addPath (PROPERTY_FILE_SECONDARY);
 
     s_aConfigFile = aCFB.build ();
     if (s_aConfigFile.isRead ())

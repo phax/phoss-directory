@@ -50,6 +50,11 @@ import com.helger.peppol.utils.ConfigFile;
 @Immutable
 public final class PDClientConfiguration
 {
+  public static final String SYSTEM_PROPERTY_PRIMARY = "peppol.pd.client.properties.path";
+  public static final String SYSTEM_PROPERTY_SECONDARY = "pd.client.properties.path";
+  public static final String PROPERTY_FILE_PRIMARY = "private-pd-client.properties";
+  public static final String PROPERTY_FILE_SECONDARY = "pd-client.properties";
+
   private static final Logger s_aLogger = LoggerFactory.getLogger (PDClientConfiguration.class);
   private static final ConfigFile s_aConfigFile;
 
@@ -57,16 +62,16 @@ public final class PDClientConfiguration
   {
     final List <String> aFilePaths = new ArrayList <String> ();
     // Check if the system property is present
-    String sPropertyPath = SystemProperties.getPropertyValue ("peppol.pd.client.properties.path");
+    String sPropertyPath = SystemProperties.getPropertyValue (SYSTEM_PROPERTY_PRIMARY);
     if (StringHelper.hasText (sPropertyPath))
       aFilePaths.add (sPropertyPath);
-    sPropertyPath = SystemProperties.getPropertyValue ("pd.client.properties.path");
+    sPropertyPath = SystemProperties.getPropertyValue (SYSTEM_PROPERTY_SECONDARY);
     if (StringHelper.hasText (sPropertyPath))
       aFilePaths.add (sPropertyPath);
 
     // Use the default paths
-    aFilePaths.add ("private-pd-client.properties");
-    aFilePaths.add ("pd-client.properties");
+    aFilePaths.add (PROPERTY_FILE_PRIMARY);
+    aFilePaths.add (PROPERTY_FILE_SECONDARY);
 
     s_aConfigFile = new ConfigFile (ArrayHelper.newArray (aFilePaths, String.class));
     if (s_aConfigFile.isRead ())
