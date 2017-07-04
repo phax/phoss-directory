@@ -20,6 +20,7 @@ import java.security.KeyStore;
 import java.security.cert.CRL;
 import java.security.cert.X509Certificate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -336,7 +337,10 @@ public final class ClientCertificateValidator
       }
       // Do we have a certificate to verify?
       if (aClientCertToVerify == null)
-        throw new IllegalStateException ("Found no client certificate that was issued by one of the required issuers.");
+        throw new IllegalStateException ("Found no client certificate that was issued by one of the " +
+                                         s_aSearchIssuers.size () +
+                                         " required issuers. Provided certs are: " +
+                                         Arrays.toString (aRequestCerts));
     }
 
     final String sClientID = getClientUniqueID (aClientCertToVerify);
