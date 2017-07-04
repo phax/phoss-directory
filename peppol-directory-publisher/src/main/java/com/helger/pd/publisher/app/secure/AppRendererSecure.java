@@ -83,8 +83,7 @@ public final class AppRendererSecure implements ILayoutAreaContentProvider <Layo
       aNav.addButton (new BootstrapButton ().addChild ("Goto public area")
                                             .setOnClick (LinkHelper.getURLWithContext (AbstractPublicApplicationServlet.SERVLET_DEFAULT_PATH +
                                                                                        "/")));
-      aNav.addItem (new HCSpan ().addClass (CBootstrapCSS.NAVBAR_TEXT)
-                                 .addChild ("Welcome ")
+      aNav.addText (new HCSpan ().addChild ("Welcome ")
                                  .addChild (new HCStrong ().addChild (SecurityHelper.getUserDisplayName (aUser,
                                                                                                          aDisplayLocale))));
 

@@ -156,8 +156,7 @@ public final class AppRendererPublic implements ILayoutAreaContentProvider <Layo
                                                                                            "/")));
         }
 
-        aNav.addItem (new HCSpan ().addClass (CBootstrapCSS.NAVBAR_TEXT)
-                                   .addChild ("Welcome ")
+        aNav.addText (new HCSpan ().addChild ("Welcome ")
                                    .addChild (new HCStrong ().addChild (SecurityHelper.getUserDisplayName (aUser,
                                                                                                            aDisplayLocale))));
         aNav.addButton (new BootstrapButton ().setOnClick (LinkHelper.getURLWithContext (aRequestScope,
