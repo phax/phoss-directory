@@ -223,9 +223,10 @@ public class PDClient implements Closeable
                                                 })
                                                 .build ();
       // Allow TLSv1 protocol only
+      // JDK6 only supports TLS 1.0 - not 1.1 or higher!
       // HostnameVerifier Required because certificate uses test.erb.gv.at
       aSSLSocketFactory = new SSLConnectionSocketFactory (aSSLContext,
-                                                          new String [] { "TLSv1", "TLSv1.1", "TLSv1.2" },
+                                                          new String [] { "TLSv1" },
                                                           null,
                                                           new HostnameVerifier ()
                                                           {

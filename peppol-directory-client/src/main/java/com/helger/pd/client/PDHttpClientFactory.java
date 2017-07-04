@@ -28,6 +28,7 @@ import org.apache.http.ssl.SSLContexts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.helger.commons.random.VerySecureRandom;
 import com.helger.commons.ws.HostnameVerifierVerifyAll;
 import com.helger.httpclient.HttpClientFactory;
 import com.helger.peppol.utils.PeppolKeyStoreHelper;
@@ -60,14 +61,22 @@ public final class PDHttpClientFactory extends HttpClientFactory
                        PeppolKeyStoreHelper.getLoadError (aLoadedKeyStore));
       return null;
     }
+
     return SSLContexts.custom ()
                       .loadKeyMaterial (aLoadedKeyStore.getKeyStore (),
                                         PDClientConfiguration.getKeyStoreKeyPassword (),
                                         (aAliases, aSocket) -> {
+                                          if (s_aLogger.isDebugEnabled ())
+                                            s_aLogger.debug ("chooseAlias(" + aAliases + ", " + aSocket + ")");
                                           final String sAlias = PDClientConfiguration.getKeyStoreKeyAlias ();
                                           return aAliases.containsKey (sAlias) ? sAlias : null;
                                         })
-                      .loadTrustMaterial (null, (aChain, aAuthType) -> true)
+                      .loadTrustMaterial (null, (aChain, aAuthType) -> {
+                        if (s_aLogger.isDebugEnabled ())
+                          s_aLogger.debug ("isTrusted(" + aChain + ", " + aAuthType + ")");
+                        return true;
+                      })
+                      .setSecureRandom (VerySecureRandom.getInstance ())
                       .build ();
   }
 }

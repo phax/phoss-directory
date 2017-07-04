@@ -16,6 +16,7 @@
  */
 package com.helger.pd.client;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,14 +35,20 @@ public final class PDClientTest
   private static final Logger s_aLogger = LoggerFactory.getLogger (PDClientTest.class);
 
   @Test
+  @Ignore ("Test manually only!")
   public void testBasic ()
   {
-    final IParticipantIdentifier aPI = PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9999:client-test");
-    try (final PDClient aClient = new PDClient ("http://pyp.helger.com"))
+    if (false)
+      System.setProperty ("javax.net.debug", "all");
+
+    final IParticipantIdentifier aPI = PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9915:b");
+    try (final PDClient aClient = new PDClient ("https://directory.peppol.eu"))
     {
-      aClient.deleteServiceGroupFromIndex (aPI);
-      aClient.isServiceGroupRegistered (aPI);
-      aClient.addServiceGroupToIndex (aPI);
+      if (aClient.deleteServiceGroupFromIndex (aPI).isSuccess ())
+      {
+        aClient.isServiceGroupRegistered (aPI);
+        aClient.addServiceGroupToIndex (aPI);
+      }
     }
     catch (final InitializationException ex)
     {
