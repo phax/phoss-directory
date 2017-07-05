@@ -22,6 +22,7 @@ import javax.annotation.Nonnull;
 
 import com.helger.commons.collection.ext.CommonsArrayList;
 import com.helger.commons.collection.ext.ICommonsList;
+import com.helger.commons.debug.GlobalDebug;
 import com.helger.commons.string.StringHelper;
 import com.helger.commons.url.ISimpleURL;
 import com.helger.commons.url.SimpleURL;
@@ -41,6 +42,7 @@ import com.helger.html.hc.html.textlevel.HCStrong;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.publisher.app.AppCommonUI;
 import com.helger.pd.publisher.app.AppSecurity;
+import com.helger.pd.settings.PDServerConfiguration;
 import com.helger.photon.basic.app.menu.ApplicationMenuTree;
 import com.helger.photon.basic.app.menu.IMenuItemExternal;
 import com.helger.photon.basic.app.menu.IMenuItemPage;
@@ -73,6 +75,7 @@ import com.helger.photon.core.url.LinkHelper;
 import com.helger.photon.security.login.LoggedInUserManager;
 import com.helger.photon.security.user.IUser;
 import com.helger.photon.security.util.SecurityHelper;
+import com.helger.photon.uicore.html.google.HCUniversalAnalytics;
 import com.helger.photon.uicore.page.IWebPage;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
@@ -320,6 +323,12 @@ public final class AppRendererPublic implements ILayoutAreaContentProvider <Layo
               throw new IllegalStateException ("Unsupported menu object type!");
       }
       ret.addChild (aDiv);
+    }
+
+    if (GlobalDebug.isProductionMode ())
+    {
+      final String sAccountID = PDServerConfiguration.isTestVersion () ? "UA-55419519-3" : "UA-55419519-2";
+      ret.addChild (new HCUniversalAnalytics (sAccountID, false, false, false, false));
     }
 
     return ret;
