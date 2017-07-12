@@ -64,7 +64,7 @@ public class PDClient implements Closeable
   private final String m_sPDHost;
   private final String m_sPDIndexerURL;
 
-  private final HttpClientManager m_aHttpClientMgr = new HttpClientManager (new PDHttpClientFactory ());
+  private HttpClientManager m_aHttpClientMgr = new HttpClientManager (new PDHttpClientFactory ());
   private HttpHost m_aProxy;
   private Credentials m_aProxyCredentials;
 
@@ -164,6 +164,19 @@ public class PDClient implements Closeable
   public void setProxyCredentials (@Nullable final Credentials aProxyCredentials)
   {
     m_aProxyCredentials = aProxyCredentials;
+  }
+
+  /**
+   * Internal method to set a different {@link HttpClientManager} in case the
+   * default one using {@link PDHttpClientFactory} is not suitable (any more).
+   *
+   * @param aHttpClientMgr
+   *        The new HTTP client manager to use. May not be <code>null</code>.
+   */
+  public void setHttpClientManager (@Nonnull final HttpClientManager aHttpClientMgr)
+  {
+    ValueEnforcer.notNull (aHttpClientMgr, "HttpClientMgr");
+    m_aHttpClientMgr = aHttpClientMgr;
   }
 
   /**
