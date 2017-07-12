@@ -2,7 +2,7 @@
 
 [![Join the chat at https://gitter.im/phax/peppol-directory](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/phax/peppol-directory?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Current release (on Maven central): **0.4.0**
+Current release (on Maven central): **0.5.0**
 
 The official PEPPOL Directory (PD; former PEPPOL Yellow Pages - PYP) software. It is split into the following sub-projects (all require Java 8 except where noted):
   * `peppol-directory-businesscard` - the common Business Card API
@@ -12,14 +12,14 @@ The official PEPPOL Directory (PD; former PEPPOL Yellow Pages - PYP) software. I
   * `peppol-directory-client` - a client library to be added to SMP servers to force indexing in the PD
   * `peppol-directory-client-jdk6` - a client library to be added to SMP servers to force indexing in the PD (Java 1.6)
   
-Status as per 2017-07-05:
+Status as per 2017-07-12:
   * Production version is available at https://directory.peppol.eu
     * It can only handle participants registered at the SML
     * For the indexing REST API, a client certificate (SMP production) is needed 
   * Test version is available at https://test-directory.peppol.eu
     * It can only handle participants registered at the SMK
     * For the indexing REST API, a client certificate (SMP test) is needed 
-  * A Java library to be used in SMPs to communicate with the PD is available (`peppol-directory-client` for JDK 1.8 and `peppol-directory-client-jdk6` for JDK 1.6)
+  * A Java library to be used in SMPs to communicate with the PD is available (`peppol-directory-client` for JDK 1.8 and `peppol-directory-client-jdk6` for JDK 1.6 - will be phased out after 0.5.0)
   * [phoss SMP Server](https://github.com/phax/peppol-smp-server) supports starting with version 4.1.2 the graphical editing of Business Card incl. the new `/businesscard` API.
   
 Open tasks according to the design document:
