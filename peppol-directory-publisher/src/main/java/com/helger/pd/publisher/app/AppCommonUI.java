@@ -41,6 +41,7 @@ import com.helger.pd.publisher.ajax.AjaxExecutorPublicLogin;
 import com.helger.pd.publisher.ajax.CAjaxPublic;
 import com.helger.pd.settings.PDServerConfiguration;
 import com.helger.photon.bootstrap3.button.BootstrapButtonToolbar;
+import com.helger.photon.bootstrap3.ext.BootstrapSystemMessage;
 import com.helger.photon.bootstrap3.form.BootstrapForm;
 import com.helger.photon.bootstrap3.form.BootstrapFormGroup;
 import com.helger.photon.bootstrap3.form.EBootstrapFormType;
@@ -95,6 +96,9 @@ public final class AppCommonUI
                                      AjaxExecutorDataTablesI18N.LANGUAGE_ID)
                  .addPlugin (new DataTablesPluginSearchHighlight ());
     });
+
+    // By default allow markdown in system message
+    BootstrapSystemMessage.setDefaultUseMarkdown (true);
   }
 
   @Nonnull
