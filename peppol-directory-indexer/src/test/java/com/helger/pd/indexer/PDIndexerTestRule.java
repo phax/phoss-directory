@@ -45,7 +45,7 @@ public class PDIndexerTestRule extends PhotonBasicWebTestRule
 
   public PDIndexerTestRule ()
   {
-    super (new File (PDServerConfiguration.getDataPath ()), ScopeTestRule.STORAGE_PATH);
+    super (new File (PDServerConfiguration.getDataPath ()), ScopeTestRule.STORAGE_PATH.getAbsolutePath ());
   }
 
   @Override
