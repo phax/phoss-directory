@@ -50,7 +50,7 @@ public final class PDClientConfiguration
   public static final String PROPERTY_FILE_PRIMARY = "private-pd-client.properties";
   public static final String PROPERTY_FILE_SECONDARY = "pd-client.properties";
 
-  public static final String DEFAULT_TRUSTSTORE_PATH = "pd-client.truststore.jks";
+  public static final String DEFAULT_TRUSTSTORE_PATH = "truststore/pd-client.truststore.jks";
   public static final String DEFAULT_TRUSTSTORE_PASSWORD = "peppol";
 
   private static final Logger s_aLogger = LoggerFactory.getLogger (PDClientConfiguration.class);
@@ -144,6 +144,20 @@ public final class PDClientConfiguration
   public static String getTrustStorePassword ()
   {
     return s_aConfigFile.getAsString ("truststore.password", DEFAULT_TRUSTSTORE_PASSWORD);
+  }
+
+  /**
+   * During handshaking, if the URL's hostname and the server's identification
+   * hostname mismatch, the verification mechanism can call back to implementers
+   * of this interface to determine if this connection should be allowed.
+   *
+   * @return <code>true</code> if hostname checking is disabled (the default),
+   *         or <code>false</code> if it is enabled.
+   * @since 0.5.1
+   */
+  public static boolean isHttpsHostnameVerificationDisabled ()
+  {
+    return s_aConfigFile.getAsBoolean ("https.hostname-verification.disabled", true);
   }
 
   /**
