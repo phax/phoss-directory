@@ -50,6 +50,9 @@ public final class PDClientConfiguration
   public static final String PROPERTY_FILE_PRIMARY = "private-pd-client.properties";
   public static final String PROPERTY_FILE_SECONDARY = "pd-client.properties";
 
+  public static final String DEFAULT_TRUSTSTORE_PATH = "pd-client.truststore.jks";
+  public static final String DEFAULT_TRUSTSTORE_PASSWORD = "peppol";
+
   private static final Logger s_aLogger = LoggerFactory.getLogger (PDClientConfiguration.class);
   private static final ConfigFile s_aConfigFile;
 
@@ -121,24 +124,26 @@ public final class PDClientConfiguration
 
   /**
    * @return The trust store location as specified in the configuration file by
-   *         the property <code>truststore.path</code>.
+   *         the property <code>truststore.path</code>. Defaults to
+   *         {@value #DEFAULT_TRUSTSTORE_PATH}.
    * @since 0.5.1
    */
   @Nullable
   public static String getTrustStorePath ()
   {
-    return s_aConfigFile.getAsString ("truststore.path");
+    return s_aConfigFile.getAsString ("truststore.path", DEFAULT_TRUSTSTORE_PATH);
   }
 
   /**
    * @return The trust store password as specified in the configuration file by
-   *         the property <code>truststore.password</code>.
+   *         the property <code>truststore.password</code>. Defaults to
+   *         {@value #DEFAULT_TRUSTSTORE_PASSWORD}.
    * @since 0.5.1
    */
   @Nullable
   public static String getTrustStorePassword ()
   {
-    return s_aConfigFile.getAsString ("truststore.password");
+    return s_aConfigFile.getAsString ("truststore.password", DEFAULT_TRUSTSTORE_PASSWORD);
   }
 
   /**
