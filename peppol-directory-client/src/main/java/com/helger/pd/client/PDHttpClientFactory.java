@@ -17,6 +17,7 @@
 package com.helger.pd.client;
 
 import java.security.KeyManagementException;
+import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
@@ -35,7 +36,7 @@ import com.helger.peppol.utils.PeppolKeyStoreHelper;
 import com.helger.security.keystore.KeyStoreHelper;
 import com.helger.security.keystore.LoadedKeyStore;
 
-public final class PDHttpClientFactory extends HttpClientFactory
+public class PDHttpClientFactory extends HttpClientFactory
 {
   private static final Logger s_aLogger = LoggerFactory.getLogger (PDHttpClientFactory.class);
 
@@ -62,6 +63,11 @@ public final class PDHttpClientFactory extends HttpClientFactory
       return null;
     }
 
+    // Load trust store (may not be present/configured)
+    final LoadedKeyStore aLoadedTrustStore = KeyStoreHelper.loadKeyStore (PDClientConfiguration.getTrustStorePath (),
+                                                                          PDClientConfiguration.getTrustStorePassword ());
+    final KeyStore aTrustStore = aLoadedTrustStore.getKeyStore ();
+
     return SSLContexts.custom ()
                       .loadKeyMaterial (aLoadedKeyStore.getKeyStore (),
                                         PDClientConfiguration.getKeyStoreKeyPassword (),
@@ -71,7 +77,7 @@ public final class PDHttpClientFactory extends HttpClientFactory
                                           final String sAlias = PDClientConfiguration.getKeyStoreKeyAlias ();
                                           return aAliases.containsKey (sAlias) ? sAlias : null;
                                         })
-                      .loadTrustMaterial (null, (aChain, aAuthType) -> {
+                      .loadTrustMaterial (aTrustStore, (aChain, aAuthType) -> {
                         if (s_aLogger.isDebugEnabled ())
                           s_aLogger.debug ("isTrusted(" + aChain + ", " + aAuthType + ")");
                         return true;

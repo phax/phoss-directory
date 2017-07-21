@@ -120,6 +120,28 @@ public final class PDClientConfiguration
   }
 
   /**
+   * @return The trust store location as specified in the configuration file by
+   *         the property <code>truststore.path</code>.
+   * @since 0.5.1
+   */
+  @Nullable
+  public static String getTrustStorePath ()
+  {
+    return s_aConfigFile.getAsString ("truststore.path");
+  }
+
+  /**
+   * @return The trust store password as specified in the configuration file by
+   *         the property <code>truststore.password</code>.
+   * @since 0.5.1
+   */
+  @Nullable
+  public static String getTrustStorePassword ()
+  {
+    return s_aConfigFile.getAsString ("truststore.password");
+  }
+
+  /**
    * @return The proxy host to be used for "http" calls. May be
    *         <code>null</code>.
    * @see #getHttpsProxyHost()
