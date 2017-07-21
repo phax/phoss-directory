@@ -42,8 +42,12 @@ public class PDHttpClientFactory extends HttpClientFactory
 
   public PDHttpClientFactory ()
   {
-    // Required because certificate uses test.erb.gv.at
-    setHostnameVerifier (new HostnameVerifierVerifyAll (false));
+    // Required per 2017-07 because [test-]directory.peppol.eu runs on servers
+    // with a certificate of test.erb.gv.at
+    if (PDClientConfiguration.isHttpsHostnameVerificationDisabled ())
+    {
+      setHostnameVerifier (new HostnameVerifierVerifyAll (false));
+    }
   }
 
   @Override
