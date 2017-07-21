@@ -30,8 +30,9 @@ Open tasks according to the design document:
   
 # News and noteworthy
   * v0.5.1 - 2017-07-21
-    * Extended `PDClient` to explicitly support a configurable truststore. A default truststore for the current setup is included. 
-    * PD client has now a custom exception callback to catch exceptions in the operations and handle them outside the client. 
+    * Extended `PDClient` to explicitly support a configurable truststore. A default truststore for the current setup is included.
+    * PD client https hostname verification can now be 
+    * PD client has now a custom exception callback to catch exceptions in the operations and handle them outside the client.
     * Removed the JDK 6 PD client because the ECC certificates used are only supported by JDK 7 onwards. The old version is anyway in the Maven central repository.
   * v0.5.0 - 2017-07-12
     * Updated release for https://directory.peppol.eu and https://test-directory.peppol.eu
