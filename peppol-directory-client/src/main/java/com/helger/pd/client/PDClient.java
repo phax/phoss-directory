@@ -23,6 +23,7 @@ import java.nio.charset.StandardCharsets;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.NotThreadSafe;
 
 import org.apache.http.HttpHost;
 import org.apache.http.auth.Credentials;
@@ -50,6 +51,7 @@ import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
  *
  * @author Philip Helger
  */
+@NotThreadSafe
 public class PDClient implements Closeable
 {
   /** The fixed part of the URL to the PD server */
@@ -57,12 +59,19 @@ public class PDClient implements Closeable
 
   private static final Logger s_aLogger = LoggerFactory.getLogger (PDClient.class);
 
+  @Nonnull
+  private static IPDClientExceptionCallback _createDefaultExCb ()
+  {
+    return (p, m, t) -> s_aLogger.error ("Internal error in " + m + " for " + p.getURIEncoded (), t);
+  }
+
   /**
    * The string representation of the PEPPOL Directory host URL, always ending
    * with a trailing slash!
    */
   private final String m_sPDHost;
   private final String m_sPDIndexerURL;
+  private IPDClientExceptionCallback m_aExceptionHdl = _createDefaultExCb ();
 
   private HttpClientManager m_aHttpClientMgr = new HttpClientManager (new PDHttpClientFactory ());
   private HttpHost m_aProxy;
@@ -111,6 +120,37 @@ public class PDClient implements Closeable
   public void close ()
   {
     StreamHelper.close (m_aHttpClientMgr);
+  }
+
+  /**
+   * Get the current installed exception handler. By default a logging handler
+   * is installed.
+   *
+   * @return The exception handler currently in place. Never <code>null</code>.
+   * @see #setExceptionHandler(IPDClientExceptionCallback)
+   * @since 0.5.1
+   */
+  @Nonnull
+  public IPDClientExceptionCallback getExceptionHandler ()
+  {
+    return m_aExceptionHdl;
+  }
+
+  /**
+   * Set the exception handler to be used. It is invoked for every HTTP request
+   * that is performed and which throws an exception. The most common exception
+   * type is an {@link org.apache.http.client.HttpResponseException} indicating
+   * that something went wrong with an HTTP request.
+   *
+   * @param aExceptionHdl
+   *        The exception callback to be invoked. May not be <code>null</code>.
+   * @see #getExceptionHandler()
+   * @since 0.5.1
+   */
+  public void setExceptionHandler (@Nonnull final IPDClientExceptionCallback aExceptionHdl)
+  {
+    ValueEnforcer.notNull (aExceptionHdl, "ExceptionHdl");
+    m_aExceptionHdl = aExceptionHdl;
   }
 
   /**
@@ -221,11 +261,11 @@ public class PDClient implements Closeable
     {
       return executeRequest (aGet, new PDClientResponseHandler ()).isSuccess ();
     }
-    catch (final IOException ex)
+    catch (final Throwable t)
     {
-      s_aLogger.info ("isServiceGroupRegistered internal error", ex);
-      return false;
+      m_aExceptionHdl.onException (aParticipantID, "isServiceGroupRegistered", t);
     }
+    return false;
   }
 
   @Nonnull
@@ -247,9 +287,9 @@ public class PDClient implements Closeable
         return ESuccess.SUCCESS;
       }
     }
-    catch (final IOException ex)
+    catch (final Throwable t)
     {
-      s_aLogger.info ("addServiceGroupToIndex internal error", ex);
+      m_aExceptionHdl.onException (aParticipantID, "addServiceGroupToIndex", t);
     }
     return ESuccess.FAILURE;
   }
@@ -271,9 +311,9 @@ public class PDClient implements Closeable
         return ESuccess.SUCCESS;
       }
     }
-    catch (final IOException ex)
+    catch (final Throwable t)
     {
-      s_aLogger.info ("deleteServiceGroupFromIndex internal error", ex);
+      m_aExceptionHdl.onException (aParticipantID, "deleteServiceGroupFromIndex", t);
     }
     return ESuccess.FAILURE;
   }
