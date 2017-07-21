@@ -61,8 +61,8 @@ The following options are supported in the `pd-client.properties` file:
   * **truststore.password** (since v0.5.1) - the password to open the truststore store. Defaults to `peppol` 
   * **https.hostname-verification.disabled** (since v0.5.1) - a boolean value to indicate if https hostname verification should be disabled (`true`) or enabled (`false`). The current setup of the PEPPOL Directory servers require you to use `true` here. The default value is `true`. 
 
-Example client configuration file:
-```
+Example PD client configuration file:
+```ini
 # Key store with SMP key (required)
 keystore.path         = smp.pilot.jks
 keystore.password     = password
