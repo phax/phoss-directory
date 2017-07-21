@@ -234,7 +234,6 @@
     <module>peppol-directory-indexer</module>
     <module>peppol-directory-publisher</module>
     <module>peppol-directory-client</module>
-    <module>peppol-directory-client-jdk6</module>
   </modules>
   
   <build>
