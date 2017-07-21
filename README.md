@@ -42,6 +42,42 @@ To build the PD software you need at least Java 1.8 and Apache Maven 3.x. Config
 
 Additionally to the contained projects you *MAY* need the latest SNAPSHOT of [ph-oton](https://github.com/phax/ph-oton) as part of your build environment.
 
+# PD Client
+The PD client is a small Java library that uses Apache HttpClient to connect to an arbitrary PEPPOL Directory Indexer to perform all the allowed operations (get, create/update, delete).
+The client has its own configuration file that is resolved from one of the following locations (whatever is found first):
+* A path denoted by the content of the Java system property `peppol.pd.client.properties.path`
+* A path denoted by the content of the Java system property `pd.client.properties.path`
+* A file with the filename `private-pd-client.properties` in the root of the classpath
+* A file with the filename `pd-client.properties` in the root of the classpath
+
+If no configuration file is found a warning is emitted and you cannot invoke any operations because the certificate configuration is missing.
+
+The following options are supported in the `pd-client.properties` file:
+  * **keystore.path** - the path to the JKS keystore where the SMP certificate is contained
+  * **keystore.password** - the password to open the key store
+  * **keystore.key.alias** - the alias in the key store that denotes the SMP key 
+  * **keystore.key.password** - the password to open the key in the key store
+  * **truststore.path** (since v0.5.1) - the path to the trust store, where the public certificates of the PEPPOL Directory servers are contained. Defaults to `truststore/pd-client.truststore.jks`
+  * **truststore.password** (since v0.5.1) - the password to open the truststore store. Defaults to `peppol` 
+  * **https.hostname-verification.disabled** (since v0.5.1) - a boolean value to indicate if https hostname verification should be disabled (`true`) or enabled (`false`). The current setup of the PEPPOL Directory servers require you to use `true` here. The default value is `true`. 
+
+Example client configuration file:
+```
+# Key store with SMP key (required)
+keystore.path         = smp.pilot.jks
+keystore.password     = password
+keystore.key.alias    = smp.pilot
+keystore.key.password = password
+
+# Default trust store (optional)
+truststore.path     = truststore/pd-client.truststore.jks
+truststore.password = peppol
+
+# TLS settings
+# Must be disabled for https://test-directory.peppol.eu and https://directory.peppol.eu
+https.hostname-verification.disabled = true
+```
+
 # PD Indexer
 The PD Indexer is a REST component that is responsible for taking indexing requests from SMPs and processes them in a queue (PEPPOL SMP client certificate required). Only the PEPPOL participant identifiers are taken and the PD Indexer is responsible for querying the respective SMP data directly. Therefore the respective SMP must have the appropriate `Extension` element of the service group filled with the business information metadata as required by PD. Please see the PD specification draft on [Google Drive](https://drive.google.com/drive/folders/0B8Jct_iOJR9WfjJSS2dfdVdZYzBQMFotdmZoTXBZRl9Gd0cwdnB6cDZOQVlYbElrdEVVXzg)  for a detailed description of the required data format as well as for the REST interface.
 
