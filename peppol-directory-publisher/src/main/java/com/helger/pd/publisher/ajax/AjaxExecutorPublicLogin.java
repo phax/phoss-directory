@@ -55,8 +55,8 @@ public final class AjaxExecutorPublicLogin extends AbstractAjaxExecutor
   protected AjaxJsonResponse mainHandleRequest (@Nonnull final IRequestWebScopeWithoutResponse aRequestScope) throws Exception
   {
     final LayoutExecutionContext aLEC = LayoutExecutionContext.createForAjaxOrAction (aRequestScope);
-    final String sLoginName = aRequestScope.getAttributeAsString (CLogin.REQUEST_ATTR_USERID);
-    final String sPassword = aRequestScope.getAttributeAsString (CLogin.REQUEST_ATTR_PASSWORD);
+    final String sLoginName = aRequestScope.params ().getAsString (CLogin.REQUEST_ATTR_USERID);
+    final String sPassword = aRequestScope.params ().getAsString (CLogin.REQUEST_ATTR_PASSWORD);
 
     // Main login
     final ELoginResult eLoginResult = LoggedInUserManager.getInstance ().loginUser (sLoginName,

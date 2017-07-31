@@ -19,7 +19,7 @@ package com.helger.pd.publisher.app.secure.page;
 import javax.annotation.Nonnull;
 
 import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.collection.ext.ICommonsSortedSet;
+import com.helger.commons.collection.impl.ICommonsSortedSet;
 import com.helger.commons.url.ISimpleURL;
 import com.helger.html.hc.html.sections.HCH3;
 import com.helger.html.hc.html.tabular.HCRow;
@@ -31,9 +31,9 @@ import com.helger.pd.publisher.app.pub.CMenuPublic;
 import com.helger.pd.publisher.app.pub.page.PagePublicSearchSimple;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
+import com.helger.photon.basic.app.CApplicationID;
 import com.helger.photon.bootstrap3.alert.BootstrapInfoBox;
 import com.helger.photon.bootstrap3.table.BootstrapTable;
-import com.helger.photon.core.app.CApplication;
 import com.helger.photon.uicore.css.CPageParam;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 
@@ -63,7 +63,7 @@ public final class PageSecureAllParticipants extends AbstractAppWebPage
 
       final IHCCell <?> aActionCell = aRow.addCell ();
 
-      final ISimpleURL aShowDetails = aWPEC.getLinkToMenuItem (CApplication.APP_ID_PUBLIC,
+      final ISimpleURL aShowDetails = aWPEC.getLinkToMenuItem (CApplicationID.APP_ID_PUBLIC,
                                                                CMenuPublic.MENU_SEARCH_SIMPLE)
                                            .add (PagePublicSearchSimple.FIELD_QUERY, sParticipantID)
                                            .add (CPageParam.PARAM_ACTION, CPageParam.ACTION_VIEW)

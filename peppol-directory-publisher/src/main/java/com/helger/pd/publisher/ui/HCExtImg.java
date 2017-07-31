@@ -18,10 +18,10 @@ package com.helger.pd.publisher.ui;
 
 import javax.annotation.Nonnull;
 
-import com.helger.commons.gfx.ImageDataManager;
 import com.helger.commons.url.ISimpleURL;
 import com.helger.commons.url.SimpleURL;
 import com.helger.html.hc.html.embedded.AbstractHCImg;
+import com.helger.lesscommons.gfx.ImageDataManager;
 import com.helger.photon.basic.app.io.WebFileIO;
 import com.helger.servlet.request.RequestHelper;
 

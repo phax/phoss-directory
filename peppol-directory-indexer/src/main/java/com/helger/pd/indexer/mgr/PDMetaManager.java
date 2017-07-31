@@ -27,8 +27,6 @@ import com.helger.commons.debug.GlobalDebug;
 import com.helger.commons.exception.InitializationException;
 import com.helger.commons.io.stream.StreamHelper;
 import com.helger.commons.lang.ClassHelper;
-import com.helger.commons.scope.IScope;
-import com.helger.commons.scope.singleton.AbstractGlobalSingleton;
 import com.helger.httpclient.HttpClientManager;
 import com.helger.pd.businesscard.IPDBusinessCardProvider;
 import com.helger.pd.indexer.lucene.PDLucene;
@@ -36,6 +34,8 @@ import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.peppol.identifier.factory.IIdentifierFactory;
 import com.helger.peppol.identifier.factory.SimpleIdentifierFactory;
 import com.helger.photon.core.app.error.InternalErrorBuilder;
+import com.helger.scope.IScope;
+import com.helger.scope.singleton.AbstractGlobalSingleton;
 
 /**
  * The PEPPOL Directory meta manager. It consists all the other managers for the

@@ -27,8 +27,8 @@ import org.apache.lucene.index.IndexableField;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.collection.ext.CommonsArrayList;
-import com.helger.commons.collection.ext.ICommonsList;
+import com.helger.commons.collection.impl.CommonsArrayList;
+import com.helger.commons.collection.impl.ICommonsList;
 
 public abstract class AbstractPDField <NATIVE_TYPE, STORAGE_TYPE>
 {

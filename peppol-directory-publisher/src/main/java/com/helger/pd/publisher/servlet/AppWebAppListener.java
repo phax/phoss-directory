@@ -20,8 +20,8 @@ import javax.annotation.Nonnull;
 import javax.servlet.ServletContext;
 
 import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.collection.ext.CommonsHashMap;
-import com.helger.commons.collection.ext.ICommonsMap;
+import com.helger.commons.collection.impl.CommonsHashMap;
+import com.helger.commons.collection.impl.ICommonsMap;
 import com.helger.commons.vendor.VendorInfo;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.publisher.app.AppCommonUI;
@@ -31,10 +31,10 @@ import com.helger.pd.publisher.app.PDPMetaManager;
 import com.helger.pd.publisher.app.pub.InitializerPublic;
 import com.helger.pd.publisher.app.secure.InitializerSecure;
 import com.helger.pd.settings.PDServerConfiguration;
+import com.helger.photon.basic.app.CApplicationID;
 import com.helger.photon.basic.app.request.RequestParameterHandlerURLPathNamed;
 import com.helger.photon.basic.app.request.RequestParameterManager;
 import com.helger.photon.bootstrap3.servlet.AbstractWebAppListenerMultiAppBootstrap;
-import com.helger.photon.core.app.CApplication;
 import com.helger.photon.core.app.context.LayoutExecutionContext;
 import com.helger.photon.core.app.init.IApplicationInitializer;
 import com.helger.servlet.ServletContextPathHolder;
@@ -77,8 +77,8 @@ public final class AppWebAppListener extends AbstractWebAppListenerMultiAppBoots
   protected ICommonsMap <String, IApplicationInitializer <LayoutExecutionContext>> getAllInitializers ()
   {
     final ICommonsMap <String, IApplicationInitializer <LayoutExecutionContext>> ret = new CommonsHashMap <> ();
-    ret.put (CApplication.APP_ID_SECURE, new InitializerSecure ());
-    ret.put (CApplication.APP_ID_PUBLIC, new InitializerPublic ());
+    ret.put (CApplicationID.APP_ID_SECURE, new InitializerSecure ());
+    ret.put (CApplicationID.APP_ID_PUBLIC, new InitializerPublic ());
     return ret;
   }
 

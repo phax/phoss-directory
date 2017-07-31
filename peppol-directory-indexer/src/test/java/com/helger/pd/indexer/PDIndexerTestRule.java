@@ -21,13 +21,13 @@ import java.io.File;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import com.helger.commons.id.factory.GlobalIDFactory;
-import com.helger.commons.scope.mock.ScopeTestRule;
 import com.helger.pd.indexer.lucene.PDLucene;
 import com.helger.pd.settings.PDServerConfiguration;
 import com.helger.peppol.smpclient.SMPClientConfiguration;
 import com.helger.photon.basic.app.io.WebFileIO;
 import com.helger.photon.basic.app.io.WebIOIntIDFactory;
 import com.helger.photon.basic.mock.PhotonBasicWebTestRule;
+import com.helger.scope.mock.ScopeTestRule;
 
 /**
  * Special PEPPOL Directory test rule with the correct data path from the

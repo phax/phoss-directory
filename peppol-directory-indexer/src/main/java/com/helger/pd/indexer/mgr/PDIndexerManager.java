@@ -30,9 +30,9 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.collection.ext.CommonsHashSet;
-import com.helger.commons.collection.ext.ICommonsList;
-import com.helger.commons.collection.ext.ICommonsSet;
+import com.helger.commons.collection.impl.CommonsHashSet;
+import com.helger.commons.collection.impl.ICommonsList;
+import com.helger.commons.collection.impl.ICommonsSet;
 import com.helger.commons.concurrent.SimpleReadWriteLock;
 import com.helger.commons.datetime.PDTFactory;
 import com.helger.commons.state.EChange;
@@ -48,9 +48,9 @@ import com.helger.pd.indexer.reindex.IReIndexWorkItemList;
 import com.helger.pd.indexer.reindex.ReIndexWorkItem;
 import com.helger.pd.indexer.reindex.ReIndexWorkItemList;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
+import com.helger.photon.basic.app.CApplicationID;
 import com.helger.photon.basic.app.dao.impl.DAOException;
 import com.helger.photon.basic.app.io.WebFileIO;
-import com.helger.photon.core.app.CApplication;
 import com.helger.quartz.SimpleScheduleBuilder;
 import com.helger.quartz.TriggerKey;
 import com.helger.schedule.quartz.GlobalQuartzScheduler;
@@ -88,7 +88,7 @@ public final class PDIndexerManager implements Closeable
    * here.
    */
   @GuardedBy ("m_aRWLock")
-  private final ICommonsSet <IIndexerWorkItem> m_aUniqueItems = new CommonsHashSet<> ();
+  private final ICommonsSet <IIndexerWorkItem> m_aUniqueItems = new CommonsHashSet <> ();
 
   // Status vars
   private final GlobalQuartzScheduler m_aScheduler;
@@ -147,7 +147,7 @@ public final class PDIndexerManager implements Closeable
                                                                                                    aFailureItem -> _onIndexFailure (aFailureItem)));
 
     // Schedule re-index job
-    m_aTriggerKey = ReIndexJob.schedule (SimpleScheduleBuilder.repeatMinutelyForever (1), CApplication.APP_ID_SECURE);
+    m_aTriggerKey = ReIndexJob.schedule (SimpleScheduleBuilder.repeatMinutelyForever (1), CApplicationID.APP_ID_SECURE);
 
     // remember here
     m_aScheduler = GlobalQuartzScheduler.getInstance ();

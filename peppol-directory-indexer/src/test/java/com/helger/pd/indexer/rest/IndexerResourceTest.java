@@ -45,9 +45,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.commons.collection.CollectionHelper;
+import com.helger.commons.concurrent.ThreadHelper;
 import com.helger.commons.mock.CommonsTestHelper;
 import com.helger.commons.random.RandomHelper;
-import com.helger.commons.thread.ThreadHelper;
 import com.helger.commons.ws.HostnameVerifierVerifyAll;
 import com.helger.commons.ws.TrustManagerTrustAll;
 import com.helger.pd.businesscard.PDExtendedBusinessCard;

@@ -22,8 +22,8 @@ import java.util.Locale;
 import javax.annotation.concurrent.Immutable;
 
 import com.helger.commons.annotation.CodingStyleguideUnaware;
-import com.helger.commons.collection.ext.CommonsArrayList;
-import com.helger.commons.collection.ext.ICommonsMap;
+import com.helger.commons.collection.impl.CommonsArrayList;
+import com.helger.commons.collection.impl.ICommonsMap;
 import com.helger.photon.security.CSecurity;
 import com.helger.photon.security.login.LoggedInUserManager;
 import com.helger.photon.security.mgr.PhotonSecurityManager;

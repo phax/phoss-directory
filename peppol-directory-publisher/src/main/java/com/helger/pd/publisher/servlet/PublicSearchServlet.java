@@ -26,9 +26,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.commons.annotation.ReturnsImmutableObject;
-import com.helger.commons.collection.ext.ICommonsList;
+import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.string.StringHelper;
-import com.helger.http.EHTTPMethod;
+import com.helger.http.EHttpMethod;
 import com.helger.pd.publisher.search.EPDOutputFormat;
 import com.helger.photon.core.servlet.AbstractUnifiedResponseServlet;
 import com.helger.servlet.response.UnifiedResponse;
@@ -47,7 +47,7 @@ public final class PublicSearchServlet extends AbstractUnifiedResponseServlet
   @Override
   @Nonnull
   @ReturnsImmutableObject
-  protected Set <EHTTPMethod> getAllowedHTTPMethods ()
+  protected Set <EHttpMethod> getAllowedHTTPMethods ()
   {
     // Only GET is allowed
     return ALLOWED_METHDOS_GET;

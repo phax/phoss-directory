@@ -47,7 +47,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.commons.callback.IThrowingRunnable;
-import com.helger.commons.function.IThrowingSupplier;
+import com.helger.commons.functional.IThrowingSupplier;
 import com.helger.commons.io.stream.StreamHelper;
 import com.helger.commons.state.ESuccess;
 import com.helger.photon.basic.app.io.WebFileIO;

@@ -25,13 +25,13 @@ import com.helger.commons.annotation.UsedViaReflection;
 import com.helger.commons.debug.GlobalDebug;
 import com.helger.commons.exception.InitializationException;
 import com.helger.commons.lang.ClassHelper;
-import com.helger.commons.scope.IScope;
-import com.helger.commons.scope.singleton.AbstractGlobalSingleton;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.mgr.SMPBusinessCardProvider;
 import com.helger.pd.settings.PDServerConfiguration;
 import com.helger.peppol.sml.ISMLInfo;
 import com.helger.photon.core.app.error.InternalErrorBuilder;
+import com.helger.scope.IScope;
+import com.helger.scope.singleton.AbstractGlobalSingleton;
 
 /**
  * Central manager for all sub managers

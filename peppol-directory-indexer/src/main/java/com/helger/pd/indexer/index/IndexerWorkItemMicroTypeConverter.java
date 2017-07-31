@@ -30,10 +30,10 @@ import com.helger.xml.microdom.convert.IMicroTypeConverter;
 
 /**
  * {@link IMicroTypeConverter} implementation for {@link IndexerWorkItem}
- * 
+ *
  * @author Philip Helger
  */
-public final class IndexerWorkItemMicroTypeConverter implements IMicroTypeConverter
+public final class IndexerWorkItemMicroTypeConverter implements IMicroTypeConverter <IndexerWorkItem>
 {
   private static final String ATTR_ID = "id";
   private static final String ATTR_CREATION_DATE_TIME = "creationdt";
@@ -43,11 +43,10 @@ public final class IndexerWorkItemMicroTypeConverter implements IMicroTypeConver
   private static final String ATTR_HOST = "host";
 
   @Nullable
-  public IMicroElement convertToMicroElement (@Nonnull final Object aObject,
+  public IMicroElement convertToMicroElement (@Nonnull final IndexerWorkItem aValue,
                                               @Nullable final String sNamespaceURI,
                                               @Nonnull final String sTagName)
   {
-    final IIndexerWorkItem aValue = (IIndexerWorkItem) aObject;
     final IMicroElement aElement = new MicroElement (sNamespaceURI, sTagName);
     aElement.setAttribute (ATTR_ID, aValue.getID ());
     aElement.setAttributeWithConversion (ATTR_CREATION_DATE_TIME, aValue.getCreationDateTime ());

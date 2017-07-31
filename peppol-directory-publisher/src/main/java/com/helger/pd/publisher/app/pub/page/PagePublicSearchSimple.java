@@ -27,9 +27,9 @@ import org.apache.lucene.search.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.helger.collection.multimap.IMultiMapListBased;
 import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.collection.ext.ICommonsList;
-import com.helger.commons.collection.multimap.IMultiMapListBased;
+import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.locale.country.CountryCache;
 import com.helger.commons.string.StringHelper;
 import com.helger.css.property.CCSSProperties;
@@ -271,7 +271,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
 
     final String sQuery = aWPEC.getAttributeAsString (FIELD_QUERY);
     final String sParticipantID = aWPEC.getAttributeAsString (FIELD_PARTICIPANT_ID);
-    final int nMaxResults = Math.max (aWPEC.getAttributeAsInt (PARAM_MAX, 50), 1);
+    final int nMaxResults = Math.max (aWPEC.params ().getAsInt (PARAM_MAX, 50), 1);
     boolean bShowQuery = true;
 
     if (aWPEC.hasAction (CPageParam.ACTION_VIEW) && StringHelper.hasText (sParticipantID))

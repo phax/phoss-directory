@@ -23,8 +23,8 @@ import javax.annotation.Nullable;
 
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.compare.ESortOrder;
+import com.helger.commons.datetime.PDTToString;
 import com.helger.commons.url.ISimpleURL;
-import com.helger.datetime.format.PDTToString;
 import com.helger.html.hc.html.grouping.HCDiv;
 import com.helger.html.hc.html.tabular.HCRow;
 import com.helger.html.hc.html.tabular.HCTable;

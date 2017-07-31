@@ -27,9 +27,9 @@ import javax.annotation.Nonnull;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.ReturnsMutableCopy;
-import com.helger.commons.collection.ext.ICommonsList;
+import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.concurrent.BasicThreadFactory;
-import com.helger.commons.concurrent.ManagedExecutorService;
+import com.helger.commons.concurrent.ExecutorServiceHelper;
 import com.helger.commons.concurrent.collector.ConcurrentCollectorSingle;
 import com.helger.commons.concurrent.collector.IConcurrentPerformer;
 
@@ -71,7 +71,7 @@ public final class IndexerWorkItemQueue
     m_aImmediateCollector.setPerformer (aPerformer);
 
     // Start the collector
-    m_aSenderThreadPool.submit (m_aImmediateCollector);
+    m_aSenderThreadPool.submit (m_aImmediateCollector::collect);
   }
 
   /**
@@ -91,7 +91,7 @@ public final class IndexerWorkItemQueue
     final ICommonsList <IIndexerWorkItem> aRemainingItems = m_aImmediateCollector.drainQueue ();
 
     // Shutdown the thread pool afterwards
-    ManagedExecutorService.shutdownAndWaitUntilAllTasksAreFinished (m_aSenderThreadPool);
+    ExecutorServiceHelper.shutdownAndWaitUntilAllTasksAreFinished (m_aSenderThreadPool);
 
     return aRemainingItems;
   }
