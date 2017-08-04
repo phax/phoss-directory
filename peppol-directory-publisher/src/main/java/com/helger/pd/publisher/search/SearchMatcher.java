@@ -112,21 +112,21 @@ public final class SearchMatcher
     switch (eOperator)
     {
       case EQ:
-        return EqualsHelper.equals (aReferenceValue, TypeConverter.convertIfNecessary (aSearchValue, BigInteger.class));
+        return EqualsHelper.equals (aReferenceValue, TypeConverter.convert (aSearchValue, BigInteger.class));
       case NE:
         return !EqualsHelper.equals (aReferenceValue,
-                                     TypeConverter.convertIfNecessary (aSearchValue, BigInteger.class));
+                                     TypeConverter.convert (aSearchValue, BigInteger.class));
       case LT:
-        return CompareHelper.compare (TypeConverter.convertIfNecessary (aSearchValue, BigInteger.class),
+        return CompareHelper.compare (TypeConverter.convert (aSearchValue, BigInteger.class),
                                       aReferenceValue) < 0;
       case LE:
-        return CompareHelper.compare (TypeConverter.convertIfNecessary (aSearchValue, BigInteger.class),
+        return CompareHelper.compare (TypeConverter.convert (aSearchValue, BigInteger.class),
                                       aReferenceValue) <= 0;
       case GT:
-        return CompareHelper.compare (TypeConverter.convertIfNecessary (aSearchValue, BigInteger.class),
+        return CompareHelper.compare (TypeConverter.convert (aSearchValue, BigInteger.class),
                                       aReferenceValue) > 0;
       case GE:
-        return CompareHelper.compare (TypeConverter.convertIfNecessary (aSearchValue, BigInteger.class),
+        return CompareHelper.compare (TypeConverter.convert (aSearchValue, BigInteger.class),
                                       aReferenceValue) >= 0;
       case EMPTY:
         return aReferenceValue == null;
@@ -139,7 +139,7 @@ public final class SearchMatcher
         // Use string version :)
         return matchesString (aReferenceValue == null ? null : aReferenceValue.toString (),
                               eOperator,
-                              TypeConverter.convertIfNecessary (aSearchValue, String.class));
+                              TypeConverter.convert (aSearchValue, String.class));
       case INT_EVEN:
         return aReferenceValue != null && MathHelper.isEQ0 (aReferenceValue.mod (CGlobal.BIGINT_2));
       case INT_ODD:
@@ -156,21 +156,21 @@ public final class SearchMatcher
     switch (eOperator)
     {
       case EQ:
-        return EqualsHelper.equals (aReferenceValue, TypeConverter.convertIfNecessary (aSearchValue, BigDecimal.class));
+        return EqualsHelper.equals (aReferenceValue, TypeConverter.convert (aSearchValue, BigDecimal.class));
       case NE:
         return !EqualsHelper.equals (aReferenceValue,
-                                     TypeConverter.convertIfNecessary (aSearchValue, BigDecimal.class));
+                                     TypeConverter.convert (aSearchValue, BigDecimal.class));
       case LT:
-        return CompareHelper.compare (TypeConverter.convertIfNecessary (aSearchValue, BigDecimal.class),
+        return CompareHelper.compare (TypeConverter.convert (aSearchValue, BigDecimal.class),
                                       aReferenceValue) < 0;
       case LE:
-        return CompareHelper.compare (TypeConverter.convertIfNecessary (aSearchValue, BigDecimal.class),
+        return CompareHelper.compare (TypeConverter.convert (aSearchValue, BigDecimal.class),
                                       aReferenceValue) <= 0;
       case GT:
-        return CompareHelper.compare (TypeConverter.convertIfNecessary (aSearchValue, BigDecimal.class),
+        return CompareHelper.compare (TypeConverter.convert (aSearchValue, BigDecimal.class),
                                       aReferenceValue) > 0;
       case GE:
-        return CompareHelper.compare (TypeConverter.convertIfNecessary (aSearchValue, BigDecimal.class),
+        return CompareHelper.compare (TypeConverter.convert (aSearchValue, BigDecimal.class),
                                       aReferenceValue) >= 0;
       case EMPTY:
         return aReferenceValue == null;
@@ -183,7 +183,7 @@ public final class SearchMatcher
         // Use string version :)
         return matchesString (aReferenceValue == null ? null : aReferenceValue.toString (),
                               eOperator,
-                              TypeConverter.convertIfNecessary (aSearchValue, String.class));
+                              TypeConverter.convert (aSearchValue, String.class));
       default:
         throw new IllegalArgumentException ("Unsupported double search operator " + eOperator);
     }
@@ -200,16 +200,16 @@ public final class SearchMatcher
       case NE:
         return !EqualsHelper.equals (aReferenceValue, aSearchValue);
       case LT:
-        return CompareHelper.compare (TypeConverter.convertIfNecessary (aSearchValue, LocalDate.class),
+        return CompareHelper.compare (TypeConverter.convert (aSearchValue, LocalDate.class),
                                       aReferenceValue) < 0;
       case LE:
-        return CompareHelper.compare (TypeConverter.convertIfNecessary (aSearchValue, LocalDate.class),
+        return CompareHelper.compare (TypeConverter.convert (aSearchValue, LocalDate.class),
                                       aReferenceValue) <= 0;
       case GT:
-        return CompareHelper.compare (TypeConverter.convertIfNecessary (aSearchValue, LocalDate.class),
+        return CompareHelper.compare (TypeConverter.convert (aSearchValue, LocalDate.class),
                                       aReferenceValue) > 0;
       case GE:
-        return CompareHelper.compare (TypeConverter.convertIfNecessary (aSearchValue, LocalDate.class),
+        return CompareHelper.compare (TypeConverter.convert (aSearchValue, LocalDate.class),
                                       aReferenceValue) >= 0;
       case EMPTY:
         return aReferenceValue == null;
@@ -224,10 +224,10 @@ public final class SearchMatcher
       case DATE_YEAR_MONTH:
         return aReferenceValue != null &&
                YearMonth.from (aReferenceValue)
-                        .equals (TypeConverter.convertIfNecessary (aSearchValue, YearMonth.class));
+                        .equals (TypeConverter.convert (aSearchValue, YearMonth.class));
       case DATE_MONTH_DAY:
         return aReferenceValue != null &&
-               MonthDay.from (aReferenceValue).equals (TypeConverter.convertIfNecessary (aSearchValue, MonthDay.class));
+               MonthDay.from (aReferenceValue).equals (TypeConverter.convert (aSearchValue, MonthDay.class));
       default:
         throw new IllegalArgumentException ("Unsupported LocalDate search operator " + eOperator);
     }
@@ -244,16 +244,16 @@ public final class SearchMatcher
       case NE:
         return !EqualsHelper.equals (aReferenceValue, aSearchValue);
       case LT:
-        return CompareHelper.compare (TypeConverter.convertIfNecessary (aSearchValue, LocalTime.class),
+        return CompareHelper.compare (TypeConverter.convert (aSearchValue, LocalTime.class),
                                       aReferenceValue) < 0;
       case LE:
-        return CompareHelper.compare (TypeConverter.convertIfNecessary (aSearchValue, LocalTime.class),
+        return CompareHelper.compare (TypeConverter.convert (aSearchValue, LocalTime.class),
                                       aReferenceValue) <= 0;
       case GT:
-        return CompareHelper.compare (TypeConverter.convertIfNecessary (aSearchValue, LocalTime.class),
+        return CompareHelper.compare (TypeConverter.convert (aSearchValue, LocalTime.class),
                                       aReferenceValue) > 0;
       case GE:
-        return CompareHelper.compare (TypeConverter.convertIfNecessary (aSearchValue, LocalTime.class),
+        return CompareHelper.compare (TypeConverter.convert (aSearchValue, LocalTime.class),
                                       aReferenceValue) >= 0;
       case EMPTY:
         return aReferenceValue == null;
@@ -304,33 +304,33 @@ public final class SearchMatcher
       switch (eDataType)
       {
         case STRING_CS:
-          return matchesString (TypeConverter.convertIfNecessary (aReferenceValue, String.class),
+          return matchesString (TypeConverter.convert (aReferenceValue, String.class),
                                 eOperator,
-                                TypeConverter.convertIfNecessary (aSearchValue, String.class));
+                                TypeConverter.convert (aSearchValue, String.class));
         case STRING_CI:
-          return matchesString (unify (TypeConverter.convertIfNecessary (aReferenceValue, String.class)),
+          return matchesString (unify (TypeConverter.convert (aReferenceValue, String.class)),
                                 eOperator,
-                                unify (TypeConverter.convertIfNecessary (aSearchValue, String.class)));
+                                unify (TypeConverter.convert (aSearchValue, String.class)));
         case INT:
-          return matchesInt (TypeConverter.convertIfNecessary (aReferenceValue, BigInteger.class),
+          return matchesInt (TypeConverter.convert (aReferenceValue, BigInteger.class),
                              eOperator,
                              aSearchValue);
         case DOUBLE:
-          return matchesDouble (TypeConverter.convertIfNecessary (aReferenceValue, BigDecimal.class),
+          return matchesDouble (TypeConverter.convert (aReferenceValue, BigDecimal.class),
                                 eOperator,
                                 aSearchValue);
         case DATE:
-          return matchesDate (TypeConverter.convertIfNecessary (aReferenceValue, LocalDate.class),
+          return matchesDate (TypeConverter.convert (aReferenceValue, LocalDate.class),
                               eOperator,
                               aSearchValue);
         case TIME:
-          return matchesTime (TypeConverter.convertIfNecessary (aReferenceValue, LocalTime.class),
+          return matchesTime (TypeConverter.convert (aReferenceValue, LocalTime.class),
                               eOperator,
                               aSearchValue);
         case BOOLEAN:
-          return matchesBoolean (TypeConverter.convertIfNecessary (aReferenceValue, Boolean.class),
+          return matchesBoolean (TypeConverter.convert (aReferenceValue, Boolean.class),
                                  eOperator,
-                                 TypeConverter.convertIfNecessary (aSearchValue, Boolean.class));
+                                 TypeConverter.convert (aSearchValue, Boolean.class));
         default:
           throw new IllegalStateException ("Unsupported data type: " + eDataType);
       }
