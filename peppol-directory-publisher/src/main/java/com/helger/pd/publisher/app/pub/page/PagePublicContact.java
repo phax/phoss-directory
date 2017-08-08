@@ -72,10 +72,10 @@ public final class PagePublicContact extends AbstractAppWebPage
     final FormErrorList aFormErrors = new FormErrorList ();
     if (aWPEC.hasAction (CPageParam.ACTION_PERFORM))
     {
-      final String sName = StringHelper.trim (aWPEC.getAttributeAsString (FIELD_NAME));
-      final String sEmail = StringHelper.trim (aWPEC.getAttributeAsString (FIELD_EMAIL));
-      final String sTopic = aWPEC.getAttributeAsString (FIELD_TOPIC);
-      final String sText = StringHelper.trim (aWPEC.getAttributeAsString (FIELD_TEXT));
+      final String sName = StringHelper.trim (aWPEC.params ().getAsString (FIELD_NAME));
+      final String sEmail = StringHelper.trim (aWPEC.params ().getAsString (FIELD_EMAIL));
+      final String sTopic = aWPEC.params ().getAsString (FIELD_TOPIC);
+      final String sText = StringHelper.trim (aWPEC.params ().getAsString (FIELD_TEXT));
 
       if (StringHelper.hasNoText (sName))
         aFormErrors.addFieldError (FIELD_NAME, "Your name must be provided.");

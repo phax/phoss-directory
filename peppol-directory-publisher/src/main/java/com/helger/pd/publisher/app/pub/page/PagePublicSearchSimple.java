@@ -269,8 +269,8 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     aLogoContainer.addChild (aLogo);
     aNodeList.addChild (aLogoContainer);
 
-    final String sQuery = aWPEC.getAttributeAsString (FIELD_QUERY);
-    final String sParticipantID = aWPEC.getAttributeAsString (FIELD_PARTICIPANT_ID);
+    final String sQuery = aWPEC.params ().getAsString (FIELD_QUERY);
+    final String sParticipantID = aWPEC.params ().getAsString (FIELD_PARTICIPANT_ID);
     final int nMaxResults = Math.max (aWPEC.params ().getAsInt (PARAM_MAX, 50), 1);
     boolean bShowQuery = true;
 

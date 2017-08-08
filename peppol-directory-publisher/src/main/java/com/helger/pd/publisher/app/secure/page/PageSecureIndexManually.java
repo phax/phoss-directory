@@ -58,7 +58,7 @@ public final class PageSecureIndexManually extends AbstractAppWebPage
 
     if (aWPEC.hasAction (CPageParam.ACTION_PERFORM))
     {
-      final String sParticipantID = aWPEC.getAttributeAsString (FIELD_PARTICIPANT_ID);
+      final String sParticipantID = aWPEC.params ().getAsString (FIELD_PARTICIPANT_ID);
       final IParticipantIdentifier aParticipantID = aIdentifierFactory.parseParticipantIdentifier (sParticipantID);
 
       if (StringHelper.hasNoText (sParticipantID))
