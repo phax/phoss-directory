@@ -35,8 +35,10 @@ import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.collection.impl.ICommonsSet;
 import com.helger.commons.concurrent.SimpleReadWriteLock;
 import com.helger.commons.datetime.PDTFactory;
+import com.helger.commons.io.file.FileOperationManager;
 import com.helger.commons.state.EChange;
 import com.helger.commons.string.ToStringGenerator;
+import com.helger.dao.DAOException;
 import com.helger.pd.businesscard.IPDBusinessCardProvider;
 import com.helger.pd.indexer.index.EIndexerWorkItemType;
 import com.helger.pd.indexer.index.IIndexerWorkItem;
@@ -49,7 +51,6 @@ import com.helger.pd.indexer.reindex.ReIndexWorkItem;
 import com.helger.pd.indexer.reindex.ReIndexWorkItemList;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.photon.basic.app.CApplicationID;
-import com.helger.photon.basic.app.dao.impl.DAOException;
 import com.helger.photon.basic.app.io.WebFileIO;
 import com.helger.quartz.SimpleScheduleBuilder;
 import com.helger.quartz.TriggerKey;
@@ -166,7 +167,7 @@ public final class PDIndexerManager implements Closeable
       }
 
       // Delete the files to ensure it is not read again next startup time
-      WebFileIO.getFileOpMgr ().deleteFile (m_aIndexerWorkItemFile);
+      FileOperationManager.INSTANCE.deleteFile (m_aIndexerWorkItemFile);
     }
   }
 

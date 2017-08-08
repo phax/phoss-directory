@@ -29,8 +29,8 @@ import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.ReturnsMutableCopy;
 import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.ICommonsList;
-import com.helger.photon.basic.app.dao.impl.AbstractMapBasedWALDAO;
-import com.helger.photon.basic.app.dao.impl.DAOException;
+import com.helger.dao.DAOException;
+import com.helger.photon.basic.app.dao.AbstractPhotonMapBasedWALDAO;
 
 /**
  * This is the list with {@link IReIndexWorkItem} objects. It is solely used in
@@ -40,8 +40,9 @@ import com.helger.photon.basic.app.dao.impl.DAOException;
  * @author Philip Helger
  */
 @ThreadSafe
-public final class ReIndexWorkItemList extends AbstractMapBasedWALDAO <IReIndexWorkItem, ReIndexWorkItem>
-                                       implements IReIndexWorkItemList
+public final class ReIndexWorkItemList extends AbstractPhotonMapBasedWALDAO <IReIndexWorkItem, ReIndexWorkItem>
+                                       implements
+                                       IReIndexWorkItemList
 {
   private static final Logger s_aLogger = LoggerFactory.getLogger (ReIndexWorkItemList.class);
 
