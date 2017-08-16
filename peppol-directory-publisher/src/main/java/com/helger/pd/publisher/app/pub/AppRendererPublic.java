@@ -332,7 +332,7 @@ public final class AppRendererPublic implements ILayoutAreaContentProvider <Layo
       ret.addChild (new HCUniversalAnalytics (sAccountID, false, false, false, false));
     }
 
-    ret.addChild (HCCookieConsent.createBottomDefault ("#000", "#0f0", "0f0", null));
+    ret.addChild (HCCookieConsent.createBottomDefault ("#000", "#0f0", "#0f0", null));
 
     return ret;
   }
