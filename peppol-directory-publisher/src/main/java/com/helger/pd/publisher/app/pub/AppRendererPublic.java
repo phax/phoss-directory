@@ -74,6 +74,7 @@ import com.helger.photon.core.url.LinkHelper;
 import com.helger.photon.security.login.LoggedInUserManager;
 import com.helger.photon.security.user.IUser;
 import com.helger.photon.security.util.SecurityHelper;
+import com.helger.photon.uicore.html.HCCookieConsent;
 import com.helger.photon.uicore.html.google.HCUniversalAnalytics;
 import com.helger.photon.uicore.page.IWebPage;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
@@ -330,6 +331,8 @@ public final class AppRendererPublic implements ILayoutAreaContentProvider <Layo
       final String sAccountID = PDServerConfiguration.isTestVersion () ? "UA-55419519-3" : "UA-55419519-2";
       ret.addChild (new HCUniversalAnalytics (sAccountID, false, false, false, false));
     }
+
+    ret.addChild (HCCookieConsent.createBottomDefault ("#000", "#0f0", "0f0", null));
 
     return ret;
   }
