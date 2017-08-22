@@ -27,8 +27,8 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.commons.annotation.ReturnsImmutableObject;
 import com.helger.commons.collection.impl.ICommonsList;
+import com.helger.commons.http.EHttpMethod;
 import com.helger.commons.string.StringHelper;
-import com.helger.http.EHttpMethod;
 import com.helger.pd.publisher.search.EPDOutputFormat;
 import com.helger.photon.core.servlet.AbstractUnifiedResponseServlet;
 import com.helger.servlet.response.UnifiedResponse;
