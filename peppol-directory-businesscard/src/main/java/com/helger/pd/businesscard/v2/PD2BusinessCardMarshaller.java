@@ -24,7 +24,6 @@ import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.CodingStyleguideUnaware;
 import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.io.resource.ClassPathResource;
-import com.helger.commons.io.resource.IReadableResource;
 import com.helger.jaxb.GenericJAXBMarshaller;
 import com.helger.pd.businesscard.v1.PD1BusinessCardType;
 import com.helger.pd.businesscard.v1.PD1BusinessEntityType;
@@ -50,8 +49,8 @@ public class PD2BusinessCardMarshaller extends GenericJAXBMarshaller <PD2Busines
 
   /** XSD resources */
   @CodingStyleguideUnaware
-  public static final List <? extends IReadableResource> BUSINESS_CARD_XSDS = new CommonsArrayList <> (new ClassPathResource ("/schemas/peppol-directory-business-card-20161123.xsd",
-                                                                                                                              _getCL ())).getAsUnmodifiable ();
+  public static final List <ClassPathResource> BUSINESS_CARD_XSDS = new CommonsArrayList <> (new ClassPathResource ("/schemas/peppol-directory-business-card-20161123.xsd",
+                                                                                                                    _getCL ())).getAsUnmodifiable ();
 
   /**
    * Constructor
