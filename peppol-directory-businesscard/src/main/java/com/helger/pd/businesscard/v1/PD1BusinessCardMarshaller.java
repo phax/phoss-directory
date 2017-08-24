@@ -18,27 +18,36 @@ package com.helger.pd.businesscard.v1;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
+
 import com.helger.commons.annotation.CodingStyleguideUnaware;
 import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.io.resource.ClassPathResource;
 import com.helger.commons.io.resource.IReadableResource;
-import com.helger.jaxb.AbstractJAXBMarshaller;
+import com.helger.jaxb.GenericJAXBMarshaller;
 
 /**
  * This is the reader and writer for {@link PD1BusinessCardType} documents. This
  * class may be derived to override protected methods from
- * {@link AbstractJAXBMarshaller}.
+ * {@link GenericJAXBMarshaller}.
  *
  * @author Philip Helger
  */
-public class PD1BusinessCardMarshaller extends AbstractJAXBMarshaller <PD1BusinessCardType>
+public class PD1BusinessCardMarshaller extends GenericJAXBMarshaller <PD1BusinessCardType>
 {
+  @Nonnull
+  private static ClassLoader _getCL ()
+  {
+    return PD1BusinessCardMarshaller.class.getClassLoader ();
+  }
+
   /** The namespace URI of the BusinessInformation element */
   public static final String BUSINESS_INFORMATION_NS_URI = ObjectFactory._BusinessCard_QNAME.getNamespaceURI ();
 
   /** XSD resources */
   @CodingStyleguideUnaware
-  public static final List <? extends IReadableResource> BUSINESS_CARD_XSDS = new CommonsArrayList <> (new ClassPathResource ("/schemas/peppol-directory-business-card-20160112.xsd")).getAsUnmodifiable ();
+  public static final List <? extends IReadableResource> BUSINESS_CARD_XSDS = new CommonsArrayList <> (new ClassPathResource ("/schemas/peppol-directory-business-card-20160112.xsd",
+                                                                                                                              _getCL ())).getAsUnmodifiable ();
 
   /**
    * Constructor
