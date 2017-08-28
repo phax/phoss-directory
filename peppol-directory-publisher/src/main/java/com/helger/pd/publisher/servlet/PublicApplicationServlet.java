@@ -16,19 +16,23 @@
  */
 package com.helger.pd.publisher.servlet;
 
-import javax.annotation.Nonnull;
-
 import com.helger.pd.publisher.app.AppLayoutHTMLProvider;
 import com.helger.photon.core.app.html.IHTMLProvider;
+import com.helger.photon.core.servlet.AbstractApplicationXServletHandler;
 import com.helger.photon.core.servlet.AbstractPublicApplicationServlet;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 
 public class PublicApplicationServlet extends AbstractPublicApplicationServlet
 {
-  @Override
-  @Nonnull
-  protected IHTMLProvider createHTMLProvider (@Nonnull final IRequestWebScopeWithoutResponse aRequestScope)
+  public PublicApplicationServlet ()
   {
-    return new AppLayoutHTMLProvider ();
+    super (new AbstractApplicationXServletHandler ()
+    {
+      @Override
+      protected IHTMLProvider createHTMLProvider (final IRequestWebScopeWithoutResponse aRequestScope)
+      {
+        return new AppLayoutHTMLProvider ();
+      }
+    });
   }
 }

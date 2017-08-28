@@ -43,6 +43,7 @@ import com.helger.photon.core.form.FormErrorList;
 import com.helger.photon.core.form.RequestField;
 import com.helger.photon.uicore.css.CPageParam;
 import com.helger.photon.uicore.html.google.HCReCaptchaV2;
+import com.helger.photon.uicore.html.google.ReCaptchaServerSideValidator;
 import com.helger.photon.uicore.html.select.HCExtSelect;
 import com.helger.photon.uicore.icon.EDefaultIcon;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
@@ -69,7 +70,7 @@ public final class PagePublicContact extends AbstractAppWebPage
     final HCNodeList aNodeList = aWPEC.getNodeList ();
     final Locale aDisplayLocale = aWPEC.getDisplayLocale ();
 
-    boolean bShowForm = true;
+    final boolean bShowForm = true;
     final FormErrorList aFormErrors = new FormErrorList ();
     if (aWPEC.hasAction (CPageParam.ACTION_PERFORM))
     {
@@ -77,6 +78,7 @@ public final class PagePublicContact extends AbstractAppWebPage
       final String sEmail = StringHelper.trim (aWPEC.params ().getAsString (FIELD_EMAIL));
       final String sTopic = aWPEC.params ().getAsString (FIELD_TOPIC);
       final String sText = StringHelper.trim (aWPEC.params ().getAsString (FIELD_TEXT));
+      final String sReCaptcha = StringHelper.trim (aWPEC.params ().getAsString ("g-recaptcha-response"));
 
       if (StringHelper.hasNoText (sName))
         aFormErrors.addFieldError (FIELD_NAME, "Your name must be provided.");
@@ -87,6 +89,13 @@ public final class PagePublicContact extends AbstractAppWebPage
           aFormErrors.addFieldError (FIELD_EMAIL, "The provided email address is invalid.");
       if (StringHelper.hasNoText (sText))
         aFormErrors.addFieldError (FIELD_TEXT, "A message text must be provided.");
+
+      if (aFormErrors.isEmpty ())
+      {
+        // Check only if no other errors occurred
+        if (ReCaptchaServerSideValidator.check ("6LfZFS0UAAAAAONDJHyDnuUUvMB_oNmJxz9Utxza", sReCaptcha).isFailure ())
+          aFormErrors.addFieldError ("captcha", "Please confirm you are not a robot!");
+      }
 
       if (aFormErrors.isEmpty ())
       {
@@ -106,8 +115,7 @@ public final class PagePublicContact extends AbstractAppWebPage
 
         ScopedMailAPI.getInstance ().queueMail (InternalErrorSettings.getSMTPSettings (), aEmailData);
 
-        aNodeList.addChild (new BootstrapSuccessBox ().addChild ("Thank you for your message. We will come back to you asap."));
-        bShowForm = false;
+        aWPEC.postRedirectGetInternal (new BootstrapSuccessBox ().addChild ("Thank you for your message. We will come back to you asap."));
       }
     }
 
@@ -138,10 +146,12 @@ public final class PagePublicContact extends AbstractAppWebPage
                                                    .setCtrl (new HCTextAreaAutosize (new RequestField (FIELD_TEXT)).setRows (5))
                                                    .setErrorList (aFormErrors.getListOfField (FIELD_TEXT)));
 
-      aForm.addChild (new HCHiddenField (CPageParam.PARAM_ACTION, CPageParam.ACTION_PERFORM));
-
       // Add visible Captcha
-      aForm.addChild (HCReCaptchaV2.create ("6LfZFS0UAAAAAJaqpHJdFS_xxY7dqMQjXoBIQWOD", aDisplayLocale));
+      aForm.addFormGroup (new BootstrapFormGroup ().setCtrl (HCReCaptchaV2.create ("6LfZFS0UAAAAAJaqpHJdFS_xxY7dqMQjXoBIQWOD",
+                                                                                   aDisplayLocale))
+                                                   .setErrorList (aFormErrors.getListOfField ("captcha")));
+
+      aForm.addChild (new HCHiddenField (CPageParam.PARAM_ACTION, CPageParam.ACTION_PERFORM));
 
       aForm.addChild (new BootstrapSubmitButton ().addChild ("Send message").setIcon (EBootstrapIcon.SEND));
       aForm.addChild (new BootstrapButton (EBootstrapButtonType.DEFAULT).addChild ("No thanks")

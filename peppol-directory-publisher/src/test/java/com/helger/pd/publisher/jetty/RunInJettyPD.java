@@ -18,6 +18,7 @@ package com.helger.pd.publisher.jetty;
 
 import javax.annotation.concurrent.Immutable;
 
+import com.helger.peppol.smpclient.SMPClientConfiguration;
 import com.helger.photon.jetty.JettyStarter;
 
 /**
@@ -31,6 +32,7 @@ public final class RunInJettyPD
 {
   public static void main (final String [] args) throws Exception
   {
+    SMPClientConfiguration.getConfigFile ().applyAllNetworkSystemProperties ();
     new JettyStarter (RunInJettyPD.class).run ();
   }
 }

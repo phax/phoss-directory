@@ -16,14 +16,8 @@
  */
 package com.helger.pd.client;
 
-import java.security.KeyManagementException;
+import java.security.GeneralSecurityException;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-
-import javax.annotation.Nullable;
-import javax.net.ssl.SSLContext;
 
 import org.apache.http.ssl.SSLContexts;
 import org.slf4j.Logger;
@@ -48,15 +42,7 @@ public class PDHttpClientFactory extends HttpClientFactory
     {
       setHostnameVerifier (new HostnameVerifierVerifyAll (false));
     }
-  }
 
-  @Override
-  @Nullable
-  public SSLContext createSSLContext () throws KeyManagementException,
-                                        UnrecoverableKeyException,
-                                        NoSuchAlgorithmException,
-                                        KeyStoreException
-  {
     // Load key store
     final LoadedKeyStore aLoadedKeyStore = KeyStoreHelper.loadKeyStore (PDClientConfiguration.getKeyStorePath (),
                                                                         PDClientConfiguration.getKeyStorePassword ());
@@ -64,29 +50,41 @@ public class PDHttpClientFactory extends HttpClientFactory
     {
       s_aLogger.error ("Failed to initialize keystore for service connection! Can only use http now! Details: " +
                        PeppolKeyStoreHelper.getLoadError (aLoadedKeyStore));
-      return null;
     }
+    else
+    {
+      // Load trust store (may not be present/configured)
+      final LoadedKeyStore aLoadedTrustStore = KeyStoreHelper.loadKeyStore (PDClientConfiguration.getTrustStorePath (),
+                                                                            PDClientConfiguration.getTrustStorePassword ());
+      final KeyStore aTrustStore = aLoadedTrustStore.getKeyStore ();
 
-    // Load trust store (may not be present/configured)
-    final LoadedKeyStore aLoadedTrustStore = KeyStoreHelper.loadKeyStore (PDClientConfiguration.getTrustStorePath (),
-                                                                          PDClientConfiguration.getTrustStorePassword ());
-    final KeyStore aTrustStore = aLoadedTrustStore.getKeyStore ();
-
-    return SSLContexts.custom ()
-                      .loadKeyMaterial (aLoadedKeyStore.getKeyStore (),
-                                        PDClientConfiguration.getKeyStoreKeyPassword (),
-                                        (aAliases, aSocket) -> {
-                                          if (s_aLogger.isDebugEnabled ())
-                                            s_aLogger.debug ("chooseAlias(" + aAliases + ", " + aSocket + ")");
-                                          final String sAlias = PDClientConfiguration.getKeyStoreKeyAlias ();
-                                          return aAliases.containsKey (sAlias) ? sAlias : null;
-                                        })
-                      .loadTrustMaterial (aTrustStore, (aChain, aAuthType) -> {
-                        if (s_aLogger.isDebugEnabled ())
-                          s_aLogger.debug ("isTrusted(" + aChain + ", " + aAuthType + ")");
-                        return true;
-                      })
-                      .setSecureRandom (VerySecureRandom.getInstance ())
-                      .build ();
+      try
+      {
+        setSSLContext (SSLContexts.custom ()
+                                  .loadKeyMaterial (aLoadedKeyStore.getKeyStore (),
+                                                    PDClientConfiguration.getKeyStoreKeyPassword (),
+                                                    (aAliases, aSocket) -> {
+                                                      if (s_aLogger.isDebugEnabled ())
+                                                        s_aLogger.debug ("chooseAlias(" +
+                                                                         aAliases +
+                                                                         ", " +
+                                                                         aSocket +
+                                                                         ")");
+                                                      final String sAlias = PDClientConfiguration.getKeyStoreKeyAlias ();
+                                                      return aAliases.containsKey (sAlias) ? sAlias : null;
+                                                    })
+                                  .loadTrustMaterial (aTrustStore, (aChain, aAuthType) -> {
+                                    if (s_aLogger.isDebugEnabled ())
+                                      s_aLogger.debug ("isTrusted(" + aChain + ", " + aAuthType + ")");
+                                    return true;
+                                  })
+                                  .setSecureRandom (VerySecureRandom.getInstance ())
+                                  .build ());
+      }
+      catch (final GeneralSecurityException ex)
+      {
+        throw new IllegalStateException ("Failed to create SSL context", ex);
+      }
+    }
   }
 }
