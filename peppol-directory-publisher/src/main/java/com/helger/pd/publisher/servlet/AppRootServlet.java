@@ -16,24 +16,17 @@
  */
 package com.helger.pd.publisher.servlet;
 
-import javax.annotation.Nonnull;
-
-import com.helger.commons.string.StringHelper;
+import com.helger.commons.http.EHttpMethod;
 import com.helger.photon.core.servlet.AbstractPublicApplicationServlet;
-import com.helger.photon.core.servlet.AbstractUnifiedResponseServlet;
-import com.helger.servlet.response.UnifiedResponse;
-import com.helger.web.scope.IRequestWebScopeWithoutResponse;
+import com.helger.photon.xservlet.RootXServletHandler;
+import com.helger.xservlet.AbstractXServlet;
 
-public class AppRootServlet extends AbstractUnifiedResponseServlet
+public class AppRootServlet extends AbstractXServlet
 {
-  @Override
-  protected void handleRequest (@Nonnull final IRequestWebScopeWithoutResponse aRequestScope,
-                                @Nonnull final UnifiedResponse aUnifiedResponse) throws Exception
+  public AppRootServlet ()
   {
-    String sRedirectURL = aRequestScope.getContextPath () + AbstractPublicApplicationServlet.SERVLET_DEFAULT_PATH;
-    final String sQueryString = aRequestScope.getQueryString ();
-    if (StringHelper.hasText (sQueryString))
-      sRedirectURL += "?" + sQueryString;
-    aUnifiedResponse.setRedirect (sRedirectURL);
+    handlerRegistry ().registerHandler (EHttpMethod.GET,
+                                        new RootXServletHandler (AbstractPublicApplicationServlet.SERVLET_DEFAULT_PATH));
+    handlerRegistry ().copyHandlerToAll (EHttpMethod.GET);
   }
 }
