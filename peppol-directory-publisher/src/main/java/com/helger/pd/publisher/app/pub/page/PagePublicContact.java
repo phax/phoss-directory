@@ -58,6 +58,7 @@ public final class PagePublicContact extends AbstractAppWebPage
   private static final String FIELD_EMAIL = "email";
   private static final String FIELD_TOPIC = "reason";
   private static final String FIELD_TEXT = "topic";
+  private static final String FIELD_CAPTCHA = "captcha";
 
   public PagePublicContact (@Nonnull @Nonempty final String sID)
   {
@@ -90,11 +91,16 @@ public final class PagePublicContact extends AbstractAppWebPage
       if (StringHelper.hasNoText (sText))
         aFormErrors.addFieldError (FIELD_TEXT, "A message text must be provided.");
 
-      if (aFormErrors.isEmpty ())
+      if (aFormErrors.isEmpty () || StringHelper.hasText (sReCaptcha))
       {
-        // Check only if no other errors occurred
-        if (ReCaptchaServerSideValidator.check ("6LfZFS0UAAAAAONDJHyDnuUUvMB_oNmJxz9Utxza", sReCaptcha).isFailure ())
-          aFormErrors.addFieldError ("captcha", "Please confirm you are not a robot!");
+        if (!CaptchaSessionSingleton.getInstance ().isChecked ())
+        {
+          // Check only if no other errors occurred
+          if (ReCaptchaServerSideValidator.check ("6LfZFS0UAAAAAONDJHyDnuUUvMB_oNmJxz9Utxza", sReCaptcha).isFailure ())
+            aFormErrors.addFieldError (FIELD_CAPTCHA, "Please confirm you are not a robot!");
+          else
+            CaptchaSessionSingleton.getInstance ().setChecked ();
+        }
       }
 
       if (aFormErrors.isEmpty ())
@@ -146,10 +152,13 @@ public final class PagePublicContact extends AbstractAppWebPage
                                                    .setCtrl (new HCTextAreaAutosize (new RequestField (FIELD_TEXT)).setRows (5))
                                                    .setErrorList (aFormErrors.getListOfField (FIELD_TEXT)));
 
-      // Add visible Captcha
-      aForm.addFormGroup (new BootstrapFormGroup ().setCtrl (HCReCaptchaV2.create ("6LfZFS0UAAAAAJaqpHJdFS_xxY7dqMQjXoBIQWOD",
-                                                                                   aDisplayLocale))
-                                                   .setErrorList (aFormErrors.getListOfField ("captcha")));
+      if (!CaptchaSessionSingleton.getInstance ().isChecked ())
+      {
+        // Add visible Captcha
+        aForm.addFormGroup (new BootstrapFormGroup ().setCtrl (HCReCaptchaV2.create ("6LfZFS0UAAAAAJaqpHJdFS_xxY7dqMQjXoBIQWOD",
+                                                                                     aDisplayLocale))
+                                                     .setErrorList (aFormErrors.getListOfField (FIELD_CAPTCHA)));
+      }
 
       aForm.addChild (new HCHiddenField (CPageParam.PARAM_ACTION, CPageParam.ACTION_PERFORM));
 
