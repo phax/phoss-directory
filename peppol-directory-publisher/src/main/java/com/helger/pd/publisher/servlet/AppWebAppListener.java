@@ -24,6 +24,7 @@ import com.helger.commons.collection.impl.CommonsHashMap;
 import com.helger.commons.collection.impl.ICommonsMap;
 import com.helger.commons.vendor.VendorInfo;
 import com.helger.pd.indexer.mgr.PDMetaManager;
+import com.helger.pd.publisher.ajax.CAjax;
 import com.helger.pd.publisher.app.AppCommonUI;
 import com.helger.pd.publisher.app.AppInternalErrorHandler;
 import com.helger.pd.publisher.app.AppSecurity;
@@ -32,9 +33,11 @@ import com.helger.pd.publisher.app.pub.InitializerPublic;
 import com.helger.pd.publisher.app.secure.InitializerSecure;
 import com.helger.pd.settings.PDServerConfiguration;
 import com.helger.photon.basic.app.CApplicationID;
+import com.helger.photon.basic.app.locale.ILocaleManager;
 import com.helger.photon.basic.app.request.RequestParameterHandlerURLPathNamed;
 import com.helger.photon.basic.app.request.RequestParameterManager;
 import com.helger.photon.bootstrap3.servlet.AbstractWebAppListenerMultiAppBootstrap;
+import com.helger.photon.core.ajax.IAjaxInvoker;
 import com.helger.photon.core.app.context.LayoutExecutionContext;
 import com.helger.photon.core.app.init.IApplicationInitializer;
 import com.helger.servlet.ServletContextPathHolder;
@@ -112,5 +115,18 @@ public final class AppWebAppListener extends AbstractWebAppListenerMultiAppBoots
     // Load managers
     PDMetaManager.getInstance ();
     PDPMetaManager.getInstance ();
+  }
+
+  @Override
+  public void initLocales (@Nonnull final ILocaleManager aLocaleMgr)
+  {
+    aLocaleMgr.registerLocale (AppCommonUI.DEFAULT_LOCALE);
+    aLocaleMgr.setDefaultLocale (AppCommonUI.DEFAULT_LOCALE);
+  }
+
+  @Override
+  public void initAjax (@Nonnull final IAjaxInvoker aAjaxInvoker)
+  {
+    CAjax.initAjax (aAjaxInvoker);
   }
 }

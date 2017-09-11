@@ -22,7 +22,7 @@ import javax.annotation.concurrent.Immutable;
 import com.helger.pd.publisher.app.AppCommonUI;
 import com.helger.photon.core.ajax.IAjaxFunctionDeclaration;
 import com.helger.photon.core.ajax.IAjaxInvoker;
-import com.helger.photon.core.ajax.decl.PublicApplicationAjaxFunctionDeclaration;
+import com.helger.photon.core.ajax.decl.AjaxFunctionDeclaration;
 import com.helger.photon.uictrls.datatables.ajax.AjaxExecutorDataTables;
 import com.helger.photon.uictrls.datatables.ajax.AjaxExecutorDataTablesI18N;
 
@@ -32,16 +32,19 @@ import com.helger.photon.uictrls.datatables.ajax.AjaxExecutorDataTablesI18N;
  * @author Philip Helger
  */
 @Immutable
-public final class CAjaxPublic
+public final class CAjax
 {
-  public static final IAjaxFunctionDeclaration DATATABLES = new PublicApplicationAjaxFunctionDeclaration ("dataTables",
-                                                                                                          AjaxExecutorDataTables.class);
-  public static final IAjaxFunctionDeclaration DATATABLES_I18N = new PublicApplicationAjaxFunctionDeclaration ("datatables-i18n",
-                                                                                                               new AjaxExecutorDataTablesI18N (AppCommonUI.DEFAULT_LOCALE));
-  public static final IAjaxFunctionDeclaration LOGIN = new PublicApplicationAjaxFunctionDeclaration ("login",
-                                                                                                     AjaxExecutorPublicLogin.class);
+  public static final IAjaxFunctionDeclaration DATATABLES = AjaxFunctionDeclaration.builder ("dataTables")
+                                                                                   .withExecutor (AjaxExecutorDataTables.class)
+                                                                                   .build ();
+  public static final IAjaxFunctionDeclaration DATATABLES_I18N = AjaxFunctionDeclaration.builder ("datatables-i18n")
+                                                                                        .withExecutor (new AjaxExecutorDataTablesI18N (AppCommonUI.DEFAULT_LOCALE))
+                                                                                        .build ();
+  public static final IAjaxFunctionDeclaration LOGIN = AjaxFunctionDeclaration.builder ("login")
+                                                                              .withExecutor (AjaxExecutorPublicLogin.class)
+                                                                              .build ();
 
-  private CAjaxPublic ()
+  private CAjax ()
   {}
 
   public static void initAjax (@Nonnull final IAjaxInvoker aAjaxInvoker)
