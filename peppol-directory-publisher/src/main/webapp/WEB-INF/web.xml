@@ -46,14 +46,6 @@
     <filter-name>SecureLoginFilter</filter-name>
     <url-pattern>/secure/*</url-pattern>
   </filter-mapping>
-  <filter-mapping>
-    <filter-name>SecureLoginFilter</filter-name>
-    <url-pattern>/secureajax/*</url-pattern>
-  </filter-mapping>
-  <filter-mapping>
-    <filter-name>SecureLoginFilter</filter-name>
-    <url-pattern>/secureaction/*</url-pattern>
-  </filter-mapping>
   
   <servlet>
     <servlet-name>SecureApplicationServlet</servlet-name>
