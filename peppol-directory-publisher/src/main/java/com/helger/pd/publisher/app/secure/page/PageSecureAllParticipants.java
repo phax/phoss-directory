@@ -62,6 +62,7 @@ public final class PageSecureAllParticipants extends AbstractAppWebPage
         aRoot.appendElement ("item").appendText (sParticipantID);
       }
       res.xml (aDoc);
+      res.attachment ("participant-list.xml");
     });
   }
 
