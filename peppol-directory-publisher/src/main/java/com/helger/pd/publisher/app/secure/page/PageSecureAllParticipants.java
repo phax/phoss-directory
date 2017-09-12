@@ -33,21 +33,49 @@ import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.photon.basic.app.CApplicationID;
 import com.helger.photon.bootstrap3.alert.BootstrapInfoBox;
+import com.helger.photon.bootstrap3.button.BootstrapButtonToolbar;
 import com.helger.photon.bootstrap3.table.BootstrapTable;
+import com.helger.photon.core.ajax.decl.AjaxFunctionDeclaration;
 import com.helger.photon.uicore.css.CPageParam;
+import com.helger.photon.uicore.icon.EDefaultIcon;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
+import com.helger.web.scope.IRequestWebScopeWithoutResponse;
+import com.helger.xml.microdom.IMicroDocument;
+import com.helger.xml.microdom.IMicroElement;
+import com.helger.xml.microdom.MicroDocument;
 
 public final class PageSecureAllParticipants extends AbstractAppWebPage
 {
+  private final AjaxFunctionDeclaration m_aExportAll;
+
   public PageSecureAllParticipants (@Nonnull @Nonempty final String sID)
   {
     super (sID, "All participants");
+    m_aExportAll = addAjax ( (req, res) -> {
+      final IMicroDocument aDoc = new MicroDocument ();
+      final IMicroElement aRoot = aDoc.appendElement ("root");
+      final ICommonsSortedSet <IParticipantIdentifier> aAllIDs = PDMetaManager.getStorageMgr ()
+                                                                              .getAllContainedParticipantIDs ();
+      for (final IParticipantIdentifier aParticipantID : aAllIDs)
+      {
+        final String sParticipantID = aParticipantID.getURIEncoded ();
+        aRoot.appendElement ("item").appendText (sParticipantID);
+      }
+      res.xml (aDoc);
+    });
   }
 
   @Override
   protected void fillContent (final WebPageExecutionContext aWPEC)
   {
     final HCNodeList aNodeList = aWPEC.getNodeList ();
+    final IRequestWebScopeWithoutResponse aRequestScope = aWPEC.getRequestScope ();
+
+    {
+      final BootstrapButtonToolbar aToolbar = getUIHandler ().createToolbar (aWPEC);
+      aToolbar.addButton ("Export", m_aExportAll.getInvocationURL (aRequestScope), EDefaultIcon.SAVE);
+      aNodeList.addChild (aToolbar);
+    }
 
     final ICommonsSortedSet <IParticipantIdentifier> aAllIDs = PDMetaManager.getStorageMgr ()
                                                                             .getAllContainedParticipantIDs ();
