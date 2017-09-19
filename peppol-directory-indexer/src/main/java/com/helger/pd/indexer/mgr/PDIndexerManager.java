@@ -50,7 +50,6 @@ import com.helger.pd.indexer.reindex.IReIndexWorkItemList;
 import com.helger.pd.indexer.reindex.ReIndexWorkItem;
 import com.helger.pd.indexer.reindex.ReIndexWorkItemList;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
-import com.helger.photon.basic.app.CApplicationID;
 import com.helger.photon.basic.app.io.WebFileIO;
 import com.helger.quartz.SimpleScheduleBuilder;
 import com.helger.quartz.TriggerKey;
@@ -148,7 +147,7 @@ public final class PDIndexerManager implements Closeable
                                                                                                    aFailureItem -> _onIndexFailure (aFailureItem)));
 
     // Schedule re-index job
-    m_aTriggerKey = ReIndexJob.schedule (SimpleScheduleBuilder.repeatMinutelyForever (1), CApplicationID.APP_ID_SECURE);
+    m_aTriggerKey = ReIndexJob.schedule (SimpleScheduleBuilder.repeatMinutelyForever (1));
 
     // remember here
     m_aScheduler = GlobalQuartzScheduler.getInstance ();

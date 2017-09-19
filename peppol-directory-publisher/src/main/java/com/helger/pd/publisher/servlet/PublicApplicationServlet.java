@@ -17,6 +17,7 @@
 package com.helger.pd.publisher.servlet;
 
 import com.helger.pd.publisher.app.AppLayoutHTMLProvider;
+import com.helger.pd.publisher.app.pub.AppRendererPublic;
 import com.helger.photon.core.app.html.IHTMLProvider;
 import com.helger.photon.core.servlet.AbstractApplicationXServletHandler;
 import com.helger.photon.core.servlet.AbstractPublicApplicationServlet;
@@ -31,7 +32,7 @@ public class PublicApplicationServlet extends AbstractPublicApplicationServlet
       @Override
       protected IHTMLProvider createHTMLProvider (final IRequestWebScopeWithoutResponse aRequestScope)
       {
-        return new AppLayoutHTMLProvider ();
+        return new AppLayoutHTMLProvider (AppRendererPublic::getContent);
       }
     });
   }

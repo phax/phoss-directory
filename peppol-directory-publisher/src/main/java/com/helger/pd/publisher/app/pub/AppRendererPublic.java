@@ -35,7 +35,6 @@ import com.helger.html.hc.html.IHCElement;
 import com.helger.html.hc.html.grouping.HCDiv;
 import com.helger.html.hc.html.grouping.HCP;
 import com.helger.html.hc.html.grouping.HCUL;
-import com.helger.html.hc.html.metadata.HCHead;
 import com.helger.html.hc.html.textlevel.HCA;
 import com.helger.html.hc.html.textlevel.HCSpan;
 import com.helger.html.hc.html.textlevel.HCStrong;
@@ -43,7 +42,8 @@ import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.publisher.app.AppCommonUI;
 import com.helger.pd.publisher.app.AppSecurity;
 import com.helger.pd.settings.PDServerConfiguration;
-import com.helger.photon.basic.app.menu.ApplicationMenuTree;
+import com.helger.photon.basic.app.appid.CApplicationID;
+import com.helger.photon.basic.app.appid.PhotonGlobalState;
 import com.helger.photon.basic.app.menu.IMenuItemExternal;
 import com.helger.photon.basic.app.menu.IMenuItemPage;
 import com.helger.photon.basic.app.menu.IMenuObject;
@@ -67,7 +67,6 @@ import com.helger.photon.bootstrap3.uictrls.ext.BootstrapMenuItemRendererHorz;
 import com.helger.photon.core.EPhotonCoreText;
 import com.helger.photon.core.app.context.LayoutExecutionContext;
 import com.helger.photon.core.app.layout.CLayout;
-import com.helger.photon.core.app.layout.ILayoutAreaContentProvider;
 import com.helger.photon.core.servlet.AbstractSecureApplicationServlet;
 import com.helger.photon.core.servlet.LogoutServlet;
 import com.helger.photon.core.url.LinkHelper;
@@ -86,20 +85,25 @@ import com.helger.xservlet.forcedredirect.ForcedRedirectManager;
  *
  * @author Philip Helger
  */
-public final class AppRendererPublic implements ILayoutAreaContentProvider <LayoutExecutionContext>
+public final class AppRendererPublic
 {
   private static final ICSSClassProvider CSS_CLASS_FOOTER_LINKS = DefaultCSSClassProvider.create ("footer-links");
 
-  private final ICommonsList <IMenuObject> m_aFooterObjects;
+  private static final ICommonsList <IMenuObject> s_aFooterObjects = new CommonsArrayList <> ();
 
-  public AppRendererPublic ()
+  static
   {
-    m_aFooterObjects = new CommonsArrayList <> ();
-    ApplicationMenuTree.getTree ().iterateAllMenuObjects (aCurrentObject -> {
-      if (aCurrentObject.attrs ().containsKey (CMenuPublic.FLAG_FOOTER))
-        m_aFooterObjects.add (aCurrentObject);
-    });
+    PhotonGlobalState.getInstance ()
+                     .state (CApplicationID.APP_ID_PUBLIC)
+                     .getMenuTree ()
+                     .iterateAllMenuObjects (aCurrentObject -> {
+                       if (aCurrentObject.attrs ().containsKey (CMenuPublic.FLAG_FOOTER))
+                         s_aFooterObjects.add (aCurrentObject);
+                     });
   }
+
+  private AppRendererPublic ()
+  {}
 
   private static void _addNavbarLoginLogout (@Nonnull final LayoutExecutionContext aLEC,
                                              @Nonnull final BootstrapNavbar aNavbar)
@@ -285,7 +289,7 @@ public final class AppRendererPublic implements ILayoutAreaContentProvider <Layo
   }
 
   @Nonnull
-  public IHCNode getContent (@Nonnull final LayoutExecutionContext aLEC, @Nonnull final HCHead aHead)
+  public static IHCNode getContent (@Nonnull final LayoutExecutionContext aLEC)
   {
     final Locale aDisplayLocale = aLEC.getDisplayLocale ();
     final HCNodeList ret = new HCNodeList ();
@@ -310,7 +314,7 @@ public final class AppRendererPublic implements ILayoutAreaContentProvider <Layo
 
       final BootstrapMenuItemRendererHorz aRenderer = new BootstrapMenuItemRendererHorz (aDisplayLocale);
       final HCUL aUL = aDiv.addAndReturnChild (new HCUL ().addClass (CSS_CLASS_FOOTER_LINKS));
-      for (final IMenuObject aMenuObj : m_aFooterObjects)
+      for (final IMenuObject aMenuObj : s_aFooterObjects)
       {
         if (aMenuObj instanceof IMenuSeparator)
           aUL.addItem (aRenderer.renderSeparator (aLEC, (IMenuSeparator) aMenuObj));

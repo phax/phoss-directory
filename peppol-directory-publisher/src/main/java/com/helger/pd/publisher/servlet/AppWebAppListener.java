@@ -19,9 +19,7 @@ package com.helger.pd.publisher.servlet;
 import javax.annotation.Nonnull;
 import javax.servlet.ServletContext;
 
-import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.collection.impl.CommonsHashMap;
-import com.helger.commons.collection.impl.ICommonsMap;
+import com.helger.commons.io.resource.ClassPathResource;
 import com.helger.commons.vendor.VendorInfo;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.publisher.ajax.CAjax;
@@ -29,17 +27,20 @@ import com.helger.pd.publisher.app.AppCommonUI;
 import com.helger.pd.publisher.app.AppInternalErrorHandler;
 import com.helger.pd.publisher.app.AppSecurity;
 import com.helger.pd.publisher.app.PDPMetaManager;
-import com.helger.pd.publisher.app.pub.InitializerPublic;
-import com.helger.pd.publisher.app.secure.InitializerSecure;
+import com.helger.pd.publisher.app.pub.MenuPublic;
+import com.helger.pd.publisher.app.secure.MenuSecure;
 import com.helger.pd.settings.PDServerConfiguration;
-import com.helger.photon.basic.app.CApplicationID;
+import com.helger.photon.basic.app.appid.CApplicationID;
+import com.helger.photon.basic.app.appid.PhotonGlobalState;
 import com.helger.photon.basic.app.locale.ILocaleManager;
+import com.helger.photon.basic.app.menu.MenuTree;
 import com.helger.photon.basic.app.request.RequestParameterHandlerURLPathNamed;
 import com.helger.photon.basic.app.request.RequestParameterManager;
-import com.helger.photon.bootstrap3.servlet.AbstractWebAppListenerMultiAppBootstrap;
+import com.helger.photon.bootstrap3.pages.sysinfo.ConfigurationFile;
+import com.helger.photon.bootstrap3.pages.sysinfo.ConfigurationFileManager;
+import com.helger.photon.bootstrap3.servlet.WebAppListenerBootstrap;
 import com.helger.photon.core.ajax.IAjaxInvoker;
-import com.helger.photon.core.app.context.LayoutExecutionContext;
-import com.helger.photon.core.app.init.IApplicationInitializer;
+import com.helger.photon.uictrls.prism.EPrismLanguage;
 import com.helger.servlet.ServletContextPathHolder;
 
 /**
@@ -48,7 +49,7 @@ import com.helger.servlet.ServletContextPathHolder;
  *
  * @author Philip Helger
  */
-public final class AppWebAppListener extends AbstractWebAppListenerMultiAppBootstrap <LayoutExecutionContext>
+public final class AppWebAppListener extends WebAppListenerBootstrap
 {
   @Override
   protected String getInitParameterDebug (@Nonnull final ServletContext aSC)
@@ -75,18 +76,7 @@ public final class AppWebAppListener extends AbstractWebAppListenerMultiAppBoots
   }
 
   @Override
-  @Nonnull
-  @Nonempty
-  protected ICommonsMap <String, IApplicationInitializer <LayoutExecutionContext>> getAllInitializers ()
-  {
-    final ICommonsMap <String, IApplicationInitializer <LayoutExecutionContext>> ret = new CommonsHashMap <> ();
-    ret.put (CApplicationID.APP_ID_SECURE, new InitializerSecure ());
-    ret.put (CApplicationID.APP_ID_PUBLIC, new InitializerPublic ());
-    return ret;
-  }
-
-  @Override
-  protected void initGlobals ()
+  protected void initGlobalSettings ()
   {
     // Internal stuff:
     VendorInfo.setVendorName ("Philip Helger");
@@ -94,8 +84,6 @@ public final class AppWebAppListener extends AbstractWebAppListenerMultiAppBoots
     VendorInfo.setVendorEmail ("pd@helger.com");
     VendorInfo.setVendorLocation ("Vienna, Austria");
     VendorInfo.setInceptionYear (2015);
-
-    super.initGlobals ();
 
     if (PDServerConfiguration.isForceRoot ())
     {
@@ -106,15 +94,15 @@ public final class AppWebAppListener extends AbstractWebAppListenerMultiAppBoots
     RequestParameterManager.getInstance ().setParameterHandler (new RequestParameterHandlerURLPathNamed ());
     AppInternalErrorHandler.doSetup ();
 
-    // UI stuff
-    AppCommonUI.init ();
-
-    // Set all security related stuff
-    AppSecurity.init ();
-
-    // Load managers
-    PDMetaManager.getInstance ();
-    PDPMetaManager.getInstance ();
+    final ConfigurationFileManager aCfgMgr = ConfigurationFileManager.getInstance ();
+    aCfgMgr.registerConfigurationFile (new ConfigurationFile (new ClassPathResource ("log4j2.xml")).setDescription ("log4j configuration file")
+                                                                                                   .setSyntaxHighlightLanguage (EPrismLanguage.MARKUP));
+    if (PDServerConfiguration.getConfigFile ().isRead ())
+    {
+      aCfgMgr.registerConfigurationFile (new ConfigurationFile (PDServerConfiguration.getConfigFile ()
+                                                                                     .getReadResource ()).setDescription ("PEPPOL Directory properties")
+                                                                                                         .setSyntaxHighlightLanguage (EPrismLanguage.APACHECONF));
+    }
   }
 
   @Override
@@ -128,5 +116,43 @@ public final class AppWebAppListener extends AbstractWebAppListenerMultiAppBoots
   public void initAjax (@Nonnull final IAjaxInvoker aAjaxInvoker)
   {
     CAjax.initAjax (aAjaxInvoker);
+  }
+
+  @Override
+  protected void initMenu ()
+  {
+    // Create all menu items
+    {
+      final MenuTree aMenuTree = new MenuTree ();
+      MenuPublic.init (aMenuTree);
+      PhotonGlobalState.getInstance ().state (CApplicationID.APP_ID_PUBLIC).setMenuTree (aMenuTree);
+    }
+    {
+      final MenuTree aMenuTree = new MenuTree ();
+      MenuSecure.init (aMenuTree);
+      PhotonGlobalState.getInstance ().state (CApplicationID.APP_ID_SECURE).setMenuTree (aMenuTree);
+    }
+  }
+
+  @Override
+  protected void initSecurity ()
+  {
+    // Set all security related stuff
+    AppSecurity.init ();
+  }
+
+  @Override
+  protected void initUI ()
+  {
+    // UI stuff
+    AppCommonUI.init ();
+  }
+
+  @Override
+  protected void initManagers ()
+  {
+    // Load managers
+    PDMetaManager.getInstance ();
+    PDPMetaManager.getInstance ();
   }
 }
