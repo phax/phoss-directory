@@ -17,6 +17,7 @@
 package com.helger.pd.indexer.storage;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.Locale;
 
 import javax.annotation.Nonnull;
@@ -38,11 +39,13 @@ import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.ICommonsList;
+import com.helger.commons.datetime.PDTWebDateHelper;
 import com.helger.commons.regex.RegExHelper;
 import com.helger.pd.indexer.lucene.ILuceneAnalyzerProvider;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.field.PDField;
 import com.helger.peppol.identifier.factory.IIdentifierFactory;
+import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 
 /**
@@ -199,17 +202,23 @@ public final class PDQueryManager
     return andNotDeleted (aQuery);
   }
 
-  @Nonnull
+  @Nullable
   public static Query getNameLuceneQuery (@Nonnull @Nonempty final String sQueryString)
   {
     ValueEnforcer.notEmpty (sQueryString, "QueryString");
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
 
+    if (sQueryString.length () < 3)
+    {
+      s_aLogger.warn ("Name query string '" + sQueryString + "' is too short!");
+      return null;
+    }
+
     final Query aQuery = new WildcardQuery (PDField.NAME.getContainsTerm (_lowerCase (sQueryString)));
     return andNotDeleted (aQuery);
   }
 
-  @Nonnull
+  @Nullable
   public static Query getCountryCodeLuceneQuery (@Nonnull @Nonempty final String sQueryString)
   {
     ValueEnforcer.notEmpty (sQueryString, "QueryString");
@@ -219,13 +228,96 @@ public final class PDQueryManager
     return andNotDeleted (aQuery);
   }
 
-  @Nonnull
+  @Nullable
   public static Query getGeoInfoLuceneQuery (@Nonnull @Nonempty final String sQueryString)
   {
     ValueEnforcer.notEmpty (sQueryString, "QueryString");
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
 
     final Query aQuery = new WildcardQuery (PDField.GEO_INFO.getContainsTerm (_lowerCase (sQueryString)));
+    return andNotDeleted (aQuery);
+  }
+
+  @Nullable
+  public static Query getIdentifierValueLuceneQuery (@Nonnull @Nonempty final String sQueryString)
+  {
+    ValueEnforcer.notEmpty (sQueryString, "QueryString");
+    ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
+
+    final Query aQuery = new WildcardQuery (PDField.IDENTIFIER_VALUE.getExactMatchTerm (_lowerCase (sQueryString)));
+    return andNotDeleted (aQuery);
+  }
+
+  @Nullable
+  public static Query getWebsiteLuceneQuery (@Nonnull @Nonempty final String sQueryString)
+  {
+    ValueEnforcer.notEmpty (sQueryString, "QueryString");
+    ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
+
+    final Query aQuery = new WildcardQuery (PDField.WEBSITE_URI.getContainsTerm (_lowerCase (sQueryString)));
+    return andNotDeleted (aQuery);
+  }
+
+  @Nullable
+  public static Query getContactLuceneQuery (@Nonnull @Nonempty final String sQueryString)
+  {
+    ValueEnforcer.notEmpty (sQueryString, "QueryString");
+    ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
+
+    final Query aQuery1 = new WildcardQuery (PDField.CONTACT_TYPE.getContainsTerm (_lowerCase (sQueryString)));
+    final Query aQuery2 = new WildcardQuery (PDField.CONTACT_NAME.getContainsTerm (_lowerCase (sQueryString)));
+    final Query aQuery3 = new WildcardQuery (PDField.CONTACT_PHONE.getContainsTerm (_lowerCase (sQueryString)));
+    final Query aQuery4 = new WildcardQuery (PDField.CONTACT_EMAIL.getContainsTerm (_lowerCase (sQueryString)));
+    final Query aQuery = new BooleanQuery.Builder ().add (aQuery1, Occur.SHOULD)
+                                                    .add (aQuery2, Occur.SHOULD)
+                                                    .add (aQuery3, Occur.SHOULD)
+                                                    .add (aQuery4, Occur.SHOULD)
+                                                    .build ();
+    return andNotDeleted (aQuery);
+  }
+
+  @Nullable
+  public static Query getAdditionalInformationLuceneQuery (@Nonnull @Nonempty final String sQueryString)
+  {
+    ValueEnforcer.notEmpty (sQueryString, "QueryString");
+    ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
+
+    final Query aQuery = new WildcardQuery (PDField.ADDITIONAL_INFO.getContainsTerm (_lowerCase (sQueryString)));
+    return andNotDeleted (aQuery);
+  }
+
+  @Nullable
+  public static Query getRegistrationDateLuceneQuery (@Nonnull @Nonempty final String sQueryString)
+  {
+    ValueEnforcer.notEmpty (sQueryString, "QueryString");
+    ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
+
+    final LocalDate aLD = PDTWebDateHelper.getLocalDateFromXSD (sQueryString);
+    if (aLD == null)
+    {
+      s_aLogger.warn ("Registration date '" + sQueryString + "' is invalid!");
+      return null;
+    }
+
+    final Query aQuery = new TermQuery (PDField.REGISTRATION_DATE.getExactMatchTerm (sQueryString));
+    return andNotDeleted (aQuery);
+  }
+
+  @Nullable
+  public static Query getDocumentTypeIDLuceneQuery (@Nonnull @Nonempty final String sQueryString)
+  {
+    ValueEnforcer.notEmpty (sQueryString, "QueryString");
+    ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
+
+    final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
+    final IDocumentTypeIdentifier aDTI = aIdentifierFactory.parseDocumentTypeIdentifier (_lowerCase (sQueryString));
+    if (aDTI == null)
+    {
+      s_aLogger.warn ("Failed to convert '" + sQueryString + "' to document type ID!");
+      return null;
+    }
+
+    final Query aQuery = new TermQuery (PDField.DOCTYPE_ID.getExactMatchTerm (aDTI));
     return andNotDeleted (aQuery);
   }
 }
