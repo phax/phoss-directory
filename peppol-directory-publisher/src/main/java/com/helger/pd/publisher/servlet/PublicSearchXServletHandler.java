@@ -73,6 +73,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
 {
   public static final String PARAM_RESULT_PAGE_INDEX = "resultPageIndex";
   public static final String PARAM_RESULT_PAGE_COUNT = "resultPageCount";
+  public static final String PARAM_BEAUTIFY = "beautify";
   public static final int DEFAULT_RESULT_PAGE_INDEX = 0;
   public static final int DEFAULT_RESULT_PAGE_COUNT = 20;
   public static final int MAX_RESULTS = 1_000;
@@ -176,6 +177,9 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
         return;
       }
 
+      // Format output?
+      final boolean bBeautify = aParams.getAsBoolean (PARAM_BEAUTIFY, false);
+
       // Determine query terms
       final StringBuilder aSBQueryString = new StringBuilder ();
       final ICommonsMap <EPDSearchField, ICommonsList <String>> aQueryValues = new CommonsHashMap <> ();
@@ -261,7 +265,8 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
       {
         case XML:
         {
-          final XMLWriterSettings aXWS = new XMLWriterSettings ().setIndent (EXMLSerializeIndent.INDENT_AND_ALIGN);
+          final XMLWriterSettings aXWS = new XMLWriterSettings ().setIndent (bBeautify ? EXMLSerializeIndent.INDENT_AND_ALIGN
+                                                                                       : EXMLSerializeIndent.NONE);
           final IMicroDocument aDoc = new MicroDocument ();
           final IMicroElement eRoot = aDoc.appendElement ("resultlist");
           eRoot.setAttribute (RESPONSE_VERSION, eSearchVersion.getVersion ());
@@ -286,7 +291,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
           break;
         }
         case JSON:
-          final JsonWriterSettings aJWS = new JsonWriterSettings ().setIndentEnabled (true);
+          final JsonWriterSettings aJWS = new JsonWriterSettings ().setIndentEnabled (bBeautify);
           final IJsonObject aDoc = new JsonObject ();
           aDoc.add (RESPONSE_VERSION, eSearchVersion.getVersion ());
           aDoc.add (RESPONSE_TOTAL_RESULT_COUNT, aResultDocs.size ());

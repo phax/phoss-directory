@@ -148,6 +148,11 @@ div.result-doc ul li{
   margin-bottom: 0;
 }
 
+.rest .item {
+  margin: 1em 0;
+  border-top: solid 1px black;
+}
+
 .rest .pname {
   font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
   font-weight: bold;

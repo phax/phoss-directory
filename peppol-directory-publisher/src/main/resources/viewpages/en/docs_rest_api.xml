@@ -44,7 +44,7 @@
  an HTTP status code 200 with an empty result body is returned! 
 </p>
 
-<p>
+<p class="item">
   <div>Name: <span class="pname">q</span></div>
   <div>Description:
     <span class="pdesc">
@@ -54,20 +54,20 @@
     </span>
   </div>
   <div>
-    <strong>Note:</strong>
+    <span class="label label-info">Note</span>
     This parameter can occur more than once
   </div>
   <div class="tryme">
-    <strong>Example:</strong> 
+    <span class="label label-default">Example</span> 
     <code>/search/1.0/xml?q=Austrian+Government</code> <a>Try it</a>
   </div>
   <div class="tryme">
-    <strong>Example:</strong> 
+    <span class="label label-default">Example</span> 
     <code>/search/1.0/json?q=Austrian+Government</code> <a>Try it</a>
   </div>
 </p>
 
-<p>
+<p class="item">
   <div>Name: <span class="pname">participant</span></div>
   <div>Description:
     <span class="pdesc">
@@ -76,31 +76,31 @@
     </span>
   </div>
   <div>
-    <strong>Note:</strong>
+    <span class="label label-info">Note</span>
     This parameter can occur more than once but it makes no sense to do so, because 
     all query parameters must match and each business card has exactly one participant identifier.
   </div>
   <div>
-    <strong>Note:</strong>
+    <span class="label label-warning">Warning</span>
     If the provided parameter value cannot be converted to a PEPPOL participant identifier
     (as e.g. in <code>iso6523-actorid-upis::9915:test</code>) the search will return HTTP status code 400.
   </div>
   <div>
-    <strong>Note:</strong>
+    <span class="label label-warning">Warning</span>
     Pay special attention to request parameter encoding because of the special characters 
       <code>#</code> (%23) and <code>:</code> (%3A) that can be contained in search values. 
   </div>
   <div class="tryme">
-    <strong>Example:</strong>
+    <span class="label label-default">Example</span>
     <code>/search/1.0/xml?participant=iso6523-actorid-upis::9915:test</code> <a>Try it</a>
   </div>
   <div class="tryme">
-    <strong>Example:</strong>
+    <span class="label label-default">Example</span>
     <code>/search/1.0/json?participant=iso6523-actorid-upis::9915:test</code> <a>Try it</a>
   </div>
 </p>
 
-<p>
+<p class="item">
   <div>Name: <span class="pname">name</span></div>
   <div>Description:
     <span class="pdesc">
@@ -108,24 +108,24 @@
     </span>
   </div>
   <div>
-    <strong>Note:</strong>
+    <span class="label label-info">Note</span>
     This parameter can occur more than once.
   </div>
   <div>
-    <strong>Note:</strong>
+    <span class="label label-warning">Warning</span>
     If the provided parameter value has &le; 2 characters the search will return HTTP status code 400.
   </div>
   <div class="tryme">
-    <strong>Example:</strong>
+    <span class="label label-default">Example</span>
     <code>/search/1.0/xml?name=Government</code> <a>Try it</a>
   </div>
   <div class="tryme">
-    <strong>Example:</strong>
+    <span class="label label-default">Example</span>
     <code>/search/1.0/json?name=Government</code> <a>Try it</a>
   </div>
 </p>
 
-<p>
+<p class="item">
   <div>Name: <span class="pname">country</span></div>
   <div>Description:
     <span class="pdesc">
@@ -133,21 +133,21 @@
     </span>
   </div>
   <div>
-    <strong>Note:</strong>
+    <span class="label label-info">Note</span>
     This parameter can occur more than once but it makes no sense to do so, because 
     all query parameters must match and each business entity has exactly one country code.
   </div>
   <div class="tryme">
-    <strong>Example:</strong>
+    <span class="label label-default">Example</span>
     <code>/search/1.0/xml?country=BE</code> <a>Try it</a>
   </div>
   <div class="tryme">
-    <strong>Example:</strong>
+    <span class="label label-default">Example</span>
     <code>/search/1.0/json?country=BE</code> <a>Try it</a>
   </div>
 </p>
 
-<p>
+<p class="item">
   <div>Name: <span class="pname">geoinfo</span></div>
   <div>Description:
     <span class="pdesc">
@@ -155,20 +155,20 @@
     </span>
   </div>
   <div>
-    <strong>Note:</strong>
+    <span class="label label-info">Note</span>
     This parameter can occur more than once.
   </div>
   <div class="tryme">
-    <strong>Example:</strong>
+    <span class="label label-default">Example</span>
     <code>/search/1.0/xml?geoinfo=Italy</code> <a>Try it</a>
   </div>
   <div class="tryme">
-    <strong>Example:</strong>
+    <span class="label label-default">Example</span>
     <code>/search/1.0/json?geoinfo=Italy</code> <a>Try it</a>
   </div>
 </p>
 
-<p>
+<p class="item">
   <div>Name: <span class="pname">identifierScheme</span></div>
   <div>Description:
     <span class="pdesc">
@@ -177,25 +177,25 @@
     </span>
   </div>
   <div>
-    <strong>Note:</strong>
+    <span class="label label-info">Note</span>
     This parameter can not occur more than once.
   </div>
   <div>
-    <strong>Note:</strong>
+    <span class="label label-info">Note</span>
     This field is only used for the additional identifiers and <strong>not</strong>
     for participant and document type identifiers!
   </div>
   <div class="tryme">
-    <strong>Example:</strong>
+    <span class="label label-default">Example</span>
     <code>/search/1.0/xml?identifierScheme=GLN</code> <a>Try it</a>
   </div>
   <div class="tryme">
-    <strong>Example:</strong>
+    <span class="label label-default">Example</span>
     <code>/search/1.0/json?identifierScheme=GLN</code> <a>Try it</a>
   </div>
 </p>
 
-<p>
+<p class="item">
   <div>Name: <span class="pname">identifierValue</span></div>
   <div>Description:
     <span class="pdesc">
@@ -204,25 +204,25 @@
     </span>
   </div>
   <div>
-    <strong>Note:</strong>
+    <span class="label label-info">Note</span>
     This parameter can not occur more than once.
   </div>
   <div>
-    <strong>Note:</strong>
+    <span class="label label-info">Note</span>
     This field is only used for the additional identifiers and <strong>not</strong>
     for participant and document type identifiers!
   </div>
   <div class="tryme">
-    <strong>Example:</strong>
+    <span class="label label-default">Example</span>
     <code>/search/1.0/xml?identifierValue=1234567</code> <a>Try it</a>
   </div>
   <div class="tryme">
-    <strong>Example:</strong>
+    <span class="label label-default">Example</span>
     <code>/search/1.0/json?identifierValue=1234567</code> <a>Try it</a>
   </div>
 </p>
 
-<p>
+<p class="item">
   <div>Name: <span class="pname">website</span></div>
   <div>Description:
     <span class="pdesc">
@@ -230,20 +230,20 @@
     </span>
   </div>
   <div>
-    <strong>Note:</strong>
+    <span class="label label-info">Note</span>
     This parameter can occur more than once.
   </div>
   <div class="tryme">
-    <strong>Example:</strong>
+    <span class="label label-default">Example</span>
     <code>/search/1.0/xml?website=erechnung.gv.at</code> <a>Try it</a>
   </div>
   <div class="tryme">
-    <strong>Example:</strong>
+    <span class="label label-default">Example</span>
     <code>/search/1.0/json?website=erechnung.gv.at</code> <a>Try it</a>
   </div>
 </p>
 
-<p>
+<p class="item">
   <div>Name: <span class="pname">contact</span></div>
   <div>Description:
     <span class="pdesc">
@@ -252,20 +252,20 @@
     </span>
   </div>
   <div>
-    <strong>Note:</strong>
+    <span class="label label-info">Note</span>
     This parameter can occur more than once.
   </div>
   <div class="tryme">
-    <strong>Example:</strong>
+    <span class="label label-default">Example</span>
     <code>/search/1.0/xml?contact=support</code> <a>Try it</a>
   </div>
   <div class="tryme">
-    <strong>Example:</strong>
+    <span class="label label-default">Example</span>
     <code>/search/1.0/json?contact=support</code> <a>Try it</a>
   </div>
 </p>
 
-<p>
+<p class="item">
   <div>Name: <span class="pname">addinfo</span></div>
   <div>Description:
     <span class="pdesc">
@@ -273,20 +273,20 @@
     </span>
   </div>
   <div>
-    <strong>Note:</strong>
+    <span class="label label-info">Note</span>
     This parameter can occur more than once.
   </div>
   <div class="tryme">
-    <strong>Example:</strong>
+    <span class="label label-default">Example</span>
     <code>/search/1.0/xml?addinfo=peppol</code> <a>Try it</a>
   </div>
   <div class="tryme">
-    <strong>Example:</strong>
+    <span class="label label-default">Example</span>
     <code>/search/1.0/json?addinfo=peppol</code> <a>Try it</a>
   </div>
 </p>
 
-<p>
+<p class="item">
   <div>Name: <span class="pname">regdate</span></div>
   <div>Description:
     <span class="pdesc">
@@ -296,24 +296,24 @@
     </span>
   </div>
   <div>
-    <strong>Note:</strong>
+    <span class="label label-info">Note</span>
     This parameter can not occur more than once.
   </div>
   <div>
-    <strong>Note:</strong>
+    <span class="label label-warning">Warning</span>
     If the provided parameter value can not be converted to a valid date the search will return HTTP status code 400.
   </div>
   <div class="tryme">
-    <strong>Example:</strong>
+    <span class="label label-default">Example</span>
     <code>/search/1.0/xml?regdate=2012-01-01</code> <a>Try it</a>
   </div>
   <div class="tryme">
-    <strong>Example:</strong>
+    <span class="label label-default">Example</span>
     <code>/search/1.0/json?regdate=2012-01-01</code> <a>Try it</a>
   </div>
 </p>
 
-<p>
+<p class="item">
   <div>Name: <span class="pname">doctype</span></div>
   <div>Description:
     <span class="pdesc">
@@ -322,31 +322,89 @@
     </span>
   </div>
   <div>
-    <strong>Note:</strong>
+    <span class="label label-info">Note</span>
     This parameter can not occur more than once.
   </div>
   <div>
-    <strong>Note:</strong>
+    <span class="label label-info">Note</span>
+    The provided parameter values is case sensitive!
+  </div>
+  <div>
+    <span class="label label-warning">Warning</span>
     If the provided parameter value cannot be converted to a PEPPOL document type identifier
     (as e.g. in <code>busdox-docid-qns::urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:www.cenbii.eu:transaction:biitrns010:ver2.0:extended:urn:www.peppol.eu:bis:peppol5a:ver2.0::2.1</code>)
     the search will return HTTP status code 400.
   </div>
   <div>
-    <strong>Note:</strong>
-    The provided parameter values is case sensitive!
-  </div>
-  <div>
-    <strong>Note:</strong>
+    <span class="label label-warning">Warning</span>
     Pay special attention to request parameter encoding because of the special characters 
       <code>#</code> (%23) and <code>:</code> (%3A) that can be contained in search values. 
   </div>
   <div class="tryme">
-    <strong>Example:</strong>
+    <span class="label label-default">Example</span>
     <code>/search/1.0/xml?doctype=busdox-docid-qns%3A%3Aurn%3Aoasis%3Anames%3Aspecification%3Aubl%3Aschema%3Axsd%3AInvoice-2%3A%3AInvoice%23%23urn%3Awww.cenbii.eu%3Atransaction%3Abiitrns010%3Aver2.0%3Aextended%3Aurn%3Awww.peppol.eu%3Abis%3Apeppol5a%3Aver2.0%3A%3A2.1</code> <a>Try it</a>
   </div>
   <div class="tryme">
-    <strong>Example:</strong>
+    <span class="label label-default">Example</span>
     <code>/search/1.0/json?doctype=busdox-docid-qns%3A%3Aurn%3Aoasis%3Anames%3Aspecification%3Aubl%3Aschema%3Axsd%3AInvoice-2%3A%3AInvoice%23%23urn%3Awww.cenbii.eu%3Atransaction%3Abiitrns010%3Aver2.0%3Aextended%3Aurn%3Awww.peppol.eu%3Abis%3Apeppol5a%3Aver2.0%3A%3A2.1</code> <a>Try it</a>
+  </div>
+</p>
+
+<p class="item">
+  <div>Name: <span class="pname">resultPageIndex</span> or <span class="pname">rpi</span></div>
+  <div>Description:
+    <span class="pdesc">
+      Defines the 0-based index for the result page to be returned.
+      If not provided, the first page is returned.
+      By default only 20 entries are returned and this entry can be used to browse the results. 
+      Use this in combination with <span class="pname">resultPageCount</span> to define the number of results.
+    </span>
+  </div>
+  <div>
+    <span class="label label-warning">Warning</span>
+    Values &lt; 0 are not accepted and lead to an HTTP status code 400. 
+  </div>
+  <div>
+    <span class="label label-info">Note</span>
+    It is not possible to return more than 1000 entries.
+    Combinations of <span class="pname">resultPageIndex</span> and <span class="pname">resultPageCount</span>
+      that would lead to such a result lead to an HTTP status code 400. 
+  </div>
+</p>
+
+<p class="item">
+  <div>Name: <span class="pname">resultPageCount</span> or <span class="pname">rpc</span></div>
+  <div>Description:
+    <span class="pdesc">
+      Defines the number of items to be returned per page.
+      If not provided 20 entries are returned.
+      Use this in combination with <span class="pname">resultPageIndex</span> to define the number of results.
+    </span>
+  </div>
+  <div>
+    <span class="label label-warning">Warning</span>
+    Values &le; 0 are not accepted and lead to an HTTP status code 400. 
+  </div>
+  <div>
+    <span class="label label-info">Note</span>
+    It is not possible to return more than 1000 entries.
+    Combinations of <span class="pname">resultPageIndex</span> and <span class="pname">resultPageCount</span>
+      that would lead to such a result lead to an HTTP status code 400. 
+  </div>
+</p>
+
+<p class="item">
+  <div>Name: <span class="pname">beautify</span></div>
+  <div>Description:
+    <span class="pdesc">
+      Format the results so that they are more human readable?
+      This should only be used for debugging purposes as it increases the transfered data volume.
+      By default the returned code is minified.
+    </span>
+  </div>
+  <div>
+    <span class="label label-info">Note</span>
+    Any other value than <code>true</code> will disable output beautification.
   </div>
 </p>
 
@@ -416,44 +474,45 @@
             result-page-count="20"
             first-result-index="0"
             last-result-index="3"
-            query-terms="q=9915:test
-            creation-dt="2017-09-20T17:13:30.078Z"&gt;
-  &lt;BusinessCard xmlns="http://www.peppol.eu/schema/pd/businesscard/20160112/"&gt;
-    &lt;ParticipantIdentifier scheme="iso6523-actorid-upis"&gt;9915:test&lt;/ParticipantIdentifier&gt;
-    &lt;BusinessEntity registrationDate="2012-01-01"&gt;
-      &lt;Name&gt;Austrian Government&lt;/Name&gt;
-      &lt;CountryCode&gt;AT&lt;/CountryCode&gt;
-      &lt;WebsiteURI&gt;https://test.e-rechnung.gv.at&lt;/WebsiteURI&gt;
-      &lt;AdditionalInformation&gt;This is the test endpoint for the whole Austrian Government&lt;/AdditionalInformation&gt;
-    &lt;/BusinessEntity&gt;
-    &lt;DocumentTypeID scheme="busdox-docid-qns"&gt;urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:www.cenbii.eu:transaction:biitrns010:ver2.0:extended:urn:www.peppol.eu:bis:peppol4a:ver2.0:extended:urn:www.erechnung.gv.at:ver1.0::2.1&lt;/DocumentTypeID&gt;
-    &lt;DocumentTypeID scheme="busdox-docid-qns"&gt;urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2::CreditNote##urn:www.cenbii.eu:transaction:biitrns014:ver2.0:extended:urn:www.peppol.eu:bis:peppol5a:ver2.0::2.1&lt;/DocumentTypeID&gt;
-    &lt;DocumentTypeID scheme="busdox-docid-qns"&gt;urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:www.cenbii.eu:transaction:biitrns010:ver2.0:extended:urn:www.peppol.eu:bis:peppol5a:ver2.0::2.1&lt;/DocumentTypeID&gt;
-    &lt;DocumentTypeID scheme="busdox-docid-qns"&gt;urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2::CreditNote##urn:www.cenbii.eu:transaction:biitrns014:ver2.0:extended:urn:www.peppol.eu:bis:peppol5a:ver2.0:extended:urn:www.erechnung.gv.at:ver1.0::2.1&lt;/DocumentTypeID&gt;
-    &lt;DocumentTypeID scheme="busdox-docid-qns"&gt;urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:www.cenbii.eu:transaction:biitrns010:ver2.0:extended:urn:www.peppol.eu:bis:peppol4a:ver2.0::2.1&lt;/DocumentTypeID&gt;
-    &lt;DocumentTypeID scheme="busdox-docid-qns"&gt;urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:www.cenbii.eu:transaction:biitrns010:ver2.0:extended:urn:www.peppol.eu:bis:peppol5a:ver2.0:extended:urn:www.erechnung.gv.at:ver1.0::2.1&lt;/DocumentTypeID&gt;
-  &lt;/BusinessCard&gt;
-  &lt;BusinessCard xmlns="http://www.peppol.eu/schema/pd/businesscard/20160112/"&gt;
-    &lt;ParticipantIdentifier scheme="iso6523-actorid-upis"&gt;9915:digit_test&lt;/ParticipantIdentifier&gt;
-    &lt;BusinessEntity&gt;
-      &lt;Name&gt;DG DIGIT&lt;/Name&gt;
-      &lt;CountryCode&gt;BE&lt;/CountryCode&gt;
-      &lt;GeographicalInformation&gt;Brussels Rue Belliard 28&lt;/GeographicalInformation&gt;
-    &lt;/BusinessEntity&gt;
-    &lt;BusinessEntity&gt;
-      &lt;Name&gt;Second entity name&lt;/Name&gt;
-      &lt;CountryCode&gt;AU&lt;/CountryCode&gt;
-      &lt;Identifier scheme="GLN"&gt;123454321&lt;/Identifier&gt;
-      &lt;AdditionalInformation&gt;Whatever it takes - PEPPOL Directory will index this&lt;/AdditionalInformation&gt;
-    &lt;/BusinessEntity&gt;
-    &lt;BusinessEntity&gt;
-      &lt;Name&gt;Third entity - to the rescue&lt;/Name&gt;
-      &lt;CountryCode&gt;DE&lt;/CountryCode&gt;
-      &lt;GeographicalInformation&gt;Germany, Baden-Württemberg&lt;/GeographicalInformation&gt;
-      &lt;Identifier scheme="PLZ"&gt;79110&lt;/Identifier&gt;
-      &lt;AdditionalInformation&gt;We need more German PEPPOL endpoints&lt;/AdditionalInformation&gt;
-    &lt;/BusinessEntity&gt;
-  &lt;/BusinessCard&gt;
+            query-terms="q=9915:test" 
+            creation-dt="2017-09-20T18:13:07.468Z"&gt;
+  &lt;match&gt;
+    &lt;participantID scheme="iso6523-actorid-upis"&gt;9915:test&lt;/participantID&gt;
+    &lt;docTypeID scheme="busdox-docid-qns"&gt;urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:www.cenbii.eu:transaction:biitrns010:ver2.0:extended:urn:www.peppol.eu:bis:peppol4a:ver2.0:extended:urn:www.erechnung.gv.at:ver1.0::2.1&lt;/docTypeID&gt;
+    &lt;docTypeID scheme="busdox-docid-qns"&gt;urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2::CreditNote##urn:www.cenbii.eu:transaction:biitrns014:ver2.0:extended:urn:www.peppol.eu:bis:peppol5a:ver2.0::2.1&lt;/docTypeID&gt;
+    &lt;docTypeID scheme="busdox-docid-qns"&gt;urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:www.cenbii.eu:transaction:biitrns010:ver2.0:extended:urn:www.peppol.eu:bis:peppol5a:ver2.0::2.1&lt;/docTypeID&gt;
+    &lt;docTypeID scheme="busdox-docid-qns"&gt;urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2::CreditNote##urn:www.cenbii.eu:transaction:biitrns014:ver2.0:extended:urn:www.peppol.eu:bis:peppol5a:ver2.0:extended:urn:www.erechnung.gv.at:ver1.0::2.1&lt;/docTypeID&gt;
+    &lt;docTypeID scheme="busdox-docid-qns"&gt;urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:www.cenbii.eu:transaction:biitrns010:ver2.0:extended:urn:www.peppol.eu:bis:peppol4a:ver2.0::2.1&lt;/docTypeID&gt;
+    &lt;docTypeID scheme="busdox-docid-qns"&gt;urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:www.cenbii.eu:transaction:biitrns010:ver2.0:extended:urn:www.peppol.eu:bis:peppol5a:ver2.0:extended:urn:www.erechnung.gv.at:ver1.0::2.1&lt;/docTypeID&gt;
+    &lt;entity&gt;
+      &lt;name&gt;Austrian Government&lt;/name&gt;
+      &lt;countryCode&gt;AT&lt;/countryCode&gt;
+      &lt;website&gt;https://test.e-rechnung.gv.at&lt;/website&gt;
+      &lt;additionalInfo&gt;This is the test endpoint for the whole Austrian Government&lt;/additionalInfo&gt;
+      &lt;regDate&gt;2012-01-01&lt;/regDate&gt;
+    &lt;/entity&gt;
+  &lt;/match&gt;
+  &lt;match&gt;
+    &lt;participantID scheme="iso6523-actorid-upis"&gt;9915:digit_test&lt;/participantID&gt;
+    &lt;entity&gt;
+      &lt;name&gt;DG DIGIT&lt;/name&gt;
+      &lt;countryCode&gt;BE&lt;/countryCode&gt;
+      &lt;geoInfo&gt;Brussels Rue Belliard 28&lt;/geoInfo&gt;
+    &lt;/entity&gt;
+    &lt;entity&gt;
+      &lt;name&gt;Second entity name&lt;/name&gt;
+      &lt;countryCode&gt;AU&lt;/countryCode&gt;
+      &lt;identifier scheme="GLN"&gt;123454321&lt;/identifier&gt;
+      &lt;additionalInfo&gt;Whatever it takes - PEPPOL Directory will index this&lt;/additionalInfo&gt;
+    &lt;/entity&gt;
+    &lt;entity&gt;
+      &lt;name&gt;Third entity - to the rescue&lt;/name&gt;
+      &lt;countryCode&gt;DE&lt;/countryCode&gt;
+      &lt;geoInfo&gt;Germany, Baden-Württemberg&lt;/geoInfo&gt;
+      &lt;identifier scheme="PLZ"&gt;79110&lt;/identifier&gt;
+      &lt;additionalInfo&gt;We need more German PEPPOL endpoints&lt;/additionalInfo&gt;
+    &lt;/entity&gt;
+  &lt;/match&gt;
 &lt;/resultlist&gt;
 </pre>
 
@@ -477,8 +536,8 @@
   "first-result-index":0,
   "last-result-index":3,
   "query-terms":"q=9915:test",
-  "creation-dt":"2017-09-20T17:13:30.078Z",
-  "entities":[
+  "creation-dt":"2017-09-20T18:15:00.438Z",
+  "matches":[
     {
       "participantID":{
         "scheme":"iso6523-actorid-upis",
@@ -514,12 +573,9 @@
         {
           "name":"Austrian Government",
           "countryCode":"AT",
-          "geoInfo":null,
-          "identifiers":[],
           "websites":[
             "https://test.e-rechnung.gv.at"
           ],
-          "contacts":[],
           "additionalInfo":"This is the test endpoint for the whole Austrian Government",
           "regDate":"2012-01-01"
         }
@@ -530,32 +586,22 @@
         "scheme":"iso6523-actorid-upis",
         "value":"9915:digit_test"
       },
-      "docTypes":[],
       "entities":[
         {
           "name":"DG DIGIT",
           "countryCode":"BE",
-          "geoInfo":"Brussels Rue Belliard 28",
-          "identifiers":[],
-          "websites":[],
-          "contacts":[],
-          "additionalInfo":null,
-          "regDate":null
+          "geoInfo":"Brussels Rue Belliard 28"
         },
         {
           "name":"Second entity name",
           "countryCode":"AU",
-          "geoInfo":null,
           "identifiers":[
             {
               "scheme":"GLN",
               "value":"123454321"
             }
           ],
-          "websites":[],
-          "contacts":[],
-          "additionalInfo":"Whatever it takes - PEPPOL Directory will index this",
-          "regDate":null
+          "additionalInfo":"Whatever it takes - PEPPOL Directory will index this"
         },
         {
           "name":"Third entity - to the rescue",
@@ -567,10 +613,7 @@
               "value":"79110"
             }
           ],
-          "websites":[],
-          "contacts":[],
-          "additionalInfo":"We need more German PEPPOL endpoints",
-          "regDate":null
+          "additionalInfo":"We need more German PEPPOL endpoints"
         }
       ]
     }

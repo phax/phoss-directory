@@ -431,7 +431,8 @@ public class PDStoredDocument
     final JsonArray aDocTypes = new JsonArray ();
     for (final IDocumentTypeIdentifier aDocTypeID : aFirst.m_aDocumentTypeIDs)
       aDocTypes.add (_getIDAsJson (aDocTypeID.getScheme (), aDocTypeID.getValue ()));
-    ret.add ("docTypes", aDocTypes);
+    if (aDocTypes.isNotEmpty ())
+      ret.add ("docTypes", aDocTypes);
 
     final IJsonArray aEntities = new JsonArray ();
     for (final PDStoredDocument aDoc : aDocs)
