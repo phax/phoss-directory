@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.collection.multimap.IMultiMapListBased;
 import com.helger.collection.multimap.MultiLinkedHashMapArrayListBased;
+import com.helger.commons.CGlobal;
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.ReturnsMutableCopy;
 import com.helger.commons.callback.IThrowingRunnable;
@@ -138,6 +139,8 @@ public final class PDStorageManager implements IPDStorageManager
     {
       final long nMillis = aSW.stopAndGetMillis ();
       s_aStatsQueryTimer.addTime (aQuery.toString (), nMillis);
+      if (nMillis > CGlobal.MILLISECONDS_PER_SECOND)
+        s_aLogger.warn ("Lucene Query " + aQuery + " took too long: " + nMillis + "ms");
     }
   }
 
@@ -153,6 +156,8 @@ public final class PDStorageManager implements IPDStorageManager
     {
       final long nMillis = aSW.stopAndGetMillis ();
       s_aStatsQueryTimer.addTime (aQuery.toString (), nMillis);
+      if (nMillis > CGlobal.MILLISECONDS_PER_SECOND)
+        s_aLogger.warn ("Lucene Query " + aQuery + " took too long: " + nMillis + "ms");
     }
   }
 
