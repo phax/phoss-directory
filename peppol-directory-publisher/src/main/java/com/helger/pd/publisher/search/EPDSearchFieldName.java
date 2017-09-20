@@ -33,6 +33,7 @@ import com.helger.commons.text.util.TextHelper;
  */
 public enum EPDSearchFieldName implements IHasDisplayText
 {
+  GENERIC ("Allgemeiner Suchtext", "Generic search text"),
   PARTICIPANT_ID ("Teilnehmer ID", "Participant ID"),
   NAME ("Name", "Name"),
   COUNTRY ("Land", "Country"),

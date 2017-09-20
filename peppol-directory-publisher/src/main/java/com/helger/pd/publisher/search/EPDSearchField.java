@@ -22,10 +22,15 @@ import java.util.Locale;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.apache.lucene.search.Query;
+
 import com.helger.commons.annotation.Nonempty;
+import com.helger.commons.functional.IFunction;
 import com.helger.commons.id.IHasID;
 import com.helger.commons.lang.EnumHelper;
 import com.helger.commons.text.display.IHasDisplayText;
+import com.helger.pd.indexer.mgr.PDMetaManager;
+import com.helger.pd.indexer.storage.PDQueryManager;
 import com.helger.pd.indexer.storage.PDStoredDocument;
 import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
@@ -38,37 +43,55 @@ import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
  */
 public enum EPDSearchField implements IHasID <String>, IHasDisplayText
 {
+  GENERIC ("q",
+           EPDSearchFieldName.GENERIC,
+           ESearchDataType.STRING_CS,
+           Object.class,
+           sQuery -> PDQueryManager.convertQueryStringToLuceneQuery (PDMetaManager.getLucene (), sQuery)),
   PARTICIPANT_ID ("participant",
                   EPDSearchFieldName.PARTICIPANT_ID,
                   ESearchDataType.STRING_CI,
-                  IParticipantIdentifier.class),
-  NAME ("name", EPDSearchFieldName.NAME, ESearchDataType.STRING_CI, String.class),
-  COUNTRY ("country", EPDSearchFieldName.COUNTRY, ESearchDataType.STRING_CI, Locale.class),
-  GEO_INFO ("geoinfo", EPDSearchFieldName.GEO_INFO, ESearchDataType.STRING_CI, String.class),
-  IDENTIFIER ("identifier", EPDSearchFieldName.IDENTIFIER, ESearchDataType.STRING_CS, String.class),
-  WEBSITE ("website", EPDSearchFieldName.WEBSITE, ESearchDataType.STRING_CI, String.class),
-  CONTACT ("contact", EPDSearchFieldName.CONTACT, ESearchDataType.STRING_CI, String.class),
+                  IParticipantIdentifier.class,
+                  sQuery -> null),
+  NAME ("name", EPDSearchFieldName.NAME, ESearchDataType.STRING_CI, String.class, sQuery -> null),
+  COUNTRY ("country", EPDSearchFieldName.COUNTRY, ESearchDataType.STRING_CI, Locale.class, sQuery -> null),
+  GEO_INFO ("geoinfo", EPDSearchFieldName.GEO_INFO, ESearchDataType.STRING_CI, String.class, sQuery -> null),
+  IDENTIFIER ("identifier", EPDSearchFieldName.IDENTIFIER, ESearchDataType.STRING_CS, String.class, sQuery -> null),
+  WEBSITE ("website", EPDSearchFieldName.WEBSITE, ESearchDataType.STRING_CI, String.class, sQuery -> null),
+  CONTACT ("contact", EPDSearchFieldName.CONTACT, ESearchDataType.STRING_CI, String.class, sQuery -> null),
   ADDITIONAL_INFORMATION ("addinfo",
                           EPDSearchFieldName.ADDITIONAL_INFORMATION,
                           ESearchDataType.STRING_CI,
-                          String.class),
-  REGISTRATION_DATE ("regdate", EPDSearchFieldName.REGISTRATION_DATE, ESearchDataType.DATE, LocalDate.class),
-  DOCUMENT_TYPE ("doctype", EPDSearchFieldName.DOCUMENT_TYPE, ESearchDataType.STRING_CS, IDocumentTypeIdentifier.class);
+                          String.class,
+                          sQuery -> null),
+  REGISTRATION_DATE ("regdate",
+                     EPDSearchFieldName.REGISTRATION_DATE,
+                     ESearchDataType.DATE,
+                     LocalDate.class,
+                     sQuery -> null),
+  DOCUMENT_TYPE ("doctype",
+                 EPDSearchFieldName.DOCUMENT_TYPE,
+                 ESearchDataType.STRING_CS,
+                 IDocumentTypeIdentifier.class,
+                 sQuery -> null);
 
   private final String m_sID;
   private final ESearchDataType m_eDataType;
   private final EPDSearchFieldName m_eDisplayText;
   private final Class <?> m_aNativeType;
+  private final IFunction <String, Query> m_aQueryProvider;
 
   private EPDSearchField (@Nonnull @Nonempty final String sID,
                           @Nonnull final EPDSearchFieldName eDisplayText,
                           @Nonnull final ESearchDataType eDataType,
-                          @Nonnull final Class <?> aNativeType)
+                          @Nonnull final Class <?> aNativeType,
+                          @Nonnull final IFunction <String, Query> aQueryProvider)
   {
     m_sID = sID;
     m_eDataType = eDataType;
     m_eDisplayText = eDisplayText;
     m_aNativeType = aNativeType;
+    m_aQueryProvider = aQueryProvider;
   }
 
   @Nonnull
@@ -101,6 +124,18 @@ public enum EPDSearchField implements IHasID <String>, IHasDisplayText
   public Class <?> getNativeType ()
   {
     return m_aNativeType;
+  }
+
+  @Nonnull
+  public IFunction <String, Query> getQueryProvider ()
+  {
+    return m_aQueryProvider;
+  }
+
+  @Nullable
+  public Query getQuery (@Nonnull final String sQuery)
+  {
+    return m_aQueryProvider.apply (sQuery);
   }
 
   @Nullable

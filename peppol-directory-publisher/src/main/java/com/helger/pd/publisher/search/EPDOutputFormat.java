@@ -91,4 +91,11 @@ public enum EPDOutputFormat implements IHasID <String>, IHasDisplayName
   {
     return EnumHelper.getFromIDCaseInsensitiveOrNull (EPDOutputFormat.class, sID);
   }
+
+  @Nullable
+  public static EPDOutputFormat getFromIDCaseInsensitiveOrDefault (@Nullable final String sID,
+                                                                   @Nullable final EPDOutputFormat eDefault)
+  {
+    return EnumHelper.getFromIDCaseInsensitiveOrDefault (EPDOutputFormat.class, sID, eDefault);
+  }
 }

@@ -17,18 +17,45 @@
 package com.helger.pd.publisher.servlet;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.lucene.search.BooleanClause.Occur;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.helger.commons.annotation.Nonempty;
+import com.helger.commons.collection.ArrayHelper;
+import com.helger.commons.collection.impl.CommonsArrayList;
+import com.helger.commons.collection.impl.CommonsHashMap;
 import com.helger.commons.collection.impl.ICommonsList;
+import com.helger.commons.collection.impl.ICommonsMap;
 import com.helger.commons.string.StringHelper;
+import com.helger.json.IJsonArray;
+import com.helger.json.IJsonObject;
+import com.helger.json.JsonArray;
+import com.helger.json.JsonObject;
+import com.helger.json.serialize.JsonWriterSettings;
+import com.helger.pd.indexer.mgr.PDMetaManager;
+import com.helger.pd.indexer.storage.PDStoredDocument;
 import com.helger.pd.publisher.search.EPDOutputFormat;
+import com.helger.pd.publisher.search.EPDSearchField;
 import com.helger.servlet.response.UnifiedResponse;
+import com.helger.web.scope.IRequestParamContainer;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
+import com.helger.xml.microdom.IMicroDocument;
+import com.helger.xml.microdom.IMicroElement;
+import com.helger.xml.microdom.MicroDocument;
+import com.helger.xml.microdom.serialize.MicroWriter;
+import com.helger.xml.serialize.write.EXMLSerializeIndent;
+import com.helger.xml.serialize.write.XMLWriterSettings;
 import com.helger.xservlet.handler.simple.IXServletSimpleHandler;
 
 /**
@@ -38,33 +65,229 @@ import com.helger.xservlet.handler.simple.IXServletSimpleHandler;
  */
 public final class PublicSearchXServletHandler implements IXServletSimpleHandler
 {
-  private static final String VERSION1_PREFIX = "/1.0";
+  private static final String RESPONSE_VERSION = "version";
+  private static final String RESPONSE_TOTAL_RESULT_COUNT = "total-result-count";
+  private static final String RESPONSE_USED_RESULT_COUNT = "used-result-count";
+  private static final String RESPONSE_RESULT_PAGE_INDEX = "result-page-index";
+  private static final String RESPONSE_RESULT_PAGE_COUNT = "result-page-count";
+  private static final String RESPONSE_FIRST_RESULT_INDEX = "first-result-index";
+  private static final String RESPONSE_LAST_RESULT_INDEX = "last-result-index";
+  public static final String PARAM_RESULT_PAGE_INDEX = "resultPageIndex";
+  public static final String PARAM_RESULT_PAGE_COUNT = "resultPageCount";
+  public static final int DEFAULT_RESULT_PAGE_INDEX = 0;
+  public static final int DEFAULT_RESULT_PAGE_COUNT = 20;
+  public static final int MAX_RESULTS = 1_000;
+
   private static final Logger s_aLogger = LoggerFactory.getLogger (PublicSearchXServletHandler.class);
+
+  public static enum ESearchVersion
+  {
+    V1 ("1.0");
+
+    private final String m_sVersion;
+    private final String m_sPathPrefix;
+
+    private ESearchVersion (@Nonnull @Nonempty final String sVersion)
+    {
+      m_sVersion = sVersion;
+      m_sPathPrefix = "/" + sVersion;
+    }
+
+    @Nonnull
+    @Nonempty
+    public String getVersion ()
+    {
+      return m_sVersion;
+    }
+
+    @Nonnull
+    @Nonempty
+    public String getPathPrefix ()
+    {
+      return m_sPathPrefix;
+    }
+
+    @Nullable
+    public static ESearchVersion getFromPathInfoOrNull (@Nonnull final String sPathInfo)
+    {
+      return ArrayHelper.findFirst (values (), x -> sPathInfo.startsWith (x.m_sPathPrefix));
+    }
+  }
 
   public void handleRequest (@Nonnull final IRequestWebScopeWithoutResponse aRequestScope,
                              @Nonnull final UnifiedResponse aUnifiedResponse) throws Exception
   {
+    final IRequestParamContainer aParams = aRequestScope.params ();
+
     // http://127.0.0.1:8080/search -> null
     // http://127.0.0.1:8080/search/ -> "/"
     final String sPathInfo = StringHelper.getNotNull (aRequestScope.getPathInfo (), "");
-    if (StringHelper.startsWith (sPathInfo, VERSION1_PREFIX))
+    final ESearchVersion eSearchVersion = ESearchVersion.getFromPathInfoOrNull (sPathInfo);
+
+    if (eSearchVersion == ESearchVersion.V1)
     {
       // Version 1.0
 
       // Determine output format
-      final ICommonsList <String> aParts = StringHelper.getExploded ('/', sPathInfo.substring (1), 2);
+      final ICommonsList <String> aParts = StringHelper.getExploded ('/', sPathInfo.substring (1));
       final String sFormat = aParts.getAtIndex (1);
-      EPDOutputFormat eOutputFormat = EPDOutputFormat.getFromIDCaseInsensitiveOrNull (sFormat);
-      if (eOutputFormat == null)
+      final EPDOutputFormat eOutputFormat = EPDOutputFormat.getFromIDCaseInsensitiveOrDefault (sFormat,
+                                                                                               EPDOutputFormat.XML);
+      s_aLogger.info ("Using REST query API 1.0 with output format " + eOutputFormat + " (" + sPathInfo + ")");
+
+      // Determine result offset and count
+      final int nResultPageIndex = aParams.getAsInt (PARAM_RESULT_PAGE_INDEX,
+                                                     aParams.getAsInt ("rpi", DEFAULT_RESULT_PAGE_INDEX));
+      if (nResultPageIndex < 0)
       {
-        // Defaults to XML
-        eOutputFormat = EPDOutputFormat.XML;
+        s_aLogger.error ("ResultPageIndex " + nResultPageIndex + " is invalid");
+        aUnifiedResponse.setStatus (HttpServletResponse.SC_BAD_REQUEST);
+        return;
       }
-      s_aLogger.info ("Using REST API 1.0 with output format " + eOutputFormat + " (" + sPathInfo + ")");
+      final int nResultPageCount = aParams.getAsInt (PARAM_RESULT_PAGE_COUNT,
+                                                     aParams.getAsInt ("rpc", DEFAULT_RESULT_PAGE_COUNT));
+      if (nResultPageCount <= 0)
+      {
+        s_aLogger.error ("ResultPageCount " + nResultPageCount + " is invalid");
+        aUnifiedResponse.setStatus (HttpServletResponse.SC_BAD_REQUEST);
+        return;
+      }
+      final int nFirstResultIndex = nResultPageIndex * nResultPageCount;
+      final int nLastResultIndex = (nResultPageIndex + 1) * nResultPageCount - 1;
+      if (nFirstResultIndex > MAX_RESULTS)
+      {
+        s_aLogger.error ("The first result index " + nFirstResultIndex + " is invalid");
+        aUnifiedResponse.setStatus (HttpServletResponse.SC_BAD_REQUEST);
+        return;
+      }
+      if (nLastResultIndex > MAX_RESULTS)
+      {
+        s_aLogger.error ("The last result index " + nFirstResultIndex + " is invalid");
+        aUnifiedResponse.setStatus (HttpServletResponse.SC_BAD_REQUEST);
+        return;
+      }
 
-      // TODO parse search term
+      // Determine query terms
+      final ICommonsMap <EPDSearchField, ICommonsList <String>> aQueryValues = new CommonsHashMap <> ();
+      for (final EPDSearchField eSF : EPDSearchField.values ())
+      {
+        final ICommonsList <String> aValues = aParams.getAsStringList (eSF.getFieldName ());
+        if (aValues != null)
+          aQueryValues.put (eSF, aValues);
+      }
+      if (aQueryValues.isEmpty ())
+      {
+        s_aLogger.error ("No valid query term provided!");
+        aUnifiedResponse.setStatus (HttpServletResponse.SC_BAD_REQUEST);
+        return;
+      }
+      s_aLogger.info ("Using the following query terms: " + aQueryValues);
 
-      aUnifiedResponse.setContentAndCharset ("<something-will-be-here-soon be=\"patient\" />", StandardCharsets.UTF_8);
+      final ICommonsList <Query> aQueries = new CommonsArrayList <> ();
+      for (final Map.Entry <EPDSearchField, ICommonsList <String>> aEntry : aQueryValues.entrySet ())
+        for (final String sQuery : aEntry.getValue ())
+        {
+          final Query aQuery = aEntry.getKey ().getQuery (sQuery);
+          if (aQuery != null)
+            aQueries.add (aQuery);
+          else
+            s_aLogger.error ("Failed to create query '" +
+                             sQuery +
+                             "' of field " +
+                             aEntry.getKey () +
+                             " - ignoring term!");
+        }
+      if (aQueries.isEmpty ())
+      {
+        s_aLogger.error ("No valid queries could be created!");
+        aUnifiedResponse.setStatus (HttpServletResponse.SC_BAD_REQUEST);
+        return;
+      }
+
+      // Build final query term
+      Query aLuceneQuery;
+      if (aQueries.size () == 1)
+      {
+        aLuceneQuery = aQueries.getFirst ();
+      }
+      else
+      {
+        // Connect all with "AND"
+        final BooleanQuery.Builder aBuilder = new BooleanQuery.Builder ();
+        for (final Query aQuery : aQueries)
+          aBuilder.add (aQuery, Occur.FILTER);
+        aLuceneQuery = aBuilder.build ();
+      }
+
+      // Search all documents
+      final ICommonsList <PDStoredDocument> aResultDocs = PDMetaManager.getStorageMgr ().getAllDocuments (aLuceneQuery);
+
+      s_aLogger.info ("  Result for <" +
+                      aLuceneQuery +
+                      "> " +
+                      (aResultDocs.size () == 1 ? "is 1 document" : "are " + aResultDocs.size () + " documents"));
+
+      // Filter by index/count
+      final int nEffectiveLastIndex = Math.min (nLastResultIndex, aResultDocs.size () - 1);
+      final List <PDStoredDocument> aResultView = nFirstResultIndex >= aResultDocs.size () ? Collections.emptyList ()
+                                                                                           : aResultDocs.subList (nFirstResultIndex,
+                                                                                                                  nEffectiveLastIndex +
+                                                                                                                                     1);
+
+      // build result
+      switch (eOutputFormat)
+      {
+        case XML:
+        {
+          final XMLWriterSettings aXWS = new XMLWriterSettings ().setIndent (EXMLSerializeIndent.INDENT_AND_ALIGN);
+          final IMicroDocument aDoc = new MicroDocument ();
+          final IMicroElement eRoot = aDoc.appendElement ("resultlist");
+          eRoot.setAttribute (RESPONSE_VERSION, eSearchVersion.getVersion ());
+          eRoot.setAttribute (RESPONSE_TOTAL_RESULT_COUNT, aResultDocs.size ());
+          eRoot.setAttribute (RESPONSE_USED_RESULT_COUNT, aResultView.size ());
+          eRoot.setAttribute (RESPONSE_RESULT_PAGE_INDEX, nResultPageIndex);
+          eRoot.setAttribute (RESPONSE_RESULT_PAGE_COUNT, nResultPageCount);
+          eRoot.setAttribute (RESPONSE_FIRST_RESULT_INDEX, nFirstResultIndex);
+          eRoot.setAttribute (RESPONSE_LAST_RESULT_INDEX, nEffectiveLastIndex);
+
+          for (final PDStoredDocument aResultDoc : aResultView)
+          {
+            final IMicroElement eItem = aResultDoc.getAsMicroElement ();
+            eRoot.appendChild (eItem);
+          }
+
+          aUnifiedResponse.disableCaching ();
+          aUnifiedResponse.setMimeType (eOutputFormat.getMimeType ());
+          aUnifiedResponse.setContent (MicroWriter.getNodeAsBytes (aDoc, aXWS));
+          break;
+        }
+        case JSON:
+          final JsonWriterSettings aJWS = new JsonWriterSettings ().setIndentEnabled (true);
+          final IJsonObject aDoc = new JsonObject ();
+          aDoc.add (RESPONSE_VERSION, eSearchVersion.getVersion ());
+          aDoc.add (RESPONSE_TOTAL_RESULT_COUNT, aResultDocs.size ());
+          aDoc.add (RESPONSE_USED_RESULT_COUNT, aResultView.size ());
+          aDoc.add (RESPONSE_RESULT_PAGE_INDEX, nResultPageIndex);
+          aDoc.add (RESPONSE_RESULT_PAGE_COUNT, nResultPageCount);
+          aDoc.add (RESPONSE_FIRST_RESULT_INDEX, nFirstResultIndex);
+          aDoc.add (RESPONSE_LAST_RESULT_INDEX, nEffectiveLastIndex);
+
+          final IJsonArray aItems = new JsonArray ();
+          aDoc.add ("items", aItems);
+          for (final PDStoredDocument aResultDoc : aResultView)
+          {
+            final IJsonObject aItem = aResultDoc.getAsJsonObject ();
+            aItems.add (aItem);
+          }
+
+          aUnifiedResponse.disableCaching ();
+          aUnifiedResponse.setMimeType (eOutputFormat.getMimeType ());
+          aUnifiedResponse.setContentAndCharset (aDoc.getAsJsonString (aJWS), StandardCharsets.UTF_8);
+          break;
+        default:
+          throw new IllegalStateException ("Unsupported output format: " + eOutputFormat);
+      }
+
     }
     else
     {
