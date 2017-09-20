@@ -298,13 +298,13 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
           aDoc.add (RESPONSE_QUERY_TERMS, aSBQueryString.toString ());
           aDoc.add (RESPONSE_CREATION_DT, PDTWebDateHelper.getAsStringXSD (aNow));
 
-          final IJsonArray aItems = new JsonArray ();
-          aDoc.add ("entities", aItems);
+          final IJsonArray aMatches = new JsonArray ();
           for (final ICommonsList <PDStoredDocument> aPerParticipant : aGroupedDocs.values ())
           {
             final IJsonObject aItem = PDStoredDocument.getAsSearchResultJsonObject (aPerParticipant);
-            aItems.add (aItem);
+            aMatches.add (aItem);
           }
+          aDoc.add ("matches", aMatches);
 
           aUnifiedResponse.disableCaching ();
           aUnifiedResponse.setMimeType (eOutputFormat.getMimeType ());

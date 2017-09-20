@@ -41,13 +41,13 @@ import com.helger.json.IJsonObject;
 import com.helger.json.JsonArray;
 import com.helger.json.JsonObject;
 import com.helger.pd.businesscard.v1.PD1APIHelper;
-import com.helger.pd.businesscard.v1.PD1BusinessCardMarshaller;
 import com.helger.pd.businesscard.v1.PD1BusinessCardType;
 import com.helger.pd.businesscard.v1.PD1BusinessEntityType;
 import com.helger.pd.indexer.storage.field.PDField;
 import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.xml.microdom.IMicroElement;
+import com.helger.xml.microdom.MicroElement;
 
 /**
  * This class represents a document stored in the Lucene index but with a nicer
@@ -347,6 +347,14 @@ public class PDStoredDocument
     return ret;
   }
 
+  /**
+   * Create the REST search response XML element.
+   *
+   * @param aDocs
+   *        All the documents that have the same participant ID. May neither be
+   *        <code>null</code> nor empty.
+   * @return The micro element
+   */
   @Nonnull
   public static IMicroElement getAsSearchResultMicroElement (@Nonnull @Nonempty final ICommonsList <PDStoredDocument> aDocs)
   {
@@ -354,25 +362,53 @@ public class PDStoredDocument
 
     final PDStoredDocument aFirst = aDocs.getFirst ();
 
-    final PD1BusinessCardType aBC = new PD1BusinessCardType ();
-    aBC.setParticipantIdentifier (PD1APIHelper.createIdentifier (aFirst.m_aParticipantID.getScheme (),
-                                                                 aFirst.m_aParticipantID.getValue ()));
-    // Add all entities
-    for (final PDStoredDocument aDoc : aDocs)
-      aBC.addBusinessEntity (aDoc.getAsBusinessEntity ());
+    final IMicroElement aMatch = new MicroElement ("match");
+    aMatch.appendElement ("participantID")
+          .setAttribute ("scheme", aFirst.m_aParticipantID.getScheme ())
+          .appendText (aFirst.m_aParticipantID.getValue ());
 
-    // Convert to MicroXML
-    final IMicroElement ret = new PD1BusinessCardMarshaller ().getAsMicroElement (aBC);
-
-    // Extend the MicroXML
+    // Add all document type IDs
     for (final IDocumentTypeIdentifier aDocTypeID : aFirst.m_aDocumentTypeIDs)
     {
-      ret.appendElement (ret.getNamespaceURI (), "DocumentTypeID")
-         .setAttribute ("scheme", aDocTypeID.getScheme ())
-         .appendText (aDocTypeID.getValue ());
+      aMatch.appendElement ("docTypeID")
+            .setAttribute ("scheme", aDocTypeID.getScheme ())
+            .appendText (aDocTypeID.getValue ());
     }
 
-    return ret;
+    // Add all entities
+    for (final PDStoredDocument aDoc : aDocs)
+    {
+      final IMicroElement aEntity = aMatch.appendElement ("entity");
+      aEntity.appendElement ("name").appendText (aDoc.m_sName);
+      aEntity.appendElement ("countryCode").appendText (aDoc.m_sCountryCode);
+      if (StringHelper.hasText (aDoc.m_sGeoInfo))
+        aEntity.appendElement ("geoInfo").appendText (aDoc.m_sGeoInfo);
+
+      for (final PDStoredIdentifier aID : aDoc.m_aIdentifiers)
+        aEntity.appendElement ("identifier").setAttribute ("scheme", aID.getScheme ()).appendText (aID.getValue ());
+
+      for (final String sWebsite : aDoc.m_aWebsiteURIs)
+        aEntity.appendElement ("website").appendText (sWebsite);
+
+      for (final PDStoredContact aContact : aDoc.m_aContacts)
+        aEntity.appendElement ("contact")
+               .setAttribute ("type", aContact.getType ())
+               .setAttribute ("name", aContact.getName ())
+               .setAttribute ("phone", aContact.getPhone ())
+               .setAttribute ("email", aContact.getEmail ());
+
+      if (StringHelper.hasText (aDoc.m_sAdditionalInformation))
+        aEntity.appendElement ("additionalInfo").appendText (aDoc.m_sAdditionalInformation);
+      if (aDoc.m_aRegistrationDate != null)
+        aEntity.appendElement ("regDate").appendText (PDTWebDateHelper.getAsStringXSD (aDoc.m_aRegistrationDate));
+
+      // Usually only non-deleted elements are returned, so don't give an
+      // indicator to the outside
+      if (aDoc.m_bDeleted)
+        aEntity.setAttribute ("deleted", true);
+    }
+
+    return aMatch;
   }
 
   @Nonnull
@@ -403,17 +439,20 @@ public class PDStoredDocument
       final IJsonObject aEntity = new JsonObject ();
       aEntity.add ("name", aDoc.m_sName);
       aEntity.add ("countryCode", aDoc.m_sCountryCode);
-      aEntity.add ("geoInfo", aDoc.m_sGeoInfo);
+      if (StringHelper.hasText (aDoc.m_sGeoInfo))
+        aEntity.add ("geoInfo", aDoc.m_sGeoInfo);
 
       final JsonArray aIDs = new JsonArray ();
       for (final PDStoredIdentifier aID : aDoc.m_aIdentifiers)
         aIDs.add (_getIDAsJson (aID.getScheme (), aID.getValue ()));
-      aEntity.add ("identifiers", aIDs);
+      if (aIDs.isNotEmpty ())
+        aEntity.add ("identifiers", aIDs);
 
       final JsonArray aWebsites = new JsonArray ();
       for (final String sWebsite : aDoc.m_aWebsiteURIs)
         aWebsites.add (sWebsite);
-      aEntity.add ("websites", aWebsites);
+      if (aWebsites.isNotEmpty ())
+        aEntity.add ("websites", aWebsites);
 
       final JsonArray aContacts = new JsonArray ();
       for (final PDStoredContact aContact : aDoc.m_aContacts)
@@ -421,10 +460,13 @@ public class PDStoredDocument
                                         .addIfNotNull ("name", aContact.getName ())
                                         .addIfNotNull ("phone", aContact.getPhone ())
                                         .addIfNotNull ("email", aContact.getEmail ()));
-      aEntity.add ("contacts", aContacts);
+      if (aContacts.isNotEmpty ())
+        aEntity.add ("contacts", aContacts);
 
-      aEntity.add ("additionalInfo", aDoc.m_sAdditionalInformation);
-      aEntity.add ("regDate", aDoc.m_aRegistrationDate);
+      if (StringHelper.hasText (aDoc.m_sAdditionalInformation))
+        aEntity.add ("additionalInfo", aDoc.m_sAdditionalInformation);
+      if (aDoc.m_aRegistrationDate != null)
+        aEntity.add ("regDate", PDTWebDateHelper.getAsStringXSD (aDoc.m_aRegistrationDate));
 
       // Usually only non-deleted elements are returned, so don't give an
       // indicator to the outside
