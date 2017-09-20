@@ -17,6 +17,7 @@
 package com.helger.pd.indexer.storage;
 
 import java.io.IOException;
+import java.util.Locale;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -82,6 +83,8 @@ public final class PDQueryManager
    * @param aAnalyzerProvider
    *        Analyzer provider. E.g. instance of
    *        {@link com.helger.pd.indexer.lucene.PDLucene}.
+   * @param sFieldName
+   *        Lucene field name to get split into terms.
    * @param sQueryString
    *        The user provided query string. Must neither be <code>null</code>
    *        nor empty.
@@ -89,11 +92,11 @@ public final class PDQueryManager
    */
   @Nonnull
   public static ICommonsList <String> getSplitIntoTerms (@Nonnull final ILuceneAnalyzerProvider aAnalyzerProvider,
+                                                         @Nonnull @Nonempty final String sFieldName,
                                                          @Nonnull @Nonempty final String sQueryString)
   {
     // Use the default analyzer to split the query string into fields
-    try (final TokenStream aTokenStream = aAnalyzerProvider.getAnalyzer ().tokenStream (CPDStorage.FIELD_ALL_FIELDS,
-                                                                                        sQueryString))
+    try (final TokenStream aTokenStream = aAnalyzerProvider.getAnalyzer ().tokenStream (sFieldName, sQueryString))
     {
       final ICommonsList <String> ret = new CommonsArrayList <> ();
       final CharTermAttribute aCharTermAttribute = aTokenStream.addAttribute (CharTermAttribute.class);
@@ -116,17 +119,18 @@ public final class PDQueryManager
   }
 
   @Nonnull
-  private static Query _createSimpleAllFieldsQuery (@Nonnull final String sText)
+  private static Query _createSimpleAllFieldsQuery (@Nonnull final String sQueryText)
   {
     if (false)
-      return new TermQuery (new Term (CPDStorage.FIELD_ALL_FIELDS, sText));
+      return new TermQuery (new Term (CPDStorage.FIELD_ALL_FIELDS, sQueryText));
     // This works -> text ==> *text*
-    return new WildcardQuery (new Term (CPDStorage.FIELD_ALL_FIELDS, "*" + sText + "*"));
+    return new WildcardQuery (new Term (CPDStorage.FIELD_ALL_FIELDS, "*" + sQueryText + "*"));
   }
 
   /**
    * Convert a query string as entered by the used into a Lucene query. This
-   * methods uses {@link #getSplitIntoTerms(ILuceneAnalyzerProvider, String)} to
+   * methods uses
+   * {@link #getSplitIntoTerms(ILuceneAnalyzerProvider, String, String)} to
    * split the provided string into pieces and returns a boolean query that
    * includes all terms (like an AND query).
    *
@@ -145,8 +149,10 @@ public final class PDQueryManager
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
 
     // Split into terms
-    final ICommonsList <String> aParts = getSplitIntoTerms (aAnalyzerProvider, sQueryString);
-    assert !aParts.isEmpty ();
+    final ICommonsList <String> aParts = getSplitIntoTerms (aAnalyzerProvider,
+                                                            CPDStorage.FIELD_ALL_FIELDS,
+                                                            sQueryString);
+    assert aParts.isNotEmpty ();
 
     if (s_aLogger.isDebugEnabled ())
       s_aLogger.debug ("Split query string: '" + sQueryString + "' ==> " + aParts);
@@ -170,24 +176,56 @@ public final class PDQueryManager
     return andNotDeleted (aQuery);
   }
 
+  private static String _lowerCase (@Nonnull final String s)
+  {
+    return s.toLowerCase (Locale.US);
+  }
+
   @Nullable
-  public static Query getParticipantLuceneQuery (@Nonnull @Nonempty final String sQueryString)
+  public static Query getParticipantIDLuceneQuery (@Nonnull @Nonempty final String sQueryString)
   {
     ValueEnforcer.notEmpty (sQueryString, "QueryString");
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
 
     final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
-    final IParticipantIdentifier aPI = aIdentifierFactory.parseParticipantIdentifier (sQueryString);
+    final IParticipantIdentifier aPI = aIdentifierFactory.parseParticipantIdentifier (_lowerCase (sQueryString));
     if (aPI == null)
     {
       s_aLogger.warn ("Failed to convert '" + sQueryString + "' to participant ID!");
       return null;
     }
 
-    // Single term - simple query
-    final Query aQuery = new TermQuery (PDField.PARTICIPANT_ID.getTerm (aPI));
+    final Query aQuery = new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aPI));
+    return andNotDeleted (aQuery);
+  }
 
-    // Alter the query so that only not-deleted documents are returned
+  @Nonnull
+  public static Query getNameLuceneQuery (@Nonnull @Nonempty final String sQueryString)
+  {
+    ValueEnforcer.notEmpty (sQueryString, "QueryString");
+    ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
+
+    final Query aQuery = new WildcardQuery (PDField.NAME.getContainsTerm (_lowerCase (sQueryString)));
+    return andNotDeleted (aQuery);
+  }
+
+  @Nonnull
+  public static Query getCountryCodeLuceneQuery (@Nonnull @Nonempty final String sQueryString)
+  {
+    ValueEnforcer.notEmpty (sQueryString, "QueryString");
+    ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
+
+    final Query aQuery = new TermQuery (PDField.COUNTRY_CODE.getExactMatchTerm (_lowerCase (sQueryString)));
+    return andNotDeleted (aQuery);
+  }
+
+  @Nonnull
+  public static Query getGeoInfoLuceneQuery (@Nonnull @Nonempty final String sQueryString)
+  {
+    ValueEnforcer.notEmpty (sQueryString, "QueryString");
+    ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
+
+    final Query aQuery = new WildcardQuery (PDField.GEO_INFO.getContainsTerm (_lowerCase (sQueryString)));
     return andNotDeleted (aQuery);
   }
 }

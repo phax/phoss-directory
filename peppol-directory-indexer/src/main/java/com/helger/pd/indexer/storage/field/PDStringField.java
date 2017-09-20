@@ -53,9 +53,15 @@ public class PDStringField <NATIVE_TYPE> extends AbstractPDField <NATIVE_TYPE, S
   }
 
   @Nonnull
-  public Term getTerm (@Nonnull final NATIVE_TYPE aValue)
+  public Term getExactMatchTerm (@Nonnull final NATIVE_TYPE aValue)
   {
     return new Term (getFieldName (), getAsStorageValue (aValue));
+  }
+
+  @Nonnull
+  public Term getContainsTerm (@Nonnull final NATIVE_TYPE aValue)
+  {
+    return new Term (getFieldName (), "*" + getAsStorageValue (aValue) + "*");
   }
 
   @Override

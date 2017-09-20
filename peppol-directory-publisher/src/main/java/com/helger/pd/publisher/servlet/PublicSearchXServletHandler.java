@@ -200,18 +200,17 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
 
       final ICommonsList <Query> aQueries = new CommonsArrayList <> ();
       for (final Map.Entry <EPDSearchField, ICommonsList <String>> aEntry : aQueryValues.entrySet ())
+      {
+        final EPDSearchField eField = aEntry.getKey ();
         for (final String sQuery : aEntry.getValue ())
         {
-          final Query aQuery = aEntry.getKey ().getQuery (sQuery);
+          final Query aQuery = eField.getQuery (sQuery);
           if (aQuery != null)
             aQueries.add (aQuery);
           else
-            s_aLogger.error ("Failed to create query '" +
-                             sQuery +
-                             "' of field " +
-                             aEntry.getKey () +
-                             " - ignoring term!");
+            s_aLogger.error ("Failed to create query '" + sQuery + "' of field " + eField + " - ignoring term!");
         }
+      }
       if (aQueries.isEmpty ())
       {
         s_aLogger.error ("No valid queries could be created!");

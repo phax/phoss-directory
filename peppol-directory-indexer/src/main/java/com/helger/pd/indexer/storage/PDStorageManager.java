@@ -116,7 +116,7 @@ public final class PDStorageManager implements IPDStorageManager
       if (aSearcher != null)
       {
         // Search only documents that do not have the deleted field
-        final Query aQuery = PDQueryManager.andNotDeleted (new TermQuery (PDField.PARTICIPANT_ID.getTerm (aParticipantID)));
+        final Query aQuery = PDQueryManager.andNotDeleted (new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID)));
         final TopDocs aTopDocs = _timedSearch ( () -> aSearcher.search (aQuery, 1), aQuery);
         if (aTopDocs.totalHits > 0)
           return Boolean.TRUE;
@@ -171,7 +171,7 @@ public final class PDStorageManager implements IPDStorageManager
       if (aSearcher != null)
       {
         // Main searching
-        final Query aQuery = new TermQuery (PDField.PARTICIPANT_ID.getTerm (aParticipantID));
+        final Query aQuery = new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID));
         _timedSearch ( () -> aSearcher.search (aQuery,
                                                new AllDocumentsCollector (m_aLucene,
                                                                           (aDoc, nDocID) -> aDocuments.add (aDoc))),
@@ -184,7 +184,7 @@ public final class PDStorageManager implements IPDStorageManager
         aDocuments.forEach (aDocument -> aDocument.add (new IntPoint (CPDStorage.FIELD_DELETED, 1)));
 
         // Update the documents
-        m_aLucene.updateDocuments (PDField.PARTICIPANT_ID.getTerm (aParticipantID), aDocuments);
+        m_aLucene.updateDocuments (PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID), aDocuments);
       }
 
       s_aLogger.info ("Marked " + aDocuments.size () + " Lucene documents as deleted");
@@ -310,7 +310,7 @@ public final class PDStorageManager implements IPDStorageManager
 
       // Delete all existing documents of the participant ID
       // and add the new ones to the index
-      m_aLucene.updateDocuments (PDField.PARTICIPANT_ID.getTerm (aParticipantID), aDocs);
+      m_aLucene.updateDocuments (PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID), aDocs);
 
       s_aLogger.info ("Added " + aDocs.size () + " Lucene documents");
       AuditHelper.onAuditExecuteSuccess ("pd-indexer-create",
@@ -405,7 +405,7 @@ public final class PDStorageManager implements IPDStorageManager
   public ICommonsList <PDStoredDocument> getAllDocumentsOfParticipant (@Nonnull final IParticipantIdentifier aParticipantID)
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
-    return getAllDocuments (new TermQuery (PDField.PARTICIPANT_ID.getTerm (aParticipantID)));
+    return getAllDocuments (new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID)));
   }
 
   @Nonnull

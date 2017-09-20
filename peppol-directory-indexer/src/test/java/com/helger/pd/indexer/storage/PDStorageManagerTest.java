@@ -158,11 +158,11 @@ public final class PDStorageManagerTest
       try
       {
         // No country - no fields
-        ICommonsList <PDStoredDocument> aDocs = aMgr.getAllDocuments (new TermQuery (PDField.COUNTRY_CODE.getTerm ("")));
+        ICommonsList <PDStoredDocument> aDocs = aMgr.getAllDocuments (new TermQuery (PDField.COUNTRY_CODE.getExactMatchTerm ("")));
         assertEquals (0, aDocs.size ());
 
         // Search for NO
-        aDocs = aMgr.getAllDocuments (new TermQuery (PDField.COUNTRY_CODE.getTerm ("NO")));
+        aDocs = aMgr.getAllDocuments (new TermQuery (PDField.COUNTRY_CODE.getExactMatchTerm ("NO")));
         assertEquals (1, aDocs.size ());
 
         final PDStoredDocument aSingleDoc = aDocs.get (0);
