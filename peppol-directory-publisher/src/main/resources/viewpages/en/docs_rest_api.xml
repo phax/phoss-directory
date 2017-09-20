@@ -17,5 +17,403 @@
 
 -->
 <p>
-  As soon as the REST querying API is publicly available, you will find a description here. 
+  PEPPOL Directory can be automatically queried using a public REST API.
 </p>
+
+<h2>URL handling</h2>
+<p>
+  The basic URL to query is <code>/search/1.0/<em>format</em></code> where &quot;format&quot; can be
+    one of <code>xml</code> or <code>json</code> depending on the output format needed.
+  If no format is provided, <code>xml</code> is used as the default.
+  The response Content-Type for &quot;xml&quot; is <code>application/xml</code> and for
+     &quot;json&quot; it is <code>application/json</code>.
+</p>
+<p>
+  Only <code>HTTP GET</code> requests are accepted.
+  Other HTTP verbs are rejected with HTTP status code 405.
+  Query parameters must be appended to the URL as parameters.
+</p>
+
+<h2>Request parameters</h2>
+<div class="rest">
+<p>
+ This section outlines the available request parameters and there meaning.
+ If multiple search terms are used, only results matching <strong>all</strong> request parameters
+ are returned (so it is handled like a boolean <em>AND</em> query).
+ If the combination of query parameters resulted in an empty search result,
+ an HTTP status code 200 with an empty result body is returned! 
+</p>
+
+<p>
+  <div>Name: <span class="pname">q</span></div>
+  <div>Description:
+    <span class="pdesc">
+      Generic query term.
+      It queries all fields and the results equal the ones that can be obtained when using the simple search.
+      The query term is split into pieces internally and subwords may be found.
+    </span>
+  </div>
+  <div>
+    <strong>Note:</strong>
+    This parameter can occur more than once
+  </div>
+  <div class="tryme">
+    <strong>Example:</strong> 
+    <code>/search/1.0/xml?q=Austrian+Government</code> <a>Try it</a>
+  </div>
+  <div class="tryme">
+    <strong>Example:</strong> 
+    <code>/search/1.0/json?q=Austrian+Government</code> <a>Try it</a>
+  </div>
+</p>
+
+<p>
+  <div>Name: <span class="pname">participant</span></div>
+  <div>Description:
+    <span class="pdesc">
+      Searches for exact matches in the PEPPOL participant identifier field (the identifier scheme must be part of the value).
+    </span>
+  </div>
+  <div>
+    <strong>Note:</strong>
+    This parameter can occur more than once but it makes no sense to do so, because 
+    all query parameters must match and each business card has exactly one participant identifier.
+  </div>
+  <div>
+    <strong>Note:</strong>
+    If the provided parameter value cannot be converted to a PEPPOL participant identifier
+    (as e.g. in <code>iso6523-actorid-upis::9915:test</code>) the search will return HTTP status code 400.
+  </div>
+  <div class="tryme">
+    <strong>Example:</strong>
+    <code>/search/1.0/xml?participant=iso6523-actorid-upis::9915:test</code> <a>Try it</a>
+  </div>
+  <div class="tryme">
+    <strong>Example:</strong>
+    <code>/search/1.0/json?participant=iso6523-actorid-upis::9915:test</code> <a>Try it</a>
+  </div>
+</p>
+
+<p>
+  <div>Name: <span class="pname">name</span></div>
+  <div>Description:
+    <span class="pdesc">
+      Searches for partial matches in business entity names.
+    </span>
+  </div>
+  <div>
+    <strong>Note:</strong>
+    This parameter can occur more than once.
+  </div>
+  <div>
+    <strong>Note:</strong>
+    If the provided parameter value has &le; 2 characters the search will return HTTP status code 400.
+  </div>
+  <div class="tryme">
+    <strong>Example:</strong>
+    <code>/search/1.0/xml?name=Government</code> <a>Try it</a>
+  </div>
+</p>
+
+<p>
+  <div>Name: <span class="pname">country</span></div>
+  <div>Description:
+    <span class="pdesc">
+      Searches for exact matches in business entity country codes.
+    </span>
+  </div>
+  <div>
+    <strong>Note:</strong>
+    This parameter can occur more than once but it makes no sense to do so, because 
+    all query parameters must match and each business entity has exactly one country code.
+  </div>
+  <div class="tryme">
+    <strong>Example:</strong>
+    <code>/search/1.0/xml?country=BE</code> <a>Try it</a>
+  </div>
+</p>
+
+<p>
+  <div>Name: <span class="pname">geoinfo</span></div>
+  <div>Description:
+    <span class="pdesc">
+      Searches for partial matches in the geographical information.
+    </span>
+  </div>
+  <div>
+    <strong>Note:</strong>
+    This parameter can occur more than once.
+  </div>
+  <div class="tryme">
+    <strong>Example:</strong>
+    <code>/search/1.0/xml?geoinfo=Italy</code> <a>Try it</a>
+  </div>
+</p>
+
+<p>
+  <div>Name: <span class="pname">identifierScheme</span></div>
+  <div>Description:
+    <span class="pdesc">
+      Searches for exact matches in the additional identifier schemes.
+      Combine it with <span class="pname">identifierValue</span> for fine grained search results. 
+    </span>
+  </div>
+  <div>
+    <strong>Note:</strong>
+    This parameter can not occur more than once.
+  </div>
+  <div>
+    <strong>Note:</strong>
+    This field is only used for the additional identifiers and <strong>not</strong>
+    for participant and document type identifiers!
+  </div>
+  <div class="tryme">
+    <strong>Example:</strong>
+    <code>/search/1.0/xml?identifierScheme=GLN</code> <a>Try it</a>
+  </div>
+</p>
+
+<p>
+  <div>Name: <span class="pname">identifierValue</span></div>
+  <div>Description:
+    <span class="pdesc">
+      Searches for exact matches in the additional identifier values.
+      Combine it with <span class="pname">identifierScheme</span> for fine grained search results. 
+    </span>
+  </div>
+  <div>
+    <strong>Note:</strong>
+    This parameter can not occur more than once.
+  </div>
+  <div>
+    <strong>Note:</strong>
+    This field is only used for the additional identifiers and <strong>not</strong>
+    for participant and document type identifiers!
+  </div>
+  <div class="tryme">
+    <strong>Example:</strong>
+    <code>/search/1.0/xml?identifierValue=1234567</code> <a>Try it</a>
+  </div>
+</p>
+
+</div>
+
+<h2>Response document layout</h2>
+
+<p>
+  This section defines the response document layout.
+  Special header parameters are present in all result representations and have the following semantics:
+</p>
+
+<ul>
+  <li>
+    <code>total-result-count</code> the total number of matching documents
+  </li>
+  <li>
+    <code>used-result-count</code> the number of results contained in the response.
+    This is always &le; <code>total-result-count</code> as it is based on the paging parameters used. 
+  </li>
+  <li>
+    <code>result-page-index</code> is the 0-based index of the result page.
+  </li>
+  <li>
+    <code>result-page-count</code> is the number of entities to show on a single page.
+  </li>
+  <li>
+    <code>first-result-index</code> is the effective 0-based index of the first result item
+    returned (inclusive). This is the result of <code>result-page-index * result-page-count</code>.
+  </li>
+  <li>
+    <code>last-result-index</code> is the effective 0-based index of the last result item
+    returned (inclusive). This is the result of <code>min ((result-page-index + 1) * result-page-count - 1, total-result-count - 1)</code>.
+  </li>
+  <li>
+    <code>query-terms</code> is the combined query string that was used to perform a search.
+    This is mainly for debugging purposes to cross-check which parameters took effect in searching. 
+  </li>
+</ul>
+
+<div class="alert alert-warning">
+ The above mentioned indices relate to the found Business Entities and <strong>not</strong> to
+ Business Cards! Internally each Business Entity is stored separately and they are combined 
+ on-the-fly for the result representation to avoid providing duplication data.
+</div>
+
+<h3>XML</h3>
+
+<div class="alert alert-info">
+  <p>XML responses are always encoded in <samp>UTF-8</samp>.</p>
+  <p>The response MIME type is always <code>application/xml</code>.</p>
+  <p>Responses should not be cached.</p>
+</div>
+
+<h4>Example response:</h4>
+
+<pre>
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;resultlist version="1.0"
+            total-result-count="4"
+            used-result-count="4"
+            result-page-index="0"
+            result-page-count="20"
+            first-result-index="0"
+            last-result-index="3"
+            query-terms="q=9915:test"&gt;
+  &lt;BusinessCard xmlns="http://www.peppol.eu/schema/pd/businesscard/20160112/"&gt;
+    &lt;ParticipantIdentifier scheme="iso6523-actorid-upis"&gt;9915:test&lt;/ParticipantIdentifier&gt;
+    &lt;BusinessEntity registrationDate="2012-01-01"&gt;
+      &lt;Name&gt;Austrian Government&lt;/Name&gt;
+      &lt;CountryCode&gt;AT&lt;/CountryCode&gt;
+      &lt;WebsiteURI&gt;https://test.e-rechnung.gv.at&lt;/WebsiteURI&gt;
+      &lt;AdditionalInformation&gt;This is the test endpoint for the whole Austrian Government&lt;/AdditionalInformation&gt;
+    &lt;/BusinessEntity&gt;
+    &lt;DocumentTypeID scheme="busdox-docid-qns"&gt;urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:www.cenbii.eu:transaction:biitrns010:ver2.0:extended:urn:www.peppol.eu:bis:peppol4a:ver2.0:extended:urn:www.erechnung.gv.at:ver1.0::2.1&lt;/DocumentTypeID&gt;
+    &lt;DocumentTypeID scheme="busdox-docid-qns"&gt;urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2::CreditNote##urn:www.cenbii.eu:transaction:biitrns014:ver2.0:extended:urn:www.peppol.eu:bis:peppol5a:ver2.0::2.1&lt;/DocumentTypeID&gt;
+    &lt;DocumentTypeID scheme="busdox-docid-qns"&gt;urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:www.cenbii.eu:transaction:biitrns010:ver2.0:extended:urn:www.peppol.eu:bis:peppol5a:ver2.0::2.1&lt;/DocumentTypeID&gt;
+    &lt;DocumentTypeID scheme="busdox-docid-qns"&gt;urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2::CreditNote##urn:www.cenbii.eu:transaction:biitrns014:ver2.0:extended:urn:www.peppol.eu:bis:peppol5a:ver2.0:extended:urn:www.erechnung.gv.at:ver1.0::2.1&lt;/DocumentTypeID&gt;
+    &lt;DocumentTypeID scheme="busdox-docid-qns"&gt;urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:www.cenbii.eu:transaction:biitrns010:ver2.0:extended:urn:www.peppol.eu:bis:peppol4a:ver2.0::2.1&lt;/DocumentTypeID&gt;
+    &lt;DocumentTypeID scheme="busdox-docid-qns"&gt;urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:www.cenbii.eu:transaction:biitrns010:ver2.0:extended:urn:www.peppol.eu:bis:peppol5a:ver2.0:extended:urn:www.erechnung.gv.at:ver1.0::2.1&lt;/DocumentTypeID&gt;
+  &lt;/BusinessCard&gt;
+  &lt;BusinessCard xmlns="http://www.peppol.eu/schema/pd/businesscard/20160112/"&gt;
+    &lt;ParticipantIdentifier scheme="iso6523-actorid-upis"&gt;9915:digit_test&lt;/ParticipantIdentifier&gt;
+    &lt;BusinessEntity&gt;
+      &lt;Name&gt;DG DIGIT&lt;/Name&gt;
+      &lt;CountryCode&gt;BE&lt;/CountryCode&gt;
+      &lt;GeographicalInformation&gt;Brussels Rue Belliard 28&lt;/GeographicalInformation&gt;
+    &lt;/BusinessEntity&gt;
+    &lt;BusinessEntity&gt;
+      &lt;Name&gt;Second entity name&lt;/Name&gt;
+      &lt;CountryCode&gt;AU&lt;/CountryCode&gt;
+      &lt;Identifier scheme="GLN"&gt;123454321&lt;/Identifier&gt;
+      &lt;AdditionalInformation&gt;Whatever it takes - PEPPOL Directory will index this&lt;/AdditionalInformation&gt;
+    &lt;/BusinessEntity&gt;
+    &lt;BusinessEntity&gt;
+      &lt;Name&gt;Third entity - to the rescue&lt;/Name&gt;
+      &lt;CountryCode&gt;DE&lt;/CountryCode&gt;
+      &lt;GeographicalInformation&gt;Germany, Baden-Württemberg&lt;/GeographicalInformation&gt;
+      &lt;Identifier scheme="PLZ"&gt;79110&lt;/Identifier&gt;
+      &lt;AdditionalInformation&gt;We need more German PEPPOL endpoints&lt;/AdditionalInformation&gt;
+    &lt;/BusinessEntity&gt;
+  &lt;/BusinessCard&gt;
+&lt;/resultlist&gt;
+</pre>
+
+<h3>JSON</h3>
+
+<div class="alert alert-info">
+  <p>JSON responses are always encoded in <samp>UTF-8</samp>.</p>
+  <p>The response MIME type is always <code>application/json</code>.</p>
+  <p>Responses should not be cached.</p>
+</div>
+
+<h4>Example response:</h4>
+
+<pre>
+{
+  "version":"1.0",
+  "total-result-count":4,
+  "used-result-count":4,
+  "result-page-index":0,
+  "result-page-count":20,
+  "first-result-index":0,
+  "last-result-index":3,
+  "query-terms":"q=9915:test",
+  "items":[
+    {
+      "participantID":{
+        "scheme":"iso6523-actorid-upis",
+        "value":"9915:test"
+      },
+      "docTypes":[
+        {
+          "scheme":"busdox-docid-qns",
+          "value":"urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:www.cenbii.eu:transaction:biitrns010:ver2.0:extended:urn:www.peppol.eu:bis:peppol4a:ver2.0:extended:urn:www.erechnung.gv.at:ver1.0::2.1"
+        },
+        {
+          "scheme":"busdox-docid-qns",
+          "value":"urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2::CreditNote##urn:www.cenbii.eu:transaction:biitrns014:ver2.0:extended:urn:www.peppol.eu:bis:peppol5a:ver2.0::2.1"
+        },
+        {
+          "scheme":"busdox-docid-qns",
+          "value":"urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:www.cenbii.eu:transaction:biitrns010:ver2.0:extended:urn:www.peppol.eu:bis:peppol5a:ver2.0::2.1"
+        },
+        {
+          "scheme":"busdox-docid-qns",
+          "value":"urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2::CreditNote##urn:www.cenbii.eu:transaction:biitrns014:ver2.0:extended:urn:www.peppol.eu:bis:peppol5a:ver2.0:extended:urn:www.erechnung.gv.at:ver1.0::2.1"
+        },
+        {
+          "scheme":"busdox-docid-qns",
+          "value":"urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:www.cenbii.eu:transaction:biitrns010:ver2.0:extended:urn:www.peppol.eu:bis:peppol4a:ver2.0::2.1"
+        },
+        {
+          "scheme":"busdox-docid-qns",
+          "value":"urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:www.cenbii.eu:transaction:biitrns010:ver2.0:extended:urn:www.peppol.eu:bis:peppol5a:ver2.0:extended:urn:www.erechnung.gv.at:ver1.0::2.1"
+        }
+      ],
+      "entities":[
+        {
+          "name":"Austrian Government",
+          "countryCode":"AT",
+          "geoInfo":null,
+          "identifiers":[],
+          "websites":[
+            "https://test.e-rechnung.gv.at"
+          ],
+          "contacts":[],
+          "additionalInfo":"This is the test endpoint for the whole Austrian Government",
+          "regDate":"2012-01-01"
+        }
+      ]
+    },
+    {
+      "participantID":{
+        "scheme":"iso6523-actorid-upis",
+        "value":"9915:digit_test"
+      },
+      "docTypes":[],
+      "entities":[
+        {
+          "name":"DG DIGIT",
+          "countryCode":"BE",
+          "geoInfo":"Brussels Rue Belliard 28",
+          "identifiers":[],
+          "websites":[],
+          "contacts":[],
+          "additionalInfo":null,
+          "regDate":null
+        },
+        {
+          "name":"Second entity name",
+          "countryCode":"AU",
+          "geoInfo":null,
+          "identifiers":[
+            {
+              "scheme":"GLN",
+              "value":"123454321"
+            }
+          ],
+          "websites":[],
+          "contacts":[],
+          "additionalInfo":"Whatever it takes - PEPPOL Directory will index this",
+          "regDate":null
+        },
+        {
+          "name":"Third entity - to the rescue",
+          "countryCode":"DE",
+          "geoInfo":"Germany, Baden-Württemberg",
+          "identifiers":[
+            {
+              "scheme":"PLZ",
+              "value":"79110"
+            }
+          ],
+          "websites":[],
+          "contacts":[],
+          "additionalInfo":"We need more German PEPPOL endpoints",
+          "regDate":null
+        }
+      ]
+    }
+  ]
+}
+</pre>

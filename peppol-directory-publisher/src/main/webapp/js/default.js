@@ -15,3 +15,9 @@
  * limitations under the License.
  */
 $('form').preventDoubleSubmission();
+
+// Used in REST API view page only
+$('.tryme').each (function(){
+  var sHref = $(this).find ('code').eq (0).text () + '&demo=true';
+  $(this).find ('a').eq (0).attr ('target', '_blank').attr ('href', sHref);
+});
