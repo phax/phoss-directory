@@ -299,7 +299,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
           aDoc.add (RESPONSE_CREATION_DT, PDTWebDateHelper.getAsStringXSD (aNow));
 
           final IJsonArray aItems = new JsonArray ();
-          aDoc.add ("items", aItems);
+          aDoc.add ("entities", aItems);
           for (final ICommonsList <PDStoredDocument> aPerParticipant : aGroupedDocs.values ())
           {
             final IJsonObject aItem = PDStoredDocument.getAsSearchResultJsonObject (aPerParticipant);
