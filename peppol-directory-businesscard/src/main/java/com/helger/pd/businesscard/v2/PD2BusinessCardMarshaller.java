@@ -25,6 +25,7 @@ import com.helger.commons.annotation.CodingStyleguideUnaware;
 import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.io.resource.ClassPathResource;
 import com.helger.jaxb.GenericJAXBMarshaller;
+import com.helger.pd.businesscard.v1.PD1APIHelper;
 import com.helger.pd.businesscard.v1.PD1BusinessCardType;
 import com.helger.pd.businesscard.v1.PD1BusinessEntityType;
 import com.helger.pd.businesscard.v1.PD1IdentifierType;
@@ -63,10 +64,7 @@ public class PD2BusinessCardMarshaller extends GenericJAXBMarshaller <PD2Busines
   @Nonnull
   private static PD1IdentifierType _getAsID1 (@Nonnull final PD2IdentifierType aID2)
   {
-    final PD1IdentifierType aID1 = new PD1IdentifierType ();
-    aID1.setScheme (aID2.getScheme ());
-    aID1.setValue (aID2.getValue ());
-    return aID1;
+    return PD1APIHelper.createIdentifier (aID2.getScheme (), aID2.getValue ());
   }
 
   /**
