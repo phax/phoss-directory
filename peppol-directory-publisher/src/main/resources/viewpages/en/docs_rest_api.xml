@@ -113,6 +113,10 @@
     <strong>Example:</strong>
     <code>/search/1.0/xml?name=Government</code> <a>Try it</a>
   </div>
+  <div class="tryme">
+    <strong>Example:</strong>
+    <code>/search/1.0/json?name=Government</code> <a>Try it</a>
+  </div>
 </p>
 
 <p>
@@ -131,6 +135,10 @@
     <strong>Example:</strong>
     <code>/search/1.0/xml?country=BE</code> <a>Try it</a>
   </div>
+  <div class="tryme">
+    <strong>Example:</strong>
+    <code>/search/1.0/json?country=BE</code> <a>Try it</a>
+  </div>
 </p>
 
 <p>
@@ -147,6 +155,10 @@
   <div class="tryme">
     <strong>Example:</strong>
     <code>/search/1.0/xml?geoinfo=Italy</code> <a>Try it</a>
+  </div>
+  <div class="tryme">
+    <strong>Example:</strong>
+    <code>/search/1.0/json?geoinfo=Italy</code> <a>Try it</a>
   </div>
 </p>
 
@@ -171,6 +183,10 @@
     <strong>Example:</strong>
     <code>/search/1.0/xml?identifierScheme=GLN</code> <a>Try it</a>
   </div>
+  <div class="tryme">
+    <strong>Example:</strong>
+    <code>/search/1.0/json?identifierScheme=GLN</code> <a>Try it</a>
+  </div>
 </p>
 
 <p>
@@ -193,6 +209,10 @@
   <div class="tryme">
     <strong>Example:</strong>
     <code>/search/1.0/xml?identifierValue=1234567</code> <a>Try it</a>
+  </div>
+  <div class="tryme">
+    <strong>Example:</strong>
+    <code>/search/1.0/json?identifierValue=1234567</code> <a>Try it</a>
   </div>
 </p>
 
@@ -231,6 +251,10 @@
     <code>query-terms</code> is the combined query string that was used to perform a search.
     This is mainly for debugging purposes to cross-check which parameters took effect in searching. 
   </li>
+  <li>
+    <code>creation-dt</code> the UTC date and time when this response was created.
+    It is formatted according to XML Schema (XSD) rules.
+  </li>
 </ul>
 
 <div class="alert alert-warning">
@@ -258,7 +282,8 @@
             result-page-count="20"
             first-result-index="0"
             last-result-index="3"
-            query-terms="q=9915:test"&gt;
+            query-terms="q=9915:test
+            creation-dt="2017-09-20T17:13:30.078Z"&gt;
   &lt;BusinessCard xmlns="http://www.peppol.eu/schema/pd/businesscard/20160112/"&gt;
     &lt;ParticipantIdentifier scheme="iso6523-actorid-upis"&gt;9915:test&lt;/ParticipantIdentifier&gt;
     &lt;BusinessEntity registrationDate="2012-01-01"&gt;
@@ -318,6 +343,7 @@
   "first-result-index":0,
   "last-result-index":3,
   "query-terms":"q=9915:test",
+  "creation-dt":"2017-09-20T17:13:30.078Z",
   "items":[
     {
       "participantID":{

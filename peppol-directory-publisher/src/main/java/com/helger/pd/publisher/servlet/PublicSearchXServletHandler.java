@@ -17,6 +17,7 @@
 package com.helger.pd.publisher.servlet;
 
 import java.nio.charset.StandardCharsets;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,8 @@ import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.CommonsHashMap;
 import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.collection.impl.ICommonsMap;
+import com.helger.commons.datetime.PDTFactory;
+import com.helger.commons.datetime.PDTWebDateHelper;
 import com.helger.commons.string.StringHelper;
 import com.helger.json.IJsonArray;
 import com.helger.json.IJsonObject;
@@ -82,6 +85,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
   private static final String RESPONSE_FIRST_RESULT_INDEX = "first-result-index";
   private static final String RESPONSE_LAST_RESULT_INDEX = "last-result-index";
   private static final String RESPONSE_QUERY_TERMS = "query-terms";
+  private static final String RESPONSE_CREATION_DT = "creation-dt";
 
   private static final Logger s_aLogger = LoggerFactory.getLogger (PublicSearchXServletHandler.class);
 
@@ -250,6 +254,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
 
       // Group by participant ID
       final IMultiMapListBased <IParticipantIdentifier, PDStoredDocument> aGroupedDocs = PDStorageManager.getGroupedByParticipantID (aResultDocs);
+      final ZonedDateTime aNow = PDTFactory.getCurrentZonedDateTimeUTC ();
 
       // build result
       switch (eOutputFormat)
@@ -267,6 +272,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
           eRoot.setAttribute (RESPONSE_FIRST_RESULT_INDEX, nFirstResultIndex);
           eRoot.setAttribute (RESPONSE_LAST_RESULT_INDEX, nEffectiveLastIndex);
           eRoot.setAttribute (RESPONSE_QUERY_TERMS, aSBQueryString.toString ());
+          eRoot.setAttribute (RESPONSE_CREATION_DT, PDTWebDateHelper.getAsStringXSD (aNow));
 
           for (final ICommonsList <PDStoredDocument> aPerParticipant : aGroupedDocs.values ())
           {
@@ -290,6 +296,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
           aDoc.add (RESPONSE_FIRST_RESULT_INDEX, nFirstResultIndex);
           aDoc.add (RESPONSE_LAST_RESULT_INDEX, nEffectiveLastIndex);
           aDoc.add (RESPONSE_QUERY_TERMS, aSBQueryString.toString ());
+          aDoc.add (RESPONSE_CREATION_DT, PDTWebDateHelper.getAsStringXSD (aNow));
 
           final IJsonArray aItems = new JsonArray ();
           aDoc.add ("items", aItems);
