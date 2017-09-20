@@ -327,7 +327,8 @@ public final class PDQueryManager
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
 
     final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
-    final IDocumentTypeIdentifier aDTI = aIdentifierFactory.parseDocumentTypeIdentifier (_lowerCase (sQueryString));
+    // No casing here!
+    final IDocumentTypeIdentifier aDTI = aIdentifierFactory.parseDocumentTypeIdentifier (sQueryString);
     if (aDTI == null)
     {
       s_aLogger.warn ("Failed to convert '" + sQueryString + "' to document type ID!");
