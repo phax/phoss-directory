@@ -147,3 +147,17 @@ div.result-doc ul li{
 .result-panel .form-group table {
   margin-bottom: 0;
 }
+
+.rest .pname {
+  font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+  font-weight: bold;
+  background-color: #ddd;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.rest .pdesc {
+  background-color: #ddd;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
