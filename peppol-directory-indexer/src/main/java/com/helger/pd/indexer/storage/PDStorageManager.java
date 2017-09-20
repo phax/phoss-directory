@@ -18,6 +18,7 @@ package com.helger.pd.indexer.storage;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Consumer;
 import java.util.function.ObjIntConsumer;
 
@@ -230,8 +231,10 @@ public final class PDStorageManager implements IPDStorageManager
 
         if (aBusinessEntity.getCountryCode () != null)
         {
-          aDoc.add (PDField.COUNTRY_CODE.getAsField (aBusinessEntity.getCountryCode ()));
-          aSBAllFields.append (aBusinessEntity.getCountryCode ()).append (' ');
+          // Index all country codes in upper case (since 2017-09-20)
+          final String sCountryCode = aBusinessEntity.getCountryCode ().toUpperCase (Locale.US);
+          aDoc.add (PDField.COUNTRY_CODE.getAsField (sCountryCode));
+          aSBAllFields.append (sCountryCode).append (' ');
         }
 
         // Add all document types to all documents
