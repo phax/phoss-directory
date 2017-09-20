@@ -16,12 +16,15 @@
  */
 package com.helger.pd.indexer.storage;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 import com.helger.commons.equals.EqualsHelper;
 import com.helger.commons.hashcode.HashCodeGenerator;
 import com.helger.commons.string.ToStringGenerator;
+import com.helger.pd.businesscard.v1.PD1APIHelper;
+import com.helger.pd.businesscard.v1.PD1ContactType;
 
 /**
  * This class represents a single business contact as stored by Lucene
@@ -70,6 +73,12 @@ public final class PDStoredContact
   public String getEmail ()
   {
     return m_sEmail;
+  }
+
+  @Nonnull
+  public PD1ContactType getAsJAXBObject ()
+  {
+    return PD1APIHelper.createContact (m_sType, m_sName, m_sPhone, m_sEmail);
   }
 
   @Override

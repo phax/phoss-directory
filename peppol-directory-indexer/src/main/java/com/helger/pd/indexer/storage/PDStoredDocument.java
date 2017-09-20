@@ -35,15 +35,23 @@ import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.datetime.PDTWebDateHelper;
 import com.helger.commons.string.StringHelper;
 import com.helger.commons.string.ToStringGenerator;
+import com.helger.json.IJsonObject;
+import com.helger.json.JsonArray;
+import com.helger.json.JsonObject;
+import com.helger.pd.businesscard.v1.PD1APIHelper;
+import com.helger.pd.businesscard.v1.PD1BusinessCardMarshaller;
+import com.helger.pd.businesscard.v1.PD1BusinessCardType;
+import com.helger.pd.businesscard.v1.PD1BusinessEntityType;
 import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
+import com.helger.xml.microdom.IMicroElement;
 
 /**
  * This class represents a document stored in the Lucene index but with a nicer
  * API to not work on a field basis. It contains the data at a certain point of
  * time and this might not necessarily be the most current data. Modifications
  * to this object have no impact on the underlying Lucene document. This is a
- * like a temporary "view" on a Lucen document at a single point of time.
+ * like a temporary "view" on a Lucene document at a single point of time.
  *
  * @author Philip Helger
  */
@@ -297,6 +305,107 @@ public class PDStoredDocument
   public boolean isDeleted ()
   {
     return m_bDeleted;
+  }
+
+  /**
+   * @return Parts of this {@link PDStoredDocument} as a
+   *         {@link PD1BusinessEntityType}.
+   */
+  @Nonnull
+  public PD1BusinessEntityType getAsBusinessEntity ()
+  {
+    // We have a single entity
+    final PD1BusinessEntityType ret = new PD1BusinessEntityType ();
+    ret.setName (m_sName);
+    ret.setCountryCode (m_sCountryCode);
+    ret.setGeographicalInformation (m_sGeoInfo);
+    for (final PDStoredIdentifier aID : m_aIdentifiers)
+      ret.addIdentifier (aID.getAsJAXBObject ());
+    for (final String sWebsite : m_aWebsiteURIs)
+      ret.addWebsiteURI (sWebsite);
+    for (final PDStoredContact aContact : m_aContacts)
+      ret.addContact (aContact.getAsJAXBObject ());
+    ret.setAdditionalInformation (m_sAdditionalInformation);
+    ret.setRegistrationDate (m_aRegistrationDate);
+    return ret;
+  }
+
+  /**
+   * @return This {@link PDStoredDocument} as a {@link PD1BusinessCardType}.
+   */
+  @Nonnull
+  public PD1BusinessCardType getAsBusinessCard ()
+  {
+    final PD1BusinessCardType ret = new PD1BusinessCardType ();
+    ret.setParticipantIdentifier (PD1APIHelper.createIdentifier (m_aParticipantID.getScheme (),
+                                                                 m_aParticipantID.getValue ()));
+    // We have a single entity
+    ret.addBusinessEntity (getAsBusinessEntity ());
+    return ret;
+  }
+
+  @Nonnull
+  public IMicroElement getAsMicroElement ()
+  {
+    // Hard-core ;-)
+    final IMicroElement ret = new PD1BusinessCardMarshaller ().getAsMicroElement (getAsBusinessCard ());
+
+    // Add the items retrieved from SMP as well
+    for (final IDocumentTypeIdentifier aDocTypeID : m_aDocumentTypeIDs)
+    {
+      ret.appendElement ("DocumentTypeID")
+         .setAttribute ("scheme", aDocTypeID.getScheme ())
+         .appendText (aDocTypeID.getValue ());
+    }
+
+    // Usually only non-deleted elements are returned, so don't give an
+    // indicator to the outside
+    if (m_bDeleted)
+      ret.setAttribute ("deleted", true);
+    return ret;
+  }
+
+  @Nonnull
+  public IJsonObject getAsJsonObject ()
+  {
+    final IJsonObject ret = new JsonObject ();
+    ret.add ("participantID", new JsonArray ().add (m_aParticipantID.getScheme ()).add (m_aParticipantID.getValue ()));
+    ret.add ("name", m_sName);
+    ret.add ("countryCode", m_sCountryCode);
+    ret.add ("geoInfo", m_sGeoInfo);
+
+    final JsonArray aIDs = new JsonArray ();
+    for (final PDStoredIdentifier aID : m_aIdentifiers)
+      aIDs.add (new JsonArray ().add (aID.getScheme ()).add (aID.getValue ()));
+    ret.add ("identifiers", aIDs);
+
+    final JsonArray aWebsites = new JsonArray ();
+    for (final String sWebsite : m_aWebsiteURIs)
+      aWebsites.add (sWebsite);
+    ret.add ("websites", aIDs);
+
+    final JsonArray aContacts = new JsonArray ();
+    for (final PDStoredContact aContact : m_aContacts)
+      aContacts.add (new JsonObject ().addIfNotNull ("type", aContact.getType ())
+                                      .addIfNotNull ("name", aContact.getName ())
+                                      .addIfNotNull ("phone", aContact.getPhone ())
+                                      .addIfNotNull ("email", aContact.getEmail ()));
+    ret.add ("contacts", aContacts);
+
+    ret.add ("additionalInfo", m_sAdditionalInformation);
+    ret.add ("regDate", m_aRegistrationDate);
+
+    // Add the items retrieved from SMP as well
+    final JsonArray aDocTypes = new JsonArray ();
+    for (final IDocumentTypeIdentifier aDocTypeID : m_aDocumentTypeIDs)
+      aDocTypes.add (new JsonArray ().add (aDocTypeID.getScheme ()).add (aDocTypeID.getValue ()));
+    ret.add ("docTypes", aDocTypes);
+
+    // Usually only non-deleted elements are returned, so don't give an
+    // indicator to the outside
+    if (m_bDeleted)
+      ret.add ("deleted", true);
+    return ret;
   }
 
   @Override

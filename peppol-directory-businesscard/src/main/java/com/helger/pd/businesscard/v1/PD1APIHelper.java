@@ -39,4 +39,18 @@ public final class PD1APIHelper
     ret.setValue (sValue);
     return ret;
   }
+
+  @Nonnull
+  public static PD1ContactType createContact (@Nullable final String sType,
+                                              @Nullable final String sName,
+                                              @Nullable final String sPhoneNumber,
+                                              @Nullable final String sEmail)
+  {
+    final PD1ContactType ret = new PD1ContactType ();
+    ret.setType (sType);
+    ret.setName (sName);
+    ret.setPhoneNumber (sPhoneNumber);
+    ret.setEmail (sEmail);
+    return ret;
+  }
 }
