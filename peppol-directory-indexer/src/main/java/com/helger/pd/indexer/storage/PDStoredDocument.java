@@ -35,6 +35,7 @@ import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.datetime.PDTWebDateHelper;
 import com.helger.commons.string.StringHelper;
 import com.helger.commons.string.ToStringGenerator;
+import com.helger.json.IJson;
 import com.helger.json.IJsonObject;
 import com.helger.json.JsonArray;
 import com.helger.json.JsonObject;
@@ -353,7 +354,7 @@ public class PDStoredDocument
     // Add the items retrieved from SMP as well
     for (final IDocumentTypeIdentifier aDocTypeID : m_aDocumentTypeIDs)
     {
-      ret.appendElement ("DocumentTypeID")
+      ret.appendElement (ret.getNamespaceURI (), "DocumentTypeID")
          .setAttribute ("scheme", aDocTypeID.getScheme ())
          .appendText (aDocTypeID.getValue ());
     }
@@ -366,23 +367,30 @@ public class PDStoredDocument
   }
 
   @Nonnull
+  private static IJson _getIDAsJson (@Nullable final String sScheme, @Nullable final String sValue)
+  {
+    return new JsonObject ().add ("scheme", sScheme).add ("value", sValue);
+  }
+
+  @Nonnull
   public IJsonObject getAsJsonObject ()
   {
     final IJsonObject ret = new JsonObject ();
-    ret.add ("participantID", new JsonArray ().add (m_aParticipantID.getScheme ()).add (m_aParticipantID.getValue ()));
+    ret.add ("participantID", _getIDAsJson (m_aParticipantID.getScheme (), m_aParticipantID.getValue ()));
+
     ret.add ("name", m_sName);
     ret.add ("countryCode", m_sCountryCode);
     ret.add ("geoInfo", m_sGeoInfo);
 
     final JsonArray aIDs = new JsonArray ();
     for (final PDStoredIdentifier aID : m_aIdentifiers)
-      aIDs.add (new JsonArray ().add (aID.getScheme ()).add (aID.getValue ()));
+      aIDs.add (_getIDAsJson (aID.getScheme (), aID.getValue ()));
     ret.add ("identifiers", aIDs);
 
     final JsonArray aWebsites = new JsonArray ();
     for (final String sWebsite : m_aWebsiteURIs)
       aWebsites.add (sWebsite);
-    ret.add ("websites", aIDs);
+    ret.add ("websites", aWebsites);
 
     final JsonArray aContacts = new JsonArray ();
     for (final PDStoredContact aContact : m_aContacts)
@@ -398,7 +406,7 @@ public class PDStoredDocument
     // Add the items retrieved from SMP as well
     final JsonArray aDocTypes = new JsonArray ();
     for (final IDocumentTypeIdentifier aDocTypeID : m_aDocumentTypeIDs)
-      aDocTypes.add (new JsonArray ().add (aDocTypeID.getScheme ()).add (aDocTypeID.getValue ()));
+      aDocTypes.add (_getIDAsJson (aDocTypeID.getScheme (), aDocTypeID.getValue ()));
     ret.add ("docTypes", aDocTypes);
 
     // Usually only non-deleted elements are returned, so don't give an
