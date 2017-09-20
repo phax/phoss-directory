@@ -44,9 +44,11 @@ public final class PDField
   public static final PDStringField <String> GEO_INFO = PDStringField.createString ("geoinfo",
                                                                                     Field.Store.YES,
                                                                                     EPDStringFieldTokenize.TOKENIZE);
+  // Legacy name
   public static final PDStringField <String> IDENTIFIER_SCHEME = PDStringField.createString ("identifiertype",
                                                                                              Field.Store.YES,
                                                                                              EPDStringFieldTokenize.TOKENIZE);
+  // Legacy name
   public static final PDStringField <String> IDENTIFIER_VALUE = PDStringField.createString ("identifier",
                                                                                             Field.Store.YES,
                                                                                             EPDStringFieldTokenize.TOKENIZE);
@@ -65,6 +67,7 @@ public final class PDField
   public static final PDStringField <String> CONTACT_EMAIL = PDStringField.createString ("bc-email",
                                                                                          Field.Store.YES,
                                                                                          EPDStringFieldTokenize.TOKENIZE);
+  // Legacy name
   public static final PDStringField <String> ADDITIONAL_INFO = PDStringField.createString ("freetext",
                                                                                            Field.Store.YES,
                                                                                            EPDStringFieldTokenize.TOKENIZE);

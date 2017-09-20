@@ -179,9 +179,16 @@ public final class PDQueryManager
     return andNotDeleted (aQuery);
   }
 
+  @Nonnull
   private static String _lowerCase (@Nonnull final String s)
   {
     return s.toLowerCase (Locale.US);
+  }
+
+  @Nonnull
+  private static String _upperCase (@Nonnull final String s)
+  {
+    return s.toUpperCase (Locale.US);
   }
 
   @Nullable
@@ -224,7 +231,7 @@ public final class PDQueryManager
     ValueEnforcer.notEmpty (sQueryString, "QueryString");
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
 
-    final Query aQuery = new TermQuery (PDField.COUNTRY_CODE.getExactMatchTerm (_lowerCase (sQueryString)));
+    final Query aQuery = new TermQuery (PDField.COUNTRY_CODE.getExactMatchTerm (_upperCase (sQueryString)));
     return andNotDeleted (aQuery);
   }
 
@@ -239,12 +246,22 @@ public final class PDQueryManager
   }
 
   @Nullable
+  public static Query getIdentifierSchemeLuceneQuery (@Nonnull @Nonempty final String sQueryString)
+  {
+    ValueEnforcer.notEmpty (sQueryString, "QueryString");
+    ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
+
+    final Query aQuery = new TermQuery (PDField.IDENTIFIER_SCHEME.getExactMatchTerm (_lowerCase (sQueryString)));
+    return andNotDeleted (aQuery);
+  }
+
+  @Nullable
   public static Query getIdentifierValueLuceneQuery (@Nonnull @Nonempty final String sQueryString)
   {
     ValueEnforcer.notEmpty (sQueryString, "QueryString");
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
 
-    final Query aQuery = new WildcardQuery (PDField.IDENTIFIER_VALUE.getExactMatchTerm (_lowerCase (sQueryString)));
+    final Query aQuery = new TermQuery (PDField.IDENTIFIER_VALUE.getExactMatchTerm (_lowerCase (sQueryString)));
     return andNotDeleted (aQuery);
   }
 
