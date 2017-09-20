@@ -31,6 +31,7 @@ import org.apache.lucene.search.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.helger.collection.multimap.IMultiMapListBased;
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.collection.ArrayHelper;
 import com.helger.commons.collection.impl.CommonsArrayList;
@@ -44,9 +45,11 @@ import com.helger.json.JsonArray;
 import com.helger.json.JsonObject;
 import com.helger.json.serialize.JsonWriterSettings;
 import com.helger.pd.indexer.mgr.PDMetaManager;
+import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.pd.indexer.storage.PDStoredDocument;
 import com.helger.pd.publisher.search.EPDOutputFormat;
 import com.helger.pd.publisher.search.EPDSearchField;
+import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.servlet.response.UnifiedResponse;
 import com.helger.web.scope.IRequestParamContainer;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
@@ -65,6 +68,12 @@ import com.helger.xservlet.handler.simple.IXServletSimpleHandler;
  */
 public final class PublicSearchXServletHandler implements IXServletSimpleHandler
 {
+  public static final String PARAM_RESULT_PAGE_INDEX = "resultPageIndex";
+  public static final String PARAM_RESULT_PAGE_COUNT = "resultPageCount";
+  public static final int DEFAULT_RESULT_PAGE_INDEX = 0;
+  public static final int DEFAULT_RESULT_PAGE_COUNT = 20;
+  public static final int MAX_RESULTS = 1_000;
+
   private static final String RESPONSE_VERSION = "version";
   private static final String RESPONSE_TOTAL_RESULT_COUNT = "total-result-count";
   private static final String RESPONSE_USED_RESULT_COUNT = "used-result-count";
@@ -72,11 +81,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
   private static final String RESPONSE_RESULT_PAGE_COUNT = "result-page-count";
   private static final String RESPONSE_FIRST_RESULT_INDEX = "first-result-index";
   private static final String RESPONSE_LAST_RESULT_INDEX = "last-result-index";
-  public static final String PARAM_RESULT_PAGE_INDEX = "resultPageIndex";
-  public static final String PARAM_RESULT_PAGE_COUNT = "resultPageCount";
-  public static final int DEFAULT_RESULT_PAGE_INDEX = 0;
-  public static final int DEFAULT_RESULT_PAGE_COUNT = 20;
-  public static final int MAX_RESULTS = 1_000;
+  private static final String RESPONSE_QUERY_TERMS = "query-terms";
 
   private static final Logger s_aLogger = LoggerFactory.getLogger (PublicSearchXServletHandler.class);
 
@@ -168,12 +173,22 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
       }
 
       // Determine query terms
+      final StringBuilder aSBQueryString = new StringBuilder ();
       final ICommonsMap <EPDSearchField, ICommonsList <String>> aQueryValues = new CommonsHashMap <> ();
       for (final EPDSearchField eSF : EPDSearchField.values ())
       {
-        final ICommonsList <String> aValues = aParams.getAsStringList (eSF.getFieldName ());
-        if (aValues != null)
+        final String sFieldName = eSF.getFieldName ();
+        final ICommonsList <String> aValues = aParams.getAsStringList (sFieldName);
+        if (aValues != null && aValues.isNotEmpty ())
+        {
           aQueryValues.put (eSF, aValues);
+          for (final String sValue : aValues)
+          {
+            if (aSBQueryString.length () > 0)
+              aSBQueryString.append ('&');
+            aSBQueryString.append (sFieldName).append ('=').append (sValue);
+          }
+        }
       }
       if (aQueryValues.isEmpty ())
       {
@@ -234,6 +249,9 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
                                                                                                                   nEffectiveLastIndex +
                                                                                                                                      1);
 
+      // Group by participant ID
+      final IMultiMapListBased <IParticipantIdentifier, PDStoredDocument> aGroupedDocs = PDStorageManager.getGroupedByParticipantID (aResultDocs);
+
       // build result
       switch (eOutputFormat)
       {
@@ -249,10 +267,11 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
           eRoot.setAttribute (RESPONSE_RESULT_PAGE_COUNT, nResultPageCount);
           eRoot.setAttribute (RESPONSE_FIRST_RESULT_INDEX, nFirstResultIndex);
           eRoot.setAttribute (RESPONSE_LAST_RESULT_INDEX, nEffectiveLastIndex);
+          eRoot.setAttribute (RESPONSE_QUERY_TERMS, aSBQueryString.toString ());
 
-          for (final PDStoredDocument aResultDoc : aResultView)
+          for (final ICommonsList <PDStoredDocument> aPerParticipant : aGroupedDocs.values ())
           {
-            final IMicroElement eItem = aResultDoc.getAsMicroElement ();
+            final IMicroElement eItem = PDStoredDocument.getAsSearchResultMicroElement (aPerParticipant);
             eRoot.appendChild (eItem);
           }
 
@@ -271,12 +290,13 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
           aDoc.add (RESPONSE_RESULT_PAGE_COUNT, nResultPageCount);
           aDoc.add (RESPONSE_FIRST_RESULT_INDEX, nFirstResultIndex);
           aDoc.add (RESPONSE_LAST_RESULT_INDEX, nEffectiveLastIndex);
+          aDoc.add (RESPONSE_QUERY_TERMS, aSBQueryString.toString ());
 
           final IJsonArray aItems = new JsonArray ();
           aDoc.add ("items", aItems);
-          for (final PDStoredDocument aResultDoc : aResultView)
+          for (final ICommonsList <PDStoredDocument> aPerParticipant : aGroupedDocs.values ())
           {
-            final IJsonObject aItem = aResultDoc.getAsJsonObject ();
+            final IJsonObject aItem = PDStoredDocument.getAsSearchResultJsonObject (aPerParticipant);
             aItems.add (aItem);
           }
 

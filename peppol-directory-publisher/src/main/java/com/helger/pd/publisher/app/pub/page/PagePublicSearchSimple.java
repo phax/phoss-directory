@@ -125,17 +125,16 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     final HCNodeList aNodeList = aWPEC.getNodeList ();
     final Locale aDisplayLocale = aWPEC.getDisplayLocale ();
 
-    s_aLogger.info ("Searching for '" + sQuery + "'");
+    // Search all documents
+    s_aLogger.info ("Searching generically for '" + sQuery + "'");
 
     // Build Lucene query
     final Query aLuceneQuery = PDQueryManager.convertQueryStringToLuceneQuery (PDMetaManager.getLucene (), sQuery);
-
     if (s_aLogger.isDebugEnabled ())
       s_aLogger.debug ("Created query for '" + sQuery + "' is <" + aLuceneQuery + ">");
 
     // Search all documents
     final ICommonsList <PDStoredDocument> aResultDocs = PDMetaManager.getStorageMgr ().getAllDocuments (aLuceneQuery);
-
     s_aLogger.info ("  Result for <" +
                     aLuceneQuery +
                     "> " +

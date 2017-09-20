@@ -26,11 +26,13 @@ import java.util.List;
 
 import javax.annotation.Nonnull;
 
+import org.apache.lucene.search.TermQuery;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 
 import com.helger.commons.collection.CollectionHelper;
+import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.datetime.PDTFactory;
 import com.helger.pd.businesscard.PDExtendedBusinessCard;
 import com.helger.pd.businesscard.v1.PD1APIHelper;
@@ -39,6 +41,7 @@ import com.helger.pd.businesscard.v1.PD1BusinessEntityType;
 import com.helger.pd.indexer.PDIndexerTestRule;
 import com.helger.pd.indexer.lucene.PDLucene;
 import com.helger.pd.indexer.mgr.PDMetaManager;
+import com.helger.pd.indexer.storage.field.PDField;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.peppol.identifier.peppol.PeppolIdentifierHelper;
 import com.helger.peppol.identifier.peppol.doctype.EPredefinedDocumentTypeIdentifier;
@@ -155,11 +158,11 @@ public final class PDStorageManagerTest
       try
       {
         // No country - no fields
-        List <PDStoredDocument> aDocs = aMgr.getAllDocumentsOfCountryCode ("");
+        ICommonsList <PDStoredDocument> aDocs = aMgr.getAllDocuments (new TermQuery (PDField.COUNTRY_CODE.getTerm ("")));
         assertEquals (0, aDocs.size ());
 
         // Search for NO
-        aDocs = aMgr.getAllDocumentsOfCountryCode ("NO");
+        aDocs = aMgr.getAllDocuments (new TermQuery (PDField.COUNTRY_CODE.getTerm ("NO")));
         assertEquals (1, aDocs.size ());
 
         final PDStoredDocument aSingleDoc = aDocs.get (0);

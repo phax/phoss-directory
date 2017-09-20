@@ -66,6 +66,7 @@ import com.helger.pd.businesscard.v1.PD1IdentifierType;
 import com.helger.pd.indexer.lucene.AllDocumentsCollector;
 import com.helger.pd.indexer.lucene.PDLucene;
 import com.helger.pd.indexer.mgr.IPDStorageManager;
+import com.helger.pd.indexer.storage.field.PDField;
 import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.photon.basic.audit.AuditHelper;
@@ -163,7 +164,7 @@ public final class PDStorageManager implements IPDStorageManager
     ValueEnforcer.notNull (aMetaData, "MetaData");
 
     return m_aLucene.runAtomic ( () -> {
-      final ICommonsList <Document> aDocuments = new CommonsArrayList<> ();
+      final ICommonsList <Document> aDocuments = new CommonsArrayList <> ();
 
       // Get all documents to be marked as deleted
       final IndexSearcher aSearcher = m_aLucene.getSearcher ();
@@ -204,7 +205,7 @@ public final class PDStorageManager implements IPDStorageManager
     ValueEnforcer.notNull (aMetaData, "MetaData");
 
     return m_aLucene.runAtomic ( () -> {
-      final ICommonsList <Document> aDocs = new CommonsArrayList<> ();
+      final ICommonsList <Document> aDocs = new CommonsArrayList <> ();
 
       final PD1BusinessCardType aBI = aExtBI.getBusinessCard ();
       for (final PD1BusinessEntityType aBusinessEntity : aBI.getBusinessEntity ())
@@ -388,10 +389,10 @@ public final class PDStorageManager implements IPDStorageManager
   @ReturnsMutableCopy
   public ICommonsList <PDStoredDocument> getAllDocuments (@Nonnull final Query aQuery)
   {
-    final ICommonsList <PDStoredDocument> aTargetList = new CommonsArrayList<> ();
+    final ICommonsList <PDStoredDocument> aTargetList = new CommonsArrayList <> ();
     try
     {
-      searchAllDocuments (aQuery, aDoc -> aTargetList.add (aDoc));
+      searchAllDocuments (aQuery, aTargetList::add);
     }
     catch (final IOException ex)
     {
@@ -407,25 +408,11 @@ public final class PDStorageManager implements IPDStorageManager
     return getAllDocuments (new TermQuery (PDField.PARTICIPANT_ID.getTerm (aParticipantID)));
   }
 
-  /**
-   * Get all documents matching the passed country code
-   *
-   * @param sCountryCode
-   *        Country code to search. May not be <code>null</code>.
-   * @return Non-<code>null</code> but maybe empty list of documents
-   */
-  @Nonnull
-  public ICommonsList <PDStoredDocument> getAllDocumentsOfCountryCode (@Nonnull final String sCountryCode)
-  {
-    ValueEnforcer.notNull (sCountryCode, "CountryCode");
-    return getAllDocuments (new TermQuery (PDField.COUNTRY_CODE.getTerm (sCountryCode)));
-  }
-
   @Nonnull
   @ReturnsMutableCopy
   public ICommonsSortedSet <IParticipantIdentifier> getAllContainedParticipantIDs ()
   {
-    final ICommonsSortedSet <IParticipantIdentifier> aTargetSet = new CommonsTreeSet<> ();
+    final ICommonsSortedSet <IParticipantIdentifier> aTargetSet = new CommonsTreeSet <> ();
     final Query aQuery = PDQueryManager.andNotDeleted (new MatchAllDocsQuery ());
     try
     {
@@ -453,7 +440,7 @@ public final class PDStorageManager implements IPDStorageManager
   @ReturnsMutableCopy
   public static IMultiMapListBased <IParticipantIdentifier, PDStoredDocument> getGroupedByParticipantID (@Nonnull final List <PDStoredDocument> aDocs)
   {
-    final MultiLinkedHashMapArrayListBased <IParticipantIdentifier, PDStoredDocument> ret = new MultiLinkedHashMapArrayListBased<> ();
+    final MultiLinkedHashMapArrayListBased <IParticipantIdentifier, PDStoredDocument> ret = new MultiLinkedHashMapArrayListBased <> ();
     for (final PDStoredDocument aDoc : aDocs)
       ret.putSingle (aDoc.getParticipantID (), aDoc);
     return ret;

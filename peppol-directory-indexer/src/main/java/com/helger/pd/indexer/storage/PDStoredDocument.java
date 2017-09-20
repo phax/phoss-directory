@@ -36,6 +36,7 @@ import com.helger.commons.datetime.PDTWebDateHelper;
 import com.helger.commons.string.StringHelper;
 import com.helger.commons.string.ToStringGenerator;
 import com.helger.json.IJson;
+import com.helger.json.IJsonArray;
 import com.helger.json.IJsonObject;
 import com.helger.json.JsonArray;
 import com.helger.json.JsonObject;
@@ -43,6 +44,7 @@ import com.helger.pd.businesscard.v1.PD1APIHelper;
 import com.helger.pd.businesscard.v1.PD1BusinessCardMarshaller;
 import com.helger.pd.businesscard.v1.PD1BusinessCardType;
 import com.helger.pd.businesscard.v1.PD1BusinessEntityType;
+import com.helger.pd.indexer.storage.field.PDField;
 import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.xml.microdom.IMicroElement;
@@ -346,23 +348,30 @@ public class PDStoredDocument
   }
 
   @Nonnull
-  public IMicroElement getAsMicroElement ()
+  public static IMicroElement getAsSearchResultMicroElement (@Nonnull @Nonempty final ICommonsList <PDStoredDocument> aDocs)
   {
-    // Hard-core ;-)
-    final IMicroElement ret = new PD1BusinessCardMarshaller ().getAsMicroElement (getAsBusinessCard ());
+    ValueEnforcer.notEmptyNoNullValue (aDocs, "Docs");
 
-    // Add the items retrieved from SMP as well
-    for (final IDocumentTypeIdentifier aDocTypeID : m_aDocumentTypeIDs)
+    final PDStoredDocument aFirst = aDocs.getFirst ();
+
+    final PD1BusinessCardType aBC = new PD1BusinessCardType ();
+    aBC.setParticipantIdentifier (PD1APIHelper.createIdentifier (aFirst.m_aParticipantID.getScheme (),
+                                                                 aFirst.m_aParticipantID.getValue ()));
+    // Add all entities
+    for (final PDStoredDocument aDoc : aDocs)
+      aBC.addBusinessEntity (aDoc.getAsBusinessEntity ());
+
+    // Convert to MicroXML
+    final IMicroElement ret = new PD1BusinessCardMarshaller ().getAsMicroElement (aBC);
+
+    // Extend the MicroXML
+    for (final IDocumentTypeIdentifier aDocTypeID : aFirst.m_aDocumentTypeIDs)
     {
       ret.appendElement (ret.getNamespaceURI (), "DocumentTypeID")
          .setAttribute ("scheme", aDocTypeID.getScheme ())
          .appendText (aDocTypeID.getValue ());
     }
 
-    // Usually only non-deleted elements are returned, so don't give an
-    // indicator to the outside
-    if (m_bDeleted)
-      ret.setAttribute ("deleted", true);
     return ret;
   }
 
@@ -373,46 +382,57 @@ public class PDStoredDocument
   }
 
   @Nonnull
-  public IJsonObject getAsJsonObject ()
+  public static IJsonObject getAsSearchResultJsonObject (@Nonnull @Nonempty final ICommonsList <PDStoredDocument> aDocs)
   {
+    ValueEnforcer.notEmptyNoNullValue (aDocs, "Docs");
+
+    final PDStoredDocument aFirst = aDocs.getFirst ();
+
     final IJsonObject ret = new JsonObject ();
-    ret.add ("participantID", _getIDAsJson (m_aParticipantID.getScheme (), m_aParticipantID.getValue ()));
-
-    ret.add ("name", m_sName);
-    ret.add ("countryCode", m_sCountryCode);
-    ret.add ("geoInfo", m_sGeoInfo);
-
-    final JsonArray aIDs = new JsonArray ();
-    for (final PDStoredIdentifier aID : m_aIdentifiers)
-      aIDs.add (_getIDAsJson (aID.getScheme (), aID.getValue ()));
-    ret.add ("identifiers", aIDs);
-
-    final JsonArray aWebsites = new JsonArray ();
-    for (final String sWebsite : m_aWebsiteURIs)
-      aWebsites.add (sWebsite);
-    ret.add ("websites", aWebsites);
-
-    final JsonArray aContacts = new JsonArray ();
-    for (final PDStoredContact aContact : m_aContacts)
-      aContacts.add (new JsonObject ().addIfNotNull ("type", aContact.getType ())
-                                      .addIfNotNull ("name", aContact.getName ())
-                                      .addIfNotNull ("phone", aContact.getPhone ())
-                                      .addIfNotNull ("email", aContact.getEmail ()));
-    ret.add ("contacts", aContacts);
-
-    ret.add ("additionalInfo", m_sAdditionalInformation);
-    ret.add ("regDate", m_aRegistrationDate);
+    ret.add ("participantID", _getIDAsJson (aFirst.m_aParticipantID.getScheme (), aFirst.m_aParticipantID.getValue ()));
 
     // Add the items retrieved from SMP as well
     final JsonArray aDocTypes = new JsonArray ();
-    for (final IDocumentTypeIdentifier aDocTypeID : m_aDocumentTypeIDs)
+    for (final IDocumentTypeIdentifier aDocTypeID : aFirst.m_aDocumentTypeIDs)
       aDocTypes.add (_getIDAsJson (aDocTypeID.getScheme (), aDocTypeID.getValue ()));
     ret.add ("docTypes", aDocTypes);
 
-    // Usually only non-deleted elements are returned, so don't give an
-    // indicator to the outside
-    if (m_bDeleted)
-      ret.add ("deleted", true);
+    final IJsonArray aEntities = new JsonArray ();
+    for (final PDStoredDocument aDoc : aDocs)
+    {
+      final IJsonObject aEntity = new JsonObject ();
+      aEntity.add ("name", aDoc.m_sName);
+      aEntity.add ("countryCode", aDoc.m_sCountryCode);
+      aEntity.add ("geoInfo", aDoc.m_sGeoInfo);
+
+      final JsonArray aIDs = new JsonArray ();
+      for (final PDStoredIdentifier aID : aDoc.m_aIdentifiers)
+        aIDs.add (_getIDAsJson (aID.getScheme (), aID.getValue ()));
+      aEntity.add ("identifiers", aIDs);
+
+      final JsonArray aWebsites = new JsonArray ();
+      for (final String sWebsite : aDoc.m_aWebsiteURIs)
+        aWebsites.add (sWebsite);
+      aEntity.add ("websites", aWebsites);
+
+      final JsonArray aContacts = new JsonArray ();
+      for (final PDStoredContact aContact : aDoc.m_aContacts)
+        aContacts.add (new JsonObject ().addIfNotNull ("type", aContact.getType ())
+                                        .addIfNotNull ("name", aContact.getName ())
+                                        .addIfNotNull ("phone", aContact.getPhone ())
+                                        .addIfNotNull ("email", aContact.getEmail ()));
+      aEntity.add ("contacts", aContacts);
+
+      aEntity.add ("additionalInfo", aDoc.m_sAdditionalInformation);
+      aEntity.add ("regDate", aDoc.m_aRegistrationDate);
+
+      // Usually only non-deleted elements are returned, so don't give an
+      // indicator to the outside
+      if (aDoc.m_bDeleted)
+        aEntity.add ("deleted", true);
+      aEntities.add (aEntity);
+    }
+    ret.add ("entities", aEntities);
     return ret;
   }
 

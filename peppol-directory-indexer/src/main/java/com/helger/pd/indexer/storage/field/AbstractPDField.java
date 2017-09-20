@@ -16,8 +16,6 @@
  */
 package com.helger.pd.indexer.storage.field;
 
-import java.util.function.Function;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -29,17 +27,18 @@ import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.ICommonsList;
+import com.helger.commons.functional.IFunction;
 
 public abstract class AbstractPDField <NATIVE_TYPE, STORAGE_TYPE>
 {
   private final String m_sFieldName;
-  private final Function <? super NATIVE_TYPE, ? extends STORAGE_TYPE> m_aConverterToStorage;
-  private final Function <? super STORAGE_TYPE, ? extends NATIVE_TYPE> m_aConverterFromStorage;
+  private final IFunction <? super NATIVE_TYPE, ? extends STORAGE_TYPE> m_aConverterToStorage;
+  private final IFunction <? super STORAGE_TYPE, ? extends NATIVE_TYPE> m_aConverterFromStorage;
   private final Field.Store m_eStore;
 
   protected AbstractPDField (@Nonnull @Nonempty final String sFieldName,
-                             @Nonnull final Function <? super NATIVE_TYPE, ? extends STORAGE_TYPE> aConverterToStorage,
-                             @Nonnull final Function <? super STORAGE_TYPE, ? extends NATIVE_TYPE> aConverterFromStorage,
+                             @Nonnull final IFunction <? super NATIVE_TYPE, ? extends STORAGE_TYPE> aConverterToStorage,
+                             @Nonnull final IFunction <? super STORAGE_TYPE, ? extends NATIVE_TYPE> aConverterFromStorage,
                              @Nonnull final Field.Store eStore)
   {
     m_sFieldName = ValueEnforcer.notEmpty (sFieldName, "FieldName");
@@ -56,13 +55,13 @@ public abstract class AbstractPDField <NATIVE_TYPE, STORAGE_TYPE>
   }
 
   @Nonnull
-  protected final Function <? super NATIVE_TYPE, ? extends STORAGE_TYPE> getConverterToStorage ()
+  protected final IFunction <? super NATIVE_TYPE, ? extends STORAGE_TYPE> getConverterToStorage ()
   {
     return m_aConverterToStorage;
   }
 
   @Nonnull
-  protected final Function <? super STORAGE_TYPE, ? extends NATIVE_TYPE> getConverterFromStorage ()
+  protected final IFunction <? super STORAGE_TYPE, ? extends NATIVE_TYPE> getConverterFromStorage ()
   {
     return m_aConverterFromStorage;
   }
@@ -125,7 +124,7 @@ public abstract class AbstractPDField <NATIVE_TYPE, STORAGE_TYPE>
 
   /**
    * Get the value of this field in the provided document
-   * 
+   *
    * @param aDoc
    *        The Lucene result document
    * @return <code>null</code> if no such field is present, the stored value

@@ -52,7 +52,7 @@ public enum EPDSearchField implements IHasID <String>, IHasDisplayText
                   EPDSearchFieldName.PARTICIPANT_ID,
                   ESearchDataType.STRING_CI,
                   IParticipantIdentifier.class,
-                  sQuery -> null),
+                  sQuery -> PDQueryManager.getParticipantLuceneQuery (sQuery)),
   NAME ("name", EPDSearchFieldName.NAME, ESearchDataType.STRING_CI, String.class, sQuery -> null),
   COUNTRY ("country", EPDSearchFieldName.COUNTRY, ESearchDataType.STRING_CI, Locale.class, sQuery -> null),
   GEO_INFO ("geoinfo", EPDSearchFieldName.GEO_INFO, ESearchDataType.STRING_CI, String.class, sQuery -> null),
@@ -124,12 +124,6 @@ public enum EPDSearchField implements IHasID <String>, IHasDisplayText
   public Class <?> getNativeType ()
   {
     return m_aNativeType;
-  }
-
-  @Nonnull
-  public IFunction <String, Query> getQueryProvider ()
-  {
-    return m_aQueryProvider;
   }
 
   @Nullable

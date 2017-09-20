@@ -19,6 +19,7 @@ package com.helger.pd.indexer.storage;
 import java.io.IOException;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 import org.apache.lucene.analysis.TokenStream;
@@ -38,6 +39,10 @@ import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.regex.RegExHelper;
 import com.helger.pd.indexer.lucene.ILuceneAnalyzerProvider;
+import com.helger.pd.indexer.mgr.PDMetaManager;
+import com.helger.pd.indexer.storage.field.PDField;
+import com.helger.peppol.identifier.factory.IIdentifierFactory;
+import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 
 /**
  * PEPPOL Directory Lucene Query manager
@@ -103,9 +108,7 @@ public final class PDQueryManager
     }
     catch (final IOException ex)
     {
-      s_aLogger.warn ("Failed to split user query '" +
-                      sQueryString +
-                      "' into terms. Defaulting to regEx splitting",
+      s_aLogger.warn ("Failed to split user query '" + sQueryString + "' into terms. Defaulting to regEx splitting",
                       ex);
       // Fall-back
       return RegExHelper.getSplitToList (sQueryString.trim (), "\\s+");
@@ -162,6 +165,27 @@ public final class PDQueryManager
         aBuilder.add (_createSimpleAllFieldsQuery (sPart), Occur.FILTER);
       aQuery = aBuilder.build ();
     }
+
+    // Alter the query so that only not-deleted documents are returned
+    return andNotDeleted (aQuery);
+  }
+
+  @Nullable
+  public static Query getParticipantLuceneQuery (@Nonnull @Nonempty final String sQueryString)
+  {
+    ValueEnforcer.notEmpty (sQueryString, "QueryString");
+    ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
+
+    final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
+    final IParticipantIdentifier aPI = aIdentifierFactory.parseParticipantIdentifier (sQueryString);
+    if (aPI == null)
+    {
+      s_aLogger.warn ("Failed to convert '" + sQueryString + "' to participant ID!");
+      return null;
+    }
+
+    // Single term - simple query
+    final Query aQuery = new TermQuery (PDField.PARTICIPANT_ID.getTerm (aPI));
 
     // Alter the query so that only not-deleted documents are returned
     return andNotDeleted (aQuery);
