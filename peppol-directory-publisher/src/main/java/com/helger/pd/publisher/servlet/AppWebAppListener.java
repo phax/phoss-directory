@@ -125,12 +125,12 @@ public final class AppWebAppListener extends WebAppListenerBootstrap
     {
       final MenuTree aMenuTree = new MenuTree ();
       MenuPublic.init (aMenuTree);
-      PhotonGlobalState.getInstance ().state (CApplicationID.APP_ID_PUBLIC).setMenuTree (aMenuTree);
+      PhotonGlobalState.state (CApplicationID.APP_ID_PUBLIC).setMenuTree (aMenuTree);
     }
     {
       final MenuTree aMenuTree = new MenuTree ();
       MenuSecure.init (aMenuTree);
-      PhotonGlobalState.getInstance ().state (CApplicationID.APP_ID_SECURE).setMenuTree (aMenuTree);
+      PhotonGlobalState.state (CApplicationID.APP_ID_SECURE).setMenuTree (aMenuTree);
     }
   }
 
