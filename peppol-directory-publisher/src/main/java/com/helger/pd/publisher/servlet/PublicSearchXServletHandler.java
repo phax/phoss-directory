@@ -143,7 +143,12 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
       final String sFormat = aParts.getAtIndex (1);
       final EPDOutputFormat eOutputFormat = EPDOutputFormat.getFromIDCaseInsensitiveOrDefault (sFormat,
                                                                                                EPDOutputFormat.XML);
-      s_aLogger.info ("Using REST query API 1.0 with output format " + eOutputFormat + " (" + sPathInfo + ")");
+      s_aLogger.info ("Using REST query API 1.0 with output format " +
+                      eOutputFormat +
+                      " (" +
+                      sPathInfo +
+                      ") from " +
+                      aRequestScope.getUserAgent ().getAsString ());
 
       // Determine result offset and count
       final int nResultPageIndex = aParams.getAsInt (PARAM_RESULT_PAGE_INDEX,
