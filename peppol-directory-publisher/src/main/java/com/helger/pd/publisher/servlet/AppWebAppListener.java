@@ -36,11 +36,11 @@ import com.helger.photon.basic.app.locale.ILocaleManager;
 import com.helger.photon.basic.app.menu.MenuTree;
 import com.helger.photon.basic.app.request.RequestParameterHandlerURLPathNamed;
 import com.helger.photon.basic.app.request.RequestParameterManager;
-import com.helger.photon.bootstrap3.pages.sysinfo.ConfigurationFile;
-import com.helger.photon.bootstrap3.pages.sysinfo.ConfigurationFileManager;
+import com.helger.photon.basic.configfile.ConfigurationFile;
+import com.helger.photon.basic.configfile.ConfigurationFileManager;
+import com.helger.photon.basic.configfile.EConfigurationFileSyntax;
 import com.helger.photon.bootstrap3.servlet.WebAppListenerBootstrap;
 import com.helger.photon.core.ajax.IAjaxInvoker;
-import com.helger.photon.uictrls.prism.EPrismLanguage;
 import com.helger.servlet.ServletContextPathHolder;
 
 /**
@@ -96,12 +96,12 @@ public final class AppWebAppListener extends WebAppListenerBootstrap
 
     final ConfigurationFileManager aCfgMgr = ConfigurationFileManager.getInstance ();
     aCfgMgr.registerConfigurationFile (new ConfigurationFile (new ClassPathResource ("log4j2.xml")).setDescription ("log4j configuration file")
-                                                                                                   .setSyntaxHighlightLanguage (EPrismLanguage.MARKUP));
+                                                                                                   .setSyntaxHighlightLanguage (EConfigurationFileSyntax.XML));
     if (PDServerConfiguration.getConfigFile ().isRead ())
     {
       aCfgMgr.registerConfigurationFile (new ConfigurationFile (PDServerConfiguration.getConfigFile ()
                                                                                      .getReadResource ()).setDescription ("PEPPOL Directory properties")
-                                                                                                         .setSyntaxHighlightLanguage (EPrismLanguage.APACHECONF));
+                                                                                                         .setSyntaxHighlightLanguage (EConfigurationFileSyntax.PROPERTIES));
     }
   }
 
