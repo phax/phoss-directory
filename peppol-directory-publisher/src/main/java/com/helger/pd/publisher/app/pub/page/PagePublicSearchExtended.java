@@ -20,9 +20,6 @@ import java.util.Locale;
 
 import javax.annotation.Nonnull;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.helger.commons.annotation.Nonempty;
 import com.helger.html.hc.html.forms.HCEdit;
 import com.helger.html.hc.impl.HCNodeList;
@@ -45,8 +42,6 @@ public final class PagePublicSearchExtended extends AbstractPagePublicSearch
 {
   private static final String PREFIX_OPERATOR = "op-";
   private static final String PREFIX_SPECIAL = "special-";
-
-  private static final Logger s_aLogger = LoggerFactory.getLogger (PagePublicSearchExtended.class);
 
   public PagePublicSearchExtended (@Nonnull @Nonempty final String sID)
   {
