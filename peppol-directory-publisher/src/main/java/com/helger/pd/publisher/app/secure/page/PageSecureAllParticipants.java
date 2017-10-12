@@ -22,13 +22,14 @@ import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.collection.impl.ICommonsSortedSet;
 import com.helger.commons.url.ISimpleURL;
 import com.helger.html.hc.html.sections.HCH3;
+import com.helger.html.hc.html.tabular.HCCol;
 import com.helger.html.hc.html.tabular.HCRow;
-import com.helger.html.hc.html.tabular.IHCCell;
 import com.helger.html.hc.html.textlevel.HCA;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.publisher.app.pub.CMenuPublic;
 import com.helger.pd.publisher.app.pub.page.PagePublicSearchSimple;
+import com.helger.pd.publisher.app.secure.CMenuSecure;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.photon.basic.app.appid.CApplicationID;
@@ -82,7 +83,8 @@ public final class PageSecureAllParticipants extends AbstractAppWebPage
                                                                             .getAllContainedParticipantIDs ();
     aNodeList.addChild (new HCH3 ().addChild (aAllIDs.size () + " participants are contained"));
 
-    final BootstrapTable aTable = new BootstrapTable ().setCondensed (true).setBordered (true);
+    final BootstrapTable aTable = new BootstrapTable (HCCol.star (), HCCol.star (), HCCol.star ()).setCondensed (true)
+                                                                                                  .setBordered (true);
     for (final IParticipantIdentifier aParticipantID : aAllIDs)
     {
       final String sParticipantID = aParticipantID.getURIEncoded ();
@@ -90,14 +92,17 @@ public final class PageSecureAllParticipants extends AbstractAppWebPage
       final HCRow aRow = aTable.addBodyRow ();
       aRow.addCell (sParticipantID);
 
-      final IHCCell <?> aActionCell = aRow.addCell ();
-
       final ISimpleURL aShowDetails = aWPEC.getLinkToMenuItem (CApplicationID.APP_ID_PUBLIC,
                                                                CMenuPublic.MENU_SEARCH_SIMPLE)
                                            .add (PagePublicSearchSimple.FIELD_QUERY, sParticipantID)
                                            .add (CPageParam.PARAM_ACTION, CPageParam.ACTION_VIEW)
                                            .add (PagePublicSearchSimple.FIELD_PARTICIPANT_ID, sParticipantID);
-      aActionCell.addChild (new HCA (aShowDetails).addChild ("Search"));
+      aRow.addCell (new HCA (aShowDetails).addChild ("Search"));
+
+      final ISimpleURL aReIndex = aWPEC.getLinkToMenuItem (CMenuSecure.MENU_INDEX_MANUALLY)
+                                       .add (PageSecureIndexManually.FIELD_PARTICIPANT_ID, sParticipantID)
+                                       .add (CPageParam.PARAM_ACTION, CPageParam.ACTION_PERFORM);
+      aRow.addCell (new HCA (aReIndex).addChild ("Reindex"));
     }
 
     if (aTable.hasBodyRows ())

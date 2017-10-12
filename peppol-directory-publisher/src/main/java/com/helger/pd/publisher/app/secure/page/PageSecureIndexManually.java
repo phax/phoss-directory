@@ -42,7 +42,7 @@ import com.helger.photon.uicore.page.WebPageExecutionContext;
 
 public final class PageSecureIndexManually extends AbstractAppWebPage
 {
-  private static final String FIELD_PARTICIPANT_ID = "participantid";
+  public static final String FIELD_PARTICIPANT_ID = "participantid";
 
   public PageSecureIndexManually (@Nonnull @Nonempty final String sID)
   {
