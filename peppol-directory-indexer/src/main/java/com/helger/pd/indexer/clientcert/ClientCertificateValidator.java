@@ -44,6 +44,7 @@ import com.helger.commons.datetime.PDTFactory;
 import com.helger.commons.exception.InitializationException;
 import com.helger.commons.string.StringHelper;
 import com.helger.pd.settings.PDServerConfiguration;
+import com.helger.security.keystore.EKeyStoreType;
 import com.helger.security.keystore.KeyStoreHelper;
 
 /**
@@ -112,14 +113,15 @@ public final class ClientCertificateValidator
   private static void _initRootCert ()
   {
     // Get data from config file
-    final String sTrustStorePath = PDServerConfiguration.getTruststoreLocation ();
+    final EKeyStoreType eTrustStoreType = PDServerConfiguration.getTruststoreType ();
+    final String sTrustStorePath = PDServerConfiguration.getTruststorePath ();
     final String sTrustStorePassword = PDServerConfiguration.getTruststorePassword ();
     final String sTrustStoreAlias = PDServerConfiguration.getTruststoreAlias ();
 
     // Load keystores
     try
     {
-      final KeyStore aKS = KeyStoreHelper.loadKeyStoreDirect (sTrustStorePath, sTrustStorePassword);
+      final KeyStore aKS = KeyStoreHelper.loadKeyStoreDirect (eTrustStoreType, sTrustStorePath, sTrustStorePassword);
       s_aPeppolSMPRootCert = (X509Certificate) aKS.getCertificate (sTrustStoreAlias);
     }
     catch (final Throwable t)
@@ -145,7 +147,8 @@ public final class ClientCertificateValidator
   private static void _initRootCertAlternative ()
   {
     // Get data from config file
-    final String sTrustStorePath = PDServerConfiguration.getTruststoreLocationAlternative ();
+    final EKeyStoreType eTrustStoreType = PDServerConfiguration.getTruststoreTypeAlternative ();
+    final String sTrustStorePath = PDServerConfiguration.getTruststorePathAlternative ();
     final String sTrustStorePassword = PDServerConfiguration.getTruststorePasswordAlternative ();
     final String sTrustStoreAlias = PDServerConfiguration.getTruststoreAliasAlternative ();
 
@@ -156,7 +159,7 @@ public final class ClientCertificateValidator
       // Load keystores
       try
       {
-        final KeyStore aKS = KeyStoreHelper.loadKeyStoreDirect (sTrustStorePath, sTrustStorePassword);
+        final KeyStore aKS = KeyStoreHelper.loadKeyStoreDirect (eTrustStoreType, sTrustStorePath, sTrustStorePassword);
         s_aPeppolSMPRootCertAlternative = (X509Certificate) aKS.getCertificate (sTrustStoreAlias);
       }
       catch (final Throwable t)

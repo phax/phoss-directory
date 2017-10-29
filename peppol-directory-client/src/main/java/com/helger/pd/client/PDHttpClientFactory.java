@@ -44,7 +44,8 @@ public class PDHttpClientFactory extends HttpClientFactory
     }
 
     // Load key store
-    final LoadedKeyStore aLoadedKeyStore = KeyStoreHelper.loadKeyStore (PDClientConfiguration.getKeyStorePath (),
+    final LoadedKeyStore aLoadedKeyStore = KeyStoreHelper.loadKeyStore (PDClientConfiguration.getKeyStoreType (),
+                                                                        PDClientConfiguration.getKeyStorePath (),
                                                                         PDClientConfiguration.getKeyStorePassword ());
     if (aLoadedKeyStore.isFailure ())
     {
@@ -54,7 +55,8 @@ public class PDHttpClientFactory extends HttpClientFactory
     else
     {
       // Load trust store (may not be present/configured)
-      final LoadedKeyStore aLoadedTrustStore = KeyStoreHelper.loadKeyStore (PDClientConfiguration.getTrustStorePath (),
+      final LoadedKeyStore aLoadedTrustStore = KeyStoreHelper.loadKeyStore (PDClientConfiguration.getTrustStoreType (),
+                                                                            PDClientConfiguration.getTrustStorePath (),
                                                                             PDClientConfiguration.getTrustStorePassword ());
       final KeyStore aTrustStore = aLoadedTrustStore.getKeyStore ();
 

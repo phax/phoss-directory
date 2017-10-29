@@ -31,6 +31,7 @@ import com.helger.peppol.sml.ESML;
 import com.helger.peppol.sml.ISMLInfo;
 import com.helger.peppol.utils.PeppolKeyStoreHelper;
 import com.helger.scope.singleton.AbstractGlobalSingleton;
+import com.helger.security.keystore.EKeyStoreType;
 import com.helger.settings.ISettings;
 import com.helger.settings.exchange.configfile.ConfigFile;
 import com.helger.settings.exchange.configfile.ConfigFileBuilder;
@@ -205,13 +206,25 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   }
 
   /**
+   * @return The type to the truststore. This is usually JKS. Property
+   *         <code>truststore.type</code>.
+   * @since 0.6.0
+   */
+  @Nonnull
+  public static EKeyStoreType getTruststoreType ()
+  {
+    final String sType = s_aConfigFile.getAsString ("truststore.type");
+    return EKeyStoreType.getFromIDCaseInsensitiveOrDefault (sType, PeppolKeyStoreHelper.TRUSTSTORE_TYPE);
+  }
+
+  /**
    * Read value of <code>truststore.path</code>. Defaults to
    * <code>{@link PeppolKeyStoreHelper#TRUSTSTORE_PRODUCTION_CLASSPATH}</code>.
    *
    * @return The truststore location path.
    */
   @Nonnull
-  public static String getTruststoreLocation ()
+  public static String getTruststorePath ()
   {
     return s_aConfigFile.getAsString ("truststore.path", PeppolKeyStoreHelper.TRUSTSTORE_PRODUCTION_CLASSPATH);
   }
@@ -241,13 +254,25 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   }
 
   /**
+   * @return The type to the truststore. This is usually JKS. Property
+   *         <code>truststore-alt.type</code>.
+   * @since 0.6.0
+   */
+  @Nonnull
+  public static EKeyStoreType getTruststoreTypeAlternative ()
+  {
+    final String sType = s_aConfigFile.getAsString ("truststore-alt.type");
+    return EKeyStoreType.getFromIDCaseInsensitiveOrDefault (sType, PeppolKeyStoreHelper.TRUSTSTORE_TYPE);
+  }
+
+  /**
    * Read value of <code>truststore-alt.path</code>. Defaults to
    * <code>null</code>.
    *
    * @return The alternative truststore location path.
    */
   @Nullable
-  public static String getTruststoreLocationAlternative ()
+  public static String getTruststorePathAlternative ()
   {
     return s_aConfigFile.getAsString ("truststore-alt.path");
   }

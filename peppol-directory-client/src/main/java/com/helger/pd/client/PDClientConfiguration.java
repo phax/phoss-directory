@@ -23,6 +23,7 @@ import javax.annotation.concurrent.Immutable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.helger.security.keystore.EKeyStoreType;
 import com.helger.settings.exchange.configfile.ConfigFile;
 import com.helger.settings.exchange.configfile.ConfigFileBuilder;
 
@@ -50,6 +51,7 @@ public final class PDClientConfiguration
   public static final String PROPERTY_FILE_PRIMARY = "private-pd-client.properties";
   public static final String PROPERTY_FILE_SECONDARY = "pd-client.properties";
 
+  public static final EKeyStoreType DEFAULT_TRUSTSTORE_TYPE = EKeyStoreType.JKS;
   public static final String DEFAULT_TRUSTSTORE_PATH = "truststore/pd-client.truststore.jks";
   public static final String DEFAULT_TRUSTSTORE_PASSWORD = "peppol";
 
@@ -80,6 +82,17 @@ public final class PDClientConfiguration
   public static ConfigFile getConfigFile ()
   {
     return s_aConfigFile;
+  }
+
+  /**
+   * @return The type to the keystore. This is usually JKS. Property
+   *         <code>keystore.type</code>.
+   */
+  @Nonnull
+  public static EKeyStoreType getKeyStoreType ()
+  {
+    final String sType = s_aConfigFile.getAsString ("keystore.type");
+    return EKeyStoreType.getFromIDCaseInsensitiveOrDefault (sType, EKeyStoreType.JKS);
   }
 
   /**
@@ -120,6 +133,18 @@ public final class PDClientConfiguration
   public static char [] getKeyStoreKeyPassword ()
   {
     return s_aConfigFile.getAsCharArray ("keystore.key.password");
+  }
+
+  /**
+   * @return The type to the truststore. This is usually JKS. Property
+   *         <code>truststore.type</code>.
+   * @since 0.6.0
+   */
+  @Nonnull
+  public static EKeyStoreType getTrustStoreType ()
+  {
+    final String sType = s_aConfigFile.getAsString ("truststore.type");
+    return EKeyStoreType.getFromIDCaseInsensitiveOrDefault (sType, DEFAULT_TRUSTSTORE_TYPE);
   }
 
   /**
