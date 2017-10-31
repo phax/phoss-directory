@@ -113,10 +113,10 @@ public final class ClientCertificateValidator
   private static void _initRootCert ()
   {
     // Get data from config file
-    final EKeyStoreType eTrustStoreType = PDServerConfiguration.getTruststoreType ();
-    final String sTrustStorePath = PDServerConfiguration.getTruststorePath ();
-    final String sTrustStorePassword = PDServerConfiguration.getTruststorePassword ();
-    final String sTrustStoreAlias = PDServerConfiguration.getTruststoreAlias ();
+    final EKeyStoreType eTrustStoreType = PDServerConfiguration.getTrustStoreType ();
+    final String sTrustStorePath = PDServerConfiguration.getTrustStorePath ();
+    final String sTrustStorePassword = PDServerConfiguration.getTrustStorePassword ();
+    final String sTrustStoreAlias = PDServerConfiguration.getTrustStoreAlias ();
 
     // Load keystores
     try
@@ -147,10 +147,10 @@ public final class ClientCertificateValidator
   private static void _initRootCertAlternative ()
   {
     // Get data from config file
-    final EKeyStoreType eTrustStoreType = PDServerConfiguration.getTruststoreTypeAlternative ();
-    final String sTrustStorePath = PDServerConfiguration.getTruststorePathAlternative ();
-    final String sTrustStorePassword = PDServerConfiguration.getTruststorePasswordAlternative ();
-    final String sTrustStoreAlias = PDServerConfiguration.getTruststoreAliasAlternative ();
+    final EKeyStoreType eTrustStoreType = PDServerConfiguration.getTrustStoreTypeAlternative ();
+    final String sTrustStorePath = PDServerConfiguration.getTrustStorePathAlternative ();
+    final String sTrustStorePassword = PDServerConfiguration.getTrustStorePasswordAlternative ();
+    final String sTrustStoreAlias = PDServerConfiguration.getTrustStoreAliasAlternative ();
 
     if (StringHelper.hasText (sTrustStorePath) &&
         StringHelper.hasText (sTrustStorePassword) &&

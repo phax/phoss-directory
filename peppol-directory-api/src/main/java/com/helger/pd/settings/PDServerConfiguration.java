@@ -211,7 +211,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
    * @since 0.6.0
    */
   @Nonnull
-  public static EKeyStoreType getTruststoreType ()
+  public static EKeyStoreType getTrustStoreType ()
   {
     final String sType = s_aConfigFile.getAsString ("truststore.type");
     return EKeyStoreType.getFromIDCaseInsensitiveOrDefault (sType, PeppolKeyStoreHelper.TRUSTSTORE_TYPE);
@@ -224,7 +224,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
    * @return The truststore location path.
    */
   @Nonnull
-  public static String getTruststorePath ()
+  public static String getTrustStorePath ()
   {
     return s_aConfigFile.getAsString ("truststore.path", PeppolKeyStoreHelper.TRUSTSTORE_PRODUCTION_CLASSPATH);
   }
@@ -236,7 +236,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
    * @return The truststore password.
    */
   @Nonnull
-  public static String getTruststorePassword ()
+  public static String getTrustStorePassword ()
   {
     return s_aConfigFile.getAsString ("truststore.password", PeppolKeyStoreHelper.TRUSTSTORE_PASSWORD);
   }
@@ -248,7 +248,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
    * @return The truststore password.
    */
   @Nonnull
-  public static String getTruststoreAlias ()
+  public static String getTrustStoreAlias ()
   {
     return s_aConfigFile.getAsString ("truststore.alias", PeppolKeyStoreHelper.TRUSTSTORE_PRODUCTION_ALIAS_SMP);
   }
@@ -259,7 +259,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
    * @since 0.6.0
    */
   @Nonnull
-  public static EKeyStoreType getTruststoreTypeAlternative ()
+  public static EKeyStoreType getTrustStoreTypeAlternative ()
   {
     final String sType = s_aConfigFile.getAsString ("truststore-alt.type");
     return EKeyStoreType.getFromIDCaseInsensitiveOrDefault (sType, PeppolKeyStoreHelper.TRUSTSTORE_TYPE);
@@ -272,7 +272,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
    * @return The alternative truststore location path.
    */
   @Nullable
-  public static String getTruststorePathAlternative ()
+  public static String getTrustStorePathAlternative ()
   {
     return s_aConfigFile.getAsString ("truststore-alt.path");
   }
@@ -284,7 +284,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
    * @return The alternative truststore password.
    */
   @Nullable
-  public static String getTruststorePasswordAlternative ()
+  public static String getTrustStorePasswordAlternative ()
   {
     return s_aConfigFile.getAsString ("truststore-alt.password");
   }
@@ -296,7 +296,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
    * @return The alternative truststore password.
    */
   @Nullable
-  public static String getTruststoreAliasAlternative ()
+  public static String getTrustStoreAliasAlternative ()
   {
     return s_aConfigFile.getAsString ("truststore-alt.alias");
   }
