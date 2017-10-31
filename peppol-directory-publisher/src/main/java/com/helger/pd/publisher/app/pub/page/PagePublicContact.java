@@ -33,6 +33,7 @@ import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.photon.bootstrap3.EBootstrapIcon;
 import com.helger.photon.bootstrap3.alert.BootstrapInfoBox;
 import com.helger.photon.bootstrap3.alert.BootstrapSuccessBox;
+import com.helger.photon.bootstrap3.alert.BootstrapWarnBox;
 import com.helger.photon.bootstrap3.button.BootstrapButton;
 import com.helger.photon.bootstrap3.button.BootstrapSubmitButton;
 import com.helger.photon.bootstrap3.button.EBootstrapButtonType;
@@ -128,6 +129,7 @@ public final class PagePublicContact extends AbstractAppWebPage
     if (bShowForm)
     {
       aNodeList.addChild (new BootstrapInfoBox ().addChild ("Alternatively write an email to support[at]peppol.eu or pd[at]helger.com - usually using the below form is more effective!"));
+      aNodeList.addChild (new BootstrapWarnBox ().addChild ("Please don't request any change of data via this contact form - contact your PEPPOL service provider instead. Thank you."));
 
       final BootstrapForm aForm = aNodeList.addAndReturnChild (getUIHandler ().createFormSelf (aWPEC));
       aForm.addFormGroup (new BootstrapFormGroup ().setLabelMandatory ("Your name")
