@@ -30,7 +30,7 @@ import com.helger.photon.basic.app.appid.RequestSettings;
 import com.helger.photon.basic.app.menu.IMenuItemPage;
 import com.helger.photon.core.app.context.ISimpleWebExecutionContext;
 import com.helger.photon.core.app.context.LayoutExecutionContext;
-import com.helger.photon.core.app.html.AbstractHTMLProvider;
+import com.helger.photon.core.app.html.AbstractSWECHTMLProvider;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 import com.helger.xservlet.forcedredirect.ForcedRedirectException;
 
@@ -39,7 +39,7 @@ import com.helger.xservlet.forcedredirect.ForcedRedirectException;
  *
  * @author Philip Helger
  */
-public class AppLayoutHTMLProvider extends AbstractHTMLProvider
+public class AppLayoutHTMLProvider extends AbstractSWECHTMLProvider
 {
   private final IFunction <LayoutExecutionContext, IHCNode> m_aFactory;
 
@@ -56,8 +56,8 @@ public class AppLayoutHTMLProvider extends AbstractHTMLProvider
     final Locale aDisplayLocale = aSWEC.getDisplayLocale ();
     final IMenuItemPage aMenuItem = RequestSettings.getMenuItem (aRequestScope);
     final LayoutExecutionContext aLEC = new LayoutExecutionContext (aSWEC, aMenuItem);
-    final HCHead aHead = aHtml.getHead ();
-    final HCBody aBody = aHtml.getBody ();
+    final HCHead aHead = aHtml.head ();
+    final HCBody aBody = aHtml.body ();
 
     // Add menu item in page title
     aHead.setPageTitle (StringHelper.getConcatenatedOnDemand (AppCommonUI.getApplicationTitle (),
