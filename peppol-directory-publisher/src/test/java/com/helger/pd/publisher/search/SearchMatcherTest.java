@@ -35,7 +35,7 @@ import com.helger.datetime.CPDT;
  *
  * @author Philip Helger
  */
-public final class PDMatcherTest
+public final class SearchMatcherTest
 {
   @Test
   public void testStringCS ()
