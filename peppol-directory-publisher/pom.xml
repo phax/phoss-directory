@@ -68,10 +68,6 @@
       <groupId>com.helger</groupId>
       <artifactId>peppol-directory-indexer</artifactId>
     </dependency>
-    <dependency>
-      <groupId>com.helger</groupId>
-      <artifactId>ph-less-commons</artifactId>
-    </dependency>
 
     <dependency>
       <groupId>com.helger</groupId>
