@@ -66,7 +66,7 @@
     <log4j.version>2.8.2</log4j.version>
     <!--  
     -->
-    <log4j.version>2.9.1</log4j.version>
+    <log4j.version>2.10.0</log4j.version>
     <!-- Don't change below 6.x - otherwise data maybe lost! -->
     <lucene.version>7.1.0</lucene.version>
     <jersey.version>2.26</jersey.version>
@@ -157,7 +157,7 @@
       <dependency>
         <groupId>org.apache.httpcomponents</groupId>
         <artifactId>httpclient</artifactId>
-        <version>4.5.3</version>
+        <version>4.5.4</version>
       </dependency>
   
       <dependency>
