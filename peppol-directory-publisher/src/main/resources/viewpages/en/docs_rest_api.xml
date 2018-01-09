@@ -158,6 +158,10 @@
     <span class="label label-info">Note</span>
     This parameter can occur more than once.
   </div>
+  <div>
+    <span class="label label-warning">Warning</span>
+    If the provided parameter value has &le; 2 characters the search will return HTTP status code 400.
+  </div>
   <div class="tryme">
     <span class="label label-default">Example</span>
     <code>/search/1.0/xml?geoinfo=Italy</code> <a>Try it</a>
@@ -233,6 +237,10 @@
     <span class="label label-info">Note</span>
     This parameter can occur more than once.
   </div>
+  <div>
+    <span class="label label-warning">Warning</span>
+    If the provided parameter value has &le; 2 characters the search will return HTTP status code 400.
+  </div>
   <div class="tryme">
     <span class="label label-default">Example</span>
     <code>/search/1.0/xml?website=erechnung.gv.at</code> <a>Try it</a>
@@ -248,12 +256,16 @@
   <div>Description:
     <span class="pdesc">
       Searches for partial matches in the business entity contact information.
-      It searches in all sub-fields of contact (type, name, phonenumber and email address).
+      It searches in all sub-fields of contact (type, name, phone number and email address).
     </span>
   </div>
   <div>
     <span class="label label-info">Note</span>
     This parameter can occur more than once.
+  </div>
+  <div>
+    <span class="label label-warning">Warning</span>
+    If the provided parameter value has &le; 2 characters the search will return HTTP status code 400.
   </div>
   <div class="tryme">
     <span class="label label-default">Example</span>
@@ -275,6 +287,10 @@
   <div>
     <span class="label label-info">Note</span>
     This parameter can occur more than once.
+  </div>
+  <div>
+    <span class="label label-warning">Warning</span>
+    If the provided parameter value has &le; 2 characters the search will return HTTP status code 400.
   </div>
   <div class="tryme">
     <span class="label label-default">Example</span>

@@ -277,6 +277,12 @@ public final class PDQueryManager
     ValueEnforcer.notEmpty (sQueryString, "QueryString");
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
 
+    if (sQueryString.length () < 3)
+    {
+      s_aLogger.warn ("Website query string '" + sQueryString + "' is too short!");
+      return null;
+    }
+
     final Query aQuery = new WildcardQuery (PDField.WEBSITE_URI.getContainsTerm (_lowerCase (sQueryString)));
     return andNotDeleted (aQuery);
   }
@@ -286,6 +292,12 @@ public final class PDQueryManager
   {
     ValueEnforcer.notEmpty (sQueryString, "QueryString");
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
+
+    if (sQueryString.length () < 3)
+    {
+      s_aLogger.warn ("Contact query string '" + sQueryString + "' is too short!");
+      return null;
+    }
 
     final Query aQuery1 = new WildcardQuery (PDField.CONTACT_TYPE.getContainsTerm (_lowerCase (sQueryString)));
     final Query aQuery2 = new WildcardQuery (PDField.CONTACT_NAME.getContainsTerm (_lowerCase (sQueryString)));
@@ -304,6 +316,12 @@ public final class PDQueryManager
   {
     ValueEnforcer.notEmpty (sQueryString, "QueryString");
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
+
+    if (sQueryString.length () < 3)
+    {
+      s_aLogger.warn ("AdditionalInformation query string '" + sQueryString + "' is too short!");
+      return null;
+    }
 
     final Query aQuery = new WildcardQuery (PDField.ADDITIONAL_INFO.getContainsTerm (_lowerCase (sQueryString)));
     return andNotDeleted (aQuery);
