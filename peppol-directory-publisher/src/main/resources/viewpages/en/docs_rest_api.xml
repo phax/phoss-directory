@@ -414,7 +414,7 @@
   <div>Description:
     <span class="pdesc">
       Format the results so that they are more human readable?
-      This should only be used for debugging purposes as it increases the transfered data volume.
+      This should only be used for debugging purposes as it increases the transferred data volume.
       By default the returned code is minified.
     </span>
   </div>
