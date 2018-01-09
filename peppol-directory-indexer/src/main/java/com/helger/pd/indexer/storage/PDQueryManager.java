@@ -241,6 +241,12 @@ public final class PDQueryManager
     ValueEnforcer.notEmpty (sQueryString, "QueryString");
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
 
+    if (sQueryString.length () < 3)
+    {
+      s_aLogger.warn ("GeoInfo query string '" + sQueryString + "' is too short!");
+      return null;
+    }
+
     final Query aQuery = new WildcardQuery (PDField.GEO_INFO.getContainsTerm (_lowerCase (sQueryString)));
     return andNotDeleted (aQuery);
   }
