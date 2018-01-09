@@ -61,7 +61,7 @@ import com.helger.peppol.url.PeppolURLProvider;
  *
  * @author Philip Helger
  */
-public final class SMPBusinessCardProvider implements IPDBusinessCardProvider
+public class SMPBusinessCardProvider implements IPDBusinessCardProvider
 {
   private static final String URL_PART_SERVICES = "/services/";
   private static final Logger s_aLogger = LoggerFactory.getLogger (SMPBusinessCardProvider.class);

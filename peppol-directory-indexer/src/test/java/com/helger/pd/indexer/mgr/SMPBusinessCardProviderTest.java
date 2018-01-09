@@ -72,4 +72,15 @@ public final class SMPBusinessCardProviderTest
     assertNotNull (aExtBI);
     LOG.info (aExtBI.toString ());
   }
+
+  @Test
+  @Ignore ("Only for on demand testing :)")
+  public void testBabelway ()
+  {
+    final SMPBusinessCardProvider aBI = new SMPBusinessCardProvider ();
+    final PDExtendedBusinessCard aExtBI = aBI.getBusinessCard (PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9956:0471349823"),
+                                                               new SMPClientReadOnly (URLHelper.getAsURI ("https://int.babelway.net/smp/")));
+    assertNotNull (aExtBI);
+    LOG.info (aExtBI.toString ());
+  }
 }
