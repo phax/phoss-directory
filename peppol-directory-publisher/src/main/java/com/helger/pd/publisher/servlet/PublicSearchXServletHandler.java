@@ -131,6 +131,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
 
     // http://127.0.0.1:8080/search -> null
     // http://127.0.0.1:8080/search/ -> "/"
+    // http://127.0.0.1:8080/search/x -> "/x"
     final String sPathInfo = StringHelper.getNotNull (aRequestScope.getPathInfo (), "");
     final ESearchVersion eSearchVersion = ESearchVersion.getFromPathInfoOrNull (sPathInfo);
 

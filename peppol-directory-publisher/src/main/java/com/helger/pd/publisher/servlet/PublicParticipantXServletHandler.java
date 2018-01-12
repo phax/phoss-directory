@@ -34,7 +34,6 @@ import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.photon.basic.app.request.RequestParameterManager;
 import com.helger.photon.uicore.css.CPageParam;
 import com.helger.servlet.response.UnifiedResponse;
-import com.helger.web.scope.IRequestParamContainer;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 import com.helger.xservlet.handler.simple.IXServletSimpleHandler;
 
@@ -50,10 +49,9 @@ public final class PublicParticipantXServletHandler implements IXServletSimpleHa
   public void handleRequest (@Nonnull final IRequestWebScopeWithoutResponse aRequestScope,
                              @Nonnull final UnifiedResponse aUnifiedResponse) throws Exception
   {
-    final IRequestParamContainer aParams = aRequestScope.params ();
-
     // http://127.0.0.1:8080/participant -> null
     // http://127.0.0.1:8080/participant/ -> "/"
+    // http://127.0.0.1:8080/participant/x -> "/x"
     final String sPathInfo = StringHelper.getNotNull (aRequestScope.getPathInfo (), "");
     final ICommonsList <String> aParts = StringHelper.getExploded ('/', sPathInfo.substring (1));
 
