@@ -82,6 +82,15 @@
     <servlet-name>PublicSearchServlet</servlet-name>
     <url-pattern>/search/*</url-pattern>
   </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>PublicParticipantServlet</servlet-name>
+    <servlet-class>com.helger.pd.publisher.servlet.PublicParticipantServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>PublicParticipantServlet</servlet-name>
+    <url-pattern>/participant/*</url-pattern>
+  </servlet-mapping>
 
   <!-- Jersey stuff -->
   <servlet>

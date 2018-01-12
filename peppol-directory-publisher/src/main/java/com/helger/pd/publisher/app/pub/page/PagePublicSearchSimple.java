@@ -118,9 +118,9 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     return aBodyRow;
   }
 
-  private void _showResultList (@Nonnull final WebPageExecutionContext aWPEC,
-                                @Nonnull @Nonempty final String sQuery,
-                                @Nonnegative final int nMaxResults)
+  private static void _showResultList (@Nonnull final WebPageExecutionContext aWPEC,
+                                       @Nonnull @Nonempty final String sQuery,
+                                       @Nonnegative final int nMaxResults)
   {
     final HCNodeList aNodeList = aWPEC.getNodeList ();
     final Locale aDisplayLocale = aWPEC.getDisplayLocale ();
