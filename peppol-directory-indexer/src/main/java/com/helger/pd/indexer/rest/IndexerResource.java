@@ -91,10 +91,15 @@ public class IndexerResource
     final IParticipantIdentifier aPI = aIdentifierFactory.parseParticipantIdentifier (sParticipantID);
 
     // Queue for handling
-    PDMetaManager.getIndexerMgr ().queueWorkItem (aPI,
-                                                  EIndexerWorkItemType.CREATE_UPDATE,
-                                                  aResult.getClientID (),
-                                                  _getRequestingHost (aHttpServletRequest));
+    if (PDMetaManager.getIndexerMgr ()
+                     .queueWorkItem (aPI,
+                                     EIndexerWorkItemType.CREATE_UPDATE,
+                                     aResult.getClientID (),
+                                     _getRequestingHost (aHttpServletRequest))
+                     .isUnchanged ())
+    {
+      s_aLogger.info ("Ignoring duplicate CREATE/UPDATE request for '" + aPI.getURIEncoded () + "'");
+    }
 
     // And done
     return Response.noContent ().build ();
@@ -117,10 +122,15 @@ public class IndexerResource
     // creation
 
     // Queue for handling
-    PDMetaManager.getIndexerMgr ().queueWorkItem (aPI,
-                                                  EIndexerWorkItemType.DELETE,
-                                                  aResult.getClientID (),
-                                                  _getRequestingHost (aHttpServletRequest));
+    if (PDMetaManager.getIndexerMgr ()
+                     .queueWorkItem (aPI,
+                                     EIndexerWorkItemType.DELETE,
+                                     aResult.getClientID (),
+                                     _getRequestingHost (aHttpServletRequest))
+                     .isUnchanged ())
+    {
+      s_aLogger.info ("Ignoring duplicate DELETE request for '" + aPI.getURIEncoded () + "'");
+    }
 
     // And done
     return Response.noContent ().build ();
