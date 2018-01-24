@@ -29,13 +29,18 @@ Open tasks according to the design document:
   * The extended search for the UI must be added
   
 # News and noteworthy
-  * v0.5.1 - 2017-07-21
-    * Extended `PDClient` to explicitly support a configurable truststore. A default truststore for the current setup is included.
-    * PD client https hostname verification can now be 
-    * PD client has now a custom exception callback to catch exceptions in the operations and handle them outside the client.
-    * Removed the JDK 6 PD client because the ECC certificates used are only supported by JDK 7 onwards. The old version is anyway in the Maven central repository.
-  * v0.5.0 - 2017-07-12
-    * Updated release for https://directory.peppol.eu and https://test-directory.peppol.eu
+
+* v0.6.0 - work in progress
+  * Updated to ph-commons 9.0.0
+  * Updated to Apache Lucene 7.2.1
+  * Fixed some issues (as #30)
+* v0.5.1 - 2017-07-21
+  * Extended `PDClient` to explicitly support a configurable truststore. A default truststore for the current setup is included.
+  * PD client https hostname verification can now be 
+  * PD client has now a custom exception callback to catch exceptions in the operations and handle them outside the client.
+  * Removed the JDK 6 PD client because the ECC certificates used are only supported by JDK 7 onwards. The old version is anyway in the Maven central repository.
+* v0.5.0 - 2017-07-12
+  * Updated release for https://directory.peppol.eu and https://test-directory.peppol.eu
 
 # Building requirements
 To build the PD software you need at least Java 1.8 and Apache Maven 3.x. Configuration for usage with Eclipse Neon and Oxygen is contained in the repository.
@@ -43,6 +48,7 @@ To build the PD software you need at least Java 1.8 and Apache Maven 3.x. Config
 Additionally to the contained projects you *MAY* need the latest SNAPSHOT of [ph-oton](https://github.com/phax/ph-oton) as part of your build environment.
 
 # PD Client
+
 The PD client is a small Java library that uses Apache HttpClient to connect to an arbitrary PEPPOL Directory Indexer to perform all the allowed operations (get, create/update, delete).
 The client has its own configuration file that is resolved from one of the following locations (whatever is found first):
 * A path denoted by the content of the Java system property `peppol.pd.client.properties.path`
