@@ -18,6 +18,7 @@ package com.helger.pd.client;
 
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
+import java.util.Arrays;
 
 import org.apache.http.ssl.SSLContexts;
 import org.slf4j.Logger;
@@ -77,7 +78,11 @@ public class PDHttpClientFactory extends HttpClientFactory
                                                     })
                                   .loadTrustMaterial (aTrustStore, (aChain, aAuthType) -> {
                                     if (s_aLogger.isDebugEnabled ())
-                                      s_aLogger.debug ("isTrusted(" + aChain + ", " + aAuthType + ")");
+                                      s_aLogger.debug ("isTrusted(" +
+                                                       Arrays.toString (aChain) +
+                                                       ", " +
+                                                       aAuthType +
+                                                       ")");
                                     return true;
                                   })
                                   .setSecureRandom (VerySecureRandom.getInstance ())
