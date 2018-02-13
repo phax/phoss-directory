@@ -34,7 +34,8 @@ Open tasks according to the design document:
   * Updated to ph-commons 9.0.1
   * Updated to Apache Lucene 7.2.1
   * Fixed some issues (as #30)
-  * Requires peppol-commons 6.0.1 for new OpenPEPPOL PKI v3 
+  * Requires peppol-commons 6.0.1 for new OpenPEPPOL PKI v3
+  * Added support for trusting an arbitrary number of client certificate issuers
 * v0.5.1 - 2017-07-21
   * Extended `PDClient` to explicitly support a configurable truststore. A default truststore for the current setup is included.
   * PD client https hostname verification can now be 
