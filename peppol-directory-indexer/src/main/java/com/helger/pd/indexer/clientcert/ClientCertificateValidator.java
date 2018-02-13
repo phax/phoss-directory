@@ -92,20 +92,13 @@ public final class ClientCertificateValidator
   private static void _initCertificateIssuers ()
   {
     // Get the certificate issuer we need
-    final String sIssuerToSearch = PDServerConfiguration.getClientCertIssuer ();
-    if (StringHelper.hasNoText (sIssuerToSearch))
+    final ICommonsList <String> aIssuersToSearch = PDServerConfiguration.getAllClientCertIssuer ();
+    if (aIssuersToSearch.isEmpty ())
       throw new InitializationException ("The configuration file is missing the entry for the client certificate issuer");
 
     // Throws a runtime exception on syntax error anyway :)
-    s_aSearchIssuers.add (new X500Principal (sIssuerToSearch));
-
-    // Optional alternative issuer
-    final String sIssuerToSearchAlternative = PDServerConfiguration.getClientCertIssuerAlternative ();
-    if (StringHelper.hasText (sIssuerToSearchAlternative))
-    {
-      // Throws a runtime exception on syntax error anyway :)
-      s_aSearchIssuers.add (new X500Principal (sIssuerToSearchAlternative));
-    }
+    for (final String sIssuerToSearch : aIssuersToSearch)
+      s_aSearchIssuers.add (new X500Principal (sIssuerToSearch));
 
     s_aLogger.info ("The following client certificate issuer(s) are valid: " + s_aSearchIssuers);
   }

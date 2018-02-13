@@ -25,6 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.commons.annotation.UsedViaReflection;
+import com.helger.commons.collection.impl.CommonsArrayList;
+import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.debug.GlobalDebug;
 import com.helger.commons.string.StringHelper;
 import com.helger.peppol.sml.ESML;
@@ -181,30 +183,29 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   }
 
   /**
-   * Read value of <code>indexer.clientcert.validation</code>. Defaults to
-   * <code>true</code>.
+   * Read value of <code>clientcert.issuer.x</code> values, where "x" is an
+   * ascending number starting from 1.
    *
-   * @return The issuer of the expected client certificate of the issuer.
-   *         Depends on whether the SMK/SML is used (production or pilot
-   *         certificates).
+   * @return The list of potential issuers of the expected client certificates.
+   *         Never <code>null</code> but maybe empty.
    */
-  @Nullable
-  public static String getClientCertIssuer ()
+  @Nonnull
+  public static ICommonsList <String> getAllClientCertIssuer ()
   {
-    return s_aConfigFile.getAsString ("clientcert.issuer");
-  }
+    final ICommonsList <String> ret = new CommonsArrayList <> ();
 
-  /**
-   * Read value of <code>clientcert-alt.issuer</code>.
-   *
-   * @return The alternative (other) issuer of the expected client certificate
-   *         of the issuer. Is needed to handle production and pilot on the same
-   *         server or to handle root certificate migration.
-   */
-  @Nullable
-  public static String getClientCertIssuerAlternative ()
-  {
-    return s_aConfigFile.getAsString ("clientcert-alt.issuer");
+    int nIndex = 1;
+    while (true)
+    {
+      final String sValue = s_aConfigFile.getAsString ("clientcert.issuer." + nIndex);
+      if (StringHelper.hasNoText (sValue))
+        break;
+
+      // Present - try next
+      ret.add (sValue);
+      ++nIndex;
+    }
+    return ret;
   }
 
   /**
