@@ -32,8 +32,6 @@ import com.helger.commons.string.StringHelper;
 import com.helger.peppol.sml.ESML;
 import com.helger.peppol.sml.ISMLInfo;
 import com.helger.peppol.utils.PeppolKeyStoreHelper;
-import com.helger.peppol.utils.PeppolKeyStoreHelper.Config2010;
-import com.helger.peppol.utils.PeppolKeyStoreHelper.Config2018;
 import com.helger.scope.singleton.AbstractGlobalSingleton;
 import com.helger.security.keystore.EKeyStoreType;
 import com.helger.settings.ISettings;
@@ -183,7 +181,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   }
 
   /**
-   * Read value of <code>clientcert.issuer.x</code> values, where "x" is an
+   * Read value of <code>clientcert.issuer.X</code> values, where "X" is an
    * ascending number starting from 1.
    *
    * @return The list of potential issuers of the expected client certificates.
@@ -209,101 +207,38 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   }
 
   /**
-   * @return The type to the truststore. This is usually JKS. Property
-   *         <code>truststore.type</code>.
+   * @return A list of trust stores configured. Property names are
+   *         <code>truststore.X.type</code>, <code>truststore.X.path</code>,
+   *         <code>truststore.X.password</code>,
+   *         <code>truststore.X.alias</code>, where "X" is an ascending number
+   *         starting from 1.
    * @since 0.6.0
    */
   @Nonnull
-  public static EKeyStoreType getTrustStoreType ()
+  public static ICommonsList <PDConfiguredTrustStore> getAllTrustStores ()
   {
-    final String sType = s_aConfigFile.getAsString ("truststore.type");
-    return EKeyStoreType.getFromIDCaseInsensitiveOrDefault (sType, PeppolKeyStoreHelper.TRUSTSTORE_TYPE);
-  }
+    final ICommonsList <PDConfiguredTrustStore> ret = new CommonsArrayList <> ();
 
-  /**
-   * Read value of <code>truststore.path</code>. Defaults to
-   * <code>{@link PeppolKeyStoreHelper#TRUSTSTORE_COMPLETE_CLASSPATH}</code>.
-   *
-   * @return The truststore location path.
-   */
-  @Nonnull
-  public static String getTrustStorePath ()
-  {
-    return s_aConfigFile.getAsString ("truststore.path", PeppolKeyStoreHelper.TRUSTSTORE_COMPLETE_CLASSPATH);
-  }
+    int nIndex = 1;
+    while (true)
+    {
+      final String sPrefix = "truststore." + nIndex;
 
-  /**
-   * Read value of <code>truststore.password</code>. Defaults to
-   * <code>{@link PeppolKeyStoreHelper#TRUSTSTORE_PASSWORD}</code>.
-   *
-   * @return The truststore password.
-   */
-  @Nonnull
-  public static String getTrustStorePassword ()
-  {
-    return s_aConfigFile.getAsString ("truststore.password", PeppolKeyStoreHelper.TRUSTSTORE_PASSWORD);
-  }
+      final String sType = s_aConfigFile.getAsString (sPrefix + ".type");
+      final EKeyStoreType eType = EKeyStoreType.getFromIDCaseInsensitiveOrDefault (sType,
+                                                                                   PeppolKeyStoreHelper.TRUSTSTORE_TYPE);
+      final String sPath = s_aConfigFile.getAsString (sPrefix + ".path");
+      final String sPassword = s_aConfigFile.getAsString (sPrefix + ".password");
+      final String sAlias = s_aConfigFile.getAsString (sPrefix + ".alias");
 
-  /**
-   * Read value of <code>truststore.alias</code>. Defaults to
-   * <code>{@link Config2010#TRUSTSTORE_PRODUCTION_ALIAS_SMP}</code>.
-   *
-   * @return The truststore password.
-   */
-  @Nonnull
-  public static String getTrustStoreAlias ()
-  {
-    return s_aConfigFile.getAsString ("truststore.alias",
-                                      PeppolKeyStoreHelper.Config2010.TRUSTSTORE_PRODUCTION_ALIAS_SMP);
-  }
+      if (StringHelper.hasNoText (sPath) || StringHelper.hasNoText (sPassword) || StringHelper.hasNoText (sAlias))
+        break;
 
-  /**
-   * @return The type to the truststore. This is usually JKS. Property
-   *         <code>truststore-alt.type</code>.
-   * @since 0.6.0
-   */
-  @Nonnull
-  public static EKeyStoreType getTrustStoreTypeAlternative ()
-  {
-    final String sType = s_aConfigFile.getAsString ("truststore-alt.type");
-    return EKeyStoreType.getFromIDCaseInsensitiveOrDefault (sType, PeppolKeyStoreHelper.TRUSTSTORE_TYPE);
-  }
-
-  /**
-   * Read value of <code>truststore-alt.path</code>. Defaults to
-   * <code>{@link PeppolKeyStoreHelper#TRUSTSTORE_COMPLETE_CLASSPATH}</code>.
-   *
-   * @return The alternative truststore location path.
-   */
-  @Nullable
-  public static String getTrustStorePathAlternative ()
-  {
-    return s_aConfigFile.getAsString ("truststore-alt.path", PeppolKeyStoreHelper.TRUSTSTORE_COMPLETE_CLASSPATH);
-  }
-
-  /**
-   * Read value of <code>truststore-alt.password</code>. Defaults to
-   * <code>{@link PeppolKeyStoreHelper#TRUSTSTORE_PASSWORD}</code>.
-   *
-   * @return The alternative truststore password.
-   */
-  @Nullable
-  public static String getTrustStorePasswordAlternative ()
-  {
-    return s_aConfigFile.getAsString ("truststore-alt.password", PeppolKeyStoreHelper.TRUSTSTORE_PASSWORD);
-  }
-
-  /**
-   * Read value of <code>truststore-alt.alias</code>. Defaults to
-   * <code>{@link Config2018#TRUSTSTORE_PRODUCTION_ALIAS_SMP}</code>.
-   *
-   * @return The alternative truststore password.
-   */
-  @Nullable
-  public static String getTrustStoreAliasAlternative ()
-  {
-    return s_aConfigFile.getAsString ("truststore-alt.alias",
-                                      PeppolKeyStoreHelper.Config2018.TRUSTSTORE_PRODUCTION_ALIAS_SMP);
+      // Present - try next
+      ret.add (new PDConfiguredTrustStore (eType, sPath, sPassword, sAlias));
+      ++nIndex;
+    }
+    return ret;
   }
 
   /**

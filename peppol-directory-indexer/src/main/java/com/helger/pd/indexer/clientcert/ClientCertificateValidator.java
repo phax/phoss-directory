@@ -42,9 +42,8 @@ import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.collection.impl.ICommonsMap;
 import com.helger.commons.datetime.PDTFactory;
 import com.helger.commons.exception.InitializationException;
-import com.helger.commons.string.StringHelper;
+import com.helger.pd.settings.PDConfiguredTrustStore;
 import com.helger.pd.settings.PDServerConfiguration;
-import com.helger.security.keystore.EKeyStoreType;
 import com.helger.security.keystore.KeyStoreHelper;
 
 /**
@@ -66,8 +65,12 @@ public final class ClientCertificateValidator
   private static final ClientCertificateValidator s_aInstance = new ClientCertificateValidator ();
 
   private static boolean s_bCheckDisabled = !PDServerConfiguration.isClientCertificateValidationActive ();
-  private static X509Certificate s_aPeppolSMPRootCert;
-  private static X509Certificate s_aPeppolSMPRootCertAlternative;
+
+  /**
+   * All PEPPOL root certificates from the truststore configuration. Never
+   * empty.
+   */
+  private static ICommonsList <X509Certificate> s_aPeppolSMPRootCerts = new CommonsArrayList <> ();
 
   /** Sorted list with all issuers we're accepting. Never empty. */
   private static final ICommonsList <X500Principal> s_aSearchIssuers = new CommonsArrayList <> ();
@@ -93,96 +96,62 @@ public final class ClientCertificateValidator
   {
     // Get the certificate issuer we need
     final ICommonsList <String> aIssuersToSearch = PDServerConfiguration.getAllClientCertIssuer ();
-    if (aIssuersToSearch.isEmpty ())
-      throw new InitializationException ("The configuration file is missing the entry for the client certificate issuer");
 
     // Throws a runtime exception on syntax error anyway :)
     for (final String sIssuerToSearch : aIssuersToSearch)
       s_aSearchIssuers.add (new X500Principal (sIssuerToSearch));
 
+    if (s_aSearchIssuers.isEmpty ())
+      throw new InitializationException ("The configuration file is missing the entry for the client certificate issuer");
+
     s_aLogger.info ("The following client certificate issuer(s) are valid: " + s_aSearchIssuers);
   }
 
-  private static void _initRootCert ()
+  private static void _initCerts ()
   {
     // Get data from config file
-    final EKeyStoreType eTrustStoreType = PDServerConfiguration.getTrustStoreType ();
-    final String sTrustStorePath = PDServerConfiguration.getTrustStorePath ();
-    final String sTrustStorePassword = PDServerConfiguration.getTrustStorePassword ();
-    final String sTrustStoreAlias = PDServerConfiguration.getTrustStoreAlias ();
-
-    // Load keystores
-    try
+    for (final PDConfiguredTrustStore aTS : PDServerConfiguration.getAllTrustStores ())
     {
-      final KeyStore aKS = KeyStoreHelper.loadKeyStoreDirect (eTrustStoreType, sTrustStorePath, sTrustStorePassword);
-      s_aPeppolSMPRootCert = (X509Certificate) aKS.getCertificate (sTrustStoreAlias);
-    }
-    catch (final Throwable t)
-    {
-      final String sErrorMsg = "Failed to read trust store from '" + sTrustStorePath + "'";
-      s_aLogger.error (sErrorMsg);
-      throw new InitializationException (sErrorMsg, t);
-    }
-
-    // Check if both root certificates could be loaded
-    if (s_aPeppolSMPRootCert == null)
-      throw new InitializationException ("Failed to resolve alias '" + sTrustStoreAlias + "' in trust store!");
-    s_aLogger.info ("Root certificate loaded successfully from trust store '" +
-                    sTrustStorePath +
-                    "' with alias '" +
-                    sTrustStoreAlias +
-                    "'; root certificate serial=" +
-                    s_aPeppolSMPRootCert.getSerialNumber ().toString (16) +
-                    "; root certficate issuer=" +
-                    s_aPeppolSMPRootCert.getIssuerX500Principal ().getName ());
-  }
-
-  private static void _initRootCertAlternative ()
-  {
-    // Get data from config file
-    final EKeyStoreType eTrustStoreType = PDServerConfiguration.getTrustStoreTypeAlternative ();
-    final String sTrustStorePath = PDServerConfiguration.getTrustStorePathAlternative ();
-    final String sTrustStorePassword = PDServerConfiguration.getTrustStorePasswordAlternative ();
-    final String sTrustStoreAlias = PDServerConfiguration.getTrustStoreAliasAlternative ();
-
-    if (StringHelper.hasText (sTrustStorePath) &&
-        StringHelper.hasText (sTrustStorePassword) &&
-        StringHelper.hasText (sTrustStorePath))
-    {
-      // Load keystores
+      X509Certificate aCert;
       try
       {
-        final KeyStore aKS = KeyStoreHelper.loadKeyStoreDirect (eTrustStoreType, sTrustStorePath, sTrustStorePassword);
-        s_aPeppolSMPRootCertAlternative = (X509Certificate) aKS.getCertificate (sTrustStoreAlias);
+        final KeyStore aKS = KeyStoreHelper.loadKeyStoreDirect (aTS.getType (), aTS.getPath (), aTS.getPassword ());
+        aCert = (X509Certificate) aKS.getCertificate (aTS.getAlias ());
       }
       catch (final Throwable t)
       {
-        final String sErrorMsg = "Failed to read alternative trust store from '" + sTrustStorePath + "'";
+        final String sErrorMsg = "Failed to read trust store from '" + aTS.getPath () + "'";
         s_aLogger.error (sErrorMsg);
         throw new InitializationException (sErrorMsg, t);
       }
 
       // Check if both root certificates could be loaded
-      if (s_aPeppolSMPRootCertAlternative == null)
+      if (aCert == null)
         throw new InitializationException ("Failed to resolve alias '" +
-                                           sTrustStoreAlias +
-                                           "' in alternative trust store!");
-      s_aLogger.info ("Alternative root certificate loaded successfully from trust store '" +
-                      sTrustStorePath +
+                                           aTS.getAlias () +
+                                           "' in trust store '" +
+                                           aTS.getPath () +
+                                           "'!");
+      s_aPeppolSMPRootCerts.add (aCert);
+
+      s_aLogger.info ("Root certificate loaded successfully from trust store '" +
+                      aTS.getPath () +
                       "' with alias '" +
-                      sTrustStoreAlias +
+                      aTS.getAlias () +
                       "'; root certificate serial=" +
-                      s_aPeppolSMPRootCertAlternative.getSerialNumber ().toString (16) +
+                      aCert.getSerialNumber ().toString (16) +
                       "; root certficate issuer=" +
-                      s_aPeppolSMPRootCertAlternative.getIssuerX500Principal ().getName ());
+                      aCert.getIssuerX500Principal ().getName ());
     }
+
+    if (s_aPeppolSMPRootCerts.isEmpty ())
+      throw new InitializationException ("Server configuration contains no trusted root certificate configuration!");
   }
 
   static
   {
     _initCertificateIssuers ();
-    _initRootCert ();
-    _initRootCertAlternative ();
+    _initCerts ();
   }
 
   private ClientCertificateValidator ()
@@ -343,30 +312,17 @@ public final class ClientCertificateValidator
 
     // This is the main verification process against the PEPPOL SMP root
     // certificate
-    String sVerifyErrorMsg = _verifyCertificate (aClientCertToVerify, s_aPeppolSMPRootCert, aCRLs, aVerificationDate);
-    if (sVerifyErrorMsg == null)
+    for (final X509Certificate aRootCert : s_aPeppolSMPRootCerts)
     {
-      s_aLogger.info ("  Passed client certificate is valid");
-      return ClientCertificateValidationResult.createSuccess (sClientID);
-    }
-
-    // try alternative (if present)
-    if (s_aPeppolSMPRootCertAlternative != null)
-    {
-      final String sPeppolVerifyMsgAlternative = _verifyCertificate (aClientCertToVerify,
-                                                                     s_aPeppolSMPRootCertAlternative,
-                                                                     aCRLs,
-                                                                     aVerificationDate);
-      if (sPeppolVerifyMsgAlternative == null)
+      final String sVerifyErrorMsg = _verifyCertificate (aClientCertToVerify, aRootCert, aCRLs, aVerificationDate);
+      if (sVerifyErrorMsg == null)
       {
-        s_aLogger.info ("  Passed client certificate is valid (alternative)");
+        s_aLogger.info ("  Passed client certificate is valid");
         return ClientCertificateValidationResult.createSuccess (sClientID);
       }
-
-      sVerifyErrorMsg += ' ' + sPeppolVerifyMsgAlternative;
     }
 
-    s_aLogger.warn ("Client certificate is invalid: " + sVerifyErrorMsg);
+    s_aLogger.warn ("Client certificate is invalid: " + sClientID);
     return ClientCertificateValidationResult.createFailure ();
   }
 }
