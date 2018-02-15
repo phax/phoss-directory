@@ -247,13 +247,17 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
         aLuceneQuery = aBuilder.build ();
       }
 
+      final int nMaxResults = MAX_RESULTS;
+
       // Search all documents
       final ICommonsList <PDStoredDocument> aResultDocs = PDMetaManager.getStorageMgr ().getAllDocuments (aLuceneQuery,
-                                                                                                          -1);
+                                                                                                          nMaxResults);
 
       s_aLogger.info ("  Result for <" +
                       aLuceneQuery +
-                      "> " +
+                      "> (max=" +
+                      nMaxResults +
+                      ") " +
                       (aResultDocs.size () == 1 ? "is 1 document" : "are " + aResultDocs.size () + " documents"));
 
       // Filter by index/count
