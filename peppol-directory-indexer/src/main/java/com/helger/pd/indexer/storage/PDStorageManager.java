@@ -22,6 +22,7 @@ import java.util.Locale;
 import java.util.function.Consumer;
 import java.util.function.ObjIntConsumer;
 
+import javax.annotation.CheckForSigned;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -37,8 +38,10 @@ import org.apache.lucene.search.Collector;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.TopScoreDocCollector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -338,7 +341,7 @@ public final class PDStorageManager implements IPDStorageManager
    *        The Lucene collector to be used. May not be <code>null</code>.
    * @throws IOException
    *         On Lucene error
-   * @see #getAllDocuments(Query)
+   * @see #getAllDocuments(Query,int)
    */
   public void searchAtomic (@Nonnull final Query aQuery, @Nonnull final Collector aCollector) throws IOException
   {
@@ -366,41 +369,65 @@ public final class PDStorageManager implements IPDStorageManager
    *
    * @param aQuery
    *        Query to execute. May not be <code>null</code>-
+   * @param nMaxResultCount
+   *        Maximum number of results. Values &ge; 0 mean all.
    * @param aConsumer
    *        The consumer of the {@link PDStoredDocument} objects.
    * @throws IOException
    *         On Lucene error
    * @see #searchAtomic(Query, Collector)
-   * @see #getAllDocuments(Query)
+   * @see #getAllDocuments(Query,int)
    */
   public void searchAllDocuments (@Nonnull final Query aQuery,
+                                  @CheckForSigned final int nMaxResultCount,
                                   @Nonnull final Consumer <PDStoredDocument> aConsumer) throws IOException
   {
     ValueEnforcer.notNull (aQuery, "Query");
     ValueEnforcer.notNull (aConsumer, "Consumer");
 
     final ObjIntConsumer <Document> aConverter = (aDoc, nDocID) -> aConsumer.accept (PDStoredDocument.create (aDoc));
-    final Collector aCollector = new AllDocumentsCollector (m_aLucene, aConverter);
-    searchAtomic (aQuery, aCollector);
+    if (nMaxResultCount <= 0)
+    {
+      // Search all
+      final Collector aCollector = new AllDocumentsCollector (m_aLucene, aConverter);
+      searchAtomic (aQuery, aCollector);
+    }
+    else
+    {
+      // Search top docs only
+      final TopScoreDocCollector aCollector = TopScoreDocCollector.create (nMaxResultCount);
+      searchAtomic (aQuery, aCollector);
+      for (final ScoreDoc aScoreDoc : aCollector.topDocs ().scoreDocs)
+      {
+        final Document aDoc = m_aLucene.getDocument (aScoreDoc.doc);
+        if (aDoc == null)
+          throw new IllegalStateException ("Failed to resolve Lucene Document with ID " + aScoreDoc.doc);
+        // Pass to Consumer
+        aConsumer.accept (PDStoredDocument.create (aDoc));
+      }
+    }
   }
 
   /**
    * Get all {@link PDStoredDocument} objects matching the provided query. This
-   * is a specialization of {@link #searchAllDocuments(Query, Consumer)}.
+   * is a specialization of {@link #searchAllDocuments(Query, int, Consumer)}.
    *
    * @param aQuery
    *        The query to be executed. May not be <code>null</code>.
+   * @param nMaxResultCount
+   *        Maximum number of results. Values &ge; 0 mean all.
    * @return A non-<code>null</code> but maybe empty list of matching documents
-   * @see #searchAllDocuments(Query, Consumer)
+   * @see #searchAllDocuments(Query, int, Consumer)
    */
   @Nonnull
   @ReturnsMutableCopy
-  public ICommonsList <PDStoredDocument> getAllDocuments (@Nonnull final Query aQuery)
+  public ICommonsList <PDStoredDocument> getAllDocuments (@Nonnull final Query aQuery,
+                                                          @CheckForSigned final int nMaxResultCount)
   {
     final ICommonsList <PDStoredDocument> aTargetList = new CommonsArrayList <> ();
     try
     {
-      searchAllDocuments (aQuery, aTargetList::add);
+      searchAllDocuments (aQuery, nMaxResultCount, aTargetList::add);
     }
     catch (final IOException ex)
     {
@@ -413,7 +440,7 @@ public final class PDStorageManager implements IPDStorageManager
   public ICommonsList <PDStoredDocument> getAllDocumentsOfParticipant (@Nonnull final IParticipantIdentifier aParticipantID)
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
-    return getAllDocuments (new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID)));
+    return getAllDocuments (new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID)), -1);
   }
 
   @Nonnull

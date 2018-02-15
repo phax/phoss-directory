@@ -22,7 +22,6 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
 import java.time.Month;
-import java.util.List;
 
 import javax.annotation.Nonnull;
 
@@ -31,7 +30,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 
-import com.helger.commons.collection.CollectionHelper;
+import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.datetime.PDTFactory;
 import com.helger.pd.businesscard.PDExtendedBusinessCard;
@@ -95,7 +94,7 @@ public final class PDStorageManagerTest
       aBI.addBusinessEntity (aEntity);
     }
     return new PDExtendedBusinessCard (aBI,
-                                       CollectionHelper.newList (EPredefinedDocumentTypeIdentifier.INVOICE_T010_BIS5A_V20));
+                                       new CommonsArrayList <> (EPredefinedDocumentTypeIdentifier.INVOICE_T010_BIS5A_V20));
   }
 
   @Test
@@ -109,7 +108,7 @@ public final class PDStorageManagerTest
       aMgr.createOrUpdateEntry (aParticipantID, _createMockBI (aParticipantID), aMetaData);
       try
       {
-        final List <PDStoredDocument> aDocs = aMgr.getAllDocumentsOfParticipant (aParticipantID);
+        final ICommonsList <PDStoredDocument> aDocs = aMgr.getAllDocumentsOfParticipant (aParticipantID);
         assertEquals (2, aDocs.size ());
         final PDStoredDocument aDoc1 = aDocs.get (0);
         assertEquals (aParticipantID, aDoc1.getParticipantID ());
@@ -158,11 +157,12 @@ public final class PDStorageManagerTest
       try
       {
         // No country - no fields
-        ICommonsList <PDStoredDocument> aDocs = aMgr.getAllDocuments (new TermQuery (PDField.COUNTRY_CODE.getExactMatchTerm ("")));
+        ICommonsList <PDStoredDocument> aDocs = aMgr.getAllDocuments (new TermQuery (PDField.COUNTRY_CODE.getExactMatchTerm ("")),
+                                                                      -1);
         assertEquals (0, aDocs.size ());
 
         // Search for NO
-        aDocs = aMgr.getAllDocuments (new TermQuery (PDField.COUNTRY_CODE.getExactMatchTerm ("NO")));
+        aDocs = aMgr.getAllDocuments (new TermQuery (PDField.COUNTRY_CODE.getExactMatchTerm ("NO")), -1);
         assertEquals (1, aDocs.size ());
 
         final PDStoredDocument aSingleDoc = aDocs.get (0);

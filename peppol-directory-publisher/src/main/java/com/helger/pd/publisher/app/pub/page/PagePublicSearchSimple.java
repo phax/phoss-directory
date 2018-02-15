@@ -79,6 +79,8 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
   public static final String FIELD_QUERY = "q";
   public static final String FIELD_PARTICIPANT_ID = EPDSearchField.PARTICIPANT_ID.getFieldName ();
   public static final String PARAM_MAX = "max";
+  public static final int DEFAULT_MAX = 50;
+  public static final int MAX_MAX = 1000;
   private static final Logger s_aLogger = LoggerFactory.getLogger (PagePublicSearchSimple.class);
 
   public PagePublicSearchSimple (@Nonnull @Nonempty final String sID)
@@ -134,10 +136,13 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
       s_aLogger.debug ("Created query for '" + sQuery + "' is <" + aLuceneQuery + ">");
 
     // Search all documents
-    final ICommonsList <PDStoredDocument> aResultDocs = PDMetaManager.getStorageMgr ().getAllDocuments (aLuceneQuery);
+    final ICommonsList <PDStoredDocument> aResultDocs = PDMetaManager.getStorageMgr ().getAllDocuments (aLuceneQuery,
+                                                                                                        nMaxResults);
     s_aLogger.info ("  Result for <" +
                     aLuceneQuery +
-                    "> " +
+                    "> (max=" +
+                    nMaxResults +
+                    ") " +
                     (aResultDocs.size () == 1 ? "is 1 document" : "are " + aResultDocs.size () + " documents"));
 
     // Group by participant ID
@@ -270,7 +275,18 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
 
     final String sQuery = aWPEC.params ().getAsString (FIELD_QUERY);
     final String sParticipantID = aWPEC.params ().getAsString (FIELD_PARTICIPANT_ID);
-    final int nMaxResults = Math.max (aWPEC.params ().getAsInt (PARAM_MAX, 50), 1);
+    int nMaxResults = aWPEC.params ().getAsInt (PARAM_MAX, DEFAULT_MAX);
+    if (nMaxResults < 1)
+    {
+      // Avoid "all" results
+      nMaxResults = 1;
+    }
+    else
+      if (nMaxResults > MAX_MAX)
+      {
+        // Avoid too many results
+        nMaxResults = MAX_MAX;
+      }
     boolean bShowQuery = true;
 
     if (aWPEC.hasAction (CPageParam.ACTION_VIEW) && StringHelper.hasText (sParticipantID))

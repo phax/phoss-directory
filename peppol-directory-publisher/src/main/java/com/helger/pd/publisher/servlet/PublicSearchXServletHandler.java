@@ -248,7 +248,8 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
       }
 
       // Search all documents
-      final ICommonsList <PDStoredDocument> aResultDocs = PDMetaManager.getStorageMgr ().getAllDocuments (aLuceneQuery);
+      final ICommonsList <PDStoredDocument> aResultDocs = PDMetaManager.getStorageMgr ().getAllDocuments (aLuceneQuery,
+                                                                                                          -1);
 
       s_aLogger.info ("  Result for <" +
                       aLuceneQuery +
