@@ -247,7 +247,8 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
         aLuceneQuery = aBuilder.build ();
       }
 
-      final int nMaxResults = MAX_RESULTS;
+      // How many results to deliver at most
+      final int nMaxResults = nLastResultIndex + 1;
 
       // Search all documents
       final ICommonsList <PDStoredDocument> aResultDocs = PDMetaManager.getStorageMgr ().getAllDocuments (aLuceneQuery,
