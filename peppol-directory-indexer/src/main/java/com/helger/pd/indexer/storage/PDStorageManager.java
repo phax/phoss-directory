@@ -23,7 +23,6 @@ import java.util.function.Consumer;
 import java.util.function.ObjIntConsumer;
 
 import javax.annotation.CheckForSigned;
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -482,7 +481,7 @@ public final class PDStorageManager implements IPDStorageManager
     return aTargetSet;
   }
 
-  @Nonnegative
+  @CheckForSigned
   public int getContainedParticipantCount ()
   {
     final Query aQuery = PDQueryManager.andNotDeleted (new MatchAllDocsQuery ());
