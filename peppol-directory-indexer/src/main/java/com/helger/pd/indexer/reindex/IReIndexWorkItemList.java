@@ -18,6 +18,7 @@ package com.helger.pd.indexer.reindex;
 
 import java.util.function.Predicate;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -39,6 +40,12 @@ public interface IReIndexWorkItemList
   @Nonnull
   @ReturnsMutableCopy
   ICommonsList <? extends IReIndexWorkItem> getAllItems ();
+
+  /**
+   * @return The number of contained items. Always &ge; 0.
+   */
+  @Nonnegative
+  int getItemCount ();
 
   /**
    * Get the item with the specified ID.

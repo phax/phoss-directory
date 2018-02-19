@@ -18,6 +18,7 @@ package com.helger.pd.indexer.reindex;
 
 import java.util.function.Predicate;
 
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
@@ -112,6 +113,12 @@ public final class ReIndexWorkItemList extends AbstractPhotonMapBasedWALDAO <IRe
   public ICommonsList <IReIndexWorkItem> getAllItems ()
   {
     return getAll ();
+  }
+
+  @Nonnegative
+  public int getItemCount ()
+  {
+    return size ();
   }
 
   @Nullable
