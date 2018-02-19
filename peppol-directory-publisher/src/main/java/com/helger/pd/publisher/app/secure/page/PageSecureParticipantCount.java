@@ -72,8 +72,13 @@ public final class PageSecureParticipantCount extends AbstractAppWebPage
       aNodeList.addChild (aToolbar);
     }
 
-    final ICommonsSortedSet <IParticipantIdentifier> aAllIDs = PDMetaManager.getStorageMgr ()
-                                                                            .getAllContainedParticipantIDs ();
-    aNodeList.addChild (new HCH3 ().addChild (aAllIDs.size () + " participants are contained"));
+    final int nCount = PDMetaManager.getStorageMgr ().getContainedParticipantCount ();
+    aNodeList.addChild (new HCH3 ().addChild (nCount + " participants are contained"));
+
+    final int nReIndexCount = PDMetaManager.getIndexerMgr ().getReIndexList ().getItemCount ();
+    aNodeList.addChild (new HCH3 ().addChild (nReIndexCount + " re-index items are contained"));
+
+    final int nDeadCount = PDMetaManager.getIndexerMgr ().getDeadList ().getItemCount ();
+    aNodeList.addChild (new HCH3 ().addChild (nDeadCount + " dead items are contained"));
   }
 }

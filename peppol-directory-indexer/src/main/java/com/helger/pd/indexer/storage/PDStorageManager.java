@@ -23,6 +23,7 @@ import java.util.function.Consumer;
 import java.util.function.ObjIntConsumer;
 
 import javax.annotation.CheckForSigned;
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -42,6 +43,7 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.TopScoreDocCollector;
+import org.apache.lucene.search.TotalHitCountCollector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -359,8 +361,25 @@ public final class PDStorageManager implements IPDStorageManager
         _timedSearch ( () -> aSearcher.search (aQuery, aCollector), aQuery);
       }
       else
-        s_aLogger.error ("Failed to obtain IndexSearcher");
+        s_aLogger.error ("Failed to obtain IndexSearcher for " + aQuery);
     });
+  }
+
+  @CheckForSigned
+  public int getCount (@Nonnull final Query aQuery)
+  {
+    ValueEnforcer.notNull (aQuery, "Query");
+    try
+    {
+      final TotalHitCountCollector aCollector = new TotalHitCountCollector ();
+      searchAtomic (aQuery, aCollector);
+      return aCollector.getTotalHits ();
+    }
+    catch (final IOException ex)
+    {
+      s_aLogger.error ("Error counting documents with query " + aQuery, ex);
+      return -1;
+    }
   }
 
   /**
@@ -461,6 +480,13 @@ public final class PDStorageManager implements IPDStorageManager
       s_aLogger.error ("Error searching for documents with query " + aQuery, ex);
     }
     return aTargetSet;
+  }
+
+  @Nonnegative
+  public int getContainedParticipantCount ()
+  {
+    final Query aQuery = PDQueryManager.andNotDeleted (new MatchAllDocsQuery ());
+    return getCount (aQuery);
   }
 
   /**
