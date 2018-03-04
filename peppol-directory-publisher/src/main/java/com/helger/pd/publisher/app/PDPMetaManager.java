@@ -54,11 +54,14 @@ public final class PDPMetaManager extends AbstractGlobalSingleton
     {
       // TODO add managers here
 
-      // Use only the configured SML (if any)
-      // By default both official PEPPOL SMLs are queried!
       final ISMLInfo aSML = PDServerConfiguration.getSMLToUse ();
       if (aSML != null)
-        PDMetaManager.setBusinessCardProvider (new SMPBusinessCardProvider (aSML));
+      {
+        // Use only the configured SML (if any)
+        // By default both official PEPPOL SMLs are queried!
+        PDMetaManager.setBusinessCardProvider (SMPBusinessCardProvider.createWithDefinedSML (aSML,
+                                                                                             PDServerConfiguration.getURLProvider ()));
+      }
 
       s_aLogger.info (ClassHelper.getClassLocalName (this) + " was initialized");
     }

@@ -17,12 +17,14 @@
 package com.helger.pd.indexer.mgr;
 
 import javax.annotation.Nonnull;
+import javax.annotation.concurrent.GuardedBy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.UsedViaReflection;
+import com.helger.commons.concurrent.SimpleReadWriteLock;
 import com.helger.commons.debug.GlobalDebug;
 import com.helger.commons.exception.InitializationException;
 import com.helger.commons.io.stream.StreamHelper;
@@ -31,6 +33,7 @@ import com.helger.httpclient.HttpClientManager;
 import com.helger.pd.businesscard.IPDBusinessCardProvider;
 import com.helger.pd.indexer.lucene.PDLucene;
 import com.helger.pd.indexer.storage.PDStorageManager;
+import com.helger.pd.settings.PDServerConfiguration;
 import com.helger.peppol.identifier.factory.IIdentifierFactory;
 import com.helger.peppol.identifier.factory.SimpleIdentifierFactory;
 import com.helger.photon.core.app.error.InternalErrorBuilder;
@@ -47,7 +50,10 @@ public final class PDMetaManager extends AbstractGlobalSingleton
 {
   private static final Logger s_aLogger = LoggerFactory.getLogger (PDMetaManager.class);
 
-  private static IPDBusinessCardProvider s_aBCProvider = new SMPBusinessCardProvider ();
+  private static final SimpleReadWriteLock s_aRWLock = new SimpleReadWriteLock ();
+  @GuardedBy ("s_aRWLock")
+  private static IPDBusinessCardProvider s_aBCProvider = SMPBusinessCardProvider.createWithSMLAutoDetect (PDServerConfiguration.getURLProvider ());
+
   private PDLucene m_aLucene;
   private PDStorageManager m_aStorageMgr;
   private PDIndexerManager m_aIndexerMgr;
@@ -105,7 +111,7 @@ public final class PDMetaManager extends AbstractGlobalSingleton
   @Nonnull
   public static IPDBusinessCardProvider getBusinessCardProvider ()
   {
-    return s_aBCProvider;
+    return s_aRWLock.readLocked ( () -> s_aBCProvider);
   }
 
   /**
@@ -118,7 +124,7 @@ public final class PDMetaManager extends AbstractGlobalSingleton
   public static void setBusinessCardProvider (@Nonnull final IPDBusinessCardProvider aBCProvider)
   {
     ValueEnforcer.notNull (aBCProvider, "BCProvider");
-    s_aBCProvider = aBCProvider;
+    s_aRWLock.writeLocked ( () -> s_aBCProvider = aBCProvider);
   }
 
   @Nonnull

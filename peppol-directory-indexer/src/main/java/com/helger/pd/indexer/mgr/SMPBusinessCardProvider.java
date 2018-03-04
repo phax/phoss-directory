@@ -17,6 +17,7 @@
 package com.helger.pd.indexer.mgr;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 
@@ -32,6 +33,7 @@ import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.VisibleForTesting;
 import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.ICommonsList;
@@ -52,7 +54,6 @@ import com.helger.peppol.smp.ServiceMetadataReferenceType;
 import com.helger.peppol.smpclient.SMPClientReadOnly;
 import com.helger.peppol.smpclient.exception.SMPClientException;
 import com.helger.peppol.url.IPeppolURLProvider;
-import com.helger.peppol.url.PeppolURLProvider;
 
 /**
  * The SMP based {@link IPDBusinessCardProvider} implementation. An SMP lookup
@@ -65,18 +66,40 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
 {
   private static final String URL_PART_SERVICES = "/services/";
   private static final Logger s_aLogger = LoggerFactory.getLogger (SMPBusinessCardProvider.class);
-  private static final IPeppolURLProvider URL_PROVIDER = PeppolURLProvider.INSTANCE;
 
+  private final URI m_aSMPURI;
   private final ISMLInfo m_aSelectedSML;
+  private final IPeppolURLProvider m_aURLProvider;
 
-  public SMPBusinessCardProvider ()
+  /**
+   * Constructor.
+   *
+   * @param aSMPURI
+   *        The URI of the SMP. May be <code>null</code> to use SML/DNS lookup.
+   *        If this parameter is non-<code>null</code> the SML parameter MUST be
+   *        <code>null</code>. This parameter is only needed for testing
+   *        purposes, if a network consists of a single SMP and has NO DNS
+   *        setup!
+   * @param aSelectedSML
+   *        <code>null</code> to use an auto-select, a specific one if known.
+   * @param aURLProvider
+   *        The URL provider to be used. Must be non-<code>null</code> if SML is
+   *        to be used.
+   */
+  protected SMPBusinessCardProvider (@Nullable final URI aSMPURI,
+                                     @Nullable final ISMLInfo aSelectedSML,
+                                     @Nullable final IPeppolURLProvider aURLProvider)
   {
-    this (null);
-  }
-
-  public SMPBusinessCardProvider (@Nullable final ISMLInfo aSelectedSML)
-  {
+    if (aSMPURI != null)
+    {
+      ValueEnforcer.isNull (aSelectedSML, "Selected SML must be null if an SMP URI is present!");
+      ValueEnforcer.isNull (aURLProvider, "URL provider must be null if an SMP URI is present!");
+    }
+    else
+      ValueEnforcer.notNull (aURLProvider, "URL Provider");
+    m_aSMPURI = aSMPURI;
     m_aSelectedSML = aSelectedSML;
+    m_aURLProvider = aURLProvider;
   }
 
   /**
@@ -218,27 +241,36 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
   {
     PDExtendedBusinessCard aBC;
 
-    if (m_aSelectedSML != null)
+    if (m_aSMPURI != null)
     {
-      // Use selected SML only
-      final SMPClientReadOnly aSMPClientSML = new SMPClientReadOnly (URL_PROVIDER, aParticipantID, m_aSelectedSML);
-      aBC = getBusinessCard (aParticipantID, aSMPClientSML);
+      // Use a preselected SMP URI
+      final SMPClientReadOnly aSMPClientFixed = new SMPClientReadOnly (m_aSMPURI);
+      aBC = getBusinessCard (aParticipantID, aSMPClientFixed);
     }
     else
-    {
-      // No SML specified - use both!
-      // Create SMP client for SML first
-      final SMPClientReadOnly aSMPClientSML = new SMPClientReadOnly (URL_PROVIDER,
-                                                                     aParticipantID,
-                                                                     ESML.DIGIT_PRODUCTION);
-      aBC = getBusinessCard (aParticipantID, aSMPClientSML);
-      if (aBC == null)
+      if (m_aSelectedSML != null)
       {
-        // Try with SMK upon failure
-        final SMPClientReadOnly aSMPClientSMK = new SMPClientReadOnly (URL_PROVIDER, aParticipantID, ESML.DIGIT_TEST);
-        aBC = getBusinessCard (aParticipantID, aSMPClientSMK);
+        // Use selected SML only
+        final SMPClientReadOnly aSMPClientSML = new SMPClientReadOnly (m_aURLProvider, aParticipantID, m_aSelectedSML);
+        aBC = getBusinessCard (aParticipantID, aSMPClientSML);
       }
-    }
+      else
+      {
+        // No SML specified - use both - order matters!
+        aBC = null;
+        for (final ESML eSML : new ESML [] { ESML.DIGIT_PRODUCTION, ESML.DIGIT_TEST })
+        {
+          // Create SMP client
+          final SMPClientReadOnly aSMPClientSML = new SMPClientReadOnly (m_aURLProvider, aParticipantID, eSML);
+
+          // query SMP
+          aBC = getBusinessCard (aParticipantID, aSMPClientSML);
+
+          // Found one?
+          if (aBC != null)
+            break;
+        }
+      }
 
     if (aBC != null)
       s_aLogger.info ("Found BusinessCard for '" +
@@ -247,5 +279,28 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
                       aBC.getDocumentTypeCount () +
                       " document types");
     return aBC;
+  }
+
+  @Nonnull
+  public static SMPBusinessCardProvider createWithDefinedSML (@Nonnull final ISMLInfo aSMLInfo,
+                                                              @Nonnull final IPeppolURLProvider aURLProvider)
+  {
+    ValueEnforcer.notNull (aSMLInfo, "SMLInfo");
+    ValueEnforcer.notNull (aURLProvider, "URLProvider");
+    return new SMPBusinessCardProvider (null, aSMLInfo, aURLProvider);
+  }
+
+  @Nonnull
+  public static SMPBusinessCardProvider createWithSMLAutoDetect (@Nonnull final IPeppolURLProvider aURLProvider)
+  {
+    ValueEnforcer.notNull (aURLProvider, "URLProvider");
+    return new SMPBusinessCardProvider (null, null, aURLProvider);
+  }
+
+  @Nonnull
+  public static SMPBusinessCardProvider createForFixedSMP (@Nonnull final URI aSMPURI)
+  {
+    ValueEnforcer.notNull (aSMPURI, "SMP URI");
+    return new SMPBusinessCardProvider (aSMPURI, null, null);
   }
 }

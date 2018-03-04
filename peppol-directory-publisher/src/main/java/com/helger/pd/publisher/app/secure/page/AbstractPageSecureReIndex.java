@@ -40,7 +40,6 @@ import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.peppol.sml.ESML;
 import com.helger.peppol.sml.ISMLInfo;
 import com.helger.peppol.url.IPeppolURLProvider;
-import com.helger.peppol.url.PeppolURLProvider;
 import com.helger.photon.bootstrap3.alert.BootstrapErrorBox;
 import com.helger.photon.bootstrap3.alert.BootstrapQuestionBox;
 import com.helger.photon.bootstrap3.alert.BootstrapSuccessBox;
@@ -128,7 +127,7 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
   {
     final HCNodeList aNodeList = aWPEC.getNodeList ();
     final Locale aDisplayLocale = aWPEC.getDisplayLocale ();
-    final IPeppolURLProvider aURLProvider = PeppolURLProvider.INSTANCE;
+    final IPeppolURLProvider aURLProvider = PDServerConfiguration.getURLProvider ();
 
     final IIndexerWorkItem aWorkItem = aSelectedObject.getWorkItem ();
     final IParticipantIdentifier aParticipantID = aWorkItem.getParticipantID ();

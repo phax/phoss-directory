@@ -31,6 +31,8 @@ import com.helger.commons.debug.GlobalDebug;
 import com.helger.commons.string.StringHelper;
 import com.helger.peppol.sml.ESML;
 import com.helger.peppol.sml.ISMLInfo;
+import com.helger.peppol.url.IPeppolURLProvider;
+import com.helger.peppol.url.PeppolURLProvider;
 import com.helger.peppol.utils.PeppolKeyStoreHelper;
 import com.helger.scope.singleton.AbstractGlobalSingleton;
 import com.helger.security.keystore.EKeyStoreType;
@@ -327,5 +329,11 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
                       "' is invalid. Valid values are: " +
                       StringHelper.getImplodedMapped (", ", ESML.values (), ESML::getID));
     return eSML;
+  }
+
+  @Nonnull
+  public static IPeppolURLProvider getURLProvider ()
+  {
+    return PeppolURLProvider.INSTANCE;
   }
 }
