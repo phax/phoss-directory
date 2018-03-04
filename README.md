@@ -14,7 +14,7 @@ The official PEPPOL Directory (PD; former PEPPOL Yellow Pages - PYP) software. I
 Deprecated sub-projects:  
   * `peppol-directory-client-jdk6` - a client library to be added to SMP servers to force indexing in the PD (Java 1.6) - only available until v0.5.0. Because of ECC certificate usage only available from Java 7 it doesn't make sense to work on this any longer.
   
-Status as per 2017-07-12:
+Status as per 2018-03-04:
   * Production version is available at https://directory.peppol.eu
     * It can only handle participants registered at the SML
     * For the indexing REST API, a client certificate (SMP production) is needed 
@@ -37,6 +37,7 @@ Open tasks according to the design document:
   * Requires peppol-commons 6.0.1 for new OpenPEPPOL PKI v3
   * Added support for trusting an arbitrary number of client certificate issuers (for the server only)
   * Added support for configuring more than two truststores in pd.properties (for the server only)
+  * Added support for usage in the TOOP4EU project
 * v0.5.1 - 2017-07-21
   * Extended `PDClient` to explicitly support a configurable truststore. A default truststore for the current setup is included.
   * PD client https hostname verification can now be 
