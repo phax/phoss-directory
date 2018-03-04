@@ -43,7 +43,7 @@ public class PDSMPHttpResponseHandlerUnsigned extends AbstractSMPResponseHandler
   @Nonnull
   public PD1BusinessCardType handleEntity (@Nonnull final HttpEntity aEntity) throws IOException
   {
-    // Read the payload
+    // Read the payload and remember it!
     final ContentType aContentType = ContentType.getOrDefault (aEntity);
     final Charset aCharset = aContentType.getCharset ();
     final byte [] aData = StreamHelper.getAllBytes (aEntity.getContent ());

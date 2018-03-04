@@ -55,12 +55,12 @@ public final class PDPMetaManager extends AbstractGlobalSingleton
     try
     {
       // TODO add managers here
-
       final URI aFixedSMPURI = PDServerConfiguration.getFixedSMPURI ();
       if (aFixedSMPURI != null)
       {
         // Use only the configured SMP
-        PDMetaManager.setBusinessCardProvider (SMPBusinessCardProvider.createForFixedSMP (aFixedSMPURI));
+        PDMetaManager.setBusinessCardProvider (SMPBusinessCardProvider.createForFixedSMP (PDServerConfiguration.getSMPMode (),
+                                                                                          aFixedSMPURI));
       }
       else
       {
@@ -70,7 +70,8 @@ public final class PDPMetaManager extends AbstractGlobalSingleton
         {
           // Use only the configured SML
           // By default both official PEPPOL SMLs are queried!
-          PDMetaManager.setBusinessCardProvider (SMPBusinessCardProvider.createWithDefinedSML (aSML,
+          PDMetaManager.setBusinessCardProvider (SMPBusinessCardProvider.createWithDefinedSML (PDServerConfiguration.getSMPMode (),
+                                                                                               aSML,
                                                                                                PDServerConfiguration.getURLProvider ()));
         }
       }

@@ -52,7 +52,8 @@ public final class PDMetaManager extends AbstractGlobalSingleton
 
   private static final SimpleReadWriteLock s_aRWLock = new SimpleReadWriteLock ();
   @GuardedBy ("s_aRWLock")
-  private static IPDBusinessCardProvider s_aBCProvider = SMPBusinessCardProvider.createWithSMLAutoDetect (PDServerConfiguration.getURLProvider ());
+  private static IPDBusinessCardProvider s_aBCProvider = SMPBusinessCardProvider.createWithSMLAutoDetect (PDServerConfiguration.getSMPMode (),
+                                                                                                          PDServerConfiguration.getURLProvider ());
 
   private PDLucene m_aLucene;
   private PDStorageManager m_aStorageMgr;

@@ -34,6 +34,7 @@ import com.helger.commons.string.StringHelper;
 import com.helger.commons.url.URLHelper;
 import com.helger.peppol.sml.ESML;
 import com.helger.peppol.sml.ISMLInfo;
+import com.helger.peppol.url.EsensURLProvider;
 import com.helger.peppol.url.IPeppolURLProvider;
 import com.helger.peppol.url.PeppolURLProvider;
 import com.helger.peppol.utils.PeppolKeyStoreHelper;
@@ -351,10 +352,29 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
     return eSML;
   }
 
+  /**
+   * @return The URL provider to be used, if an SML is used. If a direct SMP is
+   *         configured, this does not matter.
+   */
   @Nonnull
   public static IPeppolURLProvider getURLProvider ()
   {
-    // TODO make configurable
+    final String sSMLURLProvider = s_aConfigFile.getAsString ("sml.urlprovider");
+    if ("esens".equalsIgnoreCase (sSMLURLProvider))
+      return EsensURLProvider.INSTANCE;
+
+    // Default is PEPPOL
     return PeppolURLProvider.INSTANCE;
+  }
+
+  @Nonnull
+  public static EPDSMPMode getSMPMode ()
+  {
+    final String sSMPMode = "smp.mode";
+    if ("oasis-bdxr-v1".equalsIgnoreCase (sSMPMode))
+      return EPDSMPMode.OASIS_BDXR_v1;
+
+    // Default is PEPPOL
+    return EPDSMPMode.PEPPOL;
   }
 }

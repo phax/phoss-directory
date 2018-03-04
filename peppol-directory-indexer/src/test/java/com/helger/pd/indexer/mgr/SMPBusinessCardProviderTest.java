@@ -47,7 +47,8 @@ public final class SMPBusinessCardProviderTest
   @Test
   public void testFetch ()
   {
-    final SMPBusinessCardProvider aBI = SMPBusinessCardProvider.createWithSMLAutoDetect (PDServerConfiguration.getURLProvider ());
+    final SMPBusinessCardProvider aBI = SMPBusinessCardProvider.createWithSMLAutoDetect (PDServerConfiguration.getSMPMode (),
+                                                                                         PDServerConfiguration.getURLProvider ());
     final PDExtendedBusinessCard aExtBI = aBI.getBusinessCard (PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9915:test"));
     assertNotNull (aExtBI);
     LOG.info (aExtBI.toString ());
@@ -57,7 +58,8 @@ public final class SMPBusinessCardProviderTest
   @Ignore ("Dont hammer server :)")
   public void test9905LeckmaPeppol ()
   {
-    final SMPBusinessCardProvider aBI = SMPBusinessCardProvider.createWithSMLAutoDetect (PDServerConfiguration.getURLProvider ());
+    final SMPBusinessCardProvider aBI = SMPBusinessCardProvider.createWithSMLAutoDetect (PDServerConfiguration.getSMPMode (),
+                                                                                         PDServerConfiguration.getURLProvider ());
     final PDExtendedBusinessCard aExtBI = aBI.getBusinessCard (PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9905:leckma-peppol"));
     assertNotNull (aExtBI);
     LOG.info (aExtBI.toString ());
@@ -67,8 +69,9 @@ public final class SMPBusinessCardProviderTest
   @Ignore ("Only for on demand testing :)")
   public void testFetchLocal ()
   {
-    final SMPBusinessCardProvider aBI = SMPBusinessCardProvider.createWithSMLAutoDetect (PDServerConfiguration.getURLProvider ());
-    final PDExtendedBusinessCard aExtBI = aBI.getBusinessCard (PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9999:ghx"),
+    final SMPBusinessCardProvider aBI = SMPBusinessCardProvider.createWithSMLAutoDetect (PDServerConfiguration.getSMPMode (),
+                                                                                         PDServerConfiguration.getURLProvider ());
+    final PDExtendedBusinessCard aExtBI = aBI.getBusinessCardPeppolSMP (PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9999:ghx"),
                                                                new SMPClientReadOnly (URLHelper.getAsURI ("http://localhost:90")));
     assertNotNull (aExtBI);
     LOG.info (aExtBI.toString ());
@@ -78,8 +81,9 @@ public final class SMPBusinessCardProviderTest
   @Ignore ("Only for on demand testing :)")
   public void testBabelway ()
   {
-    final SMPBusinessCardProvider aBI = SMPBusinessCardProvider.createWithSMLAutoDetect (PDServerConfiguration.getURLProvider ());
-    final PDExtendedBusinessCard aExtBI = aBI.getBusinessCard (PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9956:0471349823"),
+    final SMPBusinessCardProvider aBI = SMPBusinessCardProvider.createWithSMLAutoDetect (PDServerConfiguration.getSMPMode (),
+                                                                                         PDServerConfiguration.getURLProvider ());
+    final PDExtendedBusinessCard aExtBI = aBI.getBusinessCardPeppolSMP (PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9956:0471349823"),
                                                                new SMPClientReadOnly (URLHelper.getAsURI ("https://int.babelway.net/smp/")));
     assertNotNull (aExtBI);
     LOG.info (aExtBI.toString ());
