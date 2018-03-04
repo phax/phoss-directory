@@ -16,6 +16,8 @@
  */
 package com.helger.pd.settings;
 
+import java.net.URI;
+
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -29,6 +31,7 @@ import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.debug.GlobalDebug;
 import com.helger.commons.string.StringHelper;
+import com.helger.commons.url.URLHelper;
 import com.helger.peppol.sml.ESML;
 import com.helger.peppol.sml.ISMLInfo;
 import com.helger.peppol.url.IPeppolURLProvider;
@@ -318,6 +321,23 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
     return s_aConfigFile.getAsString ("http.proxyPassword");
   }
 
+  /**
+   * @return The fixed SMP URI to be used to retrieve business cards. This
+   *         document should only be used when setting up a new network and
+   *         SML/DNS are not (yet) available in the system. Because it is
+   *         special, it is not documented.
+   */
+  @Nullable
+  public static URI getFixedSMPURI ()
+  {
+    final String sSMPURI = s_aConfigFile.getAsString ("smp.uri");
+    return URLHelper.getAsURI (sSMPURI);
+  }
+
+  /**
+   * @return The SML to be used for SMP lookup for Business Card retrieval. May
+   *         be <code>null</code> to use the default PEPPOL SML and SMK.
+   */
   @Nullable
   public static ISMLInfo getSMLToUse ()
   {
@@ -334,6 +354,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   @Nonnull
   public static IPeppolURLProvider getURLProvider ()
   {
+    // TODO make configurable
     return PeppolURLProvider.INSTANCE;
   }
 }

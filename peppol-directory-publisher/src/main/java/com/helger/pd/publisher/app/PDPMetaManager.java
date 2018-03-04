@@ -16,6 +16,8 @@
  */
 package com.helger.pd.publisher.app;
 
+import java.net.URI;
+
 import javax.annotation.Nonnull;
 
 import org.slf4j.Logger;
@@ -54,13 +56,23 @@ public final class PDPMetaManager extends AbstractGlobalSingleton
     {
       // TODO add managers here
 
-      final ISMLInfo aSML = PDServerConfiguration.getSMLToUse ();
-      if (aSML != null)
+      final URI aFixedSMPURI = PDServerConfiguration.getFixedSMPURI ();
+      if (aFixedSMPURI != null)
       {
-        // Use only the configured SML (if any)
-        // By default both official PEPPOL SMLs are queried!
-        PDMetaManager.setBusinessCardProvider (SMPBusinessCardProvider.createWithDefinedSML (aSML,
-                                                                                             PDServerConfiguration.getURLProvider ()));
+        // Use only the configured SMP
+        PDMetaManager.setBusinessCardProvider (SMPBusinessCardProvider.createForFixedSMP (aFixedSMPURI));
+      }
+      else
+      {
+        // Check if an SML is configure.
+        final ISMLInfo aSML = PDServerConfiguration.getSMLToUse ();
+        if (aSML != null)
+        {
+          // Use only the configured SML
+          // By default both official PEPPOL SMLs are queried!
+          PDMetaManager.setBusinessCardProvider (SMPBusinessCardProvider.createWithDefinedSML (aSML,
+                                                                                               PDServerConfiguration.getURLProvider ()));
+        }
       }
 
       s_aLogger.info (ClassHelper.getClassLocalName (this) + " was initialized");
