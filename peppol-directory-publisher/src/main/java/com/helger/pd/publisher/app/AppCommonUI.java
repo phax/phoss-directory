@@ -100,7 +100,8 @@ public final class AppCommonUI
     // By default allow markdown in system message
     BootstrapSystemMessage.setDefaultUseMarkdown (true);
 
-    final String sLogoImageURL = PDServerConfiguration.getAppName ();
+    // Change logo image?
+    final String sLogoImageURL = PDServerConfiguration.getLogoImageURL ();
     if (StringHelper.hasText (sLogoImageURL))
       CPDPublisher.setLogoImageURL (sLogoImageURL);
   }
