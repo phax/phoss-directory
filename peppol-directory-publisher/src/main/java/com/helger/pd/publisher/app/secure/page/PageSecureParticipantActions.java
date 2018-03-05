@@ -55,7 +55,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
     aNodeList.addChild (new HCH3 ().addChild (aAllIDs.size () + " participants are contained"));
 
     final HCTable aTable = new HCTable (HCCol.star (), HCCol.star (), HCCol.star ()).setID (getID ());
-    aTable.addHeaderRow ().addCells ("ID", "Actions");
+    aTable.addHeaderRow ().addCells ("ID", "", "");
     for (final IParticipantIdentifier aParticipantID : aAllIDs)
     {
       final String sParticipantID = aParticipantID.getURIEncoded ();
