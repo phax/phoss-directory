@@ -35,8 +35,6 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 
-import org.glassfish.grizzly.http.server.HttpServer;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -69,14 +67,13 @@ import com.helger.security.keystore.KeyStoreHelper;
  *
  * @author Philip Helger
  */
-public final class IndexerResourceTest
+public final class LocalHost8080FuncTest
 {
-  private static final Logger s_aLogger = LoggerFactory.getLogger (IndexerResourceTest.class);
+  private static final Logger s_aLogger = LoggerFactory.getLogger (LocalHost8080FuncTest.class);
 
   @Rule
   public final TestRule m_aRule = new PDIndexerTestRule ();
 
-  private HttpServer m_aServer;
   private WebTarget m_aTarget;
 
   @Nonnull
@@ -130,8 +127,6 @@ public final class IndexerResourceTest
     if (aTestClientCertificateKeyStore.exists ())
     {
       // https
-      m_aServer = MockServer.startSecureServer ();
-
       final KeyStore aKeyStore = KeyStoreHelper.loadKeyStoreDirect (EKeyStoreType.JKS,
                                                                     aTestClientCertificateKeyStore.getAbsolutePath (),
                                                                     "peppol");
@@ -147,7 +142,7 @@ public final class IndexerResourceTest
                                           .sslContext (aSSLContext)
                                           .hostnameVerifier (new HostnameVerifierVerifyAll (false))
                                           .build ();
-      m_aTarget = aClient.target (MockServer.BASE_URI_HTTPS);
+      m_aTarget = aClient.target ("https://localhost:8080");
     }
     else
     {
@@ -155,17 +150,9 @@ public final class IndexerResourceTest
       s_aLogger.warn ("The SMP pilot keystore is missing for the tests! Client certificate handling will not be tested!");
       ClientCertificateValidator.allowAllForTests (true);
 
-      m_aServer = MockServer.startRegularServer ();
-
       final Client aClient = ClientBuilder.newClient ();
-      m_aTarget = aClient.target (MockServer.BASE_URI_HTTP);
+      m_aTarget = aClient.target ("http://localhost:8080");
     }
-  }
-
-  @After
-  public void tearDown ()
-  {
-    m_aServer.shutdownNow ();
   }
 
   @Test
@@ -180,6 +167,7 @@ public final class IndexerResourceTest
       final IParticipantIdentifier aPI = PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9915:test" +
                                                                                                                         aIndex.getAndIncrement ());
 
+      s_aLogger.info ("PUT " + aPI.getURIEncoded ());
       final String sResponseMsg = m_aTarget.path ("1.0").request ().put (Entity.text (aPI.getURIEncoded ()),
                                                                          String.class);
       assertEquals ("", sResponseMsg);
@@ -194,6 +182,7 @@ public final class IndexerResourceTest
       final IParticipantIdentifier aPI = PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9915:test" +
                                                                                                                         aIndex.getAndIncrement ());
 
+      s_aLogger.info ("DELETE " + aPI.getURIEncoded ());
       final String sResponseMsg = m_aTarget.path ("1.0").path (aPI.getURIEncoded ()).request ().delete (String.class);
       assertEquals ("", sResponseMsg);
     });

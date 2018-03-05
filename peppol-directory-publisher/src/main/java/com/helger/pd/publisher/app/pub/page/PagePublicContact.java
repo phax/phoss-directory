@@ -110,10 +110,10 @@ public final class PagePublicContact extends AbstractAppWebPage
         aEmailData.setFrom (CPDPublisher.EMAIL_SENDER);
         aEmailData.setTo (new EmailAddress ("support@peppol.eu"), new EmailAddress ("pd@helger.com"));
         aEmailData.setReplyTo (new EmailAddress (sEmail, sName));
-        aEmailData.setSubject ("[PEPPOL Directory] Contact Form - " + sName);
+        aEmailData.setSubject ("[" + CPDPublisher.APP_NAME + "] Contact Form - " + sName);
 
         final StringBuilder aSB = new StringBuilder ();
-        aSB.append ("Contact form from PEPPOL Directory was filled out.\n\n");
+        aSB.append ("Contact form from " + CPDPublisher.APP_NAME + " was filled out.\n\n");
         aSB.append ("Name: ").append (sName).append ("\n");
         aSB.append ("Email: ").append (sEmail).append ("\n");
         aSB.append ("Topic: ").append (sTopic).append ("\n");

@@ -98,7 +98,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
   @Nonnull
   private static HCEdit _createQueryEdit ()
   {
-    return new HCEdit (new RequestField (FIELD_QUERY)).setPlaceholder ("Search PEPPOL Directory");
+    return new HCEdit (new RequestField (FIELD_QUERY)).setPlaceholder ("Search " + CPDPublisher.APP_NAME_BASIC);
   }
 
   @Nonnull
@@ -109,7 +109,8 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     aBigQueryBox.addChild (new HCDiv ().addClass (CSS_CLASS_BIG_QUERY_HELPTEXT)
                                        .addChild ("Enter the name, address, ID or any other keyword of the entity you are looking for."));
     aBigQueryBox.addChild (new HCDiv ().addClass (CSS_CLASS_BIG_QUERY_BUTTONS)
-                                       .addChild (new BootstrapSubmitButton ().addChild ("Search PEPPOL Directory")
+                                       .addChild (new BootstrapSubmitButton ().addChild ("Search " +
+                                                                                         CPDPublisher.APP_NAME_BASIC)
                                                                               .setIcon (EDefaultIcon.MAGNIFIER)
                                                                               .setButtonType (EBootstrapButtonType.SUCCESS)));
 
@@ -268,7 +269,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
 
     final HCDiv aLogoContainer = new HCDiv ().addClass (CSS_CLASS_BIG_QUERY_IMAGE_CONTAINER);
     final HCDiv aLogo = new HCDiv ().addClass (CSS_CLASS_BIG_QUERY_IMAGE)
-                                    .addStyle (CCSSProperties.BACKGROUND_IMAGE.newValue (CSSURLHelper.getAsCSSURL (CPDPublisher.IMG_LOGO_PEPPOL,
+                                    .addStyle (CCSSProperties.BACKGROUND_IMAGE.newValue (CSSURLHelper.getAsCSSURL (CPDPublisher.getLogoImageURL (),
                                                                                                                    true)));
     aLogoContainer.addChild (aLogo);
     aNodeList.addChild (aLogoContainer);

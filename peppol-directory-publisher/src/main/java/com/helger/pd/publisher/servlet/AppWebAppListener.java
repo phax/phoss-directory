@@ -22,6 +22,7 @@ import javax.servlet.ServletContext;
 import com.helger.commons.io.resource.ClassPathResource;
 import com.helger.commons.vendor.VendorInfo;
 import com.helger.pd.indexer.mgr.PDMetaManager;
+import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.ajax.CAjax;
 import com.helger.pd.publisher.app.AppCommonUI;
 import com.helger.pd.publisher.app.AppInternalErrorHandler;
@@ -100,7 +101,8 @@ public final class AppWebAppListener extends WebAppListenerBootstrap
     if (PDServerConfiguration.getConfigFile ().isRead ())
     {
       aCfgMgr.registerConfigurationFile (new ConfigurationFile (PDServerConfiguration.getConfigFile ()
-                                                                                     .getReadResource ()).setDescription ("PEPPOL Directory properties")
+                                                                                     .getReadResource ()).setDescription (CPDPublisher.APP_NAME +
+                                                                                                                          " properties")
                                                                                                          .setSyntaxHighlightLanguage (EConfigurationFileSyntax.PROPERTIES));
     }
   }

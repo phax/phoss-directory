@@ -39,6 +39,7 @@ import com.helger.html.hc.html.textlevel.HCA;
 import com.helger.html.hc.html.textlevel.HCSpan;
 import com.helger.html.hc.html.textlevel.HCStrong;
 import com.helger.html.hc.impl.HCNodeList;
+import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.app.AppCommonUI;
 import com.helger.pd.publisher.app.AppSecurity;
 import com.helger.pd.settings.PDServerConfiguration;
@@ -143,7 +144,7 @@ public final class AppRendererPublic
     {
       final BootstrapNav aNav = new BootstrapNav ();
       final BootstrapDropdownMenu aDropDown = aNav.addDropdownMenu ("About");
-      aDropDown.addMenuItem (new BootstrapDropdownMenuItem ().setLabel ("About PEPPOL Directory")
+      aDropDown.addMenuItem (new BootstrapDropdownMenuItem ().setLabel ("About " + CPDPublisher.APP_NAME)
                                                              .setLinkAction (aLEC.getLinkToMenuItem (CMenuPublic.MENU_ABOUT)));
       aNavbar.addNav (EBootstrapNavbarPosition.COLLAPSIBLE_LEFT, aNav);
     }
@@ -303,7 +304,7 @@ public final class AppRendererPublic
     {
       final BootstrapContainer aDiv = new BootstrapContainer ().setFluid (true).setID (CLayout.LAYOUT_AREAID_FOOTER);
 
-      aDiv.addChild (new HCP ().addChild ("PEPPOL Directory - an ")
+      aDiv.addChild (new HCP ().addChild (CPDPublisher.APP_NAME + " - an ")
                                .addChild (new HCA (new SimpleURL ("http://peppol.eu")).addChild ("OpenPEPPOL AISBL"))
                                .addChild (" service"));
       aDiv.addChild (new HCP ().addChild ("Follow us on Twitter: ")

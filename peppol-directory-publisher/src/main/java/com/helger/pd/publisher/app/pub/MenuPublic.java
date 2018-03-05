@@ -21,6 +21,7 @@ import javax.annotation.concurrent.Immutable;
 
 import com.helger.commons.debug.GlobalDebug;
 import com.helger.commons.io.resource.ClassPathResource;
+import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.app.pub.page.PagePublicContact;
 import com.helger.pd.publisher.app.pub.page.PagePublicSearchExtended;
 import com.helger.pd.publisher.app.pub.page.PagePublicSearchSimple;
@@ -53,7 +54,7 @@ public final class MenuPublic
                                                        "Compliant SMP Implementations",
                                                        new ClassPathResource ("viewpages/en/support_smp_implementations.xml")));
     aMenuTree.createRootItem (new AppPageViewExternal (CMenuPublic.MENU_ABOUT,
-                                                       "About PEPPOL Directory",
+                                                       "About " + CPDPublisher.APP_NAME,
                                                        new ClassPathResource ("viewpages/en/about.xml")));
 
     // Set default

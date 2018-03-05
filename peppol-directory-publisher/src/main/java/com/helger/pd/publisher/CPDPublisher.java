@@ -16,12 +16,16 @@
  */
 package com.helger.pd.publisher;
 
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 
+import com.helger.commons.ValueEnforcer;
+import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.email.EmailAddress;
 import com.helger.commons.email.IEmailAddress;
 import com.helger.commons.url.ISimpleURL;
 import com.helger.commons.url.SimpleURL;
+import com.helger.pd.settings.PDServerConfiguration;
 
 @Immutable
 public final class CPDPublisher
@@ -32,5 +36,21 @@ public final class CPDPublisher
   // Email sender - depends on the used SMTP server
   public static final IEmailAddress EMAIL_SENDER = new EmailAddress ("no-reply@helger.com");
 
-  public static final ISimpleURL IMG_LOGO_PEPPOL = new SimpleURL ("/imgs/peppol.png");
+  // APP Name - like "PEPPOL Directory"
+  public static final String APP_NAME_BASIC = PDServerConfiguration.getAppName ();
+  public static final String APP_NAME = APP_NAME_BASIC + (PDServerConfiguration.isTestVersion () ? " [TEST]" : "");
+
+  private static ISimpleURL s_aLogoImageURL = new SimpleURL ("/imgs/peppol.png");
+
+  public static void setLogoImageURL (@Nonnull @Nonempty final String sLogoImageURL)
+  {
+    ValueEnforcer.notEmpty (sLogoImageURL, "LogoImageURL");
+    s_aLogoImageURL = new SimpleURL (sLogoImageURL);
+  }
+
+  @Nonnull
+  public static ISimpleURL getLogoImageURL ()
+  {
+    return s_aLogoImageURL;
+  }
 }

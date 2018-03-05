@@ -64,7 +64,7 @@ public final class ClientCertificateValidator
   @PresentForCodeCoverage
   private static final ClientCertificateValidator s_aInstance = new ClientCertificateValidator ();
 
-  private static boolean s_bCheckDisabled = !PDServerConfiguration.isClientCertificateValidationActive ();
+  private static boolean s_bIsCheckDisabled = !PDServerConfiguration.isClientCertificateValidationActive ();
 
   /**
    * All PEPPOL root certificates from the truststore configuration. Never
@@ -89,7 +89,7 @@ public final class ClientCertificateValidator
   @VisibleForTesting
   public static void allowAllForTests (final boolean bCheckDisabled)
   {
-    s_bCheckDisabled = bCheckDisabled;
+    s_bIsCheckDisabled = bCheckDisabled;
   }
 
   private static void _initCertificateIssuers ()
@@ -251,7 +251,7 @@ public final class ClientCertificateValidator
   @Nonnull
   public static ClientCertificateValidationResult verifyClientCertificate (@Nonnull final HttpServletRequest aHttpRequest)
   {
-    if (s_bCheckDisabled)
+    if (s_bIsCheckDisabled)
     {
       if (s_aLogger.isDebugEnabled ())
         s_aLogger.debug ("Client certificate is considered valid because the 'allow all' for tests is set!");

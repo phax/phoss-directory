@@ -24,6 +24,7 @@ import javax.annotation.concurrent.Immutable;
 
 import com.helger.commons.id.factory.GlobalIDFactory;
 import com.helger.commons.locale.LocaleCache;
+import com.helger.commons.string.StringHelper;
 import com.helger.css.property.CCSSProperties;
 import com.helger.html.css.DefaultCSSClassProvider;
 import com.helger.html.css.ICSSClassProvider;
@@ -37,6 +38,7 @@ import com.helger.html.jscode.JSAssocArray;
 import com.helger.html.jscode.JSPackage;
 import com.helger.html.jscode.JSVar;
 import com.helger.html.jscode.html.JSHtml;
+import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.ajax.AjaxExecutorPublicLogin;
 import com.helger.pd.publisher.ajax.CAjax;
 import com.helger.pd.settings.PDServerConfiguration;
@@ -66,8 +68,6 @@ public final class AppCommonUI
 
   public static final Locale DEFAULT_LOCALE = LocaleCache.getInstance ().getLocale ("en", "US");
 
-  private static final String APPLICATION_TITLE = "PEPPOL Directory";
-
   private static final DataTablesLengthMenu LENGTH_MENU = new DataTablesLengthMenu ().addItem (25)
                                                                                      .addItem (50)
                                                                                      .addItem (100)
@@ -79,7 +79,7 @@ public final class AppCommonUI
   @Nonnull
   public static String getApplicationTitle ()
   {
-    return APPLICATION_TITLE + (PDServerConfiguration.isTestVersion () ? " [TEST]" : "");
+    return CPDPublisher.APP_NAME;
   }
 
   public static void init ()
@@ -99,6 +99,10 @@ public final class AppCommonUI
 
     // By default allow markdown in system message
     BootstrapSystemMessage.setDefaultUseMarkdown (true);
+
+    final String sLogoImageURL = PDServerConfiguration.getAppName ();
+    if (StringHelper.hasText (sLogoImageURL))
+      CPDPublisher.setLogoImageURL (sLogoImageURL);
   }
 
   @Nonnull

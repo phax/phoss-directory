@@ -26,6 +26,7 @@ import javax.annotation.concurrent.Immutable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.annotation.UsedViaReflection;
 import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.ICommonsList;
@@ -172,6 +173,19 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   public static boolean isForceRoot ()
   {
     return s_aConfigFile.getAsBoolean ("webapp.forceroot", false);
+  }
+
+  @Nonnull
+  @Nonempty
+  public static String getAppName ()
+  {
+    return s_aConfigFile.getAsString ("webapp.appname", "PEPPOL Directory");
+  }
+
+  @Nullable
+  public static String getLogoImageURL ()
+  {
+    return s_aConfigFile.getAsString ("webapp.logo.image.path");
   }
 
   /**
@@ -370,7 +384,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   @Nonnull
   public static EPDSMPMode getSMPMode ()
   {
-    final String sSMPMode = "smp.mode";
+    final String sSMPMode = s_aConfigFile.getAsString ("smp.mode");
     if ("oasis-bdxr-v1".equalsIgnoreCase (sSMPMode))
       return EPDSMPMode.OASIS_BDXR_v1;
 
