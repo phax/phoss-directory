@@ -36,6 +36,7 @@ public final class PDClientTest
   private static final Logger s_aLogger = LoggerFactory.getLogger (PDClientTest.class);
 
   @Test
+  @Ignore
   public void testNonExistingPort ()
   {
     final IParticipantIdentifier aPI = PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9915:test");
