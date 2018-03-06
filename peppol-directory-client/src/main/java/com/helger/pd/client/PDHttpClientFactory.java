@@ -20,6 +20,9 @@ import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.util.Arrays;
 
+import javax.annotation.Nonnull;
+
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.ssl.SSLContexts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,5 +96,15 @@ public class PDHttpClientFactory extends HttpClientFactory
         throw new IllegalStateException ("Failed to create SSL context", ex);
       }
     }
+  }
+
+  @Override
+  @Nonnull
+  public RequestConfig.Builder createRequestConfigBuilder ()
+  {
+    final RequestConfig.Builder ret = super.createRequestConfigBuilder ();
+    ret.setConnectTimeout (PDClientConfiguration.getConnectTimeoutMS ());
+    ret.setSocketTimeout (PDClientConfiguration.getRequestTimeoutMS ());
+    return ret;
   }
 }

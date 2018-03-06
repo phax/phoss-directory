@@ -36,6 +36,24 @@ public final class PDClientTest
   private static final Logger s_aLogger = LoggerFactory.getLogger (PDClientTest.class);
 
   @Test
+  public void testNonExistingPort ()
+  {
+    final IParticipantIdentifier aPI = PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9915:test");
+    try (final PDClient aClient = new PDClient ("http://193.10.8.211:7999"))
+    {
+      if (aClient.deleteServiceGroupFromIndex (aPI).isSuccess ())
+      {
+        aClient.isServiceGroupRegistered (aPI);
+        aClient.addServiceGroupToIndex (aPI);
+      }
+    }
+    catch (final InitializationException ex)
+    {
+      s_aLogger.error ("Failed to invoke PDClient", ex);
+    }
+  }
+
+  @Test
   public void testTestServer ()
   {
     final IParticipantIdentifier aPI = PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9915:test");

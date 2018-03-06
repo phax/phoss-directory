@@ -54,6 +54,8 @@ public final class PDClientConfiguration
   public static final EKeyStoreType DEFAULT_TRUSTSTORE_TYPE = EKeyStoreType.JKS;
   public static final String DEFAULT_TRUSTSTORE_PATH = "truststore/pd-client.truststore.jks";
   public static final String DEFAULT_TRUSTSTORE_PASSWORD = "peppol";
+  public static final int DEFAULT_CONNECTION_TIMEOUT_MS = 5_000;
+  public static final int DEFAULT_REQUEST_TIMEOUT_MS = 10_000;
 
   private static final Logger s_aLogger = LoggerFactory.getLogger (PDClientConfiguration.class);
   private static final ConfigFile s_aConfigFile;
@@ -223,5 +225,25 @@ public final class PDClientConfiguration
   public static int getHttpsProxyPort ()
   {
     return s_aConfigFile.getAsInt ("https.proxyPort", 0);
+  }
+
+  /**
+   * @return Connection timeout in milliseconds. Defaults to 5000 (=5 seconds).
+   *         0 means "indefinite", -1 means "system default".
+   * @since 0.6.0
+   */
+  public static int getConnectTimeoutMS ()
+  {
+    return s_aConfigFile.getAsInt ("connect.timeout.ms", DEFAULT_CONNECTION_TIMEOUT_MS);
+  }
+
+  /**
+   * @return Request/read/socket timeout in milliseconds. Defaults to 10000 (=10
+   *         seconds). 0 means "indefinite", -1 means "system default".
+   * @since 0.6.0
+   */
+  public static int getRequestTimeoutMS ()
+  {
+    return s_aConfigFile.getAsInt ("request.timeout.ms", DEFAULT_REQUEST_TIMEOUT_MS);
   }
 }
