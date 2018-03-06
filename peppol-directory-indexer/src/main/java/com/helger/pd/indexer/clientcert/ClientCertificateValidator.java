@@ -102,9 +102,14 @@ public final class ClientCertificateValidator
       s_aSearchIssuers.add (new X500Principal (sIssuerToSearch));
 
     if (s_aSearchIssuers.isEmpty ())
-      throw new InitializationException ("The configuration file is missing the entry for the client certificate issuer");
-
-    s_aLogger.info ("The following client certificate issuer(s) are valid: " + s_aSearchIssuers);
+    {
+      if (s_bIsCheckDisabled)
+        s_aLogger.warn ("The configuration file contains no entry for the client certificate issuer");
+      else
+        throw new InitializationException ("The configuration file is missing the entry for the client certificate issuer");
+    }
+    else
+      s_aLogger.info ("The following client certificate issuer(s) are valid: " + s_aSearchIssuers);
   }
 
   private static void _initCerts ()
@@ -145,7 +150,12 @@ public final class ClientCertificateValidator
     }
 
     if (s_aPeppolSMPRootCerts.isEmpty ())
-      throw new InitializationException ("Server configuration contains no trusted root certificate configuration!");
+    {
+      if (s_bIsCheckDisabled)
+        s_aLogger.warn ("Server configuration contains no trusted root certificate configuration!");
+      else
+        throw new InitializationException ("Server configuration contains no trusted root certificate configuration!");
+    }
   }
 
   static
