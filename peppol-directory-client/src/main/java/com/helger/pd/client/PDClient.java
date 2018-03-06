@@ -27,6 +27,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import org.apache.http.HttpHost;
 import org.apache.http.auth.Credentials;
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
@@ -41,6 +42,7 @@ import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.OverrideOnDemand;
 import com.helger.commons.io.stream.StreamHelper;
 import com.helger.commons.state.ESuccess;
+import com.helger.commons.string.StringHelper;
 import com.helger.commons.url.URLHelper;
 import com.helger.httpclient.HttpClientHelper;
 import com.helger.httpclient.HttpClientManager;
@@ -115,6 +117,13 @@ public class PDClient implements Closeable
                                    : PDClientConfiguration.getHttpsProxyPort ();
     if (sProxyHost != null && nProxyPort > 0)
       setProxy (new HttpHost (sProxyHost, nProxyPort));
+
+    final String sProxyUsername = PDClientConfiguration.getProxyUsername ();
+    if (StringHelper.hasText (sProxyUsername))
+    {
+      final String sProxyPassword = PDClientConfiguration.getProxyPassword ();
+      setProxyCredentials (new UsernamePasswordCredentials (sProxyUsername, sProxyPassword));
+    }
   }
 
   public void close ()
@@ -201,7 +210,7 @@ public class PDClient implements Closeable
    * @param aProxyCredentials
    *        May be <code>null</code> to indicate no proxy credentials necessary.
    */
-  public void setProxyCredentials (@Nullable final Credentials aProxyCredentials)
+  public final void setProxyCredentials (@Nullable final Credentials aProxyCredentials)
   {
     m_aProxyCredentials = aProxyCredentials;
   }

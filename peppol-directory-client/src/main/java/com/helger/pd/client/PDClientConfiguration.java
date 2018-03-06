@@ -228,6 +228,28 @@ public final class PDClientConfiguration
   }
 
   /**
+   * @return The username for proxy calls. Valid for https and https proxy. May
+   *         be <code>null</code>.
+   * @since 0.6.0
+   */
+  @Nullable
+  public static String getProxyUsername ()
+  {
+    return s_aConfigFile.getAsString ("proxy.username");
+  }
+
+  /**
+   * @return The password for proxy calls. Valid for https and https proxy. May
+   *         be <code>null</code>.
+   * @since 0.6.0
+   */
+  @Nullable
+  public static String getProxyPassword ()
+  {
+    return s_aConfigFile.getAsString ("proxy.password");
+  }
+
+  /**
    * @return Connection timeout in milliseconds. Defaults to 5000 (=5 seconds).
    *         0 means "indefinite", -1 means "system default".
    * @since 0.6.0

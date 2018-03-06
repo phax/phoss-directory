@@ -38,6 +38,8 @@ Open tasks according to the design document:
   * Added support for trusting an arbitrary number of client certificate issuers (for the server only)
   * Added support for configuring more than two truststores in pd.properties (for the server only)
   * Added support for usage in the TOOP4EU project
+  * User interface texts can be changed from "PEPPOL Directory" to something else
+  * The PD client configuration now includes connection and request timeout
 * v0.5.1 - 2017-07-21
   * Extended `PDClient` to explicitly support a configurable truststore. A default truststore for the current setup is included.
   * PD client https hostname verification can now be 
@@ -63,23 +65,35 @@ The client has its own configuration file that is resolved from one of the follo
 If no configuration file is found a warning is emitted and you cannot invoke any operations because the certificate configuration is missing.
 
 The following options are supported in the `pd-client.properties` file:
-  * **keystore.path** - the path to the JKS keystore where the SMP certificate is contained
+  * **keystore.type** (since v0.6.0) - the type of the keystore. Can be `JKS` or `PKCS12` (case insensitive). Defaults to `JKS`.
+  * **keystore.path** - the path to the keystore where the SMP certificate is contained
   * **keystore.password** - the password to open the key store
   * **keystore.key.alias** - the alias in the key store that denotes the SMP key 
   * **keystore.key.password** - the password to open the key in the key store
+  * **truststore.type** (since v0.6.0) - the type of the keystore. Can be `JKS` or `PKCS12` (case insensitive). Defaults to `JKS`.
   * **truststore.path** (since v0.5.1) - the path to the trust store, where the public certificates of the PEPPOL Directory servers are contained. Defaults to `truststore/pd-client.truststore.jks`
-  * **truststore.password** (since v0.5.1) - the password to open the truststore store. Defaults to `peppol` 
+  * **truststore.password** (since v0.5.1) - the password to open the truststore store. Defaults to `peppol`
+  * **http.proxyHost** - the HTTP proxy host for `http` connections only. No default. 
+  * **http.proxyPort** - the HTTP proxy port for `http` connections only. No default. 
+  * **https.proxyHost** - the HTTP proxy host for `https` connections only. No default. 
+  * **https.proxyPort** - the HTTP proxy port for `https` connections only. No default. 
   * **https.hostname-verification.disabled** (since v0.5.1) - a boolean value to indicate if https hostname verification should be disabled (`true`) or enabled (`false`). The current setup of the PEPPOL Directory servers require you to use `true` here. The default value is `true`. 
+  * **proxy.username** (since v0.6.0) - the proxy username if http or https proxy is enabled. No default. 
+  * **proxy.password** (since v0.6.0) - the proxy password if http or https proxy is enabled. No default.
+  * **connect.timeout.ms** (since v0.6.0) - the connection timeout in milliseconds to connect to the server. The default value is `5000` (5 seconds). A value of `0` means indefinite. A value of `-1` means using the system default.
+  * **request.timeout.ms** (since v0.6.0) - the request/read/socket timeout in milliseconds to read from the server. The default value is `10000` (10 seconds). A value of `0` means indefinite. A value of `-1` means using the system default.
 
 Example PD client configuration file:
 ```ini
 # Key store with SMP key (required)
+keystore.type         = jks
 keystore.path         = smp.pilot.jks
 keystore.password     = password
 keystore.key.alias    = smp.pilot
 keystore.key.password = password
 
 # Default trust store (optional)
+truststore.type     = jks
 truststore.path     = truststore/pd-client.truststore.jks
 truststore.password = peppol
 
