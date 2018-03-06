@@ -2,7 +2,7 @@
 
 [![Join the chat at https://gitter.im/phax/peppol-directory](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/phax/peppol-directory?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Current release (on Maven central): **0.5.1**
+Current release (on Maven central): **0.6.0**
 
 The official PEPPOL Directory (PD; former PEPPOL Yellow Pages - PYP) software. It is split into the following sub-projects (all require Java 8 except where noted):
   * `peppol-directory-businesscard` - the common Business Card API
@@ -14,7 +14,7 @@ The official PEPPOL Directory (PD; former PEPPOL Yellow Pages - PYP) software. I
 Deprecated sub-projects:  
   * `peppol-directory-client-jdk6` - a client library to be added to SMP servers to force indexing in the PD (Java 1.6) - only available until v0.5.0. Because of ECC certificate usage only available from Java 7 it doesn't make sense to work on this any longer.
   
-Status as per 2018-03-04:
+Status as per 2018-03-06:
   * Production version is available at https://directory.peppol.eu
     * It can only handle participants registered at the SML
     * For the indexing REST API, a client certificate (SMP production) is needed 
@@ -30,7 +30,7 @@ Open tasks according to the design document:
   
 # News and noteworthy
 
-* v0.6.0 - work in progress
+* v0.6.0 - 2018-03-06
   * Updated to ph-commons 9.0.1
   * Updated to Apache Lucene 7.2.1
   * Fixed some issues (as #30)
@@ -39,7 +39,7 @@ Open tasks according to the design document:
   * Added support for configuring more than two truststores in pd.properties (for the server only)
   * Added support for usage in the TOOP4EU project
   * User interface texts can be changed from "PEPPOL Directory" to something else
-  * The PD client configuration now includes connection and request timeout
+  * The PD client configuration now includes connection and request timeout, as well as proxy credentials
 * v0.5.1 - 2017-07-21
   * Extended `PDClient` to explicitly support a configurable truststore. A default truststore for the current setup is included.
   * PD client https hostname verification can now be 

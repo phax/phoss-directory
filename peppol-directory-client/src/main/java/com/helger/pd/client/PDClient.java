@@ -239,6 +239,8 @@ public class PDClient implements Closeable
    * @return The return value of the response handler. Never <code>null</code>.
    * @throws IOException
    *         On HTTP error
+   * @param <T>
+   *        Response type
    */
   @Nonnull
   @OverrideOnDemand
