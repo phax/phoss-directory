@@ -37,5 +37,6 @@ public final class PD2BusinessCardMarshallerTest
     assertNotNull (aMarshaller.read (new FileSystemResource ("src/test/resources/example/v2/business-card-example-spec.xml")));
     assertNotNull (aMarshaller.read (new FileSystemResource ("src/test/resources/example/v2/bc-9915-leckma.xml")));
     assertNotNull (aMarshaller.read (new FileSystemResource ("src/test/resources/example/v2/bc-0088-5033466000005.xml")));
+    assertNotNull (aMarshaller.read (new FileSystemResource ("src/test/resources/example/v2/nemhandel.xml")));
   }
 }
