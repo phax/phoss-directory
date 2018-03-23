@@ -36,6 +36,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -67,6 +68,7 @@ import com.helger.security.keystore.KeyStoreHelper;
  *
  * @author Philip Helger
  */
+@Ignore ("Requires a running server at localhost:8080")
 public final class LocalHost8080FuncTest
 {
   private static final Logger s_aLogger = LoggerFactory.getLogger (LocalHost8080FuncTest.class);
