@@ -27,6 +27,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,6 +90,11 @@ public class IndexerResource
     // Parse identifier
     final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
     final IParticipantIdentifier aPI = aIdentifierFactory.parseParticipantIdentifier (sParticipantID);
+    if (aPI == null)
+    {
+      s_aLogger.error ("[createOrUpdateParticipant] Failed to parse participant identifier '" + sParticipantID + "'");
+      return Response.status (Status.BAD_REQUEST).build ();
+    }
 
     // Queue for handling
     if (PDMetaManager.getIndexerMgr ()
@@ -117,6 +123,11 @@ public class IndexerResource
     // Parse identifier
     final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
     final IParticipantIdentifier aPI = aIdentifierFactory.parseParticipantIdentifier (sParticipantID);
+    if (aPI == null)
+    {
+      s_aLogger.error ("[deleteParticipant] Failed to parse participant identifier '" + sParticipantID + "'");
+      return Response.status (Status.BAD_REQUEST).build ();
+    }
 
     // Don't check for existence of the PI as it might be in the queue for
     // creation
@@ -148,6 +159,8 @@ public class IndexerResource
     // Parse identifier
     final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
     final IParticipantIdentifier aPI = aIdentifierFactory.parseParticipantIdentifier (sParticipantID);
+    if (aPI == null)
+      s_aLogger.error ("[checkParticipantExistence] Failed to parse participant identifier '" + sParticipantID + "'");
 
     // Queue for handling
     if (!PDMetaManager.getStorageMgr ().containsEntry (aPI))
