@@ -30,6 +30,8 @@ Open tasks according to the design document:
   
 # News and noteworthy
 
+* v0.6.1 - work in progress
+  * Avoid potential exception on invalid input parameters
 * v0.6.0 - 2018-03-06
   * Updated to ph-commons 9.0.1
   * Updated to Apache Lucene 7.2.1
