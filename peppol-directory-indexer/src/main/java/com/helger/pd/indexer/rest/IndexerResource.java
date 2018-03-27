@@ -87,6 +87,8 @@ public class IndexerResource
     if (aResult.isFailure ())
       return Response.status (Response.Status.FORBIDDEN).build ();
 
+    s_aLogger.info ("[createOrUpdateParticipant] '" + sParticipantID + "'");
+
     // Parse identifier
     final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
     final IParticipantIdentifier aPI = aIdentifierFactory.parseParticipantIdentifier (sParticipantID);
@@ -104,7 +106,9 @@ public class IndexerResource
                                      _getRequestingHost (aHttpServletRequest))
                      .isUnchanged ())
     {
-      s_aLogger.info ("Ignoring duplicate CREATE/UPDATE request for '" + aPI.getURIEncoded () + "'");
+      s_aLogger.info ("[createOrUpdateParticipant] Ignoring duplicate CREATE/UPDATE request for '" +
+                      aPI.getURIEncoded () +
+                      "'");
     }
 
     // And done
@@ -119,6 +123,8 @@ public class IndexerResource
     final ClientCertificateValidationResult aResult = _checkClientCertificate (aHttpServletRequest);
     if (aResult.isFailure ())
       return Response.status (Response.Status.FORBIDDEN).build ();
+
+    s_aLogger.info ("[deleteParticipant] '" + sParticipantID + "'");
 
     // Parse identifier
     final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
@@ -140,7 +146,7 @@ public class IndexerResource
                                      _getRequestingHost (aHttpServletRequest))
                      .isUnchanged ())
     {
-      s_aLogger.info ("Ignoring duplicate DELETE request for '" + aPI.getURIEncoded () + "'");
+      s_aLogger.info ("[deleteParticipant] Ignoring duplicate DELETE request for '" + aPI.getURIEncoded () + "'");
     }
 
     // And done
@@ -155,6 +161,8 @@ public class IndexerResource
     final ClientCertificateValidationResult aResult = _checkClientCertificate (aHttpServletRequest);
     if (aResult.isFailure ())
       return Response.status (Response.Status.FORBIDDEN).build ();
+
+    s_aLogger.info ("[checkParticipantExistence] '" + sParticipantID + "'");
 
     // Parse identifier
     final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
