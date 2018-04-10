@@ -23,8 +23,7 @@ import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.hashcode.HashCodeGenerator;
 import com.helger.commons.string.ToStringGenerator;
-import com.helger.pd.businesscard.v1.PD1APIHelper;
-import com.helger.pd.businesscard.v1.PD1IdentifierType;
+import com.helger.pd.businesscard.generic.PDIdentifier;
 
 /**
  * This class represents a single identifier as stored by Lucene consisting of a
@@ -59,9 +58,9 @@ public final class PDStoredIdentifier
   }
 
   @Nonnull
-  public PD1IdentifierType getAsJAXBObject ()
+  public PDIdentifier getAsGenericObject ()
   {
-    return PD1APIHelper.createIdentifier (m_sScheme, m_sValue);
+    return new PDIdentifier (m_sScheme, m_sValue);
   }
 
   @Override

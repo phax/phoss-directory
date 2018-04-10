@@ -43,7 +43,7 @@ import com.helger.commons.url.URLHelper;
 import com.helger.httpclient.HttpClientHelper;
 import com.helger.pd.businesscard.IPDBusinessCardProvider;
 import com.helger.pd.businesscard.PDExtendedBusinessCard;
-import com.helger.pd.businesscard.v1.PD1BusinessCardType;
+import com.helger.pd.businesscard.generic.PDBusinessCard;
 import com.helger.pd.settings.EPDSMPMode;
 import com.helger.pd.settings.PDServerConfiguration;
 import com.helger.peppol.bdxrclient.BDXRClientReadOnly;
@@ -170,7 +170,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
     }
 
     // If the service group is present, try querying the business card
-    final PD1BusinessCardType aBusinessCard;
+    final PDBusinessCard aBusinessCard;
     try
     {
       // Use the optional business card API
@@ -277,7 +277,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
     }
 
     // If the service group is present, try querying the business card
-    final PD1BusinessCardType aBusinessCard;
+    final PDBusinessCard aBusinessCard;
     try
     {
       // Use the optional business card API

@@ -34,9 +34,10 @@ import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.datetime.PDTFactory;
 import com.helger.pd.businesscard.PDExtendedBusinessCard;
-import com.helger.pd.businesscard.v1.PD1APIHelper;
-import com.helger.pd.businesscard.v1.PD1BusinessCardType;
-import com.helger.pd.businesscard.v1.PD1BusinessEntityType;
+import com.helger.pd.businesscard.generic.PDBusinessCard;
+import com.helger.pd.businesscard.generic.PDBusinessEntity;
+import com.helger.pd.businesscard.generic.PDContact;
+import com.helger.pd.businesscard.generic.PDIdentifier;
 import com.helger.pd.indexer.PDIndexerTestRule;
 import com.helger.pd.indexer.lucene.PDLucene;
 import com.helger.pd.indexer.mgr.PDMetaManager;
@@ -64,34 +65,33 @@ public final class PDStorageManagerTest
   @Nonnull
   private static PDExtendedBusinessCard _createMockBI (@Nonnull final IParticipantIdentifier aParticipantID)
   {
-    final PD1BusinessCardType aBI = new PD1BusinessCardType ();
-    aBI.setParticipantIdentifier (PD1APIHelper.createIdentifier (PeppolIdentifierHelper.DEFAULT_PARTICIPANT_SCHEME,
-                                                                 "9915:mock"));
+    final PDBusinessCard aBI = new PDBusinessCard ();
+    aBI.setParticipantIdentifier (new PDIdentifier (PeppolIdentifierHelper.DEFAULT_PARTICIPANT_SCHEME, "9915:mock"));
     {
-      final PD1BusinessEntityType aEntity = new PD1BusinessEntityType ();
+      final PDBusinessEntity aEntity = new PDBusinessEntity ();
       aEntity.setCountryCode ("AT");
       aEntity.setRegistrationDate (PDTFactory.createLocalDate (2015, Month.JULY, 6));
       aEntity.setName ("Philip's mock PEPPOL receiver");
-      aEntity.setGeographicalInformation ("Vienna");
+      aEntity.setGeoInfo ("Vienna");
 
       for (int i = 0; i < 10; ++i)
-        aEntity.addIdentifier (PD1APIHelper.createIdentifier ("scheme" + i, "value" + i));
-      aEntity.addWebsiteURI ("http://www.peppol.eu");
-      aEntity.addContact (PD1APIHelper.createContact ("support", "BC name", "12345", "test@example.org"));
+        aEntity.identifiers ().add (new PDIdentifier ("scheme" + i, "value" + i));
+      aEntity.websiteURIs ().add ("http://www.peppol.eu");
+      aEntity.contacts ().add (new PDContact ("support", "BC name", "12345", "test@example.org"));
 
-      aEntity.setAdditionalInformation ("This is a mock entry for testing purposes only");
-      aBI.addBusinessEntity (aEntity);
+      aEntity.setAdditionalInfo ("This is a mock entry for testing purposes only");
+      aBI.businessEntities ().add (aEntity);
     }
     {
-      final PD1BusinessEntityType aEntity = new PD1BusinessEntityType ();
+      final PDBusinessEntity aEntity = new PDBusinessEntity ();
       aEntity.setCountryCode ("NO");
       aEntity.setName ("Entity2");
 
-      aEntity.addIdentifier (PD1APIHelper.createIdentifier ("mock", "12345678"));
-      aEntity.addIdentifier (PD1APIHelper.createIdentifier ("provided", aParticipantID.getURIEncoded ()));
+      aEntity.identifiers ().add (new PDIdentifier ("mock", "12345678"));
+      aEntity.identifiers ().add (new PDIdentifier ("provided", aParticipantID.getURIEncoded ()));
 
-      aEntity.setAdditionalInformation ("This is another mock entry for testing purposes only");
-      aBI.addBusinessEntity (aEntity);
+      aEntity.setAdditionalInfo ("This is another mock entry for testing purposes only");
+      aBI.businessEntities ().add (aEntity);
     }
     return new PDExtendedBusinessCard (aBI,
                                        new CommonsArrayList <> (EPredefinedDocumentTypeIdentifier.INVOICE_T010_BIS5A_V20));

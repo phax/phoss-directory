@@ -30,11 +30,12 @@ import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.equals.EqualsHelper;
 import com.helger.commons.hashcode.HashCodeGenerator;
+import com.helger.commons.string.StringHelper;
 import com.helger.commons.string.ToStringGenerator;
 
 /**
  * Generic business entity.
- * 
+ *
  * @author Philip Helger
  */
 @NotThreadSafe
@@ -82,6 +83,11 @@ public class PDBusinessEntity implements Serializable
     return m_sName;
   }
 
+  public boolean hasName ()
+  {
+    return StringHelper.hasText (m_sName);
+  }
+
   /**
    * @param sName
    *        Entity name. Should not be <code>null</code>.
@@ -98,6 +104,11 @@ public class PDBusinessEntity implements Serializable
   public String getCountryCode ()
   {
     return m_sCountryCode;
+  }
+
+  public boolean hasCountryCode ()
+  {
+    return StringHelper.hasText (m_sCountryCode);
   }
 
   /**
@@ -118,6 +129,11 @@ public class PDBusinessEntity implements Serializable
   public String getGeoInfo ()
   {
     return m_sGeoInfo;
+  }
+
+  public boolean hasGeoInfo ()
+  {
+    return StringHelper.hasText (m_sGeoInfo);
   }
 
   /**
@@ -168,6 +184,11 @@ public class PDBusinessEntity implements Serializable
     return m_sAdditionalInfo;
   }
 
+  public boolean hasAdditionalInfo ()
+  {
+    return StringHelper.hasText (m_sAdditionalInfo);
+  }
+
   /**
    * Set the additional information / free text.
    *
@@ -187,6 +208,11 @@ public class PDBusinessEntity implements Serializable
   public LocalDate getRegistrationDate ()
   {
     return m_aRegistrationDate;
+  }
+
+  public boolean hasRegistrationDate ()
+  {
+    return m_aRegistrationDate != null;
   }
 
   /**

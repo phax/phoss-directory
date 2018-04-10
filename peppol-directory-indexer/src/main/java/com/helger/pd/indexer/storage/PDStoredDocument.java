@@ -40,9 +40,9 @@ import com.helger.json.IJsonArray;
 import com.helger.json.IJsonObject;
 import com.helger.json.JsonArray;
 import com.helger.json.JsonObject;
-import com.helger.pd.businesscard.v1.PD1APIHelper;
-import com.helger.pd.businesscard.v1.PD1BusinessCardType;
-import com.helger.pd.businesscard.v1.PD1BusinessEntityType;
+import com.helger.pd.businesscard.generic.PDBusinessCard;
+import com.helger.pd.businesscard.generic.PDBusinessEntity;
+import com.helger.pd.businesscard.generic.PDIdentifier;
 import com.helger.pd.indexer.storage.field.PDField;
 import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
@@ -312,38 +312,36 @@ public class PDStoredDocument
 
   /**
    * @return Parts of this {@link PDStoredDocument} as a
-   *         {@link PD1BusinessEntityType}.
+   *         {@link PDBusinessEntity}.
    */
   @Nonnull
-  public PD1BusinessEntityType getAsBusinessEntity ()
+  public PDBusinessEntity getAsBusinessEntity ()
   {
     // We have a single entity
-    final PD1BusinessEntityType ret = new PD1BusinessEntityType ();
+    final PDBusinessEntity ret = new PDBusinessEntity ();
     ret.setName (m_sName);
     ret.setCountryCode (m_sCountryCode);
-    ret.setGeographicalInformation (m_sGeoInfo);
+    ret.setGeoInfo (m_sGeoInfo);
     for (final PDStoredIdentifier aID : m_aIdentifiers)
-      ret.addIdentifier (aID.getAsJAXBObject ());
-    for (final String sWebsite : m_aWebsiteURIs)
-      ret.addWebsiteURI (sWebsite);
+      ret.identifiers ().add (aID.getAsGenericObject ());
+    ret.websiteURIs ().addAll (m_aWebsiteURIs);
     for (final PDStoredContact aContact : m_aContacts)
-      ret.addContact (aContact.getAsJAXBObject ());
-    ret.setAdditionalInformation (m_sAdditionalInformation);
+      ret.contacts ().add (aContact.getAsGenericObject ());
+    ret.setAdditionalInfo (m_sAdditionalInformation);
     ret.setRegistrationDate (m_aRegistrationDate);
     return ret;
   }
 
   /**
-   * @return This {@link PDStoredDocument} as a {@link PD1BusinessCardType}.
+   * @return This {@link PDStoredDocument} as a {@link PDBusinessCard}.
    */
   @Nonnull
-  public PD1BusinessCardType getAsBusinessCard ()
+  public PDBusinessCard getAsBusinessCard ()
   {
-    final PD1BusinessCardType ret = new PD1BusinessCardType ();
-    ret.setParticipantIdentifier (PD1APIHelper.createIdentifier (m_aParticipantID.getScheme (),
-                                                                 m_aParticipantID.getValue ()));
+    final PDBusinessCard ret = new PDBusinessCard ();
+    ret.setParticipantIdentifier (new PDIdentifier (m_aParticipantID.getScheme (), m_aParticipantID.getValue ()));
     // We have a single entity
-    ret.addBusinessEntity (getAsBusinessEntity ());
+    ret.businessEntities ().add (getAsBusinessEntity ());
     return ret;
   }
 

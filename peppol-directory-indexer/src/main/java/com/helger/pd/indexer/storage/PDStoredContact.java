@@ -23,8 +23,7 @@ import javax.annotation.concurrent.Immutable;
 import com.helger.commons.equals.EqualsHelper;
 import com.helger.commons.hashcode.HashCodeGenerator;
 import com.helger.commons.string.ToStringGenerator;
-import com.helger.pd.businesscard.v1.PD1APIHelper;
-import com.helger.pd.businesscard.v1.PD1ContactType;
+import com.helger.pd.businesscard.generic.PDContact;
 
 /**
  * This class represents a single business contact as stored by Lucene
@@ -76,9 +75,9 @@ public final class PDStoredContact
   }
 
   @Nonnull
-  public PD1ContactType getAsJAXBObject ()
+  public PDContact getAsGenericObject ()
   {
-    return PD1APIHelper.createContact (m_sType, m_sName, m_sPhone, m_sEmail);
+    return new PDContact (m_sType, m_sName, m_sPhone, m_sEmail);
   }
 
   @Override

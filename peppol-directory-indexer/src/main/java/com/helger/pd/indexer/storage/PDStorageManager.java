@@ -65,10 +65,10 @@ import com.helger.commons.statistics.StatisticsManager;
 import com.helger.commons.string.StringHelper;
 import com.helger.commons.timing.StopWatch;
 import com.helger.pd.businesscard.PDExtendedBusinessCard;
-import com.helger.pd.businesscard.v1.PD1BusinessCardType;
-import com.helger.pd.businesscard.v1.PD1BusinessEntityType;
-import com.helger.pd.businesscard.v1.PD1ContactType;
-import com.helger.pd.businesscard.v1.PD1IdentifierType;
+import com.helger.pd.businesscard.generic.PDBusinessCard;
+import com.helger.pd.businesscard.generic.PDBusinessEntity;
+import com.helger.pd.businesscard.generic.PDContact;
+import com.helger.pd.businesscard.generic.PDIdentifier;
 import com.helger.pd.indexer.lucene.AllDocumentsCollector;
 import com.helger.pd.indexer.lucene.PDLucene;
 import com.helger.pd.indexer.mgr.IPDStorageManager;
@@ -217,8 +217,8 @@ public final class PDStorageManager implements IPDStorageManager
     return m_aLucene.runAtomic ( () -> {
       final ICommonsList <Document> aDocs = new CommonsArrayList <> ();
 
-      final PD1BusinessCardType aBI = aExtBI.getBusinessCard ();
-      for (final PD1BusinessEntityType aBusinessEntity : aBI.getBusinessEntity ())
+      final PDBusinessCard aBI = aExtBI.getBusinessCard ();
+      for (final PDBusinessEntity aBusinessEntity : aBI.businessEntities ())
       {
         // Convert entity to Lucene document
         final Document aDoc = new Document ();
@@ -227,13 +227,13 @@ public final class PDStorageManager implements IPDStorageManager
         aDoc.add (PDField.PARTICIPANT_ID.getAsField (aParticipantID));
         aSBAllFields.append (PDField.PARTICIPANT_ID.getAsStorageValue (aParticipantID)).append (' ');
 
-        if (aBusinessEntity.getName () != null)
+        if (aBusinessEntity.hasName ())
         {
           aDoc.add (PDField.NAME.getAsField (aBusinessEntity.getName ()));
           aSBAllFields.append (aBusinessEntity.getName ()).append (' ');
         }
 
-        if (aBusinessEntity.getCountryCode () != null)
+        if (aBusinessEntity.hasCountryCode ())
         {
           // Index all country codes in upper case (since 2017-09-20)
           final String sCountryCode = aBusinessEntity.getCountryCode ().toUpperCase (Locale.US);
@@ -248,13 +248,13 @@ public final class PDStorageManager implements IPDStorageManager
           aSBAllFields.append (PDField.DOCTYPE_ID.getAsStorageValue (aDocTypeID)).append (' ');
         }
 
-        if (aBusinessEntity.getGeographicalInformation () != null)
+        if (aBusinessEntity.hasGeoInfo ())
         {
-          aDoc.add (PDField.GEO_INFO.getAsField (aBusinessEntity.getGeographicalInformation ()));
-          aSBAllFields.append (aBusinessEntity.getGeographicalInformation ()).append (' ');
+          aDoc.add (PDField.GEO_INFO.getAsField (aBusinessEntity.getGeoInfo ()));
+          aSBAllFields.append (aBusinessEntity.getGeoInfo ()).append (' ');
         }
 
-        for (final PD1IdentifierType aIdentifier : aBusinessEntity.getIdentifier ())
+        for (final PDIdentifier aIdentifier : aBusinessEntity.identifiers ())
         {
           aDoc.add (PDField.IDENTIFIER_SCHEME.getAsField (aIdentifier.getScheme ()));
           aSBAllFields.append (aIdentifier.getScheme ()).append (' ');
@@ -263,13 +263,13 @@ public final class PDStorageManager implements IPDStorageManager
           aSBAllFields.append (aIdentifier.getValue ()).append (' ');
         }
 
-        for (final String sWebSite : aBusinessEntity.getWebsiteURI ())
+        for (final String sWebSite : aBusinessEntity.websiteURIs ())
         {
           aDoc.add (PDField.WEBSITE_URI.getAsField (sWebSite));
           aSBAllFields.append (sWebSite).append (' ');
         }
 
-        for (final PD1ContactType aContact : aBusinessEntity.getContact ())
+        for (final PDContact aContact : aBusinessEntity.contacts ())
         {
           final String sType = StringHelper.getNotNull (aContact.getType ());
           aDoc.add (PDField.CONTACT_TYPE.getAsField (sType));
@@ -288,13 +288,13 @@ public final class PDStorageManager implements IPDStorageManager
           aSBAllFields.append (sEmail).append (' ');
         }
 
-        if (aBusinessEntity.getAdditionalInformation () != null)
+        if (aBusinessEntity.hasAdditionalInfo ())
         {
-          aDoc.add (PDField.ADDITIONAL_INFO.getAsField (aBusinessEntity.getAdditionalInformation ()));
-          aSBAllFields.append (aBusinessEntity.getAdditionalInformation ()).append (' ');
+          aDoc.add (PDField.ADDITIONAL_INFO.getAsField (aBusinessEntity.getAdditionalInfo ()));
+          aSBAllFields.append (aBusinessEntity.getAdditionalInfo ()).append (' ');
         }
 
-        if (aBusinessEntity.getRegistrationDate () != null)
+        if (aBusinessEntity.hasRegistrationDate ())
         {
           final String sDate = PDTWebDateHelper.getAsStringXSD (aBusinessEntity.getRegistrationDate ());
           aDoc.add (PDField.REGISTRATION_DATE.getAsField (sDate));
