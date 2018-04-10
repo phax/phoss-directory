@@ -188,7 +188,7 @@ public final class PDStorageManager implements IPDStorageManager
                        aQuery);
       }
 
-      if (!aDocuments.isEmpty ())
+      if (aDocuments.isNotEmpty ())
       {
         // Mark document as deleted
         aDocuments.forEach (aDocument -> aDocument.add (new IntPoint (CPDStorage.FIELD_DELETED, 1)));

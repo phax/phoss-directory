@@ -29,6 +29,12 @@ import com.helger.pd.businesscard.PDExtendedBusinessCard;
 import com.helger.pd.indexer.index.IIndexerWorkItem;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 
+/**
+ * Internal class to execute a single work item. It is invoked by the
+ * {@link PDIndexerManager}.
+ * 
+ * @author Philip Helger
+ */
 final class PDIndexExecutor
 {
   private static final Logger s_aLogger = LoggerFactory.getLogger (PDIndexExecutor.class);

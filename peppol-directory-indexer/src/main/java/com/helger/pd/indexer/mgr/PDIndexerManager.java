@@ -138,8 +138,12 @@ public final class PDIndexerManager implements Closeable
     // discarded
     m_aIndexerWorkItemFile = WebFileIO.getDataIO ().getFile ("indexer-work-items.xml");
 
+    // Re-index list
     m_aReIndexList = new ReIndexWorkItemList ("reindex-work-items.xml");
+    // Dead list
     m_aDeadList = new ReIndexWorkItemList ("dead-work-items.xml");
+
+    // Main worker to perform the jobs
     m_aIndexerWorkQueue = new IndexerWorkItemQueue (aQueueItem -> PDIndexExecutor.executeWorkItem (m_aStorageMgr,
                                                                                                    aQueueItem,
                                                                                                    0,
