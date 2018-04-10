@@ -18,6 +18,8 @@ package com.helger.pd.businesscard.v2;
 
 import static org.junit.Assert.assertNotNull;
 
+import javax.annotation.Nonnull;
+
 import org.junit.Test;
 
 import com.helger.commons.io.resource.FileSystemResource;
@@ -29,14 +31,21 @@ import com.helger.commons.io.resource.FileSystemResource;
  */
 public final class PD2BusinessCardMarshallerTest
 {
+  private static void _testBC (@Nonnull final String sFilename)
+  {
+    final PD2BusinessCardMarshaller aMarshaller = new PD2BusinessCardMarshaller ();
+    final PD2BusinessCardType aBC = aMarshaller.read (new FileSystemResource (sFilename));
+    assertNotNull (aBC);
+    assertNotNull (PD2APIHelper.createBusinessCard (aBC));
+  }
+
   @Test
   public void testBasic ()
   {
-    final PD2BusinessCardMarshaller aMarshaller = new PD2BusinessCardMarshaller ();
-    assertNotNull (aMarshaller.read (new FileSystemResource ("src/test/resources/example/v2/business-card-test1.xml")));
-    assertNotNull (aMarshaller.read (new FileSystemResource ("src/test/resources/example/v2/business-card-example-spec.xml")));
-    assertNotNull (aMarshaller.read (new FileSystemResource ("src/test/resources/example/v2/bc-9915-leckma.xml")));
-    assertNotNull (aMarshaller.read (new FileSystemResource ("src/test/resources/example/v2/bc-0088-5033466000005.xml")));
-    assertNotNull (aMarshaller.read (new FileSystemResource ("src/test/resources/example/v2/nemhandel.xml")));
+    _testBC ("src/test/resources/example/v2/business-card-test1.xml");
+    _testBC ("src/test/resources/example/v2/business-card-example-spec.xml");
+    _testBC ("src/test/resources/example/v2/bc-9915-leckma.xml");
+    _testBC ("src/test/resources/example/v2/bc-0088-5033466000005.xml");
+    _testBC ("src/test/resources/example/v2/nemhandel.xml");
   }
 }

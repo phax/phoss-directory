@@ -20,6 +20,12 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+import com.helger.commons.ValueEnforcer;
+import com.helger.pd.businesscard.generic.PDBusinessCard;
+import com.helger.pd.businesscard.generic.PDBusinessEntity;
+import com.helger.pd.businesscard.generic.PDContact;
+import com.helger.pd.businesscard.generic.PDIdentifier;
+
 /**
  * Helper class for easier BC V1 creation.
  *
@@ -51,6 +57,49 @@ public final class PD1APIHelper
     ret.setName (sName);
     ret.setPhoneNumber (sPhoneNumber);
     ret.setEmail (sEmail);
+    return ret;
+  }
+
+  @Nullable
+  public static PDIdentifier createIdentifier (@Nonnull final PD1IdentifierType aID)
+  {
+    ValueEnforcer.notNull (aID, "ID");
+    return new PDIdentifier (aID.getScheme (), aID.getValue ());
+  }
+
+  @Nonnull
+  public static PDContact createContact (@Nonnull final PD1ContactType aContact)
+  {
+    ValueEnforcer.notNull (aContact, "Contact");
+    return new PDContact (aContact.getType (), aContact.getName (), aContact.getPhoneNumber (), aContact.getEmail ());
+  }
+
+  @Nonnull
+  public static PDBusinessEntity createBusinessEntity (@Nonnull final PD1BusinessEntityType aBE)
+  {
+    ValueEnforcer.notNull (aBE, "BusinessEntity");
+    final PDBusinessEntity ret = new PDBusinessEntity ();
+    ret.setName (aBE.getName ());
+    ret.setCountryCode (aBE.getCountryCode ());
+    ret.setGeoInfo (aBE.getGeographicalInformation ());
+    ret.identifiers ().removeAll ();
+    ret.identifiers ().addAllMapped (aBE.getIdentifier (), PD1APIHelper::createIdentifier);
+    ret.websiteURIs ().setAll (aBE.getWebsiteURI ());
+    ret.contacts ().removeAll ();
+    ret.contacts ().addAllMapped (aBE.getContact (), PD1APIHelper::createContact);
+    ret.setAdditionalInfo (aBE.getAdditionalInformation ());
+    ret.setRegistrationDate (aBE.getRegistrationDate ());
+    return ret;
+  }
+
+  @Nonnull
+  public static PDBusinessCard createBusinessCard (@Nonnull final PD1BusinessCardType aBC)
+  {
+    ValueEnforcer.notNull (aBC, "BusinessCard");
+    final PDBusinessCard ret = new PDBusinessCard ();
+    ret.setParticipantIdentifier (createIdentifier (aBC.getParticipantIdentifier ()));
+    ret.businessEntities ().removeAll ();
+    ret.businessEntities ().addAllMapped (aBC.getBusinessEntity (), PD1APIHelper::createBusinessEntity);
     return ret;
   }
 }

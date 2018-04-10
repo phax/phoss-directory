@@ -20,6 +20,11 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+import com.helger.commons.ValueEnforcer;
+import com.helger.pd.businesscard.generic.PDBusinessCard;
+import com.helger.pd.businesscard.generic.PDBusinessEntity;
+import com.helger.pd.businesscard.generic.PDIdentifier;
+
 /**
  * Helper class for easier BC V2 creation.
  *
@@ -37,6 +42,38 @@ public final class PD2APIHelper
     final PD2IdentifierType ret = new PD2IdentifierType ();
     ret.setScheme (sScheme);
     ret.setValue (sValue);
+    return ret;
+  }
+
+  @Nullable
+  public static PDIdentifier createIdentifier (@Nonnull final PD2IdentifierType aID)
+  {
+    ValueEnforcer.notNull (aID, "ID");
+    return new PDIdentifier (aID.getScheme (), aID.getValue ());
+  }
+
+  @Nonnull
+  public static PDBusinessEntity createBusinessEntity (@Nonnull final PD2BusinessEntityType aBE)
+  {
+    ValueEnforcer.notNull (aBE, "BusinessEntity");
+    final PDBusinessEntity ret = new PDBusinessEntity ();
+    ret.setName (aBE.getName ());
+    ret.setCountryCode (aBE.getCountryCode ());
+    ret.setGeoInfo (aBE.getGeographicalInformation ());
+    ret.identifiers ().removeAll ();
+    ret.identifiers ().addAllMapped (aBE.getIdentifier (), PD2APIHelper::createIdentifier);
+    ret.setRegistrationDate (aBE.getRegistrationDate ());
+    return ret;
+  }
+
+  @Nonnull
+  public static PDBusinessCard createBusinessCard (@Nonnull final PD2BusinessCardType aBC)
+  {
+    ValueEnforcer.notNull (aBC, "BusinessCard");
+    final PDBusinessCard ret = new PDBusinessCard ();
+    ret.setParticipantIdentifier (createIdentifier (aBC.getParticipantIdentifier ()));
+    ret.businessEntities ().removeAll ();
+    ret.businessEntities ().addAllMapped (aBC.getBusinessEntity (), PD2APIHelper::createBusinessEntity);
     return ret;
   }
 }
