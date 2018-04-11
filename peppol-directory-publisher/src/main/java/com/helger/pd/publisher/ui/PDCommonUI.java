@@ -50,6 +50,7 @@ import com.helger.html.hc.impl.HCTextNode;
 import com.helger.pd.indexer.storage.PDStoredContact;
 import com.helger.pd.indexer.storage.PDStoredDocument;
 import com.helger.pd.indexer.storage.PDStoredIdentifier;
+import com.helger.peppol.identifier.generic.doctype.IBusdoxDocumentTypeIdentifierParts;
 import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.generic.process.IProcessIdentifier;
 import com.helger.peppol.identifier.peppol.doctype.EPredefinedDocumentTypeIdentifier;
@@ -199,21 +200,32 @@ public final class PDCommonUI
   }
 
   @Nonnull
-  public static HCUL getDocumentTypeIDDetails (@Nonnull final IPeppolDocumentTypeIdentifierParts aParts)
+  public static HCUL getDocumentTypeIDDetails (@Nonnull final IBusdoxDocumentTypeIdentifierParts aParts)
   {
     final HCUL aUL = new HCUL ();
     aUL.addItem ().addChild ("Root namespace: ").addChild (new HCCode ().addChild (aParts.getRootNS ()));
     aUL.addItem ().addChild ("Local name: ").addChild (new HCCode ().addChild (aParts.getLocalName ()));
-    aUL.addItem ().addChild ("Transaction ID: ").addChild (new HCCode ().addChild (aParts.getTransactionID ()));
-    final HCUL aExtensions = new HCUL ();
-    final List <String> aExtensionIDs = aParts.getExtensionIDs ();
-    for (final String sExtension : aExtensionIDs)
-      aExtensions.addItem (new HCCode ().addChild (sExtension));
-    aUL.addItem ().addChild ("Extension IDs:").addChild (aExtensions);
-    aUL.addItem ()
-       .addChild ("Customization ID (transaction + extensions): ")
-       .addChild (new HCCode ().addChild (aParts.getAsUBLCustomizationID ()));
-    aUL.addItem ().addChild ("Version: ").addChild (new HCCode ().addChild (aParts.getVersion ()));
+    if (aParts instanceof IPeppolDocumentTypeIdentifierParts)
+    {
+      final IPeppolDocumentTypeIdentifierParts aPParts = (IPeppolDocumentTypeIdentifierParts) aParts;
+      aUL.addItem ().addChild ("Transaction ID: ").addChild (new HCCode ().addChild (aPParts.getTransactionID ()));
+      final HCUL aExtensions = new HCUL ();
+      final List <String> aExtensionIDs = aPParts.getExtensionIDs ();
+      for (final String sExtension : aExtensionIDs)
+        aExtensions.addItem (new HCCode ().addChild (sExtension));
+      aUL.addItem ().addChild ("Extension IDs:").addChild (aExtensions);
+      aUL.addItem ()
+         .addChild ("Customization ID (transaction + extensions): ")
+         .addChild (new HCCode ().addChild (aPParts.getAsUBLCustomizationID ()));
+      aUL.addItem ().addChild ("Version: ").addChild (new HCCode ().addChild (aPParts.getVersion ()));
+    }
+    else
+      if (aParts.getSubTypeIdentifier () != null)
+      {
+        aUL.addItem ()
+           .addChild ("Sub type identifier: ")
+           .addChild (new HCCode ().addChild (aParts.getSubTypeIdentifier ()));
+      }
     return aUL;
   }
 

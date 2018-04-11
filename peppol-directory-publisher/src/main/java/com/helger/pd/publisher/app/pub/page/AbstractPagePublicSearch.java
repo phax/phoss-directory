@@ -47,10 +47,10 @@ import com.helger.pd.indexer.storage.PDStoredDocument;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.pd.publisher.ui.PDCommonUI;
 import com.helger.peppol.identifier.factory.PeppolIdentifierFactory;
+import com.helger.peppol.identifier.generic.doctype.IBusdoxDocumentTypeIdentifierParts;
 import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.peppol.identifier.peppol.PeppolIdentifierHelper;
-import com.helger.peppol.identifier.peppol.doctype.IPeppolDocumentTypeIdentifierParts;
 import com.helger.peppol.identifier.peppol.issuingagency.IIdentifierIssuingAgency;
 import com.helger.peppol.identifier.peppol.issuingagency.IdentifierIssuingAgencyManager;
 import com.helger.photon.bootstrap3.alert.BootstrapInfoBox;
@@ -210,7 +210,7 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
           if (false && GlobalDebug.isDebugMode ())
             try
             {
-              final IPeppolDocumentTypeIdentifierParts aParts = PeppolIdentifierHelper.getDocumentTypeIdentifierParts (aDocTypeID);
+              final IBusdoxDocumentTypeIdentifierParts aParts = PeppolIdentifierHelper.getDocumentTypeIdentifierParts (aDocTypeID);
               aLI.addChild (PDCommonUI.getDocumentTypeIDDetails (aParts));
             }
             catch (final IllegalArgumentException ex)
