@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -46,6 +47,7 @@ import org.apache.lucene.store.FSDirectory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.helger.commons.ValueEnforcer;
 import com.helger.commons.callback.IThrowingRunnable;
 import com.helger.commons.functional.IThrowingSupplier;
 import com.helger.commons.io.stream.StreamHelper;
@@ -83,14 +85,35 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
     return new StandardAnalyzer ();
   }
 
+  /**
+   * Default constructor using a {@link StandardAnalyzer}.
+   *
+   * @throws IOException
+   *         On IO error
+   */
   public PDLucene () throws IOException
   {
+    this (PDLucene::createAnalyzer);
+  }
+
+  /**
+   * Constructor with a custom analyzer provider.
+   *
+   * @param aAnalyzerProvider
+   *        The analyzer provider. May not be <code>null</code>.
+   * @throws IOException
+   *         On IO error
+   */
+  public PDLucene (@Nonnull final Supplier <? extends Analyzer> aAnalyzerProvider) throws IOException
+  {
+    ValueEnforcer.notNull (aAnalyzerProvider, "AnalyzerProvider");
+
     // Where to store the index files
     final Path aPath = getLuceneIndexDir ().toPath ();
     m_aDir = FSDirectory.open (aPath);
 
     // Analyzer to use
-    m_aAnalyzer = createAnalyzer ();
+    m_aAnalyzer = aAnalyzerProvider.get ();
 
     // Create the index writer
     final IndexWriterConfig aWriterConfig = new IndexWriterConfig (m_aAnalyzer);
