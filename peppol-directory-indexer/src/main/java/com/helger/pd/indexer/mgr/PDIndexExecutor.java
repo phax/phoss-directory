@@ -32,7 +32,7 @@ import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 /**
  * Internal class to execute a single work item. It is invoked by the
  * {@link PDIndexerManager}.
- * 
+ *
  * @author Philip Helger
  */
 final class PDIndexExecutor
@@ -63,8 +63,8 @@ final class PDIndexExecutor
   public static ESuccess executeWorkItem (@Nonnull final IPDStorageManager aStorageMgr,
                                           @Nonnull final IIndexerWorkItem aWorkItem,
                                           @Nonnegative final int nRetryCount,
-                                          @Nonnull final Consumer <IIndexerWorkItem> aSuccessHandler,
-                                          @Nonnull final Consumer <IIndexerWorkItem> aFailureHandler)
+                                          @Nonnull final Consumer <? super IIndexerWorkItem> aSuccessHandler,
+                                          @Nonnull final Consumer <? super IIndexerWorkItem> aFailureHandler)
   {
     s_aLogger.info ("Execute work item " +
                     aWorkItem.getLogText () +

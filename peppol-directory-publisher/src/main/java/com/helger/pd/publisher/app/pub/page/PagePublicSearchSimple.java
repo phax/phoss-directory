@@ -47,6 +47,7 @@ import com.helger.html.hc.html.textlevel.HCCode;
 import com.helger.html.hc.html.textlevel.HCSpan;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.mgr.PDMetaManager;
+import com.helger.pd.indexer.storage.CPDStorage;
 import com.helger.pd.indexer.storage.PDQueryManager;
 import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.pd.indexer.storage.PDStoredDocument;
@@ -132,7 +133,9 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     s_aLogger.info ("Searching generically for '" + sQuery + "'");
 
     // Build Lucene query
-    final Query aLuceneQuery = PDQueryManager.convertQueryStringToLuceneQuery (PDMetaManager.getLucene (), sQuery);
+    final Query aLuceneQuery = PDQueryManager.convertQueryStringToLuceneQuery (PDMetaManager.getLucene (),
+                                                                               CPDStorage.FIELD_ALL_FIELDS,
+                                                                               sQuery);
     if (s_aLogger.isDebugEnabled ())
       s_aLogger.debug ("Created query for '" + sQuery + "' is <" + aLuceneQuery + ">");
 

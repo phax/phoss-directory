@@ -122,12 +122,13 @@ public final class PDQueryManager
   }
 
   @Nonnull
-  private static Query _createSimpleAllFieldsQuery (@Nonnull final String sQueryText)
+  private static Query _createSimpleAllFieldsQuery (@Nonnull final String sFieldName, @Nonnull final String sQueryText)
   {
     if (false)
-      return new TermQuery (new Term (CPDStorage.FIELD_ALL_FIELDS, sQueryText));
+      return new TermQuery (new Term (sFieldName, sQueryText));
+
     // This works -> text ==> *text*
-    return new WildcardQuery (new Term (CPDStorage.FIELD_ALL_FIELDS, "*" + sQueryText + "*"));
+    return new WildcardQuery (new Term (sFieldName, "*" + sQueryText + "*"));
   }
 
   /**
@@ -139,6 +140,8 @@ public final class PDQueryManager
    *
    * @param aAnalyzerProvider
    *        Lucene Analyzer provider
+   * @param sFieldName
+   *        The field name to query. May neither be <code>null</code> nor empty.
    * @param sQueryString
    *        The query string. May not be <code>null</code> and not be empty and
    *        may not be whitespace only.
@@ -146,32 +149,31 @@ public final class PDQueryManager
    */
   @Nonnull
   public static Query convertQueryStringToLuceneQuery (@Nonnull final ILuceneAnalyzerProvider aAnalyzerProvider,
+                                                       @Nonnull final String sFieldName,
                                                        @Nonnull @Nonempty final String sQueryString)
   {
     ValueEnforcer.notEmpty (sQueryString, "QueryString");
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
 
     // Split into terms
-    final ICommonsList <String> aParts = getSplitIntoTerms (aAnalyzerProvider,
-                                                            CPDStorage.FIELD_ALL_FIELDS,
-                                                            sQueryString);
+    final ICommonsList <String> aParts = getSplitIntoTerms (aAnalyzerProvider, sFieldName, sQueryString);
     assert aParts.isNotEmpty ();
 
     if (s_aLogger.isDebugEnabled ())
-      s_aLogger.debug ("Split query string: '" + sQueryString + "' ==> " + aParts);
+      s_aLogger.debug ("Split query string: '" + sQueryString + "' for field '" + sFieldName + "' ==> " + aParts);
 
     Query aQuery;
     if (aParts.size () == 1)
     {
       // Single term - simple query
-      aQuery = _createSimpleAllFieldsQuery (aParts.get (0));
+      aQuery = _createSimpleAllFieldsQuery (sFieldName, aParts.get (0));
     }
     else
     {
       // All parts must be matched
       final BooleanQuery.Builder aBuilder = new BooleanQuery.Builder ();
       for (final String sPart : aParts)
-        aBuilder.add (_createSimpleAllFieldsQuery (sPart), Occur.FILTER);
+        aBuilder.add (_createSimpleAllFieldsQuery (sFieldName, sPart), Occur.FILTER);
       aQuery = aBuilder.build ();
     }
 
@@ -210,7 +212,8 @@ public final class PDQueryManager
   }
 
   @Nullable
-  public static Query getNameLuceneQuery (@Nonnull @Nonempty final String sQueryString)
+  public static Query getNameLuceneQuery (@Nonnull final ILuceneAnalyzerProvider aAnalyzerProvider,
+                                          @Nonnull @Nonempty final String sQueryString)
   {
     ValueEnforcer.notEmpty (sQueryString, "QueryString");
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
@@ -219,6 +222,12 @@ public final class PDQueryManager
     {
       s_aLogger.warn ("Name query string '" + sQueryString + "' is too short!");
       return null;
+    }
+
+    if (true)
+    {
+      // Split into pieces
+      return convertQueryStringToLuceneQuery (aAnalyzerProvider, PDField.NAME.getFieldName (), sQueryString);
     }
 
     final Query aQuery = new WildcardQuery (PDField.NAME.getContainsTerm (_lowerCase (sQueryString)));
@@ -236,7 +245,8 @@ public final class PDQueryManager
   }
 
   @Nullable
-  public static Query getGeoInfoLuceneQuery (@Nonnull @Nonempty final String sQueryString)
+  public static Query getGeoInfoLuceneQuery (@Nonnull final ILuceneAnalyzerProvider aAnalyzerProvider,
+                                             @Nonnull @Nonempty final String sQueryString)
   {
     ValueEnforcer.notEmpty (sQueryString, "QueryString");
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
@@ -245,6 +255,12 @@ public final class PDQueryManager
     {
       s_aLogger.warn ("GeoInfo query string '" + sQueryString + "' is too short!");
       return null;
+    }
+
+    if (true)
+    {
+      // Split into pieces
+      return convertQueryStringToLuceneQuery (aAnalyzerProvider, PDField.GEO_INFO.getFieldName (), sQueryString);
     }
 
     final Query aQuery = new WildcardQuery (PDField.GEO_INFO.getContainsTerm (_lowerCase (sQueryString)));
@@ -312,7 +328,8 @@ public final class PDQueryManager
   }
 
   @Nullable
-  public static Query getAdditionalInformationLuceneQuery (@Nonnull @Nonempty final String sQueryString)
+  public static Query getAdditionalInformationLuceneQuery (@Nonnull final ILuceneAnalyzerProvider aAnalyzerProvider,
+                                                           @Nonnull @Nonempty final String sQueryString)
   {
     ValueEnforcer.notEmpty (sQueryString, "QueryString");
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
@@ -321,6 +338,12 @@ public final class PDQueryManager
     {
       s_aLogger.warn ("AdditionalInformation query string '" + sQueryString + "' is too short!");
       return null;
+    }
+
+    if (true)
+    {
+      // Split into pieces
+      return convertQueryStringToLuceneQuery (aAnalyzerProvider, PDField.ADDITIONAL_INFO.getFieldName (), sQueryString);
     }
 
     final Query aQuery = new WildcardQuery (PDField.ADDITIONAL_INFO.getContainsTerm (_lowerCase (sQueryString)));

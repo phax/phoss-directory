@@ -30,6 +30,7 @@ import com.helger.commons.id.IHasID;
 import com.helger.commons.lang.EnumHelper;
 import com.helger.commons.text.display.IHasDisplayText;
 import com.helger.pd.indexer.mgr.PDMetaManager;
+import com.helger.pd.indexer.storage.CPDStorage;
 import com.helger.pd.indexer.storage.PDQueryManager;
 import com.helger.pd.indexer.storage.PDStoredDocument;
 import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
@@ -47,7 +48,9 @@ public enum EPDSearchField implements IHasID <String>, IHasDisplayText
            EPDSearchFieldName.GENERIC,
            ESearchDataType.STRING_CS,
            Object.class,
-           sQuery -> PDQueryManager.convertQueryStringToLuceneQuery (PDMetaManager.getLucene (), sQuery)),
+           sQuery -> PDQueryManager.convertQueryStringToLuceneQuery (PDMetaManager.getLucene (),
+                                                                     CPDStorage.FIELD_ALL_FIELDS,
+                                                                     sQuery)),
   PARTICIPANT_ID ("participant",
                   EPDSearchFieldName.PARTICIPANT_ID,
                   ESearchDataType.STRING_CS,
@@ -57,7 +60,7 @@ public enum EPDSearchField implements IHasID <String>, IHasDisplayText
         EPDSearchFieldName.NAME,
         ESearchDataType.STRING_CI,
         String.class,
-        sQuery -> PDQueryManager.getNameLuceneQuery (sQuery)),
+        sQuery -> PDQueryManager.getNameLuceneQuery (PDMetaManager.getLucene (), sQuery)),
   COUNTRY ("country",
            EPDSearchFieldName.COUNTRY,
            ESearchDataType.STRING_CI,
@@ -67,7 +70,7 @@ public enum EPDSearchField implements IHasID <String>, IHasDisplayText
             EPDSearchFieldName.GEO_INFO,
             ESearchDataType.STRING_CI,
             String.class,
-            sQuery -> PDQueryManager.getGeoInfoLuceneQuery (sQuery)),
+            sQuery -> PDQueryManager.getGeoInfoLuceneQuery (PDMetaManager.getLucene (), sQuery)),
   IDENTIFIER_SCHEME ("identifierScheme",
                      EPDSearchFieldName.IDENTIFIER,
                      ESearchDataType.STRING_CS,
@@ -92,7 +95,8 @@ public enum EPDSearchField implements IHasID <String>, IHasDisplayText
                           EPDSearchFieldName.ADDITIONAL_INFORMATION,
                           ESearchDataType.STRING_CI,
                           String.class,
-                          sQuery -> PDQueryManager.getAdditionalInformationLuceneQuery (sQuery)),
+                          sQuery -> PDQueryManager.getAdditionalInformationLuceneQuery (PDMetaManager.getLucene (),
+                                                                                        sQuery)),
   REGISTRATION_DATE ("regdate",
                      EPDSearchFieldName.REGISTRATION_DATE,
                      ESearchDataType.DATE,
