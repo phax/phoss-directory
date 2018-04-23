@@ -31,6 +31,8 @@ import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.debug.GlobalDebug;
+import com.helger.commons.id.IHasID;
+import com.helger.commons.lang.EnumHelper;
 import com.helger.html.css.DefaultCSSClassProvider;
 import com.helger.html.css.ICSSClassProvider;
 import com.helger.html.hc.IHCNode;
@@ -46,6 +48,7 @@ import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.pd.indexer.storage.PDStoredDocument;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.pd.publisher.ui.PDCommonUI;
+import com.helger.pd.settings.PDServerConfiguration;
 import com.helger.peppol.identifier.factory.PeppolIdentifierFactory;
 import com.helger.peppol.identifier.generic.doctype.IBusdoxDocumentTypeIdentifierParts;
 import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
@@ -65,6 +68,42 @@ import com.helger.photon.bootstrap3.panel.BootstrapPanel;
 
 public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
 {
+  protected static enum EUIMode implements IHasID <String>
+  {
+    DEFAULT ("default"),
+    TOOP ("toop");
+
+    private final String m_sID;
+
+    private EUIMode (@Nonnull @Nonempty final String sID)
+    {
+      m_sID = sID;
+    }
+
+    @Nonnull
+    @Nonempty
+    public String getID ()
+    {
+      return m_sID;
+    }
+
+    public boolean isUseGreenButton ()
+    {
+      return this == DEFAULT;
+    }
+
+    public boolean isUseHelptext ()
+    {
+      return this == DEFAULT;
+    }
+
+    @Nonnull
+    public static EUIMode getFromIDOrDefault (@Nullable final String sID)
+    {
+      return EnumHelper.getFromIDOrDefault (EUIMode.class, sID, EUIMode.DEFAULT);
+    }
+  }
+
   private static final Logger s_aLogger = LoggerFactory.getLogger (AbstractPagePublicSearch.class);
 
   protected static final ICSSClassProvider CSS_CLASS_BIG_QUERY_IMAGE_CONTAINER = DefaultCSSClassProvider.create ("big-query-image-container");
@@ -81,6 +120,14 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
   protected static final ICSSClassProvider CSS_CLASS_RESULT_DOC_FREETEXT = DefaultCSSClassProvider.create ("result-doc-freetext");
   protected static final ICSSClassProvider CSS_CLASS_RESULT_DOC_SDBUTTON = DefaultCSSClassProvider.create ("result-doc-sdbutton");
   protected static final ICSSClassProvider CSS_CLASS_RESULT_PANEL = DefaultCSSClassProvider.create ("result-panel");
+
+  protected static final EUIMode s_eUIMode;
+
+  static
+  {
+    // Determined by configuration file!
+    s_eUIMode = EUIMode.getFromIDOrDefault (PDServerConfiguration.getSearchUIMode ());
+  }
 
   public AbstractPagePublicSearch (@Nonnull @Nonempty final String sID, @Nonnull final String sName)
   {

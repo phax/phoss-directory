@@ -106,13 +106,25 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
   private static BootstrapRow _createInitialSearchForm (final WebPageExecutionContext aWPEC)
   {
     final HCForm aBigQueryBox = new HCForm ().setAction (aWPEC.getSelfHref ()).setMethod (EHCFormMethod.GET);
-    aBigQueryBox.addChild (new HCDiv ().addClass (CSS_CLASS_BIG_QUERY_BOX).addChild (_createQueryEdit ()));
-    aBigQueryBox.addChild (new HCDiv ().addClass (CSS_CLASS_BIG_QUERY_HELPTEXT)
-                                       .addChild ("Enter the name, address, ID or any other keyword of the entity you are looking for."));
-    aBigQueryBox.addChild (new HCDiv ().addClass (CSS_CLASS_BIG_QUERY_BUTTONS)
-                                       .addChild (new BootstrapSubmitButton ().addChild ("Search " +
-                                                                                         CPDPublisher.APP_NAME_BASIC)
-                                                                              .setIcon (EDefaultIcon.MAGNIFIER)));
+
+    final HCEdit aQueryEdit = _createQueryEdit ();
+    aBigQueryBox.addChild (new HCDiv ().addClass (CSS_CLASS_BIG_QUERY_BOX).addChild (aQueryEdit));
+
+    {
+      final String sHelpText = "Enter the name, address, ID or any other keyword of the entity you are looking for.";
+      if (s_eUIMode.isUseHelptext ())
+        aBigQueryBox.addChild (new HCDiv ().addClass (CSS_CLASS_BIG_QUERY_HELPTEXT).addChild (sHelpText));
+      else
+        aQueryEdit.setPlaceholder (sHelpText);
+    }
+
+    {
+      final BootstrapButton aButton = new BootstrapSubmitButton ().addChild ("Search " + CPDPublisher.APP_NAME_BASIC)
+                                                                  .setIcon (EDefaultIcon.MAGNIFIER);
+      if (s_eUIMode.isUseGreenButton ())
+        aButton.setButtonType (EBootstrapButtonType.SUCCESS);
+      aBigQueryBox.addChild (new HCDiv ().addClass (CSS_CLASS_BIG_QUERY_BUTTONS).addChild (aButton));
+    }
 
     final BootstrapRow aBodyRow = new BootstrapRow ();
     aBodyRow.createColumn (12, 1, 2, 3).addClass (CBootstrapCSS.HIDDEN_XS);
