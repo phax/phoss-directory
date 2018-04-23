@@ -112,8 +112,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     aBigQueryBox.addChild (new HCDiv ().addClass (CSS_CLASS_BIG_QUERY_BUTTONS)
                                        .addChild (new BootstrapSubmitButton ().addChild ("Search " +
                                                                                          CPDPublisher.APP_NAME_BASIC)
-                                                                              .setIcon (EDefaultIcon.MAGNIFIER)
-                                                                              .setButtonType (EBootstrapButtonType.SUCCESS)));
+                                                                              .setIcon (EDefaultIcon.MAGNIFIER)));
 
     final BootstrapRow aBodyRow = new BootstrapRow ();
     aBodyRow.createColumn (12, 1, 2, 3).addClass (CBootstrapCSS.HIDDEN_XS);
