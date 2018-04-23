@@ -286,6 +286,9 @@ public final class AppRendererPublic
     return aPageContainer;
   }
 
+  private static final String VENDOR_NAME = PDServerConfiguration.getVendorName ();
+  private static final String VENDOR_URL = PDServerConfiguration.getVendorURL ();
+
   @Nonnull
   public static IHCNode getContent (@Nonnull final LayoutExecutionContext aLEC)
   {
@@ -305,7 +308,7 @@ public final class AppRendererPublic
       final BootstrapContainer aDiv = new BootstrapContainer ().setFluid (true).setID (CLayout.LAYOUT_AREAID_FOOTER);
 
       aDiv.addChild (new HCP ().addChild (CPDPublisher.APP_NAME + " - an ")
-                               .addChild (new HCA (new SimpleURL ("http://peppol.eu")).addChild ("OpenPEPPOL AISBL"))
+                               .addChild (new HCA (new SimpleURL (VENDOR_URL)).addChild (VENDOR_NAME))
                                .addChild (" service"));
       aDiv.addChild (new HCP ().addChild ("Follow us on Twitter: ")
                                .addChild (new HCA (new SimpleURL ("https://twitter.com/PEPPOLDirectory")).addChild ("@PEPPOLDirectory")));
