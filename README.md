@@ -35,6 +35,7 @@ Open tasks according to the design document:
   * Updated to Jersey 2.27
   * Updated to Apache Lucene 7.3
   * Improved handling of multiple search parameters in name, geoinfo and additionalInfo
+  * Updated to peppol-commons 6.1.0
 * v0.6.0 - 2018-03-06
   * Updated to ph-commons 9.0.1
   * Updated to Apache Lucene 7.2.1
