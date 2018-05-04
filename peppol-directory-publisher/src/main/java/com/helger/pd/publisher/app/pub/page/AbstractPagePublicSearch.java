@@ -50,12 +50,12 @@ import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.pd.publisher.ui.PDCommonUI;
 import com.helger.pd.settings.PDServerConfiguration;
 import com.helger.peppol.identifier.factory.PeppolIdentifierFactory;
-import com.helger.peppol.identifier.generic.doctype.IBusdoxDocumentTypeIdentifierParts;
 import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.peppol.identifier.peppol.PeppolIdentifierHelper;
-import com.helger.peppol.identifier.peppol.issuingagency.IIdentifierIssuingAgency;
-import com.helger.peppol.identifier.peppol.issuingagency.IdentifierIssuingAgencyManager;
+import com.helger.peppol.identifier.peppol.doctype.IPeppolDocumentTypeIdentifierParts;
+import com.helger.peppol.identifier.peppol.pidscheme.IParticipantIdentifierScheme;
+import com.helger.peppol.identifier.peppol.pidscheme.ParticipantIdentifierSchemeManager;
 import com.helger.photon.bootstrap3.alert.BootstrapInfoBox;
 import com.helger.photon.bootstrap3.alert.BootstrapWarnBox;
 import com.helger.photon.bootstrap3.badge.BootstrapBadge;
@@ -190,7 +190,7 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
         final boolean bIsPeppolDefault = aParticipantID.hasScheme (PeppolIdentifierFactory.INSTANCE.getDefaultParticipantIdentifierScheme ());
         if (bIsPeppolDefault)
         {
-          final IIdentifierIssuingAgency aIIA = IdentifierIssuingAgencyManager.getAgencyOfIdentifier (aParticipantID);
+          final IParticipantIdentifierScheme aIIA = ParticipantIdentifierSchemeManager.getSchemeOfIdentifier (aParticipantID);
           if (aIIA != null)
           {
             aDetailsHeader = new BootstrapPageHeader ().addChild (new HCH1 ().addChild ("Details for: " +
@@ -257,7 +257,7 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
           if (false && GlobalDebug.isDebugMode ())
             try
             {
-              final IBusdoxDocumentTypeIdentifierParts aParts = PeppolIdentifierHelper.getDocumentTypeIdentifierParts (aDocTypeID);
+              final IPeppolDocumentTypeIdentifierParts aParts = PeppolIdentifierHelper.getDocumentTypeIdentifierParts (aDocTypeID);
               aLI.addChild (PDCommonUI.getDocumentTypeIDDetails (aParts));
             }
             catch (final IllegalArgumentException ex)
