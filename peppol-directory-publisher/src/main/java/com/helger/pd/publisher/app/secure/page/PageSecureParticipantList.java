@@ -52,7 +52,7 @@ public final class PageSecureParticipantList extends AbstractAppWebPage
 
     final ICommonsSortedSet <IParticipantIdentifier> aAllIDs = PDMetaManager.getStorageMgr ()
                                                                             .getAllContainedParticipantIDs ();
-    aNodeList.addChild (new HCH3 ().addChild (aAllIDs.size () + " participants are contained"));
+    aNodeList.addChild (new HCH3 ().addChild (aAllIDs.size () + " participants (=Business Cards) are contained"));
 
     final HCTable aTable = new HCTable (HCCol.star (), HCCol.star (), HCCol.star ()).setID (getID ());
     aTable.addHeaderRow ().addCells ("ID", "", "");
