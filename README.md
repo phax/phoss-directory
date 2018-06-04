@@ -38,6 +38,7 @@ Open tasks according to the design document:
   * Improved handling of multiple search parameters in name, geoinfo and additionalInfo
   * Updated to peppol-commons 6.1.0
   * Updated to ph-commons 9.1.0
+  * Introduced an internal "generic business card representation"
   * An initial "export all business cards" was created
 * v0.6.0 - 2018-03-06
   * Updated to ph-commons 9.0.1
