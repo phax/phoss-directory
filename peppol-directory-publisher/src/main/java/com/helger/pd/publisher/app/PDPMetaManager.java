@@ -36,7 +36,7 @@ import com.helger.scope.IScope;
 import com.helger.scope.singleton.AbstractGlobalSingleton;
 
 /**
- * Central manager for all sub managers
+ * PD Publisher meta manager
  *
  * @author Philip Helger
  */

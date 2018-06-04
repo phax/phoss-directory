@@ -57,6 +57,7 @@ import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.CommonsTreeSet;
 import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.collection.impl.ICommonsSortedSet;
+import com.helger.commons.datetime.PDTFactory;
 import com.helger.commons.datetime.PDTWebDateHelper;
 import com.helger.commons.functional.IThrowingSupplier;
 import com.helger.commons.state.ESuccess;
@@ -494,7 +495,7 @@ public final class PDStorageManager implements IPDStorageManager
   }
 
   @Nonnull
-  public IMicroDocument getAllContainedDocumentsAsXML () throws IOException
+  public IMicroDocument getAllContainedBusinessCardsAsXML () throws IOException
   {
     final Query aQuery = PDQueryManager.andNotDeleted (new MatchAllDocsQuery ());
 
@@ -502,10 +503,13 @@ public final class PDStorageManager implements IPDStorageManager
     final MultiLinkedHashMapArrayListBased <IParticipantIdentifier, PDBusinessEntity> aMap = new MultiLinkedHashMapArrayListBased <> ();
     searchAllDocuments (aQuery, -1, x -> aMap.putSingle (x.getParticipantID (), x.getAsBusinessEntity ()));
 
+    // XML root
     final IMicroDocument aDoc = new MicroDocument ();
     final String sNamespaceURI = "http://www.peppol.eu/schema/pd/businesscard-generic/201806/";
     final IMicroElement aRoot = aDoc.appendElement (sNamespaceURI, "root");
+    aRoot.setAttribute ("creationdt", PDTWebDateHelper.getAsStringXSD (PDTFactory.getCurrentZonedDateTimeUTC ()));
 
+    // For all BCs
     for (final Map.Entry <IParticipantIdentifier, ICommonsList <PDBusinessEntity>> aEntry : aMap.entrySet ())
     {
       final IParticipantIdentifier aParticipantID = aEntry.getKey ();

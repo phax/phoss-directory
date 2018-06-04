@@ -19,6 +19,7 @@ package com.helger.pd.publisher.servlet;
 import javax.annotation.Nonnull;
 import javax.servlet.ServletContext;
 
+import com.helger.commons.debug.GlobalDebug;
 import com.helger.commons.io.resource.ClassPathResource;
 import com.helger.commons.vendor.VendorInfo;
 import com.helger.pd.indexer.mgr.PDMetaManager;
@@ -30,6 +31,7 @@ import com.helger.pd.publisher.app.AppSecurity;
 import com.helger.pd.publisher.app.PDPMetaManager;
 import com.helger.pd.publisher.app.pub.MenuPublic;
 import com.helger.pd.publisher.app.secure.MenuSecure;
+import com.helger.pd.publisher.exportall.ExportAllBusinessCardsJob;
 import com.helger.pd.settings.PDServerConfiguration;
 import com.helger.photon.basic.app.appid.CApplicationID;
 import com.helger.photon.basic.app.appid.PhotonGlobalState;
@@ -42,6 +44,10 @@ import com.helger.photon.basic.configfile.ConfigurationFileManager;
 import com.helger.photon.basic.configfile.EConfigurationFileSyntax;
 import com.helger.photon.bootstrap3.servlet.WebAppListenerBootstrap;
 import com.helger.photon.core.ajax.IAjaxInvoker;
+import com.helger.quartz.SimpleScheduleBuilder;
+import com.helger.schedule.quartz.GlobalQuartzScheduler;
+import com.helger.schedule.quartz.listener.LoggingJobListener;
+import com.helger.schedule.quartz.trigger.JDK8TriggerBuilder;
 import com.helger.servlet.ServletContextPathHolder;
 
 /**
@@ -105,6 +111,10 @@ public final class AppWebAppListener extends WebAppListenerBootstrap
                                                                                                                           " properties")
                                                                                                          .setSyntaxHighlightLanguage (EConfigurationFileSyntax.PROPERTIES));
     }
+
+    // Job scheduling etc
+    if (GlobalDebug.isDebugMode ())
+      GlobalQuartzScheduler.getInstance ().addJobListener (new LoggingJobListener ());
   }
 
   @Override
@@ -156,5 +166,14 @@ public final class AppWebAppListener extends WebAppListenerBootstrap
     // Load managers
     PDMetaManager.getInstance ();
     PDPMetaManager.getInstance ();
+
+    GlobalQuartzScheduler.getInstance ()
+                         .scheduleJob (ExportAllBusinessCardsJob.class.getName (),
+                                       JDK8TriggerBuilder.newTrigger ()
+                                                         .startNow ()
+                                                         .withSchedule (GlobalDebug.isDebugMode () ? SimpleScheduleBuilder.repeatMinutelyForever (2)
+                                                                                                   : SimpleScheduleBuilder.repeatHourlyForever (6)),
+                                       ExportAllBusinessCardsJob.class,
+                                       null);
   }
 }
