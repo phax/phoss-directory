@@ -24,6 +24,7 @@ public final class CMenuSecure
   // Menu item IDs
   public static final String MENU_INDEXER = "indexer";
   public static final String MENU_PARTICIPANT_COUNT = "participant_count";
+  public static final String MENU_PARTICIPANT_LIST = "participant_list";
   public static final String MENU_PARTICIPANT_ACTIONS = "participant_actions";
   public static final String MENU_INDEX_MANUALLY = "index_manually";
   public static final String MENU_REINDEX_LIST = "reindex_list";

@@ -23,7 +23,7 @@ import com.helger.pd.publisher.app.AppCommonUI;
 import com.helger.pd.publisher.app.AppSecurity;
 import com.helger.pd.publisher.app.secure.page.PageSecureDeadIndexList;
 import com.helger.pd.publisher.app.secure.page.PageSecureIndexManually;
-import com.helger.pd.publisher.app.secure.page.PageSecureParticipantActions;
+import com.helger.pd.publisher.app.secure.page.PageSecureParticipantList;
 import com.helger.pd.publisher.app.secure.page.PageSecureParticipantCount;
 import com.helger.pd.publisher.app.secure.page.PageSecureReIndexList;
 import com.helger.photon.basic.app.menu.IMenuItemPage;
@@ -51,7 +51,7 @@ public final class MenuSecure
                                                                                             "Indexer",
                                                                                             aMenuTree));
       aMenuTree.createItem (aIndexer, new PageSecureParticipantCount (CMenuSecure.MENU_PARTICIPANT_COUNT));
-      aMenuTree.createItem (aIndexer, new PageSecureParticipantActions (CMenuSecure.MENU_PARTICIPANT_ACTIONS));
+      aMenuTree.createItem (aIndexer, new PageSecureParticipantList (CMenuSecure.MENU_PARTICIPANT_LIST));
       aMenuTree.createItem (aIndexer, new PageSecureIndexManually (CMenuSecure.MENU_INDEX_MANUALLY));
       aMenuTree.createItem (aIndexer, new PageSecureReIndexList (CMenuSecure.MENU_REINDEX_LIST));
       aMenuTree.createItem (aIndexer, new PageSecureDeadIndexList (CMenuSecure.MENU_DEADINDEX_LIST));

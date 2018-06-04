@@ -57,7 +57,7 @@ public final class PageSecureParticipantCount extends AbstractAppWebPage
     s_aExportAllBCs = addAjax ( (req, res) -> {
       final IMicroDocument aDoc = PDMetaManager.getStorageMgr ().getAllContainedDocumentsAsXML ();
       res.xml (aDoc);
-      res.attachment ("directory-business-entities.xml");
+      res.attachment ("directory-business-cards.xml");
     });
   }
 
@@ -75,14 +75,14 @@ public final class PageSecureParticipantCount extends AbstractAppWebPage
     {
       final BootstrapButtonToolbar aToolbar = getUIHandler ().createToolbar (aWPEC);
       aToolbar.addButton ("Export all IDs", s_aExportAllIDs.getInvocationURL (aRequestScope), EDefaultIcon.SAVE);
-      aToolbar.addButton ("Export all Business Entities",
+      aToolbar.addButton ("Export all Business Cards",
                           s_aExportAllBCs.getInvocationURL (aRequestScope),
                           EDefaultIcon.SAVE);
       aNodeList.addChild (aToolbar);
     }
 
     final int nCount = PDMetaManager.getStorageMgr ().getContainedParticipantCount ();
-    aNodeList.addChild (new HCH3 ().addChild (nCount + " participants are contained"));
+    aNodeList.addChild (new HCH3 ().addChild (nCount + " participants (=entities) are contained"));
 
     final int nReIndexCount = PDMetaManager.getIndexerMgr ().getReIndexList ().getItemCount ();
     aNodeList.addChild (new HCH3 ().addChild (nReIndexCount + " re-index items are contained"));

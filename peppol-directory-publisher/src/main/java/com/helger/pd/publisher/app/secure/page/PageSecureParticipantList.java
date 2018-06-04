@@ -38,11 +38,11 @@ import com.helger.photon.bootstrap3.uictrls.datatables.BootstrapDataTables;
 import com.helger.photon.uicore.css.CPageParam;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 
-public final class PageSecureParticipantActions extends AbstractAppWebPage
+public final class PageSecureParticipantList extends AbstractAppWebPage
 {
-  public PageSecureParticipantActions (@Nonnull @Nonempty final String sID)
+  public PageSecureParticipantList (@Nonnull @Nonempty final String sID)
   {
-    super (sID, "Participant actions");
+    super (sID, "Participant list");
   }
 
   @Override
