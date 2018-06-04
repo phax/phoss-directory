@@ -26,20 +26,21 @@ import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.string.ToStringGenerator;
 
 /**
- * This class contains all the metadata stored in a {@link PDStoredDocument}.
+ * This class contains all the metadata stored in a
+ * {@link PDStoredBusinessEntity}.
  *
  * @author Philip Helger
  */
 @Immutable
-public final class PDDocumentMetaData
+public final class PDStoredMetaData
 {
   private final LocalDateTime m_aCreationDT;
   private final String m_sOwnerID;
   private final String m_sRequestingHost;
 
-  public PDDocumentMetaData (@Nonnull final LocalDateTime aCreationDT,
-                             @Nonnull @Nonempty final String sOwnerID,
-                             @Nonnull @Nonempty final String sRequestingHost)
+  public PDStoredMetaData (@Nonnull final LocalDateTime aCreationDT,
+                           @Nonnull @Nonempty final String sOwnerID,
+                           @Nonnull @Nonempty final String sRequestingHost)
   {
     ValueEnforcer.notNull (aCreationDT, "CreationDT");
     ValueEnforcer.notNull (sOwnerID, "OwnerID");

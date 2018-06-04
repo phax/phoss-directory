@@ -59,9 +59,9 @@ import com.helger.xml.microdom.MicroElement;
  * @author Philip Helger
  */
 @NotThreadSafe
-public class PDStoredDocument
+public class PDStoredBusinessEntity
 {
-  private static final Logger s_aLogger = LoggerFactory.getLogger (PDStoredDocument.class);
+  private static final Logger s_aLogger = LoggerFactory.getLogger (PDStoredBusinessEntity.class);
 
   private IParticipantIdentifier m_aParticipantID;
   // Retrieved from SMP
@@ -75,10 +75,10 @@ public class PDStoredDocument
   private LocalDate m_aRegistrationDate;
   private final ICommonsList <IDocumentTypeIdentifier> m_aDocumentTypeIDs = new CommonsArrayList <> ();
   // Status information from PD
-  private PDDocumentMetaData m_aMetaData;
+  private PDStoredMetaData m_aMetaData;
   private boolean m_bDeleted;
 
-  protected PDStoredDocument ()
+  protected PDStoredBusinessEntity ()
   {}
 
   public void setParticipantID (@Nonnull final IParticipantIdentifier aParticipantID)
@@ -289,12 +289,12 @@ public class PDStoredDocument
   }
 
   @Nonnull
-  public PDDocumentMetaData getMetaData ()
+  public PDStoredMetaData getMetaData ()
   {
     return m_aMetaData;
   }
 
-  public void setMetaData (@Nonnull final PDDocumentMetaData aMetaData)
+  public void setMetaData (@Nonnull final PDStoredMetaData aMetaData)
   {
     ValueEnforcer.notNull (aMetaData, "MetaData");
     m_aMetaData = aMetaData;
@@ -311,7 +311,7 @@ public class PDStoredDocument
   }
 
   /**
-   * @return Parts of this {@link PDStoredDocument} as a
+   * @return Parts of this {@link PDStoredBusinessEntity} as a
    *         {@link PDBusinessEntity}.
    */
   @Nonnull
@@ -333,7 +333,7 @@ public class PDStoredDocument
   }
 
   /**
-   * @return This {@link PDStoredDocument} as a {@link PDBusinessCard}.
+   * @return This {@link PDStoredBusinessEntity} as a {@link PDBusinessCard}.
    */
   @Nonnull
   public PDBusinessCard getAsBusinessCard ()
@@ -354,11 +354,11 @@ public class PDStoredDocument
    * @return The micro element
    */
   @Nonnull
-  public static IMicroElement getAsSearchResultMicroElement (@Nonnull @Nonempty final ICommonsList <PDStoredDocument> aDocs)
+  public static IMicroElement getAsSearchResultMicroElement (@Nonnull @Nonempty final ICommonsList <PDStoredBusinessEntity> aDocs)
   {
     ValueEnforcer.notEmptyNoNullValue (aDocs, "Docs");
 
-    final PDStoredDocument aFirst = aDocs.getFirst ();
+    final PDStoredBusinessEntity aFirst = aDocs.getFirst ();
 
     final IMicroElement aMatch = new MicroElement ("match");
     aMatch.appendElement ("participantID")
@@ -374,7 +374,7 @@ public class PDStoredDocument
     }
 
     // Add all entities
-    for (final PDStoredDocument aDoc : aDocs)
+    for (final PDStoredBusinessEntity aDoc : aDocs)
     {
       final IMicroElement aEntity = aMatch.appendElement ("entity");
       aEntity.appendElement ("name").appendText (aDoc.m_sName);
@@ -416,11 +416,11 @@ public class PDStoredDocument
   }
 
   @Nonnull
-  public static IJsonObject getAsSearchResultJsonObject (@Nonnull @Nonempty final ICommonsList <PDStoredDocument> aDocs)
+  public static IJsonObject getAsSearchResultJsonObject (@Nonnull @Nonempty final ICommonsList <PDStoredBusinessEntity> aDocs)
   {
     ValueEnforcer.notEmptyNoNullValue (aDocs, "Docs");
 
-    final PDStoredDocument aFirst = aDocs.getFirst ();
+    final PDStoredBusinessEntity aFirst = aDocs.getFirst ();
 
     final IJsonObject ret = new JsonObject ();
     ret.add ("participantID", _getIDAsJson (aFirst.m_aParticipantID.getScheme (), aFirst.m_aParticipantID.getValue ()));
@@ -433,7 +433,7 @@ public class PDStoredDocument
       ret.add ("docTypes", aDocTypes);
 
     final IJsonArray aEntities = new JsonArray ();
-    for (final PDStoredDocument aDoc : aDocs)
+    for (final PDStoredBusinessEntity aDoc : aDocs)
     {
       final IJsonObject aEntity = new JsonObject ();
       aEntity.add ("name", aDoc.m_sName);
@@ -496,21 +496,22 @@ public class PDStoredDocument
   }
 
   /**
-   * Convert a stored Lucene {@link Document} to a {@link PDStoredDocument}.
-   * This method resolves all Lucene fields to Java fields.
+   * Convert a stored Lucene {@link Document} to a
+   * {@link PDStoredBusinessEntity}. This method resolves all Lucene fields to
+   * Java fields.
    *
    * @param aDoc
    *        Source Lucene document. May not be <code>null</code>.
-   * @return The new {@link PDStoredDocument}.
+   * @return The new {@link PDStoredBusinessEntity}.
    */
   @Nonnull
   @ReturnsMutableCopy
-  public static PDStoredDocument create (@Nonnull final Document aDoc)
+  public static PDStoredBusinessEntity create (@Nonnull final Document aDoc)
   {
     if (s_aLogger.isDebugEnabled ())
       s_aLogger.debug ("Creating PDStoredDocument from " + aDoc);
 
-    final PDStoredDocument ret = new PDStoredDocument ();
+    final PDStoredBusinessEntity ret = new PDStoredBusinessEntity ();
 
     ret.setParticipantID (PDField.PARTICIPANT_ID.getDocValue (aDoc));
 
@@ -552,9 +553,9 @@ public class PDStoredDocument
                                            aBCEmail.get (i)));
 
     {
-      final PDDocumentMetaData aMetaData = new PDDocumentMetaData (PDField.METADATA_CREATIONDT.getDocValue (aDoc),
-                                                                   PDField.METADATA_OWNERID.getDocValue (aDoc),
-                                                                   PDField.METADATA_REQUESTING_HOST.getDocValue (aDoc));
+      final PDStoredMetaData aMetaData = new PDStoredMetaData (PDField.METADATA_CREATIONDT.getDocValue (aDoc),
+                                                               PDField.METADATA_OWNERID.getDocValue (aDoc),
+                                                               PDField.METADATA_REQUESTING_HOST.getDocValue (aDoc));
       ret.setMetaData (aMetaData);
     }
     ret.setAdditionalInformation (PDField.ADDITIONAL_INFO.getDocValue (aDoc));

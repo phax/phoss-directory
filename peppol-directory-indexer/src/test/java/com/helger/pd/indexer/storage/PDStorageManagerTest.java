@@ -57,9 +57,9 @@ public final class PDStorageManagerTest
   public final TestRule m_aRule = new PDIndexerTestRule ();
 
   @Nonnull
-  private static PDDocumentMetaData _createMockMetaData ()
+  private static PDStoredMetaData _createMockMetaData ()
   {
-    return new PDDocumentMetaData (PDTFactory.getCurrentLocalDateTime (), "junittest", "localhost");
+    return new PDStoredMetaData (PDTFactory.getCurrentLocalDateTime (), "junittest", "localhost");
   }
 
   @Nonnull
@@ -104,13 +104,13 @@ public final class PDStorageManagerTest
                                                                .createParticipantIdentifier ("myscheme", "0088:test");
     try (PDStorageManager aMgr = new PDStorageManager (new PDLucene ()))
     {
-      final PDDocumentMetaData aMetaData = _createMockMetaData ();
+      final PDStoredMetaData aMetaData = _createMockMetaData ();
       aMgr.createOrUpdateEntry (aParticipantID, _createMockBI (aParticipantID), aMetaData);
       try
       {
-        final ICommonsList <PDStoredDocument> aDocs = aMgr.getAllDocumentsOfParticipant (aParticipantID);
+        final ICommonsList <PDStoredBusinessEntity> aDocs = aMgr.getAllDocumentsOfParticipant (aParticipantID);
         assertEquals (2, aDocs.size ());
-        final PDStoredDocument aDoc1 = aDocs.get (0);
+        final PDStoredBusinessEntity aDoc1 = aDocs.get (0);
         assertEquals (aParticipantID, aDoc1.getParticipantID ());
         assertEquals ("junittest", aDoc1.getMetaData ().getOwnerID ());
         assertEquals ("AT", aDoc1.getCountryCode ());
@@ -152,12 +152,12 @@ public final class PDStorageManagerTest
                                                                .createParticipantIdentifier ("myscheme", "0088:test");
     try (PDStorageManager aMgr = new PDStorageManager (new PDLucene ()))
     {
-      final PDDocumentMetaData aMetaData = _createMockMetaData ();
+      final PDStoredMetaData aMetaData = _createMockMetaData ();
       aMgr.createOrUpdateEntry (aParticipantID, _createMockBI (aParticipantID), aMetaData);
       try
       {
         // No country - no fields
-        ICommonsList <PDStoredDocument> aDocs = aMgr.getAllDocuments (new TermQuery (PDField.COUNTRY_CODE.getExactMatchTerm ("")),
+        ICommonsList <PDStoredBusinessEntity> aDocs = aMgr.getAllDocuments (new TermQuery (PDField.COUNTRY_CODE.getExactMatchTerm ("")),
                                                                       -1);
         assertEquals (0, aDocs.size ());
 
@@ -165,7 +165,7 @@ public final class PDStorageManagerTest
         aDocs = aMgr.getAllDocuments (new TermQuery (PDField.COUNTRY_CODE.getExactMatchTerm ("NO")), -1);
         assertEquals (1, aDocs.size ());
 
-        final PDStoredDocument aSingleDoc = aDocs.get (0);
+        final PDStoredBusinessEntity aSingleDoc = aDocs.get (0);
         assertEquals (aParticipantID, aSingleDoc.getParticipantID ());
         assertEquals ("junittest", aSingleDoc.getMetaData ().getOwnerID ());
         assertEquals ("NO", aSingleDoc.getCountryCode ());

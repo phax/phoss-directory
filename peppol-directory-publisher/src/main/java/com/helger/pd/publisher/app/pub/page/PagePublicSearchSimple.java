@@ -50,7 +50,7 @@ import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.CPDStorage;
 import com.helger.pd.indexer.storage.PDQueryManager;
 import com.helger.pd.indexer.storage.PDStorageManager;
-import com.helger.pd.indexer.storage.PDStoredDocument;
+import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
 import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.search.EPDSearchField;
 import com.helger.pd.publisher.ui.PDCommonUI;
@@ -151,7 +151,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
       s_aLogger.debug ("Created query for '" + sQuery + "' is <" + aLuceneQuery + ">");
 
     // Search all documents
-    final ICommonsList <PDStoredDocument> aResultDocs = PDMetaManager.getStorageMgr ().getAllDocuments (aLuceneQuery,
+    final ICommonsList <PDStoredBusinessEntity> aResultDocs = PDMetaManager.getStorageMgr ().getAllDocuments (aLuceneQuery,
                                                                                                         nMaxResults);
     s_aLogger.info ("  Result for <" +
                     aLuceneQuery +
@@ -161,7 +161,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
                     (aResultDocs.size () == 1 ? "is 1 document" : "are " + aResultDocs.size () + " documents"));
 
     // Group by participant ID
-    final IMultiMapListBased <IParticipantIdentifier, PDStoredDocument> aGroupedDocs = PDStorageManager.getGroupedByParticipantID (aResultDocs);
+    final IMultiMapListBased <IParticipantIdentifier, PDStoredBusinessEntity> aGroupedDocs = PDStorageManager.getGroupedByParticipantID (aResultDocs);
 
     // Display results
     if (aGroupedDocs.isEmpty ())
@@ -182,10 +182,10 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
 
       // Show basic information
       final HCOL aOL = new HCOL ().setStart (1);
-      for (final Map.Entry <IParticipantIdentifier, ICommonsList <PDStoredDocument>> aEntry : aGroupedDocs.entrySet ())
+      for (final Map.Entry <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> aEntry : aGroupedDocs.entrySet ())
       {
         final IParticipantIdentifier aDocParticipantID = aEntry.getKey ();
-        final ICommonsList <PDStoredDocument> aDocs = aEntry.getValue ();
+        final ICommonsList <PDStoredBusinessEntity> aDocs = aEntry.getValue ();
 
         // Start result document
         final HCDiv aResultItem = new HCDiv ().addClass (CSS_CLASS_RESULT_DOC);
@@ -214,7 +214,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
 
         // Show all entities of the stored document
         final HCUL aUL = aResultItem.addAndReturnChild (new HCUL ());
-        for (final PDStoredDocument aStoredDoc : aEntry.getValue ())
+        for (final PDStoredBusinessEntity aStoredDoc : aEntry.getValue ())
         {
           final BootstrapTable aTable = new BootstrapTable (HCCol.perc (20), HCCol.star ());
           aTable.setCondensed (true);

@@ -49,7 +49,7 @@ import com.helger.json.JsonObject;
 import com.helger.json.serialize.JsonWriterSettings;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.PDStorageManager;
-import com.helger.pd.indexer.storage.PDStoredDocument;
+import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
 import com.helger.pd.publisher.search.EPDOutputFormat;
 import com.helger.pd.publisher.search.EPDSearchField;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
@@ -251,7 +251,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
       final int nMaxResults = nLastResultIndex + 1;
 
       // Search all documents
-      final ICommonsList <PDStoredDocument> aResultDocs = PDMetaManager.getStorageMgr ().getAllDocuments (aLuceneQuery,
+      final ICommonsList <PDStoredBusinessEntity> aResultDocs = PDMetaManager.getStorageMgr ().getAllDocuments (aLuceneQuery,
                                                                                                           nMaxResults);
 
       s_aLogger.info ("  Result for <" +
@@ -263,13 +263,13 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
 
       // Filter by index/count
       final int nEffectiveLastIndex = Math.min (nLastResultIndex, aResultDocs.size () - 1);
-      final List <PDStoredDocument> aResultView = nFirstResultIndex >= aResultDocs.size () ? Collections.emptyList ()
+      final List <PDStoredBusinessEntity> aResultView = nFirstResultIndex >= aResultDocs.size () ? Collections.emptyList ()
                                                                                            : aResultDocs.subList (nFirstResultIndex,
                                                                                                                   nEffectiveLastIndex +
                                                                                                                                      1);
 
       // Group by participant ID
-      final IMultiMapListBased <IParticipantIdentifier, PDStoredDocument> aGroupedDocs = PDStorageManager.getGroupedByParticipantID (aResultDocs);
+      final IMultiMapListBased <IParticipantIdentifier, PDStoredBusinessEntity> aGroupedDocs = PDStorageManager.getGroupedByParticipantID (aResultDocs);
       final ZonedDateTime aNow = PDTFactory.getCurrentZonedDateTimeUTC ();
 
       // build result
@@ -291,9 +291,9 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
           eRoot.setAttribute (RESPONSE_QUERY_TERMS, aSBQueryString.toString ());
           eRoot.setAttribute (RESPONSE_CREATION_DT, PDTWebDateHelper.getAsStringXSD (aNow));
 
-          for (final ICommonsList <PDStoredDocument> aPerParticipant : aGroupedDocs.values ())
+          for (final ICommonsList <PDStoredBusinessEntity> aPerParticipant : aGroupedDocs.values ())
           {
-            final IMicroElement eItem = PDStoredDocument.getAsSearchResultMicroElement (aPerParticipant);
+            final IMicroElement eItem = PDStoredBusinessEntity.getAsSearchResultMicroElement (aPerParticipant);
             eRoot.appendChild (eItem);
           }
 
@@ -316,9 +316,9 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
           aDoc.add (RESPONSE_CREATION_DT, PDTWebDateHelper.getAsStringXSD (aNow));
 
           final IJsonArray aMatches = new JsonArray ();
-          for (final ICommonsList <PDStoredDocument> aPerParticipant : aGroupedDocs.values ())
+          for (final ICommonsList <PDStoredBusinessEntity> aPerParticipant : aGroupedDocs.values ())
           {
-            final IJsonObject aItem = PDStoredDocument.getAsSearchResultJsonObject (aPerParticipant);
+            final IJsonObject aItem = PDStoredBusinessEntity.getAsSearchResultJsonObject (aPerParticipant);
             aMatches.add (aItem);
           }
           aDoc.add ("matches", aMatches);

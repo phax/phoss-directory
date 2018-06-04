@@ -24,7 +24,7 @@ import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.annotation.ReturnsMutableCopy;
 import com.helger.commons.type.ITypedObject;
 import com.helger.datetime.domain.IHasCreationDateTime;
-import com.helger.pd.indexer.storage.PDDocumentMetaData;
+import com.helger.pd.indexer.storage.PDStoredMetaData;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 
 /**
@@ -82,13 +82,13 @@ public interface IIndexerWorkItem extends ITypedObject <String>, Serializable, I
   }
 
   /**
-   * @return The information of this as a {@link PDDocumentMetaData} object to
-   *         be used by the storage engine.
+   * @return The information of this as a {@link PDStoredMetaData} object to be
+   *         used by the storage engine.
    */
   @Nonnull
   @ReturnsMutableCopy
-  default PDDocumentMetaData getAsMetaData ()
+  default PDStoredMetaData getAsMetaData ()
   {
-    return new PDDocumentMetaData (getCreationDateTime (), getOwnerID (), getRequestingHost ());
+    return new PDStoredMetaData (getCreationDateTime (), getOwnerID (), getRequestingHost ());
   }
 }

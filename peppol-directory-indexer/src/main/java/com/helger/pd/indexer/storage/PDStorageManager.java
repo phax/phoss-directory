@@ -167,7 +167,7 @@ public final class PDStorageManager implements IPDStorageManager
 
   @Nonnull
   public ESuccess deleteEntry (@Nonnull final IParticipantIdentifier aParticipantID,
-                               @Nonnull final PDDocumentMetaData aMetaData) throws IOException
+                               @Nonnull final PDStoredMetaData aMetaData) throws IOException
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
     ValueEnforcer.notNull (aMetaData, "MetaData");
@@ -207,7 +207,7 @@ public final class PDStorageManager implements IPDStorageManager
   @Nonnull
   public ESuccess createOrUpdateEntry (@Nonnull final IParticipantIdentifier aParticipantID,
                                        @Nonnull final PDExtendedBusinessCard aExtBI,
-                                       @Nonnull final PDDocumentMetaData aMetaData) throws IOException
+                                       @Nonnull final PDStoredMetaData aMetaData) throws IOException
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
     ValueEnforcer.notNull (aExtBI, "ExtBI");
@@ -389,7 +389,7 @@ public final class PDStorageManager implements IPDStorageManager
    * @param nMaxResultCount
    *        Maximum number of results. Values &ge; 0 mean all.
    * @param aConsumer
-   *        The consumer of the {@link PDStoredDocument} objects.
+   *        The consumer of the {@link PDStoredBusinessEntity} objects.
    * @throws IOException
    *         On Lucene error
    * @see #searchAtomic(Query, Collector)
@@ -397,12 +397,13 @@ public final class PDStorageManager implements IPDStorageManager
    */
   public void searchAllDocuments (@Nonnull final Query aQuery,
                                   @CheckForSigned final int nMaxResultCount,
-                                  @Nonnull final Consumer <? super PDStoredDocument> aConsumer) throws IOException
+                                  @Nonnull final Consumer <? super PDStoredBusinessEntity> aConsumer) throws IOException
   {
     ValueEnforcer.notNull (aQuery, "Query");
     ValueEnforcer.notNull (aConsumer, "Consumer");
 
-    final ObjIntConsumer <Document> aConverter = (aDoc, nDocID) -> aConsumer.accept (PDStoredDocument.create (aDoc));
+    final ObjIntConsumer <Document> aConverter = (aDoc,
+                                                  nDocID) -> aConsumer.accept (PDStoredBusinessEntity.create (aDoc));
     if (nMaxResultCount <= 0)
     {
       // Search all
@@ -420,14 +421,15 @@ public final class PDStorageManager implements IPDStorageManager
         if (aDoc == null)
           throw new IllegalStateException ("Failed to resolve Lucene Document with ID " + aScoreDoc.doc);
         // Pass to Consumer
-        aConsumer.accept (PDStoredDocument.create (aDoc));
+        aConsumer.accept (PDStoredBusinessEntity.create (aDoc));
       }
     }
   }
 
   /**
-   * Get all {@link PDStoredDocument} objects matching the provided query. This
-   * is a specialization of {@link #searchAllDocuments(Query, int, Consumer)}.
+   * Get all {@link PDStoredBusinessEntity} objects matching the provided query.
+   * This is a specialization of
+   * {@link #searchAllDocuments(Query, int, Consumer)}.
    *
    * @param aQuery
    *        The query to be executed. May not be <code>null</code>.
@@ -438,10 +440,10 @@ public final class PDStorageManager implements IPDStorageManager
    */
   @Nonnull
   @ReturnsMutableCopy
-  public ICommonsList <PDStoredDocument> getAllDocuments (@Nonnull final Query aQuery,
-                                                          @CheckForSigned final int nMaxResultCount)
+  public ICommonsList <PDStoredBusinessEntity> getAllDocuments (@Nonnull final Query aQuery,
+                                                                @CheckForSigned final int nMaxResultCount)
   {
-    final ICommonsList <PDStoredDocument> aTargetList = new CommonsArrayList <> ();
+    final ICommonsList <PDStoredBusinessEntity> aTargetList = new CommonsArrayList <> ();
     try
     {
       searchAllDocuments (aQuery, nMaxResultCount, aTargetList::add);
@@ -454,7 +456,7 @@ public final class PDStorageManager implements IPDStorageManager
   }
 
   @Nonnull
-  public ICommonsList <PDStoredDocument> getAllDocumentsOfParticipant (@Nonnull final IParticipantIdentifier aParticipantID)
+  public ICommonsList <PDStoredBusinessEntity> getAllDocumentsOfParticipant (@Nonnull final IParticipantIdentifier aParticipantID)
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
     return getAllDocuments (new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID)), -1);
@@ -497,10 +499,10 @@ public final class PDStorageManager implements IPDStorageManager
    */
   @Nonnull
   @ReturnsMutableCopy
-  public static IMultiMapListBased <IParticipantIdentifier, PDStoredDocument> getGroupedByParticipantID (@Nonnull final Iterable <PDStoredDocument> aDocs)
+  public static IMultiMapListBased <IParticipantIdentifier, PDStoredBusinessEntity> getGroupedByParticipantID (@Nonnull final Iterable <PDStoredBusinessEntity> aDocs)
   {
-    final MultiLinkedHashMapArrayListBased <IParticipantIdentifier, PDStoredDocument> ret = new MultiLinkedHashMapArrayListBased <> ();
-    for (final PDStoredDocument aDoc : aDocs)
+    final MultiLinkedHashMapArrayListBased <IParticipantIdentifier, PDStoredBusinessEntity> ret = new MultiLinkedHashMapArrayListBased <> ();
+    for (final PDStoredBusinessEntity aDoc : aDocs)
       ret.putSingle (aDoc.getParticipantID (), aDoc);
     return ret;
   }

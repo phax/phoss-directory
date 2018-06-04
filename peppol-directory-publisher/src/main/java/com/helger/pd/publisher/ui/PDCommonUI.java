@@ -47,7 +47,7 @@ import com.helger.html.hc.html.textlevel.HCWBR;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.html.hc.impl.HCTextNode;
 import com.helger.pd.indexer.storage.PDStoredContact;
-import com.helger.pd.indexer.storage.PDStoredDocument;
+import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
 import com.helger.pd.indexer.storage.PDStoredIdentifier;
 import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.generic.process.IProcessIdentifier;
@@ -85,7 +85,7 @@ public final class PDCommonUI
   }
 
   @Nonnull
-  public static BootstrapViewForm showBusinessInfoDetails (@Nonnull final PDStoredDocument aStoredDoc,
+  public static BootstrapViewForm showBusinessInfoDetails (@Nonnull final PDStoredBusinessEntity aStoredDoc,
                                                            @Nonnull final Locale aDisplayLocale)
   {
     final BootstrapViewForm aViewForm = new BootstrapViewForm ();

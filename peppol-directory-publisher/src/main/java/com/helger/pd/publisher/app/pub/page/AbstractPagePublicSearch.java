@@ -45,7 +45,7 @@ import com.helger.html.hc.html.textlevel.HCSpan;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.PDStorageManager;
-import com.helger.pd.indexer.storage.PDStoredDocument;
+import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.pd.publisher.ui.PDCommonUI;
 import com.helger.pd.settings.PDServerConfiguration;
@@ -167,10 +167,10 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
     final HCNodeList aDetails = new HCNodeList ();
 
     // Search document matching participant ID
-    final ICommonsList <PDStoredDocument> aResultDocs = PDMetaManager.getStorageMgr ()
+    final ICommonsList <PDStoredBusinessEntity> aResultDocs = PDMetaManager.getStorageMgr ()
                                                                      .getAllDocumentsOfParticipant (aParticipantID);
     // Group by participant ID
-    final IMultiMapListBased <IParticipantIdentifier, PDStoredDocument> aGroupedDocs = PDStorageManager.getGroupedByParticipantID (aResultDocs);
+    final IMultiMapListBased <IParticipantIdentifier, PDStoredBusinessEntity> aGroupedDocs = PDStorageManager.getGroupedByParticipantID (aResultDocs);
     if (aGroupedDocs.isEmpty ())
       s_aLogger.error ("No stored document matches participant identifier '" + sParticipantID + "'");
     else
@@ -182,7 +182,7 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
                         sParticipantID +
                         "' - weird");
       // Get the first one
-      final ICommonsList <PDStoredDocument> aDocuments = aGroupedDocs.getFirstValue ();
+      final ICommonsList <PDStoredBusinessEntity> aDocuments = aGroupedDocs.getFirstValue ();
 
       // Details header
       {
@@ -214,7 +214,7 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
       {
         final HCNodeList aOL = new HCNodeList ();
         int nIndex = 1;
-        for (final PDStoredDocument aStoredDoc : aDocuments)
+        for (final PDStoredBusinessEntity aStoredDoc : aDocuments)
         {
           final BootstrapPanel aPanel = aOL.addAndReturnChild (new BootstrapPanel ());
           aPanel.addClass (CSS_CLASS_RESULT_PANEL);

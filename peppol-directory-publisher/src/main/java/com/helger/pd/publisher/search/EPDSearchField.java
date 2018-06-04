@@ -32,13 +32,13 @@ import com.helger.commons.text.display.IHasDisplayText;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.CPDStorage;
 import com.helger.pd.indexer.storage.PDQueryManager;
-import com.helger.pd.indexer.storage.PDStoredDocument;
+import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
 import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 
 /**
  * The PEPPOL Directory specific search fields. The fields here should be
- * conform to the fields in {@link PDStoredDocument}.
+ * conform to the fields in {@link PDStoredBusinessEntity}.
  *
  * @author Philip Helger
  */
