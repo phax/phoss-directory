@@ -23,17 +23,21 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 
+import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.annotation.ReturnsMutableCopy;
+import com.helger.commons.annotation.ReturnsMutableObject;
 import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.equals.EqualsHelper;
 import com.helger.commons.hashcode.HashCodeGenerator;
 import com.helger.commons.lang.ICloneable;
 import com.helger.commons.string.ToStringGenerator;
+import com.helger.xml.microdom.IMicroElement;
+import com.helger.xml.microdom.MicroElement;
 
 /**
  * Generic business card.
- * 
+ *
  * @author Philip Helger
  */
 @NotThreadSafe
@@ -59,18 +63,22 @@ public class PDBusinessCard implements Serializable, ICloneable <PDBusinessCard>
   /**
    * Sets the value of the participantIdentifier property.
    *
-   * @param value
+   * @param aParticipantIdentifier
    *        allowed object is {@link PDIdentifier }
+   * @return this for chaining
    */
-  public void setParticipantIdentifier (@Nullable final PDIdentifier value)
+  @Nonnull
+  public PDBusinessCard setParticipantIdentifier (@Nullable final PDIdentifier aParticipantIdentifier)
   {
-    m_aParticipantIdentifier = value;
+    m_aParticipantIdentifier = aParticipantIdentifier;
+    return this;
   }
 
   /**
    * @return Mutable list of business entities.
    */
   @Nonnull
+  @ReturnsMutableObject
   public ICommonsList <PDBusinessEntity> businessEntities ()
   {
     return m_aEntities;
@@ -96,6 +104,17 @@ public class PDBusinessCard implements Serializable, ICloneable <PDBusinessCard>
   {
     final PDBusinessCard ret = new PDBusinessCard ();
     cloneTo (ret);
+    return ret;
+  }
+
+  @Nonnull
+  public IMicroElement getAsMicroXML (@Nullable final String sNamespaceURI,
+                                      @Nonnull @Nonempty final String sElementName)
+  {
+    final IMicroElement ret = new MicroElement (sNamespaceURI, sElementName);
+    ret.appendChild (m_aParticipantIdentifier.getAsMicroXML (sNamespaceURI, "participant"));
+    for (final PDBusinessEntity aEntity : m_aEntities)
+      ret.appendChild (aEntity.getAsMicroXML (sNamespaceURI, "entity"));
     return ret;
   }
 

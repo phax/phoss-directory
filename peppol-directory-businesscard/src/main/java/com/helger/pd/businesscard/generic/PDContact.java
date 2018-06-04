@@ -23,11 +23,14 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 
+import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.annotation.ReturnsMutableCopy;
 import com.helger.commons.equals.EqualsHelper;
 import com.helger.commons.hashcode.HashCodeGenerator;
 import com.helger.commons.lang.ICloneable;
 import com.helger.commons.string.ToStringGenerator;
+import com.helger.xml.microdom.IMicroElement;
+import com.helger.xml.microdom.MicroElement;
 
 /**
  * Generic contact.
@@ -70,12 +73,12 @@ public class PDContact implements Serializable, ICloneable <PDContact>
   /**
    * Sets the value of the type property.
    *
-   * @param value
+   * @param sType
    *        allowed object is {@link String }
    */
-  public final void setType (@Nullable final String value)
+  public final void setType (@Nullable final String sType)
   {
-    m_sType = value;
+    m_sType = sType;
   }
 
   /**
@@ -92,12 +95,12 @@ public class PDContact implements Serializable, ICloneable <PDContact>
   /**
    * Sets the value of the name property.
    *
-   * @param value
+   * @param sName
    *        allowed object is {@link String }
    */
-  public final void setName (@Nullable final String value)
+  public final void setName (@Nullable final String sName)
   {
-    m_sName = value;
+    m_sName = sName;
   }
 
   /**
@@ -114,12 +117,12 @@ public class PDContact implements Serializable, ICloneable <PDContact>
   /**
    * Sets the value of the phoneNumber property.
    *
-   * @param value
+   * @param sPhoneNumber
    *        allowed object is {@link String }
    */
-  public final void setPhoneNumber (@Nullable final String value)
+  public final void setPhoneNumber (@Nullable final String sPhoneNumber)
   {
-    m_sPhoneNumber = value;
+    m_sPhoneNumber = sPhoneNumber;
   }
 
   /**
@@ -136,12 +139,12 @@ public class PDContact implements Serializable, ICloneable <PDContact>
   /**
    * Sets the value of the email property.
    *
-   * @param value
+   * @param sEmail
    *        allowed object is {@link String }
    */
-  public final void setEmail (@Nullable final String value)
+  public final void setEmail (@Nullable final String sEmail)
   {
-    m_sEmail = value;
+    m_sEmail = sEmail;
   }
 
   /**
@@ -165,6 +168,18 @@ public class PDContact implements Serializable, ICloneable <PDContact>
   {
     final PDContact ret = new PDContact ();
     cloneTo (ret);
+    return ret;
+  }
+
+  @Nonnull
+  public IMicroElement getAsMicroXML (@Nullable final String sNamespaceURI,
+                                      @Nonnull @Nonempty final String sElementName)
+  {
+    final IMicroElement ret = new MicroElement (sNamespaceURI, sElementName);
+    ret.setAttribute ("email", m_sEmail);
+    ret.setAttribute ("name", m_sName);
+    ret.setAttribute ("phonenumber", m_sPhoneNumber);
+    ret.setAttribute ("type", m_sType);
     return ret;
   }
 

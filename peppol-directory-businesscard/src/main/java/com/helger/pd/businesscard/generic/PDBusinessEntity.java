@@ -1,6 +1,6 @@
 /**
- * Copyright (C) 2015-2018 Philip Helger (www.helger.com)
  * philip[at]helger[dot]com
+ * Copyright (C) 2015-2018 Philip Helger (www.helger.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,14 +24,18 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 
+import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.annotation.ReturnsMutableCopy;
 import com.helger.commons.annotation.ReturnsMutableObject;
 import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.equals.EqualsHelper;
 import com.helger.commons.hashcode.HashCodeGenerator;
+import com.helger.commons.lang.ICloneable;
 import com.helger.commons.string.StringHelper;
 import com.helger.commons.string.ToStringGenerator;
+import com.helger.xml.microdom.IMicroElement;
+import com.helger.xml.microdom.MicroElement;
 
 /**
  * Generic business entity.
@@ -39,7 +43,7 @@ import com.helger.commons.string.ToStringGenerator;
  * @author Philip Helger
  */
 @NotThreadSafe
-public class PDBusinessEntity implements Serializable
+public class PDBusinessEntity implements Serializable, ICloneable <PDBusinessEntity>
 {
   private String m_sName;
   private String m_sCountryCode;
@@ -235,15 +239,15 @@ public class PDBusinessEntity implements Serializable
    */
   public void cloneTo (@Nonnull final PDBusinessEntity ret)
   {
-    ret.m_sAdditionalInfo = m_sAdditionalInfo;
-    ret.m_aContact = new CommonsArrayList <> (m_aContact, PDContact::getClone);
+    ret.m_sName = m_sName;
     ret.m_sCountryCode = m_sCountryCode;
     ret.m_sGeoInfo = m_sGeoInfo;
-    // Identifier are immutable
     ret.m_aIDs = m_aIDs.getClone ();
-    ret.m_sName = m_sName;
-    ret.m_aRegistrationDate = m_aRegistrationDate;
     ret.m_aWebsiteURI = m_aWebsiteURI.getClone ();
+    ret.m_aContact = new CommonsArrayList <> (m_aContact, PDContact::getClone);
+    ret.m_sAdditionalInfo = m_sAdditionalInfo;
+    // Identifier are immutable
+    ret.m_aRegistrationDate = m_aRegistrationDate;
   }
 
   @Nonnull
@@ -252,6 +256,26 @@ public class PDBusinessEntity implements Serializable
   {
     final PDBusinessEntity ret = new PDBusinessEntity ();
     cloneTo (ret);
+    return ret;
+  }
+
+  @Nonnull
+  public IMicroElement getAsMicroXML (@Nullable final String sNamespaceURI,
+                                      @Nonnull @Nonempty final String sElementName)
+  {
+    final IMicroElement ret = new MicroElement (sNamespaceURI, sElementName);
+    ret.setAttribute ("name", m_sName);
+    ret.setAttribute ("countrycode", m_sCountryCode);
+    if (hasGeoInfo ())
+      ret.appendElement (sNamespaceURI, "geoinfo").appendText (m_sGeoInfo);
+    for (final PDIdentifier aID : m_aIDs)
+      ret.appendChild (aID.getAsMicroXML (sNamespaceURI, "id"));
+    for (final String sWebsiteURI : m_aWebsiteURI)
+      ret.appendElement (sNamespaceURI, "website").appendText (sWebsiteURI);
+    for (final PDContact aContact : m_aContact)
+      ret.appendChild (aContact.getAsMicroXML (sNamespaceURI, "contact"));
+    if (hasAdditionalInfo ())
+      ret.appendElement (sNamespaceURI, "additionalinfo").appendText (m_sAdditionalInfo);
     return ret;
   }
 

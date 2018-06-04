@@ -37,6 +37,7 @@ public final class PD2BusinessCardMarshallerTest
     final PD2BusinessCardType aBC = aMarshaller.read (new FileSystemResource (sFilename));
     assertNotNull (aBC);
     assertNotNull (PD2APIHelper.createBusinessCard (aBC));
+    assertNotNull (PD2APIHelper.createBusinessCard (aBC).getAsMicroXML ("urn:test", "bc"));
   }
 
   @Test

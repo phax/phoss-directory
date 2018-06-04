@@ -82,11 +82,9 @@ public final class PD1APIHelper
     ret.setName (aBE.getName ());
     ret.setCountryCode (aBE.getCountryCode ());
     ret.setGeoInfo (aBE.getGeographicalInformation ());
-    ret.identifiers ().removeAll ();
-    ret.identifiers ().addAllMapped (aBE.getIdentifier (), PD1APIHelper::createIdentifier);
+    ret.identifiers ().setAllMapped (aBE.getIdentifier (), PD1APIHelper::createIdentifier);
     ret.websiteURIs ().setAll (aBE.getWebsiteURI ());
-    ret.contacts ().removeAll ();
-    ret.contacts ().addAllMapped (aBE.getContact (), PD1APIHelper::createContact);
+    ret.contacts ().setAllMapped (aBE.getContact (), PD1APIHelper::createContact);
     ret.setAdditionalInfo (aBE.getAdditionalInformation ());
     ret.setRegistrationDate (aBE.getRegistrationDate ());
     return ret;
@@ -98,8 +96,7 @@ public final class PD1APIHelper
     ValueEnforcer.notNull (aBC, "BusinessCard");
     final PDBusinessCard ret = new PDBusinessCard ();
     ret.setParticipantIdentifier (createIdentifier (aBC.getParticipantIdentifier ()));
-    ret.businessEntities ().removeAll ();
-    ret.businessEntities ().addAllMapped (aBC.getBusinessEntity (), PD1APIHelper::createBusinessEntity);
+    ret.businessEntities ().setAllMapped (aBC.getBusinessEntity (), PD1APIHelper::createBusinessEntity);
     return ret;
   }
 }

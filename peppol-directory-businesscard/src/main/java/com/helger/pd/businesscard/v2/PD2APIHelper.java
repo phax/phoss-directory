@@ -60,8 +60,7 @@ public final class PD2APIHelper
     ret.setName (aBE.getName ());
     ret.setCountryCode (aBE.getCountryCode ());
     ret.setGeoInfo (aBE.getGeographicalInformation ());
-    ret.identifiers ().removeAll ();
-    ret.identifiers ().addAllMapped (aBE.getIdentifier (), PD2APIHelper::createIdentifier);
+    ret.identifiers ().setAllMapped (aBE.getIdentifier (), PD2APIHelper::createIdentifier);
     ret.setRegistrationDate (aBE.getRegistrationDate ());
     return ret;
   }
@@ -72,8 +71,7 @@ public final class PD2APIHelper
     ValueEnforcer.notNull (aBC, "BusinessCard");
     final PDBusinessCard ret = new PDBusinessCard ();
     ret.setParticipantIdentifier (createIdentifier (aBC.getParticipantIdentifier ()));
-    ret.businessEntities ().removeAll ();
-    ret.businessEntities ().addAllMapped (aBC.getBusinessEntity (), PD2APIHelper::createBusinessEntity);
+    ret.businessEntities ().setAllMapped (aBC.getBusinessEntity (), PD2APIHelper::createBusinessEntity);
     return ret;
   }
 }

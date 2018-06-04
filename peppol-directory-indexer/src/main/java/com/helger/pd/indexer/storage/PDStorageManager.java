@@ -17,7 +17,6 @@
 package com.helger.pd.indexer.storage;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Locale;
 import java.util.function.Consumer;
 import java.util.function.ObjIntConsumer;
@@ -398,7 +397,7 @@ public final class PDStorageManager implements IPDStorageManager
    */
   public void searchAllDocuments (@Nonnull final Query aQuery,
                                   @CheckForSigned final int nMaxResultCount,
-                                  @Nonnull final Consumer <PDStoredDocument> aConsumer) throws IOException
+                                  @Nonnull final Consumer <? super PDStoredDocument> aConsumer) throws IOException
   {
     ValueEnforcer.notNull (aQuery, "Query");
     ValueEnforcer.notNull (aConsumer, "Consumer");
@@ -498,7 +497,7 @@ public final class PDStorageManager implements IPDStorageManager
    */
   @Nonnull
   @ReturnsMutableCopy
-  public static IMultiMapListBased <IParticipantIdentifier, PDStoredDocument> getGroupedByParticipantID (@Nonnull final List <PDStoredDocument> aDocs)
+  public static IMultiMapListBased <IParticipantIdentifier, PDStoredDocument> getGroupedByParticipantID (@Nonnull final Iterable <PDStoredDocument> aDocs)
   {
     final MultiLinkedHashMapArrayListBased <IParticipantIdentifier, PDStoredDocument> ret = new MultiLinkedHashMapArrayListBased <> ();
     for (final PDStoredDocument aDoc : aDocs)

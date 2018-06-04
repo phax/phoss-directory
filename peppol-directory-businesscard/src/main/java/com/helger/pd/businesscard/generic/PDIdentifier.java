@@ -19,16 +19,20 @@ package com.helger.pd.businesscard.generic;
 
 import java.io.Serializable;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.equals.EqualsHelper;
 import com.helger.commons.hashcode.HashCodeGenerator;
 import com.helger.commons.string.ToStringGenerator;
+import com.helger.xml.microdom.IMicroElement;
+import com.helger.xml.microdom.MicroElement;
 
 /**
  * Generic identifier.
- * 
+ *
  * @author Philip Helger
  */
 @Immutable
@@ -59,6 +63,16 @@ public class PDIdentifier implements Serializable
   public String getValue ()
   {
     return m_sValue;
+  }
+
+  @Nonnull
+  public IMicroElement getAsMicroXML (@Nullable final String sNamespaceURI,
+                                      @Nonnull @Nonempty final String sElementName)
+  {
+    final IMicroElement ret = new MicroElement (sNamespaceURI, sElementName);
+    ret.setAttribute ("scheme", m_sScheme);
+    ret.setAttribute ("value", m_sValue);
+    return ret;
   }
 
   @Override
