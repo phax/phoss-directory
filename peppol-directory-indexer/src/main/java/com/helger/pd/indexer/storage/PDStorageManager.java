@@ -497,11 +497,13 @@ public final class PDStorageManager implements IPDStorageManager
   public IMicroDocument getAllContainedDocumentsAsXML () throws IOException
   {
     final Query aQuery = PDQueryManager.andNotDeleted (new MatchAllDocsQuery ());
+
+    // Query all and group by participant ID
     final MultiLinkedHashMapArrayListBased <IParticipantIdentifier, PDBusinessEntity> aMap = new MultiLinkedHashMapArrayListBased <> ();
     searchAllDocuments (aQuery, -1, x -> aMap.putSingle (x.getParticipantID (), x.getAsBusinessEntity ()));
 
     final IMicroDocument aDoc = new MicroDocument ();
-    final String sNamespaceURI = "http://www.peppol.eu/schema/pd/businesscard/201806/";
+    final String sNamespaceURI = "http://www.peppol.eu/schema/pd/businesscard-generic/201806/";
     final IMicroElement aRoot = aDoc.appendElement (sNamespaceURI, "root");
 
     for (final Map.Entry <IParticipantIdentifier, ICommonsList <PDBusinessEntity>> aEntry : aMap.entrySet ())
