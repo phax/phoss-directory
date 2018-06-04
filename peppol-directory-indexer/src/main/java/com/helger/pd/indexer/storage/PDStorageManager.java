@@ -18,6 +18,7 @@ package com.helger.pd.indexer.storage;
 
 import java.io.IOException;
 import java.util.Locale;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.ObjIntConsumer;
 
@@ -75,6 +76,9 @@ import com.helger.pd.indexer.storage.field.PDField;
 import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.photon.basic.audit.AuditHelper;
+import com.helger.xml.microdom.IMicroDocument;
+import com.helger.xml.microdom.IMicroElement;
+import com.helger.xml.microdom.MicroDocument;
 
 /**
  * The global storage manager that wraps the used Lucene index.
@@ -387,7 +391,7 @@ public final class PDStorageManager implements IPDStorageManager
    * @param aQuery
    *        Query to execute. May not be <code>null</code>-
    * @param nMaxResultCount
-   *        Maximum number of results. Values &ge; 0 mean all.
+   *        Maximum number of results. Values &le; 0 mean all.
    * @param aConsumer
    *        The consumer of the {@link PDStoredBusinessEntity} objects.
    * @throws IOException
@@ -434,7 +438,7 @@ public final class PDStorageManager implements IPDStorageManager
    * @param aQuery
    *        The query to be executed. May not be <code>null</code>.
    * @param nMaxResultCount
-   *        Maximum number of results. Values &ge; 0 mean all.
+   *        Maximum number of results. Values &le; 0 mean all.
    * @return A non-<code>null</code> but maybe empty list of matching documents
    * @see #searchAllDocuments(Query, int, Consumer)
    */
@@ -487,6 +491,29 @@ public final class PDStorageManager implements IPDStorageManager
   {
     final Query aQuery = PDQueryManager.andNotDeleted (new MatchAllDocsQuery ());
     return getCount (aQuery);
+  }
+
+  @Nonnull
+  public IMicroDocument getAllContainedDocumentsAsXML () throws IOException
+  {
+    final Query aQuery = PDQueryManager.andNotDeleted (new MatchAllDocsQuery ());
+    final MultiLinkedHashMapArrayListBased <IParticipantIdentifier, PDBusinessEntity> aMap = new MultiLinkedHashMapArrayListBased <> ();
+    searchAllDocuments (aQuery, -1, x -> aMap.putSingle (x.getParticipantID (), x.getAsBusinessEntity ()));
+
+    final IMicroDocument aDoc = new MicroDocument ();
+    final String sNamespaceURI = "http://www.peppol.eu/schema/pd/businesscard/201806/";
+    final IMicroElement aRoot = aDoc.appendElement (sNamespaceURI, "root");
+
+    for (final Map.Entry <IParticipantIdentifier, ICommonsList <PDBusinessEntity>> aEntry : aMap.entrySet ())
+    {
+      final IParticipantIdentifier aParticipantID = aEntry.getKey ();
+      final PDBusinessCard aBC = new PDBusinessCard ();
+      aBC.setParticipantIdentifier (new PDIdentifier (aParticipantID.getScheme (), aParticipantID.getValue ()));
+      aBC.businessEntities ().addAll (aEntry.getValue ());
+      aRoot.appendChild (aBC.getAsMicroXML (sNamespaceURI, "businesscard"));
+    }
+
+    return aDoc;
   }
 
   /**

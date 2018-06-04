@@ -18,15 +18,11 @@ package com.helger.pd.publisher.app.secure.page;
 
 import javax.annotation.Nonnull;
 
-import org.apache.lucene.search.MatchAllDocsQuery;
-import org.apache.lucene.search.Query;
-
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.collection.impl.ICommonsSortedSet;
 import com.helger.html.hc.html.sections.HCH3;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.mgr.PDMetaManager;
-import com.helger.pd.indexer.storage.PDQueryManager;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.photon.bootstrap3.button.BootstrapButtonToolbar;
@@ -59,15 +55,7 @@ public final class PageSecureParticipantCount extends AbstractAppWebPage
       res.attachment ("directory-participant-list.xml");
     });
     s_aExportAllBCs = addAjax ( (req, res) -> {
-      final IMicroDocument aDoc = new MicroDocument ();
-      final String sNamespaceURI = "http://www.peppol.eu/schema/pd/businesscard/201806/";
-      final IMicroElement aRoot = aDoc.appendElement (sNamespaceURI, "root");
-      final Query aQuery = PDQueryManager.andNotDeleted (new MatchAllDocsQuery ());
-      PDMetaManager.getStorageMgr ()
-                   .searchAllDocuments (aQuery,
-                                        -1,
-                                        x -> aRoot.appendChild (x.getAsBusinessCard ()
-                                                                 .getAsMicroXML (sNamespaceURI, "businessentity")));
+      final IMicroDocument aDoc = PDMetaManager.getStorageMgr ().getAllContainedDocumentsAsXML ();
       res.xml (aDoc);
       res.attachment ("directory-business-entities.xml");
     });

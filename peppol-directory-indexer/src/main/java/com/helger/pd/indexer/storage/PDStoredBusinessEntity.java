@@ -315,6 +315,7 @@ public class PDStoredBusinessEntity
    *         {@link PDBusinessEntity}.
    */
   @Nonnull
+  @ReturnsMutableCopy
   public PDBusinessEntity getAsBusinessEntity ()
   {
     // We have a single entity
@@ -336,6 +337,7 @@ public class PDStoredBusinessEntity
    * @return This {@link PDStoredBusinessEntity} as a {@link PDBusinessCard}.
    */
   @Nonnull
+  @ReturnsMutableCopy
   public PDBusinessCard getAsBusinessCard ()
   {
     final PDBusinessCard ret = new PDBusinessCard ();
