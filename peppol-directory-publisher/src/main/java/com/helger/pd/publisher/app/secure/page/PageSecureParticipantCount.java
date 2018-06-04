@@ -18,11 +18,15 @@ package com.helger.pd.publisher.app.secure.page;
 
 import javax.annotation.Nonnull;
 
+import org.apache.lucene.search.MatchAllDocsQuery;
+import org.apache.lucene.search.Query;
+
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.collection.impl.ICommonsSortedSet;
 import com.helger.html.hc.html.sections.HCH3;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.mgr.PDMetaManager;
+import com.helger.pd.indexer.storage.PDQueryManager;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.photon.bootstrap3.button.BootstrapButtonToolbar;
@@ -36,11 +40,12 @@ import com.helger.xml.microdom.MicroDocument;
 
 public final class PageSecureParticipantCount extends AbstractAppWebPage
 {
-  private static final AjaxFunctionDeclaration s_aExportAll;
+  private static final AjaxFunctionDeclaration s_aExportAllIDs;
+  private static final AjaxFunctionDeclaration s_aExportAllBCs;
 
   static
   {
-    s_aExportAll = addAjax ( (req, res) -> {
+    s_aExportAllIDs = addAjax ( (req, res) -> {
       final IMicroDocument aDoc = new MicroDocument ();
       final IMicroElement aRoot = aDoc.appendElement ("root");
       final ICommonsSortedSet <IParticipantIdentifier> aAllIDs = PDMetaManager.getStorageMgr ()
@@ -51,7 +56,20 @@ public final class PageSecureParticipantCount extends AbstractAppWebPage
         aRoot.appendElement ("item").appendText (sParticipantID);
       }
       res.xml (aDoc);
-      res.attachment ("participant-list.xml");
+      res.attachment ("directory-participant-list.xml");
+    });
+    s_aExportAllBCs = addAjax ( (req, res) -> {
+      final IMicroDocument aDoc = new MicroDocument ();
+      final String sNamespaceURI = "http://www.peppol.eu/schema/pd/businesscard/201806/";
+      final IMicroElement aRoot = aDoc.appendElement (sNamespaceURI, "root");
+      final Query aQuery = PDQueryManager.andNotDeleted (new MatchAllDocsQuery ());
+      PDMetaManager.getStorageMgr ()
+                   .searchAllDocuments (aQuery,
+                                        -1,
+                                        x -> aRoot.appendChild (x.getAsBusinessCard ()
+                                                                 .getAsMicroXML (sNamespaceURI, "businessentity")));
+      res.xml (aDoc);
+      res.attachment ("directory-business-entities.xml");
     });
   }
 
@@ -68,7 +86,10 @@ public final class PageSecureParticipantCount extends AbstractAppWebPage
 
     {
       final BootstrapButtonToolbar aToolbar = getUIHandler ().createToolbar (aWPEC);
-      aToolbar.addButton ("Export", s_aExportAll.getInvocationURL (aRequestScope), EDefaultIcon.SAVE);
+      aToolbar.addButton ("Export all IDs", s_aExportAllIDs.getInvocationURL (aRequestScope), EDefaultIcon.SAVE);
+      aToolbar.addButton ("Export all Business Entities",
+                          s_aExportAllBCs.getInvocationURL (aRequestScope),
+                          EDefaultIcon.SAVE);
       aNodeList.addChild (aToolbar);
     }
 
