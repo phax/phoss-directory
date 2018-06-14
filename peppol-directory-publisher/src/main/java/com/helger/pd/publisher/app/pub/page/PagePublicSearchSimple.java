@@ -139,6 +139,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
   {
     final HCNodeList aNodeList = aWPEC.getNodeList ();
     final Locale aDisplayLocale = aWPEC.getDisplayLocale ();
+    final PDStorageManager aStorageMgr = PDMetaManager.getStorageMgr ();
 
     // Search all documents
     s_aLogger.info ("Searching generically for '" + sQuery + "'");
@@ -151,38 +152,44 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
       s_aLogger.debug ("Created query for '" + sQuery + "' is <" + aLuceneQuery + ">");
 
     // Search all documents
-    final ICommonsList <PDStoredBusinessEntity> aResultDocs = PDMetaManager.getStorageMgr ().getAllDocuments (aLuceneQuery,
-                                                                                                        nMaxResults);
+    final ICommonsList <PDStoredBusinessEntity> aResultBEs = aStorageMgr.getAllDocuments (aLuceneQuery, nMaxResults);
+    // Also get the total hit count for UI display. May be < 0 in case of
+    // error
+    final int nTotalBEs = aStorageMgr.getCount (aLuceneQuery);
     s_aLogger.info ("  Result for <" +
                     aLuceneQuery +
                     "> (max=" +
                     nMaxResults +
                     ") " +
-                    (aResultDocs.size () == 1 ? "is 1 document" : "are " + aResultDocs.size () + " documents"));
+                    (aResultBEs.size () == 1 ? "is 1 document" : "are " + aResultBEs.size () + " documents") +
+                    "." +
+                    (nTotalBEs >= 0 ? " " + nTotalBEs + " total hits are available." : ""));
 
     // Group by participant ID
-    final IMultiMapListBased <IParticipantIdentifier, PDStoredBusinessEntity> aGroupedDocs = PDStorageManager.getGroupedByParticipantID (aResultDocs);
+    final IMultiMapListBased <IParticipantIdentifier, PDStoredBusinessEntity> aGroupedBEs = PDStorageManager.getGroupedByParticipantID (aResultBEs);
 
     // Display results
-    if (aGroupedDocs.isEmpty ())
+    if (aGroupedBEs.isEmpty ())
     {
       aNodeList.addChild (new BootstrapInfoBox ().addChild ("No search results found for query '" + sQuery + "'"));
     }
     else
     {
       aNodeList.addChild (new HCDiv ().addChild (new BootstrapLabel (EBootstrapLabelType.SUCCESS).addChild ("Found " +
-                                                                                                            (aGroupedDocs.size () == 1 ? "1 entity"
-                                                                                                                                       : aGroupedDocs.size () +
-                                                                                                                                         " entities") +
+                                                                                                            (aGroupedBEs.size () == 1 ? "1 entity"
+                                                                                                                                      : aGroupedBEs.size () +
+                                                                                                                                        " entities") +
                                                                                                             " matching '" +
                                                                                                             sQuery +
                                                                                                             "'")));
-      if (aGroupedDocs.size () > nMaxResults)
-        aNodeList.addChild (new HCDiv ().addChild (new BootstrapLabel (EBootstrapLabelType.WARNING).addChild ("Found many matches. Try to be nmore specific.")));
+      if (nTotalBEs > nMaxResults)
+        aNodeList.addChild (new HCDiv ().addChild (new BootstrapLabel (EBootstrapLabelType.WARNING).addChild ("Found more entities than displayed (" +
+                                                                                                              nTotalBEs +
+                                                                                                              " entries exist). Try to be more specific.")));
 
       // Show basic information
       final HCOL aOL = new HCOL ().setStart (1);
-      for (final Map.Entry <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> aEntry : aGroupedDocs.entrySet ())
+      for (final Map.Entry <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> aEntry : aGroupedBEs.entrySet ())
       {
         final IParticipantIdentifier aDocParticipantID = aEntry.getKey ();
         final ICommonsList <PDStoredBusinessEntity> aDocs = aEntry.getValue ();
