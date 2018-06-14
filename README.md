@@ -31,6 +31,7 @@ Open tasks according to the design document:
 # News and noteworthy
 
 * v0.6.2 - work in progress
+  * If more hits are present than visible, it is displayed on the UI
 * v0.6.1 - 2018-06-04
   * Avoid potential exception on invalid input parameters
   * Updated to Jersey 2.27
