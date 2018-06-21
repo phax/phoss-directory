@@ -44,6 +44,10 @@ public final class PDPMetaManager extends AbstractGlobalSingleton
 {
   private static final Logger s_aLogger = LoggerFactory.getLogger (PDPMetaManager.class);
 
+  private static final String SML_INFO_XML = "sml-info.xml";
+
+  private SMLInfoManager m_aSMLInfoMgr;
+
   @Deprecated
   @UsedViaReflection
   public PDPMetaManager ()
@@ -54,6 +58,8 @@ public final class PDPMetaManager extends AbstractGlobalSingleton
   {
     try
     {
+      m_aSMLInfoMgr = new SMLInfoManager (SML_INFO_XML);
+
       // TODO add managers here
       final URI aFixedSMPURI = PDServerConfiguration.getFixedSMPURI ();
       if (aFixedSMPURI != null)
@@ -65,7 +71,7 @@ public final class PDPMetaManager extends AbstractGlobalSingleton
       else
       {
         // Check if an SML is configure.
-        final ISMLInfo aSML = PDServerConfiguration.getSMLToUse ();
+        final ISMLInfo aSML = PDServerConfiguration.getSMLToUse (m_aSMLInfoMgr::getSMLInfoOfID);
         if (aSML != null)
         {
           // Use only the configured SML
@@ -74,20 +80,27 @@ public final class PDPMetaManager extends AbstractGlobalSingleton
                                                                                                aSML,
                                                                                                PDServerConfiguration.getURLProvider ()));
         }
+        else
+        {
+          // Auto detect SMLs
+          PDMetaManager.setBusinessCardProvider (SMPBusinessCardProvider.createWithSMLAutoDetect (PDServerConfiguration.getSMPMode (),
+                                                                                                  PDServerConfiguration.getURLProvider (),
+                                                                                                  m_aSMLInfoMgr::getAll));
+        }
       }
 
       s_aLogger.info (ClassHelper.getClassLocalName (this) + " was initialized");
     }
-    catch (final Throwable t)
+    catch (final Exception ex)
     {
       if (GlobalDebug.isProductionMode ())
       {
-        new InternalErrorBuilder ().setThrowable (t)
+        new InternalErrorBuilder ().setThrowable (ex)
                                    .addErrorMessage (ClassHelper.getClassLocalName (this) + " init failed")
                                    .handle ();
       }
 
-      throw new InitializationException ("Failed to init " + ClassHelper.getClassLocalName (this), t);
+      throw new InitializationException ("Failed to init " + ClassHelper.getClassLocalName (this), ex);
     }
   }
 
@@ -95,5 +108,11 @@ public final class PDPMetaManager extends AbstractGlobalSingleton
   public static PDPMetaManager getInstance ()
   {
     return getGlobalSingleton (PDPMetaManager.class);
+  }
+
+  @Nonnull
+  public static ISMLInfoManager getSMLInfoMgr ()
+  {
+    return getInstance ().m_aSMLInfoMgr;
   }
 }

@@ -27,6 +27,7 @@ import com.helger.pd.publisher.app.secure.page.PageSecureParticipantActions;
 import com.helger.pd.publisher.app.secure.page.PageSecureParticipantCount;
 import com.helger.pd.publisher.app.secure.page.PageSecureParticipantList;
 import com.helger.pd.publisher.app.secure.page.PageSecureReIndexList;
+import com.helger.pd.publisher.app.secure.page.PageSecureSMLConfiguration;
 import com.helger.photon.basic.app.menu.IMenuItemPage;
 import com.helger.photon.basic.app.menu.IMenuTree;
 import com.helger.photon.bootstrap3.pages.BootstrapPagesMenuConfigurator;
@@ -66,6 +67,7 @@ public final class MenuSecure
                                                                                           aMenuTree));
 
       aMenuTree.createItem (aAdmin, new BasePageSecurityChangePassword <> (CMenuSecure.MENU_CHANGE_PASSWORD));
+      aMenuTree.createItem (aAdmin, new PageSecureSMLConfiguration (CMenuSecure.MENU_SML_CONFIGURATION));
       BootstrapPagesMenuConfigurator.addAllItems (aMenuTree, aAdmin, aFilterAdministrators, AppCommonUI.DEFAULT_LOCALE);
     }
 

@@ -34,10 +34,10 @@ import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.index.IIndexerWorkItem;
 import com.helger.pd.indexer.reindex.IReIndexWorkItem;
 import com.helger.pd.indexer.reindex.IReIndexWorkItemList;
+import com.helger.pd.publisher.app.PDPMetaManager;
 import com.helger.pd.publisher.ui.AbstractAppWebPageForm;
 import com.helger.pd.settings.PDServerConfiguration;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
-import com.helger.peppol.sml.ESML;
 import com.helger.peppol.sml.ISMLInfo;
 import com.helger.peppol.url.IPeppolURLProvider;
 import com.helger.photon.bootstrap3.alert.BootstrapErrorBox;
@@ -140,7 +140,7 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
                                                      .setCtrl (aParticipantID.getURIEncoded ()));
 
     final String sBCSuffix = "/businesscard/" + aParticipantID.getURIPercentEncoded ();
-    final ISMLInfo aSML = PDServerConfiguration.getSMLToUse ();
+    final ISMLInfo aSML = PDServerConfiguration.getSMLToUse (PDPMetaManager.getSMLInfoMgr ()::getSMLInfoOfID);
     if (aSML != null)
     {
       aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Business Card URL")
@@ -151,16 +151,17 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
     }
     else
     {
-      aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Business Card URL")
-                                                       .setCtrl (new HCDiv ().addChild (HCA.createLinkedWebsite (aURLProvider.getSMPURIOfParticipant (aParticipantID,
-                                                                                                                                                      ESML.DIGIT_PRODUCTION)
-                                                                                                                             .toString () +
-                                                                                                                 sBCSuffix)),
-                                                                 new HCDiv ().addChild ("or"),
-                                                                 new HCDiv ().addChild (HCA.createLinkedWebsite (aURLProvider.getSMPURIOfParticipant (aParticipantID,
-                                                                                                                                                      ESML.DIGIT_TEST)
-                                                                                                                             .toString () +
-                                                                                                                 sBCSuffix))));
+      final HCNodeList aURLs = new HCNodeList ();
+      for (final ISMLInfo aSMLInfo : PDPMetaManager.getSMLInfoMgr ().getAllSMLInfos ())
+      {
+        if (aURLs.hasChildren ())
+          aURLs.addChild (new HCDiv ().addChild ("or"));
+        aURLs.addChild (new HCDiv ().addChild (HCA.createLinkedWebsite (aURLProvider.getSMPURIOfParticipant (aParticipantID,
+                                                                                                             aSMLInfo)
+                                                                                    .toString () +
+                                                                        sBCSuffix)));
+      }
+      aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Business Card URL").setCtrl (aURLs));
     }
     aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Action type")
                                                      .setCtrl (aWorkItem.getType ().getDisplayName ()));

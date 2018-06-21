@@ -33,7 +33,6 @@ import com.helger.httpclient.HttpClientManager;
 import com.helger.pd.businesscard.IPDBusinessCardProvider;
 import com.helger.pd.indexer.lucene.PDLucene;
 import com.helger.pd.indexer.storage.PDStorageManager;
-import com.helger.pd.settings.PDServerConfiguration;
 import com.helger.peppol.identifier.factory.IIdentifierFactory;
 import com.helger.peppol.identifier.factory.SimpleIdentifierFactory;
 import com.helger.photon.core.app.error.InternalErrorBuilder;
@@ -52,8 +51,7 @@ public final class PDMetaManager extends AbstractGlobalSingleton
 
   private static final SimpleReadWriteLock s_aRWLock = new SimpleReadWriteLock ();
   @GuardedBy ("s_aRWLock")
-  private static IPDBusinessCardProvider s_aBCProvider = SMPBusinessCardProvider.createWithSMLAutoDetect (PDServerConfiguration.getSMPMode (),
-                                                                                                          PDServerConfiguration.getURLProvider ());
+  private static IPDBusinessCardProvider s_aBCProvider;
 
   private PDLucene m_aLucene;
   private PDStorageManager m_aStorageMgr;
@@ -77,16 +75,16 @@ public final class PDMetaManager extends AbstractGlobalSingleton
 
       s_aLogger.info (ClassHelper.getClassLocalName (this) + " was initialized");
     }
-    catch (final Throwable t)
+    catch (final Exception ex)
     {
       if (GlobalDebug.isProductionMode ())
       {
-        new InternalErrorBuilder ().setThrowable (t)
+        new InternalErrorBuilder ().setThrowable (ex)
                                    .addErrorMessage (ClassHelper.getClassLocalName (this) + " init failed")
                                    .handle ();
       }
 
-      throw new InitializationException ("Failed to init " + ClassHelper.getClassLocalName (this), t);
+      throw new InitializationException ("Failed to init " + ClassHelper.getClassLocalName (this), ex);
     }
   }
 
@@ -112,7 +110,10 @@ public final class PDMetaManager extends AbstractGlobalSingleton
   @Nonnull
   public static IPDBusinessCardProvider getBusinessCardProvider ()
   {
-    return s_aRWLock.readLocked ( () -> s_aBCProvider);
+    final IPDBusinessCardProvider ret = s_aRWLock.readLocked ( () -> s_aBCProvider);
+    if (ret == null)
+      throw new IllegalStateException ("No BusinessCardProvider is present!");
+    return ret;
   }
 
   /**

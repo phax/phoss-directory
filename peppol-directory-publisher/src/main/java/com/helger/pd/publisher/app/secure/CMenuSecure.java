@@ -32,6 +32,7 @@ public final class CMenuSecure
 
   public static final String MENU_ADMIN = "admin";
   public static final String MENU_CHANGE_PASSWORD = "change_password";
+  public static final String MENU_SML_CONFIGURATION = "sml_configuration";
 
   private CMenuSecure ()
   {}
