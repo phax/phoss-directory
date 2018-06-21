@@ -140,16 +140,6 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
                                                      .setCtrl (aParticipantID.getURIEncoded ()));
 
     final String sBCSuffix = "/businesscard/" + aParticipantID.getURIPercentEncoded ();
-    final ISMLInfo aSML = PDServerConfiguration.getSMLToUse (PDPMetaManager.getSMLInfoMgr ()::getSMLInfoOfID);
-    if (aSML != null)
-    {
-      aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Business Card URL")
-                                                       .setCtrl (new HCDiv ().addChild (HCA.createLinkedWebsite (aURLProvider.getSMPURIOfParticipant (aParticipantID,
-                                                                                                                                                      aSML)
-                                                                                                                             .toString () +
-                                                                                                                 sBCSuffix))));
-    }
-    else
     {
       final HCNodeList aURLs = new HCNodeList ();
       for (final ISMLInfo aSMLInfo : PDPMetaManager.getSMLInfoMgr ().getAllSMLInfos ())

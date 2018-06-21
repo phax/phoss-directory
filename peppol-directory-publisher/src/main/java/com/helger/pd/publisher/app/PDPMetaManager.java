@@ -30,7 +30,6 @@ import com.helger.commons.lang.ClassHelper;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.mgr.SMPBusinessCardProvider;
 import com.helger.pd.settings.PDServerConfiguration;
-import com.helger.peppol.sml.ISMLInfo;
 import com.helger.photon.core.app.error.InternalErrorBuilder;
 import com.helger.scope.IScope;
 import com.helger.scope.singleton.AbstractGlobalSingleton;
@@ -70,23 +69,10 @@ public final class PDPMetaManager extends AbstractGlobalSingleton
       }
       else
       {
-        // Check if an SML is configure.
-        final ISMLInfo aSML = PDServerConfiguration.getSMLToUse (m_aSMLInfoMgr::getSMLInfoOfID);
-        if (aSML != null)
-        {
-          // Use only the configured SML
-          // By default both official PEPPOL SMLs are queried!
-          PDMetaManager.setBusinessCardProvider (SMPBusinessCardProvider.createWithDefinedSML (PDServerConfiguration.getSMPMode (),
-                                                                                               aSML,
-                                                                                               PDServerConfiguration.getURLProvider ()));
-        }
-        else
-        {
-          // Auto detect SMLs
-          PDMetaManager.setBusinessCardProvider (SMPBusinessCardProvider.createWithSMLAutoDetect (PDServerConfiguration.getSMPMode (),
-                                                                                                  PDServerConfiguration.getURLProvider (),
-                                                                                                  m_aSMLInfoMgr::getAll));
-        }
+        // Auto detect SMLs
+        PDMetaManager.setBusinessCardProvider (SMPBusinessCardProvider.createWithSMLAutoDetect (PDServerConfiguration.getSMPMode (),
+                                                                                                PDServerConfiguration.getURLProvider (),
+                                                                                                m_aSMLInfoMgr::getAll));
       }
 
       s_aLogger.info (ClassHelper.getClassLocalName (this) + " was initialized");

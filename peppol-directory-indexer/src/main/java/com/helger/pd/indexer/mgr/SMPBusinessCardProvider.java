@@ -70,37 +70,32 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
 
   private final EPDSMPMode m_eSMPMode;
   private final URI m_aSMPURI;
-  private final ISMLInfo m_aSelectedSML;
   private final IPeppolURLProvider m_aURLProvider;
   private final Supplier <? extends Iterable <? extends ISMLInfo>> m_aSMLInfoProvider;
 
   /**
    * Constructor.
    *
+   * @param eSMPMode
+   *        SMP Mode to use.
    * @param aSMPURI
    *        The URI of the SMP. May be <code>null</code> to use SML/DNS lookup.
    *        If this parameter is non-<code>null</code> the SML parameter MUST be
    *        <code>null</code>. This parameter is only needed for testing
    *        purposes, if a network consists of a single SMP and has NO DNS
    *        setup!
-   * @param eSMPMode
-   *        SMP Mode to use.
-   * @param aSelectedSML
-   *        <code>null</code> to use an auto-select, a specific one if known.
    * @param aURLProvider
    *        The URL provider to be used. Must be non-<code>null</code> if SML is
    *        to be used.
    */
   protected SMPBusinessCardProvider (@Nonnull final EPDSMPMode eSMPMode,
                                      @Nullable final URI aSMPURI,
-                                     @Nullable final ISMLInfo aSelectedSML,
                                      @Nullable final IPeppolURLProvider aURLProvider,
                                      @Nullable final Supplier <? extends Iterable <? extends ISMLInfo>> aSMLInfoProvider)
   {
     ValueEnforcer.notNull (eSMPMode, "SMPMode");
     if (aSMPURI != null)
     {
-      ValueEnforcer.isNull (aSelectedSML, "Selected SML must be null if an SMP URI is present!");
       ValueEnforcer.isNull (aURLProvider, "URL provider must be null if an SMP URI is present!");
       ValueEnforcer.isNull (aSMLInfoProvider, "SMLInfoProvider must be null if an SMP URI is present!");
     }
@@ -111,7 +106,6 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
 
     m_eSMPMode = eSMPMode;
     m_aSMPURI = aSMPURI;
-    m_aSelectedSML = aSelectedSML;
     m_aURLProvider = aURLProvider;
     m_aSMLInfoProvider = aSMLInfoProvider;
   }
@@ -387,59 +381,35 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
       }
     }
     else
-      if (m_aSelectedSML != null)
+    {
+      // SML auto detect
+      aBC = null;
+      for (final ISMLInfo aSML : m_aSMLInfoProvider.get ())
       {
-        // Use selected SML only
+        // Create SMP client and query SMP
         switch (m_eSMPMode)
         {
           case PEPPOL:
           {
-            final SMPClientReadOnly aSMPClient = new SMPClientReadOnly (m_aURLProvider, aParticipantID, m_aSelectedSML);
+            final SMPClientReadOnly aSMPClient = new SMPClientReadOnly (m_aURLProvider, aParticipantID, aSML);
             aBC = getBusinessCardPeppolSMP (aParticipantID, aSMPClient);
             break;
           }
           case OASIS_BDXR_v1:
           {
-            final BDXRClientReadOnly aSMPClient = new BDXRClientReadOnly (m_aURLProvider,
-                                                                          aParticipantID,
-                                                                          m_aSelectedSML);
+            final BDXRClientReadOnly aSMPClient = new BDXRClientReadOnly (m_aURLProvider, aParticipantID, aSML);
             aBC = getBusinessCardBDXR1 (aParticipantID, aSMPClient);
             break;
           }
           default:
             throw new IllegalStateException ("Unsupported SMP mode " + m_eSMPMode);
         }
-      }
-      else
-      {
-        // No SML specified - use both - order matters!
-        aBC = null;
-        for (final ISMLInfo aSML : m_aSMLInfoProvider.get ())
-        {
-          // Create SMP client and query SMP
-          switch (m_eSMPMode)
-          {
-            case PEPPOL:
-            {
-              final SMPClientReadOnly aSMPClient = new SMPClientReadOnly (m_aURLProvider, aParticipantID, aSML);
-              aBC = getBusinessCardPeppolSMP (aParticipantID, aSMPClient);
-              break;
-            }
-            case OASIS_BDXR_v1:
-            {
-              final BDXRClientReadOnly aSMPClient = new BDXRClientReadOnly (m_aURLProvider, aParticipantID, aSML);
-              aBC = getBusinessCardBDXR1 (aParticipantID, aSMPClient);
-              break;
-            }
-            default:
-              throw new IllegalStateException ("Unsupported SMP mode " + m_eSMPMode);
-          }
 
-          // Found one?
-          if (aBC != null)
-            break;
-        }
+        // Found one?
+        if (aBC != null)
+          break;
       }
+    }
 
     if (aBC != null)
       s_aLogger.info ("Found BusinessCard for '" +
@@ -451,17 +421,6 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
   }
 
   @Nonnull
-  public static SMPBusinessCardProvider createWithDefinedSML (@Nonnull final EPDSMPMode eSMPMode,
-                                                              @Nonnull final ISMLInfo aSMLInfo,
-                                                              @Nonnull final IPeppolURLProvider aURLProvider)
-  {
-    ValueEnforcer.notNull (eSMPMode, "SMPMode");
-    ValueEnforcer.notNull (aSMLInfo, "SMLInfo");
-    ValueEnforcer.notNull (aURLProvider, "URLProvider");
-    return new SMPBusinessCardProvider (eSMPMode, null, aSMLInfo, aURLProvider, null);
-  }
-
-  @Nonnull
   public static SMPBusinessCardProvider createWithSMLAutoDetect (@Nonnull final EPDSMPMode eSMPMode,
                                                                  @Nonnull final IPeppolURLProvider aURLProvider,
                                                                  @Nullable final Supplier <? extends Iterable <? extends ISMLInfo>> aSMLInfoProvider)
@@ -469,7 +428,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
     ValueEnforcer.notNull (eSMPMode, "SMPMode");
     ValueEnforcer.notNull (aURLProvider, "URLProvider");
     ValueEnforcer.notNull (aSMLInfoProvider, "SMLInfoProvider");
-    return new SMPBusinessCardProvider (eSMPMode, null, null, aURLProvider, aSMLInfoProvider);
+    return new SMPBusinessCardProvider (eSMPMode, null, aURLProvider, aSMLInfoProvider);
   }
 
   @Nonnull
@@ -478,6 +437,6 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
   {
     ValueEnforcer.notNull (eSMPMode, "SMPMode");
     ValueEnforcer.notNull (aSMPURI, "SMP URI");
-    return new SMPBusinessCardProvider (eSMPMode, aSMPURI, null, null, null);
+    return new SMPBusinessCardProvider (eSMPMode, aSMPURI, null, null);
   }
 }

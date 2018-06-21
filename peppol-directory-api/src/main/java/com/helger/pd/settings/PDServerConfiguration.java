@@ -17,7 +17,6 @@
 package com.helger.pd.settings;
 
 import java.net.URI;
-import java.util.function.Function;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -34,7 +33,6 @@ import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.debug.GlobalDebug;
 import com.helger.commons.string.StringHelper;
 import com.helger.commons.url.URLHelper;
-import com.helger.peppol.sml.ISMLInfo;
 import com.helger.peppol.url.EsensURLProvider;
 import com.helger.peppol.url.IPeppolURLProvider;
 import com.helger.peppol.url.PeppolURLProvider;
@@ -365,22 +363,6 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   {
     final String sSMPURI = getConfigFile ().getAsString ("smp.uri");
     return URLHelper.getAsURI (sSMPURI);
-  }
-
-  /**
-   * @param aSMLInfoResolver
-   *        a resolved for {@link ISMLInfo}
-   * @return The SML to be used for SMP lookup for Business Card retrieval. May
-   *         be <code>null</code> to use the default PEPPOL SML and SMK.
-   */
-  @Nullable
-  public static ISMLInfo getSMLToUse (final Function <String, ? extends ISMLInfo> aSMLInfoResolver)
-  {
-    final String sSMLID = getConfigFile ().getAsString ("sml.id");
-    final ISMLInfo aSML = aSMLInfoResolver.apply (sSMLID);
-    if (aSML == null && StringHelper.hasText (sSMLID))
-      s_aLogger.warn ("The provided SML-ID '" + sSMLID + "' is invalid.");
-    return aSML;
   }
 
   /**
