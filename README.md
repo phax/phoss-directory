@@ -34,6 +34,7 @@ Open tasks according to the design document:
   * If more hits are present than visible, it is displayed on the UI
   * Made the available SML information objects customizable
   * Removed the configuration item `sml.id` - either fixed SMP or all configured SMLs are queried upon indexing
+  * Updated to Apache Lucene 7.4
 * v0.6.1 - 2018-06-04
   * Avoid potential exception on invalid input parameters
   * Updated to Jersey 2.27
