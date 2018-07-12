@@ -26,6 +26,7 @@
     <Name language="de">Österreich</Name>
     <Name language="de">BRZ</Name>
     <Name language="de">BMDW</Name>
+    <Name>Legacy entry</Name>
     <CountryCode>AT</CountryCode>
     <GeographicalInformation>Spread all over Austria</GeographicalInformation>
     <Identifier scheme="ZIPCode">1010</Identifier>

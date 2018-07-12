@@ -46,8 +46,8 @@ import com.helger.html.hc.html.textlevel.HCStrong;
 import com.helger.html.hc.html.textlevel.HCWBR;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.html.hc.impl.HCTextNode;
-import com.helger.pd.indexer.storage.PDStoredContact;
 import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
+import com.helger.pd.indexer.storage.PDStoredContact;
 import com.helger.pd.indexer.storage.PDStoredIdentifier;
 import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.generic.process.IProcessIdentifier;
@@ -103,11 +103,20 @@ public final class PDCommonUI
 
       aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Country").setCtrl (aCountryCtrl));
     }
-    if (aStoredDoc.hasName ())
-      aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Entity Name").setCtrl (aStoredDoc.getName ()));
+
+    if (aStoredDoc.hasSingleName ())
+    {
+      aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Entity Name").setCtrl (aStoredDoc.getSingleName ()));
+    }
+    else
+    {
+      // TODO multilingual names
+    }
+
     if (aStoredDoc.hasGeoInfo ())
       aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Geographical information")
                                                        .setCtrl (HCExtHelper.nl2divList (aStoredDoc.getGeoInfo ())));
+
     if (aStoredDoc.hasAnyIdentifier ())
     {
       final BootstrapTable aIDTable = new BootstrapTable (HCCol.star (), HCCol.star ()).setStriped (true)
@@ -118,6 +127,7 @@ public final class PDCommonUI
         aIDTable.addBodyRow ().addCells (aStoredID.getScheme (), aStoredID.getValue ());
       aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Additional identifiers").setCtrl (aIDTable));
     }
+
     if (aStoredDoc.hasAnyWebsiteURIs ())
     {
       final HCOL aOL = new HCOL ();
@@ -125,6 +135,7 @@ public final class PDCommonUI
         aOL.addItem (HCA.createLinkedWebsite (sWebsiteURI, HC_Target.BLANK));
       aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Website URIs").setCtrl (aOL));
     }
+
     if (aStoredDoc.hasAnyContact ())
     {
       final BootstrapTable aContactTable = new BootstrapTable (HCCol.star (),

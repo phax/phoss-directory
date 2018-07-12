@@ -241,10 +241,16 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
                                                                                                  : sCountryCode)
                                                                      .addClass (CSS_CLASS_RESULT_DOC_COUNTRY_CODE)));
           }
-          if (aStoredDoc.hasName ())
+          if (aStoredDoc.hasSingleName ())
+          {
             aTable.addBodyRow ()
                   .addCell ("Name:")
-                  .addCell (new HCSpan ().addChild (aStoredDoc.getName ()).addClass (CSS_CLASS_RESULT_DOC_NAME));
+                  .addCell (new HCSpan ().addChild (aStoredDoc.getSingleName ()).addClass (CSS_CLASS_RESULT_DOC_NAME));
+          }
+          else
+          {
+            // TODO multilingual names
+          }
 
           if (aStoredDoc.hasGeoInfo ())
             aTable.addBodyRow ()

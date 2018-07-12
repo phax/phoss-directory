@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.annotation.ReturnsMutableCopy;
+import com.helger.commons.annotation.ReturnsMutableObject;
 import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.datetime.PDTWebDateHelper;
@@ -65,7 +66,7 @@ public class PDStoredBusinessEntity
 
   private IParticipantIdentifier m_aParticipantID;
   // Retrieved from SMP
-  private String m_sName;
+  private final ICommonsList <PDStoredMLName> m_aNames = new CommonsArrayList <> ();
   private String m_sCountryCode;
   private String m_sGeoInfo;
   private final ICommonsList <PDStoredIdentifier> m_aIdentifiers = new CommonsArrayList <> ();
@@ -93,20 +94,24 @@ public class PDStoredBusinessEntity
     return m_aParticipantID;
   }
 
-  public void setName (@Nullable final String sName)
+  @Nonnull
+  @ReturnsMutableObject
+  public ICommonsList <PDStoredMLName> names ()
   {
-    m_sName = sName;
+    return m_aNames;
+  }
+
+  public boolean hasSingleName ()
+  {
+    return m_aNames.size () == 1 && m_aNames.getFirst ().hasNoLanguage ();
   }
 
   @Nullable
-  public String getName ()
+  public String getSingleName ()
   {
-    return m_sName;
-  }
-
-  public boolean hasName ()
-  {
-    return StringHelper.hasText (m_sName);
+    if (hasSingleName ())
+      return m_aNames.getFirst ().getName ();
+    return null;
   }
 
   public void setCountryCode (@Nullable final String sCountryCode)
@@ -271,7 +276,7 @@ public class PDStoredBusinessEntity
 
   @Nonnull
   @ReturnsMutableCopy
-  public ICommonsList <? extends IDocumentTypeIdentifier> getAllDocumentTypeIDs ()
+  public ICommonsList <IDocumentTypeIdentifier> getAllDocumentTypeIDs ()
   {
     return m_aDocumentTypeIDs.getClone ();
   }
@@ -320,14 +325,12 @@ public class PDStoredBusinessEntity
   {
     // We have a single entity
     final PDBusinessEntity ret = new PDBusinessEntity ();
-    ret.setName (m_sName);
+    ret.names ().setAllMapped (m_aNames, PDStoredMLName::getAsGenericObject);
     ret.setCountryCode (m_sCountryCode);
     ret.setGeoInfo (m_sGeoInfo);
-    for (final PDStoredIdentifier aID : m_aIdentifiers)
-      ret.identifiers ().add (aID.getAsGenericObject ());
-    ret.websiteURIs ().addAll (m_aWebsiteURIs);
-    for (final PDStoredContact aContact : m_aContacts)
-      ret.contacts ().add (aContact.getAsGenericObject ());
+    ret.identifiers ().setAllMapped (m_aIdentifiers, PDStoredIdentifier::getAsGenericObject);
+    ret.websiteURIs ().setAll (m_aWebsiteURIs);
+    ret.contacts ().setAllMapped (m_aContacts, PDStoredContact::getAsGenericObject);
     ret.setAdditionalInfo (m_sAdditionalInformation);
     ret.setRegistrationDate (m_aRegistrationDate);
     return ret;
@@ -379,8 +382,23 @@ public class PDStoredBusinessEntity
     for (final PDStoredBusinessEntity aDoc : aDocs)
     {
       final IMicroElement aEntity = aMatch.appendElement ("entity");
-      aEntity.appendElement ("name").appendText (aDoc.m_sName);
+
+      if (aDoc.hasSingleName ())
+      {
+        // Single name without locale
+        aEntity.appendElement ("name").appendText (aDoc.getSingleName ());
+      }
+      else
+      {
+        // Multilingual name
+        for (final PDStoredMLName aName : aDoc.m_aNames)
+          aEntity.appendElement ("mlname")
+                 .setAttribute ("language", aName.getLanguage ())
+                 .appendText (aName.getName ());
+      }
+
       aEntity.appendElement ("countryCode").appendText (aDoc.m_sCountryCode);
+
       if (StringHelper.hasText (aDoc.m_sGeoInfo))
         aEntity.appendElement ("geoInfo").appendText (aDoc.m_sGeoInfo);
 
@@ -418,6 +436,12 @@ public class PDStoredBusinessEntity
   }
 
   @Nonnull
+  private static IJson _getMLNameAsJson (@Nullable final String sName, @Nullable final String sLanguage)
+  {
+    return new JsonObject ().add ("name", sName).addIfNotNull ("language", sLanguage);
+  }
+
+  @Nonnull
   public static IJsonObject getAsSearchResultJsonObject (@Nonnull @Nonempty final ICommonsList <PDStoredBusinessEntity> aDocs)
   {
     ValueEnforcer.notEmptyNoNullValue (aDocs, "Docs");
@@ -438,8 +462,23 @@ public class PDStoredBusinessEntity
     for (final PDStoredBusinessEntity aDoc : aDocs)
     {
       final IJsonObject aEntity = new JsonObject ();
-      aEntity.add ("name", aDoc.m_sName);
+      if (aDoc.hasSingleName ())
+      {
+        // Single name without locale
+        aEntity.add ("name", aDoc.getSingleName ());
+      }
+      else
+      {
+        // Multilingual names
+        final JsonArray aMLNames = new JsonArray ();
+        for (final PDStoredMLName aName : aDoc.m_aNames)
+          aMLNames.add (_getMLNameAsJson (aName.getName (), aName.getLanguage ()));
+        if (aMLNames.isNotEmpty ())
+          aEntity.add ("mlnames", aMLNames);
+      }
+
       aEntity.add ("countryCode", aDoc.m_sCountryCode);
+
       if (StringHelper.hasText (aDoc.m_sGeoInfo))
         aEntity.add ("geoInfo", aDoc.m_sGeoInfo);
 
@@ -486,7 +525,7 @@ public class PDStoredBusinessEntity
                                        .append ("DocumentTypeIDs", m_aDocumentTypeIDs)
                                        .append ("CountryCode", m_sCountryCode)
                                        .append ("RegistrationDate", m_aRegistrationDate)
-                                       .append ("Name", m_sName)
+                                       .append ("Names", m_aNames)
                                        .append ("GeoInfo", m_sGeoInfo)
                                        .append ("Identifiers", m_aIdentifiers)
                                        .append ("WebsiteURIs", m_aWebsiteURIs)
@@ -524,35 +563,56 @@ public class PDStoredBusinessEntity
 
     ret.setRegistrationDate (PDTWebDateHelper.getLocalDateFromXSD (PDField.REGISTRATION_DATE.getDocValue (aDoc)));
 
-    ret.setName (PDField.NAME.getDocValue (aDoc));
+    {
+      final String sSingleName = PDField.NAME.getDocValue (aDoc);
+      if (sSingleName != null)
+      {
+        // No language
+        ret.names ().add (new PDStoredMLName (sSingleName));
+      }
+      else
+      {
+        // Multilingual name
+        final ICommonsList <String> aMLNames = PDField.ML_NAME.getDocValues (aDoc);
+        final ICommonsList <String> aMLLanguages = PDField.ML_LANGUAGE.getDocValues (aDoc);
+        if (aMLNames.size () != aMLLanguages.size ())
+          throw new IllegalStateException ("Different number of ML names and languages");
+        for (int i = 0; i < aMLNames.size (); ++i)
+          ret.names ().add (new PDStoredMLName (aMLNames.get (i), aMLLanguages.get (i)));
+      }
+    }
 
     ret.setGeoInfo (PDField.GEO_INFO.getDocValue (aDoc));
 
-    final ICommonsList <String> aIDTypes = PDField.IDENTIFIER_SCHEME.getDocValues (aDoc);
-    final ICommonsList <String> aIDValues = PDField.IDENTIFIER_VALUE.getDocValues (aDoc);
-    if (aIDTypes.size () != aIDValues.size ())
-      throw new IllegalStateException ("Different number of identifier types and values");
-    for (int i = 0; i < aIDTypes.size (); ++i)
-      ret.addIdentifier (new PDStoredIdentifier (aIDTypes.get (i), aIDValues.get (i)));
+    {
+      final ICommonsList <String> aIDTypes = PDField.IDENTIFIER_SCHEME.getDocValues (aDoc);
+      final ICommonsList <String> aIDValues = PDField.IDENTIFIER_VALUE.getDocValues (aDoc);
+      if (aIDTypes.size () != aIDValues.size ())
+        throw new IllegalStateException ("Different number of identifier types and values");
+      for (int i = 0; i < aIDTypes.size (); ++i)
+        ret.addIdentifier (new PDStoredIdentifier (aIDTypes.get (i), aIDValues.get (i)));
+    }
 
     for (final String sWebSite : PDField.WEBSITE_URI.getDocValues (aDoc))
       ret.addWebsiteURI (sWebSite);
 
-    final ICommonsList <String> aBCDescription = PDField.CONTACT_TYPE.getDocValues (aDoc);
-    final ICommonsList <String> aBCName = PDField.CONTACT_NAME.getDocValues (aDoc);
-    final ICommonsList <String> aBCPhone = PDField.CONTACT_PHONE.getDocValues (aDoc);
-    final ICommonsList <String> aBCEmail = PDField.CONTACT_EMAIL.getDocValues (aDoc);
-    if (aBCDescription.size () != aBCName.size ())
-      throw new IllegalStateException ("Different number of business contact descriptions and names");
-    if (aBCDescription.size () != aBCPhone.size ())
-      throw new IllegalStateException ("Different number of business contact descriptions and phones");
-    if (aBCDescription.size () != aBCEmail.size ())
-      throw new IllegalStateException ("Different number of business contact descriptions and emails");
-    for (int i = 0; i < aBCDescription.size (); ++i)
-      ret.addContact (new PDStoredContact (aBCDescription.get (i),
-                                           aBCName.get (i),
-                                           aBCPhone.get (i),
-                                           aBCEmail.get (i)));
+    {
+      final ICommonsList <String> aBCDescription = PDField.CONTACT_TYPE.getDocValues (aDoc);
+      final ICommonsList <String> aBCName = PDField.CONTACT_NAME.getDocValues (aDoc);
+      final ICommonsList <String> aBCPhone = PDField.CONTACT_PHONE.getDocValues (aDoc);
+      final ICommonsList <String> aBCEmail = PDField.CONTACT_EMAIL.getDocValues (aDoc);
+      if (aBCDescription.size () != aBCName.size ())
+        throw new IllegalStateException ("Different number of business contact descriptions and names");
+      if (aBCDescription.size () != aBCPhone.size ())
+        throw new IllegalStateException ("Different number of business contact descriptions and phones");
+      if (aBCDescription.size () != aBCEmail.size ())
+        throw new IllegalStateException ("Different number of business contact descriptions and emails");
+      for (int i = 0; i < aBCDescription.size (); ++i)
+        ret.addContact (new PDStoredContact (aBCDescription.get (i),
+                                             aBCName.get (i),
+                                             aBCPhone.get (i),
+                                             aBCEmail.get (i)));
+    }
 
     {
       final PDStoredMetaData aMetaData = new PDStoredMetaData (PDField.METADATA_CREATIONDT.getDocValue (aDoc),

@@ -107,7 +107,7 @@ public final class PDStoredContact
   @Override
   public String toString ()
   {
-    return new ToStringGenerator (this).append ("Type", m_sType)
+    return new ToStringGenerator (null).append ("Type", m_sType)
                                        .append ("Name", m_sName)
                                        .append ("Phone", m_sPhone)
                                        .append ("Email", m_sEmail)

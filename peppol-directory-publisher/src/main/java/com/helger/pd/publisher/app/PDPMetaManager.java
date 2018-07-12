@@ -59,7 +59,6 @@ public final class PDPMetaManager extends AbstractGlobalSingleton
     {
       m_aSMLInfoMgr = new SMLInfoManager (SML_INFO_XML);
 
-      // TODO add managers here
       final URI aFixedSMPURI = PDServerConfiguration.getFixedSMPURI ();
       if (aFixedSMPURI != null)
       {

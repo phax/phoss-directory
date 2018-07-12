@@ -70,6 +70,7 @@ import com.helger.pd.businesscard.generic.PDBusinessCard;
 import com.helger.pd.businesscard.generic.PDBusinessEntity;
 import com.helger.pd.businesscard.generic.PDContact;
 import com.helger.pd.businesscard.generic.PDIdentifier;
+import com.helger.pd.businesscard.generic.PDName;
 import com.helger.pd.indexer.lucene.AllDocumentsCollector;
 import com.helger.pd.indexer.lucene.PDLucene;
 import com.helger.pd.indexer.mgr.IPDStorageManager;
@@ -231,10 +232,26 @@ public final class PDStorageManager implements IPDStorageManager
         aDoc.add (PDField.PARTICIPANT_ID.getAsField (aParticipantID));
         aSBAllFields.append (PDField.PARTICIPANT_ID.getAsStorageValue (aParticipantID)).append (' ');
 
-        if (aBusinessEntity.hasName ())
+        if (aBusinessEntity.hasSingleName ())
         {
-          aDoc.add (PDField.NAME.getAsField (aBusinessEntity.getName ()));
-          aSBAllFields.append (aBusinessEntity.getName ()).append (' ');
+          // Single name without a language - legacy case
+          final String sName = aBusinessEntity.names ().getFirst ().getName ();
+          aDoc.add (PDField.NAME.getAsField (sName));
+          aSBAllFields.append (sName).append (' ');
+        }
+        else
+        {
+          // More than one name or language
+          for (final PDName aName : aBusinessEntity.names ())
+          {
+            final String sName = aName.getName ();
+            aDoc.add (PDField.ML_NAME.getAsField (sName));
+            aSBAllFields.append (sName).append (' ');
+
+            final String sLanguage = StringHelper.getNotNull (aName.getLanguage ());
+            aDoc.add (PDField.ML_LANGUAGE.getAsField (sLanguage));
+            aSBAllFields.append (sLanguage).append (' ');
+          }
         }
 
         if (aBusinessEntity.hasCountryCode ())

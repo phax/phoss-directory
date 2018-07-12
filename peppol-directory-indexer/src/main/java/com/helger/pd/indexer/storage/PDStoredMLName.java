@@ -14,9 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pd.businesscard.generic;
-
-import java.io.Serializable;
+package com.helger.pd.indexer.storage;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -26,44 +24,33 @@ import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.equals.EqualsHelper;
 import com.helger.commons.hashcode.HashCodeGenerator;
-import com.helger.commons.locale.LocaleHelper;
 import com.helger.commons.string.StringHelper;
 import com.helger.commons.string.ToStringGenerator;
-import com.helger.xml.microdom.IMicroElement;
-import com.helger.xml.microdom.MicroElement;
+import com.helger.pd.businesscard.generic.PDName;
 
 /**
- * Generic name.
+ * This class represents a single multilingual name as stored by Lucene
+ * consisting of a name and a language.
  *
  * @author Philip Helger
  */
 @Immutable
-public class PDName implements Serializable
+public final class PDStoredMLName
 {
   private final String m_sName;
   private final String m_sLanguage;
 
-  public static boolean isValidLanguage (@Nullable final String s)
-  {
-    return s == null || (s.length () == 2 && LanguageCache.getInstance ().containsLanguage (s));
-  }
-
-  public PDName (@Nonnull @Nonempty final String sName)
+  public PDStoredMLName (@Nonnull @Nonempty final String sName)
   {
     this (sName, (String) null);
   }
 
-  public PDName (@Nonnull @Nonempty final String sName, @Nullable final String sLanguage)
+  public PDStoredMLName (@Nonnull @Nonempty final String sName, @Nullable final String sLanguage)
   {
-    ValueEnforcer.notEmpty (sName, "Name");
-    ValueEnforcer.isTrue (isValidLanguage (sLanguage), () -> "'" + sLanguage + "' is invalid language");
-    m_sName = sName;
-    m_sLanguage = LocaleHelper.getValidLanguageCode (sLanguage);
+    m_sName = ValueEnforcer.notEmpty (sName, "Name");
+    m_sLanguage = sLanguage;
   }
 
-  /**
-   * @return The name. May be <code>null</code>.
-   */
   @Nonnull
   @Nonempty
   public String getName ()
@@ -71,10 +58,8 @@ public class PDName implements Serializable
     return m_sName;
   }
 
-  /**
-   * @return The language. May be <code>null</code>.
-   */
-  @Nullable
+  @Nonnull
+  @Nonempty
   public String getLanguage ()
   {
     return m_sLanguage;
@@ -86,13 +71,9 @@ public class PDName implements Serializable
   }
 
   @Nonnull
-  public IMicroElement getAsMicroXML (@Nullable final String sNamespaceURI,
-                                      @Nonnull @Nonempty final String sElementName)
+  public PDName getAsGenericObject ()
   {
-    final IMicroElement ret = new MicroElement (sNamespaceURI, sElementName);
-    ret.setAttribute ("name", m_sName);
-    ret.setAttribute ("language", m_sLanguage);
-    return ret;
+    return new PDName (m_sName, m_sLanguage);
   }
 
   @Override
@@ -102,8 +83,7 @@ public class PDName implements Serializable
       return true;
     if (o == null || !getClass ().equals (o.getClass ()))
       return false;
-
-    final PDName rhs = (PDName) o;
+    final PDStoredMLName rhs = (PDStoredMLName) o;
     return m_sName.equals (rhs.m_sName) && EqualsHelper.equals (m_sLanguage, rhs.m_sLanguage);
   }
 
@@ -116,8 +96,6 @@ public class PDName implements Serializable
   @Override
   public String toString ()
   {
-    return new ToStringGenerator (null).append ("Name", m_sName)
-                                       .appendIfNotNull ("Language", m_sLanguage)
-                                       .getToString ();
+    return new ToStringGenerator (null).append ("Name", m_sName).append ("Language", m_sLanguage).getToString ();
   }
 }

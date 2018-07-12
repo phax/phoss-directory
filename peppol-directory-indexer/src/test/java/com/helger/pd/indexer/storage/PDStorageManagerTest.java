@@ -86,7 +86,9 @@ public final class PDStorageManagerTest
     {
       final PDBusinessEntity aEntity = new PDBusinessEntity ();
       aEntity.setCountryCode ("NO");
-      aEntity.names ().add (new PDName ("Entity2", "no"));
+      aEntity.names ().add (new PDName ("Entity2a", "no"));
+      aEntity.names ().add (new PDName ("Entity2b", "de"));
+      aEntity.names ().add (new PDName ("Entity2b", "en"));
 
       aEntity.identifiers ().add (new PDIdentifier ("mock", "12345678"));
       aEntity.identifiers ().add (new PDIdentifier ("provided", aParticipantID.getURIEncoded ()));
@@ -111,12 +113,13 @@ public final class PDStorageManagerTest
       {
         final ICommonsList <PDStoredBusinessEntity> aDocs = aMgr.getAllDocumentsOfParticipant (aParticipantID);
         assertEquals (2, aDocs.size ());
+
         final PDStoredBusinessEntity aDoc1 = aDocs.get (0);
         assertEquals (aParticipantID, aDoc1.getParticipantID ());
         assertEquals ("junittest", aDoc1.getMetaData ().getOwnerID ());
         assertEquals ("AT", aDoc1.getCountryCode ());
         assertEquals (PDTFactory.createLocalDate (2015, Month.JULY, 6), aDoc1.getRegistrationDate ());
-        assertNotNull (aDoc1.getName ());
+        assertNotNull (aDoc1.getSingleName ());
         assertEquals ("Vienna", aDoc1.getGeoInfo ());
 
         assertEquals (10, aDoc1.getIdentifierCount ());

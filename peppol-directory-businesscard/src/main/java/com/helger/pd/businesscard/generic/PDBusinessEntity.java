@@ -85,9 +85,9 @@ public class PDBusinessEntity implements Serializable, ICloneable <PDBusinessEnt
     return m_aNames;
   }
 
-  public boolean hasName ()
+  public boolean hasSingleName ()
   {
-    return m_aNames.isNotEmpty ();
+    return m_aNames.size () == 1 && m_aNames.getFirst ().hasNoLanguage ();
   }
 
   /**

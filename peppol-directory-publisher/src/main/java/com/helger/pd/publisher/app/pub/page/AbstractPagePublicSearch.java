@@ -29,8 +29,8 @@ import org.slf4j.LoggerFactory;
 import com.helger.collection.multimap.IMultiMapListBased;
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
+import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.ICommonsList;
-import com.helger.commons.debug.GlobalDebug;
 import com.helger.commons.id.IHasID;
 import com.helger.commons.lang.EnumHelper;
 import com.helger.html.css.DefaultCSSClassProvider;
@@ -46,14 +46,13 @@ import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
+import com.helger.pd.indexer.storage.PDStoredMLName;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.pd.publisher.ui.PDCommonUI;
 import com.helger.pd.settings.PDServerConfiguration;
 import com.helger.peppol.identifier.factory.PeppolIdentifierFactory;
 import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
-import com.helger.peppol.identifier.peppol.PeppolIdentifierHelper;
-import com.helger.peppol.identifier.peppol.doctype.IPeppolDocumentTypeIdentifierParts;
 import com.helger.peppol.identifier.peppol.pidscheme.IParticipantIdentifierScheme;
 import com.helger.peppol.identifier.peppol.pidscheme.ParticipantIdentifierSchemeManager;
 import com.helger.photon.bootstrap3.alert.BootstrapInfoBox;
@@ -168,7 +167,7 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
 
     // Search document matching participant ID
     final ICommonsList <PDStoredBusinessEntity> aResultDocs = PDMetaManager.getStorageMgr ()
-                                                                     .getAllDocumentsOfParticipant (aParticipantID);
+                                                                           .getAllDocumentsOfParticipant (aParticipantID);
     // Group by participant ID
     final IMultiMapListBased <IParticipantIdentifier, PDStoredBusinessEntity> aGroupedDocs = PDStorageManager.getGroupedByParticipantID (aResultDocs);
     if (aGroupedDocs.isEmpty ())
@@ -182,7 +181,7 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
                         sParticipantID +
                         "' - weird");
       // Get the first one
-      final ICommonsList <PDStoredBusinessEntity> aDocuments = aGroupedDocs.getFirstValue ();
+      final ICommonsList <PDStoredBusinessEntity> aStoredEntities = aGroupedDocs.getFirstValue ();
 
       // Details header
       {
@@ -214,13 +213,13 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
       {
         final HCNodeList aOL = new HCNodeList ();
         int nIndex = 1;
-        for (final PDStoredBusinessEntity aStoredDoc : aDocuments)
+        for (final PDStoredBusinessEntity aStoredEntity : aStoredEntities)
         {
           final BootstrapPanel aPanel = aOL.addAndReturnChild (new BootstrapPanel ());
           aPanel.addClass (CSS_CLASS_RESULT_PANEL);
-          if (aDocuments.size () > 1)
+          if (aStoredEntities.size () > 1)
             aPanel.getOrCreateHeader ().addChild ("Business information entity " + nIndex);
-          final BootstrapViewForm aViewForm = PDCommonUI.showBusinessInfoDetails (aStoredDoc, aDisplayLocale);
+          final BootstrapViewForm aViewForm = PDCommonUI.showBusinessInfoDetails (aStoredEntity, aDisplayLocale);
           aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Full PEPPOL participant ID")
                                                            .setCtrl (new HCCode ().addChild (sParticipantID)));
           aPanel.getBody ().addChild (aViewForm);
@@ -228,24 +227,27 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
         }
         // Add whole list or just the first item?
         final IHCNode aTabLabel = new HCSpan ().addChild ("Business information ")
-                                               .addChild (BootstrapBadge.createNumeric (aDocuments.size ()));
+                                               .addChild (BootstrapBadge.createNumeric (aStoredEntities.size ()));
         aTabBox.addTab ("businessinfo", aTabLabel, aOL, true);
       }
 
       // Document types
       {
         final HCNodeList aDocTypeCtrl = new HCNodeList ();
+        final ICommonsList <String> aNames = new CommonsArrayList <> ();
+        for (final PDStoredBusinessEntity aStoredEntity : aStoredEntities)
+          aNames.addAllMapped (aStoredEntity.names (), PDStoredMLName::getName);
         aDocTypeCtrl.addChild (new BootstrapInfoBox ().addChild ("The following document types are supported by " +
                                                                  _getImplodedMapped (", ",
                                                                                      " and ",
-                                                                                     aDocuments,
-                                                                                     x -> "'" + x.getName () + "'") +
+                                                                                     aNames,
+                                                                                     x -> "'" + x + "'") +
                                                                  ":"));
 
         HCOL aDocTypeOL = null;
-        final ICommonsList <? extends IDocumentTypeIdentifier> aDocTypeIDs = aResultDocs.getFirst ()
-                                                                                        .getAllDocumentTypeIDs ()
-                                                                                        .getSortedInline (IDocumentTypeIdentifier.comparator ());
+        final ICommonsList <IDocumentTypeIdentifier> aDocTypeIDs = aResultDocs.getFirst ()
+                                                                              .getAllDocumentTypeIDs ()
+                                                                              .getSortedInline (IDocumentTypeIdentifier.comparator ());
         for (final IDocumentTypeIdentifier aDocTypeID : aDocTypeIDs)
         {
           if (aDocTypeOL == null)
@@ -253,17 +255,6 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
 
           final HCLI aLI = aDocTypeOL.addItem ();
           aLI.addChild (PDCommonUI.getDocumentTypeID (aDocTypeID));
-
-          if (false && GlobalDebug.isDebugMode ())
-            try
-            {
-              final IPeppolDocumentTypeIdentifierParts aParts = PeppolIdentifierHelper.getDocumentTypeIdentifierParts (aDocTypeID);
-              aLI.addChild (PDCommonUI.getDocumentTypeIDDetails (aParts));
-            }
-            catch (final IllegalArgumentException ex)
-            {
-              // Happens for non-PEPPOL identifiers
-            }
         }
 
         if (aDocTypeOL == null)
