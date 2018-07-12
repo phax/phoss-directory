@@ -18,7 +18,7 @@ package com.helger.pd.indexer.storage;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
 import java.time.Month;
@@ -44,7 +44,6 @@ import com.helger.pd.indexer.lucene.PDLucene;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.field.PDField;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
-import com.helger.peppol.identifier.peppol.PeppolIdentifierHelper;
 import com.helger.peppol.identifier.peppol.doctype.EPredefinedDocumentTypeIdentifier;
 
 /**
@@ -67,7 +66,7 @@ public final class PDStorageManagerTest
   private static PDExtendedBusinessCard _createMockBI (@Nonnull final IParticipantIdentifier aParticipantID)
   {
     final PDBusinessCard aBI = new PDBusinessCard ();
-    aBI.setParticipantIdentifier (new PDIdentifier (PeppolIdentifierHelper.DEFAULT_PARTICIPANT_SCHEME, "9915:mock"));
+    aBI.setParticipantIdentifier (new PDIdentifier (aParticipantID.getScheme (), aParticipantID.getValue ()));
     {
       final PDBusinessEntity aEntity = new PDBusinessEntity ();
       aEntity.setCountryCode ("AT");
@@ -88,12 +87,9 @@ public final class PDStorageManagerTest
       aEntity.setCountryCode ("NO");
       aEntity.names ().add (new PDName ("Entity2a", "no"));
       aEntity.names ().add (new PDName ("Entity2b", "de"));
-      aEntity.names ().add (new PDName ("Entity2b", "en"));
+      aEntity.names ().add (new PDName ("Entity2c", "en"));
 
-      aEntity.identifiers ().add (new PDIdentifier ("mock", "12345678"));
-      aEntity.identifiers ().add (new PDIdentifier ("provided", aParticipantID.getURIEncoded ()));
-
-      aEntity.setAdditionalInfo ("This is another mock entry for testing purposes only");
+      aEntity.setAdditionalInfo ("Mock");
       aBI.businessEntities ().add (aEntity);
     }
     return new PDExtendedBusinessCard (aBI,
@@ -114,32 +110,58 @@ public final class PDStorageManagerTest
         final ICommonsList <PDStoredBusinessEntity> aDocs = aMgr.getAllDocumentsOfParticipant (aParticipantID);
         assertEquals (2, aDocs.size ());
 
+        // Test entity 1
         final PDStoredBusinessEntity aDoc1 = aDocs.get (0);
         assertEquals (aParticipantID, aDoc1.getParticipantID ());
         assertEquals ("junittest", aDoc1.getMetaData ().getOwnerID ());
         assertEquals ("AT", aDoc1.getCountryCode ());
         assertEquals (PDTFactory.createLocalDate (2015, Month.JULY, 6), aDoc1.getRegistrationDate ());
-        assertNotNull (aDoc1.getSingleName ());
+        assertEquals ("Philip's mock PEPPOL receiver", aDoc1.getSingleName ());
+        assertEquals (1, aDoc1.names ().size ());
+        assertEquals ("Philip's mock PEPPOL receiver", aDoc1.names ().get (0).getName ());
+        assertNull (aDoc1.names ().get (0).getLanguage ());
         assertEquals ("Vienna", aDoc1.getGeoInfo ());
 
-        assertEquals (10, aDoc1.getIdentifierCount ());
-        for (int i = 0; i < aDoc1.getIdentifierCount (); ++i)
+        assertEquals (10, aDoc1.identifiers ().size ());
+        for (int i = 0; i < aDoc1.identifiers ().size (); ++i)
         {
-          assertEquals ("scheme" + i, aDoc1.getIdentifierAtIndex (i).getScheme ());
-          assertEquals ("value" + i, aDoc1.getIdentifierAtIndex (i).getValue ());
+          assertEquals ("scheme" + i, aDoc1.identifiers ().get (i).getScheme ());
+          assertEquals ("value" + i, aDoc1.identifiers ().get (i).getValue ());
         }
 
-        assertEquals (1, aDoc1.getWebsiteURICount ());
-        assertEquals ("http://www.peppol.eu", aDoc1.getWebsiteURIAtIndex (0));
+        assertEquals (1, aDoc1.websiteURIs ().size ());
+        assertEquals ("http://www.peppol.eu", aDoc1.websiteURIs ().get (0));
 
-        assertEquals (1, aDoc1.getContactCount ());
-        assertEquals ("support", aDoc1.getContactAtIndex (0).getType ());
-        assertEquals ("BC name", aDoc1.getContactAtIndex (0).getName ());
-        assertEquals ("test@example.org", aDoc1.getContactAtIndex (0).getEmail ());
-        assertEquals ("12345", aDoc1.getContactAtIndex (0).getPhone ());
+        assertEquals (1, aDoc1.contacts ().size ());
+        assertEquals ("support", aDoc1.contacts ().get (0).getType ());
+        assertEquals ("BC name", aDoc1.contacts ().get (0).getName ());
+        assertEquals ("test@example.org", aDoc1.contacts ().get (0).getEmail ());
+        assertEquals ("12345", aDoc1.contacts ().get (0).getPhone ());
 
         assertEquals ("This is a mock entry for testing purposes only", aDoc1.getAdditionalInformation ());
         assertFalse (aDoc1.isDeleted ());
+
+        // Test entity 2
+        final PDStoredBusinessEntity aDoc2 = aDocs.get (1);
+        assertEquals (aParticipantID, aDoc2.getParticipantID ());
+        assertEquals ("junittest", aDoc2.getMetaData ().getOwnerID ());
+        assertEquals ("NO", aDoc2.getCountryCode ());
+        assertNull (aDoc2.getRegistrationDate ());
+        assertEquals (3, aDoc2.names ().size ());
+        assertEquals ("Entity2a", aDoc2.names ().get (0).getName ());
+        assertEquals ("no", aDoc2.names ().get (0).getLanguage ());
+        assertEquals ("Entity2b", aDoc2.names ().get (1).getName ());
+        assertEquals ("de", aDoc2.names ().get (1).getLanguage ());
+        assertEquals ("Entity2c", aDoc2.names ().get (2).getName ());
+        assertEquals ("en", aDoc2.names ().get (2).getLanguage ());
+
+        assertNull (aDoc2.getGeoInfo ());
+        assertEquals (0, aDoc2.identifiers ().size ());
+        assertEquals (0, aDoc2.websiteURIs ().size ());
+        assertEquals (0, aDoc2.contacts ().size ());
+
+        assertEquals ("Mock", aDoc2.getAdditionalInformation ());
+        assertFalse (aDoc2.isDeleted ());
       }
       finally
       {
@@ -160,7 +182,7 @@ public final class PDStorageManagerTest
       aMgr.createOrUpdateEntry (aParticipantID, _createMockBI (aParticipantID), aMetaData);
       try
       {
-        // No country - no fields
+        // No country - no docs
         ICommonsList <PDStoredBusinessEntity> aDocs = aMgr.getAllDocuments (new TermQuery (PDField.COUNTRY_CODE.getExactMatchTerm ("")),
                                                                             -1);
         assertEquals (0, aDocs.size ());

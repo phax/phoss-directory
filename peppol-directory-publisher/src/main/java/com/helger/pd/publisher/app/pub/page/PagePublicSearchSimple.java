@@ -51,6 +51,7 @@ import com.helger.pd.indexer.storage.CPDStorage;
 import com.helger.pd.indexer.storage.PDQueryManager;
 import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
+import com.helger.pd.indexer.storage.PDStoredMLName;
 import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.search.EPDSearchField;
 import com.helger.pd.publisher.ui.PDCommonUI;
@@ -241,15 +242,26 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
                                                                                                  : sCountryCode)
                                                                      .addClass (CSS_CLASS_RESULT_DOC_COUNTRY_CODE)));
           }
-          if (aStoredDoc.hasSingleName ())
+
+          if (aStoredDoc.names ().isNotEmpty ())
           {
+            // TODO add locale filter here
+            final ICommonsList <PDStoredMLName> aNames = PDCommonUI.getUIFilteredNames (aStoredDoc.names (),
+                                                                                        aDisplayLocale);
+
+            IHCNode aNameCtrl;
+            if (aNames.size () == 1)
+              aNameCtrl = PDCommonUI.getMLNameNode (aNames.getFirst ());
+            else
+            {
+              final HCUL aNameUL = new HCUL ();
+              aNames.forEach (x -> aNameUL.addItem (PDCommonUI.getMLNameNode (x)));
+              aNameCtrl = aNameUL;
+            }
+
             aTable.addBodyRow ()
-                  .addCell ("Name:")
-                  .addCell (new HCSpan ().addChild (aStoredDoc.getSingleName ()).addClass (CSS_CLASS_RESULT_DOC_NAME));
-          }
-          else
-          {
-            // TODO multilingual names
+                  .addCell ("Entity Name:")
+                  .addCell (new HCSpan ().addChild (aNameCtrl).addClass (CSS_CLASS_RESULT_DOC_NAME));
           }
 
           if (aStoredDoc.hasGeoInfo ())

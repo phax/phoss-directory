@@ -146,94 +146,25 @@ public class PDStoredBusinessEntity
     return StringHelper.hasText (m_sGeoInfo);
   }
 
-  public void addIdentifier (@Nonnull final PDStoredIdentifier aIdentifier)
+  @Nonnull
+  @ReturnsMutableObject
+  public ICommonsList <PDStoredIdentifier> identifiers ()
   {
-    ValueEnforcer.notNull (aIdentifier, "Identifier");
-    m_aIdentifiers.add (aIdentifier);
+    return m_aIdentifiers;
   }
 
   @Nonnull
-  @ReturnsMutableCopy
-  public ICommonsList <PDStoredIdentifier> getAllIdentifiers ()
+  @ReturnsMutableObject
+  public ICommonsList <String> websiteURIs ()
   {
-    return m_aIdentifiers.getClone ();
-  }
-
-  @Nonnegative
-  public int getIdentifierCount ()
-  {
-    return m_aIdentifiers.size ();
-  }
-
-  @Nullable
-  public PDStoredIdentifier getIdentifierAtIndex (@Nonnegative final int nIndex)
-  {
-    return m_aIdentifiers.getAtIndex (nIndex);
-  }
-
-  public boolean hasAnyIdentifier ()
-  {
-    return m_aIdentifiers.isNotEmpty ();
-  }
-
-  public void addWebsiteURI (@Nonnull @Nonempty final String sWebsiteURI)
-  {
-    ValueEnforcer.notEmpty (sWebsiteURI, "WebSite");
-    m_aWebsiteURIs.add (sWebsiteURI);
+    return m_aWebsiteURIs;
   }
 
   @Nonnull
-  @ReturnsMutableCopy
-  public ICommonsList <String> getAllWebsiteURIs ()
+  @ReturnsMutableObject
+  public ICommonsList <PDStoredContact> contacts ()
   {
-    return m_aWebsiteURIs.getClone ();
-  }
-
-  @Nonnegative
-  public int getWebsiteURICount ()
-  {
-    return m_aWebsiteURIs.size ();
-  }
-
-  @Nullable
-  public String getWebsiteURIAtIndex (@Nonnegative final int nIndex)
-  {
-    return m_aWebsiteURIs.getAtIndex (nIndex);
-  }
-
-  public boolean hasAnyWebsiteURIs ()
-  {
-    return m_aWebsiteURIs.isNotEmpty ();
-  }
-
-  public void addContact (@Nonnull final PDStoredContact aContact)
-  {
-    ValueEnforcer.notNull (aContact, "Contact");
-    m_aContacts.add (aContact);
-  }
-
-  @Nonnull
-  @ReturnsMutableCopy
-  public ICommonsList <PDStoredContact> getAllContacts ()
-  {
-    return m_aContacts.getClone ();
-  }
-
-  @Nonnegative
-  public int getContactCount ()
-  {
-    return m_aContacts.size ();
-  }
-
-  @Nullable
-  public PDStoredContact getContactAtIndex (@Nonnegative final int nIndex)
-  {
-    return m_aContacts.getAtIndex (nIndex);
-  }
-
-  public boolean hasAnyContact ()
-  {
-    return m_aContacts.isNotEmpty ();
+    return m_aContacts;
   }
 
   public void setAdditionalInformation (@Nullable final String sAdditionalInformation)
@@ -590,11 +521,11 @@ public class PDStoredBusinessEntity
       if (aIDTypes.size () != aIDValues.size ())
         throw new IllegalStateException ("Different number of identifier types and values");
       for (int i = 0; i < aIDTypes.size (); ++i)
-        ret.addIdentifier (new PDStoredIdentifier (aIDTypes.get (i), aIDValues.get (i)));
+        ret.identifiers ().add (new PDStoredIdentifier (aIDTypes.get (i), aIDValues.get (i)));
     }
 
     for (final String sWebSite : PDField.WEBSITE_URI.getDocValues (aDoc))
-      ret.addWebsiteURI (sWebSite);
+      ret.websiteURIs ().add (sWebSite);
 
     {
       final ICommonsList <String> aBCDescription = PDField.CONTACT_TYPE.getDocValues (aDoc);
@@ -608,10 +539,8 @@ public class PDStoredBusinessEntity
       if (aBCDescription.size () != aBCEmail.size ())
         throw new IllegalStateException ("Different number of business contact descriptions and emails");
       for (int i = 0; i < aBCDescription.size (); ++i)
-        ret.addContact (new PDStoredContact (aBCDescription.get (i),
-                                             aBCName.get (i),
-                                             aBCPhone.get (i),
-                                             aBCEmail.get (i)));
+        ret.contacts ()
+           .add (new PDStoredContact (aBCDescription.get (i), aBCName.get (i), aBCPhone.get (i), aBCEmail.get (i)));
     }
 
     {

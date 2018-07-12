@@ -30,6 +30,8 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 import com.helger.commons.CGlobal;
+import com.helger.commons.collection.impl.CommonsArrayList;
+import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.datetime.PDTFactory;
 import com.helger.commons.datetime.PDTToString;
 import com.helger.commons.locale.country.CountryCache;
@@ -49,6 +51,7 @@ import com.helger.html.hc.impl.HCTextNode;
 import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
 import com.helger.pd.indexer.storage.PDStoredContact;
 import com.helger.pd.indexer.storage.PDStoredIdentifier;
+import com.helger.pd.indexer.storage.PDStoredMLName;
 import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.generic.process.IProcessIdentifier;
 import com.helger.peppol.identifier.peppol.doctype.EPredefinedDocumentTypeIdentifier;
@@ -85,6 +88,27 @@ public final class PDCommonUI
   }
 
   @Nonnull
+  public static IHCNode getMLNameNode (@Nonnull final PDStoredMLName aName)
+  {
+    // TODO display the language somehow (if present)
+    return new HCTextNode (aName.getName ());
+  }
+
+  @Nonnull
+  public static ICommonsList <PDStoredMLName> getUIFilteredNames (@Nonnull final ICommonsList <PDStoredMLName> aNames,
+                                                                  @Nonnull final Locale aDisplayLocale)
+  {
+    // TODO add locale filter here
+    ICommonsList <PDStoredMLName> ret = CommonsArrayList.createFiltered (aNames, x -> true);
+    if (ret.isEmpty ())
+    {
+      // Filter matched no entry - take all
+      ret = aNames.getClone ();
+    }
+    return ret;
+  }
+
+  @Nonnull
   public static BootstrapViewForm showBusinessInfoDetails (@Nonnull final PDStoredBusinessEntity aStoredDoc,
                                                            @Nonnull final Locale aDisplayLocale)
   {
@@ -104,46 +128,54 @@ public final class PDCommonUI
       aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Country").setCtrl (aCountryCtrl));
     }
 
-    if (aStoredDoc.hasSingleName ())
+    if (aStoredDoc.names ().isNotEmpty ())
     {
-      aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Entity Name").setCtrl (aStoredDoc.getSingleName ()));
-    }
-    else
-    {
-      // TODO multilingual names
+      final ICommonsList <PDStoredMLName> aNames = getUIFilteredNames (aStoredDoc.names (), aDisplayLocale);
+
+      IHCNode aNameCtrl;
+      if (aNames.size () == 1)
+        aNameCtrl = getMLNameNode (aNames.getFirst ());
+      else
+      {
+        final HCUL aNameUL = new HCUL ();
+        aNames.forEach (x -> aNameUL.addItem (getMLNameNode (x)));
+        aNameCtrl = aNameUL;
+      }
+
+      aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Entity Name").setCtrl (aNameCtrl));
     }
 
     if (aStoredDoc.hasGeoInfo ())
       aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Geographical information")
                                                        .setCtrl (HCExtHelper.nl2divList (aStoredDoc.getGeoInfo ())));
 
-    if (aStoredDoc.hasAnyIdentifier ())
+    if (aStoredDoc.identifiers ().isNotEmpty ())
     {
       final BootstrapTable aIDTable = new BootstrapTable (HCCol.star (), HCCol.star ()).setStriped (true)
                                                                                        .setBordered (true)
                                                                                        .setCondensed (true);
       aIDTable.addHeaderRow ().addCells ("Scheme", "Value");
-      for (final PDStoredIdentifier aStoredID : aStoredDoc.getAllIdentifiers ())
+      for (final PDStoredIdentifier aStoredID : aStoredDoc.identifiers ())
         aIDTable.addBodyRow ().addCells (aStoredID.getScheme (), aStoredID.getValue ());
       aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Additional identifiers").setCtrl (aIDTable));
     }
 
-    if (aStoredDoc.hasAnyWebsiteURIs ())
+    if (aStoredDoc.websiteURIs ().isNotEmpty ())
     {
       final HCOL aOL = new HCOL ();
-      for (final String sWebsiteURI : aStoredDoc.getAllWebsiteURIs ())
+      for (final String sWebsiteURI : aStoredDoc.websiteURIs ())
         aOL.addItem (HCA.createLinkedWebsite (sWebsiteURI, HC_Target.BLANK));
       aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Website URIs").setCtrl (aOL));
     }
 
-    if (aStoredDoc.hasAnyContact ())
+    if (aStoredDoc.contacts ().isNotEmpty ())
     {
       final BootstrapTable aContactTable = new BootstrapTable (HCCol.star (),
                                                                HCCol.star (),
                                                                HCCol.star (),
                                                                HCCol.star ()).setStriped (true).setBordered (true);
       aContactTable.addHeaderRow ().addCells ("Type", "Name", "Phone Number", "Email");
-      for (final PDStoredContact aStoredContact : aStoredDoc.getAllContacts ())
+      for (final PDStoredContact aStoredContact : aStoredDoc.contacts ())
         aContactTable.addBodyRow ().addCells (aStoredContact.getType (),
                                               aStoredContact.getName (),
                                               aStoredContact.getPhone (),
