@@ -54,6 +54,7 @@ import com.helger.pd.businesscard.PDExtendedBusinessCard;
 import com.helger.pd.businesscard.generic.PDBusinessCard;
 import com.helger.pd.businesscard.generic.PDBusinessEntity;
 import com.helger.pd.businesscard.generic.PDIdentifier;
+import com.helger.pd.businesscard.generic.PDName;
 import com.helger.pd.indexer.PDIndexerTestRule;
 import com.helger.pd.indexer.clientcert.ClientCertificateValidator;
 import com.helger.pd.indexer.mgr.PDMetaManager;
@@ -86,7 +87,7 @@ public final class IndexerResourceTest
     aBI.setParticipantIdentifier (new PDIdentifier (PeppolIdentifierHelper.DEFAULT_PARTICIPANT_SCHEME, "9915:mock"));
     {
       final PDBusinessEntity aEntity = new PDBusinessEntity ();
-      aEntity.setName ("Philip's mock PEPPOL receiver");
+      aEntity.names ().add (new PDName ("Philip's mock PEPPOL receiver"));
       aEntity.setCountryCode ("AT");
       aEntity.identifiers ().add (new PDIdentifier ("mock", "12345678"));
       aEntity.identifiers ().add (new PDIdentifier (aParticipantID.getScheme (), aParticipantID.getValue ()));
@@ -95,7 +96,7 @@ public final class IndexerResourceTest
     }
     {
       final PDBusinessEntity aEntity = new PDBusinessEntity ();
-      aEntity.setName ("Philip's mock PEPPOL receiver 2");
+      aEntity.names ().add (new PDName ("Philip's mock PEPPOL receiver 2"));
       aEntity.setCountryCode ("NO");
       aEntity.identifiers ().add (new PDIdentifier ("mock", "abcdefgh"));
       aEntity.setAdditionalInfo ("This is another mock entry for testing purposes only");

@@ -33,10 +33,13 @@ import com.helger.pd.businesscard.v1.PD1BusinessCardType;
 import com.helger.pd.businesscard.v2.PD2APIHelper;
 import com.helger.pd.businesscard.v2.PD2BusinessCardMarshaller;
 import com.helger.pd.businesscard.v2.PD2BusinessCardType;
+import com.helger.pd.businesscard.v3.PD3APIHelper;
+import com.helger.pd.businesscard.v3.PD3BusinessCardMarshaller;
+import com.helger.pd.businesscard.v3.PD3BusinessCardType;
 import com.helger.peppol.httpclient.AbstractSMPResponseHandler;
 
 /**
- * Handle unsigned SMP responses and interpret as PD v1 or v2.
+ * Handle unsigned SMP responses and interpret as PD v1 or v2 or v3.
  *
  * @author Philip Helger
  */
@@ -51,21 +54,35 @@ public class PDSMPHttpResponseHandlerUnsigned extends AbstractSMPResponseHandler
     final Charset aCharset = aContentType.getCharset ();
     final byte [] aData = StreamHelper.getAllBytes (aEntity.getContent ());
 
-    // Read version 1
-    final PD1BusinessCardMarshaller aMarshaller1 = new PD1BusinessCardMarshaller ();
-    if (aCharset != null)
-      aMarshaller1.setCharset (aCharset);
-    final PD1BusinessCardType aBC1 = aMarshaller1.read (aData);
-    if (aBC1 != null)
-      return PD1APIHelper.createBusinessCard (aBC1);
+    {
+      // Read version 1
+      final PD1BusinessCardMarshaller aMarshaller1 = new PD1BusinessCardMarshaller ();
+      if (aCharset != null)
+        aMarshaller1.setCharset (aCharset);
+      final PD1BusinessCardType aBC1 = aMarshaller1.read (aData);
+      if (aBC1 != null)
+        return PD1APIHelper.createBusinessCard (aBC1);
+    }
 
-    // Read as version 2
-    final PD2BusinessCardMarshaller aMarshaller2 = new PD2BusinessCardMarshaller ();
-    if (aCharset != null)
-      aMarshaller2.setCharset (aCharset);
-    final PD2BusinessCardType aBC2 = aMarshaller2.read (aData);
-    if (aBC2 != null)
-      return PD2APIHelper.createBusinessCard (aBC2);
+    {
+      // Read as version 2
+      final PD2BusinessCardMarshaller aMarshaller2 = new PD2BusinessCardMarshaller ();
+      if (aCharset != null)
+        aMarshaller2.setCharset (aCharset);
+      final PD2BusinessCardType aBC2 = aMarshaller2.read (aData);
+      if (aBC2 != null)
+        return PD2APIHelper.createBusinessCard (aBC2);
+    }
+
+    {
+      // Read as version 3
+      final PD3BusinessCardMarshaller aMarshaller3 = new PD3BusinessCardMarshaller ();
+      if (aCharset != null)
+        aMarshaller3.setCharset (aCharset);
+      final PD3BusinessCardType aBC3 = aMarshaller3.read (aData);
+      if (aBC3 != null)
+        return PD3APIHelper.createBusinessCard (aBC3);
+    }
 
     // Unsupported
     throw new ClientProtocolException ("Malformed XML document returned from SMP server");

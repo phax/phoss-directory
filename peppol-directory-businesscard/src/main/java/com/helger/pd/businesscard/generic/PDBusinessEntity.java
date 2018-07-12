@@ -44,19 +44,19 @@ import com.helger.xml.microdom.MicroElement;
 @NotThreadSafe
 public class PDBusinessEntity implements Serializable, ICloneable <PDBusinessEntity>
 {
-  private String m_sName;
+  private final ICommonsList <PDName> m_aNames = new CommonsArrayList <> ();
   private String m_sCountryCode;
   private String m_sGeoInfo;
-  private ICommonsList <PDIdentifier> m_aIDs = new CommonsArrayList <> ();
-  private ICommonsList <String> m_aWebsiteURI = new CommonsArrayList <> ();
-  private ICommonsList <PDContact> m_aContact = new CommonsArrayList <> ();
+  private final ICommonsList <PDIdentifier> m_aIDs = new CommonsArrayList <> ();
+  private final ICommonsList <String> m_aWebsiteURIs = new CommonsArrayList <> ();
+  private final ICommonsList <PDContact> m_aContacts = new CommonsArrayList <> ();
   private String m_sAdditionalInfo;
   private LocalDate m_aRegistrationDate;
 
   public PDBusinessEntity ()
   {}
 
-  public PDBusinessEntity (@Nullable final String sName,
+  public PDBusinessEntity (@Nullable final ICommonsList <PDName> aNames,
                            @Nullable final String sCountryCode,
                            @Nullable final String sGeoInfo,
                            @Nullable final ICommonsList <PDIdentifier> aIDs,
@@ -65,39 +65,29 @@ public class PDBusinessEntity implements Serializable, ICloneable <PDBusinessEnt
                            @Nullable final String sAdditionalInfo,
                            @Nullable final LocalDate aRegDate)
   {
-    setName (sName);
+    names ().setAll (aNames);
     setCountryCode (sCountryCode);
     setGeoInfo (sGeoInfo);
     identifiers ().setAll (aIDs);
     websiteURIs ().setAll (aWebsiteURIs);
-    contacts ().addAllMapped (aContacts, PDContact::getClone);
+    contacts ().setAllMapped (aContacts, PDContact::getClone);
     setAdditionalInfo (sAdditionalInfo);
     setRegistrationDate (aRegDate);
   }
 
   /**
-   * Gets the value of the name property.
-   *
-   * @return possible object is {@link String }
+   * @return All names of the entity. Never <code>null</code>.
    */
-  @Nullable
-  public String getName ()
+  @Nonnull
+  @ReturnsMutableObject
+  public ICommonsList <PDName> names ()
   {
-    return m_sName;
+    return m_aNames;
   }
 
   public boolean hasName ()
   {
-    return StringHelper.hasText (m_sName);
-  }
-
-  /**
-   * @param sName
-   *        Entity name. Should not be <code>null</code>.
-   */
-  public final void setName (@Nullable final String sName)
-  {
-    m_sName = sName;
+    return m_aNames.isNotEmpty ();
   }
 
   /**
@@ -165,7 +155,7 @@ public class PDBusinessEntity implements Serializable, ICloneable <PDBusinessEnt
   @ReturnsMutableObject
   public ICommonsList <String> websiteURIs ()
   {
-    return m_aWebsiteURI;
+    return m_aWebsiteURIs;
   }
 
   /**
@@ -175,7 +165,7 @@ public class PDBusinessEntity implements Serializable, ICloneable <PDBusinessEnt
   @ReturnsMutableObject
   public ICommonsList <PDContact> contacts ()
   {
-    return m_aContact;
+    return m_aContacts;
   }
 
   /**
@@ -238,12 +228,12 @@ public class PDBusinessEntity implements Serializable, ICloneable <PDBusinessEnt
    */
   public void cloneTo (@Nonnull final PDBusinessEntity ret)
   {
-    ret.m_sName = m_sName;
+    ret.m_aNames.setAll (m_aNames);
     ret.m_sCountryCode = m_sCountryCode;
     ret.m_sGeoInfo = m_sGeoInfo;
-    ret.m_aIDs = m_aIDs.getClone ();
-    ret.m_aWebsiteURI = m_aWebsiteURI.getClone ();
-    ret.m_aContact = new CommonsArrayList <> (m_aContact, PDContact::getClone);
+    ret.m_aIDs.setAll (m_aIDs);
+    ret.m_aWebsiteURIs.setAll (m_aWebsiteURIs);
+    ret.m_aContacts.setAllMapped (m_aContacts, PDContact::getClone);
     ret.m_sAdditionalInfo = m_sAdditionalInfo;
     // Identifier are immutable
     ret.m_aRegistrationDate = m_aRegistrationDate;
@@ -263,15 +253,16 @@ public class PDBusinessEntity implements Serializable, ICloneable <PDBusinessEnt
                                       @Nonnull @Nonempty final String sElementName)
   {
     final IMicroElement ret = new MicroElement (sNamespaceURI, sElementName);
-    ret.setAttribute ("name", m_sName);
+    for (final PDName aName : m_aNames)
+      ret.appendChild (aName.getAsMicroXML (sNamespaceURI, "name"));
     ret.setAttribute ("countrycode", m_sCountryCode);
     if (hasGeoInfo ())
       ret.appendElement (sNamespaceURI, "geoinfo").appendText (m_sGeoInfo);
     for (final PDIdentifier aID : m_aIDs)
       ret.appendChild (aID.getAsMicroXML (sNamespaceURI, "id"));
-    for (final String sWebsiteURI : m_aWebsiteURI)
+    for (final String sWebsiteURI : m_aWebsiteURIs)
       ret.appendElement (sNamespaceURI, "website").appendText (sWebsiteURI);
-    for (final PDContact aContact : m_aContact)
+    for (final PDContact aContact : m_aContacts)
       ret.appendChild (aContact.getAsMicroXML (sNamespaceURI, "contact"));
     if (hasAdditionalInfo ())
       ret.appendElement (sNamespaceURI, "additionalinfo").appendText (m_sAdditionalInfo);
@@ -287,12 +278,12 @@ public class PDBusinessEntity implements Serializable, ICloneable <PDBusinessEnt
       return false;
 
     final PDBusinessEntity rhs = (PDBusinessEntity) o;
-    return EqualsHelper.equals (m_sName, rhs.m_sName) &&
+    return EqualsHelper.equals (m_aNames, rhs.m_aNames) &&
            EqualsHelper.equals (m_sCountryCode, rhs.m_sCountryCode) &&
            EqualsHelper.equals (m_sGeoInfo, rhs.m_sGeoInfo) &&
            EqualsHelper.equals (m_aIDs, rhs.m_aIDs) &&
-           EqualsHelper.equals (m_aWebsiteURI, rhs.m_aWebsiteURI) &&
-           EqualsHelper.equals (m_aContact, rhs.m_aContact) &&
+           EqualsHelper.equals (m_aWebsiteURIs, rhs.m_aWebsiteURIs) &&
+           EqualsHelper.equals (m_aContacts, rhs.m_aContacts) &&
            EqualsHelper.equals (m_sAdditionalInfo, rhs.m_sAdditionalInfo) &&
            EqualsHelper.equals (m_aRegistrationDate, rhs.m_aRegistrationDate);
   }
@@ -300,12 +291,12 @@ public class PDBusinessEntity implements Serializable, ICloneable <PDBusinessEnt
   @Override
   public int hashCode ()
   {
-    return new HashCodeGenerator (this).append (m_sName)
+    return new HashCodeGenerator (this).append (m_aNames)
                                        .append (m_sCountryCode)
                                        .append (m_sGeoInfo)
                                        .append (m_aIDs)
-                                       .append (m_aWebsiteURI)
-                                       .append (m_aContact)
+                                       .append (m_aWebsiteURIs)
+                                       .append (m_aContacts)
                                        .append (m_sAdditionalInfo)
                                        .append (m_aRegistrationDate)
                                        .getHashCode ();
@@ -314,12 +305,12 @@ public class PDBusinessEntity implements Serializable, ICloneable <PDBusinessEnt
   @Override
   public String toString ()
   {
-    return new ToStringGenerator (this).append ("name", m_sName)
+    return new ToStringGenerator (this).append ("names", m_aNames)
                                        .append ("countryCode", m_sCountryCode)
                                        .append ("geographicalInformation", m_sGeoInfo)
                                        .append ("identifier", m_aIDs)
-                                       .append ("websiteURI", m_aWebsiteURI)
-                                       .append ("contact", m_aContact)
+                                       .append ("websiteURI", m_aWebsiteURIs)
+                                       .append ("contact", m_aContacts)
                                        .append ("additionalInformation", m_sAdditionalInfo)
                                        .append ("registrationDate", m_aRegistrationDate)
                                        .getToString ();

@@ -38,6 +38,7 @@ import com.helger.pd.businesscard.generic.PDBusinessCard;
 import com.helger.pd.businesscard.generic.PDBusinessEntity;
 import com.helger.pd.businesscard.generic.PDContact;
 import com.helger.pd.businesscard.generic.PDIdentifier;
+import com.helger.pd.businesscard.generic.PDName;
 import com.helger.pd.indexer.PDIndexerTestRule;
 import com.helger.pd.indexer.lucene.PDLucene;
 import com.helger.pd.indexer.mgr.PDMetaManager;
@@ -71,7 +72,7 @@ public final class PDStorageManagerTest
       final PDBusinessEntity aEntity = new PDBusinessEntity ();
       aEntity.setCountryCode ("AT");
       aEntity.setRegistrationDate (PDTFactory.createLocalDate (2015, Month.JULY, 6));
-      aEntity.setName ("Philip's mock PEPPOL receiver");
+      aEntity.names ().add (new PDName ("Philip's mock PEPPOL receiver"));
       aEntity.setGeoInfo ("Vienna");
 
       for (int i = 0; i < 10; ++i)
@@ -85,7 +86,7 @@ public final class PDStorageManagerTest
     {
       final PDBusinessEntity aEntity = new PDBusinessEntity ();
       aEntity.setCountryCode ("NO");
-      aEntity.setName ("Entity2");
+      aEntity.names ().add (new PDName ("Entity2", "no"));
 
       aEntity.identifiers ().add (new PDIdentifier ("mock", "12345678"));
       aEntity.identifiers ().add (new PDIdentifier ("provided", aParticipantID.getURIEncoded ()));
@@ -158,7 +159,7 @@ public final class PDStorageManagerTest
       {
         // No country - no fields
         ICommonsList <PDStoredBusinessEntity> aDocs = aMgr.getAllDocuments (new TermQuery (PDField.COUNTRY_CODE.getExactMatchTerm ("")),
-                                                                      -1);
+                                                                            -1);
         assertEquals (0, aDocs.size ());
 
         // Search for NO

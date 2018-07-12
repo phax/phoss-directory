@@ -43,7 +43,7 @@
       </nameXmlTransform>
     </schemaBindings>
   </bindings>
-  <bindings schemaLocation="../resources/schemas/peppol-directory-business-card-20180621-draft.xsd" node="/xs:schema">
+  <bindings schemaLocation="../resources/schemas/peppol-directory-business-card-20180621.xsd" node="/xs:schema">
     <schemaBindings>
       <package name="com.helger.pd.businesscard.v3" />
       <nameXmlTransform>

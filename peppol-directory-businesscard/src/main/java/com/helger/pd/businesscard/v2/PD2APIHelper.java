@@ -24,6 +24,7 @@ import com.helger.commons.ValueEnforcer;
 import com.helger.pd.businesscard.generic.PDBusinessCard;
 import com.helger.pd.businesscard.generic.PDBusinessEntity;
 import com.helger.pd.businesscard.generic.PDIdentifier;
+import com.helger.pd.businesscard.generic.PDName;
 
 /**
  * Helper class for easier BC V2 creation.
@@ -57,7 +58,8 @@ public final class PD2APIHelper
   {
     ValueEnforcer.notNull (aBE, "BusinessEntity");
     final PDBusinessEntity ret = new PDBusinessEntity ();
-    ret.setName (aBE.getName ());
+    // No language available
+    ret.names ().add (new PDName (aBE.getName ()));
     ret.setCountryCode (aBE.getCountryCode ());
     ret.setGeoInfo (aBE.getGeographicalInformation ());
     ret.identifiers ().setAllMapped (aBE.getIdentifier (), PD2APIHelper::createIdentifier);
