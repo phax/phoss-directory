@@ -80,26 +80,21 @@ public class PDBusinessEntity implements Serializable, ICloneable <PDBusinessEnt
    */
   @Nonnull
   @ReturnsMutableObject
-  public ICommonsList <PDName> names ()
+  public final ICommonsList <PDName> names ()
   {
     return m_aNames;
-  }
-
-  public boolean hasSingleName ()
-  {
-    return m_aNames.size () == 1 && m_aNames.getFirst ().hasNoLanguage ();
   }
 
   /**
    * @return The country code. Should not be <code>null</code>.
    */
   @Nullable
-  public String getCountryCode ()
+  public final String getCountryCode ()
   {
     return m_sCountryCode;
   }
 
-  public boolean hasCountryCode ()
+  public final boolean hasCountryCode ()
   {
     return StringHelper.hasText (m_sCountryCode);
   }
@@ -119,12 +114,12 @@ public class PDBusinessEntity implements Serializable, ICloneable <PDBusinessEnt
    * @return The geographical information. May be <code>null</code>.
    */
   @Nullable
-  public String getGeoInfo ()
+  public final String getGeoInfo ()
   {
     return m_sGeoInfo;
   }
 
-  public boolean hasGeoInfo ()
+  public final boolean hasGeoInfo ()
   {
     return StringHelper.hasText (m_sGeoInfo);
   }
@@ -143,7 +138,7 @@ public class PDBusinessEntity implements Serializable, ICloneable <PDBusinessEnt
    */
   @Nonnull
   @ReturnsMutableObject
-  public ICommonsList <PDIdentifier> identifiers ()
+  public final ICommonsList <PDIdentifier> identifiers ()
   {
     return m_aIDs;
   }
@@ -153,7 +148,7 @@ public class PDBusinessEntity implements Serializable, ICloneable <PDBusinessEnt
    */
   @Nonnull
   @ReturnsMutableObject
-  public ICommonsList <String> websiteURIs ()
+  public final ICommonsList <String> websiteURIs ()
   {
     return m_aWebsiteURIs;
   }
@@ -163,7 +158,7 @@ public class PDBusinessEntity implements Serializable, ICloneable <PDBusinessEnt
    */
   @Nonnull
   @ReturnsMutableObject
-  public ICommonsList <PDContact> contacts ()
+  public final ICommonsList <PDContact> contacts ()
   {
     return m_aContacts;
   }
@@ -172,12 +167,12 @@ public class PDBusinessEntity implements Serializable, ICloneable <PDBusinessEnt
    * @return The optional additional information. May be <code>null</code>.
    */
   @Nullable
-  public String getAdditionalInfo ()
+  public final String getAdditionalInfo ()
   {
     return m_sAdditionalInfo;
   }
 
-  public boolean hasAdditionalInfo ()
+  public final boolean hasAdditionalInfo ()
   {
     return StringHelper.hasText (m_sAdditionalInfo);
   }
@@ -198,12 +193,12 @@ public class PDBusinessEntity implements Serializable, ICloneable <PDBusinessEnt
    * @return The optional registration date. May be <code>null</code>.
    */
   @Nullable
-  public LocalDate getRegistrationDate ()
+  public final LocalDate getRegistrationDate ()
   {
     return m_aRegistrationDate;
   }
 
-  public boolean hasRegistrationDate ()
+  public final boolean hasRegistrationDate ()
   {
     return m_aRegistrationDate != null;
   }

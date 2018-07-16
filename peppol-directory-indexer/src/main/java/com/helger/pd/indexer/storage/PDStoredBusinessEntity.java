@@ -60,7 +60,7 @@ import com.helger.xml.microdom.MicroElement;
  * @author Philip Helger
  */
 @NotThreadSafe
-public class PDStoredBusinessEntity
+public final class PDStoredBusinessEntity
 {
   private static final Logger s_aLogger = LoggerFactory.getLogger (PDStoredBusinessEntity.class);
 
@@ -99,19 +99,6 @@ public class PDStoredBusinessEntity
   public ICommonsList <PDStoredMLName> names ()
   {
     return m_aNames;
-  }
-
-  public boolean hasSingleName ()
-  {
-    return m_aNames.size () == 1 && m_aNames.getFirst ().hasNoLanguage ();
-  }
-
-  @Nullable
-  public String getSingleName ()
-  {
-    if (hasSingleName ())
-      return m_aNames.getFirst ().getName ();
-    return null;
   }
 
   public void setCountryCode (@Nullable final String sCountryCode)
@@ -314,19 +301,8 @@ public class PDStoredBusinessEntity
     {
       final IMicroElement aEntity = aMatch.appendElement ("entity");
 
-      if (aDoc.hasSingleName ())
-      {
-        // Single name without locale
-        aEntity.appendElement ("name").appendText (aDoc.getSingleName ());
-      }
-      else
-      {
-        // Multilingual name
-        for (final PDStoredMLName aName : aDoc.m_aNames)
-          aEntity.appendElement ("mlname")
-                 .setAttribute ("language", aName.getLanguage ())
-                 .appendText (aName.getName ());
-      }
+      for (final PDStoredMLName aName : aDoc.m_aNames)
+        aEntity.appendElement ("name").setAttribute ("language", aName.getLanguage ()).appendText (aName.getName ());
 
       aEntity.appendElement ("countryCode").appendText (aDoc.m_sCountryCode);
 
@@ -393,20 +369,13 @@ public class PDStoredBusinessEntity
     for (final PDStoredBusinessEntity aDoc : aDocs)
     {
       final IJsonObject aEntity = new JsonObject ();
-      if (aDoc.hasSingleName ())
-      {
-        // Single name without locale
-        aEntity.add ("name", aDoc.getSingleName ());
-      }
-      else
-      {
-        // Multilingual names
-        final JsonArray aMLNames = new JsonArray ();
-        for (final PDStoredMLName aName : aDoc.m_aNames)
-          aMLNames.add (_getMLNameAsJson (aName.getName (), aName.getLanguage ()));
-        if (aMLNames.isNotEmpty ())
-          aEntity.add ("mlnames", aMLNames);
-      }
+
+      // Multilingual names
+      final JsonArray aMLNames = new JsonArray ();
+      for (final PDStoredMLName aName : aDoc.m_aNames)
+        aMLNames.add (_getMLNameAsJson (aName.getName (), aName.getLanguage ()));
+      if (aMLNames.isNotEmpty ())
+        aEntity.add ("name", aMLNames);
 
       aEntity.add ("countryCode", aDoc.m_sCountryCode);
 

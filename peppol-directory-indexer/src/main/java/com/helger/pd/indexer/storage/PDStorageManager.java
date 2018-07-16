@@ -232,7 +232,7 @@ public final class PDStorageManager implements IPDStorageManager
         aDoc.add (PDField.PARTICIPANT_ID.getAsField (aParticipantID));
         aSBAllFields.append (PDField.PARTICIPANT_ID.getAsStorageValue (aParticipantID)).append (' ');
 
-        if (aBusinessEntity.hasSingleName ())
+        if (aBusinessEntity.names ().size () == 1 && aBusinessEntity.names ().getFirst ().hasNoLanguage ())
         {
           // Single name without a language - legacy case
           final String sName = aBusinessEntity.names ().getFirst ().getName ();

@@ -116,7 +116,6 @@ public final class PDStorageManagerTest
         assertEquals ("junittest", aDoc1.getMetaData ().getOwnerID ());
         assertEquals ("AT", aDoc1.getCountryCode ());
         assertEquals (PDTFactory.createLocalDate (2015, Month.JULY, 6), aDoc1.getRegistrationDate ());
-        assertEquals ("Philip's mock PEPPOL receiver", aDoc1.getSingleName ());
         assertEquals (1, aDoc1.names ().size ());
         assertEquals ("Philip's mock PEPPOL receiver", aDoc1.names ().get (0).getName ());
         assertNull (aDoc1.names ().get (0).getLanguage ());

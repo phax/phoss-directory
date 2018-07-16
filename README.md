@@ -36,6 +36,8 @@ Open tasks according to the design document:
   * Removed the configuration item `sml.id` - either fixed SMP or all configured SMLs are queried upon indexing
   * Updated to Apache Lucene 7.4
   * Multilingual business entities are now supported via a new Business Card XML Schema - for Belgium
+  * The query API response document layout for XML was changed. `name` has now multiplicity 1..n instead of 1..1.
+  * The query API response document layout for JSON was changed. `name` is now an array instead of a `string`.
 * v0.6.1 - 2018-06-04
   * Avoid potential exception on invalid input parameters
   * Updated to Jersey 2.27
