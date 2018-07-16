@@ -90,7 +90,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
 
   private static final Logger s_aLogger = LoggerFactory.getLogger (PublicSearchXServletHandler.class);
 
-  public static enum ESearchVersion
+  public enum ESearchVersion
   {
     V1 ("1.0");
 
@@ -251,8 +251,9 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
       final int nMaxResults = nLastResultIndex + 1;
 
       // Search all documents
-      final ICommonsList <PDStoredBusinessEntity> aResultDocs = PDMetaManager.getStorageMgr ().getAllDocuments (aLuceneQuery,
-                                                                                                          nMaxResults);
+      final ICommonsList <PDStoredBusinessEntity> aResultDocs = PDMetaManager.getStorageMgr ()
+                                                                             .getAllDocuments (aLuceneQuery,
+                                                                                               nMaxResults);
 
       s_aLogger.info ("  Result for <" +
                       aLuceneQuery +
@@ -264,9 +265,9 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
       // Filter by index/count
       final int nEffectiveLastIndex = Math.min (nLastResultIndex, aResultDocs.size () - 1);
       final List <PDStoredBusinessEntity> aResultView = nFirstResultIndex >= aResultDocs.size () ? Collections.emptyList ()
-                                                                                           : aResultDocs.subList (nFirstResultIndex,
-                                                                                                                  nEffectiveLastIndex +
-                                                                                                                                     1);
+                                                                                                 : aResultDocs.subList (nFirstResultIndex,
+                                                                                                                        nEffectiveLastIndex +
+                                                                                                                                           1);
 
       // Group by participant ID
       final IMultiMapListBased <IParticipantIdentifier, PDStoredBusinessEntity> aGroupedDocs = PDStorageManager.getGroupedByParticipantID (aResultDocs);

@@ -39,7 +39,7 @@ import com.helger.photon.security.login.LoggedInUserManager;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 
 /**
- * Ajax executor to login a user from view application.
+ * Ajax executor to login a user from public application.
  *
  * @author Philip Helger
  */

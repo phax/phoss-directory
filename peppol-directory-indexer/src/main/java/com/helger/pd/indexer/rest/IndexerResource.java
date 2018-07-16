@@ -55,19 +55,23 @@ public class IndexerResource
    * is valid.
    *
    * @param aHttpServletRequest
-   *        The current servlet request.
+   *        The current servlet request. May not be <code>null</code>.
+   * @param sLogPrefix
+   *        The context - for logging only. May not be <code>null</code>.
    * @return The validation result
    */
   @Nonnull
-  private static ClientCertificateValidationResult _checkClientCertificate (@Nonnull final HttpServletRequest aHttpServletRequest)
+  private static ClientCertificateValidationResult _checkClientCertificate (@Nonnull final HttpServletRequest aHttpServletRequest,
+                                                                            @Nonnull final String sLogPrefix)
   {
     try
     {
-      return ClientCertificateValidator.verifyClientCertificate (aHttpServletRequest);
+      return ClientCertificateValidator.verifyClientCertificate (aHttpServletRequest, sLogPrefix);
     }
     catch (final RuntimeException ex)
     {
-      s_aLogger.warn ("Error validating client certificate", ex);
+      if (s_aLogger.isWarnEnabled ())
+        s_aLogger.warn (sLogPrefix + "Error validating client certificate", ex);
     }
     return ClientCertificateValidationResult.createFailure ();
   }
@@ -83,18 +87,21 @@ public class IndexerResource
   public Response createOrUpdateParticipant (@Context @Nonnull final HttpServletRequest aHttpServletRequest,
                                              @Nonnull final String sParticipantID)
   {
-    final ClientCertificateValidationResult aResult = _checkClientCertificate (aHttpServletRequest);
+    final String sLogPrefix = "[createOrUpdateParticipant] ";
+    final ClientCertificateValidationResult aResult = _checkClientCertificate (aHttpServletRequest, sLogPrefix);
     if (aResult.isFailure ())
       return Response.status (Response.Status.FORBIDDEN).build ();
 
-    s_aLogger.info ("[createOrUpdateParticipant] '" + sParticipantID + "'");
+    if (s_aLogger.isInfoEnabled ())
+      s_aLogger.info (sLogPrefix + "'" + sParticipantID + "'");
 
     // Parse identifier
     final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
     final IParticipantIdentifier aPI = aIdentifierFactory.parseParticipantIdentifier (sParticipantID);
     if (aPI == null)
     {
-      s_aLogger.error ("[createOrUpdateParticipant] Failed to parse participant identifier '" + sParticipantID + "'");
+      if (s_aLogger.isErrorEnabled ())
+        s_aLogger.error (sLogPrefix + "Failed to parse participant identifier '" + sParticipantID + "'");
       return Response.status (Status.BAD_REQUEST).build ();
     }
 
@@ -106,9 +113,8 @@ public class IndexerResource
                                      _getRequestingHost (aHttpServletRequest))
                      .isUnchanged ())
     {
-      s_aLogger.info ("[createOrUpdateParticipant] Ignoring duplicate CREATE/UPDATE request for '" +
-                      aPI.getURIEncoded () +
-                      "'");
+      if (s_aLogger.isInfoEnabled ())
+        s_aLogger.info (sLogPrefix + "Ignoring duplicate CREATE/UPDATE request for '" + aPI.getURIEncoded () + "'");
     }
 
     // And done
@@ -120,18 +126,21 @@ public class IndexerResource
   public Response deleteParticipant (@Context @Nonnull final HttpServletRequest aHttpServletRequest,
                                      @PathParam ("participantID") @Nonnull final String sParticipantID)
   {
-    final ClientCertificateValidationResult aResult = _checkClientCertificate (aHttpServletRequest);
+    final String sLogPrefix = "[deleteParticipant] ";
+    final ClientCertificateValidationResult aResult = _checkClientCertificate (aHttpServletRequest, sLogPrefix);
     if (aResult.isFailure ())
       return Response.status (Response.Status.FORBIDDEN).build ();
 
-    s_aLogger.info ("[deleteParticipant] '" + sParticipantID + "'");
+    if (s_aLogger.isInfoEnabled ())
+      s_aLogger.info (sLogPrefix + "'" + sParticipantID + "'");
 
     // Parse identifier
     final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
     final IParticipantIdentifier aPI = aIdentifierFactory.parseParticipantIdentifier (sParticipantID);
     if (aPI == null)
     {
-      s_aLogger.error ("[deleteParticipant] Failed to parse participant identifier '" + sParticipantID + "'");
+      if (s_aLogger.isErrorEnabled ())
+        s_aLogger.error (sLogPrefix + "Failed to parse participant identifier '" + sParticipantID + "'");
       return Response.status (Status.BAD_REQUEST).build ();
     }
 
@@ -146,7 +155,8 @@ public class IndexerResource
                                      _getRequestingHost (aHttpServletRequest))
                      .isUnchanged ())
     {
-      s_aLogger.info ("[deleteParticipant] Ignoring duplicate DELETE request for '" + aPI.getURIEncoded () + "'");
+      if (s_aLogger.isInfoEnabled ())
+        s_aLogger.info (sLogPrefix + "Ignoring duplicate DELETE request for '" + aPI.getURIEncoded () + "'");
     }
 
     // And done
@@ -158,17 +168,20 @@ public class IndexerResource
   public Response checkParticipantExistence (@Context @Nonnull final HttpServletRequest aHttpServletRequest,
                                              @PathParam ("participantID") @Nonnull final String sParticipantID) throws IOException
   {
-    final ClientCertificateValidationResult aResult = _checkClientCertificate (aHttpServletRequest);
+    final String sLogPrefix = "[checkParticipantExistence] ";
+    final ClientCertificateValidationResult aResult = _checkClientCertificate (aHttpServletRequest, sLogPrefix);
     if (aResult.isFailure ())
       return Response.status (Response.Status.FORBIDDEN).build ();
 
-    s_aLogger.info ("[checkParticipantExistence] '" + sParticipantID + "'");
+    if (s_aLogger.isInfoEnabled ())
+      s_aLogger.info (sLogPrefix + "'" + sParticipantID + "'");
 
     // Parse identifier
     final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
     final IParticipantIdentifier aPI = aIdentifierFactory.parseParticipantIdentifier (sParticipantID);
     if (aPI == null)
-      s_aLogger.error ("[checkParticipantExistence] Failed to parse participant identifier '" + sParticipantID + "'");
+      if (s_aLogger.isErrorEnabled ())
+        s_aLogger.error (sLogPrefix + "Failed to parse participant identifier '" + sParticipantID + "'");
 
     // Queue for handling
     if (!PDMetaManager.getStorageMgr ().containsEntry (aPI))

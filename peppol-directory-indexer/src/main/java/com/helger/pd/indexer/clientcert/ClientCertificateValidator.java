@@ -255,16 +255,20 @@ public final class ClientCertificateValidator
    * Extract certificates from request and validate them.
    *
    * @param aHttpRequest
-   *        The HTTP request to use.
+   *        The HTTP request to use. May not be <code>null</code>.
+   * @param sLogPrefix
+   *        The context - for logging only. May not be <code>null</code>.
    * @return Never <code>null</code>.
    */
   @Nonnull
-  public static ClientCertificateValidationResult verifyClientCertificate (@Nonnull final HttpServletRequest aHttpRequest)
+  public static ClientCertificateValidationResult verifyClientCertificate (@Nonnull final HttpServletRequest aHttpRequest,
+                                                                           @Nonnull final String sLogPrefix)
   {
     if (s_bIsCheckDisabled)
     {
       if (s_aLogger.isDebugEnabled ())
-        s_aLogger.debug ("Client certificate is considered valid because the 'allow all' for tests is set!");
+        s_aLogger.debug (sLogPrefix +
+                         "Client certificate is considered valid because the 'allow all' for tests is set!");
       return ClientCertificateValidationResult.createSuccess (INSECURE_DEBUG_CLIENT);
     }
 
@@ -272,7 +276,8 @@ public final class ClientCertificateValidator
     final Object aValue = aHttpRequest.getAttribute ("javax.servlet.request.X509Certificate");
     if (aValue == null)
     {
-      s_aLogger.warn ("No client certificates present in the request");
+      if (s_aLogger.isWarnEnabled ())
+        s_aLogger.warn (sLogPrefix + "No client certificates present in the request");
       return ClientCertificateValidationResult.createFailure ();
     }
 
@@ -285,7 +290,8 @@ public final class ClientCertificateValidator
     if (ArrayHelper.isEmpty (aRequestCerts))
     {
       // Empty array
-      s_aLogger.warn ("No client certificates passed for validation");
+      if (s_aLogger.isWarnEnabled ())
+        s_aLogger.warn (sLogPrefix + "No client certificates passed for validation");
       return ClientCertificateValidationResult.createFailure ();
     }
 
@@ -305,17 +311,23 @@ public final class ClientCertificateValidator
         final X500Principal aIssuer = aCert.getIssuerX500Principal ();
         if (s_aSearchIssuers.contains (aIssuer))
         {
-          s_aLogger.info ("  Using the following client certificate issuer for verification: '" + aIssuer + "'");
+          if (s_aLogger.isInfoEnabled ())
+            s_aLogger.info (sLogPrefix +
+                            "  Using the following client certificate issuer for verification: '" +
+                            aIssuer +
+                            "'");
           aClientCertToVerify = aCert;
           break;
         }
       }
       // Do we have a certificate to verify?
       if (aClientCertToVerify == null)
+      {
         throw new IllegalStateException ("Found no client certificate that was issued by one of the " +
                                          s_aSearchIssuers.size () +
                                          " required issuers. Provided certs are: " +
                                          Arrays.toString (aRequestCerts));
+      }
     }
 
     final String sClientID = getClientUniqueID (aClientCertToVerify);
@@ -327,12 +339,14 @@ public final class ClientCertificateValidator
       final String sVerifyErrorMsg = _verifyCertificate (aClientCertToVerify, aRootCert, aCRLs, aVerificationDate);
       if (sVerifyErrorMsg == null)
       {
-        s_aLogger.info ("  Passed client certificate is valid");
+        if (s_aLogger.isInfoEnabled ())
+          s_aLogger.info (sLogPrefix + "  Passed client certificate is valid");
         return ClientCertificateValidationResult.createSuccess (sClientID);
       }
     }
 
-    s_aLogger.warn ("Client certificate is invalid: " + sClientID);
+    if (s_aLogger.isWarnEnabled ())
+      s_aLogger.warn ("Client certificate is invalid: " + sClientID);
     return ClientCertificateValidationResult.createFailure ();
   }
 }
