@@ -18,6 +18,7 @@ package com.helger.pd.businesscard.generic;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -47,18 +48,24 @@ public final class PDNameTest
     CommonsTestHelper.testEqualsImplementationWithDifferentContentObject (aName, new PDName ("ACME2", "en"));
     CommonsTestHelper.testEqualsImplementationWithDifferentContentObject (aName, new PDName ("ACME", "de"));
     CommonsTestHelper.testEqualsImplementationWithDifferentContentObject (aName, new PDName ("ACME"));
+    assertNotNull (aName.getAsMicroXML (null, "a"));
+    assertNotNull (aName.getAsMicroXML ("urn:example.org", "a"));
 
     // Upper case language name
     aName = new PDName ("ACME", "EN");
     assertEquals ("ACME", aName.getName ());
     assertEquals ("en", aName.getLanguage ());
     assertFalse (aName.hasNoLanguage ());
+    assertNotNull (aName.getAsMicroXML (null, "a"));
+    assertNotNull (aName.getAsMicroXML ("urn:example.org", "a"));
 
     // No language
     aName = new PDName ("ACME");
     assertEquals ("ACME", aName.getName ());
     assertNull (aName.getLanguage ());
     assertTrue (aName.hasNoLanguage ());
+    assertNotNull (aName.getAsMicroXML (null, "a"));
+    assertNotNull (aName.getAsMicroXML ("urn:example.org", "a"));
 
     CommonsTestHelper.testEqualsImplementationWithEqualContentObject (aName, new PDName ("ACME"));
     CommonsTestHelper.testEqualsImplementationWithDifferentContentObject (aName, new PDName ("ACME2"));

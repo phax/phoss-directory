@@ -71,7 +71,7 @@ public final class ExportAllManager
     try
     {
       final File f = _getFile ();
-      // It's lazy...
+      // setContent(IReadableResource) is lazy
       aUR.setContent (new FileSystemResource (f));
     }
     finally
