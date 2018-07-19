@@ -69,7 +69,7 @@ import com.helger.xml.microdom.serialize.MicroWriter;
  */
 public final class PDIndexerManager implements Closeable
 {
-  private static final Logger s_aLogger = LoggerFactory.getLogger (PDIndexerManager.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger (PDIndexerManager.class);
   private static final String ELEMENT_ROOT = "root";
   private static final String ELEMENT_ITEM = "item";
 
@@ -160,8 +160,8 @@ public final class PDIndexerManager implements Closeable
     final IMicroDocument aDoc = MicroReader.readMicroXML (m_aIndexerWorkItemFile);
     if (aDoc != null)
     {
-      if (s_aLogger.isDebugEnabled ())
-        s_aLogger.debug ("Reading persisted indexer work items from " + m_aIndexerWorkItemFile);
+      if (LOGGER.isDebugEnabled ())
+        LOGGER.debug ("Reading persisted indexer work items from " + m_aIndexerWorkItemFile);
 
       for (final IMicroElement eItem : aDoc.getDocumentElement ().getAllChildElements (ELEMENT_ITEM))
       {
@@ -180,7 +180,7 @@ public final class PDIndexerManager implements Closeable
     final ICommonsList <IIndexerWorkItem> aRemainingWorkItems = m_aIndexerWorkQueue.stop ();
     if (aRemainingWorkItems.isNotEmpty ())
     {
-      s_aLogger.info ("Persisting " + aRemainingWorkItems.size () + " indexer work items");
+      LOGGER.info ("Persisting " + aRemainingWorkItems.size () + " indexer work items");
       final IMicroDocument aDoc = new MicroDocument ();
       final IMicroElement eRoot = aDoc.appendElement (ELEMENT_ROOT);
       for (final IIndexerWorkItem aItem : aRemainingWorkItems)
@@ -217,7 +217,7 @@ public final class PDIndexerManager implements Closeable
     {
       if (!m_aUniqueItems.add (aWorkItem))
       {
-        s_aLogger.info ("Ignoring work item " +
+        LOGGER.info ("Ignoring work item " +
                         aWorkItem.getLogText () +
                         " because it is already in the queue/re-index list!");
         return EChange.UNCHANGED;
@@ -230,11 +230,11 @@ public final class PDIndexerManager implements Closeable
 
     // Queue it
     m_aIndexerWorkQueue.queueObject (aWorkItem);
-    s_aLogger.info ("Queued work item " + aWorkItem.getLogText ());
+    LOGGER.info ("Queued work item " + aWorkItem.getLogText ());
 
     // Remove the entry from the dead list to avoid spamming the dead list
     if (m_aDeadList.getAndRemoveEntry (x -> x.getWorkItem ().equals (aWorkItem)) != null)
-      s_aLogger.info ("Removed the new work item " + aWorkItem.getLogText () + " from the dead list");
+      LOGGER.info ("Removed the new work item " + aWorkItem.getLogText () + " from the dead list");
 
     return EChange.CHANGED;
   }
@@ -276,7 +276,7 @@ public final class PDIndexerManager implements Closeable
     final ICommonsList <IReIndexWorkItem> aExpiredItems = m_aReIndexList.getAndRemoveAllEntries (IReIndexWorkItem::isExpired);
     if (aExpiredItems.isNotEmpty ())
     {
-      s_aLogger.info ("Expiring " + aExpiredItems.size () + " re-index work items and move them to the dead list");
+      LOGGER.info ("Expiring " + aExpiredItems.size () + " re-index work items and move them to the dead list");
 
       for (final IReIndexWorkItem aItem : aExpiredItems)
       {
@@ -285,7 +285,7 @@ public final class PDIndexerManager implements Closeable
 
         // move all to the dead item list
         m_aDeadList.addItem ((ReIndexWorkItem) aItem);
-        s_aLogger.info ("Added " + aItem.getLogText () + " to the dead list");
+        LOGGER.info ("Added " + aItem.getLogText () + " to the dead list");
       }
     }
   }
@@ -301,12 +301,12 @@ public final class PDIndexerManager implements Closeable
     // Get and remove all items to re-index "now"
     final List <IReIndexWorkItem> aReIndexNowItems = m_aReIndexList.getAndRemoveAllEntries (aWorkItem -> aWorkItem.isRetryPossible (aNow));
 
-    if (s_aLogger.isDebugEnabled ())
-      s_aLogger.debug ("Re-indexing " + aReIndexNowItems.size () + " work items");
+    if (LOGGER.isDebugEnabled ())
+      LOGGER.debug ("Re-indexing " + aReIndexNowItems.size () + " work items");
 
     for (final IReIndexWorkItem aReIndexItem : aReIndexNowItems)
     {
-      s_aLogger.info ("Try to re-index " + aReIndexItem.getLogText ());
+      LOGGER.info ("Try to re-index " + aReIndexItem.getLogText ());
 
       PDIndexExecutor.executeWorkItem (m_aStorageMgr,
                                        aReIndexItem.getWorkItem (),

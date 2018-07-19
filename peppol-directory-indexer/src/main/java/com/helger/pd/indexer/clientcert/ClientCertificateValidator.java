@@ -59,7 +59,7 @@ public final class ClientCertificateValidator
   /** The client ID to be used, if client certificate validator is disabled! */
   public static final String INSECURE_DEBUG_CLIENT = "insecure-debug-client";
 
-  private static final Logger s_aLogger = LoggerFactory.getLogger (ClientCertificateValidator.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger (ClientCertificateValidator.class);
 
   @PresentForCodeCoverage
   private static final ClientCertificateValidator s_aInstance = new ClientCertificateValidator ();
@@ -104,12 +104,12 @@ public final class ClientCertificateValidator
     if (s_aSearchIssuers.isEmpty ())
     {
       if (s_bIsCheckDisabled)
-        s_aLogger.warn ("The configuration file contains no entry for the client certificate issuer");
+        LOGGER.warn ("The configuration file contains no entry for the client certificate issuer");
       else
         throw new InitializationException ("The configuration file is missing the entry for the client certificate issuer");
     }
     else
-      s_aLogger.info ("The following client certificate issuer(s) are valid: " + s_aSearchIssuers);
+      LOGGER.info ("The following client certificate issuer(s) are valid: " + s_aSearchIssuers);
   }
 
   private static void _initCerts ()
@@ -126,7 +126,7 @@ public final class ClientCertificateValidator
       catch (final Throwable t)
       {
         final String sErrorMsg = "Failed to read trust store from '" + aTS.getPath () + "'";
-        s_aLogger.error (sErrorMsg);
+        LOGGER.error (sErrorMsg);
         throw new InitializationException (sErrorMsg, t);
       }
 
@@ -139,7 +139,7 @@ public final class ClientCertificateValidator
                                            "'!");
       s_aPeppolSMPRootCerts.add (aCert);
 
-      s_aLogger.info ("Root certificate loaded successfully from trust store '" +
+      LOGGER.info ("Root certificate loaded successfully from trust store '" +
                       aTS.getPath () +
                       "' with alias '" +
                       aTS.getAlias () +
@@ -152,7 +152,7 @@ public final class ClientCertificateValidator
     if (s_aPeppolSMPRootCerts.isEmpty ())
     {
       if (s_bIsCheckDisabled)
-        s_aLogger.warn ("Server configuration contains no trusted root certificate configuration!");
+        LOGGER.warn ("Server configuration contains no trusted root certificate configuration!");
       else
         throw new InitializationException ("Server configuration contains no trusted root certificate configuration!");
     }
@@ -246,7 +246,7 @@ public final class ClientCertificateValidator
     }
     catch (final Exception ex)
     {
-      s_aLogger.error ("Failed to parse '" + aCert.getSubjectX500Principal ().getName () + "'", ex);
+      LOGGER.error ("Failed to parse '" + aCert.getSubjectX500Principal ().getName () + "'", ex);
       return null;
     }
   }
@@ -266,8 +266,8 @@ public final class ClientCertificateValidator
   {
     if (s_bIsCheckDisabled)
     {
-      if (s_aLogger.isDebugEnabled ())
-        s_aLogger.debug (sLogPrefix +
+      if (LOGGER.isDebugEnabled ())
+        LOGGER.debug (sLogPrefix +
                          "Client certificate is considered valid because the 'allow all' for tests is set!");
       return ClientCertificateValidationResult.createSuccess (INSECURE_DEBUG_CLIENT);
     }
@@ -276,8 +276,8 @@ public final class ClientCertificateValidator
     final Object aValue = aHttpRequest.getAttribute ("javax.servlet.request.X509Certificate");
     if (aValue == null)
     {
-      if (s_aLogger.isWarnEnabled ())
-        s_aLogger.warn (sLogPrefix + "No client certificates present in the request");
+      if (LOGGER.isWarnEnabled ())
+        LOGGER.warn (sLogPrefix + "No client certificates present in the request");
       return ClientCertificateValidationResult.createFailure ();
     }
 
@@ -290,8 +290,8 @@ public final class ClientCertificateValidator
     if (ArrayHelper.isEmpty (aRequestCerts))
     {
       // Empty array
-      if (s_aLogger.isWarnEnabled ())
-        s_aLogger.warn (sLogPrefix + "No client certificates passed for validation");
+      if (LOGGER.isWarnEnabled ())
+        LOGGER.warn (sLogPrefix + "No client certificates passed for validation");
       return ClientCertificateValidationResult.createFailure ();
     }
 
@@ -311,8 +311,8 @@ public final class ClientCertificateValidator
         final X500Principal aIssuer = aCert.getIssuerX500Principal ();
         if (s_aSearchIssuers.contains (aIssuer))
         {
-          if (s_aLogger.isInfoEnabled ())
-            s_aLogger.info (sLogPrefix +
+          if (LOGGER.isInfoEnabled ())
+            LOGGER.info (sLogPrefix +
                             "  Using the following client certificate issuer for verification: '" +
                             aIssuer +
                             "'");
@@ -339,14 +339,14 @@ public final class ClientCertificateValidator
       final String sVerifyErrorMsg = _verifyCertificate (aClientCertToVerify, aRootCert, aCRLs, aVerificationDate);
       if (sVerifyErrorMsg == null)
       {
-        if (s_aLogger.isInfoEnabled ())
-          s_aLogger.info (sLogPrefix + "  Passed client certificate is valid");
+        if (LOGGER.isInfoEnabled ())
+          LOGGER.info (sLogPrefix + "  Passed client certificate is valid");
         return ClientCertificateValidationResult.createSuccess (sClientID);
       }
     }
 
-    if (s_aLogger.isWarnEnabled ())
-      s_aLogger.warn ("Client certificate is invalid: " + sClientID);
+    if (LOGGER.isWarnEnabled ())
+      LOGGER.warn ("Client certificate is invalid: " + sClientID);
     return ClientCertificateValidationResult.createFailure ();
   }
 }

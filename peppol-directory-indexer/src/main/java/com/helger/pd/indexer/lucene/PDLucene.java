@@ -61,7 +61,7 @@ import com.helger.photon.basic.app.io.WebFileIO;
  */
 public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuceneAnalyzerProvider
 {
-  private static final Logger s_aLogger = LoggerFactory.getLogger (PDLucene.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger (PDLucene.class);
 
   private final Lock m_aLock = new ReentrantLock ();
   private final Directory m_aDir;
@@ -122,7 +122,7 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
 
     // Reader and searcher are opened on demand
 
-    s_aLogger.info ("Lucene index operating on " + aPath);
+    LOGGER.info ("Lucene index operating on " + aPath);
   }
 
   public void close () throws IOException
@@ -141,7 +141,7 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
           m_aIndexWriter.commit ();
         StreamHelper.close (m_aIndexWriter);
         StreamHelper.close (m_aDir);
-        s_aLogger.info ("Closed Lucene reader/writer/directory");
+        LOGGER.info ("Closed Lucene reader/writer/directory");
       }
       finally
       {
@@ -187,7 +187,7 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
       // Commit the writer changes only if a reader is requested
       if (m_aWriterChanges.intValue () > 0)
       {
-        s_aLogger.info ("Lazily committing " + m_aWriterChanges.intValue () + " changes to the Lucene index");
+        LOGGER.info ("Lazily committing " + m_aWriterChanges.intValue () + " changes to the Lucene index");
         _getWriter ().commit ();
         m_aWriterChanges.set (0);
       }
@@ -201,8 +201,8 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
         m_aIndexReader = aNewReader;
         m_aSearcher = null;
 
-        if (s_aLogger.isDebugEnabled ())
-          s_aLogger.debug ("Contents of index changed. Creating new index reader");
+        if (LOGGER.isDebugEnabled ())
+          LOGGER.debug ("Contents of index changed. Creating new index reader");
       }
       return m_aIndexReader;
     }
@@ -228,8 +228,8 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
   {
     _checkClosing ();
 
-    if (s_aLogger.isDebugEnabled ())
-      s_aLogger.debug ("getDocument(" + nDocID + ")");
+    if (LOGGER.isDebugEnabled ())
+      LOGGER.debug ("getDocument(" + nDocID + ")");
 
     final IndexReader aReader = _getReader ();
     if (aReader == null)

@@ -62,7 +62,7 @@ import com.helger.xml.microdom.MicroElement;
 @NotThreadSafe
 public final class PDStoredBusinessEntity
 {
-  private static final Logger s_aLogger = LoggerFactory.getLogger (PDStoredBusinessEntity.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger (PDStoredBusinessEntity.class);
 
   private IParticipantIdentifier m_aParticipantID;
   // Retrieved from SMP
@@ -449,8 +449,8 @@ public final class PDStoredBusinessEntity
   @ReturnsMutableCopy
   public static PDStoredBusinessEntity create (@Nonnull final Document aDoc)
   {
-    if (s_aLogger.isDebugEnabled ())
-      s_aLogger.debug ("Creating PDStoredDocument from " + aDoc);
+    if (LOGGER.isDebugEnabled ())
+      LOGGER.debug ("Creating PDStoredDocument from " + aDoc);
 
     final PDStoredBusinessEntity ret = new PDStoredBusinessEntity ();
 

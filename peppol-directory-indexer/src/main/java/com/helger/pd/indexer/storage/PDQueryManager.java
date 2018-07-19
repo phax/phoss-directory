@@ -56,7 +56,7 @@ import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 @Immutable
 public final class PDQueryManager
 {
-  private static final Logger s_aLogger = LoggerFactory.getLogger (PDQueryManager.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger (PDQueryManager.class);
 
   private PDQueryManager ()
   {}
@@ -114,7 +114,7 @@ public final class PDQueryManager
     }
     catch (final IOException ex)
     {
-      s_aLogger.warn ("Failed to split user query '" + sQueryString + "' into terms. Defaulting to regEx splitting",
+      LOGGER.warn ("Failed to split user query '" + sQueryString + "' into terms. Defaulting to regEx splitting",
                       ex);
       // Fall-back
       return RegExHelper.getSplitToList (sQueryString.trim (), "\\s+");
@@ -159,8 +159,8 @@ public final class PDQueryManager
     final ICommonsList <String> aParts = getSplitIntoTerms (aAnalyzerProvider, sFieldName, sQueryString);
     assert aParts.isNotEmpty ();
 
-    if (s_aLogger.isDebugEnabled ())
-      s_aLogger.debug ("Split query string: '" + sQueryString + "' for field '" + sFieldName + "' ==> " + aParts);
+    if (LOGGER.isDebugEnabled ())
+      LOGGER.debug ("Split query string: '" + sQueryString + "' for field '" + sFieldName + "' ==> " + aParts);
 
     Query aQuery;
     if (aParts.size () == 1)
@@ -203,7 +203,7 @@ public final class PDQueryManager
     final IParticipantIdentifier aPI = aIdentifierFactory.parseParticipantIdentifier (_lowerCase (sQueryString));
     if (aPI == null)
     {
-      s_aLogger.warn ("Failed to convert '" + sQueryString + "' to participant ID!");
+      LOGGER.warn ("Failed to convert '" + sQueryString + "' to participant ID!");
       return null;
     }
 
@@ -220,7 +220,7 @@ public final class PDQueryManager
 
     if (sQueryString.length () < 3)
     {
-      s_aLogger.warn ("Name query string '" + sQueryString + "' is too short!");
+      LOGGER.warn ("Name query string '" + sQueryString + "' is too short!");
       return null;
     }
 
@@ -253,7 +253,7 @@ public final class PDQueryManager
 
     if (sQueryString.length () < 3)
     {
-      s_aLogger.warn ("GeoInfo query string '" + sQueryString + "' is too short!");
+      LOGGER.warn ("GeoInfo query string '" + sQueryString + "' is too short!");
       return null;
     }
 
@@ -295,7 +295,7 @@ public final class PDQueryManager
 
     if (sQueryString.length () < 3)
     {
-      s_aLogger.warn ("Website query string '" + sQueryString + "' is too short!");
+      LOGGER.warn ("Website query string '" + sQueryString + "' is too short!");
       return null;
     }
 
@@ -311,7 +311,7 @@ public final class PDQueryManager
 
     if (sQueryString.length () < 3)
     {
-      s_aLogger.warn ("Contact query string '" + sQueryString + "' is too short!");
+      LOGGER.warn ("Contact query string '" + sQueryString + "' is too short!");
       return null;
     }
 
@@ -336,7 +336,7 @@ public final class PDQueryManager
 
     if (sQueryString.length () < 3)
     {
-      s_aLogger.warn ("AdditionalInformation query string '" + sQueryString + "' is too short!");
+      LOGGER.warn ("AdditionalInformation query string '" + sQueryString + "' is too short!");
       return null;
     }
 
@@ -359,7 +359,7 @@ public final class PDQueryManager
     final LocalDate aLD = PDTWebDateHelper.getLocalDateFromXSD (sQueryString);
     if (aLD == null)
     {
-      s_aLogger.warn ("Registration date '" + sQueryString + "' is invalid!");
+      LOGGER.warn ("Registration date '" + sQueryString + "' is invalid!");
       return null;
     }
 
@@ -378,7 +378,7 @@ public final class PDQueryManager
     final IDocumentTypeIdentifier aDTI = aIdentifierFactory.parseDocumentTypeIdentifier (sQueryString);
     if (aDTI == null)
     {
-      s_aLogger.warn ("Failed to convert '" + sQueryString + "' to document type ID!");
+      LOGGER.warn ("Failed to convert '" + sQueryString + "' to document type ID!");
       return null;
     }
 

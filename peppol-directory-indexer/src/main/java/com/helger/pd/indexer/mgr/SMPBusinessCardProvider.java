@@ -66,7 +66,7 @@ import com.helger.peppol.url.IPeppolURLProvider;
 public class SMPBusinessCardProvider implements IPDBusinessCardProvider
 {
   private static final String URL_PART_SERVICES = "/services/";
-  private static final Logger s_aLogger = LoggerFactory.getLogger (SMPBusinessCardProvider.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger (SMPBusinessCardProvider.class);
 
   private final EPDSMPMode m_eSMPMode;
   private final URI m_aSMPURI;
@@ -151,7 +151,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
     aSMPClient.setProxy (aProxy);
     aSMPClient.setProxyCredentials (aProxyCredentials);
 
-    s_aLogger.info ("Querying BusinessCard for '" +
+    LOGGER.info ("Querying BusinessCard for '" +
                     aParticipantID.getURIEncoded () +
                     "' from SMP '" +
                     aSMPClient.getSMPHostURI () +
@@ -165,7 +165,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
     }
     catch (final SMPClientException ex)
     {
-      s_aLogger.error ("Error querying SMP for ServiceGroup of '" + aParticipantID.getURIEncoded () + "'", ex);
+      LOGGER.error ("Error querying SMP for ServiceGroup of '" + aParticipantID.getURIEncoded () + "'", ex);
       return null;
     }
 
@@ -187,20 +187,20 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
            ((HttpResponseException) ex).getStatusCode () == HttpServletResponse.SC_NOT_FOUND) ||
           ex instanceof UnknownHostException)
       {
-        s_aLogger.warn ("No BusinessCard available for '" +
+        LOGGER.warn ("No BusinessCard available for '" +
                         aParticipantID.getURIEncoded () +
                         "' - not in configured SMK/SML? - " +
                         ex.getMessage ());
       }
       else
-        s_aLogger.error ("Error querying SMP for BusinessCard of '" + aParticipantID.getURIEncoded () + "'", ex);
+        LOGGER.error ("Error querying SMP for BusinessCard of '" + aParticipantID.getURIEncoded () + "'", ex);
       return null;
     }
 
     if (aBusinessCard == null)
     {
       // No extension present - no need to try again
-      s_aLogger.warn ("Failed to get SMP BusinessCard of " + aParticipantID.getURIEncoded ());
+      LOGGER.warn ("Failed to get SMP BusinessCard of " + aParticipantID.getURIEncoded ());
       return null;
     }
 
@@ -216,7 +216,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
         final int nIndex = sHref.indexOf (URL_PART_SERVICES);
         if (nIndex < 0)
         {
-          s_aLogger.error ("Invalid href when querying service group '" +
+          LOGGER.error ("Invalid href when querying service group '" +
                            aParticipantID.getURIEncoded () +
                            "': '" +
                            sHref +
@@ -230,7 +230,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
           final IDocumentTypeIdentifier aDocTypeID = aIdentifierFactory.parseDocumentTypeIdentifier (sDocumentTypeID);
           if (aDocTypeID == null)
           {
-            s_aLogger.error ("Invalid document type when querying service group '" +
+            LOGGER.error ("Invalid document type when querying service group '" +
                              aParticipantID.getURIEncoded () +
                              "': '" +
                              sDocumentTypeID +
@@ -258,7 +258,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
     aSMPClient.setProxy (aProxy);
     aSMPClient.setProxyCredentials (aProxyCredentials);
 
-    s_aLogger.info ("Querying BusinessCard for '" +
+    LOGGER.info ("Querying BusinessCard for '" +
                     aParticipantID.getURIEncoded () +
                     "' from SMP '" +
                     aSMPClient.getSMPHostURI () +
@@ -272,7 +272,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
     }
     catch (final SMPClientException ex)
     {
-      s_aLogger.error ("Error querying SMP for ServiceGroup of '" + aParticipantID.getURIEncoded () + "'", ex);
+      LOGGER.error ("Error querying SMP for ServiceGroup of '" + aParticipantID.getURIEncoded () + "'", ex);
       return null;
     }
 
@@ -294,20 +294,20 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
            ((HttpResponseException) ex).getStatusCode () == HttpServletResponse.SC_NOT_FOUND) ||
           ex instanceof UnknownHostException)
       {
-        s_aLogger.warn ("No BusinessCard available for '" +
+        LOGGER.warn ("No BusinessCard available for '" +
                         aParticipantID.getURIEncoded () +
                         "' - not in configured SMK/SML? - " +
                         ex.getMessage ());
       }
       else
-        s_aLogger.error ("Error querying SMP for BusinessCard of '" + aParticipantID.getURIEncoded () + "'", ex);
+        LOGGER.error ("Error querying SMP for BusinessCard of '" + aParticipantID.getURIEncoded () + "'", ex);
       return null;
     }
 
     if (aBusinessCard == null)
     {
       // No extension present - no need to try again
-      s_aLogger.warn ("Failed to get SMP BusinessCard of " + aParticipantID.getURIEncoded ());
+      LOGGER.warn ("Failed to get SMP BusinessCard of " + aParticipantID.getURIEncoded ());
       return null;
     }
 
@@ -323,7 +323,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
         final int nIndex = sHref.indexOf (URL_PART_SERVICES);
         if (nIndex < 0)
         {
-          s_aLogger.error ("Invalid href when querying service group '" +
+          LOGGER.error ("Invalid href when querying service group '" +
                            aParticipantID.getURIEncoded () +
                            "': '" +
                            sHref +
@@ -337,7 +337,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
           final IDocumentTypeIdentifier aDocTypeID = aIdentifierFactory.parseDocumentTypeIdentifier (sDocumentTypeID);
           if (aDocTypeID == null)
           {
-            s_aLogger.error ("Invalid document type when querying service group '" +
+            LOGGER.error ("Invalid document type when querying service group '" +
                              aParticipantID.getURIEncoded () +
                              "': '" +
                              sDocumentTypeID +
@@ -412,7 +412,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
     }
 
     if (aBC != null)
-      s_aLogger.info ("Found BusinessCard for '" +
+      LOGGER.info ("Found BusinessCard for '" +
                       aParticipantID.getURIEncoded () +
                       "' with " +
                       aBC.getDocumentTypeCount () +

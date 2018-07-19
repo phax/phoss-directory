@@ -33,7 +33,7 @@ import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
  */
 public final class PDClientTest
 {
-  private static final Logger s_aLogger = LoggerFactory.getLogger (PDClientTest.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger (PDClientTest.class);
 
   @Test
   @Ignore
@@ -50,7 +50,7 @@ public final class PDClientTest
     }
     catch (final InitializationException ex)
     {
-      s_aLogger.error ("Failed to invoke PDClient", ex);
+      LOGGER.error ("Failed to invoke PDClient", ex);
     }
   }
 
@@ -68,7 +68,7 @@ public final class PDClientTest
     }
     catch (final InitializationException ex)
     {
-      s_aLogger.error ("Failed to invoke PDClient", ex);
+      LOGGER.error ("Failed to invoke PDClient", ex);
     }
   }
 
@@ -90,7 +90,7 @@ public final class PDClientTest
     }
     catch (final InitializationException ex)
     {
-      s_aLogger.error ("Failed to invoke PDClient", ex);
+      LOGGER.error ("Failed to invoke PDClient", ex);
     }
     finally
     {

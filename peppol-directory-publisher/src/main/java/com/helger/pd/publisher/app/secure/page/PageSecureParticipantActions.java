@@ -45,7 +45,7 @@ import com.helger.xml.microdom.MicroDocument;
 public final class PageSecureParticipantActions extends AbstractAppWebPage
 {
   private static final String ACTION_UPDATE_EXPORTED_BCS = "update-exported-bcs";
-  private static final Logger s_aLogger = LoggerFactory.getLogger (PageSecureParticipantActions.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger (PageSecureParticipantActions.class);
 
   private static final AjaxFunctionDeclaration s_aDownloadAllIDs;
   private static final AjaxFunctionDeclaration s_aDownloadAllBCs;
@@ -92,7 +92,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
       }
       catch (final IOException ex)
       {
-        s_aLogger.error ("Internal error exporting all business cards", ex);
+        LOGGER.error ("Internal error exporting all business cards", ex);
         aWPEC.postRedirectGetInternal (new BootstrapErrorBox ().addChild ("Error exporting business cards. Technical details: " +
                                                                           ex.getMessage ()));
       }

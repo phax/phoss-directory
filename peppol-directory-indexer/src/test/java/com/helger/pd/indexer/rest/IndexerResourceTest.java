@@ -72,7 +72,7 @@ import com.helger.security.keystore.KeyStoreHelper;
  */
 public final class IndexerResourceTest
 {
-  private static final Logger s_aLogger = LoggerFactory.getLogger (IndexerResourceTest.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger (IndexerResourceTest.class);
 
   @Rule
   public final TestRule m_aRule = new PDIndexerTestRule ();
@@ -139,7 +139,7 @@ public final class IndexerResourceTest
     else
     {
       // http only
-      s_aLogger.warn ("The SMP pilot keystore is missing for the tests! Client certificate handling will not be tested!");
+      LOGGER.warn ("The SMP pilot keystore is missing for the tests! Client certificate handling will not be tested!");
       ClientCertificateValidator.allowAllForTests (true);
 
       m_aServer = MockServer.startRegularServer ();
@@ -167,7 +167,7 @@ public final class IndexerResourceTest
       final IParticipantIdentifier aPI = PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9915:test" +
                                                                                                                         aIndex.getAndIncrement ());
 
-      s_aLogger.info ("PUT " + aPI.getURIEncoded ());
+      LOGGER.info ("PUT " + aPI.getURIEncoded ());
       final String sResponseMsg = m_aTarget.path ("1.0").request ().put (Entity.text (aPI.getURIEncoded ()),
                                                                          String.class);
       assertEquals ("", sResponseMsg);
@@ -182,7 +182,7 @@ public final class IndexerResourceTest
       final IParticipantIdentifier aPI = PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9915:test" +
                                                                                                                         aIndex.getAndIncrement ());
 
-      s_aLogger.info ("DELETE " + aPI.getURIEncoded ());
+      LOGGER.info ("DELETE " + aPI.getURIEncoded ());
       final String sResponseMsg = m_aTarget.path ("1.0").path (aPI.getURIEncoded ()).request ().delete (String.class);
       assertEquals ("", sResponseMsg);
     });

@@ -37,7 +37,7 @@ import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
  */
 final class PDIndexExecutor
 {
-  private static final Logger s_aLogger = LoggerFactory.getLogger (PDIndexExecutor.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger (PDIndexExecutor.class);
 
   private PDIndexExecutor ()
   {}
@@ -66,7 +66,7 @@ final class PDIndexExecutor
                                           @Nonnull final Consumer <? super IIndexerWorkItem> aSuccessHandler,
                                           @Nonnull final Consumer <? super IIndexerWorkItem> aFailureHandler)
   {
-    s_aLogger.info ("Execute work item " +
+    LOGGER.info ("Execute work item " +
                     aWorkItem.getLogText () +
                     " - " +
                     (nRetryCount > 0 ? "retry #" + nRetryCount : "initial try"));
@@ -116,7 +116,7 @@ final class PDIndexExecutor
     }
     catch (final Exception ex)
     {
-      s_aLogger.error ("Error in executing work item " + aWorkItem.getLogText (), ex);
+      LOGGER.error ("Error in executing work item " + aWorkItem.getLogText (), ex);
       // Fall through
     }
 

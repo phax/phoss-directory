@@ -36,7 +36,7 @@ import com.helger.security.keystore.LoadedKeyStore;
 
 public class PDHttpClientFactory extends HttpClientFactory
 {
-  private static final Logger s_aLogger = LoggerFactory.getLogger (PDHttpClientFactory.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger (PDHttpClientFactory.class);
 
   public PDHttpClientFactory ()
   {
@@ -53,7 +53,7 @@ public class PDHttpClientFactory extends HttpClientFactory
                                                                         PDClientConfiguration.getKeyStorePassword ());
     if (aLoadedKeyStore.isFailure ())
     {
-      s_aLogger.error ("Failed to initialize keystore for service connection! Can only use http now! Details: " +
+      LOGGER.error ("Failed to initialize keystore for service connection! Can only use http now! Details: " +
                        PeppolKeyStoreHelper.getLoadError (aLoadedKeyStore));
     }
     else
@@ -70,8 +70,8 @@ public class PDHttpClientFactory extends HttpClientFactory
                                   .loadKeyMaterial (aLoadedKeyStore.getKeyStore (),
                                                     PDClientConfiguration.getKeyStoreKeyPassword (),
                                                     (aAliases, aSocket) -> {
-                                                      if (s_aLogger.isDebugEnabled ())
-                                                        s_aLogger.debug ("chooseAlias(" +
+                                                      if (LOGGER.isDebugEnabled ())
+                                                        LOGGER.debug ("chooseAlias(" +
                                                                          aAliases +
                                                                          ", " +
                                                                          aSocket +
@@ -80,8 +80,8 @@ public class PDHttpClientFactory extends HttpClientFactory
                                                       return aAliases.containsKey (sAlias) ? sAlias : null;
                                                     })
                                   .loadTrustMaterial (aTrustStore, (aChain, aAuthType) -> {
-                                    if (s_aLogger.isDebugEnabled ())
-                                      s_aLogger.debug ("isTrusted(" +
+                                    if (LOGGER.isDebugEnabled ())
+                                      LOGGER.debug ("isTrusted(" +
                                                        Arrays.toString (aChain) +
                                                        ", " +
                                                        aAuthType +

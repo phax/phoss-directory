@@ -44,7 +44,7 @@ import com.helger.xservlet.handler.simple.IXServletSimpleHandler;
  */
 public final class PublicParticipantXServletHandler implements IXServletSimpleHandler
 {
-  private static final Logger s_aLogger = LoggerFactory.getLogger (PublicParticipantXServletHandler.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger (PublicParticipantXServletHandler.class);
 
   public void handleRequest (@Nonnull final IRequestWebScopeWithoutResponse aRequestScope,
                              @Nonnull final UnifiedResponse aUnifiedResponse) throws Exception
@@ -84,7 +84,7 @@ public final class PublicParticipantXServletHandler implements IXServletSimpleHa
 
     if (aPI == null)
     {
-      s_aLogger.error ("Failed to resolve path '" + sPathInfo + "' to a participant ID!");
+      LOGGER.error ("Failed to resolve path '" + sPathInfo + "' to a participant ID!");
       aUnifiedResponse.setStatus (HttpServletResponse.SC_NOT_FOUND);
       return;
     }

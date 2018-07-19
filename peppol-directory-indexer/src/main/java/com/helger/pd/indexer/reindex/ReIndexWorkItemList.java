@@ -45,7 +45,7 @@ public final class ReIndexWorkItemList extends AbstractPhotonMapBasedWALDAO <IRe
                                        implements
                                        IReIndexWorkItemList
 {
-  private static final Logger s_aLogger = LoggerFactory.getLogger (ReIndexWorkItemList.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger (ReIndexWorkItemList.class);
 
   public ReIndexWorkItemList (@Nullable final String sFilename) throws DAOException
   {
@@ -66,7 +66,7 @@ public final class ReIndexWorkItemList extends AbstractPhotonMapBasedWALDAO <IRe
     m_aRWLock.writeLocked ( () -> {
       internalCreateItem (aItem);
     });
-    s_aLogger.info ("Added " + aItem.getLogText () + " to re-try list for retry #" + (aItem.getRetryCount () + 1));
+    LOGGER.info ("Added " + aItem.getLogText () + " to re-try list for retry #" + (aItem.getRetryCount () + 1));
   }
 
   public void incRetryCountAndAddItem (@Nonnull final IReIndexWorkItem aItem)

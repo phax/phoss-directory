@@ -48,7 +48,7 @@ import com.helger.commons.typeconvert.TypeConverterException;
  */
 public final class SearchMatcher
 {
-  private static final Logger s_aLogger = LoggerFactory.getLogger (SearchMatcher.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger (SearchMatcher.class);
 
   private SearchMatcher ()
   {}
@@ -338,8 +338,8 @@ public final class SearchMatcher
     catch (final TypeConverterException ex)
     {
       // Doesn't matter - doesn't match
-      if (s_aLogger.isDebugEnabled ())
-        s_aLogger.debug ("Type conversion failed", ex);
+      if (LOGGER.isDebugEnabled ())
+        LOGGER.debug ("Type conversion failed", ex);
       return false;
     }
   }

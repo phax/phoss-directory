@@ -41,7 +41,7 @@ import com.helger.scope.singleton.AbstractGlobalSingleton;
  */
 public final class PDPMetaManager extends AbstractGlobalSingleton
 {
-  private static final Logger s_aLogger = LoggerFactory.getLogger (PDPMetaManager.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger (PDPMetaManager.class);
 
   private static final String SML_INFO_XML = "sml-info.xml";
 
@@ -74,7 +74,7 @@ public final class PDPMetaManager extends AbstractGlobalSingleton
                                                                                                 m_aSMLInfoMgr::getAll));
       }
 
-      s_aLogger.info (ClassHelper.getClassLocalName (this) + " was initialized");
+      LOGGER.info (ClassHelper.getClassLocalName (this) + " was initialized");
     }
     catch (final Exception ex)
     {

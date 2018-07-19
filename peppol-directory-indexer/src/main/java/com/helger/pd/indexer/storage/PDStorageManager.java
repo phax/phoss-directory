@@ -90,7 +90,7 @@ import com.helger.xml.microdom.MicroDocument;
 @Immutable
 public final class PDStorageManager implements IPDStorageManager
 {
-  private static final Logger s_aLogger = LoggerFactory.getLogger (PDStorageManager.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger (PDStorageManager.class);
   private static final String FIELD_GROUP_END = "groupend";
   private static final FieldType TYPE_GROUP_END = new FieldType ();
   private static final String VALUE_GROUP_END = "x";
@@ -150,7 +150,7 @@ public final class PDStorageManager implements IPDStorageManager
       final long nMillis = aSW.stopAndGetMillis ();
       s_aStatsQueryTimer.addTime (aQuery.toString (), nMillis);
       if (nMillis > CGlobal.MILLISECONDS_PER_SECOND)
-        s_aLogger.warn ("Lucene Query " + aQuery + " took too long: " + nMillis + "ms");
+        LOGGER.warn ("Lucene Query " + aQuery + " took too long: " + nMillis + "ms");
     }
   }
 
@@ -167,7 +167,7 @@ public final class PDStorageManager implements IPDStorageManager
       final long nMillis = aSW.stopAndGetMillis ();
       s_aStatsQueryTimer.addTime (aQuery.toString (), nMillis);
       if (nMillis > CGlobal.MILLISECONDS_PER_SECOND)
-        s_aLogger.warn ("Lucene Query " + aQuery + " took too long: " + nMillis + "ms");
+        LOGGER.warn ("Lucene Query " + aQuery + " took too long: " + nMillis + "ms");
     }
   }
 
@@ -202,7 +202,7 @@ public final class PDStorageManager implements IPDStorageManager
         m_aLucene.updateDocuments (PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID), aDocuments);
       }
 
-      s_aLogger.info ("Marked " + aDocuments.size () + " Lucene documents as deleted");
+      LOGGER.info ("Marked " + aDocuments.size () + " Lucene documents as deleted");
       AuditHelper.onAuditExecuteSuccess ("pd-indexer-delete",
                                          aParticipantID.getURIEncoded (),
                                          Integer.valueOf (aDocuments.size ()),
@@ -345,7 +345,7 @@ public final class PDStorageManager implements IPDStorageManager
       // and add the new ones to the index
       m_aLucene.updateDocuments (PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID), aDocs);
 
-      s_aLogger.info ("Added " + aDocs.size () + " Lucene documents");
+      LOGGER.info ("Added " + aDocs.size () + " Lucene documents");
       AuditHelper.onAuditExecuteSuccess ("pd-indexer-create",
                                          aParticipantID.getURIEncoded (),
                                          Integer.valueOf (aDocs.size ()),
@@ -374,14 +374,14 @@ public final class PDStorageManager implements IPDStorageManager
       final IndexSearcher aSearcher = m_aLucene.getSearcher ();
       if (aSearcher != null)
       {
-        if (s_aLogger.isDebugEnabled ())
-          s_aLogger.debug ("Searching Lucene: " + aQuery);
+        if (LOGGER.isDebugEnabled ())
+          LOGGER.debug ("Searching Lucene: " + aQuery);
 
         // Search all documents, collect them
         _timedSearch ( () -> aSearcher.search (aQuery, aCollector), aQuery);
       }
       else
-        s_aLogger.error ("Failed to obtain IndexSearcher for " + aQuery);
+        LOGGER.error ("Failed to obtain IndexSearcher for " + aQuery);
     });
   }
 
@@ -397,7 +397,7 @@ public final class PDStorageManager implements IPDStorageManager
     }
     catch (final IOException ex)
     {
-      s_aLogger.error ("Error counting documents with query " + aQuery, ex);
+      LOGGER.error ("Error counting documents with query " + aQuery, ex);
       return -1;
     }
   }
@@ -472,7 +472,7 @@ public final class PDStorageManager implements IPDStorageManager
     }
     catch (final IOException ex)
     {
-      s_aLogger.error ("Error searching for documents with query " + aQuery, ex);
+      LOGGER.error ("Error searching for documents with query " + aQuery, ex);
     }
     return aTargetList;
   }
@@ -499,7 +499,7 @@ public final class PDStorageManager implements IPDStorageManager
     }
     catch (final IOException ex)
     {
-      s_aLogger.error ("Error searching for documents with query " + aQuery, ex);
+      LOGGER.error ("Error searching for documents with query " + aQuery, ex);
     }
     return aTargetSet;
   }

@@ -59,12 +59,12 @@ public class PDClient implements Closeable
   /** The fixed part of the URL to the PD server */
   public static final String PATH_INDEXER_10 = "indexer/1.0/";
 
-  private static final Logger s_aLogger = LoggerFactory.getLogger (PDClient.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger (PDClient.class);
 
   @Nonnull
   private static IPDClientExceptionCallback _createDefaultExCb ()
   {
-    return (p, m, t) -> s_aLogger.error ("Internal error in " + m + " for " + p.getURIEncoded (), t);
+    return (p, m, t) -> LOGGER.error ("Internal error in " + m + " for " + p.getURIEncoded (), t);
   }
 
   /**
@@ -292,7 +292,7 @@ public class PDClient implements Closeable
     {
       if (executeRequest (aPut, new PDClientResponseHandler ()).isSuccess ())
       {
-        s_aLogger.info ("Added service group '" +
+        LOGGER.info ("Added service group '" +
                         sParticipantID +
                         "' to PEPPOL Directory index. May take some time until it shows up.");
         return ESuccess.SUCCESS;
@@ -316,7 +316,7 @@ public class PDClient implements Closeable
       if (executeRequest (aDelete, new PDClientResponseHandler ()).isSuccess ())
       {
         final String sParticipantID = aParticipantID.getURIEncoded ();
-        s_aLogger.info ("Removed service group '" +
+        LOGGER.info ("Removed service group '" +
                         sParticipantID +
                         "' from PEPPOL Directory index. May take some time until it is removed.");
         return ESuccess.SUCCESS;

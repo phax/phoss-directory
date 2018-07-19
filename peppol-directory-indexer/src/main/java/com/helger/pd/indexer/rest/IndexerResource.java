@@ -48,7 +48,7 @@ import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 @Path ("1.0")
 public class IndexerResource
 {
-  private static final Logger s_aLogger = LoggerFactory.getLogger (IndexerResource.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger (IndexerResource.class);
 
   /**
    * Check if the current request contains a client certificate and whether it
@@ -70,8 +70,8 @@ public class IndexerResource
     }
     catch (final RuntimeException ex)
     {
-      if (s_aLogger.isWarnEnabled ())
-        s_aLogger.warn (sLogPrefix + "Error validating client certificate", ex);
+      if (LOGGER.isWarnEnabled ())
+        LOGGER.warn (sLogPrefix + "Error validating client certificate", ex);
     }
     return ClientCertificateValidationResult.createFailure ();
   }
@@ -92,16 +92,16 @@ public class IndexerResource
     if (aResult.isFailure ())
       return Response.status (Response.Status.FORBIDDEN).build ();
 
-    if (s_aLogger.isInfoEnabled ())
-      s_aLogger.info (sLogPrefix + "'" + sParticipantID + "'");
+    if (LOGGER.isInfoEnabled ())
+      LOGGER.info (sLogPrefix + "'" + sParticipantID + "'");
 
     // Parse identifier
     final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
     final IParticipantIdentifier aPI = aIdentifierFactory.parseParticipantIdentifier (sParticipantID);
     if (aPI == null)
     {
-      if (s_aLogger.isErrorEnabled ())
-        s_aLogger.error (sLogPrefix + "Failed to parse participant identifier '" + sParticipantID + "'");
+      if (LOGGER.isErrorEnabled ())
+        LOGGER.error (sLogPrefix + "Failed to parse participant identifier '" + sParticipantID + "'");
       return Response.status (Status.BAD_REQUEST).build ();
     }
 
@@ -113,8 +113,8 @@ public class IndexerResource
                                      _getRequestingHost (aHttpServletRequest))
                      .isUnchanged ())
     {
-      if (s_aLogger.isInfoEnabled ())
-        s_aLogger.info (sLogPrefix + "Ignoring duplicate CREATE/UPDATE request for '" + aPI.getURIEncoded () + "'");
+      if (LOGGER.isInfoEnabled ())
+        LOGGER.info (sLogPrefix + "Ignoring duplicate CREATE/UPDATE request for '" + aPI.getURIEncoded () + "'");
     }
 
     // And done
@@ -131,16 +131,16 @@ public class IndexerResource
     if (aResult.isFailure ())
       return Response.status (Response.Status.FORBIDDEN).build ();
 
-    if (s_aLogger.isInfoEnabled ())
-      s_aLogger.info (sLogPrefix + "'" + sParticipantID + "'");
+    if (LOGGER.isInfoEnabled ())
+      LOGGER.info (sLogPrefix + "'" + sParticipantID + "'");
 
     // Parse identifier
     final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
     final IParticipantIdentifier aPI = aIdentifierFactory.parseParticipantIdentifier (sParticipantID);
     if (aPI == null)
     {
-      if (s_aLogger.isErrorEnabled ())
-        s_aLogger.error (sLogPrefix + "Failed to parse participant identifier '" + sParticipantID + "'");
+      if (LOGGER.isErrorEnabled ())
+        LOGGER.error (sLogPrefix + "Failed to parse participant identifier '" + sParticipantID + "'");
       return Response.status (Status.BAD_REQUEST).build ();
     }
 
@@ -155,8 +155,8 @@ public class IndexerResource
                                      _getRequestingHost (aHttpServletRequest))
                      .isUnchanged ())
     {
-      if (s_aLogger.isInfoEnabled ())
-        s_aLogger.info (sLogPrefix + "Ignoring duplicate DELETE request for '" + aPI.getURIEncoded () + "'");
+      if (LOGGER.isInfoEnabled ())
+        LOGGER.info (sLogPrefix + "Ignoring duplicate DELETE request for '" + aPI.getURIEncoded () + "'");
     }
 
     // And done
@@ -173,15 +173,15 @@ public class IndexerResource
     if (aResult.isFailure ())
       return Response.status (Response.Status.FORBIDDEN).build ();
 
-    if (s_aLogger.isInfoEnabled ())
-      s_aLogger.info (sLogPrefix + "'" + sParticipantID + "'");
+    if (LOGGER.isInfoEnabled ())
+      LOGGER.info (sLogPrefix + "'" + sParticipantID + "'");
 
     // Parse identifier
     final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
     final IParticipantIdentifier aPI = aIdentifierFactory.parseParticipantIdentifier (sParticipantID);
     if (aPI == null)
-      if (s_aLogger.isErrorEnabled ())
-        s_aLogger.error (sLogPrefix + "Failed to parse participant identifier '" + sParticipantID + "'");
+      if (LOGGER.isErrorEnabled ())
+        LOGGER.error (sLogPrefix + "Failed to parse participant identifier '" + sParticipantID + "'");
 
     // Queue for handling
     if (!PDMetaManager.getStorageMgr ().containsEntry (aPI))

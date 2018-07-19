@@ -35,7 +35,7 @@ import com.helger.xml.microdom.serialize.MicroWriter;
 public final class ExportAllManager
 {
   private static final String EXPORT_ALL_BUSINESSCARDS_XML = "export-all-businesscards.xml";
-  private static final Logger s_aLogger = LoggerFactory.getLogger (ExportAllManager.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger (ExportAllManager.class);
 
   private static final SimpleReadWriteLock s_aRWLock = new SimpleReadWriteLock ();
 
@@ -56,7 +56,7 @@ public final class ExportAllManager
     {
       final File f = _getFile ();
       if (MicroWriter.writeToFile (aDoc, f).isFailure ())
-        s_aLogger.error ("Failed to export all BCs to " + f.getAbsolutePath ());
+        LOGGER.error ("Failed to export all BCs to " + f.getAbsolutePath ());
     }
     finally
     {

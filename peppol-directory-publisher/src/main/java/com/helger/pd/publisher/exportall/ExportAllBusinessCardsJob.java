@@ -39,11 +39,11 @@ import com.helger.xml.microdom.IMicroDocument;
 @DisallowConcurrentExecution
 public final class ExportAllBusinessCardsJob extends AbstractScopeAwareJob
 {
-  private static final Logger s_aLogger = LoggerFactory.getLogger (ExportAllBusinessCardsJob.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger (ExportAllBusinessCardsJob.class);
 
   public static void exportAllBusinessCards () throws IOException
   {
-    s_aLogger.info ("Start exporting business cards");
+    LOGGER.info ("Start exporting business cards");
     try
     {
       final IMicroDocument aDoc = PDMetaManager.getStorageMgr ().getAllContainedBusinessCardsAsXML ();
@@ -51,7 +51,7 @@ public final class ExportAllBusinessCardsJob extends AbstractScopeAwareJob
     }
     finally
     {
-      s_aLogger.info ("Finished exporting business cards");
+      LOGGER.info ("Finished exporting business cards");
     }
   }
 

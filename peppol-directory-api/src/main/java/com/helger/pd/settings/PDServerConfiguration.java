@@ -61,7 +61,7 @@ import com.helger.settings.exchange.configfile.ConfigFileBuilder;
 @Immutable
 public final class PDServerConfiguration extends AbstractGlobalSingleton
 {
-  private static final Logger s_aLogger = LoggerFactory.getLogger (PDServerConfiguration.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger (PDServerConfiguration.class);
   private static final ConfigFile s_aConfigFile;
 
   static
@@ -73,9 +73,9 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
 
     s_aConfigFile = aCFB.build ();
     if (s_aConfigFile.isRead ())
-      s_aLogger.info ("Read PEPPOL Directory server properties from " + s_aConfigFile.getReadResource ().getPath ());
+      LOGGER.info ("Read PEPPOL Directory server properties from " + s_aConfigFile.getReadResource ().getPath ());
     else
-      s_aLogger.warn ("Failed to read PEPPOL Directory server properties from " + aCFB.getAllPaths ());
+      LOGGER.warn ("Failed to read PEPPOL Directory server properties from " + aCFB.getAllPaths ());
   }
 
   @Deprecated

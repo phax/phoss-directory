@@ -103,7 +103,7 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
     }
   }
 
-  private static final Logger s_aLogger = LoggerFactory.getLogger (AbstractPagePublicSearch.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger (AbstractPagePublicSearch.class);
 
   protected static final ICSSClassProvider CSS_CLASS_BIG_QUERY_IMAGE_CONTAINER = DefaultCSSClassProvider.create ("big-query-image-container");
   protected static final ICSSClassProvider CSS_CLASS_BIG_QUERY_IMAGE = DefaultCSSClassProvider.create ("big-query-image");
@@ -171,11 +171,11 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
     // Group by participant ID
     final IMultiMapListBased <IParticipantIdentifier, PDStoredBusinessEntity> aGroupedDocs = PDStorageManager.getGroupedByParticipantID (aResultDocs);
     if (aGroupedDocs.isEmpty ())
-      s_aLogger.error ("No stored document matches participant identifier '" + sParticipantID + "'");
+      LOGGER.error ("No stored document matches participant identifier '" + sParticipantID + "'");
     else
     {
       if (aGroupedDocs.size () > 1)
-        s_aLogger.warn ("Found " +
+        LOGGER.warn ("Found " +
                         aGroupedDocs.size () +
                         " entries for participant identifier '" +
                         sParticipantID +

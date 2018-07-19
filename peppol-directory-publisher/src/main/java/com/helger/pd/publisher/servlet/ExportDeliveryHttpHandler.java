@@ -36,7 +36,7 @@ import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 public class ExportDeliveryHttpHandler extends AbstractObjectDeliveryHttpHandler
 {
   public static final String SPECIAL_BUSINESS_CARDS = "/businesscards";
-  private static final Logger s_aLogger = LoggerFactory.getLogger (ExportDeliveryHttpHandler.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger (ExportDeliveryHttpHandler.class);
 
   @Nonnull
   private static String _getBundleIDFromFilename (@Nonnull final String sFilename)
@@ -57,7 +57,7 @@ public class ExportDeliveryHttpHandler extends AbstractObjectDeliveryHttpHandler
     final String sFilename = aRequestScope.attrs ().getAsString (REQUEST_ATTR_OBJECT_DELIVERY_FILENAME);
     if (!sFilename.equals (SPECIAL_BUSINESS_CARDS))
     {
-      s_aLogger.warn ("Cannot special stream the resource '" + sFilename + "'");
+      LOGGER.warn ("Cannot special stream the resource '" + sFilename + "'");
       aUnifiedResponse.setStatus (HttpServletResponse.SC_NOT_FOUND);
       return EContinue.BREAK;
     }

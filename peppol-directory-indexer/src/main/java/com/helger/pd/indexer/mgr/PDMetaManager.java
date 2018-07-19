@@ -47,7 +47,7 @@ import com.helger.scope.singleton.AbstractGlobalSingleton;
  */
 public final class PDMetaManager extends AbstractGlobalSingleton
 {
-  private static final Logger s_aLogger = LoggerFactory.getLogger (PDMetaManager.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger (PDMetaManager.class);
 
   private static final SimpleReadWriteLock s_aRWLock = new SimpleReadWriteLock ();
   @GuardedBy ("s_aRWLock")
@@ -73,7 +73,7 @@ public final class PDMetaManager extends AbstractGlobalSingleton
       m_aIndexerMgr = new PDIndexerManager (m_aStorageMgr);
       m_aHttpClientMgr = new HttpClientManager ();
 
-      s_aLogger.info (ClassHelper.getClassLocalName (this) + " was initialized");
+      LOGGER.info (ClassHelper.getClassLocalName (this) + " was initialized");
     }
     catch (final Exception ex)
     {

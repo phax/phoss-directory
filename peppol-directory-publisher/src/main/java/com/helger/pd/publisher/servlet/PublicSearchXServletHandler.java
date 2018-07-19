@@ -88,7 +88,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
   private static final String RESPONSE_QUERY_TERMS = "query-terms";
   private static final String RESPONSE_CREATION_DT = "creation-dt";
 
-  private static final Logger s_aLogger = LoggerFactory.getLogger (PublicSearchXServletHandler.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger (PublicSearchXServletHandler.class);
 
   public enum ESearchVersion
   {
@@ -144,7 +144,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
       final String sFormat = aParts.getAtIndex (1);
       final EPDOutputFormat eOutputFormat = EPDOutputFormat.getFromIDCaseInsensitiveOrDefault (sFormat,
                                                                                                EPDOutputFormat.XML);
-      s_aLogger.info ("Using REST query API 1.0 with output format " +
+      LOGGER.info ("Using REST query API 1.0 with output format " +
                       eOutputFormat +
                       " (" +
                       sPathInfo +
@@ -156,7 +156,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
                                                      aParams.getAsInt ("rpi", DEFAULT_RESULT_PAGE_INDEX));
       if (nResultPageIndex < 0)
       {
-        s_aLogger.error ("ResultPageIndex " + nResultPageIndex + " is invalid");
+        LOGGER.error ("ResultPageIndex " + nResultPageIndex + " is invalid");
         aUnifiedResponse.setStatus (HttpServletResponse.SC_BAD_REQUEST);
         return;
       }
@@ -164,7 +164,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
                                                      aParams.getAsInt ("rpc", DEFAULT_RESULT_PAGE_COUNT));
       if (nResultPageCount <= 0)
       {
-        s_aLogger.error ("ResultPageCount " + nResultPageCount + " is invalid");
+        LOGGER.error ("ResultPageCount " + nResultPageCount + " is invalid");
         aUnifiedResponse.setStatus (HttpServletResponse.SC_BAD_REQUEST);
         return;
       }
@@ -172,13 +172,13 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
       final int nLastResultIndex = (nResultPageIndex + 1) * nResultPageCount - 1;
       if (nFirstResultIndex > MAX_RESULTS)
       {
-        s_aLogger.error ("The first result index " + nFirstResultIndex + " is invalid");
+        LOGGER.error ("The first result index " + nFirstResultIndex + " is invalid");
         aUnifiedResponse.setStatus (HttpServletResponse.SC_BAD_REQUEST);
         return;
       }
       if (nLastResultIndex > MAX_RESULTS)
       {
-        s_aLogger.error ("The last result index " + nFirstResultIndex + " is invalid");
+        LOGGER.error ("The last result index " + nFirstResultIndex + " is invalid");
         aUnifiedResponse.setStatus (HttpServletResponse.SC_BAD_REQUEST);
         return;
       }
@@ -206,11 +206,11 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
       }
       if (aQueryValues.isEmpty ())
       {
-        s_aLogger.error ("No valid query term provided!");
+        LOGGER.error ("No valid query term provided!");
         aUnifiedResponse.setStatus (HttpServletResponse.SC_BAD_REQUEST);
         return;
       }
-      s_aLogger.info ("Using the following query terms: " + aQueryValues);
+      LOGGER.info ("Using the following query terms: " + aQueryValues);
 
       final ICommonsList <Query> aQueries = new CommonsArrayList <> ();
       for (final Map.Entry <EPDSearchField, ICommonsList <String>> aEntry : aQueryValues.entrySet ())
@@ -222,12 +222,12 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
           if (aQuery != null)
             aQueries.add (aQuery);
           else
-            s_aLogger.error ("Failed to create query '" + sQuery + "' of field " + eField + " - ignoring term!");
+            LOGGER.error ("Failed to create query '" + sQuery + "' of field " + eField + " - ignoring term!");
         }
       }
       if (aQueries.isEmpty ())
       {
-        s_aLogger.error ("No valid queries could be created!");
+        LOGGER.error ("No valid queries could be created!");
         aUnifiedResponse.setStatus (HttpServletResponse.SC_BAD_REQUEST);
         return;
       }
@@ -255,7 +255,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
                                                                              .getAllDocuments (aLuceneQuery,
                                                                                                nMaxResults);
 
-      s_aLogger.info ("  Result for <" +
+      LOGGER.info ("  Result for <" +
                       aLuceneQuery +
                       "> (max=" +
                       nMaxResults +
@@ -335,7 +335,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
     }
     else
     {
-      s_aLogger.error ("Unsupported version provided (" + sPathInfo + ")");
+      LOGGER.error ("Unsupported version provided (" + sPathInfo + ")");
       aUnifiedResponse.setStatus (HttpServletResponse.SC_NOT_FOUND);
     }
   }

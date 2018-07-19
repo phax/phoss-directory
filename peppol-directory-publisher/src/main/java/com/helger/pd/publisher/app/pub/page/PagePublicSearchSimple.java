@@ -83,7 +83,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
   public static final String PARAM_MAX = "max";
   public static final int DEFAULT_MAX = 50;
   public static final int MAX_MAX = 1000;
-  private static final Logger s_aLogger = LoggerFactory.getLogger (PagePublicSearchSimple.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger (PagePublicSearchSimple.class);
 
   public PagePublicSearchSimple (@Nonnull @Nonempty final String sID)
   {
@@ -143,21 +143,21 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     final PDStorageManager aStorageMgr = PDMetaManager.getStorageMgr ();
 
     // Search all documents
-    s_aLogger.info ("Searching generically for '" + sQuery + "'");
+    LOGGER.info ("Searching generically for '" + sQuery + "'");
 
     // Build Lucene query
     final Query aLuceneQuery = PDQueryManager.convertQueryStringToLuceneQuery (PDMetaManager.getLucene (),
                                                                                CPDStorage.FIELD_ALL_FIELDS,
                                                                                sQuery);
-    if (s_aLogger.isDebugEnabled ())
-      s_aLogger.debug ("Created query for '" + sQuery + "' is <" + aLuceneQuery + ">");
+    if (LOGGER.isDebugEnabled ())
+      LOGGER.debug ("Created query for '" + sQuery + "' is <" + aLuceneQuery + ">");
 
     // Search all documents
     final ICommonsList <PDStoredBusinessEntity> aResultBEs = aStorageMgr.getAllDocuments (aLuceneQuery, nMaxResults);
     // Also get the total hit count for UI display. May be < 0 in case of
     // error
     final int nTotalBEs = aStorageMgr.getCount (aLuceneQuery);
-    s_aLogger.info ("  Result for <" +
+    LOGGER.info ("  Result for <" +
                     aLuceneQuery +
                     "> (max=" +
                     nMaxResults +

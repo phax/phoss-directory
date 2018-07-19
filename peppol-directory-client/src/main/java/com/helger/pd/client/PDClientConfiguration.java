@@ -57,7 +57,7 @@ public final class PDClientConfiguration
   public static final int DEFAULT_CONNECTION_TIMEOUT_MS = 5_000;
   public static final int DEFAULT_REQUEST_TIMEOUT_MS = 10_000;
 
-  private static final Logger s_aLogger = LoggerFactory.getLogger (PDClientConfiguration.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger (PDClientConfiguration.class);
   private static final ConfigFile s_aConfigFile;
 
   static
@@ -69,9 +69,9 @@ public final class PDClientConfiguration
 
     s_aConfigFile = aCFB.build ();
     if (s_aConfigFile.isRead ())
-      s_aLogger.info ("Read PEPPOL Directory client properties from " + s_aConfigFile.getReadResource ().getPath ());
+      LOGGER.info ("Read PEPPOL Directory client properties from " + s_aConfigFile.getReadResource ().getPath ());
     else
-      s_aLogger.warn ("Failed to read PEPPOL Directory client properties from " + aCFB.getAllPaths ());
+      LOGGER.warn ("Failed to read PEPPOL Directory client properties from " + aCFB.getAllPaths ());
   }
 
   private PDClientConfiguration ()
