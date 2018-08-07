@@ -118,7 +118,7 @@ public final class PDStorageManagerTest
         assertEquals (PDTFactory.createLocalDate (2015, Month.JULY, 6), aDoc1.getRegistrationDate ());
         assertEquals (1, aDoc1.names ().size ());
         assertEquals ("Philip's mock PEPPOL receiver", aDoc1.names ().get (0).getName ());
-        assertNull (aDoc1.names ().get (0).getLanguage ());
+        assertNull (aDoc1.names ().get (0).getLanguageCode ());
         assertEquals ("Vienna", aDoc1.getGeoInfo ());
 
         assertEquals (10, aDoc1.identifiers ().size ());
@@ -148,11 +148,11 @@ public final class PDStorageManagerTest
         assertNull (aDoc2.getRegistrationDate ());
         assertEquals (3, aDoc2.names ().size ());
         assertEquals ("Entity2a", aDoc2.names ().get (0).getName ());
-        assertEquals ("no", aDoc2.names ().get (0).getLanguage ());
+        assertEquals ("no", aDoc2.names ().get (0).getLanguageCode ());
         assertEquals ("Entity2b", aDoc2.names ().get (1).getName ());
-        assertEquals ("de", aDoc2.names ().get (1).getLanguage ());
+        assertEquals ("de", aDoc2.names ().get (1).getLanguageCode ());
         assertEquals ("Entity2c", aDoc2.names ().get (2).getName ());
-        assertEquals ("en", aDoc2.names ().get (2).getLanguage ());
+        assertEquals ("en", aDoc2.names ().get (2).getLanguageCode ());
 
         assertNull (aDoc2.getGeoInfo ());
         assertEquals (0, aDoc2.identifiers ().size ());

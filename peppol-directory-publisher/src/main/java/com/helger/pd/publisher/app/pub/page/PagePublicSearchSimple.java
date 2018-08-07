@@ -143,7 +143,8 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     final PDStorageManager aStorageMgr = PDMetaManager.getStorageMgr ();
 
     // Search all documents
-    LOGGER.info ("Searching generically for '" + sQuery + "'");
+    if (LOGGER.isInfoEnabled ())
+      LOGGER.info ("Searching generically for '" + sQuery + "'");
 
     // Build Lucene query
     final Query aLuceneQuery = PDQueryManager.convertQueryStringToLuceneQuery (PDMetaManager.getLucene (),
@@ -157,14 +158,15 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     // Also get the total hit count for UI display. May be < 0 in case of
     // error
     final int nTotalBEs = aStorageMgr.getCount (aLuceneQuery);
-    LOGGER.info ("  Result for <" +
-                    aLuceneQuery +
-                    "> (max=" +
-                    nMaxResults +
-                    ") " +
-                    (aResultBEs.size () == 1 ? "is 1 document" : "are " + aResultBEs.size () + " documents") +
-                    "." +
-                    (nTotalBEs >= 0 ? " " + nTotalBEs + " total hits are available." : ""));
+    if (LOGGER.isInfoEnabled ())
+      LOGGER.info ("  Result for <" +
+                   aLuceneQuery +
+                   "> (max=" +
+                   nMaxResults +
+                   ") " +
+                   (aResultBEs.size () == 1 ? "is 1 document" : "are " + aResultBEs.size () + " documents") +
+                   "." +
+                   (nTotalBEs >= 0 ? " " + nTotalBEs + " total hits are available." : ""));
 
     // Group by participant ID
     final IMultiMapListBased <IParticipantIdentifier, PDStoredBusinessEntity> aGroupedBEs = PDStorageManager.getGroupedByParticipantID (aResultBEs);
@@ -251,11 +253,11 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
 
             IHCNode aNameCtrl;
             if (aNames.size () == 1)
-              aNameCtrl = PDCommonUI.getMLNameNode (aNames.getFirst ());
+              aNameCtrl = PDCommonUI.getMLNameNode (aNames.getFirst (), aDisplayLocale);
             else
             {
               final HCUL aNameUL = new HCUL ();
-              aNames.forEach (x -> aNameUL.addItem (PDCommonUI.getMLNameNode (x)));
+              aNames.forEach (x -> aNameUL.addItem (PDCommonUI.getMLNameNode (x, aDisplayLocale)));
               aNameCtrl = aNameUL;
             }
 

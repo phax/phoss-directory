@@ -232,7 +232,7 @@ public final class PDStorageManager implements IPDStorageManager
         aDoc.add (PDField.PARTICIPANT_ID.getAsField (aParticipantID));
         aSBAllFields.append (PDField.PARTICIPANT_ID.getAsStorageValue (aParticipantID)).append (' ');
 
-        if (aBusinessEntity.names ().size () == 1 && aBusinessEntity.names ().getFirst ().hasNoLanguage ())
+        if (aBusinessEntity.names ().size () == 1 && aBusinessEntity.names ().getFirst ().hasNoLanguageCode ())
         {
           // Single name without a language - legacy case
           final String sName = aBusinessEntity.names ().getFirst ().getName ();
@@ -248,7 +248,7 @@ public final class PDStorageManager implements IPDStorageManager
             aDoc.add (PDField.ML_NAME.getAsField (sName));
             aSBAllFields.append (sName).append (' ');
 
-            final String sLanguage = StringHelper.getNotNull (aName.getLanguage ());
+            final String sLanguage = StringHelper.getNotNull (aName.getLanguageCode ());
             aDoc.add (PDField.ML_LANGUAGE.getAsField (sLanguage));
             aSBAllFields.append (sLanguage).append (' ');
           }

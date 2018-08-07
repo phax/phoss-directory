@@ -40,8 +40,8 @@ public final class PDNameTest
     // Regular
     PDName aName = new PDName ("ACME", "en");
     assertEquals ("ACME", aName.getName ());
-    assertEquals ("en", aName.getLanguage ());
-    assertFalse (aName.hasNoLanguage ());
+    assertEquals ("en", aName.getLanguageCode ());
+    assertFalse (aName.hasNoLanguageCode ());
 
     CommonsTestHelper.testDefaultSerialization (aName);
     CommonsTestHelper.testEqualsImplementationWithEqualContentObject (aName, new PDName ("ACME", "en"));
@@ -54,16 +54,16 @@ public final class PDNameTest
     // Upper case language name
     aName = new PDName ("ACME", "EN");
     assertEquals ("ACME", aName.getName ());
-    assertEquals ("en", aName.getLanguage ());
-    assertFalse (aName.hasNoLanguage ());
+    assertEquals ("en", aName.getLanguageCode ());
+    assertFalse (aName.hasNoLanguageCode ());
     assertNotNull (aName.getAsMicroXML (null, "a"));
     assertNotNull (aName.getAsMicroXML ("urn:example.org", "a"));
 
     // No language
     aName = new PDName ("ACME");
     assertEquals ("ACME", aName.getName ());
-    assertNull (aName.getLanguage ());
-    assertTrue (aName.hasNoLanguage ());
+    assertNull (aName.getLanguageCode ());
+    assertTrue (aName.hasNoLanguageCode ());
     assertNotNull (aName.getAsMicroXML (null, "a"));
     assertNotNull (aName.getAsMicroXML ("urn:example.org", "a"));
 

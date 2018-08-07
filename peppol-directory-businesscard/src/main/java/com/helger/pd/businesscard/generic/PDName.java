@@ -27,6 +27,7 @@ import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.equals.EqualsHelper;
 import com.helger.commons.hashcode.HashCodeGenerator;
 import com.helger.commons.locale.LocaleHelper;
+import com.helger.commons.locale.language.LanguageCache;
 import com.helger.commons.string.StringHelper;
 import com.helger.commons.string.ToStringGenerator;
 import com.helger.xml.microdom.IMicroElement;
@@ -41,9 +42,9 @@ import com.helger.xml.microdom.MicroElement;
 public class PDName implements Serializable
 {
   private final String m_sName;
-  private final String m_sLanguage;
+  private final String m_sLanguageCode;
 
-  public static boolean isValidLanguage (@Nullable final String s)
+  public static boolean isValidLanguageCode (@Nullable final String s)
   {
     return s == null || (s.length () == 2 && LanguageCache.getInstance ().containsLanguage (s));
   }
@@ -53,12 +54,13 @@ public class PDName implements Serializable
     this (sName, (String) null);
   }
 
-  public PDName (@Nonnull @Nonempty final String sName, @Nullable final String sLanguage)
+  public PDName (@Nonnull @Nonempty final String sName, @Nullable final String sLanguageCode)
   {
     ValueEnforcer.notEmpty (sName, "Name");
-    ValueEnforcer.isTrue (isValidLanguage (sLanguage), () -> "'" + sLanguage + "' is invalid language");
+    ValueEnforcer.isTrue (isValidLanguageCode (sLanguageCode),
+                          () -> "'" + sLanguageCode + "' is invalid language code");
     m_sName = sName;
-    m_sLanguage = LocaleHelper.getValidLanguageCode (sLanguage);
+    m_sLanguageCode = LocaleHelper.getValidLanguageCode (sLanguageCode);
   }
 
   /**
@@ -72,17 +74,17 @@ public class PDName implements Serializable
   }
 
   /**
-   * @return The language. May be <code>null</code>.
+   * @return The language code. May be <code>null</code>.
    */
   @Nullable
-  public String getLanguage ()
+  public String getLanguageCode ()
   {
-    return m_sLanguage;
+    return m_sLanguageCode;
   }
 
-  public boolean hasNoLanguage ()
+  public boolean hasNoLanguageCode ()
   {
-    return StringHelper.hasNoText (m_sLanguage);
+    return StringHelper.hasNoText (m_sLanguageCode);
   }
 
   @Nonnull
@@ -91,7 +93,7 @@ public class PDName implements Serializable
   {
     final IMicroElement ret = new MicroElement (sNamespaceURI, sElementName);
     ret.setAttribute ("name", m_sName);
-    ret.setAttribute ("language", m_sLanguage);
+    ret.setAttribute ("language", m_sLanguageCode);
     return ret;
   }
 
@@ -104,20 +106,20 @@ public class PDName implements Serializable
       return false;
 
     final PDName rhs = (PDName) o;
-    return m_sName.equals (rhs.m_sName) && EqualsHelper.equals (m_sLanguage, rhs.m_sLanguage);
+    return m_sName.equals (rhs.m_sName) && EqualsHelper.equals (m_sLanguageCode, rhs.m_sLanguageCode);
   }
 
   @Override
   public int hashCode ()
   {
-    return new HashCodeGenerator (this).append (m_sName).append (m_sLanguage).getHashCode ();
+    return new HashCodeGenerator (this).append (m_sName).append (m_sLanguageCode).getHashCode ();
   }
 
   @Override
   public String toString ()
   {
     return new ToStringGenerator (null).append ("Name", m_sName)
-                                       .appendIfNotNull ("Language", m_sLanguage)
+                                       .appendIfNotNull ("LanguageCode", m_sLanguageCode)
                                        .getToString ();
   }
 }

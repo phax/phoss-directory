@@ -302,7 +302,7 @@ public final class PDStoredBusinessEntity
       final IMicroElement aEntity = aMatch.appendElement ("entity");
 
       for (final PDStoredMLName aName : aDoc.m_aNames)
-        aEntity.appendElement ("name").setAttribute ("language", aName.getLanguage ()).appendText (aName.getName ());
+        aEntity.appendElement ("name").setAttribute ("language", aName.getLanguageCode ()).appendText (aName.getName ());
 
       aEntity.appendElement ("countryCode").appendText (aDoc.m_sCountryCode);
 
@@ -373,7 +373,7 @@ public final class PDStoredBusinessEntity
       // Multilingual names
       final JsonArray aMLNames = new JsonArray ();
       for (final PDStoredMLName aName : aDoc.m_aNames)
-        aMLNames.add (_getMLNameAsJson (aName.getName (), aName.getLanguage ()));
+        aMLNames.add (_getMLNameAsJson (aName.getName (), aName.getLanguageCode ()));
       if (aMLNames.isNotEmpty ())
         aEntity.add ("name", aMLNames);
 

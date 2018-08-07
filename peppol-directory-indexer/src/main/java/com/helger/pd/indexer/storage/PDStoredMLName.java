@@ -38,17 +38,17 @@ import com.helger.pd.businesscard.generic.PDName;
 public final class PDStoredMLName
 {
   private final String m_sName;
-  private final String m_sLanguage;
+  private final String m_sLanguageCode;
 
   public PDStoredMLName (@Nonnull @Nonempty final String sName)
   {
     this (sName, (String) null);
   }
 
-  public PDStoredMLName (@Nonnull @Nonempty final String sName, @Nullable final String sLanguage)
+  public PDStoredMLName (@Nonnull @Nonempty final String sName, @Nullable final String sLanguageCode)
   {
     m_sName = ValueEnforcer.notEmpty (sName, "Name");
-    m_sLanguage = sLanguage;
+    m_sLanguageCode = sLanguageCode;
   }
 
   @Nonnull
@@ -60,20 +60,25 @@ public final class PDStoredMLName
 
   @Nonnull
   @Nonempty
-  public String getLanguage ()
+  public String getLanguageCode ()
   {
-    return m_sLanguage;
+    return m_sLanguageCode;
   }
 
-  public boolean hasNoLanguage ()
+  public boolean hasLanguageCode ()
   {
-    return StringHelper.hasNoText (m_sLanguage);
+    return StringHelper.hasText (m_sLanguageCode);
+  }
+
+  public boolean hasLanguageCode (@Nullable final String sLanguageCode)
+  {
+    return EqualsHelper.equals (m_sLanguageCode, sLanguageCode);
   }
 
   @Nonnull
   public PDName getAsGenericObject ()
   {
-    return new PDName (m_sName, m_sLanguage);
+    return new PDName (m_sName, m_sLanguageCode);
   }
 
   @Override
@@ -84,18 +89,20 @@ public final class PDStoredMLName
     if (o == null || !getClass ().equals (o.getClass ()))
       return false;
     final PDStoredMLName rhs = (PDStoredMLName) o;
-    return m_sName.equals (rhs.m_sName) && EqualsHelper.equals (m_sLanguage, rhs.m_sLanguage);
+    return m_sName.equals (rhs.m_sName) && EqualsHelper.equals (m_sLanguageCode, rhs.m_sLanguageCode);
   }
 
   @Override
   public int hashCode ()
   {
-    return new HashCodeGenerator (this).append (m_sName).append (m_sLanguage).getHashCode ();
+    return new HashCodeGenerator (this).append (m_sName).append (m_sLanguageCode).getHashCode ();
   }
 
   @Override
   public String toString ()
   {
-    return new ToStringGenerator (null).append ("Name", m_sName).append ("Language", m_sLanguage).getToString ();
+    return new ToStringGenerator (null).append ("Name", m_sName)
+                                       .appendIfNotNull ("LanguageCode", m_sLanguageCode)
+                                       .getToString ();
   }
 }

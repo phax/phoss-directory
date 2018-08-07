@@ -34,7 +34,9 @@ import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.datetime.PDTFactory;
 import com.helger.commons.datetime.PDTToString;
+import com.helger.commons.locale.LocaleHelper;
 import com.helger.commons.locale.country.CountryCache;
+import com.helger.commons.locale.language.LanguageCache;
 import com.helger.html.hc.IHCNode;
 import com.helger.html.hc.ext.HCExtHelper;
 import com.helger.html.hc.html.HC_Target;
@@ -88,21 +90,31 @@ public final class PDCommonUI
   }
 
   @Nonnull
-  public static IHCNode getMLNameNode (@Nonnull final PDStoredMLName aName)
+  public static IHCNode getMLNameNode (@Nonnull final PDStoredMLName aName, @Nonnull final Locale aDisplayLocale)
   {
-    // TODO display the language somehow (if present)
-    return new HCTextNode (aName.getName ());
+    String sName = aName.getName ();
+    if (aName.hasLanguageCode ())
+    {
+      final Locale aLanguage = LanguageCache.getInstance ().getLanguage (aName.getLanguageCode ());
+      if (aLanguage != null)
+      {
+        // Show language in current display locale
+        sName += " (" + aLanguage.getDisplayLanguage (aDisplayLocale) + ")";
+      }
+    }
+    return new HCTextNode (sName);
   }
 
   @Nonnull
   public static ICommonsList <PDStoredMLName> getUIFilteredNames (@Nonnull final ICommonsList <PDStoredMLName> aNames,
                                                                   @Nonnull final Locale aDisplayLocale)
   {
-    // TODO add locale filter here
-    ICommonsList <PDStoredMLName> ret = CommonsArrayList.createFiltered (aNames, x -> true);
+    final String sDisplayLanguage = LocaleHelper.getValidLanguageCode (aDisplayLocale.getLanguage ());
+    ICommonsList <PDStoredMLName> ret = CommonsArrayList.createFiltered (aNames,
+                                                                         x -> x.hasLanguageCode (sDisplayLanguage));
     if (ret.isEmpty ())
     {
-      // Filter matched no entry - take all
+      // Filter matched no entry - take all names
       ret = aNames.getClone ();
     }
     return ret;
@@ -134,11 +146,11 @@ public final class PDCommonUI
 
       IHCNode aNameCtrl;
       if (aNames.size () == 1)
-        aNameCtrl = getMLNameNode (aNames.getFirst ());
+        aNameCtrl = getMLNameNode (aNames.getFirst (), aDisplayLocale);
       else
       {
         final HCUL aNameUL = new HCUL ();
-        aNames.forEach (x -> aNameUL.addItem (getMLNameNode (x)));
+        aNames.forEach (x -> aNameUL.addItem (getMLNameNode (x, aDisplayLocale)));
         aNameCtrl = aNameUL;
       }
 
@@ -176,10 +188,11 @@ public final class PDCommonUI
                                                                HCCol.star ()).setStriped (true).setBordered (true);
       aContactTable.addHeaderRow ().addCells ("Type", "Name", "Phone Number", "Email");
       for (final PDStoredContact aStoredContact : aStoredDoc.contacts ())
-        aContactTable.addBodyRow ().addCells (aStoredContact.getType (),
-                                              aStoredContact.getName (),
-                                              aStoredContact.getPhone (),
-                                              aStoredContact.getEmail ());
+        aContactTable.addBodyRow ()
+                     .addCells (aStoredContact.getType (),
+                                aStoredContact.getName (),
+                                aStoredContact.getPhone (),
+                                aStoredContact.getEmail ());
       aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Contacts").setCtrl (aContactTable));
     }
     if (aStoredDoc.hasAdditionalInformation ())
