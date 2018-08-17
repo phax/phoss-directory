@@ -119,8 +119,8 @@ public final class AppRendererPublic
                                                              .setLinkAction (aLEC.getLinkToMenuItem (CMenuPublic.MENU_DOCS_HOW_TO)));
       aDropDown.addMenuItem (new BootstrapDropdownMenuItem ().setLabel ("REST API")
                                                              .setLinkAction (aLEC.getLinkToMenuItem (CMenuPublic.MENU_DOCS_REST_API)));
-      aDropDown.addMenuItem (new BootstrapDropdownMenuItem ().setLabel ("Specification draft (PDF)")
-                                                             .setLinkAction (LinkHelper.getURLWithContext ("/files/OpenPEPPOL Directory 2016-12-05.pdf")));
+      aDropDown.addMenuItem (new BootstrapDropdownMenuItem ().setLabel ("Specification v1.1 (PDF)")
+                                                             .setLinkAction (LinkHelper.getURLWithContext ("/files/OpenPEPPOL Directory 1.1 2018-07-17.pdf")));
       aDropDown.addMenuItem (new BootstrapDropdownMenuItem ().setLabel ("Guide for SMP providers (PDF)")
                                                              .setLinkAction (LinkHelper.getURLWithContext ("/files/OpenPEPPOL Directory for SMP providers 2016-12-05.pdf")));
       aNavbar.addNav (EBootstrapNavbarPosition.COLLAPSIBLE_LEFT, aNav);
