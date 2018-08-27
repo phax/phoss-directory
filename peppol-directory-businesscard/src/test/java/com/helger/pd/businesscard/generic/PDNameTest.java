@@ -44,10 +44,10 @@ public final class PDNameTest
     assertFalse (aName.hasNoLanguageCode ());
 
     CommonsTestHelper.testDefaultSerialization (aName);
-    CommonsTestHelper.testEqualsImplementationWithEqualContentObject (aName, new PDName ("ACME", "en"));
-    CommonsTestHelper.testEqualsImplementationWithDifferentContentObject (aName, new PDName ("ACME2", "en"));
-    CommonsTestHelper.testEqualsImplementationWithDifferentContentObject (aName, new PDName ("ACME", "de"));
-    CommonsTestHelper.testEqualsImplementationWithDifferentContentObject (aName, new PDName ("ACME"));
+    CommonsTestHelper.testDefaultImplementationWithEqualContentObject (aName, new PDName ("ACME", "en"));
+    CommonsTestHelper.testDefaultImplementationWithDifferentContentObject (aName, new PDName ("ACME2", "en"));
+    CommonsTestHelper.testDefaultImplementationWithDifferentContentObject (aName, new PDName ("ACME", "de"));
+    CommonsTestHelper.testDefaultImplementationWithDifferentContentObject (aName, new PDName ("ACME"));
     assertNotNull (aName.getAsMicroXML (null, "a"));
     assertNotNull (aName.getAsMicroXML ("urn:example.org", "a"));
 
@@ -67,9 +67,9 @@ public final class PDNameTest
     assertNotNull (aName.getAsMicroXML (null, "a"));
     assertNotNull (aName.getAsMicroXML ("urn:example.org", "a"));
 
-    CommonsTestHelper.testEqualsImplementationWithEqualContentObject (aName, new PDName ("ACME"));
-    CommonsTestHelper.testEqualsImplementationWithDifferentContentObject (aName, new PDName ("ACME2"));
-    CommonsTestHelper.testEqualsImplementationWithDifferentContentObject (aName, new PDName ("ACME", "en"));
+    CommonsTestHelper.testDefaultImplementationWithEqualContentObject (aName, new PDName ("ACME"));
+    CommonsTestHelper.testDefaultImplementationWithDifferentContentObject (aName, new PDName ("ACME2"));
+    CommonsTestHelper.testDefaultImplementationWithDifferentContentObject (aName, new PDName ("ACME", "en"));
   }
 
   @SuppressWarnings ("unused")
