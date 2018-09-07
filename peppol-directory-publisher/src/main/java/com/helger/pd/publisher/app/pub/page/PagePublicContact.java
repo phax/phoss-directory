@@ -108,7 +108,7 @@ public final class PagePublicContact extends AbstractAppWebPage
       {
         final EmailData aEmailData = new EmailData (EEmailType.TEXT);
         aEmailData.setFrom (CPDPublisher.EMAIL_SENDER);
-        aEmailData.setTo (new EmailAddress ("support@peppol.eu"), new EmailAddress ("pd@helger.com"));
+        aEmailData.setTo (new EmailAddress ("pd@helger.com"));
         aEmailData.setReplyTo (new EmailAddress (sEmail, sName));
         aEmailData.setSubject ("[" + CPDPublisher.APP_NAME + "] Contact Form - " + sName);
 
@@ -128,8 +128,8 @@ public final class PagePublicContact extends AbstractAppWebPage
 
     if (bShowForm)
     {
-      aNodeList.addChild (new BootstrapInfoBox ().addChild ("Alternatively write an email to support[at]peppol.eu or pd[at]helger.com - usually using the below form is more effective!"));
-      aNodeList.addChild (new BootstrapWarnBox ().addChild ("Please don't request any change of data via this contact form - contact your PEPPOL service provider instead. Thank you."));
+      aNodeList.addChild (new BootstrapInfoBox ().addChild ("Alternatively write an email to pd[at]helger.com - usually using the below form is more effective!"));
+      aNodeList.addChild (new BootstrapWarnBox ().addChild ("Please don't request any change of data via this contact form - contact your service provider instead. Thank you."));
 
       final BootstrapForm aForm = aNodeList.addAndReturnChild (getUIHandler ().createFormSelf (aWPEC));
       aForm.addFormGroup (new BootstrapFormGroup ().setLabelMandatory ("Your name")
