@@ -144,7 +144,7 @@ public final class AppRendererPublic
     {
       final BootstrapNav aNav = new BootstrapNav ();
       final BootstrapDropdownMenu aDropDown = aNav.addDropdownMenu ("About");
-      aDropDown.addMenuItem (new BootstrapDropdownMenuItem ().setLabel ("About " + CPDPublisher.APP_NAME)
+      aDropDown.addMenuItem (new BootstrapDropdownMenuItem ().setLabel ("About " + CPDPublisher.getApplication ())
                                                              .setLinkAction (aLEC.getLinkToMenuItem (CMenuPublic.MENU_ABOUT)));
       aNavbar.addNav (EBootstrapNavbarPosition.COLLAPSIBLE_LEFT, aNav);
     }
@@ -193,7 +193,7 @@ public final class AppRendererPublic
     final BootstrapNavbar aNavbar = new BootstrapNavbar (EBootstrapNavbarType.STATIC_TOP, true, aDisplayLocale);
     aNavbar.getContainer ().setFluid (true);
     aNavbar.addBrand (new HCSpan ().addClass (AppCommonUI.CSS_CLASS_LOGO1)
-                                   .addChild (AppCommonUI.getApplicationTitle ()),
+                                   .addChild (CPDPublisher.getApplicationTitle ()),
                       aLinkToStartPage);
 
     _addNavbarLoginLogout (aLEC, aNavbar);
@@ -307,7 +307,7 @@ public final class AppRendererPublic
     {
       final BootstrapContainer aDiv = new BootstrapContainer ().setFluid (true).setID (CLayout.LAYOUT_AREAID_FOOTER);
 
-      aDiv.addChild (new HCP ().addChild (CPDPublisher.APP_NAME + " - an ")
+      aDiv.addChild (new HCP ().addChild (CPDPublisher.getApplication () + " - an ")
                                .addChild (new HCA (new SimpleURL (VENDOR_URL)).addChild (VENDOR_NAME))
                                .addChild (" service"));
       aDiv.addChild (new HCP ().addChild ("Follow us on Twitter: ")

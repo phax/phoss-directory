@@ -25,6 +25,7 @@ import com.helger.commons.email.EmailAddress;
 import com.helger.commons.email.IEmailAddress;
 import com.helger.commons.url.ISimpleURL;
 import com.helger.commons.url.SimpleURL;
+import com.helger.pd.CDirectory;
 import com.helger.pd.settings.PDServerConfiguration;
 
 @Immutable
@@ -37,8 +38,7 @@ public final class CPDPublisher
   public static final IEmailAddress EMAIL_SENDER = new EmailAddress ("no-reply@helger.com");
 
   // APP Name - like "PEPPOL Directory"
-  public static final String APP_NAME_BASIC = PDServerConfiguration.getAppName ();
-  public static final String APP_NAME = APP_NAME_BASIC + (PDServerConfiguration.isTestVersion () ? " [TEST]" : "");
+  private static final String APPLICATION_TITLE = PDServerConfiguration.getAppName ();
 
   private static ISimpleURL s_aLogoImageURL = new SimpleURL ("/imgs/peppol.png");
 
@@ -52,5 +52,26 @@ public final class CPDPublisher
   public static ISimpleURL getLogoImageURL ()
   {
     return s_aLogoImageURL;
+  }
+
+  @Nonnull
+  @Nonempty
+  public static String getApplication ()
+  {
+    return APPLICATION_TITLE;
+  }
+
+  @Nonnull
+  @Nonempty
+  public static String getApplicationTitle ()
+  {
+    return APPLICATION_TITLE + (PDServerConfiguration.isTestVersion () ? " [TEST]" : "");
+  }
+
+  @Nonnull
+  @Nonempty
+  public static String getApplicationTitleWithVersion ()
+  {
+    return getApplicationTitle () + " v" + CDirectory.APPLICATION_VERSION;
   }
 }

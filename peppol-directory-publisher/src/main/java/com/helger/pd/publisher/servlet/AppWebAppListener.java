@@ -107,7 +107,7 @@ public final class AppWebAppListener extends WebAppListenerBootstrap
     if (PDServerConfiguration.getConfigFile ().isRead ())
     {
       aCfgMgr.registerConfigurationFile (new ConfigurationFile (PDServerConfiguration.getConfigFile ()
-                                                                                     .getReadResource ()).setDescription (CPDPublisher.APP_NAME +
+                                                                                     .getReadResource ()).setDescription (CPDPublisher.getApplication () +
                                                                                                                           " properties")
                                                                                                          .setSyntaxHighlightLanguage (EConfigurationFileSyntax.PROPERTIES));
     }

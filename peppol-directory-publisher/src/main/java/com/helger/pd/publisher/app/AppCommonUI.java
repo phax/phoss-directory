@@ -76,12 +76,6 @@ public final class AppCommonUI
   private AppCommonUI ()
   {}
 
-  @Nonnull
-  public static String getApplicationTitle ()
-  {
-    return CPDPublisher.APP_NAME;
-  }
-
   public static void init ()
   {
     BootstrapDataTables.setConfigurator ( (aLEC, aTable, aDataTables) -> {

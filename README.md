@@ -2,7 +2,7 @@
 
 [![Join the chat at https://gitter.im/phax/peppol-directory](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/phax/peppol-directory?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Current release (on Maven central): **0.6.0**
+Current release (on Maven central): **0.6.1**
 
 The official PEPPOL Directory (PD; former PEPPOL Yellow Pages - PYP) software. It is split into the following sub-projects (all require Java 8 except where noted):
   * `peppol-directory-businesscard` - the common Business Card API
@@ -11,10 +11,7 @@ The official PEPPOL Directory (PD; former PEPPOL Yellow Pages - PYP) software. I
   * `peppol-directory-publisher` - the PD publisher web application
   * `peppol-directory-client` - a client library to be added to SMP servers to force indexing in the PD
   
-Deprecated sub-projects:  
-  * `peppol-directory-client-jdk6` - a client library to be added to SMP servers to force indexing in the PD (Java 1.6) - only available until v0.5.0. Because of ECC certificate usage only available from Java 7 it doesn't make sense to work on this any longer.
-  
-Status as per 2018-03-06:
+Status as per 2018-09-26:
   * Production version is available at https://directory.peppol.eu
     * It can only handle participants registered at the SML
     * For the indexing REST API, a client certificate (SMP production) is needed 
@@ -31,39 +28,39 @@ Open tasks according to the design document:
 # News and noteworthy
 
 * v0.6.2 - work in progress
-  * If more hits are present than visible, it is displayed on the UI
-  * Made the available SML information objects customizable
-  * Removed the configuration item `sml.id` - either fixed SMP or all configured SMLs are queried upon indexing
-  * Updated to Apache Lucene 7.5
-  * Multilingual business entities are now supported via a new Business Card XML Schema - for Belgium
-  * The query API response document layout for XML was changed. `name` has now multiplicity 1..n instead of 1..1.
-  * The query API response document layout for JSON was changed. `name` is now an array instead of a `string`.
+    * If more hits are present than visible, it is displayed on the UI
+    * Made the available SML information objects customizable
+    * Removed the configuration item `sml.id` - either fixed SMP or all configured SMLs are queried upon indexing
+    * Updated to Apache Lucene 7.5
+    * Multilingual business entities are now supported via a new Business Card XML Schema - for Belgium
+    * The query API response document layout for XML was changed. `name` has now multiplicity 1..n instead of 1..1.
+    * The query API response document layout for JSON was changed. `name` is now an array instead of a `string`.
 * v0.6.1 - 2018-06-04
-  * Avoid potential exception on invalid input parameters
-  * Updated to Jersey 2.27
-  * Updated to Apache Lucene 7.3
-  * Improved handling of multiple search parameters in name, geoinfo and additionalInfo
-  * Updated to peppol-commons 6.1.0
-  * Updated to ph-commons 9.1.0
-  * Introduced an internal "generic business card representation"
-  * An initial "export all business cards" was created
+    * Avoid potential exception on invalid input parameters
+    * Updated to Jersey 2.27
+    * Updated to Apache Lucene 7.3
+    * Improved handling of multiple search parameters in name, geoinfo and additionalInfo
+    * Updated to peppol-commons 6.1.0
+    * Updated to ph-commons 9.1.0
+    * Introduced an internal "generic business card representation"
+    * An initial "export all business cards" was created
 * v0.6.0 - 2018-03-06
-  * Updated to ph-commons 9.0.1
-  * Updated to Apache Lucene 7.2.1
-  * Fixed some issues (as #30)
-  * Requires peppol-commons 6.0.1 for new OpenPEPPOL PKI v3
-  * Added support for trusting an arbitrary number of client certificate issuers (for the server only)
-  * Added support for configuring more than two truststores in pd.properties (for the server only)
-  * Added support for usage in the TOOP4EU project
-  * User interface texts can be changed from "PEPPOL Directory" to something else
-  * The PD client configuration now includes connection and request timeout, as well as proxy credentials
+    * Updated to ph-commons 9.0.1
+    * Updated to Apache Lucene 7.2.1
+    * Fixed some issues (as #30)
+    * Requires peppol-commons 6.0.1 for new OpenPEPPOL PKI v3
+    * Added support for trusting an arbitrary number of client certificate issuers (for the server only)
+    * Added support for configuring more than two truststores in pd.properties (for the server only)
+    * Added support for usage in the TOOP4EU project
+    * User interface texts can be changed from "PEPPOL Directory" to something else
+    * The PD client configuration now includes connection and request timeout, as well as proxy credentials
 * v0.5.1 - 2017-07-21
-  * Extended `PDClient` to explicitly support a configurable truststore. A default truststore for the current setup is included.
-  * PD client https hostname verification can now be 
-  * PD client has now a custom exception callback to catch exceptions in the operations and handle them outside the client.
-  * Removed the JDK 6 PD client because the ECC certificates used are only supported by JDK 7 onwards. The old version is anyway in the Maven central repository.
+    * Extended `PDClient` to explicitly support a configurable truststore. A default truststore for the current setup is included.
+    * PD client https hostname verification can now be 
+    * PD client has now a custom exception callback to catch exceptions in the operations and handle them outside the client.
+    * Removed the JDK 6 PD client because the ECC certificates used are only supported by JDK 7 onwards. The old version is anyway in the Maven central repository.
 * v0.5.0 - 2017-07-12
-  * Updated release for https://directory.peppol.eu and https://test-directory.peppol.eu
+    * Updated release for https://directory.peppol.eu and https://test-directory.peppol.eu
 
 # Building requirements
 To build the PD software you need at least Java 1.8 and Apache Maven 3.x. Configuration for usage with Eclipse Neon and Oxygen is contained in the repository.

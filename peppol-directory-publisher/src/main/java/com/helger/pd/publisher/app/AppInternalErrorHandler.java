@@ -23,6 +23,7 @@ import javax.annotation.Nullable;
 
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.email.EmailAddress;
+import com.helger.pd.publisher.CPDPublisher;
 import com.helger.photon.core.app.error.InternalErrorBuilder;
 import com.helger.photon.core.app.error.InternalErrorSettings;
 import com.helger.photon.core.app.error.callback.AbstractErrorCallback;
@@ -55,7 +56,7 @@ public final class AppInternalErrorHandler extends AbstractErrorCallback
     final NamedSMTPSettings aNamedSettings = PhotonCoreManager.getSMTPSettingsMgr ()
                                                               .getSettings (CNamedSMTPSettings.NAMED_SMTP_SETTINGS_DEFAULT_ID);
     final ISMTPSettings aSMTPSettings = aNamedSettings == null ? null : aNamedSettings.getSMTPSettings ();
-    InternalErrorSettings.setSMTPSenderAddress (new EmailAddress ("pd@helger.com", AppCommonUI.getApplicationTitle ()));
+    InternalErrorSettings.setSMTPSenderAddress (new EmailAddress ("pd@helger.com", CPDPublisher.getApplicationTitle ()));
     InternalErrorSettings.setSMTPReceiverAddress (new EmailAddress ("philip@helger.com", "Philip"));
     InternalErrorSettings.setSMTPSettings (aSMTPSettings);
     InternalErrorSettings.setFallbackLocale (AppCommonUI.DEFAULT_LOCALE);

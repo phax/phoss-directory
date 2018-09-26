@@ -54,7 +54,7 @@ public final class MenuPublic
                                                        "Compliant SMP Implementations",
                                                        new ClassPathResource ("viewpages/en/support_smp_implementations.xml")));
     aMenuTree.createRootItem (new AppPageViewExternal (CMenuPublic.MENU_ABOUT,
-                                                       "About " + CPDPublisher.APP_NAME,
+                                                       "About " + CPDPublisher.getApplication (),
                                                        new ClassPathResource ("viewpages/en/about.xml")));
 
     // Set default

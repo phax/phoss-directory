@@ -26,6 +26,7 @@ import com.helger.html.hc.IHCNode;
 import com.helger.html.hc.html.metadata.HCHead;
 import com.helger.html.hc.html.root.HCHtml;
 import com.helger.html.hc.html.sections.HCBody;
+import com.helger.pd.publisher.CPDPublisher;
 import com.helger.photon.basic.app.appid.RequestSettings;
 import com.helger.photon.basic.app.menu.IMenuItemPage;
 import com.helger.photon.core.app.context.ISimpleWebExecutionContext;
@@ -60,7 +61,7 @@ public class AppLayoutHTMLProvider extends AbstractSWECHTMLProvider
     final HCBody aBody = aHtml.body ();
 
     // Add menu item in page title
-    aHead.setPageTitle (StringHelper.getConcatenatedOnDemand (AppCommonUI.getApplicationTitle (),
+    aHead.setPageTitle (StringHelper.getConcatenatedOnDemand (CPDPublisher.getApplicationTitle (),
                                                               " - ",
                                                               aMenuItem.getDisplayText (aDisplayLocale)));
 

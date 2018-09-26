@@ -100,7 +100,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
   @Nonnull
   private static HCEdit _createQueryEdit ()
   {
-    return new HCEdit (new RequestField (FIELD_QUERY)).setPlaceholder ("Search " + CPDPublisher.APP_NAME_BASIC);
+    return new HCEdit (new RequestField (FIELD_QUERY)).setPlaceholder ("Search " + CPDPublisher.getApplication ());
   }
 
   @Nonnull
@@ -120,7 +120,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     }
 
     {
-      final BootstrapButton aButton = new BootstrapSubmitButton ().addChild ("Search " + CPDPublisher.APP_NAME_BASIC)
+      final BootstrapButton aButton = new BootstrapSubmitButton ().addChild ("Search " + CPDPublisher.getApplication ())
                                                                   .setIcon (EDefaultIcon.MAGNIFIER);
       if (s_eUIMode.isUseGreenButton ())
         aButton.setButtonType (EBootstrapButtonType.SUCCESS);

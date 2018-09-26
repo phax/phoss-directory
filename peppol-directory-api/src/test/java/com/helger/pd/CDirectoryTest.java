@@ -14,16 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pd.publisher.app;
+package com.helger.pd;
 
-import com.helger.pd.publisher.CPDPublisher;
-import com.helger.photon.bootstrap3.uictrls.ext.BootstrapLoginManager;
+import static org.junit.Assert.assertFalse;
 
-public final class PDLoginManager extends BootstrapLoginManager
+import org.junit.Test;
+
+/**
+ * Test class for class {@link CDirectory}
+ * 
+ * @author Philip Helger
+ */
+public final class CDirectoryTest
 {
-  public PDLoginManager ()
+  @Test
+  public void testBasic ()
   {
-    super (CPDPublisher.getApplicationTitle () + " Administration - Login");
-    setRequiredRoleIDs (AppSecurity.REQUIRED_ROLE_IDS_CONFIG);
+    assertFalse (CDirectory.APPLICATION_VERSION.equals ("undefined"));
+    assertFalse (CDirectory.APPLICATION_TIMESTAMP.equals ("undefined"));
   }
 }
