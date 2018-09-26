@@ -23,11 +23,9 @@ import javax.annotation.Nonnull;
 import com.helger.commons.annotation.Nonempty;
 import com.helger.html.hc.html.forms.HCEdit;
 import com.helger.html.hc.impl.HCNodeList;
-import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.publisher.search.EPDSearchField;
 import com.helger.pd.publisher.search.ESearchOperator;
 import com.helger.pd.publisher.search.ui.HCSearchOperatorSelect;
-import com.helger.peppol.identifier.factory.IIdentifierFactory;
 import com.helger.photon.bootstrap3.alert.BootstrapInfoBox;
 import com.helger.photon.bootstrap3.form.BootstrapFormGroup;
 import com.helger.photon.bootstrap3.form.BootstrapViewForm;
@@ -72,7 +70,6 @@ public final class PagePublicSearchExtended extends AbstractPagePublicSearch
   {
     final HCNodeList aNodeList = aWPEC.getNodeList ();
     final Locale aDisplayLocale = aWPEC.getDisplayLocale ();
-    final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
 
     aNodeList.addChild (new BootstrapInfoBox ().addChild ("This is a placeholder page - has no effect yet!"));
 

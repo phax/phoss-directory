@@ -28,9 +28,11 @@ import com.helger.html.hc.html.grouping.HCDiv;
 import com.helger.html.hc.html.metadata.HCHead;
 import com.helger.html.hc.html.root.HCHtml;
 import com.helger.html.hc.html.sections.HCBody;
+import com.helger.html.hc.html.textlevel.HCSmall;
 import com.helger.html.hc.html.textlevel.HCSpan;
 import com.helger.html.hc.html.textlevel.HCStrong;
 import com.helger.html.hc.impl.HCNodeList;
+import com.helger.pd.CDirectory;
 import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.app.AppCommonUI;
 import com.helger.pd.publisher.app.pub.PublicHTMLProvider;
@@ -138,6 +140,11 @@ public class SecureHTMLProvider extends AbstractSWECHTMLProvider
       // We need a wrapper span for easy AJAX content replacement
       aCol1.addChild (new HCSpan ().setID (CLayout.LAYOUT_AREAID_MENU).addChild (getMenuContent (aLEC)));
       aCol1.addChild (new HCDiv ().setID (CLayout.LAYOUT_AREAID_SPECIAL));
+
+      // Build version/timestamp
+      aCol1.addChild (new HCDiv ().addChild (new HCSmall ().addChild (CDirectory.APPLICATION_VERSION +
+                                                                      "/" +
+                                                                      CDirectory.APPLICATION_TIMESTAMP)));
 
       // content - determine is exactly same as for view
       aCol2.addChild (PublicHTMLProvider.getPageContent (aLEC));
