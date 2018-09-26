@@ -35,6 +35,9 @@ import com.helger.html.hc.html.IHCElement;
 import com.helger.html.hc.html.grouping.HCDiv;
 import com.helger.html.hc.html.grouping.HCP;
 import com.helger.html.hc.html.grouping.HCUL;
+import com.helger.html.hc.html.metadata.HCHead;
+import com.helger.html.hc.html.root.HCHtml;
+import com.helger.html.hc.html.sections.HCBody;
 import com.helger.html.hc.html.textlevel.HCA;
 import com.helger.html.hc.html.textlevel.HCSpan;
 import com.helger.html.hc.html.textlevel.HCStrong;
@@ -45,6 +48,7 @@ import com.helger.pd.publisher.app.AppSecurity;
 import com.helger.pd.settings.PDServerConfiguration;
 import com.helger.photon.basic.app.appid.CApplicationID;
 import com.helger.photon.basic.app.appid.PhotonGlobalState;
+import com.helger.photon.basic.app.appid.RequestSettings;
 import com.helger.photon.basic.app.menu.IMenuItemExternal;
 import com.helger.photon.basic.app.menu.IMenuItemPage;
 import com.helger.photon.basic.app.menu.IMenuObject;
@@ -66,7 +70,9 @@ import com.helger.photon.bootstrap3.navbar.EBootstrapNavbarType;
 import com.helger.photon.bootstrap3.uictrls.ext.BootstrapMenuItemRenderer;
 import com.helger.photon.bootstrap3.uictrls.ext.BootstrapMenuItemRendererHorz;
 import com.helger.photon.core.EPhotonCoreText;
+import com.helger.photon.core.app.context.ISimpleWebExecutionContext;
 import com.helger.photon.core.app.context.LayoutExecutionContext;
+import com.helger.photon.core.app.html.AbstractSWECHTMLProvider;
 import com.helger.photon.core.app.layout.CLayout;
 import com.helger.photon.core.servlet.AbstractSecureApplicationServlet;
 import com.helger.photon.core.servlet.LogoutServlet;
@@ -79,16 +85,19 @@ import com.helger.photon.uicore.html.google.HCUniversalAnalytics;
 import com.helger.photon.uicore.page.IWebPage;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
+import com.helger.xservlet.forcedredirect.ForcedRedirectException;
 import com.helger.xservlet.forcedredirect.ForcedRedirectManager;
 
 /**
- * The viewport renderer (menu + content area)
+ * Main class for creating HTML output
  *
  * @author Philip Helger
  */
-public final class AppRendererPublic
+public class PublicHTMLProvider extends AbstractSWECHTMLProvider
 {
   private static final ICSSClassProvider CSS_CLASS_FOOTER_LINKS = DefaultCSSClassProvider.create ("footer-links");
+  private static final String VENDOR_NAME = PDServerConfiguration.getVendorName ();
+  private static final String VENDOR_URL = PDServerConfiguration.getVendorURL ();
 
   private static final ICommonsList <IMenuObject> s_aFooterObjects = new CommonsArrayList <> ();
 
@@ -99,9 +108,6 @@ public final class AppRendererPublic
         s_aFooterObjects.add (aCurrentObject);
     });
   }
-
-  private AppRendererPublic ()
-  {}
 
   private static void _addNavbarLoginLogout (@Nonnull final LayoutExecutionContext aLEC,
                                              @Nonnull final BootstrapNavbar aNavbar)
@@ -286,9 +292,6 @@ public final class AppRendererPublic
     return aPageContainer;
   }
 
-  private static final String VENDOR_NAME = PDServerConfiguration.getVendorName ();
-  private static final String VENDOR_URL = PDServerConfiguration.getVendorURL ();
-
   @Nonnull
   public static IHCNode getContent (@Nonnull final LayoutExecutionContext aLEC)
   {
@@ -340,5 +343,25 @@ public final class AppRendererPublic
     ret.addChild (HCCookieConsent.createBottomDefault ("#000", "#0f0", "#0f0", null));
 
     return ret;
+  }
+
+  @Override
+  protected void fillBody (@Nonnull final ISimpleWebExecutionContext aSWEC,
+                           @Nonnull final HCHtml aHtml) throws ForcedRedirectException
+  {
+    final IRequestWebScopeWithoutResponse aRequestScope = aSWEC.getRequestScope ();
+    final Locale aDisplayLocale = aSWEC.getDisplayLocale ();
+    final IMenuItemPage aMenuItem = RequestSettings.getMenuItem (aRequestScope);
+    final LayoutExecutionContext aLEC = new LayoutExecutionContext (aSWEC, aMenuItem);
+    final HCHead aHead = aHtml.head ();
+    final HCBody aBody = aHtml.body ();
+
+    // Add menu item in page title
+    aHead.setPageTitle (StringHelper.getConcatenatedOnDemand (CPDPublisher.getApplicationTitle (),
+                                                              " - ",
+                                                              aMenuItem.getDisplayText (aDisplayLocale)));
+
+    final IHCNode aNode = getContent (aLEC);
+    aBody.addChild (aNode);
   }
 }

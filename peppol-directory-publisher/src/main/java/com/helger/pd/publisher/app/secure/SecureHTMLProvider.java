@@ -20,16 +20,22 @@ import java.util.Locale;
 
 import javax.annotation.Nonnull;
 
+import com.helger.commons.string.StringHelper;
 import com.helger.commons.url.ISimpleURL;
 import com.helger.html.hc.IHCNode;
 import com.helger.html.hc.html.IHCElement;
 import com.helger.html.hc.html.grouping.HCDiv;
+import com.helger.html.hc.html.metadata.HCHead;
+import com.helger.html.hc.html.root.HCHtml;
+import com.helger.html.hc.html.sections.HCBody;
 import com.helger.html.hc.html.textlevel.HCSpan;
 import com.helger.html.hc.html.textlevel.HCStrong;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.app.AppCommonUI;
-import com.helger.pd.publisher.app.pub.AppRendererPublic;
+import com.helger.pd.publisher.app.pub.PublicHTMLProvider;
+import com.helger.photon.basic.app.appid.RequestSettings;
+import com.helger.photon.basic.app.menu.IMenuItemPage;
 import com.helger.photon.bootstrap3.CBootstrapCSS;
 import com.helger.photon.bootstrap3.base.BootstrapContainer;
 import com.helger.photon.bootstrap3.breadcrumbs.BootstrapBreadcrumbs;
@@ -42,8 +48,10 @@ import com.helger.photon.bootstrap3.navbar.EBootstrapNavbarPosition;
 import com.helger.photon.bootstrap3.navbar.EBootstrapNavbarType;
 import com.helger.photon.bootstrap3.uictrls.ext.BootstrapMenuItemRenderer;
 import com.helger.photon.core.EPhotonCoreText;
+import com.helger.photon.core.app.context.ISimpleWebExecutionContext;
 import com.helger.photon.core.app.context.LayoutExecutionContext;
 import com.helger.photon.core.app.context.SimpleWebExecutionContext;
+import com.helger.photon.core.app.html.AbstractSWECHTMLProvider;
 import com.helger.photon.core.app.layout.CLayout;
 import com.helger.photon.core.servlet.AbstractPublicApplicationServlet;
 import com.helger.photon.core.servlet.LogoutServlet;
@@ -52,17 +60,15 @@ import com.helger.photon.security.login.LoggedInUserManager;
 import com.helger.photon.security.user.IUser;
 import com.helger.photon.security.util.SecurityHelper;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
+import com.helger.xservlet.forcedredirect.ForcedRedirectException;
 
 /**
- * The viewport renderer (menu + content area)
+ * Main class for creating HTML output
  *
  * @author Philip Helger
  */
-public final class AppRendererSecure
+public class SecureHTMLProvider extends AbstractSWECHTMLProvider
 {
-  private AppRendererSecure ()
-  {}
-
   @Nonnull
   private static IHCNode _getNavbar (@Nonnull final SimpleWebExecutionContext aSWEC)
   {
@@ -134,9 +140,29 @@ public final class AppRendererSecure
       aCol1.addChild (new HCDiv ().setID (CLayout.LAYOUT_AREAID_SPECIAL));
 
       // content - determine is exactly same as for view
-      aCol2.addChild (AppRendererPublic.getPageContent (aLEC));
+      aCol2.addChild (PublicHTMLProvider.getPageContent (aLEC));
     }
 
     return ret;
+  }
+
+  @Override
+  protected void fillBody (@Nonnull final ISimpleWebExecutionContext aSWEC,
+                           @Nonnull final HCHtml aHtml) throws ForcedRedirectException
+  {
+    final IRequestWebScopeWithoutResponse aRequestScope = aSWEC.getRequestScope ();
+    final Locale aDisplayLocale = aSWEC.getDisplayLocale ();
+    final IMenuItemPage aMenuItem = RequestSettings.getMenuItem (aRequestScope);
+    final LayoutExecutionContext aLEC = new LayoutExecutionContext (aSWEC, aMenuItem);
+    final HCHead aHead = aHtml.head ();
+    final HCBody aBody = aHtml.body ();
+
+    // Add menu item in page title
+    aHead.setPageTitle (StringHelper.getConcatenatedOnDemand (CPDPublisher.getApplicationTitle (),
+                                                              " - ",
+                                                              aMenuItem.getDisplayText (aDisplayLocale)));
+
+    final IHCNode aNode = getContent (aLEC);
+    aBody.addChild (aNode);
   }
 }

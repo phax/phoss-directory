@@ -58,26 +58,28 @@ public final class AjaxExecutorPublicLogin implements IAjaxExecutor
     final String sPassword = aRequestScope.params ().getAsString (CLogin.REQUEST_ATTR_PASSWORD);
 
     // Main login
-    final ELoginResult eLoginResult = LoggedInUserManager.getInstance ().loginUser (sLoginName,
-                                                                                    sPassword,
-                                                                                    AppSecurity.REQUIRED_ROLE_IDS_VIEW);
+    final ELoginResult eLoginResult = LoggedInUserManager.getInstance ()
+                                                         .loginUser (sLoginName,
+                                                                     sPassword,
+                                                                     AppSecurity.REQUIRED_ROLE_IDS_VIEW);
     if (eLoginResult.isSuccess ())
     {
       aAjaxResponse.json (new JsonObject ().add (JSON_LOGGEDIN, true));
-      return;
     }
+    else
+    {
+      // Get the rendered content of the menu area
+      if (GlobalDebug.isDebugMode ())
+        LOGGER.warn ("Login of '" + sLoginName + "' failed because " + eLoginResult);
 
-    // Get the rendered content of the menu area
-    if (GlobalDebug.isDebugMode ())
-      LOGGER.warn ("Login of '" + sLoginName + "' failed because " + eLoginResult);
+      final Locale aDisplayLocale = aLEC.getDisplayLocale ();
+      final IHCNode aRoot = new BootstrapErrorBox ().addChild (EPhotonCoreText.LOGIN_ERROR_MSG.getDisplayText (aDisplayLocale) +
+                                                               " " +
+                                                               eLoginResult.getDisplayText (aDisplayLocale));
 
-    final Locale aDisplayLocale = aLEC.getDisplayLocale ();
-    final IHCNode aRoot = new BootstrapErrorBox ().addChild (EPhotonCoreText.LOGIN_ERROR_MSG.getDisplayText (aDisplayLocale) +
-                                                             " " +
-                                                             eLoginResult.getDisplayText (aDisplayLocale));
-
-    // Set as result property
-    aAjaxResponse.json (new JsonObject ().add (JSON_LOGGEDIN, false)
-                                         .add (JSON_HTML, HCRenderer.getAsHTMLStringWithoutNamespaces (aRoot)));
+      // Set as result property
+      aAjaxResponse.json (new JsonObject ().add (JSON_LOGGEDIN, false)
+                                           .add (JSON_HTML, HCRenderer.getAsHTMLStringWithoutNamespaces (aRoot)));
+    }
   }
 }

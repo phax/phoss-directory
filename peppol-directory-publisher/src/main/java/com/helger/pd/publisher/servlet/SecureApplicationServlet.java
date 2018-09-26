@@ -16,8 +16,7 @@
  */
 package com.helger.pd.publisher.servlet;
 
-import com.helger.pd.publisher.app.AppLayoutHTMLProvider;
-import com.helger.pd.publisher.app.secure.AppRendererSecure;
+import com.helger.pd.publisher.app.secure.SecureHTMLProvider;
 import com.helger.photon.core.app.html.IHTMLProvider;
 import com.helger.photon.core.servlet.AbstractApplicationXServletHandler;
 import com.helger.photon.core.servlet.AbstractSecureApplicationServlet;
@@ -37,7 +36,7 @@ public class SecureApplicationServlet extends AbstractSecureApplicationServlet
       @Override
       protected IHTMLProvider createHTMLProvider (final IRequestWebScopeWithoutResponse aRequestScope)
       {
-        return new AppLayoutHTMLProvider (AppRendererSecure::getContent);
+        return new SecureHTMLProvider ();
       }
     });
   }
