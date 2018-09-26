@@ -16,8 +16,20 @@
  */
 package com.helger.pd.publisher.app;
 
+import javax.annotation.Nonnull;
+
+import com.helger.css.property.CCSSProperties;
+import com.helger.html.hc.html.grouping.HCDiv;
+import com.helger.html.hc.html.textlevel.HCSmall;
+import com.helger.pd.CDirectory;
 import com.helger.pd.publisher.CPDPublisher;
+import com.helger.photon.bootstrap3.base.BootstrapContainer;
+import com.helger.photon.bootstrap3.grid.BootstrapRow;
+import com.helger.photon.bootstrap3.uictrls.ext.BootstrapLoginHTMLProvider;
 import com.helger.photon.bootstrap3.uictrls.ext.BootstrapLoginManager;
+import com.helger.photon.core.app.context.ISimpleWebExecutionContext;
+import com.helger.photon.core.app.html.IHTMLProvider;
+import com.helger.security.authentication.credentials.ICredentialValidationResult;
 
 public final class PDLoginManager extends BootstrapLoginManager
 {
@@ -25,5 +37,26 @@ public final class PDLoginManager extends BootstrapLoginManager
   {
     super (CPDPublisher.getApplicationTitle () + " Administration - Login");
     setRequiredRoleIDs (AppSecurity.REQUIRED_ROLE_IDS_CONFIG);
+  }
+
+  @Override
+  protected IHTMLProvider createLoginScreen (final boolean bLoginError,
+                                             @Nonnull final ICredentialValidationResult aLoginResult)
+  {
+    return new BootstrapLoginHTMLProvider (bLoginError, aLoginResult, getPageTitle ())
+    {
+      @Override
+      protected void onAfterContainer (final ISimpleWebExecutionContext aSWEC,
+                                       final BootstrapContainer aContainer,
+                                       final BootstrapRow aRow,
+                                       final HCDiv aContentCol)
+      {
+        final HCDiv aDiv = new HCDiv ().addStyle (CCSSProperties.MARGIN_TOP.newValue ("1rem"));
+        aDiv.addChild (new HCSmall ().addChild (CPDPublisher.getApplicationTitleWithVersion () +
+                                                " / " +
+                                                CDirectory.APPLICATION_TIMESTAMP));
+        aContentCol.addChild (aDiv);
+      }
+    };
   }
 }
