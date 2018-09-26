@@ -34,7 +34,7 @@ Open tasks according to the design document:
   * If more hits are present than visible, it is displayed on the UI
   * Made the available SML information objects customizable
   * Removed the configuration item `sml.id` - either fixed SMP or all configured SMLs are queried upon indexing
-  * Updated to Apache Lucene 7.4
+  * Updated to Apache Lucene 7.5
   * Multilingual business entities are now supported via a new Business Card XML Schema - for Belgium
   * The query API response document layout for XML was changed. `name` has now multiplicity 1..n instead of 1..1.
   * The query API response document layout for JSON was changed. `name` is now an array instead of a `string`.
