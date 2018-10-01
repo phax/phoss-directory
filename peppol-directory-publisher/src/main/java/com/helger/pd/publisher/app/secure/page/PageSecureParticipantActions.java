@@ -100,8 +100,10 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
 
     {
       final BootstrapButtonToolbar aToolbar = getUIHandler ().createToolbar (aWPEC);
-      aToolbar.addButton ("Download all IDs", s_aDownloadAllIDs.getInvocationURL (aRequestScope), EDefaultIcon.SAVE);
-      aToolbar.addButton ("Download all Business Cards",
+      aToolbar.addButton ("Download all IDs (uncached)",
+                          s_aDownloadAllIDs.getInvocationURL (aRequestScope),
+                          EDefaultIcon.SAVE);
+      aToolbar.addButton ("Download all Business Cards (uncached)",
                           s_aDownloadAllBCs.getInvocationURL (aRequestScope),
                           EDefaultIcon.SAVE);
       aNodeList.addChild (aToolbar);
