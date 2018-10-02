@@ -354,8 +354,8 @@ public final class PDStorageManager implements IPDStorageManager
   }
 
   /**
-   * Search all documents matching the passed query and pass the result on to
-   * the provided {@link Consumer}.
+   * Search all documents matching the passed query and pass the result on to the
+   * provided {@link Consumer}.
    *
    * @param aQuery
    *        Query to execute. May not be <code>null</code>-
@@ -370,7 +370,8 @@ public final class PDStorageManager implements IPDStorageManager
     ValueEnforcer.notNull (aQuery, "Query");
     ValueEnforcer.notNull (aCollector, "Collector");
 
-    m_aLucene.runAtomic ( () -> {
+    if (!m_aLucene.isClosing ())
+    {
       final IndexSearcher aSearcher = m_aLucene.getSearcher ();
       if (aSearcher != null)
       {
@@ -382,7 +383,7 @@ public final class PDStorageManager implements IPDStorageManager
       }
       else
         LOGGER.error ("Failed to obtain IndexSearcher for " + aQuery);
-    });
+    }
   }
 
   @CheckForSigned
@@ -403,8 +404,8 @@ public final class PDStorageManager implements IPDStorageManager
   }
 
   /**
-   * Search all documents matching the passed query and pass the result on to
-   * the provided {@link Consumer}.
+   * Search all documents matching the passed query and pass the result on to the
+   * provided {@link Consumer}.
    *
    * @param aQuery
    *        Query to execute. May not be <code>null</code>-
