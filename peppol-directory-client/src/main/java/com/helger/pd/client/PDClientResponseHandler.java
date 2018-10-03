@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.apache.http.HttpEntity;
@@ -44,7 +45,7 @@ public class PDClientResponseHandler implements ResponseHandler <ESuccess>
   {}
 
   @Nullable
-  public ESuccess handleResponse (final HttpResponse aHttpResponse) throws ClientProtocolException, IOException
+  public ESuccess handleResponse (@Nonnull final HttpResponse aHttpResponse) throws ClientProtocolException, IOException
   {
     final StatusLine aStatusLine = aHttpResponse.getStatusLine ();
 
