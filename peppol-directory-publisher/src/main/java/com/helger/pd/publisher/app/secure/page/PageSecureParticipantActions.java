@@ -28,12 +28,15 @@ import com.helger.commons.collection.impl.ICommonsSortedSet;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.publisher.exportall.ExportAllBusinessCardsJob;
+import com.helger.pd.publisher.servlet.ExportDeliveryHttpHandler;
+import com.helger.pd.publisher.servlet.ExportServlet;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.photon.bootstrap3.alert.BootstrapErrorBox;
 import com.helger.photon.bootstrap3.alert.BootstrapSuccessBox;
 import com.helger.photon.bootstrap3.button.BootstrapButtonToolbar;
 import com.helger.photon.core.ajax.decl.AjaxFunctionDeclaration;
+import com.helger.photon.core.url.LinkHelper;
 import com.helger.photon.uicore.css.CPageParam;
 import com.helger.photon.uicore.icon.EDefaultIcon;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
@@ -100,9 +103,16 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
 
     {
       final BootstrapButtonToolbar aToolbar = getUIHandler ().createToolbar (aWPEC);
-      aToolbar.addButton ("Download all IDs", s_aDownloadAllIDs.getInvocationURL (aRequestScope), EDefaultIcon.SAVE);
-      aToolbar.addButton ("Download all Business Cards",
+      aToolbar.addButton ("Download all IDs (uncached)",
+                          s_aDownloadAllIDs.getInvocationURL (aRequestScope),
+                          EDefaultIcon.SAVE);
+      aToolbar.addButton ("Download all Business Cards (uncached)",
                           s_aDownloadAllBCs.getInvocationURL (aRequestScope),
+                          EDefaultIcon.SAVE);
+      aToolbar.addButton ("Download all Business Cards (cached)",
+                          LinkHelper.getURLWithContext (aRequestScope,
+                                                        ExportServlet.SERVLET_DEFAULT_PATH +
+                                                                       ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS),
                           EDefaultIcon.SAVE);
       aNodeList.addChild (aToolbar);
     }

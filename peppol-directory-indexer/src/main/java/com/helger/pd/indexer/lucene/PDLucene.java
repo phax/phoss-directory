@@ -22,8 +22,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
@@ -49,6 +47,7 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.callback.IThrowingRunnable;
+import com.helger.commons.concurrent.SimpleReadWriteLock;
 import com.helger.commons.functional.IThrowingSupplier;
 import com.helger.commons.io.stream.StreamHelper;
 import com.helger.commons.state.ESuccess;
@@ -63,7 +62,7 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
 {
   private static final Logger LOGGER = LoggerFactory.getLogger (PDLucene.class);
 
-  private final Lock m_aLock = new ReentrantLock ();
+  private final SimpleReadWriteLock m_aRWLock = new SimpleReadWriteLock ();
   private final Directory m_aDir;
   private final Analyzer m_aAnalyzer;
   private final IndexWriter m_aIndexWriter;
@@ -130,7 +129,7 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
     // Avoid double closing
     if (!m_aClosing.getAndSet (true))
     {
-      m_aLock.lock ();
+      m_aRWLock.writeLock ().lock ();
       try
       {
         // Start closing
@@ -145,7 +144,7 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
       }
       finally
       {
-        m_aLock.unlock ();
+        m_aRWLock.writeLock ().unlock ();
       }
     }
   }
@@ -218,8 +217,8 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
    *
    * @param nDocID
    *        Document ID
-   * @return <code>null</code> if no reader could be obtained or no such
-   *         document exists.
+   * @return <code>null</code> if no reader could be obtained or no such document
+   *         exists.
    * @throws IOException
    *         On IO error
    */
@@ -271,8 +270,8 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
   /**
    * Updates a document by first deleting the document(s) containing
    * <code>term</code> and then adding the new document. The delete and then add
-   * are atomic as seen by a reader on the same index (flush may happen only
-   * after the add).
+   * are atomic as seen by a reader on the same index (flush may happen only after
+   * the add).
    *
    * @param aDelTerm
    *        the term to identify the document(s) to be deleted. May be
@@ -350,9 +349,9 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
    *         may be thrown by the callback
    */
   @Nonnull
-  public ESuccess runAtomic (@Nonnull final IThrowingRunnable <IOException> aRunnable) throws IOException
+  public ESuccess writeLockedAtomic (@Nonnull final IThrowingRunnable <IOException> aRunnable) throws IOException
   {
-    m_aLock.lock ();
+    m_aRWLock.writeLock ().lock ();
     try
     {
       if (isClosing ())
@@ -361,7 +360,7 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
     }
     finally
     {
-      m_aLock.unlock ();
+      m_aRWLock.writeLock ().unlock ();
     }
     return ESuccess.SUCCESS;
   }
@@ -381,9 +380,9 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
    *        Result type
    */
   @Nullable
-  public <T> T callAtomic (@Nonnull final IThrowingSupplier <T, IOException> aRunnable) throws IOException
+  public <T> T readLockedAtomic (@Nonnull final IThrowingSupplier <T, IOException> aRunnable) throws IOException
   {
-    m_aLock.lock ();
+    m_aRWLock.readLock ().lock ();
     try
     {
       if (!isClosing ())
@@ -391,7 +390,7 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
     }
     finally
     {
-      m_aLock.unlock ();
+      m_aRWLock.readLock ().unlock ();
     }
     return null;
   }

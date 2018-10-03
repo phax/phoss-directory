@@ -134,7 +134,7 @@ public final class PDStorageManager implements IPDStorageManager
       }
       return Boolean.FALSE;
     };
-    return m_aLucene.callAtomic (cb).booleanValue ();
+    return m_aLucene.readLockedAtomic (cb).booleanValue ();
   }
 
   private static void _timedSearch (@Nonnull final IThrowingRunnable <IOException> aRunnable,
@@ -178,7 +178,7 @@ public final class PDStorageManager implements IPDStorageManager
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
     ValueEnforcer.notNull (aMetaData, "MetaData");
 
-    return m_aLucene.runAtomic ( () -> {
+    return m_aLucene.writeLockedAtomic ( () -> {
       final ICommonsList <Document> aDocuments = new CommonsArrayList <> ();
 
       // Get all documents to be marked as deleted
@@ -219,7 +219,7 @@ public final class PDStorageManager implements IPDStorageManager
     ValueEnforcer.notNull (aExtBI, "ExtBI");
     ValueEnforcer.notNull (aMetaData, "MetaData");
 
-    return m_aLucene.runAtomic ( () -> {
+    return m_aLucene.writeLockedAtomic ( () -> {
       final ICommonsList <Document> aDocs = new CommonsArrayList <> ();
 
       final PDBusinessCard aBI = aExtBI.getBusinessCard ();
@@ -354,8 +354,8 @@ public final class PDStorageManager implements IPDStorageManager
   }
 
   /**
-   * Search all documents matching the passed query and pass the result on to
-   * the provided {@link Consumer}.
+   * Search all documents matching the passed query and pass the result on to the
+   * provided {@link Consumer}.
    *
    * @param aQuery
    *        Query to execute. May not be <code>null</code>-
@@ -370,7 +370,7 @@ public final class PDStorageManager implements IPDStorageManager
     ValueEnforcer.notNull (aQuery, "Query");
     ValueEnforcer.notNull (aCollector, "Collector");
 
-    m_aLucene.runAtomic ( () -> {
+    m_aLucene.readLockedAtomic ( () -> {
       final IndexSearcher aSearcher = m_aLucene.getSearcher ();
       if (aSearcher != null)
       {
@@ -382,6 +382,9 @@ public final class PDStorageManager implements IPDStorageManager
       }
       else
         LOGGER.error ("Failed to obtain IndexSearcher for " + aQuery);
+
+      // Return values does not matter
+      return null;
     });
   }
 
@@ -403,8 +406,8 @@ public final class PDStorageManager implements IPDStorageManager
   }
 
   /**
-   * Search all documents matching the passed query and pass the result on to
-   * the provided {@link Consumer}.
+   * Search all documents matching the passed query and pass the result on to the
+   * provided {@link Consumer}.
    *
    * @param aQuery
    *        Query to execute. May not be <code>null</code>-
