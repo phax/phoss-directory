@@ -2,7 +2,7 @@
 
 [![Join the chat at https://gitter.im/phax/peppol-directory](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/phax/peppol-directory?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Current release (on Maven central): **0.6.1**
+Current release (on Maven central): **0.6.2**
 
 The official PEPPOL Directory (PD; former PEPPOL Yellow Pages - PYP) software. It is split into the following sub-projects (all require Java 8 except where noted):
   * `peppol-directory-businesscard` - the common Business Card API
@@ -27,7 +27,7 @@ Open tasks according to the design document:
   
 # News and noteworthy
 
-* v0.6.2 - work in progress
+* v0.6.2 - 2018-10-17
     * If more hits are present than visible, it is displayed on the UI
     * Made the available SML information objects customizable
     * Removed the configuration item `sml.id` - either fixed SMP or all configured SMLs are queried upon indexing
@@ -35,6 +35,7 @@ Open tasks according to the design document:
     * Multilingual business entities are now supported via a new Business Card XML Schema - for Belgium
     * The query API response document layout for XML was changed. `name` has now multiplicity 1..n instead of 1..1.
     * The query API response document layout for JSON was changed. `name` is now an array instead of a `string`.
+    * Multiple parallel queries on the PD are possible.  
 * v0.6.1 - 2018-06-04
     * Avoid potential exception on invalid input parameters
     * Updated to Jersey 2.27
