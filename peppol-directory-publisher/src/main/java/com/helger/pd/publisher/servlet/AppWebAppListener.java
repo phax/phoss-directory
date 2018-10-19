@@ -16,9 +16,12 @@
  */
 package com.helger.pd.publisher.servlet;
 
+import java.time.Month;
+
 import javax.annotation.Nonnull;
 import javax.servlet.ServletContext;
 
+import com.helger.commons.datetime.PDTFactory;
 import com.helger.commons.debug.GlobalDebug;
 import com.helger.commons.io.resource.ClassPathResource;
 import com.helger.commons.vendor.VendorInfo;
@@ -32,6 +35,7 @@ import com.helger.pd.publisher.app.PDPMetaManager;
 import com.helger.pd.publisher.app.pub.MenuPublic;
 import com.helger.pd.publisher.app.secure.MenuSecure;
 import com.helger.pd.publisher.exportall.ExportAllBusinessCardsJob;
+import com.helger.pd.publisher.updater.SyncAllBusinessCardsJob;
 import com.helger.pd.settings.PDServerConfiguration;
 import com.helger.photon.basic.app.appid.CApplicationID;
 import com.helger.photon.basic.app.appid.PhotonGlobalState;
@@ -44,6 +48,7 @@ import com.helger.photon.basic.configfile.ConfigurationFileManager;
 import com.helger.photon.basic.configfile.EConfigurationFileSyntax;
 import com.helger.photon.bootstrap3.servlet.WebAppListenerBootstrap;
 import com.helger.photon.core.ajax.IAjaxInvoker;
+import com.helger.quartz.CalendarIntervalScheduleBuilder;
 import com.helger.quartz.SimpleScheduleBuilder;
 import com.helger.schedule.quartz.GlobalQuartzScheduler;
 import com.helger.schedule.quartz.listener.LoggingJobListener;
@@ -175,5 +180,19 @@ public final class AppWebAppListener extends WebAppListenerBootstrap
                                                                                                    : SimpleScheduleBuilder.repeatHourlyForever (6)),
                                        ExportAllBusinessCardsJob.class,
                                        null);
+    if (GlobalDebug.isProductionMode ())
+    {
+      // Schedule the sync job every 2 weeks
+      GlobalQuartzScheduler.getInstance ()
+                           .scheduleJob (SyncAllBusinessCardsJob.class.getName (),
+                                         JDK8TriggerBuilder.newTrigger ()
+                                                           .startAt (PDTFactory.createLocalDateTime (2018,
+                                                                                                     Month.JANUARY,
+                                                                                                     1))
+                                                           .withSchedule (CalendarIntervalScheduleBuilder.calendarIntervalSchedule ()
+                                                                                                         .withIntervalInWeeks (2)),
+                                         SyncAllBusinessCardsJob.class,
+                                         null);
+    }
   }
 }

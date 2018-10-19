@@ -67,9 +67,9 @@ final class PDIndexExecutor
                                           @Nonnull final Consumer <? super IIndexerWorkItem> aFailureHandler)
   {
     LOGGER.info ("Execute work item " +
-                    aWorkItem.getLogText () +
-                    " - " +
-                    (nRetryCount > 0 ? "retry #" + nRetryCount : "initial try"));
+                 aWorkItem.getLogText () +
+                 " - " +
+                 (nRetryCount > 0 ? "retry #" + nRetryCount : "initial try"));
 
     try
     {
@@ -97,6 +97,22 @@ final class PDIndexExecutor
         case DELETE:
         {
           eSuccess = aStorageMgr.deleteEntry (aParticipantID, aWorkItem.getAsMetaData ());
+          break;
+        }
+        case SYNC:
+        {
+          // Get BI from participant (e.g. from SMP)
+          final PDExtendedBusinessCard aBI = PDMetaManager.getBusinessCardProvider ().getBusinessCard (aParticipantID);
+          if (aBI == null)
+          {
+            // No/invalid extension present - delete from index
+            eSuccess = aStorageMgr.deleteEntry (aParticipantID, aWorkItem.getAsMetaData ());
+          }
+          else
+          {
+            // Got data - put in storage
+            eSuccess = aStorageMgr.createOrUpdateEntry (aParticipantID, aBI, aWorkItem.getAsMetaData ());
+          }
           break;
         }
         default:

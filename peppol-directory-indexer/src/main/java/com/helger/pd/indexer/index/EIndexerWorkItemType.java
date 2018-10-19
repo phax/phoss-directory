@@ -34,7 +34,9 @@ public enum EIndexerWorkItemType implements IHasID <String>, IHasDisplayName
   /** Use for create and/or update of business cards */
   CREATE_UPDATE ("create", "Create/update"),
   /** Use for delete of a business card */
-  DELETE ("delete", "Delete");
+  DELETE ("delete", "Delete"),
+  /** Use for internal synchronization (update or delete) of business cards */
+  SYNC ("sync", "Synchronize");
 
   private final String m_sID;
   private final String m_sDisplayName;

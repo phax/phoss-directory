@@ -31,6 +31,7 @@ import com.helger.pd.publisher.exportall.ExportAllBusinessCardsJob;
 import com.helger.pd.publisher.servlet.ExportDeliveryHttpHandler;
 import com.helger.pd.publisher.servlet.ExportServlet;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
+import com.helger.pd.publisher.updater.SyncAllBusinessCardsJob;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.photon.bootstrap3.alert.BootstrapErrorBox;
 import com.helger.photon.bootstrap3.alert.BootstrapSuccessBox;
@@ -48,6 +49,7 @@ import com.helger.xml.microdom.MicroDocument;
 public final class PageSecureParticipantActions extends AbstractAppWebPage
 {
   private static final String ACTION_UPDATE_EXPORTED_BCS = "update-exported-bcs";
+  private static final String ACTION_SYNC_BCS = "sync-bcs";
   private static final Logger LOGGER = LoggerFactory.getLogger (PageSecureParticipantActions.class);
 
   private static final AjaxFunctionDeclaration s_aDownloadAllIDs;
@@ -100,6 +102,12 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
                                                                           ex.getMessage ()));
       }
     }
+    else
+      if (aWPEC.hasAction (ACTION_SYNC_BCS))
+      {
+        SyncAllBusinessCardsJob.syncAllBusinessCards ();
+        aWPEC.postRedirectGetInternal (new BootstrapSuccessBox ().addChild ("The synchronization was started successfully and is now running in the background."));
+      }
 
     {
       final BootstrapButtonToolbar aToolbar = getUIHandler ().createToolbar (aWPEC);
@@ -116,10 +124,19 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
                           EDefaultIcon.SAVE);
       aNodeList.addChild (aToolbar);
     }
+
     {
       final BootstrapButtonToolbar aToolbar = getUIHandler ().createToolbar (aWPEC);
       aToolbar.addButton ("Update all Business Cards for export",
                           aWPEC.getSelfHref ().add (CPageParam.PARAM_ACTION, ACTION_UPDATE_EXPORTED_BCS),
+                          EDefaultIcon.REFRESH);
+      aNodeList.addChild (aToolbar);
+    }
+
+    {
+      final BootstrapButtonToolbar aToolbar = getUIHandler ().createToolbar (aWPEC);
+      aToolbar.addButton ("Synchronize all Business Cards (re-query from SMP)",
+                          aWPEC.getSelfHref ().add (CPageParam.PARAM_ACTION, ACTION_SYNC_BCS),
                           EDefaultIcon.REFRESH);
       aNodeList.addChild (aToolbar);
     }

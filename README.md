@@ -27,6 +27,8 @@ Open tasks according to the design document:
   
 # News and noteworthy
 
+* v0.7.0 - work in progress
+    * Added a link on the UI to download all business cards as XML
 * v0.6.2 - 2018-10-17
     * If more hits are present than visible, it is displayed on the UI
     * Made the available SML information objects customizable
