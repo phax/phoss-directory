@@ -45,6 +45,8 @@ import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.app.AppCommonUI;
 import com.helger.pd.publisher.app.AppSecurity;
+import com.helger.pd.publisher.servlet.ExportDeliveryHttpHandler;
+import com.helger.pd.publisher.servlet.ExportServlet;
 import com.helger.pd.settings.PDServerConfiguration;
 import com.helger.photon.basic.app.appid.CApplicationID;
 import com.helger.photon.basic.app.appid.PhotonGlobalState;
@@ -296,6 +298,7 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
   public static IHCNode getContent (@Nonnull final LayoutExecutionContext aLEC)
   {
     final Locale aDisplayLocale = aLEC.getDisplayLocale ();
+    final IRequestWebScopeWithoutResponse aRequestScope = aLEC.getRequestScope ();
     final HCNodeList ret = new HCNodeList ();
 
     // Header
@@ -314,7 +317,12 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
                                .addChild (new HCA (new SimpleURL (VENDOR_URL)).addChild (VENDOR_NAME))
                                .addChild (" service"));
       aDiv.addChild (new HCP ().addChild ("Follow us on Twitter: ")
-                               .addChild (new HCA (new SimpleURL ("https://twitter.com/PEPPOLDirectory")).addChild ("@PEPPOLDirectory")));
+                               .addChild (new HCA (new SimpleURL ("https://twitter.com/PEPPOLDirectory")).addChild ("@PEPPOLDirectory"))
+                               .addChild (" - ")
+                               .addChild (new HCA (LinkHelper.getURLWithContext (aRequestScope,
+                                                                                 ExportServlet.SERVLET_DEFAULT_PATH +
+                                                                                                ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS)).addChild ("Download"))
+                               .addChild (" all business cards"));
 
       final BootstrapMenuItemRendererHorz aRenderer = new BootstrapMenuItemRendererHorz (aDisplayLocale);
       final HCUL aUL = aDiv.addAndReturnChild (new HCUL ().addClass (CSS_CLASS_FOOTER_LINKS));
