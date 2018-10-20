@@ -175,7 +175,8 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
                                                                                                            aDisplayLocale))));
         aNav.addButton (new BootstrapButton ().setOnClick (LinkHelper.getURLWithContext (aRequestScope,
                                                                                          LogoutServlet.SERVLET_DEFAULT_PATH))
-                                              .addChild (EPhotonCoreText.LOGIN_LOGOUT.getDisplayText (aDisplayLocale)));
+                                              .addChild (EPhotonCoreText.LOGIN_LOGOUT.getDisplayText (aDisplayLocale))
+                                              .addStyle (CCSSProperties.MARGIN_RIGHT.newValue ("8px")));
       }
       else
       {
