@@ -152,10 +152,10 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
     aSMPClient.setProxyCredentials (aProxyCredentials);
 
     LOGGER.info ("Querying BusinessCard for '" +
-                    aParticipantID.getURIEncoded () +
-                    "' from SMP '" +
-                    aSMPClient.getSMPHostURI () +
-                    "'");
+                 aParticipantID.getURIEncoded () +
+                 "' from SMP '" +
+                 aSMPClient.getSMPHostURI () +
+                 "'");
 
     // First query the service group
     com.helger.peppol.smp.ServiceGroupType aServiceGroup;
@@ -188,9 +188,9 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
           ex instanceof UnknownHostException)
       {
         LOGGER.warn ("No BusinessCard available for '" +
-                        aParticipantID.getURIEncoded () +
-                        "' - not in configured SMK/SML? - " +
-                        ex.getMessage ());
+                     aParticipantID.getURIEncoded () +
+                     "' - not in configured SMK/SML? - " +
+                     ex.getMessage ());
       }
       else
         LOGGER.error ("Error querying SMP for BusinessCard of '" + aParticipantID.getURIEncoded () + "'", ex);
@@ -217,10 +217,10 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
         if (nIndex < 0)
         {
           LOGGER.error ("Invalid href when querying service group '" +
-                           aParticipantID.getURIEncoded () +
-                           "': '" +
-                           sHref +
-                           "'");
+                        aParticipantID.getURIEncoded () +
+                        "': '" +
+                        sHref +
+                        "'");
         }
         else
         {
@@ -231,10 +231,10 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
           if (aDocTypeID == null)
           {
             LOGGER.error ("Invalid document type when querying service group '" +
-                             aParticipantID.getURIEncoded () +
-                             "': '" +
-                             sDocumentTypeID +
-                             "'");
+                          aParticipantID.getURIEncoded () +
+                          "': '" +
+                          sDocumentTypeID +
+                          "'");
           }
           else
           {
@@ -259,10 +259,10 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
     aSMPClient.setProxyCredentials (aProxyCredentials);
 
     LOGGER.info ("Querying BusinessCard for '" +
-                    aParticipantID.getURIEncoded () +
-                    "' from SMP '" +
-                    aSMPClient.getSMPHostURI () +
-                    "'");
+                 aParticipantID.getURIEncoded () +
+                 "' from SMP '" +
+                 aSMPClient.getSMPHostURI () +
+                 "'");
 
     // First query the service group
     com.helger.peppol.bdxr.ServiceGroupType aServiceGroup;
@@ -295,9 +295,9 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
           ex instanceof UnknownHostException)
       {
         LOGGER.warn ("No BusinessCard available for '" +
-                        aParticipantID.getURIEncoded () +
-                        "' - not in configured SMK/SML? - " +
-                        ex.getMessage ());
+                     aParticipantID.getURIEncoded () +
+                     "' - not in configured SMK/SML? - " +
+                     ex.getMessage ());
       }
       else
         LOGGER.error ("Error querying SMP for BusinessCard of '" + aParticipantID.getURIEncoded () + "'", ex);
@@ -324,10 +324,10 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
         if (nIndex < 0)
         {
           LOGGER.error ("Invalid href when querying service group '" +
-                           aParticipantID.getURIEncoded () +
-                           "': '" +
-                           sHref +
-                           "'");
+                        aParticipantID.getURIEncoded () +
+                        "': '" +
+                        sHref +
+                        "'");
         }
         else
         {
@@ -338,10 +338,10 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
           if (aDocTypeID == null)
           {
             LOGGER.error ("Invalid document type when querying service group '" +
-                             aParticipantID.getURIEncoded () +
-                             "': '" +
-                             sDocumentTypeID +
-                             "'");
+                          aParticipantID.getURIEncoded () +
+                          "': '" +
+                          sDocumentTypeID +
+                          "'");
           }
           else
           {
@@ -397,8 +397,16 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
           }
           case OASIS_BDXR_v1:
           {
-            final BDXRClientReadOnly aSMPClient = new BDXRClientReadOnly (m_aURLProvider, aParticipantID, aSML);
-            aBC = getBusinessCardBDXR1 (aParticipantID, aSMPClient);
+            try
+            {
+              final BDXRClientReadOnly aSMPClient = new BDXRClientReadOnly (m_aURLProvider, aParticipantID, aSML);
+              aBC = getBusinessCardBDXR1 (aParticipantID, aSMPClient);
+            }
+            catch (final IllegalArgumentException ex)
+            {
+              // Happens if a non-existing URL is queried
+              aBC = null;
+            }
             break;
           }
           default:
@@ -413,10 +421,10 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
 
     if (aBC != null)
       LOGGER.info ("Found BusinessCard for '" +
-                      aParticipantID.getURIEncoded () +
-                      "' with " +
-                      aBC.getDocumentTypeCount () +
-                      " document types");
+                   aParticipantID.getURIEncoded () +
+                   "' with " +
+                   aBC.getDocumentTypeCount () +
+                   " document types");
     return aBC;
   }
 
