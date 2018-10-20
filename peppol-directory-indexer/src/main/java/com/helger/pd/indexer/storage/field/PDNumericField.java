@@ -17,7 +17,6 @@
 package com.helger.pd.indexer.storage.field;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StoredField;
@@ -45,7 +44,7 @@ public class PDNumericField <NATIVE_TYPE> extends AbstractPDField <NATIVE_TYPE, 
   }
 
   @Override
-  @Nullable
+  @Nonnull
   protected NATIVE_TYPE getFieldNativeValue (@Nonnull final IndexableField aField)
   {
     return getAsNativeValue (aField.numericValue ());

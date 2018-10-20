@@ -17,7 +17,7 @@
 package com.helger.pd.publisher;
 
 import javax.annotation.Nonnull;
-import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.NotThreadSafe;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
@@ -28,7 +28,7 @@ import com.helger.commons.url.SimpleURL;
 import com.helger.pd.CDirectory;
 import com.helger.pd.settings.PDServerConfiguration;
 
-@Immutable
+@NotThreadSafe
 public final class CPDPublisher
 {
   private CPDPublisher ()

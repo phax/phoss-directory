@@ -119,7 +119,7 @@ public abstract class AbstractPDField <NATIVE_TYPE, STORAGE_TYPE>
     return ret;
   }
 
-  @Nonnull
+  @Nullable
   protected abstract NATIVE_TYPE getFieldNativeValue (@Nonnull IndexableField aField);
 
   /**

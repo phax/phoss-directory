@@ -21,10 +21,11 @@ import java.security.cert.CRL;
 import java.security.cert.X509Certificate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 import javax.security.auth.x500.X500Principal;
@@ -53,7 +54,7 @@ import com.helger.security.keystore.KeyStoreHelper;
  *
  * @author Philip Helger
  */
-@Immutable
+@ThreadSafe
 public final class ClientCertificateValidator
 {
   /** The client ID to be used, if client certificate validator is disabled! */
@@ -64,13 +65,13 @@ public final class ClientCertificateValidator
   @PresentForCodeCoverage
   private static final ClientCertificateValidator s_aInstance = new ClientCertificateValidator ();
 
-  private static boolean s_bIsCheckDisabled = !PDServerConfiguration.isClientCertificateValidationActive ();
+  private static final AtomicBoolean s_bIsCheckDisabled = new AtomicBoolean (!PDServerConfiguration.isClientCertificateValidationActive ());
 
   /**
    * All PEPPOL root certificates from the truststore configuration. Never
    * empty.
    */
-  private static ICommonsList <X509Certificate> s_aPeppolSMPRootCerts = new CommonsArrayList <> ();
+  private static final ICommonsList <X509Certificate> s_aPeppolSMPRootCerts = new CommonsArrayList <> ();
 
   /** Sorted list with all issuers we're accepting. Never empty. */
   private static final ICommonsList <X500Principal> s_aSearchIssuers = new CommonsArrayList <> ();
@@ -89,7 +90,7 @@ public final class ClientCertificateValidator
   @VisibleForTesting
   public static void allowAllForTests (final boolean bCheckDisabled)
   {
-    s_bIsCheckDisabled = bCheckDisabled;
+    s_bIsCheckDisabled.set (bCheckDisabled);
   }
 
   private static void _initCertificateIssuers ()
@@ -103,7 +104,7 @@ public final class ClientCertificateValidator
 
     if (s_aSearchIssuers.isEmpty ())
     {
-      if (s_bIsCheckDisabled)
+      if (s_bIsCheckDisabled.get ())
         LOGGER.warn ("The configuration file contains no entry for the client certificate issuer");
       else
         throw new InitializationException ("The configuration file is missing the entry for the client certificate issuer");
@@ -140,18 +141,18 @@ public final class ClientCertificateValidator
       s_aPeppolSMPRootCerts.add (aCert);
 
       LOGGER.info ("Root certificate loaded successfully from trust store '" +
-                      aTS.getPath () +
-                      "' with alias '" +
-                      aTS.getAlias () +
-                      "'; root certificate serial=" +
-                      aCert.getSerialNumber ().toString (16) +
-                      "; root certficate issuer=" +
-                      aCert.getIssuerX500Principal ().getName ());
+                   aTS.getPath () +
+                   "' with alias '" +
+                   aTS.getAlias () +
+                   "'; root certificate serial=" +
+                   aCert.getSerialNumber ().toString (16) +
+                   "; root certficate issuer=" +
+                   aCert.getIssuerX500Principal ().getName ());
     }
 
     if (s_aPeppolSMPRootCerts.isEmpty ())
     {
-      if (s_bIsCheckDisabled)
+      if (s_bIsCheckDisabled.get ())
         LOGGER.warn ("Server configuration contains no trusted root certificate configuration!");
       else
         throw new InitializationException ("Server configuration contains no trusted root certificate configuration!");
@@ -264,11 +265,10 @@ public final class ClientCertificateValidator
   public static ClientCertificateValidationResult verifyClientCertificate (@Nonnull final HttpServletRequest aHttpRequest,
                                                                            @Nonnull final String sLogPrefix)
   {
-    if (s_bIsCheckDisabled)
+    if (s_bIsCheckDisabled.get ())
     {
       if (LOGGER.isDebugEnabled ())
-        LOGGER.debug (sLogPrefix +
-                         "Client certificate is considered valid because the 'allow all' for tests is set!");
+        LOGGER.debug (sLogPrefix + "Client certificate is considered valid because the 'allow all' for tests is set!");
       return ClientCertificateValidationResult.createSuccess (INSECURE_DEBUG_CLIENT);
     }
 
@@ -313,9 +313,9 @@ public final class ClientCertificateValidator
         {
           if (LOGGER.isInfoEnabled ())
             LOGGER.info (sLogPrefix +
-                            "  Using the following client certificate issuer for verification: '" +
-                            aIssuer +
-                            "'");
+                         "  Using the following client certificate issuer for verification: '" +
+                         aIssuer +
+                         "'");
           aClientCertToVerify = aCert;
           break;
         }
