@@ -146,10 +146,25 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
       {
         if (aURLs.hasChildren ())
           aURLs.addChild (new HCDiv ().addChild ("or"));
-        aURLs.addChild (new HCDiv ().addChild (HCA.createLinkedWebsite (aURLProvider.getSMPURIOfParticipant (aParticipantID,
-                                                                                                             aSMLInfo)
-                                                                                    .toString () +
-                                                                        sBCSuffix)));
+        try
+        {
+          aURLs.addChild (new HCDiv ().addChild (HCA.createLinkedWebsite (aURLProvider.getSMPURIOfParticipant (aParticipantID,
+                                                                                                               aSMLInfo)
+                                                                                      .toString () +
+                                                                          sBCSuffix)));
+        }
+        catch (final IllegalArgumentException ex)
+        {
+          // Non existing participant!
+          aURLs.addChild (new HCDiv ().addChild (aParticipantID.getURIPercentEncoded () +
+                                                 " on " +
+                                                 aSMLInfo.getDisplayName () +
+                                                 " @ " +
+                                                 sBCSuffix +
+                                                 " [" +
+                                                 ex.getMessage () +
+                                                 "]"));
+        }
       }
       aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Business Card URL").setCtrl (aURLs));
     }
