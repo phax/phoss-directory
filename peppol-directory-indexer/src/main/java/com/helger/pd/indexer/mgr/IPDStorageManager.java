@@ -20,6 +20,7 @@ import java.io.Closeable;
 import java.io.IOException;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import com.helger.commons.state.ESuccess;
 import com.helger.pd.businesscard.PDExtendedBusinessCard;
@@ -59,7 +60,8 @@ public interface IPDStorageManager extends Closeable
    * @param aParticipantID
    *        Participant ID to be deleted.
    * @param aMetaData
-   *        The entry metadata. Basically only for logging purposes.
+   *        The entry metadata. Basically only for logging purposes. May be
+   *        <code>null</code>.
    * @return {@link ESuccess#SUCCESS} upon success, {@link ESuccess#FAILURE} on
    *         error.
    * @throws IOException
@@ -67,5 +69,5 @@ public interface IPDStorageManager extends Closeable
    */
   @Nonnull
   ESuccess deleteEntry (@Nonnull IParticipantIdentifier aParticipantID,
-                        @Nonnull PDStoredMetaData aMetaData) throws IOException;
+                        @Nullable PDStoredMetaData aMetaData) throws IOException;
 }

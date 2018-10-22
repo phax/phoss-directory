@@ -142,7 +142,7 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
     final String sBCSuffix = "/businesscard/" + aParticipantID.getURIPercentEncoded ();
     {
       final HCNodeList aURLs = new HCNodeList ();
-      for (final ISMLInfo aSMLInfo : PDPMetaManager.getSMLInfoMgr ().getAllSMLInfos ())
+      for (final ISMLInfo aSMLInfo : PDPMetaManager.getSMLInfoMgr ().getAll ())
       {
         if (aURLs.hasChildren ())
           aURLs.addChild (new HCDiv ().addChild ("or"));
@@ -201,6 +201,7 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
   protected void showInputForm (@Nonnull final WebPageExecutionContext aWPEC,
                                 @Nullable final IReIndexWorkItem aSelectedObject,
                                 @Nonnull final BootstrapForm aForm,
+                                final boolean bFormSubmitted,
                                 @Nonnull final EWebPageFormAction eFormAction,
                                 @Nonnull final FormErrorList aFormErrors)
   {

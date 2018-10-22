@@ -33,6 +33,6 @@ public final class RunInJettyPD
   public static void main (final String [] args) throws Exception
   {
     SMPClientConfiguration.getConfigFile ().applyAllNetworkSystemProperties ();
-    new JettyStarter (RunInJettyPD.class).run ();
+    new JettyStarter (RunInJettyPD.class).setSessionCookieName ("PDSESSION").run ();
   }
 }

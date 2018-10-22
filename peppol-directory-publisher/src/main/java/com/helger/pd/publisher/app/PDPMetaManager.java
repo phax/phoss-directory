@@ -71,7 +71,7 @@ public final class PDPMetaManager extends AbstractGlobalSingleton
         // Auto detect SMLs
         PDMetaManager.setBusinessCardProvider (SMPBusinessCardProvider.createWithSMLAutoDetect (PDServerConfiguration.getSMPMode (),
                                                                                                 PDServerConfiguration.getURLProvider (),
-                                                                                                m_aSMLInfoMgr::getAll));
+                                                                                                m_aSMLInfoMgr::getAllSorted));
       }
 
       LOGGER.info (ClassHelper.getClassLocalName (this) + " was initialized");

@@ -122,7 +122,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
                           LinkHelper.getURLWithContext (aRequestScope,
                                                         ExportServlet.SERVLET_DEFAULT_PATH +
                                                                        ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS),
-                          EDefaultIcon.SAVE);
+                          EDefaultIcon.SAVE_ALL);
       aNodeList.addChild (aToolbar);
     }
 
@@ -130,7 +130,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
       final BootstrapButtonToolbar aToolbar = getUIHandler ().createToolbar (aWPEC);
       aToolbar.addButton ("Update all Business Cards for export",
                           aWPEC.getSelfHref ().add (CPageParam.PARAM_ACTION, ACTION_UPDATE_EXPORTED_BCS),
-                          EDefaultIcon.REFRESH);
+                          EDefaultIcon.INFO);
       aNodeList.addChild (aToolbar);
     }
 

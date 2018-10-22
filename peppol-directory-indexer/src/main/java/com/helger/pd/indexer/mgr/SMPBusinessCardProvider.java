@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
-import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -39,6 +38,7 @@ import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.VisibleForTesting;
 import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.ICommonsList;
+import com.helger.commons.functional.ISupplier;
 import com.helger.commons.url.SimpleURL;
 import com.helger.commons.url.URLHelper;
 import com.helger.httpclient.HttpClientHelper;
@@ -71,7 +71,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
   private final EPDSMPMode m_eSMPMode;
   private final URI m_aSMPURI;
   private final IPeppolURLProvider m_aURLProvider;
-  private final Supplier <? extends Iterable <? extends ISMLInfo>> m_aSMLInfoProvider;
+  private final ISupplier <? extends ICommonsList <? extends ISMLInfo>> m_aSMLInfoProvider;
 
   /**
    * Constructor.
@@ -91,7 +91,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
   protected SMPBusinessCardProvider (@Nonnull final EPDSMPMode eSMPMode,
                                      @Nullable final URI aSMPURI,
                                      @Nullable final IPeppolURLProvider aURLProvider,
-                                     @Nullable final Supplier <? extends Iterable <? extends ISMLInfo>> aSMLInfoProvider)
+                                     @Nullable final ISupplier <? extends ICommonsList <? extends ISMLInfo>> aSMLInfoProvider)
   {
     ValueEnforcer.notNull (eSMPMode, "SMPMode");
     if (aSMPURI != null)
@@ -108,6 +108,23 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
     m_aSMPURI = aSMPURI;
     m_aURLProvider = aURLProvider;
     m_aSMLInfoProvider = aSMLInfoProvider;
+  }
+
+  public final boolean isFixedSMP ()
+  {
+    return m_aSMPURI != null;
+  }
+
+  @Nullable
+  public final URI getFixedSMPURI ()
+  {
+    return m_aSMPURI;
+  }
+
+  @Nullable
+  public final ICommonsList <? extends ISMLInfo> getAllSMLsToUse ()
+  {
+    return m_aSMLInfoProvider == null ? null : m_aSMLInfoProvider.get ();
   }
 
   /**
@@ -431,7 +448,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
   @Nonnull
   public static SMPBusinessCardProvider createWithSMLAutoDetect (@Nonnull final EPDSMPMode eSMPMode,
                                                                  @Nonnull final IPeppolURLProvider aURLProvider,
-                                                                 @Nullable final Supplier <? extends Iterable <? extends ISMLInfo>> aSMLInfoProvider)
+                                                                 @Nullable final ISupplier <? extends ICommonsList <? extends ISMLInfo>> aSMLInfoProvider)
   {
     ValueEnforcer.notNull (eSMPMode, "SMPMode");
     ValueEnforcer.notNull (aURLProvider, "URLProvider");

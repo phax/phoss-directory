@@ -177,10 +177,9 @@ public final class PDStorageManager implements IPDStorageManager
 
   @Nonnull
   public ESuccess deleteEntry (@Nonnull final IParticipantIdentifier aParticipantID,
-                               @Nonnull final PDStoredMetaData aMetaData) throws IOException
+                               @Nullable final PDStoredMetaData aMetaData) throws IOException
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
-    ValueEnforcer.notNull (aMetaData, "MetaData");
 
     LOGGER.info ("Trying to delete entry with participant ID '" + aParticipantID.getURIEncoded () + "'");
 
@@ -195,6 +194,7 @@ public final class PDStorageManager implements IPDStorageManager
       {
         // Main searching
         final Query aQuery = new TermQuery (aTerm);
+        LOGGER.info ("Using search query '" + aQuery + "' for deletion");
         _timedSearch ( () -> aSearcher.search (aQuery,
                                                new AllDocumentsCollector (m_aLucene,
                                                                           (aDoc, nDocID) -> aDocuments.add (aDoc))),

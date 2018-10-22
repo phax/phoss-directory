@@ -16,6 +16,8 @@
  */
 package com.helger.pd.indexer.storage.field;
 
+import java.util.BitSet;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -52,16 +54,42 @@ public class PDStringField <NATIVE_TYPE> extends AbstractPDField <NATIVE_TYPE, S
     return m_eTokenize.createField (getFieldName (), sStringValue, getStore ());
   }
 
+  private static final BitSet MASK = new BitSet (256);
+  static
+  {
+    for (final char c : "+-&|!(){}[]^\"~*?:\\/".toCharArray ())
+      MASK.set (c);
+  }
+
+  private String _getMaskedStorageValue (@Nonnull final NATIVE_TYPE aValue)
+  {
+    final String sStorageValue = getAsStorageValue (aValue);
+    if (true)
+    {
+      // No masking needed
+      return sStorageValue;
+    }
+    // Masking is only needed, when the QueryParser is used
+    final StringBuilder aSB = new StringBuilder (sStorageValue.length () * 2);
+    for (final char c : sStorageValue.toCharArray ())
+    {
+      if (c <= 255 && MASK.get (c))
+        aSB.append ('\\');
+      aSB.append (c);
+    }
+    return aSB.toString ();
+  }
+
   @Nonnull
   public Term getExactMatchTerm (@Nonnull final NATIVE_TYPE aValue)
   {
-    return new Term (getFieldName (), getAsStorageValue (aValue));
+    return new Term (getFieldName (), _getMaskedStorageValue (aValue));
   }
 
   @Nonnull
   public Term getContainsTerm (@Nonnull final NATIVE_TYPE aValue)
   {
-    return new Term (getFieldName (), "*" + getAsStorageValue (aValue) + "*");
+    return new Term (getFieldName (), "*" + _getMaskedStorageValue (aValue) + "*");
   }
 
   @Override

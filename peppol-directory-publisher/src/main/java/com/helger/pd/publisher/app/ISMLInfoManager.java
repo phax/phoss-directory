@@ -113,7 +113,7 @@ public interface ISMLInfoManager
    */
   @Nonnull
   @ReturnsMutableCopy
-  ICommonsList <ISMLInfo> getAllSMLInfos ();
+  ICommonsList <ISMLInfo> getAll ();
 
   /**
    * Get the SML information with the passed ID.

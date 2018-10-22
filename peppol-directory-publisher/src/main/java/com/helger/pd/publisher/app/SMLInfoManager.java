@@ -135,9 +135,14 @@ public final class SMLInfoManager extends AbstractPhotonMapBasedWALDAO <ISMLInfo
 
   @Nonnull
   @ReturnsMutableCopy
-  public ICommonsList <ISMLInfo> getAllSMLInfos ()
+  public ICommonsList <ISMLInfo> getAllSorted ()
   {
-    return getAll ();
+    return getAll ().getSortedInline ( (c1, c2) -> {
+      int ret = c1.getDNSZone ().length () - c2.getDNSZone ().length ();
+      if (ret == 0)
+        ret = c1.getDNSZone ().compareTo (c2.getDNSZone ());
+      return ret;
+    });
   }
 
   @Nullable

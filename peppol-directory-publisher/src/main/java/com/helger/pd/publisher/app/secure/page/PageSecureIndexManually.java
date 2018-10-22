@@ -22,13 +22,17 @@ import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.string.StringHelper;
 import com.helger.html.hc.html.forms.HCEdit;
 import com.helger.html.hc.impl.HCNodeList;
+import com.helger.pd.businesscard.IPDBusinessCardProvider;
 import com.helger.pd.indexer.index.EIndexerWorkItemType;
 import com.helger.pd.indexer.mgr.PDMetaManager;
+import com.helger.pd.indexer.mgr.SMPBusinessCardProvider;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.peppol.identifier.CIdentifier;
 import com.helger.peppol.identifier.factory.IIdentifierFactory;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.peppol.identifier.peppol.PeppolIdentifierHelper;
+import com.helger.peppol.sml.ISMLInfo;
+import com.helger.photon.bootstrap3.alert.BootstrapInfoBox;
 import com.helger.photon.bootstrap3.alert.BootstrapSuccessBox;
 import com.helger.photon.bootstrap3.alert.BootstrapWarnBox;
 import com.helger.photon.bootstrap3.button.BootstrapButtonToolbar;
@@ -55,6 +59,27 @@ public final class PageSecureIndexManually extends AbstractAppWebPage
     final HCNodeList aNodeList = aWPEC.getNodeList ();
     final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
     final FormErrorList aFormErrors = new FormErrorList ();
+
+    {
+      final IPDBusinessCardProvider aBCProv = PDMetaManager.getBusinessCardProvider ();
+      if (aBCProv instanceof SMPBusinessCardProvider)
+      {
+        final SMPBusinessCardProvider aSMPBCProv = (SMPBusinessCardProvider) aBCProv;
+        if (aSMPBCProv.isFixedSMP ())
+        {
+          aNodeList.addChild (new BootstrapInfoBox ().addChild ("Fixed SMP URI " +
+                                                                aSMPBCProv.getFixedSMPURI () +
+                                                                " is used."));
+        }
+        else
+        {
+          aNodeList.addChild (new BootstrapInfoBox ().addChild ("The following SMLs are crawled for entries: " +
+                                                                StringHelper.getImplodedMapped (", ",
+                                                                                                aSMPBCProv.getAllSMLsToUse (),
+                                                                                                ISMLInfo::getDisplayName)));
+        }
+      }
+    }
 
     if (aWPEC.hasAction (CPageParam.ACTION_PERFORM))
     {

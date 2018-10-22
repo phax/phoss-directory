@@ -16,6 +16,7 @@
  */
 package com.helger.pd.publisher.app.secure.page;
 
+import java.io.IOException;
 import java.util.Locale;
 import java.util.Map;
 
@@ -36,17 +37,23 @@ import com.helger.pd.publisher.app.pub.CMenuPublic;
 import com.helger.pd.publisher.app.pub.page.PagePublicSearchSimple;
 import com.helger.pd.publisher.app.secure.CMenuSecure;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
+import com.helger.peppol.identifier.factory.IIdentifierFactory;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.photon.basic.app.appid.CApplicationID;
+import com.helger.photon.bootstrap3.alert.BootstrapErrorBox;
+import com.helger.photon.bootstrap3.alert.BootstrapInfoBox;
 import com.helger.photon.bootstrap3.uictrls.datatables.BootstrapDTColAction;
 import com.helger.photon.bootstrap3.uictrls.datatables.BootstrapDataTables;
 import com.helger.photon.uicore.css.CPageParam;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 import com.helger.photon.uictrls.datatables.column.DTCol;
 import com.helger.photon.uictrls.datatables.column.EDTColType;
+import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 
 public final class PageSecureParticipantList extends AbstractAppWebPage
 {
+  private static final String FIELD_PARTICIPANT_ID = "partid";
+
   public PageSecureParticipantList (@Nonnull @Nonempty final String sID)
   {
     super (sID, "Participant list");
@@ -57,6 +64,36 @@ public final class PageSecureParticipantList extends AbstractAppWebPage
   {
     final HCNodeList aNodeList = aWPEC.getNodeList ();
     final Locale aDisplayLocale = aWPEC.getDisplayLocale ();
+    final IRequestWebScopeWithoutResponse aRequestScope = aWPEC.getRequestScope ();
+
+    if (aWPEC.hasAction (CPageParam.ACTION_DELETE))
+    {
+      final String sParticipantID = aRequestScope.params ().getAsString (FIELD_PARTICIPANT_ID);
+
+      final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
+      final IParticipantIdentifier aParticipantID = aIdentifierFactory.parseParticipantIdentifier (sParticipantID);
+
+      if (aParticipantID != null)
+      {
+        boolean bSuccess = false;
+        try
+        {
+          bSuccess = PDMetaManager.getStorageMgr ().deleteEntry (aParticipantID, null).isSuccess ();
+        }
+        catch (final IOException ex)
+        {
+          // ignore
+        }
+        if (bSuccess)
+          aNodeList.addChild (new BootstrapInfoBox ().addChild ("The participant '" +
+                                                                aParticipantID.getURIEncoded () +
+                                                                "' was scheduled for deletion"));
+        else
+          aNodeList.addChild (new BootstrapErrorBox ().addChild ("Error scheduling participant '" +
+                                                                 aParticipantID.getURIEncoded () +
+                                                                 "' for deletion"));
+      }
+    }
 
     final ICommonsSortedMap <IParticipantIdentifier, MutableInt> aAllIDs = PDMetaManager.getStorageMgr ()
                                                                                         .getAllContainedParticipantIDs ();
@@ -85,6 +122,11 @@ public final class PageSecureParticipantList extends AbstractAppWebPage
                                        .add (PageSecureIndexManually.FIELD_PARTICIPANT_ID, sParticipantID)
                                        .add (CPageParam.PARAM_ACTION, CPageParam.ACTION_PERFORM);
       aActionCell.addChild (new HCA (aReIndex).addChild ("Reindex"));
+      aActionCell.addChild (" ");
+      final ISimpleURL aDelete = aWPEC.getSelfHref ()
+                                      .add (FIELD_PARTICIPANT_ID, sParticipantID)
+                                      .add (CPageParam.PARAM_ACTION, CPageParam.ACTION_DELETE);
+      aActionCell.addChild (new HCA (aDelete).addChild ("Delete"));
     }
 
     aNodeList.addChild (aTable).addChild (BootstrapDataTables.createDefaultDataTables (aWPEC, aTable));
