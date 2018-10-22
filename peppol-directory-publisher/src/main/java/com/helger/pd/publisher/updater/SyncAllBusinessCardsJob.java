@@ -16,12 +16,13 @@
  */
 package com.helger.pd.publisher.updater;
 
+import java.util.Set;
+
 import javax.annotation.Nonnull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.commons.collection.impl.ICommonsSortedSet;
 import com.helger.pd.indexer.index.EIndexerWorkItemType;
 import com.helger.pd.indexer.mgr.PDIndexerManager;
 import com.helger.pd.indexer.mgr.PDMetaManager;
@@ -48,8 +49,7 @@ public final class SyncAllBusinessCardsJob extends AbstractScopeAwareJob
     LOGGER.info ("Start synchronizing business cards");
     final PDIndexerManager aIndexerMgr = PDMetaManager.getIndexerMgr ();
     // Queue a work item to re-scan all
-    final ICommonsSortedSet <IParticipantIdentifier> aAll = PDMetaManager.getStorageMgr ()
-                                                                         .getAllContainedParticipantIDs ();
+    final Set <IParticipantIdentifier> aAll = PDMetaManager.getStorageMgr ().getAllContainedParticipantIDs ().keySet ();
     for (final IParticipantIdentifier aParticipantID : aAll)
     {
       aIndexerMgr.queueWorkItem (aParticipantID, EIndexerWorkItemType.SYNC, "sync-job", "localhost");

@@ -80,7 +80,7 @@ public final class LocalHost8080FuncTest
   private WebTarget m_aTarget;
 
   @Nonnull
-  private static PDExtendedBusinessCard _createMockBI (@Nonnull final IParticipantIdentifier aParticipantID)
+  private static PDExtendedBusinessCard _createMockBC (@Nonnull final IParticipantIdentifier aParticipantID)
   {
     final PDBusinessCard aBI = new PDBusinessCard ();
     aBI.setParticipantIdentifier (new PDIdentifier (PeppolIdentifierHelper.DEFAULT_PARTICIPANT_SCHEME, "9915:mock"));
@@ -108,8 +108,8 @@ public final class LocalHost8080FuncTest
   @Before
   public void setUp () throws GeneralSecurityException, IOException
   {
-    // Set test BI provider first!
-    PDMetaManager.setBusinessCardProvider (aParticipantID -> _createMockBI (aParticipantID));
+    // Set test BC provider first!
+    PDMetaManager.setBusinessCardProvider (LocalHost8080FuncTest::_createMockBC);
     PDMetaManager.getInstance ();
 
     final File aTestClientCertificateKeyStore = new File ("src/test/resources/smp.pilot.jks");
@@ -157,8 +157,9 @@ public final class LocalHost8080FuncTest
                                                                                                                         aIndex.getAndIncrement ());
 
       LOGGER.info ("PUT " + aPI.getURIEncoded ());
-      final String sResponseMsg = m_aTarget.path ("1.0").request ().put (Entity.text (aPI.getURIEncoded ()),
-                                                                         String.class);
+      final String sResponseMsg = m_aTarget.path ("1.0")
+                                           .request ()
+                                           .put (Entity.text (aPI.getURIEncoded ()), String.class);
       assertEquals ("", sResponseMsg);
     });
 

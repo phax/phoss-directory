@@ -17,6 +17,7 @@
 package com.helger.pd.publisher.app.secure.page;
 
 import java.io.IOException;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 
@@ -24,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.collection.impl.ICommonsSortedSet;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.publisher.exportall.ExportAllBusinessCardsJob;
@@ -60,8 +60,9 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
     s_aDownloadAllIDs = addAjax ( (req, res) -> {
       final IMicroDocument aDoc = new MicroDocument ();
       final IMicroElement aRoot = aDoc.appendElement ("root");
-      final ICommonsSortedSet <IParticipantIdentifier> aAllIDs = PDMetaManager.getStorageMgr ()
-                                                                              .getAllContainedParticipantIDs ();
+      final Set <IParticipantIdentifier> aAllIDs = PDMetaManager.getStorageMgr ()
+                                                                .getAllContainedParticipantIDs ()
+                                                                .keySet ();
       for (final IParticipantIdentifier aParticipantID : aAllIDs)
       {
         final String sParticipantID = aParticipantID.getURIEncoded ();

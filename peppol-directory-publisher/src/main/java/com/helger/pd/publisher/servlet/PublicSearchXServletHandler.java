@@ -145,11 +145,11 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
       final EPDOutputFormat eOutputFormat = EPDOutputFormat.getFromIDCaseInsensitiveOrDefault (sFormat,
                                                                                                EPDOutputFormat.XML);
       LOGGER.info ("Using REST query API 1.0 with output format " +
-                      eOutputFormat +
-                      " (" +
-                      sPathInfo +
-                      ") from " +
-                      aRequestScope.getUserAgent ().getAsString ());
+                   eOutputFormat +
+                   " (" +
+                   sPathInfo +
+                   ") from " +
+                   aRequestScope.getUserAgent ().getAsString ());
 
       // Determine result offset and count
       final int nResultPageIndex = aParams.getAsInt (PARAM_RESULT_PAGE_INDEX,
@@ -192,6 +192,8 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
       for (final EPDSearchField eSF : EPDSearchField.values ())
       {
         final String sFieldName = eSF.getFieldName ();
+        // Check if one or more request parameters are present for the current
+        // search field
         final ICommonsList <String> aValues = aParams.getAsStringList (sFieldName);
         if (aValues != null && aValues.isNotEmpty ())
         {
@@ -243,7 +245,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
         // Connect all with "AND"
         final BooleanQuery.Builder aBuilder = new BooleanQuery.Builder ();
         for (final Query aQuery : aQueries)
-          aBuilder.add (aQuery, Occur.FILTER);
+          aBuilder.add (aQuery, Occur.MUST);
         aLuceneQuery = aBuilder.build ();
       }
 
@@ -256,11 +258,11 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
                                                                                                nMaxResults);
 
       LOGGER.info ("  Result for <" +
-                      aLuceneQuery +
-                      "> (max=" +
-                      nMaxResults +
-                      ") " +
-                      (aResultDocs.size () == 1 ? "is 1 document" : "are " + aResultDocs.size () + " documents"));
+                   aLuceneQuery +
+                   "> (max=" +
+                   nMaxResults +
+                   ") " +
+                   (aResultDocs.size () == 1 ? "is 1 document" : "are " + aResultDocs.size () + " documents"));
 
       // Filter by index/count
       final int nEffectiveLastIndex = Math.min (nLastResultIndex, aResultDocs.size () - 1);

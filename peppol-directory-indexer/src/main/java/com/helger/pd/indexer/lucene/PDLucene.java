@@ -46,6 +46,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.commons.ValueEnforcer;
+import com.helger.commons.annotation.ELockType;
+import com.helger.commons.annotation.MustBeLocked;
 import com.helger.commons.callback.IThrowingRunnable;
 import com.helger.commons.concurrent.SimpleReadWriteLock;
 import com.helger.commons.functional.IThrowingSupplier;
@@ -217,8 +219,8 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
    *
    * @param nDocID
    *        Document ID
-   * @return <code>null</code> if no reader could be obtained or no such document
-   *         exists.
+   * @return <code>null</code> if no reader could be obtained or no such
+   *         document exists.
    * @throws IOException
    *         On IO error
    */
@@ -270,8 +272,8 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
   /**
    * Updates a document by first deleting the document(s) containing
    * <code>term</code> and then adding the new document. The delete and then add
-   * are atomic as seen by a reader on the same index (flush may happen only after
-   * the add).
+   * are atomic as seen by a reader on the same index (flush may happen only
+   * after the add).
    *
    * @param aDelTerm
    *        the term to identify the document(s) to be deleted. May be
@@ -283,6 +285,7 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
    * @throws IOException
    *         if there is a low-level IO error
    */
+  @MustBeLocked (ELockType.WRITE)
   public void updateDocument (@Nullable final Term aDelTerm,
                               @Nonnull final Iterable <? extends IndexableField> aDoc) throws IOException
   {
@@ -305,6 +308,7 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
    * @throws IOException
    *         if there is a low-level IO error
    */
+  @MustBeLocked (ELockType.WRITE)
   public void updateDocuments (@Nullable final Term aDelTerm,
                                @Nonnull final Iterable <? extends Iterable <? extends IndexableField>> aDocs) throws IOException
   {
@@ -333,6 +337,7 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
    * @throws IOException
    *         if there is a low-level IO error
    */
+  @MustBeLocked (ELockType.WRITE)
   public void deleteDocuments (final Term... aTerms) throws IOException
   {
     _getWriter ().deleteDocuments (aTerms);
@@ -355,7 +360,10 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
     try
     {
       if (isClosing ())
+      {
+        LOGGER.info ("Cannot executed something write locked, because Lucene is shutting down");
         return ESuccess.FAILURE;
+      }
       aRunnable.run ();
     }
     finally
@@ -385,7 +393,9 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
     m_aRWLock.readLock ().lock ();
     try
     {
-      if (!isClosing ())
+      if (isClosing ())
+        LOGGER.info ("Cannot executed something read locked, because Lucene is shutting down");
+      else
         return aRunnable.get ();
     }
     finally

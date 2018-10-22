@@ -82,7 +82,9 @@ public final class PDLuceneTest
     // Existing index
     try (final PDLucene aLucene = new PDLucene ())
     {
-      aLucene.updateDocument (new Term ("id", "Apache Lucene 5.0.0"), doc);
+      aLucene.writeLockedAtomic ( () -> {
+        aLucene.updateDocument (new Term ("id", "Apache Lucene 5.0.0"), doc);
+      });
     }
   }
 

@@ -114,8 +114,7 @@ public final class PDQueryManager
     }
     catch (final IOException ex)
     {
-      LOGGER.warn ("Failed to split user query '" + sQueryString + "' into terms. Defaulting to regEx splitting",
-                      ex);
+      LOGGER.warn ("Failed to split user query '" + sQueryString + "' into terms. Defaulting to regEx splitting", ex);
       // Fall-back
       return RegExHelper.getSplitToList (sQueryString.trim (), "\\s+");
     }

@@ -16,15 +16,19 @@
  */
 package com.helger.pd.publisher.app.secure.page;
 
+import java.util.Locale;
+import java.util.Map;
+
 import javax.annotation.Nonnull;
 
 import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.collection.impl.ICommonsSortedSet;
+import com.helger.commons.collection.impl.ICommonsSortedMap;
+import com.helger.commons.mutable.MutableInt;
 import com.helger.commons.url.ISimpleURL;
 import com.helger.html.hc.html.sections.HCH3;
-import com.helger.html.hc.html.tabular.HCCol;
 import com.helger.html.hc.html.tabular.HCRow;
 import com.helger.html.hc.html.tabular.HCTable;
+import com.helger.html.hc.html.tabular.IHCCell;
 import com.helger.html.hc.html.textlevel.HCA;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.mgr.PDMetaManager;
@@ -34,9 +38,12 @@ import com.helger.pd.publisher.app.secure.CMenuSecure;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.photon.basic.app.appid.CApplicationID;
+import com.helger.photon.bootstrap3.uictrls.datatables.BootstrapDTColAction;
 import com.helger.photon.bootstrap3.uictrls.datatables.BootstrapDataTables;
 import com.helger.photon.uicore.css.CPageParam;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
+import com.helger.photon.uictrls.datatables.column.DTCol;
+import com.helger.photon.uictrls.datatables.column.EDTColType;
 
 public final class PageSecureParticipantList extends AbstractAppWebPage
 {
@@ -49,31 +56,35 @@ public final class PageSecureParticipantList extends AbstractAppWebPage
   protected void fillContent (final WebPageExecutionContext aWPEC)
   {
     final HCNodeList aNodeList = aWPEC.getNodeList ();
+    final Locale aDisplayLocale = aWPEC.getDisplayLocale ();
 
-    final ICommonsSortedSet <IParticipantIdentifier> aAllIDs = PDMetaManager.getStorageMgr ()
-                                                                            .getAllContainedParticipantIDs ();
+    final ICommonsSortedMap <IParticipantIdentifier, MutableInt> aAllIDs = PDMetaManager.getStorageMgr ()
+                                                                                        .getAllContainedParticipantIDs ();
     aNodeList.addChild (new HCH3 ().addChild (aAllIDs.size () + " participants (=Business Cards) are contained"));
 
-    final HCTable aTable = new HCTable (HCCol.star (), HCCol.star (), HCCol.star ()).setID (getID ());
-    aTable.addHeaderRow ().addCells ("ID", "", "");
-    for (final IParticipantIdentifier aParticipantID : aAllIDs)
+    final HCTable aTable = new HCTable (new DTCol ("ID"),
+                                        new DTCol ("Entities").setDisplayType (EDTColType.INT, aDisplayLocale),
+                                        new BootstrapDTColAction ()).setID (getID ());
+    for (final Map.Entry <IParticipantIdentifier, MutableInt> aEntry : aAllIDs.entrySet ())
     {
-      final String sParticipantID = aParticipantID.getURIEncoded ();
+      final String sParticipantID = aEntry.getKey ().getURIEncoded ();
 
       final HCRow aRow = aTable.addBodyRow ();
       aRow.addCell (sParticipantID);
+      aRow.addCell (Integer.toString (aEntry.getValue ().intValue ()));
 
+      final IHCCell <?> aActionCell = aRow.addCell ();
       final ISimpleURL aShowDetails = aWPEC.getLinkToMenuItem (CApplicationID.APP_ID_PUBLIC,
                                                                CMenuPublic.MENU_SEARCH_SIMPLE)
                                            .add (PagePublicSearchSimple.FIELD_QUERY, sParticipantID)
                                            .add (CPageParam.PARAM_ACTION, CPageParam.ACTION_VIEW)
                                            .add (PagePublicSearchSimple.FIELD_PARTICIPANT_ID, sParticipantID);
-      aRow.addCell (new HCA (aShowDetails).addChild ("Search"));
-
+      aActionCell.addChild (new HCA (aShowDetails).addChild ("Search"));
+      aActionCell.addChild (" ");
       final ISimpleURL aReIndex = aWPEC.getLinkToMenuItem (CMenuSecure.MENU_INDEX_MANUALLY)
                                        .add (PageSecureIndexManually.FIELD_PARTICIPANT_ID, sParticipantID)
                                        .add (CPageParam.PARAM_ACTION, CPageParam.ACTION_PERFORM);
-      aRow.addCell (new HCA (aReIndex).addChild ("Reindex"));
+      aActionCell.addChild (new HCA (aReIndex).addChild ("Reindex"));
     }
 
     aNodeList.addChild (aTable).addChild (BootstrapDataTables.createDefaultDataTables (aWPEC, aTable));

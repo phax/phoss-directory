@@ -34,6 +34,9 @@ import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.IntPoint;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexOptions;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.search.BooleanClause.Occur;
+import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Collector;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.MatchAllDocsQuery;
@@ -54,12 +57,13 @@ import com.helger.commons.annotation.ReturnsMutableCopy;
 import com.helger.commons.callback.IThrowingRunnable;
 import com.helger.commons.collection.CollectionHelper;
 import com.helger.commons.collection.impl.CommonsArrayList;
-import com.helger.commons.collection.impl.CommonsTreeSet;
+import com.helger.commons.collection.impl.CommonsTreeMap;
 import com.helger.commons.collection.impl.ICommonsList;
-import com.helger.commons.collection.impl.ICommonsSortedSet;
+import com.helger.commons.collection.impl.ICommonsSortedMap;
 import com.helger.commons.datetime.PDTFactory;
 import com.helger.commons.datetime.PDTWebDateHelper;
 import com.helger.commons.functional.IThrowingSupplier;
+import com.helger.commons.mutable.MutableInt;
 import com.helger.commons.state.ESuccess;
 import com.helger.commons.statistics.IMutableStatisticsHandlerKeyedTimer;
 import com.helger.commons.statistics.StatisticsManager;
@@ -178,15 +182,19 @@ public final class PDStorageManager implements IPDStorageManager
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
     ValueEnforcer.notNull (aMetaData, "MetaData");
 
-    return m_aLucene.writeLockedAtomic ( () -> {
+    LOGGER.info ("Trying to delete entry with participant ID '" + aParticipantID.getURIEncoded () + "'");
+
+    final MutableInt aDeletedDocCount = new MutableInt (-1);
+    if (m_aLucene.writeLockedAtomic ( () -> {
       final ICommonsList <Document> aDocuments = new CommonsArrayList <> ();
+      final Term aTerm = PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID);
 
       // Get all documents to be marked as deleted
       final IndexSearcher aSearcher = m_aLucene.getSearcher ();
       if (aSearcher != null)
       {
         // Main searching
-        final Query aQuery = new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID));
+        final Query aQuery = new TermQuery (aTerm);
         _timedSearch ( () -> aSearcher.search (aQuery,
                                                new AllDocumentsCollector (m_aLucene,
                                                                           (aDoc, nDocID) -> aDocuments.add (aDoc))),
@@ -199,15 +207,20 @@ public final class PDStorageManager implements IPDStorageManager
         aDocuments.forEach (aDocument -> aDocument.add (new IntPoint (CPDStorage.FIELD_DELETED, 1)));
 
         // Update the documents
-        m_aLucene.updateDocuments (PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID), aDocuments);
+        m_aLucene.updateDocuments (aTerm, aDocuments);
       }
+      aDeletedDocCount.set (aDocuments.size ());
+    }).isFailure ())
+    {
+      return ESuccess.FAILURE;
+    }
 
-      LOGGER.info ("Marked " + aDocuments.size () + " Lucene documents as deleted");
-      AuditHelper.onAuditExecuteSuccess ("pd-indexer-delete",
-                                         aParticipantID.getURIEncoded (),
-                                         Integer.valueOf (aDocuments.size ()),
-                                         aMetaData);
-    });
+    LOGGER.info ("Marked " + aDeletedDocCount.intValue () + " Lucene documents as deleted");
+    AuditHelper.onAuditExecuteSuccess ("pd-indexer-delete",
+                                       aParticipantID.getURIEncoded (),
+                                       Integer.valueOf (aDeletedDocCount.intValue ()),
+                                       aMetaData);
+    return ESuccess.SUCCESS;
   }
 
   @Nonnull
@@ -354,8 +367,8 @@ public final class PDStorageManager implements IPDStorageManager
   }
 
   /**
-   * Search all documents matching the passed query and pass the result on to the
-   * provided {@link Consumer}.
+   * Search all documents matching the passed query and pass the result on to
+   * the provided {@link Consumer}.
    *
    * @param aQuery
    *        Query to execute. May not be <code>null</code>-
@@ -406,8 +419,8 @@ public final class PDStorageManager implements IPDStorageManager
   }
 
   /**
-   * Search all documents matching the passed query and pass the result on to the
-   * provided {@link Consumer}.
+   * Search all documents matching the passed query and pass the result on to
+   * the provided {@link Consumer}.
    *
    * @param aQuery
    *        Query to execute. May not be <code>null</code>-
@@ -489,14 +502,17 @@ public final class PDStorageManager implements IPDStorageManager
 
   @Nonnull
   @ReturnsMutableCopy
-  public ICommonsSortedSet <IParticipantIdentifier> getAllContainedParticipantIDs ()
+  public ICommonsSortedMap <IParticipantIdentifier, MutableInt> getAllContainedParticipantIDs ()
   {
-    final ICommonsSortedSet <IParticipantIdentifier> aTargetSet = new CommonsTreeSet <> ();
+    // Map from ID to entity count
+    final ICommonsSortedMap <IParticipantIdentifier, MutableInt> aTargetSet = new CommonsTreeMap <> ();
     final Query aQuery = PDQueryManager.andNotDeleted (new MatchAllDocsQuery ());
     try
     {
-      final ObjIntConsumer <Document> aConsumer = (aDoc,
-                                                   nDocID) -> aTargetSet.add (PDField.PARTICIPANT_ID.getDocValue (aDoc));
+      final ObjIntConsumer <Document> aConsumer = (aDoc, nDocID) -> {
+        final IParticipantIdentifier aResolvedParticipantID = PDField.PARTICIPANT_ID.getDocValue (aDoc);
+        aTargetSet.computeIfAbsent (aResolvedParticipantID, k -> new MutableInt (0)).inc ();
+      };
       final Collector aCollector = new AllDocumentsCollector (m_aLucene, aConsumer);
       searchAtomic (aQuery, aCollector);
     }
@@ -508,9 +524,19 @@ public final class PDStorageManager implements IPDStorageManager
   }
 
   @CheckForSigned
-  public int getContainedParticipantCount ()
+  public int getContainedNotDeletedParticipantCount ()
   {
     final Query aQuery = PDQueryManager.andNotDeleted (new MatchAllDocsQuery ());
+    return getCount (aQuery);
+  }
+
+  @CheckForSigned
+  public int getContainedDeletedParticipantCount ()
+  {
+    Query aQuery = new MatchAllDocsQuery ();
+    aQuery = new BooleanQuery.Builder ().add (aQuery, Occur.FILTER)
+                                        .add (new TermQuery (new Term (CPDStorage.FIELD_DELETED)), Occur.MUST)
+                                        .build ();
     return getCount (aQuery);
   }
 
