@@ -22,7 +22,7 @@
   <parent>
     <groupId>com.helger</groupId>
     <artifactId>parent-pom</artifactId>
-    <version>1.10.6</version>
+    <version>1.10.7</version>
   </parent>
   <artifactId>peppol-directory-parent-pom</artifactId>
   <version>0.7.0-SNAPSHOT</version>
