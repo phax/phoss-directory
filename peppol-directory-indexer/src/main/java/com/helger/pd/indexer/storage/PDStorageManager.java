@@ -32,6 +32,7 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.IntPoint;
+import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.Term;
@@ -193,18 +194,23 @@ public final class PDStorageManager implements IPDStorageManager
       if (aSearcher != null)
       {
         // Main searching
-        final Query aQuery = new TermQuery (aTerm);
-        LOGGER.info ("Using search query '" + aQuery + "' for deletion");
+        final Query aQuery = PDQueryManager.andNotDeleted (new TermQuery (aTerm));
         _timedSearch ( () -> aSearcher.search (aQuery,
                                                new AllDocumentsCollector (m_aLucene,
                                                                           (aDoc, nDocID) -> aDocuments.add (aDoc))),
                        aQuery);
+        LOGGER.info ("Found " + aDocuments.size () + " deletable docs using search query '" + aQuery + "'");
       }
 
       if (aDocuments.isNotEmpty ())
       {
         // Mark document as deleted
-        aDocuments.forEach (aDocument -> aDocument.add (new IntPoint (CPDStorage.FIELD_DELETED, 1)));
+        aDocuments.forEach (aDocument -> {
+          aDocument.add (new IntPoint (CPDStorage.FIELD_DELETED, 1));
+          if (true)
+            aDocument.add (new StoredField (CPDStorage.FIELD_DELETED,
+                                            PDTFactory.getCurrentLocalDateTime ().toString ()));
+        });
 
         // Update the documents
         m_aLucene.updateDocuments (aTerm, aDocuments);

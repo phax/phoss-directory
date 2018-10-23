@@ -64,6 +64,12 @@ public final class ExportAllManager
     }
   }
 
+  /**
+   * Stream the stored file to the provided HTTP response
+   * 
+   * @param aUR
+   *        The response to stream to. May not be <code>null</code>.
+   */
   public static void streamTo (@Nonnull final UnifiedResponse aUR)
   {
     // Do it in a read lock!

@@ -28,6 +28,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.core.SimpleAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.CorruptIndexException;
@@ -83,6 +84,11 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
   @Nonnull
   public static Analyzer createAnalyzer ()
   {
+    if (false)
+    {
+      // Only lowercasing, no stop words
+      return new SimpleAnalyzer ();
+    }
     return new StandardAnalyzer ();
   }
 
@@ -139,7 +145,11 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
 
         // Ensure to commit the writer in case of pending changes
         if (m_aIndexWriter != null && m_aIndexWriter.isOpen ())
-          m_aIndexWriter.commit ();
+        {
+          final long nSeqNum = m_aIndexWriter.commit ();
+          if (nSeqNum >= 0)
+            LOGGER.info ("Committed up to seq# " + nSeqNum);
+        }
         StreamHelper.close (m_aIndexWriter);
         StreamHelper.close (m_aDir);
         LOGGER.info ("Closed Lucene reader/writer/directory");
@@ -189,7 +199,8 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
       if (m_aWriterChanges.intValue () > 0)
       {
         LOGGER.info ("Lazily committing " + m_aWriterChanges.intValue () + " changes to the Lucene index");
-        _getWriter ().commit ();
+        final long nSeqNum = _getWriter ().commit ();
+        LOGGER.info ("Committed up to seq# " + nSeqNum);
         m_aWriterChanges.set (0);
       }
 
@@ -253,6 +264,7 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
     if (aReader == null)
     {
       // Index not readable
+      LOGGER.warn ("Index not readable");
       return null;
     }
 
@@ -260,12 +272,13 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
     {
       // Reader did not change - use cached searcher
       assert m_aSearcher != null;
-      return m_aSearcher;
     }
-
-    // Create new searcher only if necessary
-    m_aSearchReader = aReader;
-    m_aSearcher = new IndexSearcher (aReader);
+    else
+    {
+      // Create new searcher only if necessary
+      m_aSearchReader = aReader;
+      m_aSearcher = new IndexSearcher (aReader);
+    }
     return m_aSearcher;
   }
 
@@ -289,7 +302,8 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
   public void updateDocument (@Nullable final Term aDelTerm,
                               @Nonnull final Iterable <? extends IndexableField> aDoc) throws IOException
   {
-    _getWriter ().updateDocument (aDelTerm, aDoc);
+    final long nSeqNum = _getWriter ().updateDocument (aDelTerm, aDoc);
+    LOGGER.info ("Last seq# after updateDocument is " + nSeqNum);
     m_aWriterChanges.incrementAndGet ();
   }
 
@@ -312,17 +326,19 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
   public void updateDocuments (@Nullable final Term aDelTerm,
                                @Nonnull final Iterable <? extends Iterable <? extends IndexableField>> aDocs) throws IOException
   {
-    if (true)
+    long nSeqNum;
+    if (false)
     {
       // Delete and than add
-      _getWriter ().deleteDocuments (aDelTerm);
-      _getWriter ().updateDocuments (null, aDocs);
+      nSeqNum = _getWriter ().deleteDocuments (aDelTerm);
+      nSeqNum = _getWriter ().updateDocuments (null, aDocs);
     }
     else
     {
       // Update directly
-      _getWriter ().updateDocuments (aDelTerm, aDocs);
+      nSeqNum = _getWriter ().updateDocuments (aDelTerm, aDocs);
     }
+    LOGGER.info ("Last seq# after updateDocuments is " + nSeqNum);
     m_aWriterChanges.incrementAndGet ();
   }
 
@@ -340,7 +356,8 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
   @MustBeLocked (ELockType.WRITE)
   public void deleteDocuments (final Term... aTerms) throws IOException
   {
-    _getWriter ().deleteDocuments (aTerms);
+    final long nSeqNum = _getWriter ().deleteDocuments (aTerms);
+    LOGGER.info ("Last seq# after deleteDocuments is " + nSeqNum);
     m_aWriterChanges.incrementAndGet ();
   }
 

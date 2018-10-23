@@ -20,16 +20,15 @@ import java.io.IOException;
 
 import javax.annotation.Nonnull;
 
-import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexableField;
+import org.apache.lucene.search.Collector;
 import org.apache.lucene.search.MatchAllDocsQuery;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TopScoreDocCollector;
 
 import com.helger.commons.annotation.Nonempty;
 import com.helger.html.hc.html.grouping.HCHR;
 import com.helger.html.hc.html.sections.HCH3;
 import com.helger.html.hc.impl.HCNodeList;
+import com.helger.pd.indexer.lucene.AllDocumentsCollector;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.photon.bootstrap3.table.BootstrapTable;
@@ -62,21 +61,14 @@ public final class PageSecureParticipantCount extends AbstractAppWebPage
     if (false)
       try
       {
-        final TopScoreDocCollector aCollector = TopScoreDocCollector.create (5);
-        PDMetaManager.getStorageMgr ().searchAtomic (new MatchAllDocsQuery (), aCollector);
-        for (final ScoreDoc aScoreDoc : aCollector.topDocs ().scoreDocs)
-        {
-          final Document aDoc = PDMetaManager.getLucene ().getDocument (aScoreDoc.doc);
-          if (aDoc == null)
-            throw new IllegalStateException ("Failed to resolve Lucene Document with ID " + aScoreDoc.doc);
-          // Pass to Consumer
-
+        final Collector aCollector = new AllDocumentsCollector (PDMetaManager.getLucene (), (aDoc, nIdx) -> {
           final BootstrapTable aTable = new BootstrapTable ();
           for (final IndexableField f : aDoc.getFields ())
             aTable.addBodyRow ().addCells (f.name (), f.fieldType ().toString (), f.stringValue ());
           aNodeList.addChild (aTable);
           aNodeList.addChild (new HCHR ());
-        }
+        });
+        PDMetaManager.getStorageMgr ().searchAtomic (new MatchAllDocsQuery (), aCollector);
       }
       catch (final IOException ex)
       {}

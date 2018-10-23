@@ -18,21 +18,19 @@ package com.helger.pd.indexer.lucene;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.GregorianCalendar;
 
 import javax.annotation.Nullable;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.LongPoint;
+import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.Term;
@@ -44,6 +42,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 
+import com.helger.commons.io.file.FileOperationManager;
+import com.helger.commons.io.file.SimpleFileIO;
 import com.helger.photon.basic.mock.PhotonBasicTestRule;
 
 /**
@@ -58,6 +58,8 @@ public final class PDLuceneTest
 
   private static void _doIndex () throws IOException
   {
+    FileOperationManager.INSTANCE.deleteDirRecursiveIfExisting (PDLucene.getLuceneIndexDir ());
+
     /*
      * 4. add a sample document to the index
      */
@@ -70,22 +72,58 @@ public final class PDLuceneTest
 
     // Add the last big lucene version birthday which we don't want to store
     // but to be indexed nevertheless to be filterable
-    doc.add (new LongPoint ("lastVersionBirthday", new GregorianCalendar (2015, 1, 20).getTimeInMillis ()));
+    doc.add (new LongPoint ("num", 12345));
 
     // The version info content should be searchable also be tokens,
     // this is why we use a TextField; as we use a reader, the content is
     // not stored!
     doc.add (new TextField ("pom",
-                            new BufferedReader (new InputStreamReader (new FileInputStream (new File ("pom.xml")),
-                                                                       StandardCharsets.UTF_8))));
+                            SimpleFileIO.getFileAsString (new File ("pom.xml"), StandardCharsets.UTF_8),
+                            Field.Store.NO));
+
+    // Next
+    doc.add (new StringField ("participantid", "iso6523-actorid-upis::9915:testluc", Field.Store.YES));
+
+    // Stored but not indexed
+    doc.add (new StoredField ("stored", "value"));
 
     // Existing index
     try (final PDLucene aLucene = new PDLucene ())
     {
       aLucene.writeLockedAtomic ( () -> {
-        aLucene.updateDocument (new Term ("id", "Apache Lucene 5.0.0"), doc);
+        // create or update document
+        aLucene.updateDocument (new Term (idField.name (), idField.stringValue ()), doc);
+      });
+
+      // Update field
+      doc.removeFields (idField.name ());
+      final StringField idField2 = new StringField (idField.name (), "Apache Lucene 7.0.0", Field.Store.YES);
+      doc.add (idField2);
+
+      aLucene.writeLockedAtomic ( () -> {
+        // create or update document (with old ID!)
+        aLucene.updateDocument (new Term (idField.name (), idField.stringValue ()), doc);
+      });
+
+      // Update field
+      doc.removeFields (idField.name ());
+      final StringField idField3 = new StringField (idField.name (), "Apache Lucene 7.5.0", Field.Store.YES);
+      doc.add (idField3);
+
+      aLucene.writeLockedAtomic ( () -> {
+        // create or update document (with old ID!)
+        aLucene.updateDocument (new Term (idField2.name (), idField2.stringValue ()), doc);
       });
     }
+  }
+
+  @Nullable
+  private static Document _searchBest (final String sField, final String sExpectedValue) throws IOException
+  {
+    final Document aDoc = _searchBest (new TermQuery (new Term (sField, sExpectedValue)));
+    if (aDoc != null)
+      assertEquals (sExpectedValue, aDoc.get (sField));
+    return aDoc;
   }
 
   @Nullable
@@ -110,7 +148,6 @@ public final class PDLuceneTest
       assertTrue (aHits[0].score > 0);
 
       final Document doc = aLucene.getDocument (aHits[0].doc);
-      assertEquals ("Apache Lucene 5.0.0", doc.get ("id"));
       return doc;
     }
   }
@@ -119,7 +156,28 @@ public final class PDLuceneTest
   public void testBasic () throws IOException
   {
     _doIndex ();
-    final Document aDoc = _searchBest (new TermQuery (new Term ("id", "Apache Lucene 5.0.0")));
+
+    // Full ID
+    Document aDoc = _searchBest ("id", "Apache Lucene 7.5.0");
     assertNotNull (aDoc);
+    assertNotNull (aDoc.get ("id"));
+
+    // Full identifier
+    aDoc = _searchBest ("participantid", "iso6523-actorid-upis::9915:testluc");
+    assertNotNull (aDoc);
+    assertNotNull (aDoc.get ("participantid"));
+
+    // part of the identifier
+    aDoc = _searchBest ("participantid", "9915:testluc");
+    assertNull (aDoc);
+
+    // Stored not indexed
+    aDoc = _searchBest ("stored", "value");
+    assertNull (aDoc);
+
+    // LongPoint - indexed but not stored
+    aDoc = _searchBest (LongPoint.newExactQuery ("num", 12345));
+    assertNotNull (aDoc);
+    assertNull (aDoc.getField ("num"));
   }
 }
