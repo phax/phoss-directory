@@ -96,7 +96,7 @@ final class PDIndexExecutor
         }
         case DELETE:
         {
-          eSuccess = aStorageMgr.deleteEntry (aParticipantID, aWorkItem.getAsMetaData ());
+          eSuccess = aStorageMgr.markEntryDeleted (aParticipantID, aWorkItem.getAsMetaData ());
           break;
         }
         case SYNC:
@@ -106,7 +106,7 @@ final class PDIndexExecutor
           if (aBI == null)
           {
             // No/invalid extension present - delete from index
-            eSuccess = aStorageMgr.deleteEntry (aParticipantID, aWorkItem.getAsMetaData ());
+            eSuccess = aStorageMgr.markEntryDeleted (aParticipantID, aWorkItem.getAsMetaData ());
           }
           else
           {

@@ -26,6 +26,7 @@ import javax.annotation.concurrent.Immutable;
 
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.apache.lucene.document.IntPoint;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
@@ -74,7 +75,23 @@ public final class PDQueryManager
   public static Query andNotDeleted (@Nonnull final Query aQuery)
   {
     return new BooleanQuery.Builder ().add (aQuery, Occur.FILTER)
-                                      .add (new TermQuery (new Term (CPDStorage.FIELD_DELETED)), Occur.MUST_NOT)
+                                      .add (IntPoint.newExactQuery (CPDStorage.FIELD_DELETED, 1), Occur.MUST_NOT)
+                                      .build ();
+  }
+
+  /**
+   * Surround the provided {@link Query} with a clause that requires deleted
+   * documents to be returned
+   *
+   * @param aQuery
+   *        Source Query
+   * @return {@link BooleanQuery} contained the "MUST" on the "deleted" field.
+   */
+  @Nonnull
+  public static Query andDeleted (@Nonnull final Query aQuery)
+  {
+    return new BooleanQuery.Builder ().add (aQuery, Occur.FILTER)
+                                      .add (IntPoint.newExactQuery (CPDStorage.FIELD_DELETED, 1), Occur.MUST)
                                       .build ();
   }
 

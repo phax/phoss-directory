@@ -36,8 +36,6 @@ import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.BooleanClause.Occur;
-import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Collector;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.MatchAllDocsQuery;
@@ -177,8 +175,8 @@ public final class PDStorageManager implements IPDStorageManager
   }
 
   @Nonnull
-  public ESuccess deleteEntry (@Nonnull final IParticipantIdentifier aParticipantID,
-                               @Nullable final PDStoredMetaData aMetaData) throws IOException
+  public ESuccess markEntryDeleted (@Nonnull final IParticipantIdentifier aParticipantID,
+                                    @Nullable final PDStoredMetaData aMetaData) throws IOException
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
 
@@ -539,10 +537,7 @@ public final class PDStorageManager implements IPDStorageManager
   @CheckForSigned
   public int getContainedDeletedParticipantCount ()
   {
-    Query aQuery = new MatchAllDocsQuery ();
-    aQuery = new BooleanQuery.Builder ().add (aQuery, Occur.FILTER)
-                                        .add (new TermQuery (new Term (CPDStorage.FIELD_DELETED)), Occur.MUST)
-                                        .build ();
+    final Query aQuery = PDQueryManager.andDeleted (new MatchAllDocsQuery ());
     return getCount (aQuery);
   }
 

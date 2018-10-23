@@ -148,7 +148,8 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
         {
           final long nSeqNum = m_aIndexWriter.commit ();
           if (nSeqNum >= 0)
-            LOGGER.info ("Committed up to seq# " + nSeqNum);
+            if (LOGGER.isDebugEnabled ())
+              LOGGER.debug ("Committed up to seq# " + nSeqNum);
         }
         StreamHelper.close (m_aIndexWriter);
         StreamHelper.close (m_aDir);
@@ -200,7 +201,8 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
       {
         LOGGER.info ("Lazily committing " + m_aWriterChanges.intValue () + " changes to the Lucene index");
         final long nSeqNum = _getWriter ().commit ();
-        LOGGER.info ("Committed up to seq# " + nSeqNum);
+        if (LOGGER.isDebugEnabled ())
+          LOGGER.debug ("Committed up to seq# " + nSeqNum);
         m_aWriterChanges.set (0);
       }
 
@@ -303,7 +305,8 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
                               @Nonnull final Iterable <? extends IndexableField> aDoc) throws IOException
   {
     final long nSeqNum = _getWriter ().updateDocument (aDelTerm, aDoc);
-    LOGGER.info ("Last seq# after updateDocument is " + nSeqNum);
+    if (LOGGER.isDebugEnabled ())
+      LOGGER.debug ("Last seq# after updateDocument is " + nSeqNum);
     m_aWriterChanges.incrementAndGet ();
   }
 
@@ -338,7 +341,8 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
       // Update directly
       nSeqNum = _getWriter ().updateDocuments (aDelTerm, aDocs);
     }
-    LOGGER.info ("Last seq# after updateDocuments is " + nSeqNum);
+    if (LOGGER.isDebugEnabled ())
+      LOGGER.debug ("Last seq# after updateDocuments is " + nSeqNum);
     m_aWriterChanges.incrementAndGet ();
   }
 
@@ -357,7 +361,8 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
   public void deleteDocuments (final Term... aTerms) throws IOException
   {
     final long nSeqNum = _getWriter ().deleteDocuments (aTerms);
-    LOGGER.info ("Last seq# after deleteDocuments is " + nSeqNum);
+    if (LOGGER.isDebugEnabled ())
+      LOGGER.debug ("Last seq# after deleteDocuments is " + nSeqNum);
     m_aWriterChanges.incrementAndGet ();
   }
 

@@ -68,6 +68,6 @@ public interface IPDStorageManager extends Closeable
    *         in case of IO error
    */
   @Nonnull
-  ESuccess deleteEntry (@Nonnull IParticipantIdentifier aParticipantID,
-                        @Nullable PDStoredMetaData aMetaData) throws IOException;
+  ESuccess markEntryDeleted (@Nonnull IParticipantIdentifier aParticipantID,
+                             @Nullable PDStoredMetaData aMetaData) throws IOException;
 }
