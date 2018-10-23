@@ -120,41 +120,13 @@ public final class PDStorageManager implements IPDStorageManager
     m_aLucene.close ();
   }
 
-  public boolean containsEntry (@Nullable final IParticipantIdentifier aParticipantID) throws IOException
-  {
-    if (aParticipantID == null)
-      return false;
-
-    final IThrowingSupplier <Boolean, IOException> cb = () -> {
-      final IndexSearcher aSearcher = m_aLucene.getSearcher ();
-      if (aSearcher != null)
-      {
-        // Search only documents that do not have the deleted field
-        final Query aQuery = PDQueryManager.andNotDeleted (new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID)));
-        final TopDocs aTopDocs = _timedSearch ( () -> aSearcher.search (aQuery, 1), aQuery);
-        if (aTopDocs.totalHits > 0)
-          return Boolean.TRUE;
-      }
-      return Boolean.FALSE;
-    };
-    return m_aLucene.readLockedAtomic (cb).booleanValue ();
-  }
-
   private static void _timedSearch (@Nonnull final IThrowingRunnable <IOException> aRunnable,
                                     @Nonnull final Query aQuery) throws IOException
   {
-    final StopWatch aSW = StopWatch.createdStarted ();
-    try
-    {
+    _timedSearch ( () -> {
       aRunnable.run ();
-    }
-    finally
-    {
-      final long nMillis = aSW.stopAndGetMillis ();
-      s_aStatsQueryTimer.addTime (aQuery.toString (), nMillis);
-      if (nMillis > CGlobal.MILLISECONDS_PER_SECOND)
-        LOGGER.warn ("Lucene Query " + aQuery + " took too long: " + nMillis + "ms");
-    }
+      return null;
+    }, aQuery);
   }
 
   private static <T> T _timedSearch (@Nonnull final IThrowingSupplier <T, IOException> aRunnable,
@@ -174,57 +146,24 @@ public final class PDStorageManager implements IPDStorageManager
     }
   }
 
-  @Nonnull
-  public ESuccess markEntryDeleted (@Nonnull final IParticipantIdentifier aParticipantID,
-                                    @Nullable final PDStoredMetaData aMetaData) throws IOException
+  public boolean containsEntry (@Nullable final IParticipantIdentifier aParticipantID) throws IOException
   {
-    ValueEnforcer.notNull (aParticipantID, "ParticipantID");
+    if (aParticipantID == null)
+      return false;
 
-    LOGGER.info ("Trying to delete entry with participant ID '" + aParticipantID.getURIEncoded () + "'");
-
-    final MutableInt aDeletedDocCount = new MutableInt (-1);
-    if (m_aLucene.writeLockedAtomic ( () -> {
-      final ICommonsList <Document> aDocuments = new CommonsArrayList <> ();
-      final Term aTerm = PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID);
-
-      // Get all documents to be marked as deleted
+    final IThrowingSupplier <Boolean, IOException> cb = () -> {
       final IndexSearcher aSearcher = m_aLucene.getSearcher ();
       if (aSearcher != null)
       {
-        // Main searching
-        final Query aQuery = PDQueryManager.andNotDeleted (new TermQuery (aTerm));
-        _timedSearch ( () -> aSearcher.search (aQuery,
-                                               new AllDocumentsCollector (m_aLucene,
-                                                                          (aDoc, nDocID) -> aDocuments.add (aDoc))),
-                       aQuery);
-        LOGGER.info ("Found " + aDocuments.size () + " deletable docs using search query '" + aQuery + "'");
+        // Search only documents that do not have the deleted field
+        final Query aQuery = PDQueryManager.andNotDeleted (new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID)));
+        final TopDocs aTopDocs = _timedSearch ( () -> aSearcher.search (aQuery, 1), aQuery);
+        if (aTopDocs.totalHits > 0)
+          return Boolean.TRUE;
       }
-
-      if (aDocuments.isNotEmpty ())
-      {
-        // Mark document as deleted
-        aDocuments.forEach (aDocument -> {
-          aDocument.add (new IntPoint (CPDStorage.FIELD_DELETED, 1));
-          if (true)
-            aDocument.add (new StoredField (CPDStorage.FIELD_DELETED,
-                                            PDTFactory.getCurrentLocalDateTime ().toString ()));
-        });
-
-        // Update the documents
-        m_aLucene.updateDocuments (aTerm, aDocuments);
-      }
-      aDeletedDocCount.set (aDocuments.size ());
-    }).isFailure ())
-    {
-      return ESuccess.FAILURE;
-    }
-
-    LOGGER.info ("Marked " + aDeletedDocCount.intValue () + " Lucene documents as deleted");
-    AuditHelper.onAuditExecuteSuccess ("pd-indexer-delete",
-                                       aParticipantID.getURIEncoded (),
-                                       Integer.valueOf (aDeletedDocCount.intValue ()),
-                                       aMetaData);
-    return ESuccess.SUCCESS;
+      return Boolean.FALSE;
+    };
+    return m_aLucene.readLockedAtomic (cb).booleanValue ();
   }
 
   @Nonnull
@@ -370,6 +309,86 @@ public final class PDStorageManager implements IPDStorageManager
     });
   }
 
+  @Nonnull
+  public ESuccess markEntryDeleted (@Nonnull final IParticipantIdentifier aParticipantID,
+                                    @Nullable final PDStoredMetaData aMetaData) throws IOException
+  {
+    ValueEnforcer.notNull (aParticipantID, "ParticipantID");
+
+    LOGGER.info ("Trying to mark entry with participant ID '" + aParticipantID.getURIEncoded () + "' as deleted");
+
+    final MutableInt aDeletedDocCount = new MutableInt (-1);
+    if (m_aLucene.writeLockedAtomic ( () -> {
+      final ICommonsList <Document> aDocuments = new CommonsArrayList <> ();
+      final Term aTerm = PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID);
+
+      // Get all documents to be marked as deleted
+      final IndexSearcher aSearcher = m_aLucene.getSearcher ();
+      if (aSearcher != null)
+      {
+        // Main searching
+        final Query aQuery = PDQueryManager.andNotDeleted (new TermQuery (aTerm));
+        _timedSearch ( () -> aSearcher.search (aQuery,
+                                               new AllDocumentsCollector (m_aLucene,
+                                                                          (aDoc, nDocID) -> aDocuments.add (aDoc))),
+                       aQuery);
+        LOGGER.info ("Found " + aDocuments.size () + " deletable docs using search query '" + aQuery + "'");
+      }
+
+      if (aDocuments.isNotEmpty ())
+      {
+        // Mark document as deleted
+        aDocuments.forEach (aDocument -> {
+          // Avoid adding things over and over
+          aDocument.removeFields (CPDStorage.FIELD_DELETED);
+          // Indexed but not stored
+          aDocument.add (new IntPoint (CPDStorage.FIELD_DELETED, 1));
+          // Stored but not indexed
+          aDocument.add (new StoredField (CPDStorage.FIELD_DELETED, PDTFactory.getCurrentLocalDateTime ().toString ()));
+        });
+
+        // Update the documents
+        m_aLucene.updateDocuments (aTerm, aDocuments);
+      }
+      aDeletedDocCount.set (aDocuments.size ());
+    }).isFailure ())
+    {
+      return ESuccess.FAILURE;
+    }
+
+    LOGGER.info ("Marked " + aDeletedDocCount.intValue () + " Lucene documents as deleted");
+    AuditHelper.onAuditExecuteSuccess ("pd-indexer-mark-deleted",
+                                       aParticipantID.getURIEncoded (),
+                                       Integer.valueOf (aDeletedDocCount.intValue ()),
+                                       aMetaData);
+    return ESuccess.SUCCESS;
+  }
+
+  @Nonnull
+  public ESuccess deleteEntry (@Nonnull final IParticipantIdentifier aParticipantID,
+                               @Nullable final PDStoredMetaData aMetaData) throws IOException
+  {
+    ValueEnforcer.notNull (aParticipantID, "ParticipantID");
+
+    LOGGER.info ("Trying to delete entry with participant ID '" + aParticipantID.getURIEncoded () + "'");
+    final Term aTerm = PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID);
+    final int nCount = getCount (new TermQuery (aTerm));
+    if (m_aLucene.writeLockedAtomic ( () -> {
+      // Delete
+      m_aLucene.deleteDocuments (aTerm);
+    }).isFailure ())
+    {
+      return ESuccess.FAILURE;
+    }
+
+    LOGGER.info ("Deleted " + nCount + " docs from the index using the term '" + aTerm + "'");
+    AuditHelper.onAuditExecuteSuccess ("pd-indexer-delete",
+                                       aParticipantID.getURIEncoded (),
+                                       Integer.valueOf (nCount),
+                                       aMetaData);
+    return ESuccess.SUCCESS;
+  }
+
   /**
    * Search all documents matching the passed query and pass the result on to
    * the provided {@link Consumer}.
@@ -510,7 +529,7 @@ public final class PDStorageManager implements IPDStorageManager
   {
     // Map from ID to entity count
     final ICommonsSortedMap <IParticipantIdentifier, MutableInt> aTargetSet = new CommonsTreeMap <> ();
-    final Query aQuery = PDQueryManager.andNotDeleted (new MatchAllDocsQuery ());
+    final Query aQuery = (new MatchAllDocsQuery ());
     try
     {
       final ObjIntConsumer <Document> aConsumer = (aDoc, nDocID) -> {

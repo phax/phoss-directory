@@ -78,7 +78,7 @@ public final class PageSecureParticipantList extends AbstractAppWebPage
         boolean bSuccess = false;
         try
         {
-          bSuccess = PDMetaManager.getStorageMgr ().markEntryDeleted (aParticipantID, null).isSuccess ();
+          bSuccess = PDMetaManager.getStorageMgr ().deleteEntry (aParticipantID, null).isSuccess ();
         }
         catch (final IOException ex)
         {

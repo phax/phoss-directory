@@ -55,7 +55,7 @@ public interface IPDStorageManager extends Closeable
                                 @Nonnull PDStoredMetaData aMetaData) throws IOException;
 
   /**
-   * Delete an existing entry.
+   * Mark an existing entry as deleted
    *
    * @param aParticipantID
    *        Participant ID to be deleted.
@@ -70,4 +70,21 @@ public interface IPDStorageManager extends Closeable
   @Nonnull
   ESuccess markEntryDeleted (@Nonnull IParticipantIdentifier aParticipantID,
                              @Nullable PDStoredMetaData aMetaData) throws IOException;
+
+  /**
+   * Delete an existing entry (not recoverable).
+   *
+   * @param aParticipantID
+   *        Participant ID to be deleted.
+   * @param aMetaData
+   *        The entry metadata. Basically only for logging purposes. May be
+   *        <code>null</code>.
+   * @return {@link ESuccess#SUCCESS} upon success, {@link ESuccess#FAILURE} on
+   *         error.
+   * @throws IOException
+   *         in case of IO error
+   */
+  @Nonnull
+  ESuccess deleteEntry (@Nonnull IParticipantIdentifier aParticipantID,
+                        @Nullable PDStoredMetaData aMetaData) throws IOException;
 }
