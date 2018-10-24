@@ -55,6 +55,7 @@ import com.helger.peppol.sml.ISMLInfo;
 import com.helger.peppol.smpclient.SMPClientReadOnly;
 import com.helger.peppol.smpclient.exception.SMPClientException;
 import com.helger.peppol.url.IPeppolURLProvider;
+import com.helger.peppol.url.PeppolDNSResolutionException;
 
 /**
  * The SMP based {@link IPDBusinessCardProvider} implementation. An SMP lookup
@@ -408,8 +409,15 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
         {
           case PEPPOL:
           {
-            final SMPClientReadOnly aSMPClient = new SMPClientReadOnly (m_aURLProvider, aParticipantID, aSML);
-            aBC = getBusinessCardPeppolSMP (aParticipantID, aSMPClient);
+            try
+            {
+              final SMPClientReadOnly aSMPClient = new SMPClientReadOnly (m_aURLProvider, aParticipantID, aSML);
+              aBC = getBusinessCardPeppolSMP (aParticipantID, aSMPClient);
+            }
+            catch (final PeppolDNSResolutionException ex)
+            {
+              // Happens if a non-existing URL is queried
+            }
             break;
           }
           case OASIS_BDXR_v1:
@@ -419,10 +427,9 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
               final BDXRClientReadOnly aSMPClient = new BDXRClientReadOnly (m_aURLProvider, aParticipantID, aSML);
               aBC = getBusinessCardBDXR1 (aParticipantID, aSMPClient);
             }
-            catch (final IllegalArgumentException ex)
+            catch (final PeppolDNSResolutionException ex)
             {
               // Happens if a non-existing URL is queried
-              aBC = null;
             }
             break;
           }

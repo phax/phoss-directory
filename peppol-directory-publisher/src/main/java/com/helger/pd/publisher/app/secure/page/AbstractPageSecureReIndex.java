@@ -40,6 +40,7 @@ import com.helger.pd.settings.PDServerConfiguration;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.peppol.sml.ISMLInfo;
 import com.helger.peppol.url.IPeppolURLProvider;
+import com.helger.peppol.url.PeppolDNSResolutionException;
 import com.helger.photon.bootstrap3.alert.BootstrapErrorBox;
 import com.helger.photon.bootstrap3.alert.BootstrapQuestionBox;
 import com.helger.photon.bootstrap3.alert.BootstrapSuccessBox;
@@ -153,7 +154,7 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
                                                                                       .toString () +
                                                                           sBCSuffix)));
         }
-        catch (final IllegalArgumentException ex)
+        catch (final PeppolDNSResolutionException ex)
         {
           // Non existing participant!
           aURLs.addChild (new HCDiv ().addChild (aParticipantID.getURIPercentEncoded () +
