@@ -35,6 +35,7 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 
+import org.apache.lucene.search.TermQuery;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -58,6 +59,7 @@ import com.helger.pd.indexer.PDIndexerTestRule;
 import com.helger.pd.indexer.clientcert.ClientCertificateValidator;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.EQueryMode;
+import com.helger.pd.indexer.storage.field.PDField;
 import com.helger.peppol.identifier.factory.PeppolIdentifierFactory;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.peppol.identifier.peppol.PeppolIdentifierHelper;
@@ -166,6 +168,8 @@ public final class LocalHost8080FuncTest
 
     ThreadHelper.sleep (2000);
     assertTrue (PDMetaManager.getStorageMgr ().containsEntry (aPI_0, EQueryMode.NON_DELETED_ONLY));
+    assertTrue (PDMetaManager.getStorageMgr ()
+                             .getCount (EQueryMode.NON_DELETED_ONLY.getEffectiveQuery (new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aPI_0)))) > 0);
 
     aIndex.set (0);
     CommonsTestHelper.testInParallel (nCount, () -> {
@@ -180,6 +184,10 @@ public final class LocalHost8080FuncTest
 
     ThreadHelper.sleep (2000);
     assertFalse (PDMetaManager.getStorageMgr ().containsEntry (aPI_0, EQueryMode.NON_DELETED_ONLY));
-    assertTrue (PDMetaManager.getStorageMgr ().containsEntry (aPI_0, EQueryMode.DELETED_ONLY));
+    assertEquals (0,
+                  PDMetaManager.getStorageMgr ()
+                               .getCount (EQueryMode.NON_DELETED_ONLY.getEffectiveQuery (new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aPI_0)))));
+    assertTrue (PDMetaManager.getStorageMgr ()
+                             .getCount (EQueryMode.DELETED_ONLY.getEffectiveQuery (new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aPI_0)))) > 0);
   }
 }

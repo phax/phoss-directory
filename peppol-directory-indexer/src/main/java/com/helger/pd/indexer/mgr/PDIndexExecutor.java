@@ -96,6 +96,7 @@ final class PDIndexExecutor
         }
         case DELETE:
         {
+          // Only mark as deleted
           eSuccess = aStorageMgr.markEntryDeleted (aParticipantID, aWorkItem.getAsMetaData ());
           break;
         }

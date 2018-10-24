@@ -169,14 +169,14 @@ public final class IndexerResourceTest
                                                                                                                         aIndex.getAndIncrement ());
 
       LOGGER.info ("PUT " + aPI.getURIEncoded ());
-      final String sResponseMsg = m_aTarget.path ("1.0")
-                                           .request ()
-                                           .put (Entity.text (aPI.getURIEncoded ()), String.class);
+      final String sPayload = aPI.getURIEncoded ();
+      final String sResponseMsg = m_aTarget.path ("1.0").request ().put (Entity.text (sPayload), String.class);
       assertEquals ("", sResponseMsg);
     });
 
     ThreadHelper.sleep (2000);
     assertTrue (PDMetaManager.getStorageMgr ().containsEntry (aPI_0, EQueryMode.NON_DELETED_ONLY));
+    assertFalse (PDMetaManager.getStorageMgr ().containsEntry (aPI_0, EQueryMode.DELETED_ONLY));
 
     aIndex.set (0);
     CommonsTestHelper.testInParallel (nCount, () -> {
@@ -191,6 +191,5 @@ public final class IndexerResourceTest
 
     ThreadHelper.sleep (2000);
     assertFalse (PDMetaManager.getStorageMgr ().containsEntry (aPI_0, EQueryMode.NON_DELETED_ONLY));
-    assertTrue (PDMetaManager.getStorageMgr ().containsEntry (aPI_0, EQueryMode.DELETED_ONLY));
   }
 }

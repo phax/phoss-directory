@@ -333,7 +333,8 @@ public final class PDStorageManager implements IPDStorageManager
                                                new AllDocumentsCollector (m_aLucene,
                                                                           (aDoc, nDocID) -> aDocuments.add (aDoc))),
                        aQuery);
-        LOGGER.info ("Found " + aDocuments.size () + " deletable docs using search query '" + aQuery + "'");
+        if (LOGGER.isDebugEnabled ())
+          LOGGER.debug ("Found " + aDocuments.size () + " deletable docs using search query '" + aQuery + "'");
       }
 
       if (aDocuments.isNotEmpty ())
