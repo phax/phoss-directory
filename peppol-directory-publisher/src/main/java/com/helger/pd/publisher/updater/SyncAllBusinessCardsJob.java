@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import com.helger.pd.indexer.index.EIndexerWorkItemType;
 import com.helger.pd.indexer.mgr.PDIndexerManager;
 import com.helger.pd.indexer.mgr.PDMetaManager;
+import com.helger.pd.indexer.storage.EQueryMode;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.photon.basic.audit.AuditHelper;
 import com.helger.quartz.DisallowConcurrentExecution;
@@ -49,7 +50,9 @@ public final class SyncAllBusinessCardsJob extends AbstractScopeAwareJob
     LOGGER.info ("Start synchronizing business cards");
     final PDIndexerManager aIndexerMgr = PDMetaManager.getIndexerMgr ();
     // Queue a work item to re-scan all
-    final Set <IParticipantIdentifier> aAll = PDMetaManager.getStorageMgr ().getAllContainedParticipantIDs ().keySet ();
+    final Set <IParticipantIdentifier> aAll = PDMetaManager.getStorageMgr ()
+                                                           .getAllContainedParticipantIDs (EQueryMode.NON_DELETED_ONLY)
+                                                           .keySet ();
     for (final IParticipantIdentifier aParticipantID : aAll)
     {
       aIndexerMgr.queueWorkItem (aParticipantID, EIndexerWorkItemType.SYNC, "sync-job", "localhost");

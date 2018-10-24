@@ -30,6 +30,7 @@ import com.helger.html.hc.html.sections.HCH3;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.lucene.AllDocumentsCollector;
 import com.helger.pd.indexer.mgr.PDMetaManager;
+import com.helger.pd.indexer.storage.EQueryMode;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.photon.bootstrap3.table.BootstrapTable;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
@@ -46,10 +47,11 @@ public final class PageSecureParticipantCount extends AbstractAppWebPage
   {
     final HCNodeList aNodeList = aWPEC.getNodeList ();
 
-    final int nNotDeletedCount = PDMetaManager.getStorageMgr ().getContainedNotDeletedParticipantCount ();
+    final int nNotDeletedCount = PDMetaManager.getStorageMgr ()
+                                              .getContainedParticipantCount (EQueryMode.NON_DELETED_ONLY);
     aNodeList.addChild (new HCH3 ().addChild (nNotDeletedCount + " participants (entities) are contained"));
 
-    final int nDeletedCount = PDMetaManager.getStorageMgr ().getContainedDeletedParticipantCount ();
+    final int nDeletedCount = PDMetaManager.getStorageMgr ().getContainedParticipantCount (EQueryMode.DELETED_ONLY);
     aNodeList.addChild (new HCH3 ().addChild (nDeletedCount + " deleted participants (entities) are contained"));
 
     final int nReIndexCount = PDMetaManager.getIndexerMgr ().getReIndexList ().getItemCount ();

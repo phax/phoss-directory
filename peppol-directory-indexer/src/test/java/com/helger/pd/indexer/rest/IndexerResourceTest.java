@@ -58,6 +58,7 @@ import com.helger.pd.businesscard.generic.PDName;
 import com.helger.pd.indexer.PDIndexerTestRule;
 import com.helger.pd.indexer.clientcert.ClientCertificateValidator;
 import com.helger.pd.indexer.mgr.PDMetaManager;
+import com.helger.pd.indexer.storage.EQueryMode;
 import com.helger.peppol.identifier.factory.PeppolIdentifierFactory;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.peppol.identifier.peppol.PeppolIdentifierHelper;
@@ -175,7 +176,7 @@ public final class IndexerResourceTest
     });
 
     ThreadHelper.sleep (2000);
-    assertTrue (PDMetaManager.getStorageMgr ().containsEntry (aPI_0));
+    assertTrue (PDMetaManager.getStorageMgr ().containsEntry (aPI_0, EQueryMode.NON_DELETED_ONLY));
 
     aIndex.set (0);
     CommonsTestHelper.testInParallel (nCount, () -> {
@@ -189,6 +190,7 @@ public final class IndexerResourceTest
     });
 
     ThreadHelper.sleep (2000);
-    assertFalse (PDMetaManager.getStorageMgr ().containsEntry (aPI_0));
+    assertFalse (PDMetaManager.getStorageMgr ().containsEntry (aPI_0, EQueryMode.NON_DELETED_ONLY));
+    assertTrue (PDMetaManager.getStorageMgr ().containsEntry (aPI_0, EQueryMode.DELETED_ONLY));
   }
 }

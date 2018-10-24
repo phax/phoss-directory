@@ -146,7 +146,8 @@ public final class PDStorageManager implements IPDStorageManager
     }
   }
 
-  public boolean containsEntry (@Nullable final IParticipantIdentifier aParticipantID) throws IOException
+  public boolean containsEntry (@Nullable final IParticipantIdentifier aParticipantID,
+                                @Nonnull final EQueryMode eQueryMode) throws IOException
   {
     if (aParticipantID == null)
       return false;
@@ -156,7 +157,7 @@ public final class PDStorageManager implements IPDStorageManager
       if (aSearcher != null)
       {
         // Search only documents that do not have the deleted field
-        final Query aQuery = PDQueryManager.andNotDeleted (new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID)));
+        final Query aQuery = eQueryMode.getEffectiveQuery (new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID)));
         final TopDocs aTopDocs = _timedSearch ( () -> aSearcher.search (aQuery, 1), aQuery);
         if (aTopDocs.totalHits > 0)
           return Boolean.TRUE;
@@ -327,7 +328,7 @@ public final class PDStorageManager implements IPDStorageManager
       if (aSearcher != null)
       {
         // Main searching
-        final Query aQuery = PDQueryManager.andNotDeleted (new TermQuery (aTerm));
+        final Query aQuery = new TermQuery (aTerm);
         _timedSearch ( () -> aSearcher.search (aQuery,
                                                new AllDocumentsCollector (m_aLucene,
                                                                           (aDoc, nDocID) -> aDocuments.add (aDoc))),
@@ -525,11 +526,11 @@ public final class PDStorageManager implements IPDStorageManager
 
   @Nonnull
   @ReturnsMutableCopy
-  public ICommonsSortedMap <IParticipantIdentifier, MutableInt> getAllContainedParticipantIDs ()
+  public ICommonsSortedMap <IParticipantIdentifier, MutableInt> getAllContainedParticipantIDs (@Nonnull final EQueryMode eQueryMode)
   {
     // Map from ID to entity count
     final ICommonsSortedMap <IParticipantIdentifier, MutableInt> aTargetSet = new CommonsTreeMap <> ();
-    final Query aQuery = (new MatchAllDocsQuery ());
+    final Query aQuery = eQueryMode.getEffectiveQuery (new MatchAllDocsQuery ());
     try
     {
       final ObjIntConsumer <Document> aConsumer = (aDoc, nDocID) -> {
@@ -547,23 +548,16 @@ public final class PDStorageManager implements IPDStorageManager
   }
 
   @CheckForSigned
-  public int getContainedNotDeletedParticipantCount ()
+  public int getContainedParticipantCount (@Nonnull final EQueryMode eQueryMode)
   {
-    final Query aQuery = PDQueryManager.andNotDeleted (new MatchAllDocsQuery ());
-    return getCount (aQuery);
-  }
-
-  @CheckForSigned
-  public int getContainedDeletedParticipantCount ()
-  {
-    final Query aQuery = PDQueryManager.andDeleted (new MatchAllDocsQuery ());
+    final Query aQuery = eQueryMode.getEffectiveQuery (new MatchAllDocsQuery ());
     return getCount (aQuery);
   }
 
   @Nonnull
-  public IMicroDocument getAllContainedBusinessCardsAsXML () throws IOException
+  public IMicroDocument getAllContainedBusinessCardsAsXML (@Nonnull final EQueryMode eQueryMode) throws IOException
   {
-    final Query aQuery = PDQueryManager.andNotDeleted (new MatchAllDocsQuery ());
+    final Query aQuery = eQueryMode.getEffectiveQuery (new MatchAllDocsQuery ());
 
     // Query all and group by participant ID
     final MultiLinkedHashMapArrayListBased <IParticipantIdentifier, PDBusinessEntity> aMap = new MultiLinkedHashMapArrayListBased <> ();

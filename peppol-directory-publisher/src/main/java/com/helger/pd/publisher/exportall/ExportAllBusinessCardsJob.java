@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.pd.indexer.mgr.PDMetaManager;
+import com.helger.pd.indexer.storage.EQueryMode;
 import com.helger.quartz.DisallowConcurrentExecution;
 import com.helger.quartz.IJobExecutionContext;
 import com.helger.quartz.JobDataMap;
@@ -46,7 +47,8 @@ public final class ExportAllBusinessCardsJob extends AbstractScopeAwareJob
     LOGGER.info ("Start exporting business cards");
     try
     {
-      final IMicroDocument aDoc = PDMetaManager.getStorageMgr ().getAllContainedBusinessCardsAsXML ();
+      final IMicroDocument aDoc = PDMetaManager.getStorageMgr ()
+                                               .getAllContainedBusinessCardsAsXML (EQueryMode.NON_DELETED_ONLY);
       ExportAllManager.writeFile (aDoc);
     }
     finally

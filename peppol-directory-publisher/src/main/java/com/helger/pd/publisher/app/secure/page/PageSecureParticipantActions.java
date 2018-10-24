@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import com.helger.commons.annotation.Nonempty;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.mgr.PDMetaManager;
+import com.helger.pd.indexer.storage.EQueryMode;
 import com.helger.pd.publisher.exportall.ExportAllBusinessCardsJob;
 import com.helger.pd.publisher.servlet.ExportDeliveryHttpHandler;
 import com.helger.pd.publisher.servlet.ExportServlet;
@@ -61,7 +62,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
       final IMicroDocument aDoc = new MicroDocument ();
       final IMicroElement aRoot = aDoc.appendElement ("root");
       final Set <IParticipantIdentifier> aAllIDs = PDMetaManager.getStorageMgr ()
-                                                                .getAllContainedParticipantIDs ()
+                                                                .getAllContainedParticipantIDs (EQueryMode.NON_DELETED_ONLY)
                                                                 .keySet ();
       for (final IParticipantIdentifier aParticipantID : aAllIDs)
       {
@@ -72,7 +73,8 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
       res.attachment ("directory-participant-list.xml");
     });
     s_aDownloadAllBCs = addAjax ( (req, res) -> {
-      final IMicroDocument aDoc = PDMetaManager.getStorageMgr ().getAllContainedBusinessCardsAsXML ();
+      final IMicroDocument aDoc = PDMetaManager.getStorageMgr ()
+                                               .getAllContainedBusinessCardsAsXML (EQueryMode.NON_DELETED_ONLY);
       res.xml (aDoc);
       res.attachment ("directory-business-cards.xml");
     });
