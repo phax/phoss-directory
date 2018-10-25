@@ -482,6 +482,10 @@
   <p>XML responses are always encoded in <samp>UTF-8</samp>.</p>
   <p>The response MIME type is always <code>application/xml</code>.</p>
   <p>Responses should not be cached.</p>
+  <p>
+    The XML Schema for the XML responses can be downloaded from
+    <a href="../../files/directory-search-result-list-v1.xsd">/files/directory-search-result-list-v1.xsd</a>.
+  </p>
 </div>
 
 <h4>Example response:</h4>
