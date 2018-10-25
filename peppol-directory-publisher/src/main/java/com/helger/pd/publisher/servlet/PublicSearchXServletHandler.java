@@ -25,6 +25,7 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.validation.Validator;
 
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
@@ -41,6 +42,8 @@ import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.collection.impl.ICommonsMap;
 import com.helger.commons.datetime.PDTFactory;
 import com.helger.commons.datetime.PDTWebDateHelper;
+import com.helger.commons.error.IError;
+import com.helger.commons.io.resource.ClassPathResource;
 import com.helger.commons.string.StringHelper;
 import com.helger.json.IJsonArray;
 import com.helger.json.IJsonObject;
@@ -50,6 +53,7 @@ import com.helger.json.serialize.JsonWriterSettings;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
+import com.helger.pd.publisher.app.AppCommonUI;
 import com.helger.pd.publisher.search.EPDOutputFormat;
 import com.helger.pd.publisher.search.EPDSearchField;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
@@ -60,8 +64,11 @@ import com.helger.xml.microdom.IMicroDocument;
 import com.helger.xml.microdom.IMicroElement;
 import com.helger.xml.microdom.MicroDocument;
 import com.helger.xml.microdom.serialize.MicroWriter;
+import com.helger.xml.sax.CollectingSAXErrorHandler;
+import com.helger.xml.schema.XMLSchemaCache;
 import com.helger.xml.serialize.write.EXMLSerializeIndent;
 import com.helger.xml.serialize.write.XMLWriterSettings;
+import com.helger.xml.transform.TransformSourceFactory;
 import com.helger.xservlet.handler.simple.IXServletSimpleHandler;
 
 /**
@@ -298,6 +305,16 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
           {
             final IMicroElement eItem = PDStoredBusinessEntity.getAsSearchResultMicroElement (aPerParticipant);
             eRoot.appendChild (eItem);
+          }
+
+          if (false)
+          {
+            // Demo validation
+            final CollectingSAXErrorHandler aErrHdl = new CollectingSAXErrorHandler ();
+            final Validator v = new XMLSchemaCache (aErrHdl).getValidator (new ClassPathResource ("/schema/directory-search-result-list-v1.xsd"));
+            v.validate (TransformSourceFactory.create (MicroWriter.getNodeAsBytes (aDoc, aXWS)));
+            for (final IError aError : aErrHdl.getErrorList ())
+              LOGGER.error (aError.getAsString (AppCommonUI.DEFAULT_LOCALE));
           }
 
           aUnifiedResponse.disableCaching ();

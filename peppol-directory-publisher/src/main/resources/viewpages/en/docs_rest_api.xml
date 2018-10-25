@@ -34,6 +34,11 @@
   Query parameters must be appended to the URL as parameters.
 </p>
 
+<p>
+  The XML Schema for the XML responses can be downloaded from
+  <a href="../../files/directory-search-result-list-v1.xsd">/files/directory-search-result-list-v1.xsd</a>.
+</p>
+
 <h2>Request parameters</h2>
 <div class="rest">
 <p>

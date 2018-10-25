@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (C) 2015-2018 Philip Helger (www.helger.com)
+    philip[at]helger[dot]com
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+  <xs:annotation>
+    <xs:documentation>
+      XML Schema for the PEPPOL Directory search rules.
+      Version 1.0
+      Last update: 2018-10-25
+      Author: Philip Helger
+      For further details where the XSD is needed, see http://localhost:8080/public/locale-en_US/menuitem-docs-rest-api
+      
+      History:
+        * v1.0 - 2018-10-25
+          * Initial release
+    </xs:documentation>
+  </xs:annotation>
+
+  <xs:complexType name="IDType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="scheme" type="xs:string" use="required" />
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  
+  <xs:complexType name="NameType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="language" type="xs:string" use="optional" />
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  
+  <xs:complexType name="ContactType">
+    <xs:attribute name="type" type="xs:string" use="optional" />
+    <xs:attribute name="name" type="xs:string" use="optional" />
+    <xs:attribute name="phone" type="xs:string" use="optional" />
+    <xs:attribute name="email" type="xs:string" use="optional" />
+  </xs:complexType>
+  
+  <xs:complexType name="EntityType">
+    <xs:sequence>
+      <xs:element name="name" type="NameType" maxOccurs="unbounded" />
+      <xs:element name="countryCode" type="xs:string" />
+      <xs:element name="geoInfo" type="xs:string" minOccurs="0" />
+      <xs:element name="identifier" type="IDType" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="website" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="contact" type="ContactType" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="additionalInfo" type="xs:string" minOccurs="0" />
+      <xs:element name="regDate" type="xs:date" minOccurs="0" />
+    </xs:sequence>
+    <xs:attribute name="deleted" type="xs:boolean" use="optional" default="false" />
+  </xs:complexType>
+  
+  <xs:complexType name="MatchType">
+    <xs:sequence>
+      <xs:element name="participantID" type="IDType" />
+      <xs:element name="docTypeID" type="IDType" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="entity" type="EntityType" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ResultListType">
+    <xs:sequence>
+      <xs:element name="match" type="MatchType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="version" type="xs:string" use="required" />
+    <xs:attribute name="total-result-count" type="xs:int" use="required" />
+    <xs:attribute name="used-result-count" type="xs:int" use="required" />
+    <xs:attribute name="result-page-index" type="xs:int" use="required" />
+    <xs:attribute name="result-page-count" type="xs:int" use="required" />
+    <xs:attribute name="first-result-index" type="xs:int" use="required" />
+    <xs:attribute name="last-result-index" type="xs:int" use="required" />
+    <xs:attribute name="query-terms" type="xs:string" use="required" />
+    <xs:attribute name="creation-dt" type="xs:dateTime" use="required" />
+  </xs:complexType>
+  
+  <xs:element name="resultlist" type="ResultListType">
+    <xs:annotation>
+      <xs:documentation>
+        The root element of the response.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+</xs:schema>

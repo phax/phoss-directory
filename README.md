@@ -31,6 +31,7 @@ Open tasks according to the design document:
     * Added a link on the UI to download all business cards as XML
     * Fixed the build timestamp property
     * Fixed error when showing ReIndex entries of non-existing participants when using `ESensUrlProvider`
+    * Added the XML Schema for the API search results
 * v0.6.2 - 2018-10-17
     * If more hits are present than visible, it is displayed on the UI
     * Made the available SML information objects customizable
