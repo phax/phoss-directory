@@ -49,7 +49,7 @@ public final class ExportAllBusinessCardsJob extends AbstractScopeAwareJob
     {
       final IMicroDocument aDoc = PDMetaManager.getStorageMgr ()
                                                .getAllContainedBusinessCardsAsXML (EQueryMode.NON_DELETED_ONLY);
-      ExportAllManager.writeFile (aDoc);
+      ExportAllManager.writeFileXML (aDoc);
     }
     finally
     {

@@ -43,18 +43,18 @@ public final class ExportAllManager
   {}
 
   @Nonnull
-  private static File _getFile ()
+  private static File _getFileXML ()
   {
     return WebFileIO.getDataIO ().getFile (EXPORT_ALL_BUSINESSCARDS_XML);
   }
 
-  static void writeFile (@Nonnull final IMicroDocument aDoc)
+  static void writeFileXML (@Nonnull final IMicroDocument aDoc)
   {
     // Do it in a write lock!
     s_aRWLock.writeLock ().lock ();
     try
     {
-      final File f = _getFile ();
+      final File f = _getFileXML ();
       if (MicroWriter.writeToFile (aDoc, f).isFailure ())
         LOGGER.error ("Failed to export all BCs to " + f.getAbsolutePath ());
     }
@@ -70,13 +70,13 @@ public final class ExportAllManager
    * @param aUR
    *        The response to stream to. May not be <code>null</code>.
    */
-  public static void streamTo (@Nonnull final UnifiedResponse aUR)
+  public static void streamFileXMLTo (@Nonnull final UnifiedResponse aUR)
   {
     // Do it in a read lock!
     s_aRWLock.readLock ().lock ();
     try
     {
-      final File f = _getFile ();
+      final File f = _getFileXML ();
       // setContent(IReadableResource) is lazy
       aUR.setContent (new FileSystemResource (f));
     }

@@ -72,7 +72,7 @@ public class ExportDeliveryHttpHandler extends AbstractObjectDeliveryHttpHandler
     if (sFilename.equals (SPECIAL_BUSINESS_CARDS))
     {
       aUnifiedResponse.disableCaching ();
-      ExportAllManager.streamTo (aUnifiedResponse);
+      ExportAllManager.streamFileXMLTo (aUnifiedResponse);
       aUnifiedResponse.setMimeType (CMimeType.APPLICATION_XML);
       aUnifiedResponse.setContentDispositionFilename ("directory-export-business-cards.xml");
     }
