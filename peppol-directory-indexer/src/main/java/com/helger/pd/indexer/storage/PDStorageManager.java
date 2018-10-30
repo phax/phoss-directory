@@ -568,6 +568,7 @@ public final class PDStorageManager implements IPDStorageManager
     final IMicroDocument aDoc = new MicroDocument ();
     final String sNamespaceURI = "http://www.peppol.eu/schema/pd/businesscard-generic/201806/";
     final IMicroElement aRoot = aDoc.appendElement (sNamespaceURI, "root");
+    aRoot.setAttribute ("version", "1");
     aRoot.setAttribute ("creationdt", PDTWebDateHelper.getAsStringXSD (PDTFactory.getCurrentZonedDateTimeUTC ()));
 
     // For all BCs

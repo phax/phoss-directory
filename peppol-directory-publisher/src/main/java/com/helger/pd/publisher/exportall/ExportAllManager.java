@@ -17,6 +17,7 @@
 package com.helger.pd.publisher.exportall;
 
 import java.io.File;
+import java.util.function.Function;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
@@ -26,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.commons.concurrent.SimpleReadWriteLock;
 import com.helger.commons.io.resource.FileSystemResource;
+import com.helger.commons.state.ESuccess;
 import com.helger.photon.basic.app.io.WebFileIO;
 import com.helger.servlet.response.UnifiedResponse;
 import com.helger.xml.microdom.IMicroDocument;
@@ -35,6 +37,7 @@ import com.helger.xml.microdom.serialize.MicroWriter;
 public final class ExportAllManager
 {
   private static final String EXPORT_ALL_BUSINESSCARDS_XML = "export-all-businesscards.xml";
+  private static final String EXPORT_ALL_BUSINESSCARDS_XLSX = "export-all-businesscards.xlsx";
   private static final Logger LOGGER = LoggerFactory.getLogger (ExportAllManager.class);
 
   private static final SimpleReadWriteLock s_aRWLock = new SimpleReadWriteLock ();
@@ -56,7 +59,8 @@ public final class ExportAllManager
     {
       final File f = _getFileXML ();
       if (MicroWriter.writeToFile (aDoc, f).isFailure ())
-        LOGGER.error ("Failed to export all BCs to " + f.getAbsolutePath ());
+        if (LOGGER.isErrorEnabled ())
+          LOGGER.error ("Failed to export all BCs as XML to " + f.getAbsolutePath ());
     }
     finally
     {
@@ -65,8 +69,8 @@ public final class ExportAllManager
   }
 
   /**
-   * Stream the stored file to the provided HTTP response
-   * 
+   * Stream the stored XML file to the provided HTTP response
+   *
    * @param aUR
    *        The response to stream to. May not be <code>null</code>.
    */
@@ -77,6 +81,52 @@ public final class ExportAllManager
     try
     {
       final File f = _getFileXML ();
+      // setContent(IReadableResource) is lazy
+      aUR.setContent (new FileSystemResource (f));
+    }
+    finally
+    {
+      s_aRWLock.readLock ().unlock ();
+    }
+  }
+
+  @Nonnull
+  private static File _getFileExcel ()
+  {
+    return WebFileIO.getDataIO ().getFile (EXPORT_ALL_BUSINESSCARDS_XLSX);
+  }
+
+  static void writeFileExcel (@Nonnull final Function <File, ESuccess> aFileWriter)
+  {
+    // Do it in a write lock!
+    s_aRWLock.writeLock ().lock ();
+    try
+    {
+      final File f = _getFileXML ();
+
+      if (aFileWriter.apply (f).isFailure ())
+        if (LOGGER.isErrorEnabled ())
+          LOGGER.error ("Failed to export all BCs as XLSX to " + f.getAbsolutePath ());
+    }
+    finally
+    {
+      s_aRWLock.writeLock ().unlock ();
+    }
+  }
+
+  /**
+   * Stream the stored Excel file to the provided HTTP response
+   *
+   * @param aUR
+   *        The response to stream to. May not be <code>null</code>.
+   */
+  public static void streamFileExcelTo (@Nonnull final UnifiedResponse aUR)
+  {
+    // Do it in a read lock!
+    s_aRWLock.readLock ().lock ();
+    try
+    {
+      final File f = _getFileExcel ();
       // setContent(IReadableResource) is lazy
       aUR.setContent (new FileSystemResource (f));
     }
