@@ -58,8 +58,7 @@ public final class PDStoredMLName
     return m_sName;
   }
 
-  @Nonnull
-  @Nonempty
+  @Nullable
   public String getLanguageCode ()
   {
     return m_sLanguageCode;
