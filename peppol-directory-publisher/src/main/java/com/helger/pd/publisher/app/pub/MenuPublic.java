@@ -49,6 +49,9 @@ public final class MenuPublic
     aMenuTree.createRootItem (new AppPageViewExternal (CMenuPublic.MENU_DOCS_REST_API,
                                                        "REST API documentation",
                                                        new ClassPathResource ("viewpages/en/docs_rest_api.xml")));
+    aMenuTree.createRootItem (new AppPageViewExternal (CMenuPublic.MENU_DOCS_EXPORT_ALL,
+                                                       "Export data",
+                                                       new ClassPathResource ("viewpages/en/docs_export_all.xml")));
     aMenuTree.createRootItem (new PagePublicContact (CMenuPublic.MENU_SUPPORT_CONTACT_US));
     aMenuTree.createRootItem (new AppPageViewExternal (CMenuPublic.MENU_SUPPORT_SMP_IMPLEMENTATIONS,
                                                        "Compliant SMP Implementations",

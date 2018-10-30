@@ -127,6 +127,8 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
                                                              .setLinkAction (aLEC.getLinkToMenuItem (CMenuPublic.MENU_DOCS_HOW_TO)));
       aDropDown.addMenuItem (new BootstrapDropdownMenuItem ().setLabel ("REST API")
                                                              .setLinkAction (aLEC.getLinkToMenuItem (CMenuPublic.MENU_DOCS_REST_API)));
+      aDropDown.addMenuItem (new BootstrapDropdownMenuItem ().setLabel ("Export data")
+                                                             .setLinkAction (aLEC.getLinkToMenuItem (CMenuPublic.MENU_DOCS_EXPORT_ALL)));
       aDropDown.addMenuItem (new BootstrapDropdownMenuItem ().setLabel ("Specification v1.1 (PDF)")
                                                              .setLinkAction (LinkHelper.getURLWithContext ("/files/OpenPEPPOL Directory 1.1 2018-07-17.pdf")));
       aDropDown.addMenuItem (new BootstrapDropdownMenuItem ().setLabel ("Guide for SMP providers (PDF)")
