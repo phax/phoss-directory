@@ -29,6 +29,7 @@ import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.EQueryMode;
 import com.helger.pd.publisher.exportall.ExportAllBusinessCardsJob;
+import com.helger.pd.publisher.exportall.ExportAllManager;
 import com.helger.pd.publisher.servlet.ExportDeliveryHttpHandler;
 import com.helger.pd.publisher.servlet.ExportServlet;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
@@ -73,8 +74,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
       res.attachment ("directory-participant-list.xml");
     });
     s_aDownloadAllBCs = addAjax ( (req, res) -> {
-      final IMicroDocument aDoc = PDMetaManager.getStorageMgr ()
-                                               .getAllContainedBusinessCardsAsXML (EQueryMode.NON_DELETED_ONLY);
+      final IMicroDocument aDoc = ExportAllManager.getAllContainedBusinessCardsAsXML (EQueryMode.NON_DELETED_ONLY);
       res.xml (aDoc);
       res.attachment ("directory-business-cards.xml");
     });
@@ -117,9 +117,9 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
       aToolbar.addButton ("Download all IDs (uncached)",
                           s_aDownloadAllIDs.getInvocationURL (aRequestScope),
                           EDefaultIcon.SAVE);
-      aToolbar.addButton ("Download all Business Cards (uncached)",
+      aToolbar.addButton ("Download all Business Cards (uncached) (may take long time)",
                           s_aDownloadAllBCs.getInvocationURL (aRequestScope),
-                          EDefaultIcon.SAVE);
+                          EDefaultIcon.CANCEL);
       aToolbar.addButton ("Download all Business Cards (cached)",
                           LinkHelper.getURLWithContext (aRequestScope,
                                                         ExportServlet.SERVLET_DEFAULT_PATH +

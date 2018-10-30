@@ -23,7 +23,6 @@ import javax.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.EQueryMode;
 import com.helger.quartz.DisallowConcurrentExecution;
 import com.helger.quartz.IJobExecutionContext;
@@ -44,16 +43,15 @@ public final class ExportAllBusinessCardsJob extends AbstractScopeAwareJob
 
   public static void exportAllBusinessCards () throws IOException
   {
-    LOGGER.info ("Start exporting business cards");
+    LOGGER.info ("Start exporting business cards as XML");
     try
     {
-      final IMicroDocument aDoc = PDMetaManager.getStorageMgr ()
-                                               .getAllContainedBusinessCardsAsXML (EQueryMode.NON_DELETED_ONLY);
+      final IMicroDocument aDoc = ExportAllManager.getAllContainedBusinessCardsAsXML (EQueryMode.NON_DELETED_ONLY);
       ExportAllManager.writeFileXML (aDoc);
     }
     finally
     {
-      LOGGER.info ("Finished exporting business cards");
+      LOGGER.info ("Finished exporting business cards as XML");
     }
   }
 
