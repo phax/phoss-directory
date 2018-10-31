@@ -34,6 +34,7 @@ Open tasks according to the design document:
     * Added the XML Schema for the API search results
     * Added the XML Schema for the export data
     * Added a page explaining the export data
+    * Requires ph-commons 9.1.5
 * v0.6.2 - 2018-10-17
     * If more hits are present than visible, it is displayed on the UI
     * Made the available SML information objects customizable
