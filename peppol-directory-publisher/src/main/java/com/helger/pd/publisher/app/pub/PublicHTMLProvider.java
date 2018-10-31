@@ -322,10 +322,15 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
       aDiv.addChild (new HCP ().addChild ("Follow us on Twitter: ")
                                .addChild (new HCA (new SimpleURL ("https://twitter.com/PEPPOLDirectory")).addChild ("@PEPPOLDirectory"))
                                .addChild (" - ")
+                               .addChild ("Download all [")
                                .addChild (new HCA (LinkHelper.getURLWithContext (aRequestScope,
                                                                                  ExportServlet.SERVLET_DEFAULT_PATH +
-                                                                                                ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS)).addChild ("Download"))
-                               .addChild (" all business cards"));
+                                                                                                ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_XML)).addChild ("XML"))
+                               .addChild (" | ")
+                               .addChild (new HCA (LinkHelper.getURLWithContext (aRequestScope,
+                                                                                 ExportServlet.SERVLET_DEFAULT_PATH +
+                                                                                                ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_EXCEL)).addChild ("Excel"))
+                               .addChild ("]"));
 
       final BootstrapMenuItemRendererHorz aRenderer = new BootstrapMenuItemRendererHorz (aDisplayLocale);
       final HCUL aUL = aDiv.addAndReturnChild (new HCUL ().addClass (CSS_CLASS_FOOTER_LINKS));

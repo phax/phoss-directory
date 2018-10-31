@@ -19,6 +19,7 @@ package com.helger.pd.publisher.exportall;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import javax.annotation.Nonnull;
@@ -36,13 +37,22 @@ import com.helger.commons.datetime.PDTFactory;
 import com.helger.commons.datetime.PDTWebDateHelper;
 import com.helger.commons.io.resource.FileSystemResource;
 import com.helger.commons.state.ESuccess;
+import com.helger.commons.string.StringHelper;
 import com.helger.pd.businesscard.generic.PDBusinessCard;
 import com.helger.pd.businesscard.generic.PDBusinessEntity;
 import com.helger.pd.businesscard.generic.PDIdentifier;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.EQueryMode;
+import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
+import com.helger.pd.indexer.storage.PDStoredContact;
+import com.helger.pd.indexer.storage.PDStoredIdentifier;
+import com.helger.pd.indexer.storage.PDStoredMLName;
+import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.photon.basic.app.io.WebFileIO;
+import com.helger.poi.excel.EExcelVersion;
+import com.helger.poi.excel.WorkbookCreationHelper;
+import com.helger.poi.excel.style.ExcelStyle;
 import com.helger.servlet.response.UnifiedResponse;
 import com.helger.xml.microdom.IMicroDocument;
 import com.helger.xml.microdom.IMicroElement;
@@ -139,6 +149,71 @@ public final class ExportAllManager
   }
 
   @Nonnull
+  public static WorkbookCreationHelper getAllContainedBusinessCardsAsExcel (@Nonnull final EQueryMode eQueryMode) throws IOException
+  {
+    final Query aQuery = eQueryMode.getEffectiveQuery (new MatchAllDocsQuery ());
+
+    final ExcelStyle ES_DATE = new ExcelStyle ().setDataFormat ("yyyy-mm-dd");
+    final ExcelStyle ES_WRAP = new ExcelStyle ().setWrapText (true);
+
+    final WorkbookCreationHelper aWBCH = new WorkbookCreationHelper (EExcelVersion.XLSX);
+    aWBCH.createNewSheet ();
+    aWBCH.addRow ();
+    aWBCH.addCell ("Participant ID");
+    aWBCH.addCell ("Names (per-row)");
+    aWBCH.addCell ("Country code");
+    aWBCH.addCell ("Geo info");
+    aWBCH.addCell ("Identifier schemes");
+    aWBCH.addCell ("Identifier values");
+    aWBCH.addCell ("Websites");
+    aWBCH.addCell ("Contact type");
+    aWBCH.addCell ("Contact name");
+    aWBCH.addCell ("Contact phone");
+    aWBCH.addCell ("Contact email");
+    aWBCH.addCell ("Additional info");
+    aWBCH.addCell ("Registration date");
+    aWBCH.addCell ("Document types");
+
+    final Consumer <? super PDStoredBusinessEntity> aConsumer = aEntity -> {
+      aWBCH.addRow ();
+      aWBCH.addCell (aEntity.getParticipantID ().getURIEncoded ());
+      aWBCH.addCell (StringHelper.getImplodedMapped ("\n", aEntity.names (), PDStoredMLName::getNameAndLanguageCode));
+      aWBCH.addCellStyle (ES_WRAP);
+      aWBCH.addCell (aEntity.getCountryCode ());
+      aWBCH.addCell (aEntity.getGeoInfo ());
+      aWBCH.addCellStyle (ES_WRAP);
+      aWBCH.addCell (StringHelper.getImplodedMapped ("\n", aEntity.identifiers (), PDStoredIdentifier::getScheme));
+      aWBCH.addCellStyle (ES_WRAP);
+      aWBCH.addCell (StringHelper.getImplodedMapped ("\n", aEntity.identifiers (), PDStoredIdentifier::getValue));
+      aWBCH.addCellStyle (ES_WRAP);
+      aWBCH.addCell (StringHelper.getImploded ("\n", aEntity.websiteURIs ()));
+      aWBCH.addCellStyle (ES_WRAP);
+      aWBCH.addCell (StringHelper.getImplodedMapped ("\n", aEntity.contacts (), PDStoredContact::getType));
+      aWBCH.addCellStyle (ES_WRAP);
+      aWBCH.addCell (StringHelper.getImplodedMapped ("\n", aEntity.contacts (), PDStoredContact::getName));
+      aWBCH.addCellStyle (ES_WRAP);
+      aWBCH.addCell (StringHelper.getImplodedMapped ("\n", aEntity.contacts (), PDStoredContact::getPhone));
+      aWBCH.addCellStyle (ES_WRAP);
+      aWBCH.addCell (StringHelper.getImplodedMapped ("\n", aEntity.contacts (), PDStoredContact::getEmail));
+      aWBCH.addCellStyle (ES_WRAP);
+      aWBCH.addCell (aEntity.getAdditionalInformation ());
+      aWBCH.addCellStyle (ES_WRAP);
+      aWBCH.addCell (aEntity.getRegistrationDate ());
+      aWBCH.addCellStyle (ES_DATE);
+      aWBCH.addCell (StringHelper.getImplodedMapped ("\n",
+                                                     aEntity.documentTypeIDs (),
+                                                     IDocumentTypeIdentifier::getURIEncoded));
+      aWBCH.addCellStyle (ES_WRAP);
+    };
+    // Query all and group by participant ID
+    PDMetaManager.getStorageMgr ().searchAllDocuments (aQuery, -1, aConsumer);
+    aWBCH.autoSizeAllColumns ();
+    aWBCH.autoFilterAllColumns ();
+
+    return aWBCH;
+  }
+
+  @Nonnull
   private static File _getFileExcel ()
   {
     return WebFileIO.getDataIO ().getFile (EXPORT_ALL_BUSINESSCARDS_XLSX);
@@ -150,7 +225,7 @@ public final class ExportAllManager
     s_aRWLock.writeLock ().lock ();
     try
     {
-      final File f = _getFileXML ();
+      final File f = _getFileExcel ();
 
       if (aFileWriter.apply (f).isFailure ())
         if (LOGGER.isErrorEnabled ())

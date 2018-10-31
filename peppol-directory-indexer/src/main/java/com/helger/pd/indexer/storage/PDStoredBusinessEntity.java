@@ -18,7 +18,6 @@ package com.helger.pd.indexer.storage;
 
 import java.time.LocalDate;
 
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
@@ -186,29 +185,11 @@ public final class PDStoredBusinessEntity
     return m_aRegistrationDate != null;
   }
 
-  public void addDocumentTypeID (@Nonnull final IDocumentTypeIdentifier aDocumentTypeID)
-  {
-    ValueEnforcer.notNull (aDocumentTypeID, "DocumentTypeID");
-    m_aDocumentTypeIDs.add (aDocumentTypeID);
-  }
-
   @Nonnull
-  @ReturnsMutableCopy
-  public ICommonsList <IDocumentTypeIdentifier> getAllDocumentTypeIDs ()
+  @ReturnsMutableObject
+  public ICommonsList <IDocumentTypeIdentifier> documentTypeIDs ()
   {
-    return m_aDocumentTypeIDs.getClone ();
-  }
-
-  @Nonnegative
-  public int getDocumentTypeIDCount ()
-  {
-    return m_aDocumentTypeIDs.size ();
-  }
-
-  @Nullable
-  public IDocumentTypeIdentifier getDocumentTypeIDAtIndex (@Nonnegative final int nIndex)
-  {
-    return m_aDocumentTypeIDs.getAtIndex (nIndex);
+    return m_aDocumentTypeIDs;
   }
 
   @Nonnull
@@ -302,7 +283,9 @@ public final class PDStoredBusinessEntity
       final IMicroElement aEntity = aMatch.appendElement ("entity");
 
       for (final PDStoredMLName aName : aDoc.m_aNames)
-        aEntity.appendElement ("name").setAttribute ("language", aName.getLanguageCode ()).appendText (aName.getName ());
+        aEntity.appendElement ("name")
+               .setAttribute ("language", aName.getLanguageCode ())
+               .appendText (aName.getName ());
 
       aEntity.appendElement ("countryCode").appendText (aDoc.m_sCountryCode);
 
@@ -457,7 +440,8 @@ public final class PDStoredBusinessEntity
     ret.setParticipantID (PDField.PARTICIPANT_ID.getDocValue (aDoc));
 
     for (final IDocumentTypeIdentifier aDocTypeID : PDField.DOCTYPE_ID.getDocValues (aDoc))
-      ret.addDocumentTypeID (aDocTypeID);
+      if (aDocTypeID != null)
+        ret.documentTypeIDs ().add (aDocTypeID);
 
     ret.setCountryCode (PDField.COUNTRY_CODE.getDocValue (aDoc));
 

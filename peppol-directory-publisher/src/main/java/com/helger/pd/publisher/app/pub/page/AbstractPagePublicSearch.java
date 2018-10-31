@@ -176,10 +176,10 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
     {
       if (aGroupedDocs.size () > 1)
         LOGGER.warn ("Found " +
-                        aGroupedDocs.size () +
-                        " entries for participant identifier '" +
-                        sParticipantID +
-                        "' - weird");
+                     aGroupedDocs.size () +
+                     " entries for participant identifier '" +
+                     sParticipantID +
+                     "' - weird");
       // Get the first one
       final ICommonsList <PDStoredBusinessEntity> aStoredEntities = aGroupedDocs.getFirstValue ();
 
@@ -246,8 +246,8 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
 
         HCOL aDocTypeOL = null;
         final ICommonsList <IDocumentTypeIdentifier> aDocTypeIDs = aResultDocs.getFirst ()
-                                                                              .getAllDocumentTypeIDs ()
-                                                                              .getSortedInline (IDocumentTypeIdentifier.comparator ());
+                                                                              .documentTypeIDs ()
+                                                                              .getSorted (IDocumentTypeIdentifier.comparator ());
         for (final IDocumentTypeIdentifier aDocTypeID : aDocTypeIDs)
         {
           if (aDocTypeOL == null)

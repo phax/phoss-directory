@@ -30,12 +30,14 @@ import com.helger.commons.mime.CMimeType;
 import com.helger.commons.state.EContinue;
 import com.helger.pd.publisher.exportall.ExportAllManager;
 import com.helger.photon.core.servlet.AbstractObjectDeliveryHttpHandler;
+import com.helger.poi.excel.EExcelVersion;
 import com.helger.servlet.response.UnifiedResponse;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 
 public class ExportDeliveryHttpHandler extends AbstractObjectDeliveryHttpHandler
 {
-  public static final String SPECIAL_BUSINESS_CARDS = "/businesscards";
+  public static final String SPECIAL_BUSINESS_CARDS_XML = "/businesscards";
+  public static final String SPECIAL_BUSINESS_CARDS_EXCEL = "/businesscards-excel";
   private static final Logger LOGGER = LoggerFactory.getLogger (ExportDeliveryHttpHandler.class);
 
   @Nonnull
@@ -55,7 +57,7 @@ public class ExportDeliveryHttpHandler extends AbstractObjectDeliveryHttpHandler
 
     // Allow only valid filenames
     final String sFilename = aRequestScope.attrs ().getAsString (REQUEST_ATTR_OBJECT_DELIVERY_FILENAME);
-    if (!sFilename.equals (SPECIAL_BUSINESS_CARDS))
+    if (!sFilename.equals (SPECIAL_BUSINESS_CARDS_XML) && !sFilename.equals (SPECIAL_BUSINESS_CARDS_EXCEL))
     {
       LOGGER.warn ("Cannot special stream the resource '" + sFilename + "'");
       aUnifiedResponse.setStatus (HttpServletResponse.SC_NOT_FOUND);
@@ -69,7 +71,7 @@ public class ExportDeliveryHttpHandler extends AbstractObjectDeliveryHttpHandler
                                     @Nonnull final UnifiedResponse aUnifiedResponse,
                                     @Nonnull final String sFilename) throws IOException
   {
-    if (sFilename.equals (SPECIAL_BUSINESS_CARDS))
+    if (sFilename.equals (SPECIAL_BUSINESS_CARDS_XML))
     {
       aUnifiedResponse.disableCaching ();
       ExportAllManager.streamFileXMLTo (aUnifiedResponse);
@@ -77,8 +79,16 @@ public class ExportDeliveryHttpHandler extends AbstractObjectDeliveryHttpHandler
       aUnifiedResponse.setContentDispositionFilename ("directory-export-business-cards.xml");
     }
     else
-    {
-      throw new IllegalStateException ("Unexpected '" + sFilename + "'");
-    }
+      if (sFilename.equals (SPECIAL_BUSINESS_CARDS_EXCEL))
+      {
+        aUnifiedResponse.disableCaching ();
+        ExportAllManager.streamFileExcelTo (aUnifiedResponse);
+        aUnifiedResponse.setMimeType (EExcelVersion.XLSX.getMimeType ());
+        aUnifiedResponse.setContentDispositionFilename ("directory-export-business-cards.xlsx");
+      }
+      else
+      {
+        throw new IllegalStateException ("Unexpected '" + sFilename + "'");
+      }
   }
 }

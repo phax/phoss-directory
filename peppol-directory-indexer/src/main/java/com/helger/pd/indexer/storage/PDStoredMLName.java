@@ -80,6 +80,15 @@ public final class PDStoredMLName
     return new PDName (m_sName, m_sLanguageCode);
   }
 
+  @Nonnull
+  @Nonempty
+  public String getNameAndLanguageCode ()
+  {
+    if (hasLanguageCode ())
+      return m_sName + " (" + m_sLanguageCode + ")";
+    return m_sName;
+  }
+
   @Override
   public boolean equals (final Object o)
   {

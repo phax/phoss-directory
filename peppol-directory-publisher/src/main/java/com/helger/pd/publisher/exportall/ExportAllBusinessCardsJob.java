@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.pd.indexer.storage.EQueryMode;
+import com.helger.poi.excel.WorkbookCreationHelper;
 import com.helger.quartz.DisallowConcurrentExecution;
 import com.helger.quartz.IJobExecutionContext;
 import com.helger.quartz.JobDataMap;
@@ -52,6 +53,17 @@ public final class ExportAllBusinessCardsJob extends AbstractScopeAwareJob
     finally
     {
       LOGGER.info ("Finished exporting business cards as XML");
+    }
+
+    LOGGER.info ("Start exporting business cards as Excel");
+    try
+    {
+      final WorkbookCreationHelper aWBCH = ExportAllManager.getAllContainedBusinessCardsAsExcel (EQueryMode.NON_DELETED_ONLY);
+      ExportAllManager.writeFileExcel (aWBCH::writeTo);
+    }
+    finally
+    {
+      LOGGER.info ("Finished exporting business cards as Excel");
     }
   }
 

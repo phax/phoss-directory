@@ -25,6 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.commons.annotation.Nonempty;
+import com.helger.commons.io.stream.NonBlockingByteArrayOutputStream;
+import com.helger.html.hc.html.grouping.HCDiv;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.EQueryMode;
@@ -37,12 +39,14 @@ import com.helger.pd.publisher.updater.SyncAllBusinessCardsJob;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.photon.bootstrap3.alert.BootstrapErrorBox;
 import com.helger.photon.bootstrap3.alert.BootstrapSuccessBox;
-import com.helger.photon.bootstrap3.button.BootstrapButtonToolbar;
+import com.helger.photon.bootstrap3.button.BootstrapButton;
 import com.helger.photon.core.ajax.decl.AjaxFunctionDeclaration;
 import com.helger.photon.core.url.LinkHelper;
 import com.helger.photon.uicore.css.CPageParam;
 import com.helger.photon.uicore.icon.EDefaultIcon;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
+import com.helger.poi.excel.EExcelVersion;
+import com.helger.poi.excel.WorkbookCreationHelper;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 import com.helger.xml.microdom.IMicroDocument;
 import com.helger.xml.microdom.IMicroElement;
@@ -54,12 +58,13 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
   private static final String ACTION_SYNC_BCS = "sync-bcs";
   private static final Logger LOGGER = LoggerFactory.getLogger (PageSecureParticipantActions.class);
 
-  private static final AjaxFunctionDeclaration s_aDownloadAllIDs;
-  private static final AjaxFunctionDeclaration s_aDownloadAllBCs;
+  private static final AjaxFunctionDeclaration s_aDownloadAllIDsXML;
+  private static final AjaxFunctionDeclaration s_aDownloadAllBCsXML;
+  private static final AjaxFunctionDeclaration s_aDownloadAllBCsExcel;
 
   static
   {
-    s_aDownloadAllIDs = addAjax ( (req, res) -> {
+    s_aDownloadAllIDsXML = addAjax ( (req, res) -> {
       final IMicroDocument aDoc = new MicroDocument ();
       final IMicroElement aRoot = aDoc.appendElement ("root");
       final Set <IParticipantIdentifier> aAllIDs = PDMetaManager.getStorageMgr ()
@@ -73,10 +78,18 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
       res.xml (aDoc);
       res.attachment ("directory-participant-list.xml");
     });
-    s_aDownloadAllBCs = addAjax ( (req, res) -> {
+    s_aDownloadAllBCsXML = addAjax ( (req, res) -> {
       final IMicroDocument aDoc = ExportAllManager.getAllContainedBusinessCardsAsXML (EQueryMode.NON_DELETED_ONLY);
       res.xml (aDoc);
       res.attachment ("directory-business-cards.xml");
+    });
+    s_aDownloadAllBCsExcel = addAjax ( (req, res) -> {
+      final WorkbookCreationHelper aWBCH = ExportAllManager.getAllContainedBusinessCardsAsExcel (EQueryMode.NON_DELETED_ONLY);
+      try (NonBlockingByteArrayOutputStream aBAOS = new NonBlockingByteArrayOutputStream ())
+      {
+        aWBCH.writeTo (aBAOS);
+        res.binary (aBAOS, EExcelVersion.XLSX.getMimeType (), "directory-business-cards.xlsx");
+      }
     });
   }
 
@@ -112,36 +125,36 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
         aWPEC.postRedirectGetInternal (new BootstrapSuccessBox ().addChild ("The synchronization was started successfully and is now running in the background."));
       }
 
-    {
-      final BootstrapButtonToolbar aToolbar = getUIHandler ().createToolbar (aWPEC);
-      aToolbar.addButton ("Download all IDs (uncached)",
-                          s_aDownloadAllIDs.getInvocationURL (aRequestScope),
-                          EDefaultIcon.SAVE);
-      aToolbar.addButton ("Download all Business Cards (uncached) (may take long time)",
-                          s_aDownloadAllBCs.getInvocationURL (aRequestScope),
-                          EDefaultIcon.CANCEL);
-      aToolbar.addButton ("Download all Business Cards (cached)",
-                          LinkHelper.getURLWithContext (aRequestScope,
-                                                        ExportServlet.SERVLET_DEFAULT_PATH +
-                                                                       ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS),
-                          EDefaultIcon.SAVE_ALL);
-      aNodeList.addChild (aToolbar);
-    }
+    aNodeList.addChild (new HCDiv ().addChild (new BootstrapButton ().addChild ("Download all IDs (XML, uncached)")
+                                                                     .setOnClick (s_aDownloadAllIDsXML.getInvocationURL (aRequestScope))
+                                                                     .setIcon (EDefaultIcon.SAVE)));
+    aNodeList.addChild (new HCDiv ().addChild (new BootstrapButton ().addChild ("Download all Business Cards (XML, uncached) (may take long time)")
+                                                                     .setOnClick (s_aDownloadAllBCsXML.getInvocationURL (aRequestScope))
+                                                                     .setIcon (EDefaultIcon.CANCEL)));
+    aNodeList.addChild (new HCDiv ().addChild (new BootstrapButton ().addChild ("Download all Business Cards (Excel, uncached) (may take long time)")
+                                                                     .setOnClick (s_aDownloadAllBCsExcel.getInvocationURL (aRequestScope))
+                                                                     .setIcon (EDefaultIcon.CANCEL)));
+    aNodeList.addChild (new HCDiv ().addChild (new BootstrapButton ().addChild ("Download all Business Cards (XML, cached)")
+                                                                     .setOnClick (LinkHelper.getURLWithContext (aRequestScope,
+                                                                                                                ExportServlet.SERVLET_DEFAULT_PATH +
+                                                                                                                               ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_XML))
+                                                                     .setIcon (EDefaultIcon.SAVE_ALL)));
+    aNodeList.addChild (new HCDiv ().addChild (new BootstrapButton ().addChild ("Download all Business Cards (Excel, cached)")
+                                                                     .setOnClick (LinkHelper.getURLWithContext (aRequestScope,
+                                                                                                                ExportServlet.SERVLET_DEFAULT_PATH +
+                                                                                                                               ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_EXCEL))
+                                                                     .setIcon (EDefaultIcon.SAVE_ALL)));
 
-    {
-      final BootstrapButtonToolbar aToolbar = getUIHandler ().createToolbar (aWPEC);
-      aToolbar.addButton ("Update all Business Cards for export",
-                          aWPEC.getSelfHref ().add (CPageParam.PARAM_ACTION, ACTION_UPDATE_EXPORTED_BCS),
-                          EDefaultIcon.INFO);
-      aNodeList.addChild (aToolbar);
-    }
+    aNodeList.addChild (new HCDiv ().addChild (new BootstrapButton ().addChild ("Update all Business Cards for export (XML and Excel)")
+                                                                     .setOnClick (aWPEC.getSelfHref ()
+                                                                                       .add (CPageParam.PARAM_ACTION,
+                                                                                             ACTION_UPDATE_EXPORTED_BCS))
+                                                                     .setIcon (EDefaultIcon.INFO)));
 
-    {
-      final BootstrapButtonToolbar aToolbar = getUIHandler ().createToolbar (aWPEC);
-      aToolbar.addButton ("Synchronize all Business Cards (re-query from SMP)",
-                          aWPEC.getSelfHref ().add (CPageParam.PARAM_ACTION, ACTION_SYNC_BCS),
-                          EDefaultIcon.REFRESH);
-      aNodeList.addChild (aToolbar);
-    }
+    aNodeList.addChild (new HCDiv ().addChild (new BootstrapButton ().addChild ("Synchronize all Business Cards (re-query from SMP)")
+                                                                     .setOnClick (aWPEC.getSelfHref ()
+                                                                                       .add (CPageParam.PARAM_ACTION,
+                                                                                             ACTION_SYNC_BCS))
+                                                                     .setIcon (EDefaultIcon.REFRESH)));
   }
 }

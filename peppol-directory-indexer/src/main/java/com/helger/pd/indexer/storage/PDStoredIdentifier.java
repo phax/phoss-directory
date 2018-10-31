@@ -63,6 +63,13 @@ public final class PDStoredIdentifier
     return new PDIdentifier (m_sScheme, m_sValue);
   }
 
+  @Nonnull
+  @Nonempty
+  public String getSchemeAndValue ()
+  {
+    return m_sScheme + "::" + m_sValue;
+  }
+
   @Override
   public boolean equals (final Object o)
   {
