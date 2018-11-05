@@ -32,3 +32,12 @@
     <a href="../../files/directory-export-v1.xsd">/files/directory-export-v1.xsd</a>.
   </li>
 </ul>
+
+<h3>Excel</h3>
+
+<ul>
+  <li>The Directory data can be downloaded as Excel file via the URL <a href="../../export/businesscards-excel">/export/businesscards-excel</a>.</li>
+  <li>The response MIME type is always <code>application/vnd.openxmlformats-officedocument.spreadsheetml.sheet</code>.</li>
+  <li>Responses can be cached up to 24 hours.</li>
+  <li>The data is updated once a day.</li>
+</ul>
