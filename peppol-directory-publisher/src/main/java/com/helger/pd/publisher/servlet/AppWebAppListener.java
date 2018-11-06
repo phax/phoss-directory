@@ -16,12 +16,9 @@
  */
 package com.helger.pd.publisher.servlet;
 
-import java.time.Month;
-
 import javax.annotation.Nonnull;
 import javax.servlet.ServletContext;
 
-import com.helger.commons.datetime.PDTFactory;
 import com.helger.commons.debug.GlobalDebug;
 import com.helger.commons.io.resource.ClassPathResource;
 import com.helger.commons.vendor.VendorInfo;
@@ -177,7 +174,7 @@ public final class AppWebAppListener extends WebAppListenerBootstrap
                                        JDK8TriggerBuilder.newTrigger ()
                                                          .startNow ()
                                                          .withSchedule (GlobalDebug.isDebugMode () ? SimpleScheduleBuilder.repeatMinutelyForever (2)
-                                                                                                   : SimpleScheduleBuilder.repeatHourlyForever (6)),
+                                                                                                   : SimpleScheduleBuilder.repeatHourlyForever (24)),
                                        ExportAllBusinessCardsJob.class,
                                        null);
     if (GlobalDebug.isProductionMode ())
@@ -186,9 +183,7 @@ public final class AppWebAppListener extends WebAppListenerBootstrap
       GlobalQuartzScheduler.getInstance ()
                            .scheduleJob (SyncAllBusinessCardsJob.class.getName (),
                                          JDK8TriggerBuilder.newTrigger ()
-                                                           .startAt (PDTFactory.createLocalDateTime (2018,
-                                                                                                     Month.JANUARY,
-                                                                                                     1))
+                                                           .startNow ()
                                                            .withSchedule (CalendarIntervalScheduleBuilder.calendarIntervalSchedule ()
                                                                                                          .withIntervalInWeeks (2)),
                                          SyncAllBusinessCardsJob.class,

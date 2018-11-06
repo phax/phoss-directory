@@ -17,12 +17,14 @@
 package com.helger.pd.publisher.exportall;
 
 import java.io.IOException;
+import java.util.concurrent.locks.Lock;
 
 import javax.annotation.Nonnull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.helger.commons.concurrent.SimpleLock;
 import com.helger.pd.indexer.storage.EQueryMode;
 import com.helger.poi.excel.WorkbookCreationHelper;
 import com.helger.quartz.DisallowConcurrentExecution;
@@ -42,28 +44,39 @@ public final class ExportAllBusinessCardsJob extends AbstractScopeAwareJob
 {
   private static final Logger LOGGER = LoggerFactory.getLogger (ExportAllBusinessCardsJob.class);
 
+  private static final Lock s_aLock = new SimpleLock ();
+
   public static void exportAllBusinessCards () throws IOException
   {
-    LOGGER.info ("Start exporting business cards as XML");
+    // Avoid running it in parallel
+    s_aLock.lock ();
     try
     {
-      final IMicroDocument aDoc = ExportAllManager.getAllContainedBusinessCardsAsXML (EQueryMode.NON_DELETED_ONLY);
-      ExportAllManager.writeFileXML (aDoc);
-    }
-    finally
-    {
-      LOGGER.info ("Finished exporting business cards as XML");
-    }
+      LOGGER.info ("Start exporting business cards as XML");
+      try
+      {
+        final IMicroDocument aDoc = ExportAllManager.getAllContainedBusinessCardsAsXML (EQueryMode.NON_DELETED_ONLY);
+        ExportAllManager.writeFileXML (aDoc);
+      }
+      finally
+      {
+        LOGGER.info ("Finished exporting business cards as XML");
+      }
 
-    LOGGER.info ("Start exporting business cards as Excel");
-    try
-    {
-      final WorkbookCreationHelper aWBCH = ExportAllManager.getAllContainedBusinessCardsAsExcel (EQueryMode.NON_DELETED_ONLY);
-      ExportAllManager.writeFileExcel (aWBCH::writeTo);
+      LOGGER.info ("Start exporting business cards as Excel");
+      try
+      {
+        final WorkbookCreationHelper aWBCH = ExportAllManager.getAllContainedBusinessCardsAsExcel (EQueryMode.NON_DELETED_ONLY);
+        ExportAllManager.writeFileExcel (aWBCH::writeTo);
+      }
+      finally
+      {
+        LOGGER.info ("Finished exporting business cards as Excel");
+      }
     }
     finally
     {
-      LOGGER.info ("Finished exporting business cards as Excel");
+      s_aLock.unlock ();
     }
   }
 
