@@ -31,16 +31,17 @@ import com.helger.pd.settings.PDServerConfiguration;
 @NotThreadSafe
 public final class CPDPublisher
 {
-  private CPDPublisher ()
-  {}
-
   // Email sender - depends on the used SMTP server
   public static final IEmailAddress EMAIL_SENDER = new EmailAddress ("no-reply@helger.com");
+  public static final boolean EXCEL_EXPORT = false;
 
   // APP Name - like "PEPPOL Directory"
   private static final String APPLICATION_TITLE = PDServerConfiguration.getAppName ();
 
   private static ISimpleURL s_aLogoImageURL = new SimpleURL ("/imgs/peppol.png");
+
+  private CPDPublisher ()
+  {}
 
   public static void setLogoImageURL (@Nonnull @Nonempty final String sLogoImageURL)
   {

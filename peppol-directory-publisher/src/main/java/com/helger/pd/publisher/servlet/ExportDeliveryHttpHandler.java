@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import com.helger.commons.io.file.FilenameHelper;
 import com.helger.commons.mime.CMimeType;
 import com.helger.commons.state.EContinue;
+import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.exportall.ExportAllManager;
 import com.helger.photon.core.servlet.AbstractObjectDeliveryHttpHandler;
 import com.helger.poi.excel.EExcelVersion;
@@ -81,10 +82,18 @@ public class ExportDeliveryHttpHandler extends AbstractObjectDeliveryHttpHandler
     else
       if (sFilename.equals (SPECIAL_BUSINESS_CARDS_EXCEL))
       {
-        aUnifiedResponse.disableCaching ();
-        ExportAllManager.streamFileExcelTo (aUnifiedResponse);
-        aUnifiedResponse.setMimeType (EExcelVersion.XLSX.getMimeType ());
-        aUnifiedResponse.setContentDispositionFilename ("directory-export-business-cards.xlsx");
+        if (CPDPublisher.EXCEL_EXPORT)
+        {
+          aUnifiedResponse.disableCaching ();
+          ExportAllManager.streamFileExcelTo (aUnifiedResponse);
+          aUnifiedResponse.setMimeType (EExcelVersion.XLSX.getMimeType ());
+          aUnifiedResponse.setContentDispositionFilename ("directory-export-business-cards.xlsx");
+        }
+        else
+        {
+          aUnifiedResponse.disableCaching ();
+          aUnifiedResponse.setStatus (HttpServletResponse.SC_NOT_FOUND);
+        }
       }
       else
       {

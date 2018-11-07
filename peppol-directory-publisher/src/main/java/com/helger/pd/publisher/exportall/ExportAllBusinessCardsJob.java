@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.commons.concurrent.SimpleLock;
 import com.helger.pd.indexer.storage.EQueryMode;
+import com.helger.pd.publisher.CPDPublisher;
 import com.helger.poi.excel.WorkbookCreationHelper;
 import com.helger.quartz.DisallowConcurrentExecution;
 import com.helger.quartz.IJobExecutionContext;
@@ -63,15 +64,18 @@ public final class ExportAllBusinessCardsJob extends AbstractScopeAwareJob
         LOGGER.info ("Finished exporting business cards as XML");
       }
 
-      LOGGER.info ("Start exporting business cards as Excel");
-      try
+      if (CPDPublisher.EXCEL_EXPORT)
       {
-        final WorkbookCreationHelper aWBCH = ExportAllManager.getAllContainedBusinessCardsAsExcel (EQueryMode.NON_DELETED_ONLY);
-        ExportAllManager.writeFileExcel (aWBCH::writeTo);
-      }
-      finally
-      {
-        LOGGER.info ("Finished exporting business cards as Excel");
+        LOGGER.info ("Start exporting business cards as Excel");
+        try
+        {
+          final WorkbookCreationHelper aWBCH = ExportAllManager.getAllContainedBusinessCardsAsExcel (EQueryMode.NON_DELETED_ONLY);
+          ExportAllManager.writeFileExcel (aWBCH::writeTo);
+        }
+        finally
+        {
+          LOGGER.info ("Finished exporting business cards as Excel");
+        }
       }
     }
     finally

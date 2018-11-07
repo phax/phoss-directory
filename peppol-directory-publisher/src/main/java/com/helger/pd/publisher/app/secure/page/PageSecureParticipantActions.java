@@ -30,6 +30,7 @@ import com.helger.html.hc.html.grouping.HCDiv;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.EQueryMode;
+import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.exportall.ExportAllBusinessCardsJob;
 import com.helger.pd.publisher.exportall.ExportAllManager;
 import com.helger.pd.publisher.servlet.ExportDeliveryHttpHandler;
@@ -139,12 +140,14 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
                                                                                                                 ExportServlet.SERVLET_DEFAULT_PATH +
                                                                                                                                ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_XML))
                                                                      .setIcon (EDefaultIcon.SAVE_ALL)));
-    aNodeList.addChild (new HCDiv ().addChild (new BootstrapButton ().addChild ("Download all Business Cards (Excel, cached)")
-                                                                     .setOnClick (LinkHelper.getURLWithContext (aRequestScope,
-                                                                                                                ExportServlet.SERVLET_DEFAULT_PATH +
-                                                                                                                               ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_EXCEL))
-                                                                     .setIcon (EDefaultIcon.SAVE_ALL)));
-
+    if (CPDPublisher.EXCEL_EXPORT)
+    {
+      aNodeList.addChild (new HCDiv ().addChild (new BootstrapButton ().addChild ("Download all Business Cards (Excel, cached)")
+                                                                       .setOnClick (LinkHelper.getURLWithContext (aRequestScope,
+                                                                                                                  ExportServlet.SERVLET_DEFAULT_PATH +
+                                                                                                                                 ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_EXCEL))
+                                                                       .setIcon (EDefaultIcon.SAVE_ALL)));
+    }
     aNodeList.addChild (new HCDiv ().addChild (new BootstrapButton ().addChild ("Update all Business Cards for export (XML and Excel)")
                                                                      .setOnClick (aWPEC.getSelfHref ()
                                                                                        .add (CPageParam.PARAM_ACTION,

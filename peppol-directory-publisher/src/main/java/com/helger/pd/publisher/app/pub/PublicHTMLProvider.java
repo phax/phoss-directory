@@ -319,18 +319,22 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
       aDiv.addChild (new HCP ().addChild (CPDPublisher.getApplication () + " - an ")
                                .addChild (new HCA (new SimpleURL (VENDOR_URL)).addChild (VENDOR_NAME))
                                .addChild (" service"));
-      aDiv.addChild (new HCP ().addChild ("Follow us on Twitter: ")
+      final HCP aP = new HCP ().addChild ("Follow us on Twitter: ")
                                .addChild (new HCA (new SimpleURL ("https://twitter.com/PEPPOLDirectory")).addChild ("@PEPPOLDirectory"))
                                .addChild (" - ")
                                .addChild ("Download all [")
                                .addChild (new HCA (LinkHelper.getURLWithContext (aRequestScope,
                                                                                  ExportServlet.SERVLET_DEFAULT_PATH +
-                                                                                                ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_XML)).addChild ("XML"))
-                               .addChild (" | ")
-                               .addChild (new HCA (LinkHelper.getURLWithContext (aRequestScope,
-                                                                                 ExportServlet.SERVLET_DEFAULT_PATH +
-                                                                                                ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_EXCEL)).addChild ("Excel"))
-                               .addChild ("]"));
+                                                                                                ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_XML)).addChild ("XML"));
+      if (CPDPublisher.EXCEL_EXPORT)
+      {
+        aP.addChild (" | ")
+          .addChild (new HCA (LinkHelper.getURLWithContext (aRequestScope,
+                                                            ExportServlet.SERVLET_DEFAULT_PATH +
+                                                                           ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_EXCEL)).addChild ("Excel"));
+      }
+      aP.addChild ("]");
+      aDiv.addChild (aP);
 
       final BootstrapMenuItemRendererHorz aRenderer = new BootstrapMenuItemRendererHorz (aDisplayLocale);
       final HCUL aUL = aDiv.addAndReturnChild (new HCUL ().addClass (CSS_CLASS_FOOTER_LINKS));
