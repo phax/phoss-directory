@@ -16,6 +16,11 @@
  */
 package com.helger.pd.publisher.updater;
 
+import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.format.DateTimeFormatter;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
@@ -23,11 +28,16 @@ import javax.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.helger.commons.datetime.PDTFactory;
+import com.helger.commons.datetime.PDTFromString;
+import com.helger.commons.io.file.SimpleFileIO;
+import com.helger.commons.state.EChange;
 import com.helger.pd.indexer.index.EIndexerWorkItemType;
 import com.helger.pd.indexer.mgr.PDIndexerManager;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.EQueryMode;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
+import com.helger.photon.basic.app.io.WebFileIO;
 import com.helger.photon.basic.audit.AuditHelper;
 import com.helger.quartz.DisallowConcurrentExecution;
 import com.helger.quartz.IJobExecutionContext;
@@ -45,9 +55,42 @@ public final class SyncAllBusinessCardsJob extends AbstractScopeAwareJob
 {
   private static final Logger LOGGER = LoggerFactory.getLogger (SyncAllBusinessCardsJob.class);
 
-  public static void syncAllBusinessCards ()
+  private static final LocalDateTime INITIAL_SYNC = PDTFactory.createLocalDateTime (2018, Month.NOVEMBER, 7, 12, 0, 0);
+
+  private static File _getLastSyncFile ()
   {
-    LOGGER.info ("Start synchronizing business cards");
+    return WebFileIO.getDataIO ().getFile ("last-sync.dat");
+  }
+
+  @Nonnull
+  public static LocalDateTime getLastSync ()
+  {
+    final String sPayload = SimpleFileIO.getFileAsString (_getLastSyncFile (), StandardCharsets.ISO_8859_1);
+    final LocalDateTime ret = PDTFromString.getLocalDateTimeFromString (sPayload,
+                                                                        DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+    return ret == null ? INITIAL_SYNC : ret;
+  }
+
+  public static void _setLastSync (@Nonnull final LocalDateTime aLastSyncDT)
+  {
+    final String sPayload = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format (aLastSyncDT);
+    SimpleFileIO.writeFile (_getLastSyncFile (), sPayload, StandardCharsets.ISO_8859_1);
+  }
+
+  @Nonnull
+  public static EChange syncAllBusinessCards (final boolean bForceSync)
+  {
+    final LocalDateTime aNow = PDTFactory.getCurrentLocalDateTime ();
+    if (!bForceSync)
+    {
+      // Only sync every 2 weeks
+      if (aNow.isBefore (getLastSync ().plusWeeks (2)))
+      {
+        return EChange.UNCHANGED;
+      }
+    }
+
+    LOGGER.info ("Start synchronizing business cards" + (bForceSync ? " (forced)" : ""));
     final PDIndexerManager aIndexerMgr = PDMetaManager.getIndexerMgr ();
     // Queue a work item to re-scan all
     final Set <IParticipantIdentifier> aAll = PDMetaManager.getStorageMgr ()
@@ -58,13 +101,20 @@ public final class SyncAllBusinessCardsJob extends AbstractScopeAwareJob
       aIndexerMgr.queueWorkItem (aParticipantID, EIndexerWorkItemType.SYNC, "sync-job", "localhost");
     }
     LOGGER.info ("Finished synchronizing of " + aAll.size () + " business cards");
-    AuditHelper.onAuditExecuteSuccess ("sync-bc-started", Integer.valueOf (aAll.size ()));
+    AuditHelper.onAuditExecuteSuccess ("sync-bc-started",
+                                       Integer.valueOf (aAll.size ()),
+                                       aNow,
+                                       Boolean.valueOf (bForceSync));
+    _setLastSync (aNow);
+
+    return EChange.CHANGED;
   }
 
   @Override
   protected void onExecute (@Nonnull final JobDataMap aJobDataMap,
                             @Nonnull final IJobExecutionContext aContext) throws JobExecutionException
   {
-    syncAllBusinessCards ();
+    // Ignore result - not forced
+    syncAllBusinessCards (false);
   }
 }

@@ -45,7 +45,6 @@ import com.helger.photon.basic.configfile.ConfigurationFileManager;
 import com.helger.photon.basic.configfile.EConfigurationFileSyntax;
 import com.helger.photon.bootstrap3.servlet.WebAppListenerBootstrap;
 import com.helger.photon.core.ajax.IAjaxInvoker;
-import com.helger.quartz.CalendarIntervalScheduleBuilder;
 import com.helger.quartz.SimpleScheduleBuilder;
 import com.helger.schedule.quartz.GlobalQuartzScheduler;
 import com.helger.schedule.quartz.listener.LoggingJobListener;
@@ -179,13 +178,12 @@ public final class AppWebAppListener extends WebAppListenerBootstrap
                                        null);
     if (GlobalDebug.isProductionMode ())
     {
-      // Schedule the sync job every 2 weeks
+      // Schedule the sync job every hour - it keeps track of the last sync internally
       GlobalQuartzScheduler.getInstance ()
                            .scheduleJob (SyncAllBusinessCardsJob.class.getName (),
                                          JDK8TriggerBuilder.newTrigger ()
                                                            .startNow ()
-                                                           .withSchedule (CalendarIntervalScheduleBuilder.calendarIntervalSchedule ()
-                                                                                                         .withIntervalInWeeks (2)),
+                                                           .withSchedule (SimpleScheduleBuilder.repeatHourlyForever (1)),
                                          SyncAllBusinessCardsJob.class,
                                          null);
     }

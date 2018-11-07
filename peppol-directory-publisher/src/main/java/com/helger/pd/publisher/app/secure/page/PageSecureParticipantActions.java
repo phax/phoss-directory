@@ -17,6 +17,7 @@
 package com.helger.pd.publisher.app.secure.page;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
@@ -25,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.commons.annotation.Nonempty;
+import com.helger.commons.datetime.PDTToString;
 import com.helger.commons.io.stream.NonBlockingByteArrayOutputStream;
 import com.helger.html.hc.html.grouping.HCDiv;
 import com.helger.html.hc.impl.HCNodeList;
@@ -40,6 +42,7 @@ import com.helger.pd.publisher.updater.SyncAllBusinessCardsJob;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.photon.bootstrap3.alert.BootstrapErrorBox;
 import com.helger.photon.bootstrap3.alert.BootstrapSuccessBox;
+import com.helger.photon.bootstrap3.alert.BootstrapWarnBox;
 import com.helger.photon.bootstrap3.button.BootstrapButton;
 import com.helger.photon.core.ajax.decl.AjaxFunctionDeclaration;
 import com.helger.photon.core.url.LinkHelper;
@@ -56,7 +59,8 @@ import com.helger.xml.microdom.MicroDocument;
 public final class PageSecureParticipantActions extends AbstractAppWebPage
 {
   private static final String ACTION_UPDATE_EXPORTED_BCS = "update-exported-bcs";
-  private static final String ACTION_SYNC_BCS = "sync-bcs";
+  private static final String ACTION_SYNC_BCS_UNFORCED = "sync-bcs-unforced";
+  private static final String ACTION_SYNC_BCS_FORCED = "sync-bcs-forced";
   private static final Logger LOGGER = LoggerFactory.getLogger (PageSecureParticipantActions.class);
 
   private static final AjaxFunctionDeclaration s_aDownloadAllIDsXML;
@@ -103,6 +107,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
   protected void fillContent (final WebPageExecutionContext aWPEC)
   {
     final HCNodeList aNodeList = aWPEC.getNodeList ();
+    final Locale aDisplayLocale = aWPEC.getDisplayLocale ();
     final IRequestWebScopeWithoutResponse aRequestScope = aWPEC.getRequestScope ();
 
     if (aWPEC.hasAction (ACTION_UPDATE_EXPORTED_BCS))
@@ -120,11 +125,23 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
       }
     }
     else
-      if (aWPEC.hasAction (ACTION_SYNC_BCS))
+      if (aWPEC.hasAction (ACTION_SYNC_BCS_UNFORCED))
       {
-        SyncAllBusinessCardsJob.syncAllBusinessCards ();
-        aWPEC.postRedirectGetInternal (new BootstrapSuccessBox ().addChild ("The synchronization was started successfully and is now running in the background."));
+        if (SyncAllBusinessCardsJob.syncAllBusinessCards (false).isChanged ())
+          aWPEC.postRedirectGetInternal (new BootstrapSuccessBox ().addChild ("The unforced synchronization was started successfully and is now running in the background."));
+        else
+          aWPEC.postRedirectGetInternal (new BootstrapWarnBox ().addChild ("The synchronization was not started because the last sync was at " +
+                                                                           PDTToString.getAsString (SyncAllBusinessCardsJob.getLastSync (),
+                                                                                                    aDisplayLocale)));
       }
+      else
+        if (aWPEC.hasAction (ACTION_SYNC_BCS_FORCED))
+        {
+          if (SyncAllBusinessCardsJob.syncAllBusinessCards (true).isChanged ())
+            aWPEC.postRedirectGetInternal (new BootstrapSuccessBox ().addChild ("The forced synchronization was started successfully and is now running in the background."));
+          else
+            aWPEC.postRedirectGetInternal (new BootstrapErrorBox ().addChild ("Force synchronization should always work"));
+        }
 
     aNodeList.addChild (new HCDiv ().addChild (new BootstrapButton ().addChild ("Download all IDs (XML, uncached)")
                                                                      .setOnClick (s_aDownloadAllIDsXML.getInvocationURL (aRequestScope))
@@ -148,16 +165,23 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
                                                                                                                                  ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_EXCEL))
                                                                        .setIcon (EDefaultIcon.SAVE_ALL)));
     }
-    aNodeList.addChild (new HCDiv ().addChild (new BootstrapButton ().addChild ("Update all Business Cards for export (XML and Excel)")
+    aNodeList.addChild (new HCDiv ().addChild (new BootstrapButton ().addChild ("Update all Business Cards for export (XML" +
+                                                                                (CPDPublisher.EXCEL_EXPORT ? " and Excel"
+                                                                                                           : "") +
+                                                                                ")")
                                                                      .setOnClick (aWPEC.getSelfHref ()
                                                                                        .add (CPageParam.PARAM_ACTION,
                                                                                              ACTION_UPDATE_EXPORTED_BCS))
                                                                      .setIcon (EDefaultIcon.INFO)));
-
-    aNodeList.addChild (new HCDiv ().addChild (new BootstrapButton ().addChild ("Synchronize all Business Cards (re-query from SMP)")
+    aNodeList.addChild (new HCDiv ().addChild (new BootstrapButton ().addChild ("Synchronize all Business Cards (re-query from SMP - unforced)")
                                                                      .setOnClick (aWPEC.getSelfHref ()
                                                                                        .add (CPageParam.PARAM_ACTION,
-                                                                                             ACTION_SYNC_BCS))
+                                                                                             ACTION_SYNC_BCS_UNFORCED))
                                                                      .setIcon (EDefaultIcon.REFRESH)));
+    aNodeList.addChild (new HCDiv ().addChild (new BootstrapButton ().addChild ("Synchronize all Business Cards (re-query from SMP - forced)")
+                                                                     .setOnClick (aWPEC.getSelfHref ()
+                                                                                       .add (CPageParam.PARAM_ACTION,
+                                                                                             ACTION_SYNC_BCS_FORCED))
+                                                                     .setIcon (EDefaultIcon.CANCEL)));
   }
 }
