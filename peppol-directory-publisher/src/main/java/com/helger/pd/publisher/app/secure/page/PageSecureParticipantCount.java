@@ -32,7 +32,9 @@ import com.helger.pd.indexer.lucene.AllDocumentsCollector;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.EQueryMode;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
+import com.helger.photon.bootstrap3.button.BootstrapButtonToolbar;
 import com.helger.photon.bootstrap3.table.BootstrapTable;
+import com.helger.photon.uicore.icon.EDefaultIcon;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 
 public final class PageSecureParticipantCount extends AbstractAppWebPage
@@ -43,9 +45,15 @@ public final class PageSecureParticipantCount extends AbstractAppWebPage
   }
 
   @Override
-  protected void fillContent (final WebPageExecutionContext aWPEC)
+  protected void fillContent (@Nonnull final WebPageExecutionContext aWPEC)
   {
     final HCNodeList aNodeList = aWPEC.getNodeList ();
+
+    {
+      final BootstrapButtonToolbar aToolbar = new BootstrapButtonToolbar (aWPEC);
+      aToolbar.addButton ("Refresh", aWPEC.getSelfHref (), EDefaultIcon.MAGNIFIER);
+      aNodeList.addChild (aToolbar);
+    }
 
     final int nNotDeletedCount = PDMetaManager.getStorageMgr ()
                                               .getContainedParticipantCount (EQueryMode.NON_DELETED_ONLY);
