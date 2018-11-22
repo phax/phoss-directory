@@ -80,8 +80,13 @@
       </dependency>
       <dependency>
         <groupId>com.helger</groupId>
+        <artifactId>ph-poi</artifactId>
+        <version>5.0.3</version>
+      </dependency>
+      <dependency>
+        <groupId>com.helger</groupId>
         <artifactId>ph-masterdata-parent-pom</artifactId>
-        <version>6.1.2-SNAPSHOT</version>
+        <version>6.1.2</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -95,7 +100,7 @@
       <dependency>
         <groupId>com.helger</groupId>
         <artifactId>ph-web-parent-pom</artifactId>
-        <version>9.1.0-SNAPSHOT</version>
+        <version>9.1.0</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -112,11 +117,6 @@
         <version>6.2.1-SNAPSHOT</version>
         <type>pom</type>
         <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.helger</groupId>
-        <artifactId>ph-poi</artifactId>
-        <version>5.0.3-SNAPSHOT</version>
       </dependency>
       
       <dependency>
