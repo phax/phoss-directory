@@ -87,15 +87,15 @@ public class SecureHTMLProvider extends AbstractSWECHTMLProvider
 
     {
       final IUser aUser = LoggedInUserManager.getInstance ().getCurrentUser ();
-      aToggleable.addChild (new BootstrapButton ().addClass (CBootstrapCSS.ML_AUTO)
-                                                  .addClass (CBootstrapCSS.MR_2)
-                                                  .addChild ("Goto public area")
-                                                  .setOnClick (LinkHelper.getURLWithContext (AbstractPublicApplicationServlet.SERVLET_DEFAULT_PATH +
-                                                                                             "/")));
       aToggleable.addAndReturnText ()
+                 .addClass (CBootstrapCSS.ML_AUTO)
                  .addClass (CBootstrapCSS.MX_2)
                  .addChild ("Welcome ")
                  .addChild (new HCStrong ().addChild (SecurityHelper.getUserDisplayName (aUser, aDisplayLocale)));
+      aToggleable.addChild (new BootstrapButton ().addClass (CBootstrapCSS.MX_2)
+                                                  .addChild ("Goto public area")
+                                                  .setOnClick (LinkHelper.getURLWithContext (AbstractPublicApplicationServlet.SERVLET_DEFAULT_PATH +
+                                                                                             "/")));
       aToggleable.addChild (new BootstrapButton ().addClass (CBootstrapCSS.MX_2)
                                                   .setOnClick (LinkHelper.getURLWithContext (aRequestScope,
                                                                                              LogoutServlet.SERVLET_DEFAULT_PATH))
@@ -140,13 +140,11 @@ public class SecureHTMLProvider extends AbstractSWECHTMLProvider
 
       // We need a wrapper span for easy AJAX content replacement
       aCol1.addClass (CBootstrapCSS.D_PRINT_NONE)
-           .addChild (new HCSpan ().setID (CLayout.LAYOUT_AREAID_MENU).addChild (getMenuContent (aLEC)));
+           .addChild (new HCSpan ().setID (CLayout.LAYOUT_AREAID_MENU)
+                                   .addChild (getMenuContent (aLEC))
+                                   .addChild (new HCDiv ().addChild (new HCSmall ().addChild (CDirectory.APPLICATION_VERSION)))
+                                   .addChild (new HCDiv ().addChild (new HCSmall ().addChild (CDirectory.APPLICATION_TIMESTAMP))));
       aCol1.addChild (new HCDiv ().setID (CLayout.LAYOUT_AREAID_SPECIAL));
-
-      // Build version/timestamp
-      aCol1.addChild (new HCDiv ().addChild (new HCSmall ().addChild (CDirectory.APPLICATION_VERSION +
-                                                                      "/" +
-                                                                      CDirectory.APPLICATION_TIMESTAMP)));
 
       // content - determine is exactly same as for view
       aCol2.addChild (PublicHTMLProvider.getPageContent (aLEC));

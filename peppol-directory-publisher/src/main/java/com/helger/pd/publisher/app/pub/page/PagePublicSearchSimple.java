@@ -310,7 +310,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
 
     final HCDiv aLogoContainer = new HCDiv ().addClass (CSS_CLASS_BIG_QUERY_IMAGE_CONTAINER);
-    aLogoContainer.addClass (CBootstrapCSS.MB_2);
+    aLogoContainer.addClass (CBootstrapCSS.MY_2);
     final HCDiv aLogo = new HCDiv ().addClass (CSS_CLASS_BIG_QUERY_IMAGE)
                                     .addStyle (CCSSProperties.BACKGROUND_IMAGE.newValue (CSSURLHelper.getAsCSSURL (CPDPublisher.getLogoImageURL (),
                                                                                                                    true)));

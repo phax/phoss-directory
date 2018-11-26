@@ -64,6 +64,7 @@ import com.helger.photon.bootstrap4.ext.BootstrapSystemMessage;
 import com.helger.photon.bootstrap4.layout.BootstrapContainer;
 import com.helger.photon.bootstrap4.navbar.BootstrapNavbar;
 import com.helger.photon.bootstrap4.navbar.BootstrapNavbarNav;
+import com.helger.photon.bootstrap4.navbar.BootstrapNavbarToggleable;
 import com.helger.photon.bootstrap4.uictrls.ext.BootstrapMenuItemRenderer;
 import com.helger.photon.bootstrap4.uictrls.ext.BootstrapMenuItemRendererHorz;
 import com.helger.photon.core.EPhotonCoreText;
@@ -164,31 +165,33 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
       aNav.addItem ().addNavDropDown ("About", aDropDown);
     }
 
+    final BootstrapNavbarToggleable aToggleable = aNavbar.addAndReturnToggleable ();
+
     // Login etc
     {
       final IUser aUser = LoggedInUserManager.getInstance ().getCurrentUser ();
       if (aUser != null)
       {
-        aNavbar.addChild (new HCSpan ().addClass (CBootstrapCSS.ML_AUTO)
-                                       .addClass (CBootstrapCSS.MR_2)
-                                       .addChild ("Welcome ")
-                                       .addChild (new HCStrong ().addChild (SecurityHelper.getUserDisplayName (aUser,
-                                                                                                               aDisplayLocale))));
+        aToggleable.addAndReturnText ()
+                   .addClass (CBootstrapCSS.ML_AUTO)
+                   .addClass (CBootstrapCSS.MR_2)
+                   .addChild ("Welcome ")
+                   .addChild (new HCStrong ().addChild (SecurityHelper.getUserDisplayName (aUser, aDisplayLocale)));
         if (SecurityHelper.hasUserRole (aUser.getID (), AppSecurity.ROLE_CONFIG_ID))
         {
-          aNavbar.addChild (new BootstrapButton ().addClass (CBootstrapCSS.MR_2)
-                                                  .addChild ("Goto secure area")
-                                                  .setOnClick (LinkHelper.getURLWithContext (AbstractSecureApplicationServlet.SERVLET_DEFAULT_PATH +
-                                                                                             "/")));
+          aToggleable.addChild (new BootstrapButton ().addClass (CBootstrapCSS.MR_2)
+                                                      .addChild ("Goto secure area")
+                                                      .setOnClick (LinkHelper.getURLWithContext (AbstractSecureApplicationServlet.SERVLET_DEFAULT_PATH +
+                                                                                                 "/")));
         }
-        aNavbar.addChild (new BootstrapButton ().setOnClick (LinkHelper.getURLWithContext (aRequestScope,
-                                                                                           LogoutServlet.SERVLET_DEFAULT_PATH))
-                                                .addChild (EPhotonCoreText.LOGIN_LOGOUT.getDisplayText (aDisplayLocale))
-                                                .addStyle (CCSSProperties.MARGIN_RIGHT.newValue ("8px")));
+        aToggleable.addChild (new BootstrapButton ().setOnClick (LinkHelper.getURLWithContext (aRequestScope,
+                                                                                               LogoutServlet.SERVLET_DEFAULT_PATH))
+                                                    .addChild (EPhotonCoreText.LOGIN_LOGOUT.getDisplayText (aDisplayLocale))
+                                                    .addStyle (CCSSProperties.MARGIN_RIGHT.newValue ("8px")));
       }
       else
       {
-        final BootstrapNavbarNav aNav = aNavbar.addAndReturnNav ();
+        final BootstrapNavbarNav aNav = aToggleable.addAndReturnNav ();
         final BootstrapDropdownMenu aDropDown = new BootstrapDropdownMenu ();
         {
           final HCDiv aDiv = new HCDiv ().addClass (CBootstrapCSS.P_2)
