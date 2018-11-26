@@ -43,7 +43,7 @@ import com.helger.photon.basic.app.request.RequestParameterManager;
 import com.helger.photon.basic.configfile.ConfigurationFile;
 import com.helger.photon.basic.configfile.ConfigurationFileManager;
 import com.helger.photon.basic.configfile.EConfigurationFileSyntax;
-import com.helger.photon.bootstrap3.servlet.WebAppListenerBootstrap;
+import com.helger.photon.bootstrap4.servlet.WebAppListenerBootstrap;
 import com.helger.photon.core.ajax.IAjaxInvoker;
 import com.helger.quartz.SimpleScheduleBuilder;
 import com.helger.schedule.quartz.GlobalQuartzScheduler;

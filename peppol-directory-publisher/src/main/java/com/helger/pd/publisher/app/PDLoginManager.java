@@ -17,16 +17,16 @@
 package com.helger.pd.publisher.app;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-import com.helger.css.property.CCSSProperties;
+import com.helger.html.hc.IHCNode;
 import com.helger.html.hc.html.grouping.HCDiv;
 import com.helger.html.hc.html.textlevel.HCSmall;
 import com.helger.pd.CDirectory;
 import com.helger.pd.publisher.CPDPublisher;
-import com.helger.photon.bootstrap3.base.BootstrapContainer;
-import com.helger.photon.bootstrap3.grid.BootstrapRow;
-import com.helger.photon.bootstrap3.uictrls.ext.BootstrapLoginHTMLProvider;
-import com.helger.photon.bootstrap3.uictrls.ext.BootstrapLoginManager;
+import com.helger.photon.bootstrap4.CBootstrapCSS;
+import com.helger.photon.bootstrap4.uictrls.ext.BootstrapLoginHTMLProvider;
+import com.helger.photon.bootstrap4.uictrls.ext.BootstrapLoginManager;
 import com.helger.photon.core.app.context.ISimpleWebExecutionContext;
 import com.helger.photon.core.app.html.IHTMLProvider;
 import com.helger.security.authentication.credentials.ICredentialValidationResult;
@@ -46,16 +46,14 @@ public final class PDLoginManager extends BootstrapLoginManager
     return new BootstrapLoginHTMLProvider (bLoginError, aLoginResult, getPageTitle ())
     {
       @Override
-      protected void onAfterContainer (final ISimpleWebExecutionContext aSWEC,
-                                       final BootstrapContainer aContainer,
-                                       final BootstrapRow aRow,
-                                       final HCDiv aContentCol)
+      @Nullable
+      protected IHCNode createFormFooter (@Nonnull final ISimpleWebExecutionContext aSWEC)
       {
-        final HCDiv aDiv = new HCDiv ().addStyle (CCSSProperties.MARGIN_TOP.newValue ("1rem"));
+        final HCDiv aDiv = new HCDiv ().addClass (CBootstrapCSS.D_FLEX).addClass (CBootstrapCSS.MT_5);
         aDiv.addChild (new HCSmall ().addChild (CPDPublisher.getApplicationTitleWithVersion () +
                                                 " / " +
                                                 CDirectory.APPLICATION_TIMESTAMP));
-        aContentCol.addChild (aDiv);
+        return aDiv;
       }
     };
   }

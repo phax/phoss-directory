@@ -30,15 +30,13 @@ import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.app.pub.CMenuPublic;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
-import com.helger.photon.bootstrap3.EBootstrapIcon;
-import com.helger.photon.bootstrap3.alert.BootstrapInfoBox;
-import com.helger.photon.bootstrap3.alert.BootstrapSuccessBox;
-import com.helger.photon.bootstrap3.alert.BootstrapWarnBox;
-import com.helger.photon.bootstrap3.button.BootstrapButton;
-import com.helger.photon.bootstrap3.button.BootstrapSubmitButton;
-import com.helger.photon.bootstrap3.button.EBootstrapButtonType;
-import com.helger.photon.bootstrap3.form.BootstrapForm;
-import com.helger.photon.bootstrap3.form.BootstrapFormGroup;
+import com.helger.photon.bootstrap4.alert.BootstrapInfoBox;
+import com.helger.photon.bootstrap4.alert.BootstrapSuccessBox;
+import com.helger.photon.bootstrap4.alert.BootstrapWarnBox;
+import com.helger.photon.bootstrap4.button.BootstrapButton;
+import com.helger.photon.bootstrap4.button.BootstrapSubmitButton;
+import com.helger.photon.bootstrap4.form.BootstrapForm;
+import com.helger.photon.bootstrap4.form.BootstrapFormGroup;
 import com.helger.photon.core.app.error.InternalErrorSettings;
 import com.helger.photon.core.form.FormErrorList;
 import com.helger.photon.core.form.RequestField;
@@ -164,10 +162,10 @@ public final class PagePublicContact extends AbstractAppWebPage
 
       aForm.addChild (new HCHiddenField (CPageParam.PARAM_ACTION, CPageParam.ACTION_PERFORM));
 
-      aForm.addChild (new BootstrapSubmitButton ().addChild ("Send message").setIcon (EBootstrapIcon.SEND));
-      aForm.addChild (new BootstrapButton (EBootstrapButtonType.DEFAULT).addChild ("No thanks")
-                                                                        .setIcon (EDefaultIcon.CANCEL)
-                                                                        .setOnClick (aWPEC.getLinkToMenuItem (CMenuPublic.MENU_SEARCH_SIMPLE)));
+      aForm.addChild (new BootstrapSubmitButton ().addChild ("Send message").setIcon (EDefaultIcon.YES));
+      aForm.addChild (new BootstrapButton ().addChild ("No thanks")
+                                            .setIcon (EDefaultIcon.CANCEL)
+                                            .setOnClick (aWPEC.getLinkToMenuItem (CMenuPublic.MENU_SEARCH_SIMPLE)));
     }
   }
 }

@@ -30,7 +30,6 @@ import com.helger.css.property.CCSSProperties;
 import com.helger.html.css.DefaultCSSClassProvider;
 import com.helger.html.css.ICSSClassProvider;
 import com.helger.html.hc.IHCNode;
-import com.helger.html.hc.html.HC_Target;
 import com.helger.html.hc.html.IHCElement;
 import com.helger.html.hc.html.grouping.HCDiv;
 import com.helger.html.hc.html.grouping.HCP;
@@ -57,20 +56,16 @@ import com.helger.photon.basic.app.menu.IMenuObject;
 import com.helger.photon.basic.app.menu.IMenuSeparator;
 import com.helger.photon.basic.app.menu.IMenuTree;
 import com.helger.photon.basic.app.menu.MenuItemDeterminatorCallback;
-import com.helger.photon.bootstrap3.CBootstrapCSS;
-import com.helger.photon.bootstrap3.alert.BootstrapErrorBox;
-import com.helger.photon.bootstrap3.base.BootstrapContainer;
-import com.helger.photon.bootstrap3.button.BootstrapButton;
-import com.helger.photon.bootstrap3.dropdown.BootstrapDropdownMenu;
-import com.helger.photon.bootstrap3.dropdown.BootstrapDropdownMenuItem;
-import com.helger.photon.bootstrap3.dropdown.EBootstrapDropdownMenuAlignment;
-import com.helger.photon.bootstrap3.ext.BootstrapSystemMessage;
-import com.helger.photon.bootstrap3.nav.BootstrapNav;
-import com.helger.photon.bootstrap3.navbar.BootstrapNavbar;
-import com.helger.photon.bootstrap3.navbar.EBootstrapNavbarPosition;
-import com.helger.photon.bootstrap3.navbar.EBootstrapNavbarType;
-import com.helger.photon.bootstrap3.uictrls.ext.BootstrapMenuItemRenderer;
-import com.helger.photon.bootstrap3.uictrls.ext.BootstrapMenuItemRendererHorz;
+import com.helger.photon.bootstrap4.CBootstrapCSS;
+import com.helger.photon.bootstrap4.alert.BootstrapErrorBox;
+import com.helger.photon.bootstrap4.button.BootstrapButton;
+import com.helger.photon.bootstrap4.dropdown.BootstrapDropdownMenu;
+import com.helger.photon.bootstrap4.ext.BootstrapSystemMessage;
+import com.helger.photon.bootstrap4.layout.BootstrapContainer;
+import com.helger.photon.bootstrap4.navbar.BootstrapNavbar;
+import com.helger.photon.bootstrap4.navbar.BootstrapNavbarNav;
+import com.helger.photon.bootstrap4.uictrls.ext.BootstrapMenuItemRenderer;
+import com.helger.photon.bootstrap4.uictrls.ext.BootstrapMenuItemRendererHorz;
 import com.helger.photon.core.EPhotonCoreText;
 import com.helger.photon.core.app.context.ISimpleWebExecutionContext;
 import com.helger.photon.core.app.context.LayoutExecutionContext;
@@ -119,90 +114,99 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
 
     // Documentation
     {
-      final BootstrapNav aNav = new BootstrapNav ();
-      final BootstrapDropdownMenu aDropDown = aNav.addDropdownMenu ("Documentation");
-      aDropDown.addMenuItem (new BootstrapDropdownMenuItem ().setLabel ("Introduction")
-                                                             .setLinkAction (aLEC.getLinkToMenuItem (CMenuPublic.MENU_DOCS_INTRODUCTION)));
-      aDropDown.addMenuItem (new BootstrapDropdownMenuItem ().setLabel ("How to use it")
-                                                             .setLinkAction (aLEC.getLinkToMenuItem (CMenuPublic.MENU_DOCS_HOW_TO)));
-      aDropDown.addMenuItem (new BootstrapDropdownMenuItem ().setLabel ("REST API")
-                                                             .setLinkAction (aLEC.getLinkToMenuItem (CMenuPublic.MENU_DOCS_REST_API)));
-      aDropDown.addMenuItem (new BootstrapDropdownMenuItem ().setLabel ("Export data")
-                                                             .setLinkAction (aLEC.getLinkToMenuItem (CMenuPublic.MENU_DOCS_EXPORT_ALL)));
-      aDropDown.addMenuItem (new BootstrapDropdownMenuItem ().setLabel ("Specification v1.1 (PDF)")
-                                                             .setLinkAction (LinkHelper.getURLWithContext ("/files/OpenPEPPOL Directory 1.1 2018-07-17.pdf")));
-      aDropDown.addMenuItem (new BootstrapDropdownMenuItem ().setLabel ("Guide for SMP providers (PDF)")
-                                                             .setLinkAction (LinkHelper.getURLWithContext ("/files/OpenPEPPOL Directory for SMP providers 2016-12-05.pdf")));
-      aNavbar.addNav (EBootstrapNavbarPosition.COLLAPSIBLE_LEFT, aNav);
+      final BootstrapNavbarNav aNav = aNavbar.addAndReturnNav ();
+      final BootstrapDropdownMenu aDropDown = new BootstrapDropdownMenu ();
+      aDropDown.createAndAddItem ()
+               .addChild ("Introduction")
+               .setHref (aLEC.getLinkToMenuItem (CMenuPublic.MENU_DOCS_INTRODUCTION));
+      aDropDown.createAndAddItem ()
+               .addChild ("How to use it")
+               .setHref (aLEC.getLinkToMenuItem (CMenuPublic.MENU_DOCS_HOW_TO));
+      aDropDown.createAndAddItem ()
+               .addChild ("REST API")
+               .setHref (aLEC.getLinkToMenuItem (CMenuPublic.MENU_DOCS_REST_API));
+      aDropDown.createAndAddItem ()
+               .addChild ("Export data")
+               .setHref (aLEC.getLinkToMenuItem (CMenuPublic.MENU_DOCS_EXPORT_ALL));
+      aDropDown.createAndAddItem ()
+               .addChild ("Specification v1.1 (PDF)")
+               .setHref (LinkHelper.getURLWithContext ("/files/OpenPEPPOL Directory 1.1 2018-07-17.pdf"));
+      aDropDown.createAndAddItem ()
+               .addChild ("Guide for SMP providers (PDF)")
+               .setHref (LinkHelper.getURLWithContext ("/files/OpenPEPPOL Directory for SMP providers 2016-12-05.pdf"));
+      aNav.addItem ().addNavDropDown ("Documentation", aDropDown);
     }
 
     // Support
     {
-      final BootstrapNav aNav = new BootstrapNav ();
-      final BootstrapDropdownMenu aDropDown = aNav.addDropdownMenu ("Support");
-      aDropDown.addMenuItem (new BootstrapDropdownMenuItem ().setLabel ("Contact us")
-                                                             .setLinkAction (aLEC.getLinkToMenuItem (CMenuPublic.MENU_SUPPORT_CONTACT_US)));
-      aDropDown.addMenuItem (new BootstrapDropdownMenuItem ().setLabel ("Compliant SMP implementations")
-                                                             .setLinkAction (aLEC.getLinkToMenuItem (CMenuPublic.MENU_SUPPORT_SMP_IMPLEMENTATIONS)));
-      aDropDown.addMenuItem (new BootstrapDropdownMenuItem ().setLabel ("Issue tracker (external)")
-                                                             .setLinkAction (new SimpleURL ("https://github.com/phax/peppol-directory/issues"))
-                                                             .setTarget (HC_Target.BLANK));
-      aNavbar.addNav (EBootstrapNavbarPosition.COLLAPSIBLE_LEFT, aNav);
+      final BootstrapNavbarNav aNav = aNavbar.addAndReturnNav ();
+      final BootstrapDropdownMenu aDropDown = new BootstrapDropdownMenu ();
+      aDropDown.createAndAddItem ()
+               .addChild ("Contact us")
+               .setHref (aLEC.getLinkToMenuItem (CMenuPublic.MENU_SUPPORT_CONTACT_US));
+      aDropDown.createAndAddItem ()
+               .addChild ("Compliant SMP implementations")
+               .setHref (aLEC.getLinkToMenuItem (CMenuPublic.MENU_SUPPORT_SMP_IMPLEMENTATIONS));
+      aDropDown.createAndAddItem ()
+               .addChild ("Issue tracker (external)")
+               .setHref (new SimpleURL ("https://github.com/phax/peppol-directory/issues"))
+               .setTargetBlank ();
+      aNav.addItem ().addNavDropDown ("Support", aDropDown);
     }
 
     // About
     {
-      final BootstrapNav aNav = new BootstrapNav ();
-      final BootstrapDropdownMenu aDropDown = aNav.addDropdownMenu ("About");
-      aDropDown.addMenuItem (new BootstrapDropdownMenuItem ().setLabel ("About " + CPDPublisher.getApplication ())
-                                                             .setLinkAction (aLEC.getLinkToMenuItem (CMenuPublic.MENU_ABOUT)));
-      aNavbar.addNav (EBootstrapNavbarPosition.COLLAPSIBLE_LEFT, aNav);
+      final BootstrapNavbarNav aNav = aNavbar.addAndReturnNav ();
+      final BootstrapDropdownMenu aDropDown = new BootstrapDropdownMenu ();
+      aDropDown.createAndAddItem ()
+               .addChild ("About " + CPDPublisher.getApplication ())
+               .setHref (aLEC.getLinkToMenuItem (CMenuPublic.MENU_ABOUT));
+      aNav.addItem ().addNavDropDown ("About", aDropDown);
     }
 
     // Login etc
     {
-      final BootstrapNav aNav = new BootstrapNav ();
       final IUser aUser = LoggedInUserManager.getInstance ().getCurrentUser ();
       if (aUser != null)
       {
+        aNavbar.addChild (new HCSpan ().addClass (CBootstrapCSS.ML_AUTO)
+                                       .addClass (CBootstrapCSS.MR_2)
+                                       .addChild ("Welcome ")
+                                       .addChild (new HCStrong ().addChild (SecurityHelper.getUserDisplayName (aUser,
+                                                                                                               aDisplayLocale))));
         if (SecurityHelper.hasUserRole (aUser.getID (), AppSecurity.ROLE_CONFIG_ID))
         {
-          aNav.addButton (new BootstrapButton ().addChild ("Goto secure area")
-                                                .setOnClick (LinkHelper.getURLWithContext (AbstractSecureApplicationServlet.SERVLET_DEFAULT_PATH +
-                                                                                           "/")));
+          aNavbar.addChild (new BootstrapButton ().addClass (CBootstrapCSS.MR_2)
+                                                  .addChild ("Goto secure area")
+                                                  .setOnClick (LinkHelper.getURLWithContext (AbstractSecureApplicationServlet.SERVLET_DEFAULT_PATH +
+                                                                                             "/")));
         }
-
-        aNav.addText (new HCSpan ().addChild ("Welcome ")
-                                   .addChild (new HCStrong ().addChild (SecurityHelper.getUserDisplayName (aUser,
-                                                                                                           aDisplayLocale))));
-        aNav.addButton (new BootstrapButton ().setOnClick (LinkHelper.getURLWithContext (aRequestScope,
-                                                                                         LogoutServlet.SERVLET_DEFAULT_PATH))
-                                              .addChild (EPhotonCoreText.LOGIN_LOGOUT.getDisplayText (aDisplayLocale))
-                                              .addStyle (CCSSProperties.MARGIN_RIGHT.newValue ("8px")));
+        aNavbar.addChild (new BootstrapButton ().setOnClick (LinkHelper.getURLWithContext (aRequestScope,
+                                                                                           LogoutServlet.SERVLET_DEFAULT_PATH))
+                                                .addChild (EPhotonCoreText.LOGIN_LOGOUT.getDisplayText (aDisplayLocale))
+                                                .addStyle (CCSSProperties.MARGIN_RIGHT.newValue ("8px")));
       }
       else
       {
-        final BootstrapDropdownMenu aDropDown = aNav.addDropdownMenu (EBootstrapDropdownMenuAlignment.RIGHT, "Login");
+        final BootstrapNavbarNav aNav = aNavbar.addAndReturnNav ();
+        final BootstrapDropdownMenu aDropDown = new BootstrapDropdownMenu ();
         {
-          // 300px would lead to a messy layout - so 250px is fine
-          final HCDiv aDiv = new HCDiv ().addStyle (CCSSProperties.PADDING.newValue ("10px"))
-                                         .addStyle (CCSSProperties.WIDTH.newValue ("250px"));
-          aDiv.addChild (AppCommonUI.createViewLoginForm (aLEC, null, false).addClass (CBootstrapCSS.NAVBAR_FORM));
-          aDropDown.addItem (aDiv);
+          final HCDiv aDiv = new HCDiv ().addClass (CBootstrapCSS.P_2)
+                                         .addStyle (CCSSProperties.MIN_WIDTH.newValue ("400px"));
+          aDiv.addChild (AppCommonUI.createViewLoginForm (aLEC, null));
+          aDropDown.addChild (aDiv);
         }
+        aNav.addItem ().addNavDropDown ("Login", aDropDown);
       }
-      aNavbar.addNav (EBootstrapNavbarPosition.COLLAPSIBLE_RIGHT, aNav);
     }
   }
 
   @Nonnull
   private static BootstrapNavbar _getNavbar (@Nonnull final LayoutExecutionContext aLEC)
   {
-    final Locale aDisplayLocale = aLEC.getDisplayLocale ();
     final ISimpleURL aLinkToStartPage = aLEC.getLinkToMenuItem (aLEC.getMenuTree ().getDefaultMenuItemID ());
 
-    final BootstrapNavbar aNavbar = new BootstrapNavbar (EBootstrapNavbarType.STATIC_TOP, true, aDisplayLocale);
-    aNavbar.getContainer ().setFluid (true);
+    final BootstrapNavbar aNavbar = new BootstrapNavbar ();
     aNavbar.addBrand (new HCSpan ().addClass (AppCommonUI.CSS_CLASS_LOGO1)
                                    .addChild (CPDPublisher.getApplicationTitle ()),
                       aLinkToStartPage);

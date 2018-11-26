@@ -22,7 +22,7 @@ import javax.annotation.Nullable;
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.id.IHasID;
 import com.helger.commons.name.IHasDisplayName;
-import com.helger.photon.bootstrap3.pages.AbstractBootstrapWebPageForm;
+import com.helger.photon.bootstrap4.pages.AbstractBootstrapWebPageForm;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 
 public abstract class AbstractAppWebPageForm <DATATYPE extends IHasID <String>> extends

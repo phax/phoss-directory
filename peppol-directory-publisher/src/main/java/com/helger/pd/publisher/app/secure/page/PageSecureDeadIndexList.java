@@ -23,7 +23,7 @@ import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.mgr.PDIndexerManager;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.reindex.IReIndexWorkItemList;
-import com.helger.photon.bootstrap3.alert.BootstrapInfoBox;
+import com.helger.photon.bootstrap4.alert.BootstrapInfoBox;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 
 public final class PageSecureDeadIndexList extends AbstractPageSecureReIndex

@@ -23,7 +23,7 @@ import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.io.resource.IReadableResource;
 import com.helger.html.EHTMLVersion;
 import com.helger.html.hc.IHCNode;
-import com.helger.photon.bootstrap3.pages.BootstrapWebPageUIHandler;
+import com.helger.photon.bootstrap4.pages.BootstrapWebPageUIHandler;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 import com.helger.photon.uicore.page.external.BasePageViewExternal;
 import com.helger.photon.uicore.page.external.PageViewExternalHTMLCleanser;

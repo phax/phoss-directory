@@ -60,17 +60,17 @@ import com.helger.peppol.identifier.factory.PeppolIdentifierFactory;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.peppol.identifier.peppol.pidscheme.IParticipantIdentifierScheme;
 import com.helger.peppol.identifier.peppol.pidscheme.ParticipantIdentifierSchemeManager;
-import com.helger.photon.bootstrap3.CBootstrapCSS;
-import com.helger.photon.bootstrap3.alert.BootstrapErrorBox;
-import com.helger.photon.bootstrap3.alert.BootstrapInfoBox;
-import com.helger.photon.bootstrap3.button.BootstrapButton;
-import com.helger.photon.bootstrap3.button.BootstrapSubmitButton;
-import com.helger.photon.bootstrap3.button.EBootstrapButtonSize;
-import com.helger.photon.bootstrap3.button.EBootstrapButtonType;
-import com.helger.photon.bootstrap3.grid.BootstrapRow;
-import com.helger.photon.bootstrap3.label.BootstrapLabel;
-import com.helger.photon.bootstrap3.label.EBootstrapLabelType;
-import com.helger.photon.bootstrap3.table.BootstrapTable;
+import com.helger.photon.bootstrap4.CBootstrapCSS;
+import com.helger.photon.bootstrap4.alert.BootstrapErrorBox;
+import com.helger.photon.bootstrap4.alert.BootstrapInfoBox;
+import com.helger.photon.bootstrap4.badge.BootstrapBadge;
+import com.helger.photon.bootstrap4.badge.EBootstrapBadgeType;
+import com.helger.photon.bootstrap4.button.BootstrapButton;
+import com.helger.photon.bootstrap4.button.BootstrapSubmitButton;
+import com.helger.photon.bootstrap4.button.EBootstrapButtonSize;
+import com.helger.photon.bootstrap4.button.EBootstrapButtonType;
+import com.helger.photon.bootstrap4.grid.BootstrapRow;
+import com.helger.photon.bootstrap4.table.BootstrapTable;
 import com.helger.photon.core.form.RequestField;
 import com.helger.photon.uicore.css.CPageParam;
 import com.helger.photon.uicore.icon.EDefaultIcon;
@@ -100,7 +100,8 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
   @Nonnull
   private static HCEdit _createQueryEdit ()
   {
-    return new HCEdit (new RequestField (FIELD_QUERY)).setPlaceholder ("Search " + CPDPublisher.getApplication ());
+    return new HCEdit (new RequestField (FIELD_QUERY)).setPlaceholder ("Search " + CPDPublisher.getApplication ())
+                                                      .addClass (CBootstrapCSS.FORM_CONTROL);
   }
 
   @Nonnull
@@ -128,9 +129,9 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     }
 
     final BootstrapRow aBodyRow = new BootstrapRow ();
-    aBodyRow.createColumn (12, 1, 2, 3).addClass (CBootstrapCSS.HIDDEN_XS);
-    aBodyRow.createColumn (12, 10, 8, 6).addChild (aBigQueryBox);
-    aBodyRow.createColumn (12, 1, 2, 3).addClass (CBootstrapCSS.HIDDEN_XS);
+    aBodyRow.createColumn (-1, -1, 1, 2, 3).addClasses (CBootstrapCSS.D_NONE, CBootstrapCSS.D_MD_BLOCK);
+    aBodyRow.createColumn (12, 12, 10, 8, 6).addChild (aBigQueryBox);
+    aBodyRow.createColumn (-1, -1, 1, 2, 3).addClasses (CBootstrapCSS.D_NONE, CBootstrapCSS.D_MD_BLOCK);
     return aBodyRow;
   }
 
@@ -178,7 +179,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     }
     else
     {
-      aNodeList.addChild (new HCDiv ().addChild (new BootstrapLabel (EBootstrapLabelType.SUCCESS).addChild ("Found " +
+      aNodeList.addChild (new HCDiv ().addChild (new BootstrapBadge (EBootstrapBadgeType.SUCCESS).addChild ("Found " +
                                                                                                             (aGroupedBEs.size () == 1 ? "1 entity"
                                                                                                                                       : aGroupedBEs.size () +
                                                                                                                                         " entities") +
@@ -186,7 +187,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
                                                                                                             sQuery +
                                                                                                             "'")));
       if (nTotalBEs > nMaxResults)
-        aNodeList.addChild (new HCDiv ().addChild (new BootstrapLabel (EBootstrapLabelType.WARNING).addChild ("Found more entities than displayed (" +
+        aNodeList.addChild (new HCDiv ().addChild (new BootstrapBadge (EBootstrapBadgeType.WARNING).addChild ("Found more entities than displayed (" +
                                                                                                               nTotalBEs +
                                                                                                               " entries exist). Try to be more specific.")));
 
@@ -309,6 +310,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
 
     final HCDiv aLogoContainer = new HCDiv ().addClass (CSS_CLASS_BIG_QUERY_IMAGE_CONTAINER);
+    aLogoContainer.addClass (CBootstrapCSS.MB_2);
     final HCDiv aLogo = new HCDiv ().addClass (CSS_CLASS_BIG_QUERY_IMAGE)
                                     .addStyle (CCSSProperties.BACKGROUND_IMAGE.newValue (CSSURLHelper.getAsCSSURL (CPDPublisher.getLogoImageURL (),
                                                                                                                    true)));

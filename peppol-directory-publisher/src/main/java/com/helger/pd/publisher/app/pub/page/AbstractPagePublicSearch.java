@@ -55,15 +55,15 @@ import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.peppol.identifier.peppol.pidscheme.IParticipantIdentifierScheme;
 import com.helger.peppol.identifier.peppol.pidscheme.ParticipantIdentifierSchemeManager;
-import com.helger.photon.bootstrap3.alert.BootstrapInfoBox;
-import com.helger.photon.bootstrap3.alert.BootstrapWarnBox;
-import com.helger.photon.bootstrap3.badge.BootstrapBadge;
-import com.helger.photon.bootstrap3.form.BootstrapFormGroup;
-import com.helger.photon.bootstrap3.form.BootstrapViewForm;
-import com.helger.photon.bootstrap3.nav.BootstrapTabBox;
-import com.helger.photon.bootstrap3.pageheader.BootstrapPageHeader;
-import com.helger.photon.bootstrap3.pages.BootstrapWebPageUIHandler;
-import com.helger.photon.bootstrap3.panel.BootstrapPanel;
+import com.helger.photon.bootstrap4.alert.BootstrapInfoBox;
+import com.helger.photon.bootstrap4.alert.BootstrapWarnBox;
+import com.helger.photon.bootstrap4.badge.BootstrapBadge;
+import com.helger.photon.bootstrap4.card.BootstrapCard;
+import com.helger.photon.bootstrap4.form.BootstrapFormGroup;
+import com.helger.photon.bootstrap4.form.BootstrapViewForm;
+import com.helger.photon.bootstrap4.nav.BootstrapTabBox;
+import com.helger.photon.bootstrap4.pages.BootstrapWebPageUIHandler;
+import com.helger.photon.bootstrap4.utils.BootstrapPageHeader;
 
 public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
 {
@@ -215,14 +215,14 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
         int nIndex = 1;
         for (final PDStoredBusinessEntity aStoredEntity : aStoredEntities)
         {
-          final BootstrapPanel aPanel = aOL.addAndReturnChild (new BootstrapPanel ());
-          aPanel.addClass (CSS_CLASS_RESULT_PANEL);
+          final BootstrapCard aCard = aOL.addAndReturnChild (new BootstrapCard ());
+          aCard.addClass (CSS_CLASS_RESULT_PANEL);
           if (aStoredEntities.size () > 1)
-            aPanel.getOrCreateHeader ().addChild ("Business information entity " + nIndex);
+            aCard.createAndAddHeader ().addChild ("Business information entity " + nIndex);
           final BootstrapViewForm aViewForm = PDCommonUI.showBusinessInfoDetails (aStoredEntity, aDisplayLocale);
           aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Full PEPPOL participant ID")
                                                            .setCtrl (new HCCode ().addChild (sParticipantID)));
-          aPanel.getBody ().addChild (aViewForm);
+          aCard.createAndAddBody ().addChild (aViewForm);
           ++nIndex;
         }
         // Add whole list or just the first item?

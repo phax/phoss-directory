@@ -30,8 +30,8 @@ import com.helger.pd.publisher.app.secure.page.PageSecureReIndexList;
 import com.helger.pd.publisher.app.secure.page.PageSecureSMLConfiguration;
 import com.helger.photon.basic.app.menu.IMenuItemPage;
 import com.helger.photon.basic.app.menu.IMenuTree;
-import com.helger.photon.bootstrap3.pages.BootstrapPagesMenuConfigurator;
-import com.helger.photon.bootstrap3.pages.security.BasePageSecurityChangePassword;
+import com.helger.photon.bootstrap4.pages.BootstrapPagesMenuConfigurator;
+import com.helger.photon.bootstrap4.pages.security.BasePageSecurityChangePassword;
 import com.helger.photon.security.menu.MenuObjectFilterUserAssignedToUserGroup;
 import com.helger.photon.uicore.page.system.BasePageShowChildren;
 

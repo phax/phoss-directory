@@ -28,7 +28,7 @@ import com.helger.html.hc.IHCNode;
 import com.helger.html.hc.render.HCRenderer;
 import com.helger.json.JsonObject;
 import com.helger.pd.publisher.app.AppSecurity;
-import com.helger.photon.bootstrap3.alert.BootstrapErrorBox;
+import com.helger.photon.bootstrap4.alert.BootstrapErrorBox;
 import com.helger.photon.core.EPhotonCoreText;
 import com.helger.photon.core.PhotonUnifiedResponse;
 import com.helger.photon.core.ajax.executor.IAjaxExecutor;

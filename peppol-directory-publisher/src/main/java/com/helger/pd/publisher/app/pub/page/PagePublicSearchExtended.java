@@ -26,13 +26,13 @@ import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.publisher.search.EPDSearchField;
 import com.helger.pd.publisher.search.ESearchOperator;
 import com.helger.pd.publisher.search.ui.HCSearchOperatorSelect;
-import com.helger.photon.bootstrap3.alert.BootstrapInfoBox;
-import com.helger.photon.bootstrap3.form.BootstrapFormGroup;
-import com.helger.photon.bootstrap3.form.BootstrapViewForm;
-import com.helger.photon.bootstrap3.grid.BootstrapRow;
-import com.helger.photon.bootstrap3.uictrls.datetimepicker.BootstrapDateTimePicker;
+import com.helger.photon.bootstrap4.alert.BootstrapInfoBox;
+import com.helger.photon.bootstrap4.form.BootstrapFormGroup;
+import com.helger.photon.bootstrap4.form.BootstrapViewForm;
+import com.helger.photon.bootstrap4.grid.BootstrapRow;
+import com.helger.photon.bootstrap4.uictrls.datetimepicker.BootstrapDateTimePicker;
+import com.helger.photon.bootstrap4.uictrls.datetimepicker.EBootstrap4DateTimePickerMode;
 import com.helger.photon.core.form.RequestField;
-import com.helger.photon.core.form.RequestFieldDate;
 import com.helger.photon.uicore.html.select.HCCountrySelect;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 
@@ -57,7 +57,9 @@ public final class PagePublicSearchExtended extends AbstractPagePublicSearch
         ret.addChild (new HCCountrySelect (new RequestField (PREFIX_SPECIAL + sFieldName), aDisplayLocale));
         break;
       case REGISTRATION_DATE:
-        ret.addChild (new BootstrapDateTimePicker (new RequestFieldDate (PREFIX_SPECIAL + sFieldName, aDisplayLocale)));
+        ret.addChild (BootstrapDateTimePicker.create (PREFIX_SPECIAL + sFieldName,
+                                                      aDisplayLocale,
+                                                      EBootstrap4DateTimePickerMode.DATE));
         break;
     }
     // Default to String

@@ -59,11 +59,11 @@ import com.helger.peppol.identifier.generic.process.IProcessIdentifier;
 import com.helger.peppol.identifier.peppol.doctype.EPredefinedDocumentTypeIdentifier;
 import com.helger.peppol.identifier.peppol.doctype.IPeppolDocumentTypeIdentifierParts;
 import com.helger.peppol.identifier.peppol.process.EPredefinedProcessIdentifier;
-import com.helger.photon.bootstrap3.form.BootstrapFormGroup;
-import com.helger.photon.bootstrap3.form.BootstrapViewForm;
-import com.helger.photon.bootstrap3.label.BootstrapLabel;
-import com.helger.photon.bootstrap3.label.EBootstrapLabelType;
-import com.helger.photon.bootstrap3.table.BootstrapTable;
+import com.helger.photon.bootstrap4.badge.BootstrapBadge;
+import com.helger.photon.bootstrap4.badge.EBootstrapBadgeType;
+import com.helger.photon.bootstrap4.form.BootstrapFormGroup;
+import com.helger.photon.bootstrap4.form.BootstrapViewForm;
+import com.helger.photon.bootstrap4.table.BootstrapTable;
 import com.helger.photon.core.app.html.PhotonCSS;
 import com.helger.photon.uictrls.EUICtrlsCSSPathProvider;
 import com.helger.photon.uictrls.famfam.EFamFamFlagIcon;
@@ -228,10 +228,10 @@ public final class PDCommonUI
 
     final EPredefinedDocumentTypeIdentifier ePredefined = EPredefinedDocumentTypeIdentifier.getFromDocumentTypeIdentifierOrNull (aDocTypeID);
     if (ePredefined != null)
-      ret.addChild (new HCDiv ().addChild (new BootstrapLabel (EBootstrapLabelType.SUCCESS).addChild ("Predefined document type"))
+      ret.addChild (new HCDiv ().addChild (new BootstrapBadge (EBootstrapBadgeType.SUCCESS).addChild ("Predefined document type"))
                                 .addChild (" " + ePredefined.getCommonName ()));
     else
-      ret.addChild (new HCDiv ().addChild (new BootstrapLabel (EBootstrapLabelType.WARNING).addChild ("Non standard document type")));
+      ret.addChild (new HCDiv ().addChild (new BootstrapBadge (EBootstrapBadgeType.WARNING).addChild ("Non standard document type")));
     ret.addChild (new HCCode ().addChild (_getWBRList (aDocTypeID.getURIEncoded ())));
     return ret;
   }

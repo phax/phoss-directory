@@ -22,6 +22,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+import com.helger.commons.http.EHttpMethod;
 import com.helger.commons.id.factory.GlobalIDFactory;
 import com.helger.commons.locale.LocaleCache;
 import com.helger.commons.string.StringHelper;
@@ -42,12 +43,12 @@ import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.ajax.AjaxExecutorPublicLogin;
 import com.helger.pd.publisher.ajax.CAjax;
 import com.helger.pd.settings.PDServerConfiguration;
-import com.helger.photon.bootstrap3.button.BootstrapButtonToolbar;
-import com.helger.photon.bootstrap3.ext.BootstrapSystemMessage;
-import com.helger.photon.bootstrap3.form.BootstrapForm;
-import com.helger.photon.bootstrap3.form.BootstrapFormGroup;
-import com.helger.photon.bootstrap3.form.EBootstrapFormType;
-import com.helger.photon.bootstrap3.uictrls.datatables.BootstrapDataTables;
+import com.helger.photon.bootstrap4.buttongroup.BootstrapButtonToolbar;
+import com.helger.photon.bootstrap4.ext.BootstrapSystemMessage;
+import com.helger.photon.bootstrap4.form.BootstrapForm;
+import com.helger.photon.bootstrap4.form.BootstrapFormGroup;
+import com.helger.photon.bootstrap4.form.EBootstrapFormType;
+import com.helger.photon.bootstrap4.uictrls.datatables.BootstrapDataTables;
 import com.helger.photon.core.EPhotonCoreText;
 import com.helger.photon.core.app.context.LayoutExecutionContext;
 import com.helger.photon.core.form.RequestField;
@@ -102,8 +103,7 @@ public final class AppCommonUI
 
   @Nonnull
   public static BootstrapForm createViewLoginForm (@Nonnull final LayoutExecutionContext aLEC,
-                                                   @Nullable final String sPreselectedUserName,
-                                                   final boolean bFullUI)
+                                                   @Nullable final String sPreselectedUserName)
   {
     final Locale aDisplayLocale = aLEC.getDisplayLocale ();
     final IRequestWebScopeWithoutResponse aRequestScope = aLEC.getRequestScope ();
@@ -115,8 +115,7 @@ public final class AppCommonUI
     final String sIDErrorField = GlobalIDFactory.getNewStringID ();
 
     final BootstrapForm aForm = new BootstrapForm (aLEC).setAction (aLEC.getSelfHref ())
-                                                        .setFormType (bFullUI ? EBootstrapFormType.HORIZONTAL
-                                                                              : EBootstrapFormType.DEFAULT);
+                                                        .setFormType (EBootstrapFormType.DEFAULT);
     aForm.setLeft (3);
 
     // User name field
@@ -143,6 +142,7 @@ public final class AppCommonUI
                       JQuery.idRef (sIDErrorField).empty ().append (aJSData.ref (AjaxExecutorPublicLogin.JSON_HTML)));
 
       aOnClick.add (new JQueryAjaxBuilder ().url (CAjax.LOGIN.getInvocationURI (aRequestScope))
+                                            .method (EHttpMethod.POST)
                                             .data (new JSAssocArray ().add (CLogin.REQUEST_ATTR_USERID,
                                                                             JQuery.idRef (sIDUserName).val ())
                                                                       .add (CLogin.REQUEST_ATTR_PASSWORD,

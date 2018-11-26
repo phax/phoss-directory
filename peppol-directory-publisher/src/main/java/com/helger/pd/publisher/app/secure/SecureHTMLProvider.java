@@ -38,17 +38,14 @@ import com.helger.pd.publisher.app.AppCommonUI;
 import com.helger.pd.publisher.app.pub.PublicHTMLProvider;
 import com.helger.photon.basic.app.appid.RequestSettings;
 import com.helger.photon.basic.app.menu.IMenuItemPage;
-import com.helger.photon.bootstrap3.CBootstrapCSS;
-import com.helger.photon.bootstrap3.base.BootstrapContainer;
-import com.helger.photon.bootstrap3.breadcrumbs.BootstrapBreadcrumbs;
-import com.helger.photon.bootstrap3.breadcrumbs.BootstrapBreadcrumbsProvider;
-import com.helger.photon.bootstrap3.button.BootstrapButton;
-import com.helger.photon.bootstrap3.grid.BootstrapRow;
-import com.helger.photon.bootstrap3.nav.BootstrapNav;
-import com.helger.photon.bootstrap3.navbar.BootstrapNavbar;
-import com.helger.photon.bootstrap3.navbar.EBootstrapNavbarPosition;
-import com.helger.photon.bootstrap3.navbar.EBootstrapNavbarType;
-import com.helger.photon.bootstrap3.uictrls.ext.BootstrapMenuItemRenderer;
+import com.helger.photon.bootstrap4.CBootstrapCSS;
+import com.helger.photon.bootstrap4.breadcrumb.BootstrapBreadcrumb;
+import com.helger.photon.bootstrap4.breadcrumb.BootstrapBreadcrumbProvider;
+import com.helger.photon.bootstrap4.button.BootstrapButton;
+import com.helger.photon.bootstrap4.layout.BootstrapContainer;
+import com.helger.photon.bootstrap4.navbar.BootstrapNavbar;
+import com.helger.photon.bootstrap4.navbar.BootstrapNavbarToggleable;
+import com.helger.photon.bootstrap4.uictrls.ext.BootstrapMenuItemRenderer;
 import com.helger.photon.core.EPhotonCoreText;
 import com.helger.photon.core.app.context.ISimpleWebExecutionContext;
 import com.helger.photon.core.app.context.LayoutExecutionContext;
@@ -79,28 +76,30 @@ public class SecureHTMLProvider extends AbstractSWECHTMLProvider
 
     final ISimpleURL aLinkToStartPage = aSWEC.getLinkToMenuItem (aSWEC.getMenuTree ().getDefaultMenuItemID ());
 
-    final BootstrapNavbar aNavbar = new BootstrapNavbar (EBootstrapNavbarType.STATIC_TOP, true, aDisplayLocale);
-    aNavbar.getContainer ().setFluid (true);
+    final BootstrapNavbar aNavbar = new BootstrapNavbar ();
     aNavbar.addBrand (new HCNodeList ().addChild (new HCSpan ().addClass (AppCommonUI.CSS_CLASS_LOGO1)
                                                                .addChild (CPDPublisher.getApplicationTitle ()))
                                        .addChild (new HCSpan ().addClass (AppCommonUI.CSS_CLASS_LOGO2)
                                                                .addChild (" Administration")),
                       aLinkToStartPage);
 
-    {
-      final BootstrapNav aNav = new BootstrapNav ();
-      final IUser aUser = LoggedInUserManager.getInstance ().getCurrentUser ();
-      aNav.addButton (new BootstrapButton ().addChild ("Goto public area")
-                                            .setOnClick (LinkHelper.getURLWithContext (AbstractPublicApplicationServlet.SERVLET_DEFAULT_PATH +
-                                                                                       "/")));
-      aNav.addText (new HCSpan ().addChild ("Welcome ")
-                                 .addChild (new HCStrong ().addChild (SecurityHelper.getUserDisplayName (aUser,
-                                                                                                         aDisplayLocale))));
+    final BootstrapNavbarToggleable aToggleable = aNavbar.addAndReturnToggleable ();
 
-      aNav.addButton (new BootstrapButton ().setOnClick (LinkHelper.getURLWithContext (aRequestScope,
-                                                                                       LogoutServlet.SERVLET_DEFAULT_PATH))
-                                            .addChild (EPhotonCoreText.LOGIN_LOGOUT.getDisplayText (aDisplayLocale)));
-      aNavbar.addNav (EBootstrapNavbarPosition.COLLAPSIBLE_RIGHT, aNav);
+    {
+      final IUser aUser = LoggedInUserManager.getInstance ().getCurrentUser ();
+      aToggleable.addChild (new BootstrapButton ().addClass (CBootstrapCSS.ML_AUTO)
+                                                  .addClass (CBootstrapCSS.MR_2)
+                                                  .addChild ("Goto public area")
+                                                  .setOnClick (LinkHelper.getURLWithContext (AbstractPublicApplicationServlet.SERVLET_DEFAULT_PATH +
+                                                                                             "/")));
+      aToggleable.addAndReturnText ()
+                 .addClass (CBootstrapCSS.MX_2)
+                 .addChild ("Welcome ")
+                 .addChild (new HCStrong ().addChild (SecurityHelper.getUserDisplayName (aUser, aDisplayLocale)));
+      aToggleable.addChild (new BootstrapButton ().addClass (CBootstrapCSS.MX_2)
+                                                  .setOnClick (LinkHelper.getURLWithContext (aRequestScope,
+                                                                                             LogoutServlet.SERVLET_DEFAULT_PATH))
+                                                  .addChild (EPhotonCoreText.LOGIN_LOGOUT.getDisplayText (aDisplayLocale)));
     }
     return aNavbar;
   }
@@ -125,20 +124,23 @@ public class SecureHTMLProvider extends AbstractSWECHTMLProvider
 
     // Breadcrumbs
     {
-      final BootstrapBreadcrumbs aBreadcrumbs = BootstrapBreadcrumbsProvider.createBreadcrumbs (aLEC);
-      aBreadcrumbs.addClass (CBootstrapCSS.HIDDEN_XS);
+      final BootstrapBreadcrumb aBreadcrumbs = BootstrapBreadcrumbProvider.createBreadcrumb (aLEC);
+      aBreadcrumbs.addClasses (CBootstrapCSS.D_NONE, CBootstrapCSS.D_SM_BLOCK);
       aOuterContainer.addChild (aBreadcrumbs);
     }
 
     // Content
     {
-      final BootstrapRow aRow = aOuterContainer.addAndReturnChild (new BootstrapRow ());
-      final HCDiv aCol1 = aRow.createColumn (12, 4, 4, 3);
-      final HCDiv aCol2 = aRow.createColumn (12, 8, 8, 9);
+      final HCDiv aRow = aOuterContainer.addAndReturnChild (new HCDiv ().addClass (CBootstrapCSS.D_MD_FLEX));
+      final HCDiv aCol1 = aRow.addAndReturnChild (new HCDiv ().addClass (CBootstrapCSS.D_MD_FLEX)
+                                                              .addClass (CBootstrapCSS.MR_2));
+      final HCDiv aCol2 = aRow.addAndReturnChild (new HCDiv ().addClass (CBootstrapCSS.FLEX_FILL));
 
       // left
+
       // We need a wrapper span for easy AJAX content replacement
-      aCol1.addChild (new HCSpan ().setID (CLayout.LAYOUT_AREAID_MENU).addChild (getMenuContent (aLEC)));
+      aCol1.addClass (CBootstrapCSS.D_PRINT_NONE)
+           .addChild (new HCSpan ().setID (CLayout.LAYOUT_AREAID_MENU).addChild (getMenuContent (aLEC)));
       aCol1.addChild (new HCDiv ().setID (CLayout.LAYOUT_AREAID_SPECIAL));
 
       // Build version/timestamp
