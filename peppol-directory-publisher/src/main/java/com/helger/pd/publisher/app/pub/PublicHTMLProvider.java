@@ -266,10 +266,10 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
     final WebPageExecutionContext aWPEC = new WebPageExecutionContext (aLEC, aDisplayPage);
 
     // Build page content: header + content
-    final HCNodeList aPageContainer = new HCNodeList ();
+    final HCNodeList ret = new HCNodeList ();
 
     // First add the system message
-    aPageContainer.addChild (BootstrapSystemMessage.createDefault ());
+    ret.addChild (BootstrapSystemMessage.createDefault ());
 
     // Handle 404 case here (see error404.jsp)
     if ("true".equals (aRequestScope.params ().getAsString ("httpError")))
@@ -277,7 +277,7 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
       final String sHttpStatusCode = aRequestScope.params ().getAsString ("httpStatusCode");
       final String sHttpStatusMessage = aRequestScope.params ().getAsString ("httpStatusMessage");
       final String sHttpRequestURI = aRequestScope.params ().getAsString ("httpRequestUri");
-      aPageContainer.addChild (new BootstrapErrorBox ().addChild ("HTTP error " +
+      ret.addChild (new BootstrapErrorBox ().addChild ("HTTP error " +
                                                                   sHttpStatusCode +
                                                                   " (" +
                                                                   sHttpStatusMessage +
@@ -290,18 +290,18 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
     {
       // Add the forced redirect content here
       if (aWPEC.params ().containsKey (ForcedRedirectManager.REQUEST_PARAMETER_PRG_ACTIVE))
-        aPageContainer.addChild ((IHCNode) ForcedRedirectManager.getLastForcedRedirectContent (aDisplayPage.getID ()));
+        ret.addChild ((IHCNode) ForcedRedirectManager.getLastForcedRedirectContent (aDisplayPage.getID ()));
     }
 
     // Add page header
-    aPageContainer.addChild (aDisplayPage.getHeaderNode (aWPEC));
+    ret.addChild (aDisplayPage.getHeaderNode (aWPEC));
 
     // Main fill page content
     aDisplayPage.getContent (aWPEC);
 
     // Add page content to result
-    aPageContainer.addChild (aWPEC.getNodeList ());
-    return aPageContainer;
+    ret.addChild (aWPEC.getNodeList ());
+    return ret;
   }
 
   @Nonnull
