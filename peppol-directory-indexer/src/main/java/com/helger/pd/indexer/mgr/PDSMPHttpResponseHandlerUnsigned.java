@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
@@ -46,7 +47,7 @@ import com.helger.peppol.httpclient.AbstractSMPResponseHandler;
 public class PDSMPHttpResponseHandlerUnsigned extends AbstractSMPResponseHandler <PDBusinessCard>
 {
   @Override
-  @Nonnull
+  @Nullable
   public PDBusinessCard handleEntity (@Nonnull final HttpEntity aEntity) throws IOException
   {
     // Read the payload and remember it!
@@ -61,7 +62,16 @@ public class PDSMPHttpResponseHandlerUnsigned extends AbstractSMPResponseHandler
         aMarshaller1.setCharset (aCharset);
       final PD1BusinessCardType aBC1 = aMarshaller1.read (aData);
       if (aBC1 != null)
-        return PD1APIHelper.createBusinessCard (aBC1);
+        try
+        {
+          return PD1APIHelper.createBusinessCard (aBC1);
+        }
+        catch (final IllegalArgumentException ex)
+        {
+          // If the BC does not adhere to the XSD
+          // Happens if e.g. name is null
+          return null;
+        }
     }
 
     {
@@ -71,7 +81,16 @@ public class PDSMPHttpResponseHandlerUnsigned extends AbstractSMPResponseHandler
         aMarshaller2.setCharset (aCharset);
       final PD2BusinessCardType aBC2 = aMarshaller2.read (aData);
       if (aBC2 != null)
-        return PD2APIHelper.createBusinessCard (aBC2);
+        try
+        {
+          return PD2APIHelper.createBusinessCard (aBC2);
+        }
+        catch (final IllegalArgumentException ex)
+        {
+          // If the BC does not adhere to the XSD
+          // Happens if e.g. name is null
+          return null;
+        }
     }
 
     {
@@ -81,7 +100,16 @@ public class PDSMPHttpResponseHandlerUnsigned extends AbstractSMPResponseHandler
         aMarshaller3.setCharset (aCharset);
       final PD3BusinessCardType aBC3 = aMarshaller3.read (aData);
       if (aBC3 != null)
-        return PD3APIHelper.createBusinessCard (aBC3);
+        try
+        {
+          return PD3APIHelper.createBusinessCard (aBC3);
+        }
+        catch (final IllegalArgumentException ex)
+        {
+          // If the BC does not adhere to the XSD
+          // Happens if e.g. name is null
+          return null;
+        }
     }
 
     // Unsupported
