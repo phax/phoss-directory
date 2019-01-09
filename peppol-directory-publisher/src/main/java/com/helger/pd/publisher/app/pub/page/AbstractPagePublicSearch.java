@@ -58,6 +58,7 @@ import com.helger.peppol.identifier.peppol.pidscheme.ParticipantIdentifierScheme
 import com.helger.photon.bootstrap4.alert.BootstrapInfoBox;
 import com.helger.photon.bootstrap4.alert.BootstrapWarnBox;
 import com.helger.photon.bootstrap4.badge.BootstrapBadge;
+import com.helger.photon.bootstrap4.badge.EBootstrapBadgeType;
 import com.helger.photon.bootstrap4.card.BootstrapCard;
 import com.helger.photon.bootstrap4.form.BootstrapFormGroup;
 import com.helger.photon.bootstrap4.form.BootstrapViewForm;
@@ -227,7 +228,8 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
         }
         // Add whole list or just the first item?
         final IHCNode aTabLabel = new HCSpan ().addChild ("Business information ")
-                                               .addChild (BootstrapBadge.createNumeric (aStoredEntities.size ()));
+                                               .addChild (BootstrapBadge.createNumeric (aStoredEntities.size ())
+                                                                        .setBadgeType (EBootstrapBadgeType.PRIMARY));
         aTabBox.addTab ("businessinfo", aTabLabel, aOL, true);
       }
 
@@ -262,7 +264,8 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
 
         aTabBox.addTab ("doctypes",
                         new HCSpan ().addChild ("Supported document types ")
-                                     .addChild (BootstrapBadge.createNumeric (aDocTypeIDs.size ())),
+                                     .addChild (BootstrapBadge.createNumeric (aDocTypeIDs.size ())
+                                                              .setBadgeType (EBootstrapBadgeType.PRIMARY)),
                         aDocTypeCtrl,
                         false);
       }
