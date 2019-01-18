@@ -23,6 +23,7 @@ import javax.annotation.Nullable;
 
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.compare.ESortOrder;
+import com.helger.commons.datetime.PDTFactory;
 import com.helger.commons.datetime.PDTToString;
 import com.helger.commons.url.ISimpleURL;
 import com.helger.html.hc.html.grouping.HCDiv;
@@ -221,6 +222,8 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
       aToolbar.addChild (new BootstrapButton ().addChild ("Refresh")
                                                .setIcon (EDefaultIcon.REFRESH)
                                                .setOnClick (aWPEC.getSelfHref ()));
+      aToolbar.addChild (" Current server time: " +
+                         PDTToString.getAsString (PDTFactory.getCurrentLocalTime (), aDisplayLocale));
     }
 
     final HCTable aTable = new HCTable (new DTCol ("Reg date").setDisplayType (EDTColType.DATETIME, aDisplayLocale)
