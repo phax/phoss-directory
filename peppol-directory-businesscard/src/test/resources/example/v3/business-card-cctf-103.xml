@@ -18,7 +18,7 @@
 
 -->
 <BusinessCard xmlns="http://www.peppol.eu/schema/pd/businesscard/20180621/">
-  <ParticipantIdentifier scheme="iso6523-actorid-upis">9915:test</ParticipantIdentifier>
+  <ParticipantIdentifier scheme="iso6523-actorid-upis">9915:cctf-103</ParticipantIdentifier>
   <BusinessEntity>
     <Name>Test entity</Name>
     <CountryCode>AT</CountryCode>
