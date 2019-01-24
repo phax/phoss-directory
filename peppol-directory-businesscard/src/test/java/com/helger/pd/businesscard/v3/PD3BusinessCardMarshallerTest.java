@@ -43,9 +43,10 @@ public final class PD3BusinessCardMarshallerTest
   @Test
   public void testBasic ()
   {
-    _testBC ("src/test/resources/example/v3/business-card-test1.xml");
-    _testBC ("src/test/resources/example/v3/business-card-example-spec.xml");
-    _testBC ("src/test/resources/example/v3/bc-9915-leckma.xml");
     _testBC ("src/test/resources/example/v3/bc-0088-5033466000005.xml");
+    _testBC ("src/test/resources/example/v3/bc-9915-leckma.xml");
+    _testBC ("src/test/resources/example/v3/business-card-cctf-103.xml");
+    _testBC ("src/test/resources/example/v3/business-card-example-spec.xml");
+    _testBC ("src/test/resources/example/v3/business-card-test1.xml");
   }
 }
