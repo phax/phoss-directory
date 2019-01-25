@@ -28,15 +28,7 @@ import org.apache.http.entity.ContentType;
 
 import com.helger.commons.io.stream.StreamHelper;
 import com.helger.pd.businesscard.generic.PDBusinessCard;
-import com.helger.pd.businesscard.v1.PD1APIHelper;
-import com.helger.pd.businesscard.v1.PD1BusinessCardMarshaller;
-import com.helger.pd.businesscard.v1.PD1BusinessCardType;
-import com.helger.pd.businesscard.v2.PD2APIHelper;
-import com.helger.pd.businesscard.v2.PD2BusinessCardMarshaller;
-import com.helger.pd.businesscard.v2.PD2BusinessCardType;
-import com.helger.pd.businesscard.v3.PD3APIHelper;
-import com.helger.pd.businesscard.v3.PD3BusinessCardMarshaller;
-import com.helger.pd.businesscard.v3.PD3BusinessCardType;
+import com.helger.pd.businesscard.helper.PDBusinessCardHelper;
 import com.helger.peppol.httpclient.AbstractSMPResponseHandler;
 
 /**
@@ -54,63 +46,12 @@ public class PDSMPHttpResponseHandlerUnsigned extends AbstractSMPResponseHandler
     final ContentType aContentType = ContentType.getOrDefault (aEntity);
     final Charset aCharset = aContentType.getCharset ();
     final byte [] aData = StreamHelper.getAllBytes (aEntity.getContent ());
+    if (aData == null)
+      return null;
 
-    {
-      // Read version 1
-      final PD1BusinessCardMarshaller aMarshaller1 = new PD1BusinessCardMarshaller ();
-      if (aCharset != null)
-        aMarshaller1.setCharset (aCharset);
-      final PD1BusinessCardType aBC1 = aMarshaller1.read (aData);
-      if (aBC1 != null)
-        try
-        {
-          return PD1APIHelper.createBusinessCard (aBC1);
-        }
-        catch (final IllegalArgumentException ex)
-        {
-          // If the BC does not adhere to the XSD
-          // Happens if e.g. name is null
-          return null;
-        }
-    }
-
-    {
-      // Read as version 2
-      final PD2BusinessCardMarshaller aMarshaller2 = new PD2BusinessCardMarshaller ();
-      if (aCharset != null)
-        aMarshaller2.setCharset (aCharset);
-      final PD2BusinessCardType aBC2 = aMarshaller2.read (aData);
-      if (aBC2 != null)
-        try
-        {
-          return PD2APIHelper.createBusinessCard (aBC2);
-        }
-        catch (final IllegalArgumentException ex)
-        {
-          // If the BC does not adhere to the XSD
-          // Happens if e.g. name is null
-          return null;
-        }
-    }
-
-    {
-      // Read as version 3
-      final PD3BusinessCardMarshaller aMarshaller3 = new PD3BusinessCardMarshaller ();
-      if (aCharset != null)
-        aMarshaller3.setCharset (aCharset);
-      final PD3BusinessCardType aBC3 = aMarshaller3.read (aData);
-      if (aBC3 != null)
-        try
-        {
-          return PD3APIHelper.createBusinessCard (aBC3);
-        }
-        catch (final IllegalArgumentException ex)
-        {
-          // If the BC does not adhere to the XSD
-          // Happens if e.g. name is null
-          return null;
-        }
-    }
+    final PDBusinessCard aBC = PDBusinessCardHelper.parseBusinessCard (aData, aCharset);
+    if (aBC != null)
+      return aBC;
 
     // Unsupported
     throw new ClientProtocolException ("Malformed XML document returned from SMP server");

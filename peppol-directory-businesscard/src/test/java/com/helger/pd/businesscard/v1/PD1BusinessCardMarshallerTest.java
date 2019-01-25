@@ -18,11 +18,14 @@ package com.helger.pd.businesscard.v1;
 
 import static org.junit.Assert.assertNotNull;
 
+import java.io.File;
+
 import javax.annotation.Nonnull;
 
 import org.junit.Test;
 
-import com.helger.commons.io.resource.FileSystemResource;
+import com.helger.commons.io.file.SimpleFileIO;
+import com.helger.pd.businesscard.helper.PDBusinessCardHelper;
 
 /**
  * Test class for class {@link PD1BusinessCardMarshaller}.
@@ -33,11 +36,13 @@ public final class PD1BusinessCardMarshallerTest
 {
   private static void _testBC (@Nonnull final String sFilename)
   {
+    final byte [] aBytes = SimpleFileIO.getAllFileBytes (new File (sFilename));
     final PD1BusinessCardMarshaller aMarshaller = new PD1BusinessCardMarshaller ();
-    final PD1BusinessCardType aBC = aMarshaller.read (new FileSystemResource (sFilename));
+    final PD1BusinessCardType aBC = aMarshaller.read (aBytes);
     assertNotNull (aBC);
     assertNotNull (PD1APIHelper.createBusinessCard (aBC));
     assertNotNull (PD1APIHelper.createBusinessCard (aBC).getAsMicroXML ("urn:test", "bc"));
+    assertNotNull (PDBusinessCardHelper.parseBusinessCard (aBytes, null));
   }
 
   @Test
