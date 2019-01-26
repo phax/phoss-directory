@@ -19,7 +19,7 @@ import com.helger.pd.businesscard.v3.PD3BusinessCardType;
 
 /**
  * Helper class for business cards.
- * 
+ *
  * @author Philip Helger
  */
 @Immutable
