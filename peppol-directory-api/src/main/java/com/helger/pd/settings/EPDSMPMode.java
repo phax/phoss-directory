@@ -19,5 +19,5 @@ package com.helger.pd.settings;
 public enum EPDSMPMode
 {
   PEPPOL,
-  OASIS_BDXR_v1;
+  OASIS_BDXR_V1;
 }

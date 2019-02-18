@@ -385,7 +385,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   {
     final String sSMPMode = getConfigFile ().getAsString ("smp.mode");
     if ("oasis-bdxr-v1".equalsIgnoreCase (sSMPMode))
-      return EPDSMPMode.OASIS_BDXR_v1;
+      return EPDSMPMode.OASIS_BDXR_V1;
 
     // Default is PEPPOL
     return EPDSMPMode.PEPPOL;

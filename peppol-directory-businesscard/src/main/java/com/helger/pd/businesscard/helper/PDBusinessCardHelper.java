@@ -29,8 +29,8 @@ public final class PDBusinessCardHelper
   {}
 
   /**
-   * A generic reading API to read all supported versions of the BusinessCard
-   * from a byte array and an optional character set.
+   * A generic reading API to read all supported versions of the BusinessCard from
+   * a byte array and an optional character set.
    *
    * @param aData
    *        Bytes to read. May not be <code>null</code>.
@@ -45,6 +45,7 @@ public final class PDBusinessCardHelper
     {
       // Read version 1
       final PD1BusinessCardMarshaller aMarshaller1 = new PD1BusinessCardMarshaller ();
+      aMarshaller1.readExceptionCallbacks ().removeAll ();
       if (aCharset != null)
         aMarshaller1.setCharset (aCharset);
       final PD1BusinessCardType aBC1 = aMarshaller1.read (aData);
@@ -64,6 +65,7 @@ public final class PDBusinessCardHelper
     {
       // Read as version 2
       final PD2BusinessCardMarshaller aMarshaller2 = new PD2BusinessCardMarshaller ();
+      aMarshaller2.readExceptionCallbacks ().removeAll ();
       if (aCharset != null)
         aMarshaller2.setCharset (aCharset);
       final PD2BusinessCardType aBC2 = aMarshaller2.read (aData);
@@ -83,6 +85,7 @@ public final class PDBusinessCardHelper
     {
       // Read as version 3
       final PD3BusinessCardMarshaller aMarshaller3 = new PD3BusinessCardMarshaller ();
+      aMarshaller3.readExceptionCallbacks ().removeAll ();
       if (aCharset != null)
         aMarshaller3.setCharset (aCharset);
       final PD3BusinessCardType aBC3 = aMarshaller3.read (aData);

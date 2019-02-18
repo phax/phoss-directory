@@ -388,7 +388,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
           aBC = getBusinessCardPeppolSMP (aParticipantID, aSMPClient);
           break;
         }
-        case OASIS_BDXR_v1:
+        case OASIS_BDXR_V1:
         {
           final BDXRClientReadOnly aSMPClient = new BDXRClientReadOnly (m_aSMPURI);
           aBC = getBusinessCardBDXR1 (aParticipantID, aSMPClient);
@@ -420,7 +420,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
             }
             break;
           }
-          case OASIS_BDXR_v1:
+          case OASIS_BDXR_V1:
           {
             try
             {
