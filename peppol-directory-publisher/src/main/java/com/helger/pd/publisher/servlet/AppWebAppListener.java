@@ -19,6 +19,7 @@ package com.helger.pd.publisher.servlet;
 import javax.annotation.Nonnull;
 import javax.servlet.ServletContext;
 
+import com.helger.commons.datetime.PDTFactory;
 import com.helger.commons.debug.GlobalDebug;
 import com.helger.commons.io.resource.ClassPathResource;
 import com.helger.commons.vendor.VendorInfo;
@@ -167,7 +168,11 @@ public final class AppWebAppListener extends WebAppListenerBootstrap
     // Load managers
     PDMetaManager.getInstance ();
     PDPMetaManager.getInstance ();
+  }
 
+  @Override
+  protected void initJobs ()
+  {
     GlobalQuartzScheduler.getInstance ()
                          .scheduleJob (ExportAllBusinessCardsJob.class.getName (),
                                        JDK8TriggerBuilder.newTrigger ()
@@ -176,13 +181,15 @@ public final class AppWebAppListener extends WebAppListenerBootstrap
                                                                                                    : SimpleScheduleBuilder.repeatHourlyForever (24)),
                                        ExportAllBusinessCardsJob.class,
                                        null);
+
     if (GlobalDebug.isProductionMode ())
     {
       // Schedule the sync job every hour - it keeps track of the last sync internally
       GlobalQuartzScheduler.getInstance ()
                            .scheduleJob (SyncAllBusinessCardsJob.class.getName (),
                                          JDK8TriggerBuilder.newTrigger ()
-                                                           .startNow ()
+                                                           .startAt (PDTFactory.getCurrentLocalDateTime ()
+                                                                               .plusMinutes (1))
                                                            .withSchedule (SimpleScheduleBuilder.repeatHourlyForever (1)),
                                          SyncAllBusinessCardsJob.class,
                                          null);
