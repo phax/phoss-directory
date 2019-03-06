@@ -193,8 +193,7 @@ public final class PDQueryManager
       aQuery = aBuilder.build ();
     }
 
-    // Alter the query so that only not-deleted documents are returned
-    return andNotDeleted (aQuery);
+    return aQuery;
   }
 
   @Nonnull
@@ -224,7 +223,7 @@ public final class PDQueryManager
     }
 
     final Query aQuery = new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aPI));
-    return andNotDeleted (aQuery);
+    return aQuery;
   }
 
   @Nullable
@@ -247,7 +246,7 @@ public final class PDQueryManager
     }
 
     final Query aQuery = new WildcardQuery (PDField.NAME.getContainsTerm (_lowerCase (sQueryString)));
-    return andNotDeleted (aQuery);
+    return aQuery;
   }
 
   @Nullable
@@ -257,7 +256,7 @@ public final class PDQueryManager
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
 
     final Query aQuery = new TermQuery (PDField.COUNTRY_CODE.getExactMatchTerm (_upperCase (sQueryString)));
-    return andNotDeleted (aQuery);
+    return aQuery;
   }
 
   @Nullable
@@ -280,7 +279,7 @@ public final class PDQueryManager
     }
 
     final Query aQuery = new WildcardQuery (PDField.GEO_INFO.getContainsTerm (_lowerCase (sQueryString)));
-    return andNotDeleted (aQuery);
+    return aQuery;
   }
 
   @Nullable
@@ -290,7 +289,7 @@ public final class PDQueryManager
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
 
     final Query aQuery = new TermQuery (PDField.IDENTIFIER_SCHEME.getExactMatchTerm (_lowerCase (sQueryString)));
-    return andNotDeleted (aQuery);
+    return aQuery;
   }
 
   @Nullable
@@ -300,7 +299,7 @@ public final class PDQueryManager
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
 
     final Query aQuery = new TermQuery (PDField.IDENTIFIER_VALUE.getExactMatchTerm (_lowerCase (sQueryString)));
-    return andNotDeleted (aQuery);
+    return aQuery;
   }
 
   @Nullable
@@ -316,7 +315,7 @@ public final class PDQueryManager
     }
 
     final Query aQuery = new WildcardQuery (PDField.WEBSITE_URI.getContainsTerm (_lowerCase (sQueryString)));
-    return andNotDeleted (aQuery);
+    return aQuery;
   }
 
   @Nullable
@@ -340,7 +339,7 @@ public final class PDQueryManager
                                                     .add (aQuery3, Occur.SHOULD)
                                                     .add (aQuery4, Occur.SHOULD)
                                                     .build ();
-    return andNotDeleted (aQuery);
+    return aQuery;
   }
 
   @Nullable
@@ -363,7 +362,7 @@ public final class PDQueryManager
     }
 
     final Query aQuery = new WildcardQuery (PDField.ADDITIONAL_INFO.getContainsTerm (_lowerCase (sQueryString)));
-    return andNotDeleted (aQuery);
+    return aQuery;
   }
 
   @Nullable
@@ -380,7 +379,7 @@ public final class PDQueryManager
     }
 
     final Query aQuery = new TermQuery (PDField.REGISTRATION_DATE.getExactMatchTerm (sQueryString));
-    return andNotDeleted (aQuery);
+    return aQuery;
   }
 
   @Nullable
@@ -399,6 +398,6 @@ public final class PDQueryManager
     }
 
     final Query aQuery = new TermQuery (PDField.DOCTYPE_ID.getExactMatchTerm (aDTI));
-    return andNotDeleted (aQuery);
+    return aQuery;
   }
 }

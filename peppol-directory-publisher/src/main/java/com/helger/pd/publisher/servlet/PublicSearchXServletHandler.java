@@ -51,6 +51,7 @@ import com.helger.json.JsonArray;
 import com.helger.json.JsonObject;
 import com.helger.json.serialize.JsonWriterSettings;
 import com.helger.pd.indexer.mgr.PDMetaManager;
+import com.helger.pd.indexer.storage.PDQueryManager;
 import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
 import com.helger.pd.publisher.app.AppCommonUI;
@@ -155,8 +156,9 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
                    eOutputFormat +
                    " (" +
                    sPathInfo +
-                   ") from " +
-                   aRequestScope.getUserAgent ().getAsString ());
+                   ") from '" +
+                   aRequestScope.getUserAgent ().getAsString () +
+                   "'");
 
       // Determine result offset and count
       final int nResultPageIndex = aParams.getAsInt (PARAM_RESULT_PAGE_INDEX,
@@ -255,6 +257,9 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
           aBuilder.add (aQuery, Occur.MUST);
         aLuceneQuery = aBuilder.build ();
       }
+
+      // Only-non deleted
+      aLuceneQuery = PDQueryManager.andNotDeleted (aLuceneQuery);
 
       // How many results to deliver at most
       final int nMaxResults = nLastResultIndex + 1;

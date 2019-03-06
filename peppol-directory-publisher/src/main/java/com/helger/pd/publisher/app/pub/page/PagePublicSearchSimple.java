@@ -148,9 +148,10 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
       LOGGER.info ("Searching generically for '" + sQuery + "'");
 
     // Build Lucene query
-    final Query aLuceneQuery = PDQueryManager.convertQueryStringToLuceneQuery (PDMetaManager.getLucene (),
-                                                                               CPDStorage.FIELD_ALL_FIELDS,
-                                                                               sQuery);
+    Query aLuceneQuery = PDQueryManager.convertQueryStringToLuceneQuery (PDMetaManager.getLucene (),
+                                                                         CPDStorage.FIELD_ALL_FIELDS,
+                                                                         sQuery);
+    aLuceneQuery = PDQueryManager.andNotDeleted (aLuceneQuery);
     if (LOGGER.isDebugEnabled ())
       LOGGER.debug ("Created query for '" + sQuery + "' is <" + aLuceneQuery + ">");
 
