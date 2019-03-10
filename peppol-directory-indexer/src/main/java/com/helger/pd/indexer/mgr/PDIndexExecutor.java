@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.commons.state.ESuccess;
-import com.helger.pd.businesscard.PDExtendedBusinessCard;
+import com.helger.pd.indexer.PDExtendedBusinessCard;
 import com.helger.pd.indexer.index.IIndexerWorkItem;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 

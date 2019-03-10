@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pd.settings;
+package com.helger.pd.indexer.settings;
 
 import static org.junit.Assert.assertEquals;
 
@@ -22,6 +22,8 @@ import org.junit.Test;
 
 import com.helger.commons.collection.impl.CommonsHashSet;
 import com.helger.commons.collection.impl.ICommonsList;
+import com.helger.pd.indexer.settings.PDConfiguredTrustStore;
+import com.helger.pd.indexer.settings.PDServerConfiguration;
 
 /**
  * Test class for class {@link PDServerConfiguration}.

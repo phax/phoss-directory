@@ -30,7 +30,7 @@ import com.helger.commons.exception.InitializationException;
 import com.helger.commons.io.stream.StreamHelper;
 import com.helger.commons.lang.ClassHelper;
 import com.helger.httpclient.HttpClientManager;
-import com.helger.pd.businesscard.IPDBusinessCardProvider;
+import com.helger.pd.indexer.IPDBusinessCardProvider;
 import com.helger.pd.indexer.lucene.PDLucene;
 import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.peppol.identifier.factory.IIdentifierFactory;

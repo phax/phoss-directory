@@ -43,8 +43,8 @@ import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.collection.impl.ICommonsMap;
 import com.helger.commons.datetime.PDTFactory;
 import com.helger.commons.exception.InitializationException;
-import com.helger.pd.settings.PDConfiguredTrustStore;
-import com.helger.pd.settings.PDServerConfiguration;
+import com.helger.pd.indexer.settings.PDConfiguredTrustStore;
+import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.security.keystore.KeyStoreHelper;
 
 /**

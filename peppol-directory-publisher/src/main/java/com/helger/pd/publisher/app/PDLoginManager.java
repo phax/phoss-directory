@@ -22,7 +22,7 @@ import javax.annotation.Nullable;
 import com.helger.html.hc.IHCNode;
 import com.helger.html.hc.html.grouping.HCDiv;
 import com.helger.html.hc.html.textlevel.HCSmall;
-import com.helger.pd.CDirectory;
+import com.helger.pd.indexer.CDirectory;
 import com.helger.pd.publisher.CPDPublisher;
 import com.helger.photon.bootstrap4.CBootstrapCSS;
 import com.helger.photon.bootstrap4.uictrls.ext.BootstrapLoginHTMLProvider;

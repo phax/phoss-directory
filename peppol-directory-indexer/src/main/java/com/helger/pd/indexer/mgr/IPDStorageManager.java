@@ -23,7 +23,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.helger.commons.state.ESuccess;
-import com.helger.pd.businesscard.PDExtendedBusinessCard;
+import com.helger.pd.indexer.PDExtendedBusinessCard;
 import com.helger.pd.indexer.storage.PDStoredMetaData;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 

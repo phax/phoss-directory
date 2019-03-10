@@ -30,7 +30,7 @@ import com.helger.commons.hashcode.HashCodeGenerator;
 import com.helger.commons.string.ToStringGenerator;
 import com.helger.commons.type.ObjectType;
 import com.helger.pd.indexer.index.IIndexerWorkItem;
-import com.helger.pd.settings.PDServerConfiguration;
+import com.helger.pd.indexer.settings.PDServerConfiguration;
 
 /**
  * The default implementation of {@link IReIndexWorkItem}.

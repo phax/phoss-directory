@@ -32,7 +32,7 @@ import com.helger.html.hc.html.textlevel.HCSmall;
 import com.helger.html.hc.html.textlevel.HCSpan;
 import com.helger.html.hc.html.textlevel.HCStrong;
 import com.helger.html.hc.impl.HCNodeList;
-import com.helger.pd.CDirectory;
+import com.helger.pd.indexer.CDirectory;
 import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.app.AppCommonUI;
 import com.helger.pd.publisher.app.pub.PublicHTMLProvider;

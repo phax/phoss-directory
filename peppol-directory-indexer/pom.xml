@@ -68,7 +68,7 @@
     </dependency>
     <dependency>
       <groupId>com.helger</groupId>
-      <artifactId>peppol-directory-api</artifactId>
+      <artifactId>peppol-directory-businesscard</artifactId>
     </dependency>
     <dependency>
       <groupId>com.helger</groupId>
@@ -121,6 +121,22 @@
   </dependencies>
 
   <build>
+    <resources>
+      <resource>
+        <directory>${basedir}/src/main/resources</directory>
+        <filtering>true</filtering>
+        <includes>
+          <include>**/*.properties</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${basedir}/src/main/resources</directory>
+        <filtering>false</filtering>
+        <excludes>
+          <exclude>**/*.properties</exclude>
+        </excludes>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
         <groupId>org.apache.felix</groupId>

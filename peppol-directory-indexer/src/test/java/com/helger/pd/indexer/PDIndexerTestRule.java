@@ -23,7 +23,7 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 import com.helger.commons.id.factory.GlobalIDFactory;
 import com.helger.commons.io.file.FileOperationManager;
 import com.helger.pd.indexer.lucene.PDLucene;
-import com.helger.pd.settings.PDServerConfiguration;
+import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.peppol.smpclient.SMPClientConfiguration;
 import com.helger.photon.basic.app.io.WebIOIntIDFactory;
 import com.helger.photon.basic.mock.PhotonBasicWebTestRule;

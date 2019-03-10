@@ -14,11 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pd;
+package com.helger.pd.indexer;
 
 import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
+
+import com.helger.pd.indexer.CDirectory;
 
 /**
  * Test class for class {@link CDirectory}

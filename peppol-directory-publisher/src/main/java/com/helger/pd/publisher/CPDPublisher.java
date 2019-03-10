@@ -25,8 +25,8 @@ import com.helger.commons.email.EmailAddress;
 import com.helger.commons.email.IEmailAddress;
 import com.helger.commons.url.ISimpleURL;
 import com.helger.commons.url.SimpleURL;
-import com.helger.pd.CDirectory;
-import com.helger.pd.settings.PDServerConfiguration;
+import com.helger.pd.indexer.CDirectory;
+import com.helger.pd.indexer.settings.PDServerConfiguration;
 
 @NotThreadSafe
 public final class CPDPublisher

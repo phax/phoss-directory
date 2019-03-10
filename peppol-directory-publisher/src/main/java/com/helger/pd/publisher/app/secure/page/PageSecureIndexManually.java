@@ -22,7 +22,7 @@ import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.string.StringHelper;
 import com.helger.html.hc.html.forms.HCEdit;
 import com.helger.html.hc.impl.HCNodeList;
-import com.helger.pd.businesscard.IPDBusinessCardProvider;
+import com.helger.pd.indexer.IPDBusinessCardProvider;
 import com.helger.pd.indexer.index.EIndexerWorkItemType;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.mgr.SMPBusinessCardProvider;
