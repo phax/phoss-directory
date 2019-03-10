@@ -165,7 +165,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
                                                      aParams.getAsInt ("rpi", DEFAULT_RESULT_PAGE_INDEX));
       if (nResultPageIndex < 0)
       {
-        LOGGER.error ("ResultPageIndex " + nResultPageIndex + " is invalid");
+        LOGGER.error ("ResultPageIndex " + nResultPageIndex + " is invalid. It must be >= 0.");
         aUnifiedResponse.setStatus (HttpServletResponse.SC_BAD_REQUEST);
         return;
       }
@@ -173,7 +173,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
                                                      aParams.getAsInt ("rpc", DEFAULT_RESULT_PAGE_COUNT));
       if (nResultPageCount <= 0)
       {
-        LOGGER.error ("ResultPageCount " + nResultPageCount + " is invalid");
+        LOGGER.error ("ResultPageCount " + nResultPageCount + " is invalid. It must be > 0.");
         aUnifiedResponse.setStatus (HttpServletResponse.SC_BAD_REQUEST);
         return;
       }
@@ -181,13 +181,17 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
       final int nLastResultIndex = (nResultPageIndex + 1) * nResultPageCount - 1;
       if (nFirstResultIndex > MAX_RESULTS)
       {
-        LOGGER.error ("The first result index " + nFirstResultIndex + " is invalid");
+        LOGGER.error ("The first result index " +
+                      nFirstResultIndex +
+                      " is invalid. It must be <= " +
+                      MAX_RESULTS +
+                      ".");
         aUnifiedResponse.setStatus (HttpServletResponse.SC_BAD_REQUEST);
         return;
       }
       if (nLastResultIndex > MAX_RESULTS)
       {
-        LOGGER.error ("The last result index " + nFirstResultIndex + " is invalid");
+        LOGGER.error ("The last result index " + nLastResultIndex + " is invalid. It must be <= " + MAX_RESULTS + ".");
         aUnifiedResponse.setStatus (HttpServletResponse.SC_BAD_REQUEST);
         return;
       }
