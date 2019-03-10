@@ -62,10 +62,6 @@
   <dependencies>
     <dependency>
       <groupId>com.helger</groupId>
-      <artifactId>peppol-directory-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.helger</groupId>
       <artifactId>peppol-directory-indexer</artifactId>
     </dependency>
     <dependency>
