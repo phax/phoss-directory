@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pd.indexer.mgr;
+package com.helger.pd.indexer.businesscard;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -36,7 +36,7 @@ import com.helger.peppol.httpclient.AbstractSMPResponseHandler;
  *
  * @author Philip Helger
  */
-public class PDSMPHttpResponseHandlerUnsigned extends AbstractSMPResponseHandler <PDBusinessCard>
+final class PDSMPHttpResponseHandlerBusinessCard extends AbstractSMPResponseHandler <PDBusinessCard>
 {
   @Override
   @Nullable

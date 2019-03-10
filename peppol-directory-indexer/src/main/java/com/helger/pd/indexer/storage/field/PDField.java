@@ -24,6 +24,11 @@ import com.helger.commons.datetime.PDTFactory;
 import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 
+/**
+ * This class contains all the PD Lucene fields
+ * 
+ * @author Philip Helger
+ */
 public final class PDField
 {
   public static final PDStringField <IParticipantIdentifier> PARTICIPANT_ID = PDStringField.createParticipantIdentifier ("participantid",

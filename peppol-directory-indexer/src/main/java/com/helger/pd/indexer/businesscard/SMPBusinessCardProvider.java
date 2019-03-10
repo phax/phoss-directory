@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pd.indexer.mgr;
+package com.helger.pd.indexer.businesscard;
 
 import java.io.IOException;
 import java.net.URI;
@@ -43,8 +43,7 @@ import com.helger.commons.url.SimpleURL;
 import com.helger.commons.url.URLHelper;
 import com.helger.httpclient.HttpClientHelper;
 import com.helger.pd.businesscard.generic.PDBusinessCard;
-import com.helger.pd.indexer.IPDBusinessCardProvider;
-import com.helger.pd.indexer.PDExtendedBusinessCard;
+import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.settings.EPDSMPMode;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.peppol.bdxrclient.BDXRClientReadOnly;
@@ -197,7 +196,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
                                             aParticipantID.getURIPercentEncoded ());
       final HttpContext aContext = HttpClientHelper.createHttpContext (aProxy, aProxyCredentials);
       aBusinessCard = PDMetaManager.getHttpClientMgr ()
-                                   .execute (aRequest, aContext, new PDSMPHttpResponseHandlerUnsigned ());
+                                   .execute (aRequest, aContext, new PDSMPHttpResponseHandlerBusinessCard ());
     }
     catch (final IOException ex)
     {
@@ -304,7 +303,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
                                             aParticipantID.getURIPercentEncoded ());
       final HttpContext aContext = HttpClientHelper.createHttpContext (aProxy, aProxyCredentials);
       aBusinessCard = PDMetaManager.getHttpClientMgr ()
-                                   .execute (aRequest, aContext, new PDSMPHttpResponseHandlerUnsigned ());
+                                   .execute (aRequest, aContext, new PDSMPHttpResponseHandlerBusinessCard ());
     }
     catch (final IOException ex)
     {

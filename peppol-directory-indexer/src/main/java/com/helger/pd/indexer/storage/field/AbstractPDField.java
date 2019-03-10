@@ -29,6 +29,15 @@ import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.functional.IFunction;
 
+/**
+ * Abstract Directory Lucene field.
+ *
+ * @author Philip Helger
+ * @param <NATIVE_TYPE>
+ *        Native type. Must be convertible to storage type and back.
+ * @param <STORAGE_TYPE>
+ *        Storage type. Must be convertible to native type and back.
+ */
 public abstract class AbstractPDField <NATIVE_TYPE, STORAGE_TYPE>
 {
   private final String m_sFieldName;

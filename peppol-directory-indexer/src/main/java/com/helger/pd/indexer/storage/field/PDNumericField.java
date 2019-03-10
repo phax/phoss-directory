@@ -25,6 +25,13 @@ import org.apache.lucene.index.IndexableField;
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.functional.IFunction;
 
+/**
+ * A Lucene field that can be mapped to a {@link Number} and back.
+ *
+ * @author Philip Helger
+ * @param <NATIVE_TYPE>
+ *        The native type.
+ */
 public class PDNumericField <NATIVE_TYPE> extends AbstractPDField <NATIVE_TYPE, Number>
 {
   public PDNumericField (@Nonnull @Nonempty final String sFieldName,

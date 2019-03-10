@@ -39,7 +39,7 @@ import com.helger.commons.io.file.FileOperationManager;
 import com.helger.commons.state.EChange;
 import com.helger.commons.string.ToStringGenerator;
 import com.helger.dao.DAOException;
-import com.helger.pd.indexer.IPDBusinessCardProvider;
+import com.helger.pd.indexer.businesscard.IPDBusinessCardProvider;
 import com.helger.pd.indexer.index.EIndexerWorkItemType;
 import com.helger.pd.indexer.index.IIndexerWorkItem;
 import com.helger.pd.indexer.index.IndexerWorkItem;

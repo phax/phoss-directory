@@ -19,10 +19,15 @@ package com.helger.pd.indexer.storage.field;
 import javax.annotation.Nonnull;
 
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
-import org.apache.lucene.document.Field.Store;
 
+/**
+ * Toeknize or not tokenize?
+ * 
+ * @author Philip Helger
+ */
 public enum EPDStringFieldTokenize
 {
   TOKENIZE

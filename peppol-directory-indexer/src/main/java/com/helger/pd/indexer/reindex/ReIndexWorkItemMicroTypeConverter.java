@@ -29,6 +29,11 @@ import com.helger.xml.microdom.MicroElement;
 import com.helger.xml.microdom.convert.IMicroTypeConverter;
 import com.helger.xml.microdom.convert.MicroTypeConverter;
 
+/**
+ * Micro type converter for {@link ReIndexWorkItem}
+ * 
+ * @author Philip Helger
+ */
 public final class ReIndexWorkItemMicroTypeConverter implements IMicroTypeConverter <ReIndexWorkItem>
 {
   private static final String ELEMENT_WORK_ITEM = "workitem";

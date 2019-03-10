@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pd.indexer.mgr;
+package com.helger.pd.indexer.businesscard;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -29,7 +29,8 @@ import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.functional.ISupplier;
 import com.helger.commons.url.URLHelper;
-import com.helger.pd.indexer.PDExtendedBusinessCard;
+import com.helger.pd.indexer.businesscard.PDExtendedBusinessCard;
+import com.helger.pd.indexer.businesscard.SMPBusinessCardProvider;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.peppol.identifier.factory.PeppolIdentifierFactory;
 import com.helger.peppol.sml.ESML;

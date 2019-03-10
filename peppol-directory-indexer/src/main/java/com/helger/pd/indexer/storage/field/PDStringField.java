@@ -32,6 +32,13 @@ import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 
+/**
+ * A Lucene field that can be mapped to a {@link String} and back.
+ *
+ * @author Philip Helger
+ * @param <NATIVE_TYPE>
+ *        The native type.
+ */
 public class PDStringField <NATIVE_TYPE> extends AbstractPDField <NATIVE_TYPE, String>
 {
   private final EPDStringFieldTokenize m_eTokenize;
@@ -54,11 +61,11 @@ public class PDStringField <NATIVE_TYPE> extends AbstractPDField <NATIVE_TYPE, S
     return m_eTokenize.createField (getFieldName (), sStringValue, getStore ());
   }
 
-  private static final BitSet MASK = new BitSet (256);
+  private static final BitSet MASK_CHARS = new BitSet (256);
   static
   {
     for (final char c : "+-&|!(){}[]^\"~*?:\\/".toCharArray ())
-      MASK.set (c);
+      MASK_CHARS.set (c);
   }
 
   private String _getMaskedStorageValue (@Nonnull final NATIVE_TYPE aValue)
@@ -73,7 +80,7 @@ public class PDStringField <NATIVE_TYPE> extends AbstractPDField <NATIVE_TYPE, S
     final StringBuilder aSB = new StringBuilder (sStorageValue.length () * 2);
     for (final char c : sStorageValue.toCharArray ())
     {
-      if (c <= 255 && MASK.get (c))
+      if (c <= 255 && MASK_CHARS.get (c))
         aSB.append ('\\');
       aSB.append (c);
     }

@@ -42,7 +42,7 @@ import com.helger.peppol.identifier.factory.IIdentifierFactory;
 import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 
 /**
- * Indexer resource (exposed at "1.0" path)
+ * Indexer resource (exposed at "/1.0" path)
  *
  * @author Philip Helger
  */

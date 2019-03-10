@@ -72,7 +72,7 @@ import com.helger.pd.businesscard.generic.PDBusinessEntity;
 import com.helger.pd.businesscard.generic.PDContact;
 import com.helger.pd.businesscard.generic.PDIdentifier;
 import com.helger.pd.businesscard.generic.PDName;
-import com.helger.pd.indexer.PDExtendedBusinessCard;
+import com.helger.pd.indexer.businesscard.PDExtendedBusinessCard;
 import com.helger.pd.indexer.lucene.AllDocumentsCollector;
 import com.helger.pd.indexer.lucene.PDLucene;
 import com.helger.pd.indexer.mgr.IPDStorageManager;

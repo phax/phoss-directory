@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pd.indexer;
+package com.helger.pd.indexer.businesscard;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
