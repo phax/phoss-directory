@@ -16,6 +16,8 @@
  */
 package com.helger.pd.businesscard;
 
+import java.io.Serializable;
+
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -39,7 +41,7 @@ import com.helger.peppol.identifier.generic.doctype.SimpleDocumentTypeIdentifier
  * @author Philip Helger
  */
 @Immutable
-public class PDExtendedBusinessCard
+public class PDExtendedBusinessCard implements Serializable
 {
   private final PDBusinessCard m_aBusinessCard;
   private final ICommonsList <IDocumentTypeIdentifier> m_aDocumentTypeIDs = new CommonsArrayList <> ();

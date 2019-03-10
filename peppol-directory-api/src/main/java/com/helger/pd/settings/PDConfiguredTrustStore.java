@@ -16,6 +16,8 @@
  */
 package com.helger.pd.settings;
 
+import java.io.Serializable;
+
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 
@@ -25,11 +27,11 @@ import com.helger.security.keystore.EKeyStoreType;
 
 /**
  * A single truststore as found in the pd.properties configuration file.
- * 
+ *
  * @author Philip Helger
  */
 @Immutable
-public class PDConfiguredTrustStore
+public class PDConfiguredTrustStore implements Serializable
 {
   private final EKeyStoreType m_eType;
   private final String m_sPath;
