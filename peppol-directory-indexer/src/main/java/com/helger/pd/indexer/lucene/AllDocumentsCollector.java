@@ -24,6 +24,7 @@ import javax.annotation.Nonnull;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.search.Collector;
+import org.apache.lucene.search.ScoreMode;
 import org.apache.lucene.search.SimpleCollector;
 
 import com.helger.commons.ValueEnforcer;
@@ -78,6 +79,12 @@ public class AllDocumentsCollector extends SimpleCollector
       throw new IllegalStateException ("Failed to resolve Lucene Document with ID " + nAbsoluteDocID);
     // Pass to Consumer
     m_aConsumer.accept (aDoc, nAbsoluteDocID);
+  }
+
+  @Override
+  public ScoreMode scoreMode ()
+  {
+    return ScoreMode.COMPLETE_NO_SCORES;
   }
 
   @Override

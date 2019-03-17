@@ -155,7 +155,7 @@ public final class PDStorageManager implements IPDStorageManager
         // Search only documents that do not have the deleted field
         final Query aQuery = eQueryMode.getEffectiveQuery (new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID)));
         final TopDocs aTopDocs = _timedSearch ( () -> aSearcher.search (aQuery, 1), aQuery);
-        if (aTopDocs.totalHits > 0)
+        if (aTopDocs.totalHits.value > 0)
           return Boolean.TRUE;
       }
       return Boolean.FALSE;
@@ -472,7 +472,7 @@ public final class PDStorageManager implements IPDStorageManager
     else
     {
       // Search top docs only
-      final TopScoreDocCollector aCollector = TopScoreDocCollector.create (nMaxResultCount);
+      final TopScoreDocCollector aCollector = TopScoreDocCollector.create (nMaxResultCount, Integer.MAX_VALUE);
       searchAtomic (aQuery, aCollector);
       for (final ScoreDoc aScoreDoc : aCollector.topDocs ().scoreDocs)
       {

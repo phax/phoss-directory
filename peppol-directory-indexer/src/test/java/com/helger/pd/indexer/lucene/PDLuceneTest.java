@@ -139,7 +139,7 @@ public final class PDLuceneTest
       if (aHits.length == 0)
         return null;
 
-      final long numTotalHits = results.totalHits;
+      final long numTotalHits = results.totalHits.value;
       assertEquals (1, numTotalHits);
 
       /*

@@ -24,7 +24,7 @@ The official PEPPOL Directory (PD; former PEPPOL Yellow Pages - PYP) software. I
 
 * v0.7.1 - work in progress
     * Added new method `PDBusinessCardHelper.parseBusinessCard`
-    * Updated to Lucene 7.7.1
+    * Updated to Lucene 8.0.0
 * v0.7.0 - 2018-12-02
     * Added a link on the UI to download all business cards as XML
     * Fixed the build timestamp property
