@@ -6,7 +6,6 @@ Current release (on Maven central): **0.7.0**
 
 The official PEPPOL Directory (PD; former PEPPOL Yellow Pages - PYP) software. It is split into the following sub-projects (all require Java 8 except where noted):
   * `peppol-directory-businesscard` - the common Business Card API
-  * `peppol-directory-api` - the common API for the indexer and the publisher incl. Lucene handling
   * `peppol-directory-indexer` - the PD indexer part
   * `peppol-directory-publisher` - the PD publisher web application
   * `peppol-directory-client` - a client library to be added to SMP servers to force indexing in the PD
