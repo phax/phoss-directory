@@ -191,7 +191,7 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
   }
 
   @Nullable
-  private DirectoryReader _getReader () throws IOException
+  public DirectoryReader getReader () throws IOException
   {
     _checkClosing ();
     try
@@ -216,7 +216,10 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
         m_aSearcher = null;
 
         if (LOGGER.isDebugEnabled ())
+        {
           LOGGER.debug ("Contents of index changed. Creating new index reader");
+          LOGGER.debug ("Using DirectoryReader " + aNewReader.toString ());
+        }
       }
       return m_aIndexReader;
     }
@@ -245,7 +248,7 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
     if (LOGGER.isDebugEnabled ())
       LOGGER.debug ("getDocument(" + nDocID + ")");
 
-    final IndexReader aReader = _getReader ();
+    final IndexReader aReader = getReader ();
     if (aReader == null)
       return null;
     return aReader.document (nDocID);
@@ -262,7 +265,7 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
   public IndexSearcher getSearcher () throws IOException
   {
     _checkClosing ();
-    final IndexReader aReader = _getReader ();
+    final IndexReader aReader = getReader ();
     if (aReader == null)
     {
       // Index not readable
