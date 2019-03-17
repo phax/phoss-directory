@@ -131,7 +131,7 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
                .setHref (aLEC.getLinkToMenuItem (CMenuPublic.MENU_DOCS_EXPORT_ALL));
       aDropDown.createAndAddItem ()
                .addChild ("Specification v1.1 (PDF)")
-               .setHref (LinkHelper.getURLWithContext ("/files/OpenPEPPOL Directory 1.1 2018-07-17.pdf"));
+               .setHref (LinkHelper.getURLWithContext ("/files/PEPPOL-EDN-Directory-1.1-2018-07-17.pdf"));
       aDropDown.createAndAddItem ()
                .addChild ("Guide for SMP providers (PDF)")
                .setHref (LinkHelper.getURLWithContext ("/files/OpenPEPPOL Directory for SMP providers 2016-12-05.pdf"));
@@ -278,13 +278,13 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
       final String sHttpStatusMessage = aRequestScope.params ().getAsString ("httpStatusMessage");
       final String sHttpRequestURI = aRequestScope.params ().getAsString ("httpRequestUri");
       ret.addChild (new BootstrapErrorBox ().addChild ("HTTP error " +
-                                                                  sHttpStatusCode +
-                                                                  " (" +
-                                                                  sHttpStatusMessage +
-                                                                  ")" +
-                                                                  (StringHelper.hasText (sHttpRequestURI) ? " for request URI " +
-                                                                                                            sHttpRequestURI
-                                                                                                          : "")));
+                                                       sHttpStatusCode +
+                                                       " (" +
+                                                       sHttpStatusMessage +
+                                                       ")" +
+                                                       (StringHelper.hasText (sHttpRequestURI) ? " for request URI " +
+                                                                                                 sHttpRequestURI
+                                                                                               : "")));
     }
     else
     {
