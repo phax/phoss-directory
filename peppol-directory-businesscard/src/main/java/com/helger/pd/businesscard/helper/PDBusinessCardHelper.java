@@ -22,6 +22,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+import org.w3c.dom.Node;
+
+import com.helger.commons.ValueEnforcer;
 import com.helger.pd.businesscard.generic.PDBusinessCard;
 import com.helger.pd.businesscard.v1.PD1APIHelper;
 import com.helger.pd.businesscard.v1.PD1BusinessCardMarshaller;
@@ -45,8 +48,8 @@ public final class PDBusinessCardHelper
   {}
 
   /**
-   * A generic reading API to read all supported versions of the BusinessCard from
-   * a byte array and an optional character set.
+   * A generic reading API to read all supported versions of the BusinessCard
+   * from a byte array and an optional character set.
    *
    * @param aData
    *        Bytes to read. May not be <code>null</code>.
@@ -58,6 +61,8 @@ public final class PDBusinessCardHelper
   @Nullable
   public static PDBusinessCard parseBusinessCard (@Nonnull final byte [] aData, @Nullable final Charset aCharset)
   {
+    ValueEnforcer.notNull (aData, "Data");
+
     {
       // Read version 1
       final PD1BusinessCardMarshaller aMarshaller1 = new PD1BusinessCardMarshaller ();
@@ -105,6 +110,78 @@ public final class PDBusinessCardHelper
       if (aCharset != null)
         aMarshaller3.setCharset (aCharset);
       final PD3BusinessCardType aBC3 = aMarshaller3.read (aData);
+      if (aBC3 != null)
+        try
+        {
+          return PD3APIHelper.createBusinessCard (aBC3);
+        }
+        catch (final IllegalArgumentException ex)
+        {
+          // If the BC does not adhere to the XSD
+          // Happens if e.g. name is null
+          return null;
+        }
+    }
+
+    // Unsupported version
+    return null;
+  }
+
+  /**
+   * A generic reading API to read all supported versions of the BusinessCard
+   * from a DOM node.
+   *
+   * @param aNode
+   *        Pre-parsed XML node to read. May not be <code>null</code>.
+   * @return <code>null</code> if parsing fails.
+   * @since 0.7.2
+   */
+  @Nullable
+  public static PDBusinessCard parseBusinessCard (@Nonnull final Node aNode)
+  {
+    ValueEnforcer.notNull (aNode, "Node");
+
+    {
+      // Read version 1
+      final PD1BusinessCardMarshaller aMarshaller1 = new PD1BusinessCardMarshaller ();
+      aMarshaller1.readExceptionCallbacks ().removeAll ();
+      final PD1BusinessCardType aBC1 = aMarshaller1.read (aNode);
+      if (aBC1 != null)
+        try
+        {
+          return PD1APIHelper.createBusinessCard (aBC1);
+        }
+        catch (final IllegalArgumentException ex)
+        {
+          // If the BC does not adhere to the XSD
+          // Happens if e.g. name is null
+          return null;
+        }
+    }
+
+    {
+      // Read as version 2
+      final PD2BusinessCardMarshaller aMarshaller2 = new PD2BusinessCardMarshaller ();
+      aMarshaller2.readExceptionCallbacks ().removeAll ();
+      final PD2BusinessCardType aBC2 = aMarshaller2.read (aNode);
+      if (aBC2 != null)
+        try
+        {
+          return PD2APIHelper.createBusinessCard (aBC2);
+        }
+        catch (final IllegalArgumentException ex)
+        {
+          // If the BC does not adhere to the XSD
+          // Happens if e.g. name is null
+          return null;
+        }
+    }
+
+    {
+      // Read as version 3
+      final PD3BusinessCardMarshaller aMarshaller3 = new PD3BusinessCardMarshaller ();
+      aMarshaller3.readExceptionCallbacks ().removeAll ();
+      final PD3BusinessCardType aBC3 = aMarshaller3.read (aNode);
       if (aBC3 != null)
         try
         {
