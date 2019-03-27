@@ -27,7 +27,7 @@ import org.apache.http.ssl.SSLContexts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.commons.random.VerySecureRandom;
+import com.helger.commons.random.RandomHelper;
 import com.helger.commons.ws.HostnameVerifierVerifyAll;
 import com.helger.httpclient.HttpClientFactory;
 import com.helger.peppol.utils.PeppolKeyStoreHelper;
@@ -54,7 +54,7 @@ public class PDHttpClientFactory extends HttpClientFactory
     if (aLoadedKeyStore.isFailure ())
     {
       LOGGER.error ("Failed to initialize keystore for service connection! Can only use http now! Details: " +
-                       PeppolKeyStoreHelper.getLoadError (aLoadedKeyStore));
+                    PeppolKeyStoreHelper.getLoadError (aLoadedKeyStore));
     }
     else
     {
@@ -71,24 +71,16 @@ public class PDHttpClientFactory extends HttpClientFactory
                                                     PDClientConfiguration.getKeyStoreKeyPassword (),
                                                     (aAliases, aSocket) -> {
                                                       if (LOGGER.isDebugEnabled ())
-                                                        LOGGER.debug ("chooseAlias(" +
-                                                                         aAliases +
-                                                                         ", " +
-                                                                         aSocket +
-                                                                         ")");
+                                                        LOGGER.debug ("chooseAlias(" + aAliases + ", " + aSocket + ")");
                                                       final String sAlias = PDClientConfiguration.getKeyStoreKeyAlias ();
                                                       return aAliases.containsKey (sAlias) ? sAlias : null;
                                                     })
                                   .loadTrustMaterial (aTrustStore, (aChain, aAuthType) -> {
                                     if (LOGGER.isDebugEnabled ())
-                                      LOGGER.debug ("isTrusted(" +
-                                                       Arrays.toString (aChain) +
-                                                       ", " +
-                                                       aAuthType +
-                                                       ")");
+                                      LOGGER.debug ("isTrusted(" + Arrays.toString (aChain) + ", " + aAuthType + ")");
                                     return true;
                                   })
-                                  .setSecureRandom (VerySecureRandom.getInstance ())
+                                  .setSecureRandom (RandomHelper.getSecureRandom ())
                                   .build ());
       }
       catch (final GeneralSecurityException ex)
