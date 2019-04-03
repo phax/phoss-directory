@@ -9,6 +9,7 @@ The official PEPPOL Directory (PD; former PEPPOL Yellow Pages - PYP) software. I
   * `peppol-directory-indexer` - the PD indexer part
   * `peppol-directory-publisher` - the PD publisher web application
   * `peppol-directory-client` - a client library to be added to SMP servers to force indexing in the PD
+  * `peppol-directory-searchapi` - a client library for easier use of the Directory search REST API
   
 * Production version is available at https://directory.peppol.eu
   * It can only handle participants registered at the SML
@@ -21,6 +22,9 @@ The official PEPPOL Directory (PD; former PEPPOL Yellow Pages - PYP) software. I
   
 # News and noteworthy
 
+* v0.7.2 - work in progress
+    * Added new submodule `peppol-directory-searchapi` with basic elements for using the query API and the response documents
+    * Updated default truststore of `peppol-directory-client`
 * v0.7.1 - 2019-03-17
     * Added new method `PDBusinessCardHelper.parseBusinessCard`
     * Updated to Lucene 8.0.0

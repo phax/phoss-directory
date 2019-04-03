@@ -180,6 +180,11 @@
         <artifactId>peppol-directory-client</artifactId>
         <version>${project.version}</version>
       </dependency>
+      <dependency>
+        <groupId>com.helger</groupId>
+        <artifactId>peppol-directory-searchapi</artifactId>
+        <version>${project.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -210,6 +215,7 @@
     <module>peppol-directory-indexer</module>
     <module>peppol-directory-publisher</module>
     <module>peppol-directory-client</module>
+    <module>peppol-directory-searchapi</module>
   </modules>
   
   <build>
