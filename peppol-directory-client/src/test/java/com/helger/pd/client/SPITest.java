@@ -30,7 +30,6 @@ public final class SPITest
   @Test
   public void testBasic () throws Exception
   {
-    // Special case: allow for invalid ones!
-    SPITestHelper.testIfAllSPIImplementationsAreValid (true);
+    SPITestHelper.testIfAllSPIImplementationsAreValid ();
   }
 }
