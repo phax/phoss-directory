@@ -27,7 +27,7 @@
   <artifactId>peppol-directory-client</artifactId>
   <packaging>bundle</packaging>
   <name>peppol-directory-client</name>
-  <description>The PEPPOL Yellow Pages client that can be used by SMP servers</description>
+  <description>The PEPPOL Directory client that can be used by SMP servers to register/uregister from Directory</description>
   <url>https://github.com/phax/peppol-directory/peppol-directory-client</url>
   <inceptionYear>2015</inceptionYear>
   <licenses>
