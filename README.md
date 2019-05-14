@@ -4,19 +4,22 @@
 
 Current release (on Maven central): **0.7.2**
 
-The official PEPPOL Directory (PD; former PEPPOL Yellow Pages - PYP) software. It is split into the following sub-projects (all require Java 8 except where noted):
+The official PEPPOL Directory (PD; former PEPPOL Yellow Pages - PYP; www.peppol.eu) and TOOP Directory software (The Once-Only Project; www.toop.eu). It is split into the following sub-projects (all require Java 8 except where noted):
   * `phoss-directory-businesscard` - the common Business Card API
   * `phoss-directory-indexer` - the PD indexer part
   * `phoss-directory-publisher` - the PD publisher web application
   * `phoss-directory-client` - a client library to be added to SMP servers to force indexing in the PD
   * `phoss-directory-searchapi` - a client library for easier use of the Directory search REST API (since v0.7.2)
   
-* Production version is available at https://directory.peppol.eu
+* Production version is available at https://directory.peppol.eu (for PEPPOL)
   * It can only handle participants registered at the SML
   * For the indexing REST API, a client certificate (SMP production) is needed 
 * Test version is available at https://test-directory.peppol.eu
   * It can only handle participants registered at the SMK
   * For the indexing REST API, a client certificate (SMP test) is needed 
+* A TOOP version is available at http://directory.acc.exchange.toop.eu/
+  * It can only handle participants registered at the SMK at a specific DNS zone
+  * For the indexing REST API, no client certificate is needed
 * A Java library to be used in SMPs to communicate with the PD is available
 * [phoss SMP Server](https://github.com/phax/peppol-smp-server) supports starting with version 4.1.2 the graphical editing of Business Card incl. the new `/businesscard` API.
   
@@ -85,7 +88,7 @@ Additionally to the contained projects you *MAY* need the latest SNAPSHOT of [ph
 
 # PD Client
 
-The PD client is a small Java library that uses Apache HttpClient to connect to an arbitrary PEPPOL Directory Indexer to perform all the allowed operations (get, create/update, delete).
+The PD client is a small Java library that uses Apache HttpClient to connect to an arbitrary phoss Directory Indexer to perform all the allowed operations (get, create/update, delete).
 The client has its own configuration file that is resolved from one of the following locations (whatever is found first):
 * A path denoted by the content of the Java system property `peppol.pd.client.properties.path`
 * A path denoted by the content of the Java system property `pd.client.properties.path`
@@ -101,13 +104,13 @@ The following options are supported in the `pd-client.properties` file:
   * **keystore.key.alias** - the alias in the key store that denotes the SMP key 
   * **keystore.key.password** - the password to open the key in the key store
   * **truststore.type** (since v0.6.0) - the type of the keystore. Can be `JKS` or `PKCS12` (case insensitive). Defaults to `JKS`.
-  * **truststore.path** (since v0.5.1) - the path to the trust store, where the public certificates of the PEPPOL Directory servers are contained. Defaults to `truststore/pd-client.truststore.jks`
+  * **truststore.path** (since v0.5.1) - the path to the trust store, where the public certificates of the phoss Directory servers are contained. Defaults to `truststore/pd-client.truststore.jks`
   * **truststore.password** (since v0.5.1) - the password to open the truststore store. Defaults to `peppol`
   * **http.proxyHost** - the HTTP proxy host for `http` connections only. No default. 
   * **http.proxyPort** - the HTTP proxy port for `http` connections only. No default. 
   * **https.proxyHost** - the HTTP proxy host for `https` connections only. No default. 
   * **https.proxyPort** - the HTTP proxy port for `https` connections only. No default. 
-  * **https.hostname-verification.disabled** (since v0.5.1) - a boolean value to indicate if https hostname verification should be disabled (`true`) or enabled (`false`). The current setup of the PEPPOL Directory servers require you to use `true` here. The default value is `true`. 
+  * **https.hostname-verification.disabled** (since v0.5.1) - a boolean value to indicate if https hostname verification should be disabled (`true`) or enabled (`false`). The default value is `true`. 
   * **proxy.username** (since v0.6.0) - the proxy username if http or https proxy is enabled. No default. 
   * **proxy.password** (since v0.6.0) - the proxy password if http or https proxy is enabled. No default.
   * **connect.timeout.ms** (since v0.6.0) - the connection timeout in milliseconds to connect to the server. The default value is `5000` (5 seconds). A value of `0` means indefinite. A value of `-1` means using the system default.
@@ -129,8 +132,7 @@ truststore.path     = truststore/pd-client.truststore.jks
 truststore.password = peppol
 
 # TLS settings
-# Must be disabled for https://test-directory.peppol.eu and https://directory.peppol.eu
-https.hostname-verification.disabled = true
+https.hostname-verification.disabled = false
 ```
 
 # PD Indexer
