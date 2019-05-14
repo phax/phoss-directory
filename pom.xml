@@ -24,12 +24,12 @@
     <artifactId>parent-pom</artifactId>
     <version>1.10.8</version>
   </parent>
-  <artifactId>peppol-directory-parent-pom</artifactId>
+  <artifactId>phoss-directory-parent-pom</artifactId>
   <version>0.8.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>peppol-directory-parent-pom</name>
-  <description>Base POM to build the peppol-directory projects</description>
-  <url>https://github.com/phax/peppol-directory</url>
+  <description>Base POM to build the phoss Directory projects</description>
+  <url>https://github.com/phax/phoss-directory</url>
   <inceptionYear>2015</inceptionYear>
  
   <licenses>
@@ -41,9 +41,9 @@
   </licenses>
   
   <scm>
-    <connection>scm:git:git@github.com:phax/peppol-directory.git</connection>
-    <developerConnection>scm:git:git@github.com:phax/peppol-directory.git</developerConnection>
-    <url>http://github.com/phax/peppol-directory</url>
+    <connection>scm:git:git@github.com:phax/phoss-directory.git</connection>
+    <developerConnection>scm:git:git@github.com:phax/phoss-directory.git</developerConnection>
+    <url>http://github.com/phax/phoss-directory</url>
     <tag>HEAD</tag>
   </scm>
 
@@ -162,27 +162,27 @@
   
       <dependency>
         <groupId>com.helger</groupId>
-        <artifactId>peppol-directory-businesscard</artifactId>
+        <artifactId>phoss-directory-businesscard</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.helger</groupId>
-        <artifactId>peppol-directory-indexer</artifactId>
+        <artifactId>phoss-directory-indexer</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.helger</groupId>
-        <artifactId>peppol-directory-publisher</artifactId>
+        <artifactId>phoss-directory-publisher</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.helger</groupId>
-        <artifactId>peppol-directory-client</artifactId>
+        <artifactId>phoss-directory-client</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.helger</groupId>
-        <artifactId>peppol-directory-searchapi</artifactId>
+        <artifactId>phoss-directory-searchapi</artifactId>
         <version>${project.version}</version>
       </dependency>
     </dependencies>
@@ -211,11 +211,11 @@
   </dependencies>
   
   <modules>
-    <module>peppol-directory-businesscard</module>
-    <module>peppol-directory-indexer</module>
-    <module>peppol-directory-publisher</module>
-    <module>peppol-directory-client</module>
-    <module>peppol-directory-searchapi</module>
+    <module>phoss-directory-businesscard</module>
+    <module>phoss-directory-indexer</module>
+    <module>phoss-directory-publisher</module>
+    <module>phoss-directory-client</module>
+    <module>phoss-directory-searchapi</module>
   </modules>
   
   <build>

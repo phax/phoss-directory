@@ -1,15 +1,15 @@
-# peppol-directory
+# phoss-directory
 
 [![Join the chat at https://gitter.im/phax/peppol-directory](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/phax/peppol-directory?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Current release (on Maven central): **0.7.2**
 
 The official PEPPOL Directory (PD; former PEPPOL Yellow Pages - PYP) software. It is split into the following sub-projects (all require Java 8 except where noted):
-  * `peppol-directory-businesscard` - the common Business Card API
-  * `peppol-directory-indexer` - the PD indexer part
-  * `peppol-directory-publisher` - the PD publisher web application
-  * `peppol-directory-client` - a client library to be added to SMP servers to force indexing in the PD
-  * `peppol-directory-searchapi` - a client library for easier use of the Directory search REST API (since v0.7.2)
+  * `phoss-directory-businesscard` - the common Business Card API
+  * `phoss-directory-indexer` - the PD indexer part
+  * `phoss-directory-publisher` - the PD publisher web application
+  * `phoss-directory-client` - a client library to be added to SMP servers to force indexing in the PD
+  * `phoss-directory-searchapi` - a client library for easier use of the Directory search REST API (since v0.7.2)
   
 * Production version is available at https://directory.peppol.eu
   * It can only handle participants registered at the SML
@@ -22,6 +22,9 @@ The official PEPPOL Directory (PD; former PEPPOL Yellow Pages - PYP) software. I
   
 # News and noteworthy
 
+* v0.8.0 - work in progress
+    * Renamed project `peppol-directory` to `phoss-directory`
+    * Maven artifact IDs changed from `peppol-directory*` to `phoss-directory*`
 * v0.7.2 - 2019-05-13
     * Added new submodule `peppol-directory-searchapi` with basic elements for using the query API and the response documents
     * Updated default truststore of `peppol-directory-client`

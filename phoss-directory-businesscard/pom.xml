@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (C) 2019 Philip Helger (www.helger.com)
+    Copyright (C) 2015-2019 Philip Helger (www.helger.com)
     philip[at]helger[dot]com
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,15 +21,15 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.helger</groupId>
-    <artifactId>peppol-directory-parent-pom</artifactId>
+    <artifactId>phoss-directory-parent-pom</artifactId>
     <version>0.8.0-SNAPSHOT</version>
   </parent>
-  <artifactId>peppol-directory-searchapi</artifactId>
+  <artifactId>phoss-directory-businesscard</artifactId>
   <packaging>bundle</packaging>
-  <name>peppol-directory-searchapi</name>
-  <description>The Directory REST API interface</description>
-  <url>https://github.com/phax/peppol-directory/peppol-directory-searchapi</url>
-  <inceptionYear>2019</inceptionYear>
+  <name>phoss-directory-business</name>
+  <description>The business card API of the phoss Directory</description>
+  <url>https://github.com/phax/phoss-directory/phoss-directory-businesscard</url>
+  <inceptionYear>2015</inceptionYear>
 
   <licenses>
     <license>
@@ -60,13 +60,18 @@
     </dependency>
     <dependency>
       <groupId>com.helger</groupId>
-      <artifactId>ph-xml</artifactId>
+      <artifactId>ph-jaxb</artifactId>
     </dependency>
     <dependency>
       <groupId>com.helger</groupId>
-      <artifactId>ph-jaxb</artifactId>
+      <artifactId>ph-datetime</artifactId>
     </dependency>
-
+    
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
@@ -81,8 +86,8 @@
         <artifactId>maven-bundle-plugin</artifactId>
         <configuration>
           <instructions>
-            <Automatic-Module-Name>com.helger.pd.searchapi</Automatic-Module-Name>
-            <Export-Package>com.helger.pd.searchapi.*</Export-Package>
+            <Automatic-Module-Name>com.helger.pd.businesscard</Automatic-Module-Name>
+            <Export-Package>com.helger.pd.businesscard.*</Export-Package>
             <Import-Package>!javax.annotation.*,*</Import-Package>
           </instructions>
         </configuration>
@@ -93,24 +98,16 @@
         <version>0.14.0</version>
         <executions>
           <execution>
-            <id>v1</id>
             <goals>
               <goal>generate</goal>
             </goals>
-            <configuration>
-              <schemaIncludes>
-                <schemaInclude>directory-search-result-list-v1.xsd</schemaInclude>
-              </schemaIncludes>
-              <bindingIncludes>
-                <bindingInclude>v1.xjb</bindingInclude>
-              </bindingIncludes>
-            </configuration>
           </execution>
         </executions>
         <configuration>
-          <schemaDirectory>${basedir}/src/main/resources/schemas</schemaDirectory>
           <bindingDirectory>${basedir}/src/main/jaxb</bindingDirectory>
+          <schemaDirectory>${basedir}/src/main/resources/schemas</schemaDirectory>
           <extension>true</extension>
+          <specVersion>2.1</specVersion>
           <args>
             <arg>-no-header</arg>
             <arg>-Xph-default-locale</arg>
@@ -124,8 +121,7 @@
             <arg>-Xph-tostring</arg>
             <arg>-Xph-list-extension</arg>
             <arg>-Xph-csu</arg>
-            <arg>-Xph-cloneable</arg>
-            <arg>-Xph-value-extender</arg>
+            <arg>-Xph-cloneable2</arg>
           </args>
         </configuration>
         <dependencies>

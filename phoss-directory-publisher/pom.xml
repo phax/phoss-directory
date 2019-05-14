@@ -21,14 +21,14 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.helger</groupId>
-    <artifactId>peppol-directory-parent-pom</artifactId>
+    <artifactId>phoss-directory-parent-pom</artifactId>
     <version>0.8.0-SNAPSHOT</version>
   </parent>
-  <artifactId>peppol-directory-publisher</artifactId>
+  <artifactId>phoss-directory-publisher</artifactId>
   <packaging>war</packaging>
-  <name>peppol-directory-publisher</name>
-  <description>The publisher web application of the PEPPOL Yellow Pages</description>
-  <url>https://github.com/phax/peppol-directory/peppol-directory-publisher</url>
+  <name>phoss-directory-publisher</name>
+  <description>The publisher web application of the phoss Directory</description>
+  <url>https://github.com/phax/phoss-directory/phoss-directory-publisher</url>
   <inceptionYear>2015</inceptionYear>
 
   <licenses>
@@ -62,7 +62,7 @@
   <dependencies>
     <dependency>
       <groupId>com.helger</groupId>
-      <artifactId>peppol-directory-indexer</artifactId>
+      <artifactId>phoss-directory-indexer</artifactId>
     </dependency>
     <dependency>
       <groupId>com.helger</groupId>
