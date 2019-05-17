@@ -17,7 +17,7 @@
 package com.helger.pd.publisher.servlet;
 
 import com.helger.pd.publisher.app.secure.SecureHTMLProvider;
-import com.helger.photon.core.app.html.IHTMLProvider;
+import com.helger.photon.app.html.IHTMLProvider;
 import com.helger.photon.core.servlet.AbstractApplicationXServletHandler;
 import com.helger.photon.core.servlet.AbstractSecureApplicationServlet;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;

@@ -44,7 +44,7 @@ import org.junit.rules.TestRule;
 
 import com.helger.commons.io.file.FileOperationManager;
 import com.helger.commons.io.file.SimpleFileIO;
-import com.helger.photon.basic.mock.PhotonBasicTestRule;
+import com.helger.photon.app.mock.PhotonAppTestRule;
 
 /**
  * Test class for class {@link PDLucene}.
@@ -54,7 +54,7 @@ import com.helger.photon.basic.mock.PhotonBasicTestRule;
 public final class PDLuceneTest
 {
   @Rule
-  public final TestRule m_aRule = new PhotonBasicTestRule ();
+  public final TestRule m_aRule = new PhotonAppTestRule ();
 
   private static void _doIndex () throws IOException
   {

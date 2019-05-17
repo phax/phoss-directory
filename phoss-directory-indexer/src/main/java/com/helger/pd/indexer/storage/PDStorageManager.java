@@ -79,7 +79,7 @@ import com.helger.pd.indexer.mgr.IPDStorageManager;
 import com.helger.pd.indexer.storage.field.PDField;
 import com.helger.peppol.identifier.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.IParticipantIdentifier;
-import com.helger.photon.basic.audit.AuditHelper;
+import com.helger.photon.audit.AuditHelper;
 
 /**
  * The global storage manager that wraps the used Lucene index.

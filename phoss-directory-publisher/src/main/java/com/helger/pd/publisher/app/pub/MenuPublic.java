@@ -26,7 +26,7 @@ import com.helger.pd.publisher.app.pub.page.PagePublicContact;
 import com.helger.pd.publisher.app.pub.page.PagePublicSearchExtended;
 import com.helger.pd.publisher.app.pub.page.PagePublicSearchSimple;
 import com.helger.pd.publisher.ui.AppPageViewExternal;
-import com.helger.photon.basic.app.menu.IMenuTree;
+import com.helger.photon.core.menu.IMenuTree;
 
 @Immutable
 public final class MenuPublic

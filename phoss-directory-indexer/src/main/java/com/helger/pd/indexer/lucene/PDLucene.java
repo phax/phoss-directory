@@ -54,7 +54,7 @@ import com.helger.commons.concurrent.SimpleReadWriteLock;
 import com.helger.commons.functional.IThrowingSupplier;
 import com.helger.commons.io.stream.StreamHelper;
 import com.helger.commons.state.ESuccess;
-import com.helger.photon.basic.app.io.WebFileIO;
+import com.helger.photon.app.io.WebFileIO;
 
 /**
  * The singleton wrapper around the Lucene index to be used in PEPPOL Directory.

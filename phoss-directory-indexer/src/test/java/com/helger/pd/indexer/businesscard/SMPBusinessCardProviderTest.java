@@ -33,7 +33,7 @@ import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.peppol.identifier.factory.PeppolIdentifierFactory;
 import com.helger.peppol.sml.ESML;
 import com.helger.peppol.smpclient.SMPClientReadOnly;
-import com.helger.photon.basic.mock.PhotonBasicWebTestRule;
+import com.helger.photon.app.mock.PhotonAppWebTestRule;
 
 /**
  * Test class for class {@link SMPBusinessCardProvider}.
@@ -46,7 +46,7 @@ public final class SMPBusinessCardProviderTest
   private static final ISupplier <ICommonsList <ESML>> SML_SUPPLIER = () -> new CommonsArrayList <> (ESML.values ());
 
   @Rule
-  public final TestRule m_aRule = new PhotonBasicWebTestRule ();
+  public final TestRule m_aRule = new PhotonAppWebTestRule ();
 
   @Test
   public void testFetch ()

@@ -20,9 +20,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 
 import com.helger.pd.publisher.app.AppCommonUI;
-import com.helger.photon.core.ajax.IAjaxInvoker;
-import com.helger.photon.core.ajax.decl.AjaxFunctionDeclaration;
-import com.helger.photon.core.ajax.decl.IAjaxFunctionDeclaration;
+import com.helger.photon.ajax.IAjaxRegistry;
+import com.helger.photon.ajax.decl.AjaxFunctionDeclaration;
+import com.helger.photon.ajax.decl.IAjaxFunctionDeclaration;
 import com.helger.photon.uictrls.datatables.ajax.AjaxExecutorDataTables;
 import com.helger.photon.uictrls.datatables.ajax.AjaxExecutorDataTablesI18N;
 
@@ -47,10 +47,10 @@ public final class CAjax
   private CAjax ()
   {}
 
-  public static void initAjax (@Nonnull final IAjaxInvoker aAjaxInvoker)
+  public static void initAjax (@Nonnull final IAjaxRegistry aAjaxRegistry)
   {
-    aAjaxInvoker.registerFunction (DATATABLES);
-    aAjaxInvoker.registerFunction (DATATABLES_I18N);
-    aAjaxInvoker.registerFunction (LOGIN);
+    aAjaxRegistry.registerFunction (DATATABLES);
+    aAjaxRegistry.registerFunction (DATATABLES_I18N);
+    aAjaxRegistry.registerFunction (LOGIN);
   }
 }

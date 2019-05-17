@@ -59,12 +59,12 @@ import com.helger.peppol.identifier.IProcessIdentifier;
 import com.helger.peppol.identifier.peppol.doctype.EPredefinedDocumentTypeIdentifier;
 import com.helger.peppol.identifier.peppol.doctype.IPeppolDocumentTypeIdentifierParts;
 import com.helger.peppol.identifier.peppol.process.EPredefinedProcessIdentifier;
+import com.helger.photon.app.html.PhotonCSS;
 import com.helger.photon.bootstrap4.badge.BootstrapBadge;
 import com.helger.photon.bootstrap4.badge.EBootstrapBadgeType;
 import com.helger.photon.bootstrap4.form.BootstrapFormGroup;
 import com.helger.photon.bootstrap4.form.BootstrapViewForm;
 import com.helger.photon.bootstrap4.table.BootstrapTable;
-import com.helger.photon.core.app.html.PhotonCSS;
 import com.helger.photon.uictrls.EUICtrlsCSSPathProvider;
 import com.helger.photon.uictrls.famfam.EFamFamFlagIcon;
 

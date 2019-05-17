@@ -35,7 +35,7 @@ import com.helger.pd.indexer.lucene.PDLucene;
 import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.peppol.identifier.factory.IIdentifierFactory;
 import com.helger.peppol.identifier.factory.SimpleIdentifierFactory;
-import com.helger.photon.core.app.error.InternalErrorBuilder;
+import com.helger.photon.core.interror.InternalErrorBuilder;
 import com.helger.scope.IScope;
 import com.helger.scope.singleton.AbstractGlobalSingleton;
 

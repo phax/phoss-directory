@@ -25,8 +25,8 @@ import com.helger.commons.io.file.FileOperationManager;
 import com.helger.pd.indexer.lucene.PDLucene;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.peppol.smpclient.SMPClientConfiguration;
-import com.helger.photon.basic.app.io.WebIOIntIDFactory;
-import com.helger.photon.basic.mock.PhotonBasicWebTestRule;
+import com.helger.photon.app.io.WebIOIntIDFactory;
+import com.helger.photon.app.mock.PhotonAppWebTestRule;
 import com.helger.scope.mock.ScopeTestRule;
 
 /**
@@ -35,7 +35,7 @@ import com.helger.scope.mock.ScopeTestRule;
  *
  * @author Philip Helger
  */
-public class PDIndexerTestRule extends PhotonBasicWebTestRule
+public class PDIndexerTestRule extends PhotonAppWebTestRule
 {
   static
   {

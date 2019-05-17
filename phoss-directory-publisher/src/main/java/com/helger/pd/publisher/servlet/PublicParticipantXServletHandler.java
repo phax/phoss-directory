@@ -31,7 +31,7 @@ import com.helger.pd.publisher.app.pub.CMenuPublic;
 import com.helger.pd.publisher.app.pub.page.PagePublicSearchSimple;
 import com.helger.peppol.identifier.IParticipantIdentifier;
 import com.helger.peppol.identifier.factory.PeppolIdentifierFactory;
-import com.helger.photon.basic.app.request.RequestParameterManager;
+import com.helger.photon.core.requestparam.RequestParameterManager;
 import com.helger.photon.uicore.css.CPageParam;
 import com.helger.servlet.response.UnifiedResponse;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;

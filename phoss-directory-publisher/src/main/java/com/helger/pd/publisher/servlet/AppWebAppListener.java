@@ -35,17 +35,17 @@ import com.helger.pd.publisher.app.pub.MenuPublic;
 import com.helger.pd.publisher.app.secure.MenuSecure;
 import com.helger.pd.publisher.exportall.ExportAllBusinessCardsJob;
 import com.helger.pd.publisher.updater.SyncAllBusinessCardsJob;
-import com.helger.photon.basic.app.appid.CApplicationID;
-import com.helger.photon.basic.app.appid.PhotonGlobalState;
-import com.helger.photon.basic.app.locale.ILocaleManager;
-import com.helger.photon.basic.app.menu.MenuTree;
-import com.helger.photon.basic.app.request.RequestParameterHandlerURLPathNamed;
-import com.helger.photon.basic.app.request.RequestParameterManager;
-import com.helger.photon.basic.configfile.ConfigurationFile;
-import com.helger.photon.basic.configfile.ConfigurationFileManager;
-import com.helger.photon.basic.configfile.EConfigurationFileSyntax;
+import com.helger.photon.ajax.IAjaxRegistry;
 import com.helger.photon.bootstrap4.servlet.WebAppListenerBootstrap;
-import com.helger.photon.core.ajax.IAjaxInvoker;
+import com.helger.photon.core.appid.CApplicationID;
+import com.helger.photon.core.appid.PhotonGlobalState;
+import com.helger.photon.core.configfile.ConfigurationFile;
+import com.helger.photon.core.configfile.ConfigurationFileManager;
+import com.helger.photon.core.configfile.EConfigurationFileSyntax;
+import com.helger.photon.core.locale.ILocaleManager;
+import com.helger.photon.core.menu.MenuTree;
+import com.helger.photon.core.requestparam.RequestParameterHandlerURLPathNamed;
+import com.helger.photon.core.requestparam.RequestParameterManager;
 import com.helger.quartz.SimpleScheduleBuilder;
 import com.helger.schedule.quartz.GlobalQuartzScheduler;
 import com.helger.schedule.quartz.listener.LoggingJobListener;
@@ -120,16 +120,16 @@ public final class AppWebAppListener extends WebAppListenerBootstrap
   }
 
   @Override
-  public void initLocales (@Nonnull final ILocaleManager aLocaleMgr)
+  protected void initLocales (@Nonnull final ILocaleManager aLocaleMgr)
   {
     aLocaleMgr.registerLocale (AppCommonUI.DEFAULT_LOCALE);
     aLocaleMgr.setDefaultLocale (AppCommonUI.DEFAULT_LOCALE);
   }
 
   @Override
-  public void initAjax (@Nonnull final IAjaxInvoker aAjaxInvoker)
+  protected void initAjax (final IAjaxRegistry aAjaxRegistry)
   {
-    CAjax.initAjax (aAjaxInvoker);
+    CAjax.initAjax (aAjaxRegistry);
   }
 
   @Override
@@ -184,7 +184,8 @@ public final class AppWebAppListener extends WebAppListenerBootstrap
 
     if (GlobalDebug.isProductionMode ())
     {
-      // Schedule the sync job every hour - it keeps track of the last sync internally
+      // Schedule the sync job every hour - it keeps track of the last sync
+      // internally
       GlobalQuartzScheduler.getInstance ()
                            .scheduleJob (SyncAllBusinessCardsJob.class.getName (),
                                          JDK8TriggerBuilder.newTrigger ()

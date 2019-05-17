@@ -49,7 +49,7 @@ import com.helger.pd.indexer.storage.PDStoredIdentifier;
 import com.helger.pd.indexer.storage.PDStoredMLName;
 import com.helger.peppol.identifier.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.IParticipantIdentifier;
-import com.helger.photon.basic.app.io.WebFileIO;
+import com.helger.photon.app.io.WebFileIO;
 import com.helger.poi.excel.EExcelVersion;
 import com.helger.poi.excel.WorkbookCreationHelper;
 import com.helger.poi.excel.style.ExcelStyle;

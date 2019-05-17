@@ -24,11 +24,11 @@ import com.helger.html.hc.html.grouping.HCDiv;
 import com.helger.html.hc.html.textlevel.HCSmall;
 import com.helger.pd.indexer.CDirectory;
 import com.helger.pd.publisher.CPDPublisher;
+import com.helger.photon.app.html.IHTMLProvider;
 import com.helger.photon.bootstrap4.CBootstrapCSS;
 import com.helger.photon.bootstrap4.uictrls.ext.BootstrapLoginHTMLProvider;
 import com.helger.photon.bootstrap4.uictrls.ext.BootstrapLoginManager;
-import com.helger.photon.core.app.context.ISimpleWebExecutionContext;
-import com.helger.photon.core.app.html.IHTMLProvider;
+import com.helger.photon.core.execcontext.ISimpleWebExecutionContext;
 import com.helger.security.authentication.credentials.ICredentialValidationResult;
 
 public final class PDLoginManager extends BootstrapLoginManager
