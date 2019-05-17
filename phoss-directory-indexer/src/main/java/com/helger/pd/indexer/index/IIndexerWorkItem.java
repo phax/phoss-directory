@@ -25,7 +25,7 @@ import com.helger.commons.annotation.ReturnsMutableCopy;
 import com.helger.commons.type.ITypedObject;
 import com.helger.datetime.domain.IHasCreationDateTime;
 import com.helger.pd.indexer.storage.PDStoredMetaData;
-import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
+import com.helger.peppol.identifier.IParticipantIdentifier;
 
 /**
  * Base interface for indexer work item with only reading methods.

@@ -25,7 +25,7 @@ import javax.annotation.Nullable;
 import com.helger.commons.state.ESuccess;
 import com.helger.pd.indexer.businesscard.PDExtendedBusinessCard;
 import com.helger.pd.indexer.storage.PDStoredMetaData;
-import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
+import com.helger.peppol.identifier.IParticipantIdentifier;
 
 /**
  * The abstract storage manager interface. It contains all the actions that can

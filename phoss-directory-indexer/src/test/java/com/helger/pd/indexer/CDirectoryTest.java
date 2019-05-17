@@ -20,8 +20,6 @@ import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
 
-import com.helger.pd.indexer.CDirectory;
-
 /**
  * Test class for class {@link CDirectory}
  * 

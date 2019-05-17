@@ -18,11 +18,13 @@ package com.helger.pd.indexer.settings;
 
 /**
  * The SMP mode to be used.
- * 
+ *
  * @author Philip Helger
  */
 public enum EPDSMPMode
 {
+  /** PEPPOL mode */
   PEPPOL,
+  /** OASIS SMP v1 mode */
   OASIS_BDXR_V1;
 }

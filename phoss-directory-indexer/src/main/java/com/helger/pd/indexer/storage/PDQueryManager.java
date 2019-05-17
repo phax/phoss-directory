@@ -45,9 +45,9 @@ import com.helger.commons.regex.RegExHelper;
 import com.helger.pd.indexer.lucene.ILuceneAnalyzerProvider;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.field.PDField;
+import com.helger.peppol.identifier.IDocumentTypeIdentifier;
+import com.helger.peppol.identifier.IParticipantIdentifier;
 import com.helger.peppol.identifier.factory.IIdentifierFactory;
-import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
-import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 
 /**
  * PEPPOL Directory Lucene Query manager

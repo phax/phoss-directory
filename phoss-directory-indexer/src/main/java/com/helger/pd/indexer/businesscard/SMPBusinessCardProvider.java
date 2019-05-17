@@ -47,9 +47,9 @@ import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.settings.EPDSMPMode;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.peppol.bdxrclient.BDXRClientReadOnly;
+import com.helger.peppol.identifier.IDocumentTypeIdentifier;
+import com.helger.peppol.identifier.IParticipantIdentifier;
 import com.helger.peppol.identifier.factory.IIdentifierFactory;
-import com.helger.peppol.identifier.generic.doctype.IDocumentTypeIdentifier;
-import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
 import com.helger.peppol.sml.ISMLInfo;
 import com.helger.peppol.smpclient.SMPClientReadOnly;
 import com.helger.peppol.smpclient.exception.SMPClientException;
@@ -282,7 +282,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
                  "'");
 
     // First query the service group
-    com.helger.peppol.bdxr.ServiceGroupType aServiceGroup;
+    com.helger.xsds.bdxr.smp1.ServiceGroupType aServiceGroup;
     try
     {
       aServiceGroup = aSMPClient.getServiceGroupOrNull (aParticipantID);
@@ -332,8 +332,8 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
     final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
     final ICommonsList <IDocumentTypeIdentifier> aDocumentTypeIDs = new CommonsArrayList <> ();
     if (aServiceGroup != null)
-      for (final com.helger.peppol.bdxr.ServiceMetadataReferenceType aRef : aServiceGroup.getServiceMetadataReferenceCollection ()
-                                                                                         .getServiceMetadataReference ())
+      for (final com.helger.xsds.bdxr.smp1.ServiceMetadataReferenceType aRef : aServiceGroup.getServiceMetadataReferenceCollection ()
+                                                                                            .getServiceMetadataReference ())
       {
         // Extract the path in case there are parameters or anchors attached
         final String sHref = new SimpleURL (aRef.getHref ()).getPath ();

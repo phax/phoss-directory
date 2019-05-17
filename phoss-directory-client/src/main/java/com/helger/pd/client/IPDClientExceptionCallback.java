@@ -19,7 +19,7 @@ package com.helger.pd.client;
 import javax.annotation.Nonnull;
 
 import com.helger.commons.callback.ICallback;
-import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
+import com.helger.peppol.identifier.IParticipantIdentifier;
 
 /**
  * Special exception callback interface for the PEPPOL Directory client.

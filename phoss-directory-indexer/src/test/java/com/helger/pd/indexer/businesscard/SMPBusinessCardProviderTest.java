@@ -29,8 +29,6 @@ import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.functional.ISupplier;
 import com.helger.commons.url.URLHelper;
-import com.helger.pd.indexer.businesscard.PDExtendedBusinessCard;
-import com.helger.pd.indexer.businesscard.SMPBusinessCardProvider;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.peppol.identifier.factory.PeppolIdentifierFactory;
 import com.helger.peppol.sml.ESML;

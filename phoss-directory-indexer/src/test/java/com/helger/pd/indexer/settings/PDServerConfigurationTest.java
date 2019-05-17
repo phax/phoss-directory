@@ -22,8 +22,6 @@ import org.junit.Test;
 
 import com.helger.commons.collection.impl.CommonsHashSet;
 import com.helger.commons.collection.impl.ICommonsList;
-import com.helger.pd.indexer.settings.PDConfiguredTrustStore;
-import com.helger.pd.indexer.settings.PDServerConfiguration;
 
 /**
  * Test class for class {@link PDServerConfiguration}.

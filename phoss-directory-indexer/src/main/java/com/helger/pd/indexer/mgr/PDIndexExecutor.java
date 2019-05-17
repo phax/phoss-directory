@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import com.helger.commons.state.ESuccess;
 import com.helger.pd.indexer.businesscard.PDExtendedBusinessCard;
 import com.helger.pd.indexer.index.IIndexerWorkItem;
-import com.helger.peppol.identifier.generic.participant.IParticipantIdentifier;
+import com.helger.peppol.identifier.IParticipantIdentifier;
 
 /**
  * Internal class to execute a single work item. It is invoked by the

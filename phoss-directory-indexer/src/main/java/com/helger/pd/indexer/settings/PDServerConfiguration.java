@@ -33,7 +33,7 @@ import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.debug.GlobalDebug;
 import com.helger.commons.string.StringHelper;
 import com.helger.commons.url.URLHelper;
-import com.helger.peppol.url.EsensURLProvider;
+import com.helger.peppol.url.BDXLURLProvider;
 import com.helger.peppol.url.IPeppolURLProvider;
 import com.helger.peppol.url.PeppolURLProvider;
 import com.helger.peppol.utils.PeppolKeyStoreHelper;
@@ -373,8 +373,8 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   public static IPeppolURLProvider getURLProvider ()
   {
     final String sSMLURLProvider = getConfigFile ().getAsString ("sml.urlprovider");
-    if ("esens".equalsIgnoreCase (sSMLURLProvider))
-      return EsensURLProvider.INSTANCE;
+    if ("esens".equalsIgnoreCase (sSMLURLProvider) || "bdxl".equalsIgnoreCase (sSMLURLProvider))
+      return BDXLURLProvider.INSTANCE;
 
     // Default is PEPPOL
     return PeppolURLProvider.INSTANCE;

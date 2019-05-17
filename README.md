@@ -28,6 +28,7 @@ The official PEPPOL Directory (PD; former PEPPOL Yellow Pages - PYP; www.peppol.
 * v0.8.0 - work in progress
     * Renamed project `peppol-directory` to `phoss-directory`
     * **Maven artifact IDs changed** from `peppol-directory*` to `phoss-directory*`
+    * Updated to `peppol-commons` 7.0.0
 * v0.7.2 - 2019-05-13
     * Added new submodule `peppol-directory-searchapi` with basic elements for using the query API and the response documents
     * Updated default truststore of `peppol-directory-client`
