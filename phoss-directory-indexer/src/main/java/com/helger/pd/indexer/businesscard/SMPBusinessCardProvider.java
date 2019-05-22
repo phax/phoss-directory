@@ -46,6 +46,7 @@ import com.helger.pd.businesscard.generic.PDBusinessCard;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.settings.EPDSMPMode;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
+import com.helger.peppol.bdxr2client.BDXR2ClientReadOnly;
 import com.helger.peppol.bdxrclient.BDXRClientReadOnly;
 import com.helger.peppol.identifier.IDocumentTypeIdentifier;
 import com.helger.peppol.identifier.IParticipantIdentifier;
@@ -170,7 +171,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
 
     LOGGER.info ("Querying BusinessCard for '" +
                  aParticipantID.getURIEncoded () +
-                 "' from SMP '" +
+                 "' from PEPPOL SMP '" +
                  aSMPClient.getSMPHostURI () +
                  "'");
 
@@ -277,7 +278,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
 
     LOGGER.info ("Querying BusinessCard for '" +
                  aParticipantID.getURIEncoded () +
-                 "' from SMP '" +
+                 "' from OASIS BDXR SMP v1 '" +
                  aSMPClient.getSMPHostURI () +
                  "'");
 
@@ -372,6 +373,86 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
   }
 
   @Nullable
+  @VisibleForTesting
+  PDExtendedBusinessCard getBusinessCardBDXR2 (@Nonnull final IParticipantIdentifier aParticipantID,
+                                               @Nonnull final BDXR2ClientReadOnly aSMPClient)
+  {
+    // Create SMP client
+    final HttpHost aProxy = getHttpProxy ();
+    final Credentials aProxyCredentials = getHttpProxyCredentials ();
+    aSMPClient.setProxy (aProxy);
+    aSMPClient.setProxyCredentials (aProxyCredentials);
+
+    LOGGER.info ("Querying BusinessCard for '" +
+                 aParticipantID.getURIEncoded () +
+                 "' from OASIS BDXR SMP v2 '" +
+                 aSMPClient.getSMPHostURI () +
+                 "'");
+
+    // First query the service group
+    com.helger.xsds.bdxr.smp2.ServiceGroupType aServiceGroup;
+    try
+    {
+      aServiceGroup = aSMPClient.getServiceGroupOrNull (aParticipantID);
+    }
+    catch (final SMPClientException ex)
+    {
+      LOGGER.error ("Error querying SMP for ServiceGroup of '" + aParticipantID.getURIEncoded () + "'", ex);
+      return null;
+    }
+
+    // If the service group is present, try querying the business card
+    final PDBusinessCard aBusinessCard;
+    try
+    {
+      // Use the optional business card API
+      final HttpGet aRequest = new HttpGet (aSMPClient.getSMPHostURI () +
+                                            "businesscard/" +
+                                            aParticipantID.getURIPercentEncoded ());
+      final HttpContext aContext = HttpClientHelper.createHttpContext (aProxy, aProxyCredentials);
+      aBusinessCard = PDMetaManager.getHttpClientMgr ()
+                                   .execute (aRequest, aContext, new PDSMPHttpResponseHandlerBusinessCard ());
+    }
+    catch (final IOException ex)
+    {
+      if ((ex instanceof HttpResponseException &&
+           ((HttpResponseException) ex).getStatusCode () == HttpServletResponse.SC_NOT_FOUND) ||
+          ex instanceof UnknownHostException)
+      {
+        LOGGER.warn ("No BusinessCard available for '" +
+                     aParticipantID.getURIEncoded () +
+                     "' - not in configured SMK/SML? - " +
+                     ex.getMessage ());
+      }
+      else
+        LOGGER.error ("Error querying SMP for BusinessCard of '" + aParticipantID.getURIEncoded () + "'", ex);
+      return null;
+    }
+
+    if (aBusinessCard == null)
+    {
+      // No extension present - no need to try again
+      LOGGER.warn ("Failed to get SMP BusinessCard of " + aParticipantID.getURIEncoded ());
+      return null;
+    }
+
+    // Query all document types
+    final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
+    final ICommonsList <IDocumentTypeIdentifier> aDocumentTypeIDs = new CommonsArrayList <> ();
+    if (aServiceGroup != null)
+      for (final com.helger.xsds.bdxr.smp2.ac.ServiceReferenceType aRef : aServiceGroup.getServiceReference ())
+      {
+        final IDocumentTypeIdentifier aDocTypeID = aIdentifierFactory.createDocumentTypeIdentifier (aRef.getID ()
+                                                                                                        .getSchemeID (),
+                                                                                                    aRef.getID ()
+                                                                                                        .getValue ());
+        aDocumentTypeIDs.add (aDocTypeID);
+      }
+
+    return new PDExtendedBusinessCard (aBusinessCard, aDocumentTypeIDs);
+  }
+
+  @Nullable
   public PDExtendedBusinessCard getBusinessCard (@Nonnull final IParticipantIdentifier aParticipantID)
   {
     PDExtendedBusinessCard aBC;
@@ -391,6 +472,12 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
         {
           final BDXRClientReadOnly aSMPClient = new BDXRClientReadOnly (m_aSMPURI);
           aBC = getBusinessCardBDXR1 (aParticipantID, aSMPClient);
+          break;
+        }
+        case OASIS_BDXR_V2:
+        {
+          final BDXR2ClientReadOnly aSMPClient = new BDXR2ClientReadOnly (m_aSMPURI);
+          aBC = getBusinessCardBDXR2 (aParticipantID, aSMPClient);
           break;
         }
         default:
@@ -425,6 +512,19 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
             {
               final BDXRClientReadOnly aSMPClient = new BDXRClientReadOnly (m_aURLProvider, aParticipantID, aSML);
               aBC = getBusinessCardBDXR1 (aParticipantID, aSMPClient);
+            }
+            catch (final PeppolDNSResolutionException ex)
+            {
+              // Happens if a non-existing URL is queried
+            }
+            break;
+          }
+          case OASIS_BDXR_V2:
+          {
+            try
+            {
+              final BDXR2ClientReadOnly aSMPClient = new BDXR2ClientReadOnly (m_aURLProvider, aParticipantID, aSML);
+              aBC = getBusinessCardBDXR2 (aParticipantID, aSMPClient);
             }
             catch (final PeppolDNSResolutionException ex)
             {

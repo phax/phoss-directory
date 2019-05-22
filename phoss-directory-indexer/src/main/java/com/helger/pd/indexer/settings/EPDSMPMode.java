@@ -26,5 +26,7 @@ public enum EPDSMPMode
   /** PEPPOL mode */
   PEPPOL,
   /** OASIS SMP v1 mode */
-  OASIS_BDXR_V1;
+  OASIS_BDXR_V1,
+  /** OASIS SMP v2 mode */
+  OASIS_BDXR_V2;
 }
