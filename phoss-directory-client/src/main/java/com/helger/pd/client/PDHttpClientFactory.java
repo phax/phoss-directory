@@ -27,7 +27,6 @@ import org.apache.http.ssl.SSLContexts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.commons.random.RandomHelper;
 import com.helger.commons.ws.HostnameVerifierVerifyAll;
 import com.helger.httpclient.HttpClientFactory;
 import com.helger.peppol.utils.PeppolKeyStoreHelper;
@@ -80,7 +79,6 @@ public class PDHttpClientFactory extends HttpClientFactory
                                       LOGGER.debug ("isTrusted(" + Arrays.toString (aChain) + ", " + aAuthType + ")");
                                     return true;
                                   })
-                                  .setSecureRandom (RandomHelper.getSecureRandom ())
                                   .build ());
       }
       catch (final GeneralSecurityException ex)

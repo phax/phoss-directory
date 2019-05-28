@@ -47,7 +47,6 @@ import org.slf4j.LoggerFactory;
 import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.concurrent.ThreadHelper;
 import com.helger.commons.mock.CommonsTestHelper;
-import com.helger.commons.random.RandomHelper;
 import com.helger.commons.ws.HostnameVerifierVerifyAll;
 import com.helger.commons.ws.TrustManagerTrustAll;
 import com.helger.pd.businesscard.generic.PDBusinessCard;
@@ -130,7 +129,7 @@ public final class IndexerResourceTest
       final SSLContext aSSLContext = SSLContext.getInstance ("TLS");
       aSSLContext.init (aKeyManagerFactory.getKeyManagers (),
                         new TrustManager [] { new TrustManagerTrustAll (false) },
-                        RandomHelper.getSecureRandom ());
+                        null);
       final Client aClient = ClientBuilder.newBuilder ()
                                           .sslContext (aSSLContext)
                                           .hostnameVerifier (new HostnameVerifierVerifyAll (false))
