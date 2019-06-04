@@ -290,8 +290,8 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
                                                                                                                         nEffectiveLastIndex +
                                                                                                                                            1);
 
-      // Group by participant ID
-      final IMultiMapListBased <IParticipantIdentifier, PDStoredBusinessEntity> aGroupedDocs = PDStorageManager.getGroupedByParticipantID (aResultDocs);
+      // Group results by participant ID
+      final IMultiMapListBased <IParticipantIdentifier, PDStoredBusinessEntity> aGroupedDocs = PDStorageManager.getGroupedByParticipantID (aResultView);
       final ZonedDateTime aNow = PDTFactory.getCurrentZonedDateTimeUTC ();
 
       // build result
