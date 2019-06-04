@@ -30,6 +30,7 @@ The official PEPPOL Directory (PD; former PEPPOL Yellow Pages - PYP; www.peppol.
     * **Maven artifact IDs changed** from `peppol-directory*` to `phoss-directory*`
     * Updated to `peppol-commons` 7.0.0
     * Updated to Lucene 8.1.1
+    * Fixed an issue with `total-result-count` and paging in the REST API (see [issue #39](https://github.com/phax/phoss-directory/issues/39))
 * v0.7.2 - 2019-05-13
     * Added new submodule `peppol-directory-searchapi` with basic elements for using the query API and the response documents
     * Updated default truststore of `peppol-directory-client`
