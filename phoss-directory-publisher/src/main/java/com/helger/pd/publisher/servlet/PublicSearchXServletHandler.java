@@ -269,16 +269,19 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
       final int nMaxResults = nLastResultIndex + 1;
 
       // Search all documents
-      final ICommonsList <PDStoredBusinessEntity> aResultDocs = PDMetaManager.getStorageMgr ()
-                                                                             .getAllDocuments (aLuceneQuery,
-                                                                                               nMaxResults);
+      final PDStorageManager aStorageMgr = PDMetaManager.getStorageMgr ();
+      final ICommonsList <PDStoredBusinessEntity> aResultDocs = aStorageMgr.getAllDocuments (aLuceneQuery, nMaxResults);
+
+      // Also get the total hit count for UI display. May be < 0 in case of
+      // error
+      final int nTotalBEs = aStorageMgr.getCount (aLuceneQuery);
 
       LOGGER.info ("  Result for <" +
                    aLuceneQuery +
                    "> (max=" +
                    nMaxResults +
                    ") " +
-                   (aResultDocs.size () == 1 ? "is 1 document" : "are " + aResultDocs.size () + " documents"));
+                   (nTotalBEs == 1 ? "is 1 document" : "are " + nTotalBEs + " documents"));
 
       // Filter by index/count
       final int nEffectiveLastIndex = Math.min (nLastResultIndex, aResultDocs.size () - 1);
@@ -301,7 +304,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
           final IMicroDocument aDoc = new MicroDocument ();
           final IMicroElement eRoot = aDoc.appendElement ("resultlist");
           eRoot.setAttribute (RESPONSE_VERSION, eSearchVersion.getVersion ());
-          eRoot.setAttribute (RESPONSE_TOTAL_RESULT_COUNT, aResultDocs.size ());
+          eRoot.setAttribute (RESPONSE_TOTAL_RESULT_COUNT, nTotalBEs);
           eRoot.setAttribute (RESPONSE_USED_RESULT_COUNT, aResultView.size ());
           eRoot.setAttribute (RESPONSE_RESULT_PAGE_INDEX, nResultPageIndex);
           eRoot.setAttribute (RESPONSE_RESULT_PAGE_COUNT, nResultPageCount);
@@ -335,7 +338,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
           final JsonWriterSettings aJWS = new JsonWriterSettings ().setIndentEnabled (bBeautify);
           final IJsonObject aDoc = new JsonObject ();
           aDoc.add (RESPONSE_VERSION, eSearchVersion.getVersion ());
-          aDoc.add (RESPONSE_TOTAL_RESULT_COUNT, aResultDocs.size ());
+          aDoc.add (RESPONSE_TOTAL_RESULT_COUNT, nTotalBEs);
           aDoc.add (RESPONSE_USED_RESULT_COUNT, aResultView.size ());
           aDoc.add (RESPONSE_RESULT_PAGE_INDEX, nResultPageIndex);
           aDoc.add (RESPONSE_RESULT_PAGE_COUNT, nResultPageCount);
