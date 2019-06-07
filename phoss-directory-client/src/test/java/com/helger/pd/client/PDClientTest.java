@@ -23,8 +23,8 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.commons.exception.InitializationException;
 import com.helger.commons.io.resource.ClassPathResource;
-import com.helger.peppol.identifier.IParticipantIdentifier;
-import com.helger.peppol.identifier.factory.PeppolIdentifierFactory;
+import com.helger.peppolid.IParticipantIdentifier;
+import com.helger.peppolid.factory.PeppolIdentifierFactory;
 
 /**
  * Test class for class {@link PDClient}.

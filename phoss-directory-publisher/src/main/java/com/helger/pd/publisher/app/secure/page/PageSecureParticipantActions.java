@@ -39,7 +39,7 @@ import com.helger.pd.publisher.servlet.ExportDeliveryHttpHandler;
 import com.helger.pd.publisher.servlet.ExportServlet;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.pd.publisher.updater.SyncAllBusinessCardsJob;
-import com.helger.peppol.identifier.IParticipantIdentifier;
+import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.photon.ajax.decl.AjaxFunctionDeclaration;
 import com.helger.photon.app.url.LinkHelper;
 import com.helger.photon.bootstrap4.alert.BootstrapErrorBox;

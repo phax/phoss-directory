@@ -30,8 +30,8 @@ import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.string.ToStringGenerator;
 import com.helger.pd.businesscard.generic.PDBusinessCard;
-import com.helger.peppol.identifier.IDocumentTypeIdentifier;
-import com.helger.peppol.identifier.simple.doctype.SimpleDocumentTypeIdentifier;
+import com.helger.peppolid.IDocumentTypeIdentifier;
+import com.helger.peppolid.simple.doctype.SimpleDocumentTypeIdentifier;
 
 /**
  * This class encapsulates all the data to be added to the Lucene index. It

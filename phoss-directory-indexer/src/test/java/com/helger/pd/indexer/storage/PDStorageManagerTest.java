@@ -43,8 +43,8 @@ import com.helger.pd.indexer.businesscard.PDExtendedBusinessCard;
 import com.helger.pd.indexer.lucene.PDLucene;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.field.PDField;
-import com.helger.peppol.identifier.IParticipantIdentifier;
 import com.helger.peppol.identifier.peppol.doctype.EPredefinedDocumentTypeIdentifier;
+import com.helger.peppolid.IParticipantIdentifier;
 
 /**
  * Test class for class {@link PDStorageManager}.

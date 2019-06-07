@@ -36,7 +36,7 @@ import com.helger.pd.indexer.index.EIndexerWorkItemType;
 import com.helger.pd.indexer.mgr.PDIndexerManager;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.EQueryMode;
-import com.helger.peppol.identifier.IParticipantIdentifier;
+import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.photon.app.io.WebFileIO;
 import com.helger.photon.audit.AuditHelper;
 import com.helger.quartz.DisallowConcurrentExecution;

@@ -44,8 +44,8 @@ import com.helger.pd.businesscard.generic.PDBusinessCard;
 import com.helger.pd.businesscard.generic.PDBusinessEntity;
 import com.helger.pd.businesscard.generic.PDIdentifier;
 import com.helger.pd.indexer.storage.field.PDField;
-import com.helger.peppol.identifier.IDocumentTypeIdentifier;
-import com.helger.peppol.identifier.IParticipantIdentifier;
+import com.helger.peppolid.IDocumentTypeIdentifier;
+import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.xml.microdom.IMicroElement;
 import com.helger.xml.microdom.MicroElement;
 

@@ -22,8 +22,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.helger.pd.indexer.mgr.PDMetaManager;
-import com.helger.peppol.identifier.IParticipantIdentifier;
-import com.helger.peppol.identifier.factory.IIdentifierFactory;
+import com.helger.peppolid.IParticipantIdentifier;
+import com.helger.peppolid.factory.IIdentifierFactory;
 import com.helger.xml.microdom.IMicroElement;
 import com.helger.xml.microdom.MicroElement;
 import com.helger.xml.microdom.convert.IMicroTypeConverter;

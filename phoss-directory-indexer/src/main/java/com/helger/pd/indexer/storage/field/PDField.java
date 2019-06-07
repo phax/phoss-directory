@@ -21,8 +21,8 @@ import java.time.LocalDateTime;
 import org.apache.lucene.document.Field;
 
 import com.helger.commons.datetime.PDTFactory;
-import com.helger.peppol.identifier.IDocumentTypeIdentifier;
-import com.helger.peppol.identifier.IParticipantIdentifier;
+import com.helger.peppolid.IDocumentTypeIdentifier;
+import com.helger.peppolid.IParticipantIdentifier;
 
 /**
  * This class contains all the PD Lucene fields

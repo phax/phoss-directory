@@ -33,8 +33,8 @@ import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.CPDStorage;
 import com.helger.pd.indexer.storage.PDQueryManager;
 import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
-import com.helger.peppol.identifier.IDocumentTypeIdentifier;
-import com.helger.peppol.identifier.IParticipantIdentifier;
+import com.helger.peppolid.IDocumentTypeIdentifier;
+import com.helger.peppolid.IParticipantIdentifier;
 
 /**
  * The PEPPOL Directory specific search fields. The fields here should be
