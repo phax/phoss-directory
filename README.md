@@ -2,7 +2,7 @@
 
 [![Join the chat at https://gitter.im/phax/peppol-directory](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/phax/peppol-directory?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Current release (on Maven central): **0.7.2**
+Current release (on Maven central): **0.8.0**
 
 The official PEPPOL Directory (PD; former PEPPOL Yellow Pages - PYP; www.peppol.eu) and TOOP Directory software (The Once-Only Project; www.toop.eu). It is split into the following sub-projects (all require Java 8 except where noted):
   * `phoss-directory-businesscard` - the common Business Card API
@@ -25,13 +25,14 @@ The official PEPPOL Directory (PD; former PEPPOL Yellow Pages - PYP; www.peppol.
   
 # News and noteworthy
 
-* v0.8.0 - work in progress
+* v0.8.0 - 2019-06-25
     * Renamed project `peppol-directory` to `phoss-directory`
     * **Maven artifact IDs changed** from `peppol-directory*` to `phoss-directory*`
     * Updated to `peppol-commons` 7.0.0
     * Updated to Lucene 8.1.1
     * Fixed an issue with `total-result-count` and paging in the REST API (see [issue #39](https://github.com/phax/phoss-directory/issues/39))
     * Updated to Apache httpclient 4.5.9
+    * Updated to ph-oton 8.2.0
 * v0.7.2 - 2019-05-13
     * Added new submodule `peppol-directory-searchapi` with basic elements for using the query API and the response documents
     * Updated default truststore of `peppol-directory-client`
