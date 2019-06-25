@@ -29,7 +29,7 @@ The official PEPPOL Directory (PD; former PEPPOL Yellow Pages - PYP; www.peppol.
     * Renamed project `peppol-directory` to `phoss-directory`
     * **Maven artifact IDs changed** from `peppol-directory*` to `phoss-directory*`
     * Updated to `peppol-commons` 7.0.0
-    * Updated to Lucene 8.1.1
+    * Downgraded to Lucene 7.7.2
     * Fixed an issue with `total-result-count` and paging in the REST API (see [issue #39](https://github.com/phax/phoss-directory/issues/39))
     * Updated to Apache httpclient 4.5.9
     * Updated to ph-oton 8.2.0
