@@ -62,14 +62,14 @@ import com.helger.photon.uicore.page.WebPageExecutionContext;
 import com.helger.photon.uictrls.datatables.DataTables;
 import com.helger.photon.uictrls.datatables.column.DTCol;
 
-public class PageSecureSMLConfiguration extends AbstractAppWebPageForm <ISMLInfo>
+public class PageSecureAdminSMLConfiguration extends AbstractAppWebPageForm <ISMLInfo>
 {
   private static final String FIELD_DISPLAY_NAME = "displayname";
   private static final String FIELD_DNS_ZONE = "dnszone";
   private static final String FIELD_MANAGEMENT_ADDRESS_URL = "mgmtaddrurl";
   private static final String FIELD_CLIENT_CERTIFICATE_REQUIRED = "clientcert";
 
-  public PageSecureSMLConfiguration (@Nonnull @Nonempty final String sID)
+  public PageSecureAdminSMLConfiguration (@Nonnull @Nonempty final String sID)
   {
     super (sID, "SML configuration");
     setDeleteHandler (new AbstractBootstrapWebPageActionHandlerDelete <ISMLInfo, WebPageExecutionContext> ()

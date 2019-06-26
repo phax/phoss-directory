@@ -28,9 +28,9 @@ import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.photon.bootstrap4.alert.BootstrapInfoBox;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 
-public final class PageSecureReIndexList extends AbstractPageSecureReIndex
+public final class PageSecureListReIndex extends AbstractPageSecureReIndex
 {
-  public PageSecureReIndexList (@Nonnull @Nonempty final String sID)
+  public PageSecureListReIndex (@Nonnull @Nonempty final String sID)
   {
     super (sID, "Re-Index List", false);
   }

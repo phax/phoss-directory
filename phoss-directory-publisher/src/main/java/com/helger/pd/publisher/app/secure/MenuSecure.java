@@ -49,8 +49,8 @@ public final class MenuSecure
       aMenuTree.createItem (aIndexer, new PageSecureParticipantList (CMenuSecure.MENU_PARTICIPANT_LIST));
       aMenuTree.createItem (aIndexer, new PageSecureParticipantActions (CMenuSecure.MENU_PARTICIPANT_ACTIONS));
       aMenuTree.createItem (aIndexer, new PageSecureIndexManually (CMenuSecure.MENU_INDEX_MANUALLY));
-      aMenuTree.createItem (aIndexer, new PageSecureReIndexList (CMenuSecure.MENU_REINDEX_LIST));
-      aMenuTree.createItem (aIndexer, new PageSecureDeadIndexList (CMenuSecure.MENU_DEADINDEX_LIST));
+      aMenuTree.createItem (aIndexer, new PageSecureListReIndex (CMenuSecure.MENU_LIST_RE_INDEX));
+      aMenuTree.createItem (aIndexer, new PageSecureListDeadIndex (CMenuSecure.MENU_LIST_DEAD_INDEX));
     }
 
     // Administrator
@@ -59,9 +59,9 @@ public final class MenuSecure
                                                                                           "Administration",
                                                                                           aMenuTree));
 
-      aMenuTree.createItem (aAdmin, new BasePageSecurityChangePassword <> (CMenuSecure.MENU_CHANGE_PASSWORD));
-      aMenuTree.createItem (aAdmin, new PageSecureSMLConfiguration (CMenuSecure.MENU_SML_CONFIGURATION));
-      aMenuTree.createItem (aAdmin, new PageSecureLuceneInformation (CMenuSecure.MENU_LUCENE_INFO));
+      aMenuTree.createItem (aAdmin, new BasePageSecurityChangePassword <> (CMenuSecure.MENU_ADMIN_CHANGE_PASSWORD));
+      aMenuTree.createItem (aAdmin, new PageSecureAdminSMLConfiguration (CMenuSecure.MENU_ADMIN_SML_CONFIGURATION));
+      aMenuTree.createItem (aAdmin, new PageSecureAdminLuceneInformation (CMenuSecure.MENU_ADMIN_LUCENE_INFO));
       BootstrapPagesMenuConfigurator.addAllItems (aMenuTree, aAdmin, aFilterAdministrators, AppCommonUI.DEFAULT_LOCALE);
     }
 

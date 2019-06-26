@@ -38,9 +38,9 @@ import com.helger.photon.uicore.page.WebPageExecutionContext;
  * @author Philip Helger
  * @since 0.7.1
  */
-public final class PageSecureLuceneInformation extends AbstractAppWebPage
+public final class PageSecureAdminLuceneInformation extends AbstractAppWebPage
 {
-  public PageSecureLuceneInformation (@Nonnull @Nonempty final String sID)
+  public PageSecureAdminLuceneInformation (@Nonnull @Nonempty final String sID)
   {
     super (sID, "Lucene information");
   }

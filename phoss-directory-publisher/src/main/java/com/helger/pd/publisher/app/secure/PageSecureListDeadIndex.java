@@ -26,9 +26,9 @@ import com.helger.pd.indexer.reindex.IReIndexWorkItemList;
 import com.helger.photon.bootstrap4.alert.BootstrapInfoBox;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 
-public final class PageSecureDeadIndexList extends AbstractPageSecureReIndex
+public final class PageSecureListDeadIndex extends AbstractPageSecureReIndex
 {
-  public PageSecureDeadIndexList (@Nonnull @Nonempty final String sID)
+  public PageSecureListDeadIndex (@Nonnull @Nonempty final String sID)
   {
     super (sID, "Dead Index List", true);
   }
