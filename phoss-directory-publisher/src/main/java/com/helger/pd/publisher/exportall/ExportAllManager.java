@@ -109,21 +109,27 @@ public final class ExportAllManager
     return WebFileIO.getDataIO ().getFile (EXPORT_ALL_BUSINESSCARDS_XML);
   }
 
-  static void writeFileXML (@Nonnull final IMicroDocument aDoc)
+  @Nonnull
+  static ESuccess writeFileXML (@Nonnull final IMicroDocument aDoc)
   {
+    final File f = _getFileXML ();
+
     // Do it in a write lock!
     s_aRWLock.writeLock ().lock ();
     try
     {
-      final File f = _getFileXML ();
       if (MicroWriter.writeToFile (aDoc, f).isFailure ())
+      {
         if (LOGGER.isErrorEnabled ())
           LOGGER.error ("Failed to export all BCs as XML to " + f.getAbsolutePath ());
+        return ESuccess.FAILURE;
+      }
     }
     finally
     {
       s_aRWLock.writeLock ().unlock ();
     }
+    return ESuccess.SUCCESS;
   }
 
   /**
@@ -219,22 +225,28 @@ public final class ExportAllManager
     return WebFileIO.getDataIO ().getFile (EXPORT_ALL_BUSINESSCARDS_XLSX);
   }
 
-  static void writeFileExcel (@Nonnull final Function <File, ESuccess> aFileWriter)
+  @Nonnull
+  static ESuccess writeFileExcel (@Nonnull final Function <File, ESuccess> aFileWriter)
   {
+    final File f = _getFileExcel ();
+
     // Do it in a write lock!
     s_aRWLock.writeLock ().lock ();
     try
     {
-      final File f = _getFileExcel ();
-
       if (aFileWriter.apply (f).isFailure ())
+      {
         if (LOGGER.isErrorEnabled ())
           LOGGER.error ("Failed to export all BCs as XLSX to " + f.getAbsolutePath ());
+        return ESuccess.FAILURE;
+      }
     }
     finally
     {
       s_aRWLock.writeLock ().unlock ();
     }
+
+    return ESuccess.SUCCESS;
   }
 
   /**

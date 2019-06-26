@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pd.publisher.app.pub.page;
+package com.helger.pd.publisher.app.pub;
 
 import java.util.Locale;
 
@@ -28,7 +28,6 @@ import com.helger.html.hc.html.forms.HCEdit;
 import com.helger.html.hc.html.forms.HCHiddenField;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.publisher.CPDPublisher;
-import com.helger.pd.publisher.app.pub.CMenuPublic;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.photon.bootstrap4.alert.BootstrapInfoBox;
 import com.helger.photon.bootstrap4.alert.BootstrapSuccessBox;

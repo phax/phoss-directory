@@ -21,14 +21,6 @@ import javax.annotation.concurrent.Immutable;
 
 import com.helger.pd.publisher.app.AppCommonUI;
 import com.helger.pd.publisher.app.AppSecurity;
-import com.helger.pd.publisher.app.secure.page.PageSecureDeadIndexList;
-import com.helger.pd.publisher.app.secure.page.PageSecureIndexManually;
-import com.helger.pd.publisher.app.secure.page.PageSecureLuceneInformation;
-import com.helger.pd.publisher.app.secure.page.PageSecureParticipantActions;
-import com.helger.pd.publisher.app.secure.page.PageSecureParticipantCount;
-import com.helger.pd.publisher.app.secure.page.PageSecureParticipantList;
-import com.helger.pd.publisher.app.secure.page.PageSecureReIndexList;
-import com.helger.pd.publisher.app.secure.page.PageSecureSMLConfiguration;
 import com.helger.photon.bootstrap4.pages.BootstrapPagesMenuConfigurator;
 import com.helger.photon.bootstrap4.pages.security.BasePageSecurityChangePassword;
 import com.helger.photon.core.menu.IMenuItemPage;

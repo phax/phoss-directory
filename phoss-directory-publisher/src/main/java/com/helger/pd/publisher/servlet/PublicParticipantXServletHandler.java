@@ -28,7 +28,7 @@ import com.helger.commons.url.SimpleURL;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.publisher.app.AppCommonUI;
 import com.helger.pd.publisher.app.pub.CMenuPublic;
-import com.helger.pd.publisher.app.pub.page.PagePublicSearchSimple;
+import com.helger.pd.publisher.app.pub.PagePublicSearchSimple;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.factory.PeppolIdentifierFactory;
 import com.helger.photon.core.requestparam.RequestParameterManager;

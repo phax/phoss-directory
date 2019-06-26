@@ -22,9 +22,6 @@ import javax.annotation.concurrent.Immutable;
 import com.helger.commons.debug.GlobalDebug;
 import com.helger.commons.io.resource.ClassPathResource;
 import com.helger.pd.publisher.CPDPublisher;
-import com.helger.pd.publisher.app.pub.page.PagePublicContact;
-import com.helger.pd.publisher.app.pub.page.PagePublicSearchExtended;
-import com.helger.pd.publisher.app.pub.page.PagePublicSearchSimple;
 import com.helger.pd.publisher.ui.AppPageViewExternal;
 import com.helger.photon.core.menu.IMenuTree;
 

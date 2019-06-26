@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pd.publisher.app.secure.page;
+package com.helger.pd.publisher.app.secure;
 
 import java.util.Locale;
 
