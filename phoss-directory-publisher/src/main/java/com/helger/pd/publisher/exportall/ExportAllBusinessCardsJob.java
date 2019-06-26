@@ -56,7 +56,7 @@ public final class ExportAllBusinessCardsJob extends AbstractScopeAwareJob
       LOGGER.info ("Start exporting business cards as XML");
       try
       {
-        final IMicroDocument aDoc = ExportAllManager.getAllContainedBusinessCardsAsXML (EQueryMode.NON_DELETED_ONLY);
+        final IMicroDocument aDoc = ExportAllManager.queryAllContainedBusinessCardsAsXML (EQueryMode.NON_DELETED_ONLY);
         ExportAllManager.writeFileXML (aDoc);
       }
       finally
@@ -69,7 +69,7 @@ public final class ExportAllBusinessCardsJob extends AbstractScopeAwareJob
         LOGGER.info ("Start exporting business cards as Excel");
         try
         {
-          final WorkbookCreationHelper aWBCH = ExportAllManager.getAllContainedBusinessCardsAsExcel (EQueryMode.NON_DELETED_ONLY);
+          final WorkbookCreationHelper aWBCH = ExportAllManager.queryAllContainedBusinessCardsAsExcel (EQueryMode.NON_DELETED_ONLY);
           ExportAllManager.writeFileExcel (aWBCH::writeTo);
         }
         finally

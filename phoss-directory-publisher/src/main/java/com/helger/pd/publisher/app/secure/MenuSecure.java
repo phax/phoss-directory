@@ -49,6 +49,7 @@ public final class MenuSecure
       aMenuTree.createItem (aIndexer, new PageSecureParticipantList (CMenuSecure.MENU_PARTICIPANT_LIST));
       aMenuTree.createItem (aIndexer, new PageSecureParticipantActions (CMenuSecure.MENU_PARTICIPANT_ACTIONS));
       aMenuTree.createItem (aIndexer, new PageSecureIndexManually (CMenuSecure.MENU_INDEX_MANUALLY));
+      aMenuTree.createItem (aIndexer, new PageSecureIndexImport (CMenuSecure.MENU_INDEX_IMPORT));
       aMenuTree.createItem (aIndexer, new PageSecureListReIndex (CMenuSecure.MENU_LIST_RE_INDEX));
       aMenuTree.createItem (aIndexer, new PageSecureListDeadIndex (CMenuSecure.MENU_LIST_DEAD_INDEX));
     }

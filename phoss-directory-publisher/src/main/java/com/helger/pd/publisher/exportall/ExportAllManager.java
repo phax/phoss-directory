@@ -72,7 +72,7 @@ public final class ExportAllManager
   {}
 
   @Nonnull
-  public static IMicroDocument getAllContainedBusinessCardsAsXML (@Nonnull final EQueryMode eQueryMode) throws IOException
+  public static IMicroDocument queryAllContainedBusinessCardsAsXML (@Nonnull final EQueryMode eQueryMode) throws IOException
   {
     final Query aQuery = eQueryMode.getEffectiveQuery (new MatchAllDocsQuery ());
 
@@ -155,7 +155,7 @@ public final class ExportAllManager
   }
 
   @Nonnull
-  public static WorkbookCreationHelper getAllContainedBusinessCardsAsExcel (@Nonnull final EQueryMode eQueryMode) throws IOException
+  public static WorkbookCreationHelper queryAllContainedBusinessCardsAsExcel (@Nonnull final EQueryMode eQueryMode) throws IOException
   {
     final Query aQuery = eQueryMode.getEffectiveQuery (new MatchAllDocsQuery ());
 

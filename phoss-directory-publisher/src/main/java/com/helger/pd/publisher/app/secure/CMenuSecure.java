@@ -27,6 +27,7 @@ public final class CMenuSecure
   public static final String MENU_PARTICIPANT_LIST = "participant_list";
   public static final String MENU_PARTICIPANT_ACTIONS = "participant_actions";
   public static final String MENU_INDEX_MANUALLY = "index_manually";
+  public static final String MENU_INDEX_IMPORT = "index_import";
   public static final String MENU_LIST_RE_INDEX = "list_reindex";
   public static final String MENU_LIST_DEAD_INDEX = "list_deadindex";
 

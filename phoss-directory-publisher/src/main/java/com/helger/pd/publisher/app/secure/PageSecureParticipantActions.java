@@ -77,19 +77,22 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
                                                                 .keySet ();
       for (final IParticipantIdentifier aParticipantID : aAllIDs)
       {
-        final String sParticipantID = aParticipantID.getURIEncoded ();
-        aRoot.appendElement ("item").appendText (sParticipantID);
+        // Use the same layout as for the "full export", so that it can be used
+        // by the import
+        aRoot.appendElement ("participant")
+             .setAttribute ("scheme", aParticipantID.getScheme ())
+             .setAttribute ("value", aParticipantID.getValue ());
       }
       res.xml (aDoc);
       res.attachment ("directory-participant-list.xml");
     });
     s_aDownloadAllBCsXML = addAjax ( (req, res) -> {
-      final IMicroDocument aDoc = ExportAllManager.getAllContainedBusinessCardsAsXML (EQueryMode.NON_DELETED_ONLY);
+      final IMicroDocument aDoc = ExportAllManager.queryAllContainedBusinessCardsAsXML (EQueryMode.NON_DELETED_ONLY);
       res.xml (aDoc);
       res.attachment ("directory-business-cards.xml");
     });
     s_aDownloadAllBCsExcel = addAjax ( (req, res) -> {
-      final WorkbookCreationHelper aWBCH = ExportAllManager.getAllContainedBusinessCardsAsExcel (EQueryMode.NON_DELETED_ONLY);
+      final WorkbookCreationHelper aWBCH = ExportAllManager.queryAllContainedBusinessCardsAsExcel (EQueryMode.NON_DELETED_ONLY);
       try (NonBlockingByteArrayOutputStream aBAOS = new NonBlockingByteArrayOutputStream ())
       {
         aWBCH.writeTo (aBAOS);
@@ -104,7 +107,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
   }
 
   @Override
-  protected void fillContent (final WebPageExecutionContext aWPEC)
+  protected void fillContent (@Nonnull final WebPageExecutionContext aWPEC)
   {
     final HCNodeList aNodeList = aWPEC.getNodeList ();
     final Locale aDisplayLocale = aWPEC.getDisplayLocale ();
