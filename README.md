@@ -34,6 +34,7 @@ The official PEPPOL Directory (PD; former PEPPOL Yellow Pages - PYP; www.peppol.
     * Updated to Apache httpclient 4.5.9
     * Updated to ph-oton 8.2.0
     * Added a new internal page for importing identifiers
+    * The internal format for exporting participant IDs was updated to be used in the import
 * v0.7.2 - 2019-05-13
     * Added new submodule `peppol-directory-searchapi` with basic elements for using the query API and the response documents
     * Updated default truststore of `peppol-directory-client`

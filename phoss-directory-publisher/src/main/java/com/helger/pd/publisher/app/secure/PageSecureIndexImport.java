@@ -142,17 +142,30 @@ public final class PageSecureIndexImport extends AbstractAppWebPage
                                                  "import-triggered",
                                                  "localhost")
                                  .isChanged ())
+                {
                   aQueued.add (aParticipantID);
+                }
                 else
+                {
                   aNotQueued.add (aParticipantID);
+                }
               }
               else
-                LOGGER.error ("Failed to convert '" + sScheme + "' and '" + sValue + "' to an identifier");
+                LOGGER.error ("Failed to convert '" + sScheme + "' and '" + sValue + "' to a participant identifier");
             }
           }
         });
 
+        LOGGER.info ("Importing participant IDs from '" + aFile.getNameSecure () + "'");
+
         final ESuccess eSuccess = SAXReader.readXMLSAX (new FileItemResource (aFile), aSettings);
+
+        LOGGER.info ("Finished reading XML file. Queued " +
+                     aQueued.size () +
+                     "; not queued: " +
+                     aNotQueued.size () +
+                     "; errors: " +
+                     aErrorHandler.getErrorList ().size ());
 
         // Some things may have been queued even in case of error
         if (aQueued.isNotEmpty ())
@@ -176,7 +189,11 @@ public final class PageSecureIndexImport extends AbstractAppWebPage
         {
           final HCUL aUL = new HCUL ();
           for (final IError aError : aErrorHandler.getErrorList ())
-            aUL.addItem (aError.getAsString (AppCommonUI.DEFAULT_LOCALE));
+          {
+            final String sMsg = aError.getAsString (AppCommonUI.DEFAULT_LOCALE);
+            LOGGER.error ("  " + sMsg);
+            aUL.addItem (sMsg);
+          }
           aResultNL.addChild (new BootstrapErrorBox ().addChild (new HCDiv ().addChild ("Error parsing provided XML:"))
                                                       .addChild (aUL));
         }
