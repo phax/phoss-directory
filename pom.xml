@@ -69,6 +69,7 @@
     <lucene.version>8.1.1</lucene.version>
     -->
     <jersey.version>2.28</jersey.version>
+    <log4j.version>2.12.0</log4j.version>
   </properties>
   
   <dependencyManagement>
@@ -119,6 +120,22 @@
         <version>7.0.1</version>
         <type>pom</type>
         <scope>import</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-core</artifactId>
+        <version>${log4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-slf4j-impl</artifactId>
+        <version>${log4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-web</artifactId>
+        <version>${log4j.version}</version>
       </dependency>
       
       <dependency>
