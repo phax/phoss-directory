@@ -25,6 +25,8 @@ The official PEPPOL Directory (PD; former PEPPOL Yellow Pages - PYP; www.peppol.
   
 # News and noteworthy
 
+* v0.8.1 - work in progress
+    * Updated to Jersey 2.29
 * v0.8.0 - 2019-06-27
     * Renamed project `peppol-directory` to `phoss-directory`
     * **Maven artifact IDs changed** from `peppol-directory*` to `phoss-directory*`
