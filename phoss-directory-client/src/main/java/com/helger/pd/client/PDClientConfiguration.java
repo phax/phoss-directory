@@ -18,11 +18,13 @@ package com.helger.pd.client;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.helger.commons.concurrent.SimpleReadWriteLock;
 import com.helger.security.keystore.EKeyStoreType;
 import com.helger.settings.exchange.configfile.ConfigFile;
 import com.helger.settings.exchange.configfile.ConfigFileBuilder;
@@ -43,7 +45,7 @@ import com.helger.settings.exchange.configfile.ConfigFileBuilder;
  *
  * @author Philip Helger
  */
-@Immutable
+@ThreadSafe
 public final class PDClientConfiguration
 {
   public static final String SYSTEM_PROPERTY_PRIMARY = "peppol.pd.client.properties.path";
@@ -58,20 +60,36 @@ public final class PDClientConfiguration
   public static final int DEFAULT_REQUEST_TIMEOUT_MS = 10_000;
 
   private static final Logger LOGGER = LoggerFactory.getLogger (PDClientConfiguration.class);
-  private static final ConfigFile s_aConfigFile;
 
-  static
+  private static final SimpleReadWriteLock s_aRWLock = new SimpleReadWriteLock ();
+  @GuardedBy ("s_aRWLock")
+  private static ConfigFile s_aConfigFile;
+
+  /**
+   * Reload the Directory configuration from the source again.
+   *
+   * @since 0.8.1
+   */
+  public static void reloadConfiguration ()
   {
     final ConfigFileBuilder aCFB = new ConfigFileBuilder ().addPathFromSystemProperty (SYSTEM_PROPERTY_PRIMARY)
                                                            .addPathFromSystemProperty (SYSTEM_PROPERTY_SECONDARY)
                                                            .addPath (PROPERTY_FILE_PRIMARY)
                                                            .addPath (PROPERTY_FILE_SECONDARY);
 
-    s_aConfigFile = aCFB.build ();
-    if (s_aConfigFile.isRead ())
-      LOGGER.info ("Read PEPPOL Directory client properties from " + s_aConfigFile.getReadResource ().getPath ());
+    final ConfigFile aConfigFile = aCFB.build ();
+    if (aConfigFile.isRead ())
+      LOGGER.info ("Read PEPPOL Directory client properties from " + aConfigFile.getReadResource ().getPath ());
     else
       LOGGER.warn ("Failed to read PEPPOL Directory client properties from " + aCFB.getAllPaths ());
+
+    // Remember globally
+    s_aRWLock.writeLocked ( () -> s_aConfigFile = aConfigFile);
+  }
+
+  static
+  {
+    reloadConfiguration ();
   }
 
   private PDClientConfiguration ()
@@ -83,7 +101,15 @@ public final class PDClientConfiguration
   @Nonnull
   public static ConfigFile getConfigFile ()
   {
-    return s_aConfigFile;
+    s_aRWLock.readLock ().lock ();
+    try
+    {
+      return s_aConfigFile;
+    }
+    finally
+    {
+      s_aRWLock.readLock ().unlock ();
+    }
   }
 
   /**
@@ -93,7 +119,7 @@ public final class PDClientConfiguration
   @Nonnull
   public static EKeyStoreType getKeyStoreType ()
   {
-    final String sType = s_aConfigFile.getAsString ("keystore.type");
+    final String sType = getConfigFile ().getAsString ("keystore.type");
     return EKeyStoreType.getFromIDCaseInsensitiveOrDefault (sType, EKeyStoreType.JKS);
   }
 
@@ -104,7 +130,7 @@ public final class PDClientConfiguration
   @Nullable
   public static String getKeyStorePath ()
   {
-    return s_aConfigFile.getAsString ("keystore.path");
+    return getConfigFile ().getAsString ("keystore.path");
   }
 
   /**
@@ -114,7 +140,7 @@ public final class PDClientConfiguration
   @Nullable
   public static String getKeyStorePassword ()
   {
-    return s_aConfigFile.getAsString ("keystore.password");
+    return getConfigFile ().getAsString ("keystore.password");
   }
 
   /**
@@ -124,7 +150,7 @@ public final class PDClientConfiguration
   @Nullable
   public static String getKeyStoreKeyAlias ()
   {
-    return s_aConfigFile.getAsString ("keystore.key.alias");
+    return getConfigFile ().getAsString ("keystore.key.alias");
   }
 
   /**
@@ -134,7 +160,7 @@ public final class PDClientConfiguration
   @Nullable
   public static char [] getKeyStoreKeyPassword ()
   {
-    return s_aConfigFile.getAsCharArray ("keystore.key.password");
+    return getConfigFile ().getAsCharArray ("keystore.key.password");
   }
 
   /**
@@ -145,7 +171,7 @@ public final class PDClientConfiguration
   @Nonnull
   public static EKeyStoreType getTrustStoreType ()
   {
-    final String sType = s_aConfigFile.getAsString ("truststore.type");
+    final String sType = getConfigFile ().getAsString ("truststore.type");
     return EKeyStoreType.getFromIDCaseInsensitiveOrDefault (sType, DEFAULT_TRUSTSTORE_TYPE);
   }
 
@@ -158,7 +184,7 @@ public final class PDClientConfiguration
   @Nullable
   public static String getTrustStorePath ()
   {
-    return s_aConfigFile.getAsString ("truststore.path", DEFAULT_TRUSTSTORE_PATH);
+    return getConfigFile ().getAsString ("truststore.path", DEFAULT_TRUSTSTORE_PATH);
   }
 
   /**
@@ -170,7 +196,7 @@ public final class PDClientConfiguration
   @Nullable
   public static String getTrustStorePassword ()
   {
-    return s_aConfigFile.getAsString ("truststore.password", DEFAULT_TRUSTSTORE_PASSWORD);
+    return getConfigFile ().getAsString ("truststore.password", DEFAULT_TRUSTSTORE_PASSWORD);
   }
 
   /**
@@ -184,7 +210,7 @@ public final class PDClientConfiguration
    */
   public static boolean isHttpsHostnameVerificationDisabled ()
   {
-    return s_aConfigFile.getAsBoolean ("https.hostname-verification.disabled", true);
+    return getConfigFile ().getAsBoolean ("https.hostname-verification.disabled", true);
   }
 
   /**
@@ -195,7 +221,7 @@ public final class PDClientConfiguration
   @Nullable
   public static String getHttpProxyHost ()
   {
-    return s_aConfigFile.getAsString ("http.proxyHost");
+    return getConfigFile ().getAsString ("http.proxyHost");
   }
 
   /**
@@ -204,7 +230,7 @@ public final class PDClientConfiguration
    */
   public static int getHttpProxyPort ()
   {
-    return s_aConfigFile.getAsInt ("http.proxyPort", 0);
+    return getConfigFile ().getAsInt ("http.proxyPort", 0);
   }
 
   /**
@@ -215,7 +241,7 @@ public final class PDClientConfiguration
   @Nullable
   public static String getHttpsProxyHost ()
   {
-    return s_aConfigFile.getAsString ("https.proxyHost");
+    return getConfigFile ().getAsString ("https.proxyHost");
   }
 
   /**
@@ -224,7 +250,7 @@ public final class PDClientConfiguration
    */
   public static int getHttpsProxyPort ()
   {
-    return s_aConfigFile.getAsInt ("https.proxyPort", 0);
+    return getConfigFile ().getAsInt ("https.proxyPort", 0);
   }
 
   /**
@@ -235,7 +261,7 @@ public final class PDClientConfiguration
   @Nullable
   public static String getProxyUsername ()
   {
-    return s_aConfigFile.getAsString ("proxy.username");
+    return getConfigFile ().getAsString ("proxy.username");
   }
 
   /**
@@ -246,7 +272,7 @@ public final class PDClientConfiguration
   @Nullable
   public static String getProxyPassword ()
   {
-    return s_aConfigFile.getAsString ("proxy.password");
+    return getConfigFile ().getAsString ("proxy.password");
   }
 
   /**
@@ -256,7 +282,7 @@ public final class PDClientConfiguration
    */
   public static int getConnectTimeoutMS ()
   {
-    return s_aConfigFile.getAsInt ("connect.timeout.ms", DEFAULT_CONNECTION_TIMEOUT_MS);
+    return getConfigFile ().getAsInt ("connect.timeout.ms", DEFAULT_CONNECTION_TIMEOUT_MS);
   }
 
   /**
@@ -266,6 +292,6 @@ public final class PDClientConfiguration
    */
   public static int getRequestTimeoutMS ()
   {
-    return s_aConfigFile.getAsInt ("request.timeout.ms", DEFAULT_REQUEST_TIMEOUT_MS);
+    return getConfigFile ().getAsInt ("request.timeout.ms", DEFAULT_REQUEST_TIMEOUT_MS);
   }
 }
