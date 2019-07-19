@@ -27,6 +27,7 @@ import javax.annotation.Nonnull;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.ReturnsMutableCopy;
+import com.helger.commons.annotation.ReturnsMutableObject;
 import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.concurrent.BasicThreadFactory;
 import com.helger.commons.concurrent.ExecutorServiceHelper;
@@ -43,6 +44,7 @@ import com.helger.commons.concurrent.collector.IConcurrentPerformer;
  */
 public final class IndexerWorkItemQueue
 {
+  private final LinkedBlockingQueue <Object> m_aQueue;
   private final ConcurrentCollectorSingle <IIndexerWorkItem> m_aImmediateCollector;
   private final ThreadFactory m_aThreadFactory = new BasicThreadFactory.Builder ().setNamingPattern ("pd-indexer-%d")
                                                                                   .setDaemon (false)
@@ -67,7 +69,8 @@ public final class IndexerWorkItemQueue
   {
     ValueEnforcer.notNull (aPerformer, "Performer");
     // Use an indefinite queue for holding tasks
-    m_aImmediateCollector = new ConcurrentCollectorSingle <> (new LinkedBlockingQueue <> ());
+    m_aQueue = new LinkedBlockingQueue <> ();
+    m_aImmediateCollector = new ConcurrentCollectorSingle <> (m_aQueue);
     m_aImmediateCollector.setPerformer (aPerformer);
 
     // Start the collector
@@ -94,6 +97,17 @@ public final class IndexerWorkItemQueue
     ExecutorServiceHelper.shutdownAndWaitUntilAllTasksAreFinished (m_aSenderThreadPool);
 
     return aRemainingItems;
+  }
+
+  /**
+   * @return The internal queue. Handle with care - usually you don't need that
+   *         one. Never <code>null</code>,
+   */
+  @Nonnull
+  @ReturnsMutableObject
+  public LinkedBlockingQueue <Object> getQueue ()
+  {
+    return m_aQueue;
   }
 
   /**

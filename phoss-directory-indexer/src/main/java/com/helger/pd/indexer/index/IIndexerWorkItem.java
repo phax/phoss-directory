@@ -22,6 +22,7 @@ import javax.annotation.Nonnull;
 
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.annotation.ReturnsMutableCopy;
+import com.helger.commons.name.IHasDisplayName;
 import com.helger.commons.type.ITypedObject;
 import com.helger.datetime.domain.IHasCreationDateTime;
 import com.helger.pd.indexer.storage.PDStoredMetaData;
@@ -32,7 +33,7 @@ import com.helger.peppolid.IParticipantIdentifier;
  *
  * @author Philip Helger
  */
-public interface IIndexerWorkItem extends ITypedObject <String>, Serializable, IHasCreationDateTime
+public interface IIndexerWorkItem extends ITypedObject <String>, Serializable, IHasCreationDateTime, IHasDisplayName
 {
   /**
    * Special requesting host if triggered by a scheduled SML run
@@ -90,5 +91,12 @@ public interface IIndexerWorkItem extends ITypedObject <String>, Serializable, I
   default PDStoredMetaData getAsMetaData ()
   {
     return new PDStoredMetaData (getCreationDateTime (), getOwnerID (), getRequestingHost ());
+  }
+
+  @Nonnull
+  @Nonempty
+  default String getDisplayName ()
+  {
+    return getLogText ();
   }
 }

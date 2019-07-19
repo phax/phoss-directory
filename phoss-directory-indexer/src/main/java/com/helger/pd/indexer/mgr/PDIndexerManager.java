@@ -218,8 +218,8 @@ public final class PDIndexerManager implements Closeable
       if (!m_aUniqueItems.add (aWorkItem))
       {
         LOGGER.info ("Ignoring work item " +
-                        aWorkItem.getLogText () +
-                        " because it is already in the queue/re-index list!");
+                     aWorkItem.getLogText () +
+                     " because it is already in the queue/re-index list!");
         return EChange.UNCHANGED;
       }
     }
@@ -314,6 +314,16 @@ public final class PDIndexerManager implements Closeable
                                        aSuccessItem -> _onReIndexSuccess (aSuccessItem),
                                        aFailureItem -> _onReIndexFailure (aReIndexItem));
     }
+  }
+
+  /**
+   * @return The queue with all work items. Never <code>null</code> but maybe
+   *         empty.
+   */
+  @Nonnull
+  public IndexerWorkItemQueue getIndexerWorkQueue ()
+  {
+    return m_aIndexerWorkQueue;
   }
 
   /**
