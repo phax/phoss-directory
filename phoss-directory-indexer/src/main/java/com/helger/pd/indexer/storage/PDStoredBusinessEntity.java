@@ -81,6 +81,12 @@ public final class PDStoredBusinessEntity
   protected PDStoredBusinessEntity ()
   {}
 
+  @Nonnull
+  public IParticipantIdentifier getParticipantID ()
+  {
+    return m_aParticipantID;
+  }
+
   public void setParticipantID (@Nonnull final IParticipantIdentifier aParticipantID)
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
@@ -88,21 +94,10 @@ public final class PDStoredBusinessEntity
   }
 
   @Nonnull
-  public IParticipantIdentifier getParticipantID ()
-  {
-    return m_aParticipantID;
-  }
-
-  @Nonnull
   @ReturnsMutableObject
   public ICommonsList <PDStoredMLName> names ()
   {
     return m_aNames;
-  }
-
-  public void setCountryCode (@Nullable final String sCountryCode)
-  {
-    m_sCountryCode = sCountryCode;
   }
 
   @Nullable
@@ -116,9 +111,9 @@ public final class PDStoredBusinessEntity
     return StringHelper.hasText (m_sCountryCode);
   }
 
-  public void setGeoInfo (@Nullable final String sGeoInfo)
+  public void setCountryCode (@Nullable final String sCountryCode)
   {
-    m_sGeoInfo = sGeoInfo;
+    m_sCountryCode = sCountryCode;
   }
 
   @Nullable
@@ -130,6 +125,11 @@ public final class PDStoredBusinessEntity
   public boolean hasGeoInfo ()
   {
     return StringHelper.hasText (m_sGeoInfo);
+  }
+
+  public void setGeoInfo (@Nullable final String sGeoInfo)
+  {
+    m_sGeoInfo = sGeoInfo;
   }
 
   @Nonnull
@@ -153,11 +153,6 @@ public final class PDStoredBusinessEntity
     return m_aContacts;
   }
 
-  public void setAdditionalInformation (@Nullable final String sAdditionalInformation)
-  {
-    m_sAdditionalInformation = sAdditionalInformation;
-  }
-
   @Nonnull
   public String getAdditionalInformation ()
   {
@@ -169,9 +164,9 @@ public final class PDStoredBusinessEntity
     return StringHelper.hasText (m_sAdditionalInformation);
   }
 
-  public void setRegistrationDate (@Nullable final LocalDate aRegistrationDate)
+  public void setAdditionalInformation (@Nullable final String sAdditionalInformation)
   {
-    m_aRegistrationDate = aRegistrationDate;
+    m_sAdditionalInformation = sAdditionalInformation;
   }
 
   @Nullable
@@ -183,6 +178,11 @@ public final class PDStoredBusinessEntity
   public boolean hasRegistrationDate ()
   {
     return m_aRegistrationDate != null;
+  }
+
+  public void setRegistrationDate (@Nullable final LocalDate aRegistrationDate)
+  {
+    m_aRegistrationDate = aRegistrationDate;
   }
 
   @Nonnull
@@ -204,14 +204,14 @@ public final class PDStoredBusinessEntity
     m_aMetaData = aMetaData;
   }
 
-  public void setDeleted (final boolean bDeleted)
-  {
-    m_bDeleted = bDeleted;
-  }
-
   public boolean isDeleted ()
   {
     return m_bDeleted;
+  }
+
+  public void setDeleted (final boolean bDeleted)
+  {
+    m_bDeleted = bDeleted;
   }
 
   /**
