@@ -29,7 +29,11 @@
   <li>The data is updated once a day.</li>
   <li>
     The XML Schema for the XML responses can be downloaded from
-    <a href="../../files/directory-export-v1.xsd">/files/directory-export-v1.xsd</a>.
+    <a href="../../files/directory-export-v2.xsd">/files/directory-export-v2.xsd</a>
+  </li>
+  <li>
+    XML schema old versions:
+    <a href="../../files/directory-export-v1.xsd">/files/directory-export-v1.xsd</a>
   </li>
 </ul>
 

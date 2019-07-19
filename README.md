@@ -29,6 +29,7 @@ The official PEPPOL Directory (PD; former PEPPOL Yellow Pages - PYP; www.peppol.
     * Updated to Jersey 2.29
     * `PDClientConfiguration` can now be re-initialized during runtime
     * Known document type identifiers and process identifiers can now be used (see [issue #13](https://github.com/phax/phoss-directory/issues/13))
+    * Extended XML export to include the new document types (see [issue #41](https://github.com/phax/phoss-directory/issues/41))
 * v0.8.0 - 2019-06-27
     * Renamed project `peppol-directory` to `phoss-directory`
     * **Maven artifact IDs changed** from `peppol-directory*` to `phoss-directory*`

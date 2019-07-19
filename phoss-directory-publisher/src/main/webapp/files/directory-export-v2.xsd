@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (C) 2015-2019 Philip Helger (www.helger.com)
+    philip[at]helger[dot]com
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+           targetNamespace="http://www.peppol.eu/schema/pd/businesscard-generic/201907/"
+           xmlns="http://www.peppol.eu/schema/pd/businesscard-generic/201907/"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified">
+  <xs:annotation>
+    <xs:documentation>
+      XML Schema for the Directory export data.
+      Version 2
+      Last update: 2019-07-19
+      Author: Philip Helger
+      
+      This XSD is only needed in the Directory export.
+      Additional XSDs are available for the business cards (BCs) as well as for the search results. 
+      
+      History:
+        * v2 - 2019-07-19
+          * Added document type IDs
+        * v1 - 2018-10-29
+          * Initial release
+    </xs:documentation>
+  </xs:annotation>
+
+  <xs:complexType name="IDType">
+    <xs:attribute name="scheme" type="xs:string" use="optional" />
+    <xs:attribute name="value" type="xs:string" use="optional" />
+  </xs:complexType>
+  
+  <xs:complexType name="NameType">
+    <xs:attribute name="name" type="xs:string" use="required" />
+    <xs:attribute name="language" type="xs:string" use="optional" />
+  </xs:complexType>
+  
+  <xs:complexType name="ContactType">
+    <xs:attribute name="email" type="xs:string" use="optional" />
+    <xs:attribute name="name" type="xs:string" use="optional" />
+    <xs:attribute name="phonenumber" type="xs:string" use="optional" />
+    <xs:attribute name="type" type="xs:string" use="optional" />
+  </xs:complexType>
+  
+  <xs:complexType name="EntityType">
+    <xs:sequence>
+      <xs:element name="name" type="NameType" maxOccurs="unbounded" />
+      <xs:element name="geoinfo" type="xs:string" minOccurs="0" />
+      <xs:element name="id" type="IDType" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="website" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="contact" type="ContactType" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="additionalinfo" type="xs:string" minOccurs="0" />
+    </xs:sequence>
+    <xs:attribute name="countrycode" type="xs:string" use="required" />
+  </xs:complexType>
+  
+  <xs:complexType name="BusinessCardType">
+    <xs:sequence>
+      <xs:element name="participant" type="IDType" />
+      <xs:element name="entity" type="EntityType" maxOccurs="unbounded" />
+      <xs:element name="doctypeid" type="IDType" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="RootType">
+    <xs:sequence>
+      <xs:element name="businesscard" type="BusinessCardType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="version" type="xs:string" use="required" />
+    <xs:attribute name="creationdt" type="xs:dateTime" use="required" />
+  </xs:complexType>
+  
+  <xs:element name="root" type="RootType">
+    <xs:annotation>
+      <xs:documentation>
+        The root element of the exported data.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+</xs:schema>

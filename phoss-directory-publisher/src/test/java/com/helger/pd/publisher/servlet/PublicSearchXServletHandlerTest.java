@@ -34,13 +34,22 @@ import com.helger.xml.schema.XMLSchemaCache;
  */
 public final class PublicSearchXServletHandlerTest
 {
-
   @Test
-  public void testParseXSDExport ()
+  public void testParseXSDExportV1 ()
   {
     // Demo validation
     final CollectingSAXErrorHandler aErrHdl = new CollectingSAXErrorHandler ();
     final Validator v = new XMLSchemaCache (aErrHdl).getValidator (new FileSystemResource ("src/main/webapp/files/directory-export-v1.xsd"));
+    assertNotNull (v);
+    assertTrue (aErrHdl.getErrorList ().toString (), aErrHdl.getErrorList ().isEmpty ());
+  }
+
+  @Test
+  public void testParseXSDExportV2 ()
+  {
+    // Demo validation
+    final CollectingSAXErrorHandler aErrHdl = new CollectingSAXErrorHandler ();
+    final Validator v = new XMLSchemaCache (aErrHdl).getValidator (new FileSystemResource ("src/main/webapp/files/directory-export-v2.xsd"));
     assertNotNull (v);
     assertTrue (aErrHdl.getErrorList ().toString (), aErrHdl.getErrorList ().isEmpty ());
   }

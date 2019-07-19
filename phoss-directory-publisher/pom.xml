@@ -149,6 +149,31 @@
           <sourceDirectory>${basedir}/src/main/webapp</sourceDirectory>
         </configuration>
       </plugin>
+      <!--  
+      <plugin>
+        <groupId>org.jvnet.jaxb2.maven2</groupId>
+        <artifactId>maven-jaxb2-plugin</artifactId>
+        <version>0.14.0</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <bindingDirectory>${basedir}/src/main/jaxb</bindingDirectory>
+          <schemaDirectory>${basedir}/src/main/webapp/files</schemaDirectory>
+          <schemaIncludes>
+            <schemaInclude>directory-export-v1.xsd</schemaInclude>
+            <schemaInclude>directory-export-v2.xsd</schemaInclude>
+            <schemaInclude>directory-search-result-list-v1.xsd</schemaInclude>
+          </schemaIncludes>
+          <extension>true</extension>
+          <strict>false</strict>
+        </configuration>
+      </plugin>
+      -->
     </plugins>
   </build>
 </project>

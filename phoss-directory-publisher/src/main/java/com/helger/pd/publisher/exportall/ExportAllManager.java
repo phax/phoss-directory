@@ -39,7 +39,6 @@ import com.helger.commons.io.resource.FileSystemResource;
 import com.helger.commons.state.ESuccess;
 import com.helger.commons.string.StringHelper;
 import com.helger.pd.businesscard.generic.PDBusinessCard;
-import com.helger.pd.businesscard.generic.PDBusinessEntity;
 import com.helger.pd.businesscard.generic.PDIdentifier;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.EQueryMode;
@@ -77,27 +76,37 @@ public final class ExportAllManager
     final Query aQuery = eQueryMode.getEffectiveQuery (new MatchAllDocsQuery ());
 
     // Query all and group by participant ID
-    final MultiLinkedHashMapArrayListBased <IParticipantIdentifier, PDBusinessEntity> aMap = new MultiLinkedHashMapArrayListBased <> ();
-    PDMetaManager.getStorageMgr ()
-                 .searchAllDocuments (aQuery,
-                                      -1,
-                                      x -> aMap.putSingle (x.getParticipantID (), x.getAsBusinessEntity ()));
+    final MultiLinkedHashMapArrayListBased <IParticipantIdentifier, PDStoredBusinessEntity> aMap = new MultiLinkedHashMapArrayListBased <> ();
+    PDMetaManager.getStorageMgr ().searchAllDocuments (aQuery, -1, x -> aMap.putSingle (x.getParticipantID (), x));
 
     // XML root
     final IMicroDocument aDoc = new MicroDocument ();
-    final String sNamespaceURI = "http://www.peppol.eu/schema/pd/businesscard-generic/201806/";
+    final String sNamespaceURI = "http://www.peppol.eu/schema/pd/businesscard-generic/201907/";
     final IMicroElement aRoot = aDoc.appendElement (sNamespaceURI, "root");
-    aRoot.setAttribute ("version", "1");
+    aRoot.setAttribute ("version", "2");
     aRoot.setAttribute ("creationdt", PDTWebDateHelper.getAsStringXSD (PDTFactory.getCurrentZonedDateTimeUTC ()));
 
     // For all BCs
-    for (final Map.Entry <IParticipantIdentifier, ICommonsList <PDBusinessEntity>> aEntry : aMap.entrySet ())
+    for (final Map.Entry <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> aEntry : aMap.entrySet ())
     {
       final IParticipantIdentifier aParticipantID = aEntry.getKey ();
+
       final PDBusinessCard aBC = new PDBusinessCard ();
       aBC.setParticipantIdentifier (new PDIdentifier (aParticipantID.getScheme (), aParticipantID.getValue ()));
-      aBC.businessEntities ().addAll (aEntry.getValue ());
-      aRoot.appendChild (aBC.getAsMicroXML (sNamespaceURI, "businesscard"));
+      for (final PDStoredBusinessEntity aSBE : aEntry.getValue ())
+        aBC.businessEntities ().add (aSBE.getAsBusinessEntity ());
+      final IMicroElement eBC = aBC.getAsMicroXML (sNamespaceURI, "businesscard");
+
+      // New in v2 - add all Document types
+      if (aEntry.getValue ().isNotEmpty ())
+        for (final IDocumentTypeIdentifier aDocTypeID : aEntry.getValue ().getFirst ().documentTypeIDs ())
+        {
+          eBC.appendElement (sNamespaceURI, "doctypeid")
+             .setAttribute ("scheme", aDocTypeID.getScheme ())
+             .setAttribute ("value", aDocTypeID.getValue ());
+        }
+
+      aRoot.appendChild (eBC);
     }
 
     return aDoc;
@@ -124,6 +133,7 @@ public final class ExportAllManager
           LOGGER.error ("Failed to export all BCs as XML to " + f.getAbsolutePath ());
         return ESuccess.FAILURE;
       }
+      LOGGER.info ("Successfully wrote all BCs as XML to " + f.getAbsolutePath ());
     }
     finally
     {
@@ -240,6 +250,7 @@ public final class ExportAllManager
           LOGGER.error ("Failed to export all BCs as XLSX to " + f.getAbsolutePath ());
         return ESuccess.FAILURE;
       }
+      LOGGER.info ("Successfully exported all BCs as XLSX to " + f.getAbsolutePath ());
     }
     finally
     {
