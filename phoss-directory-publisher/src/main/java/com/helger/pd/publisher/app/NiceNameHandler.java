@@ -41,9 +41,9 @@ public final class NiceNameHandler
   private static final Logger LOGGER = LoggerFactory.getLogger (NiceNameHandler.class);
   private static final SimpleReadWriteLock RWLOCK = new SimpleReadWriteLock ();
   @GuardedBy ("RWLOCK")
-  private static ICommonsOrderedMap <String, NameEntry> DOCTYPE_IDS = new CommonsLinkedHashMap <> ();
+  private static ICommonsOrderedMap <String, NiceNameEntry> DOCTYPE_IDS = new CommonsLinkedHashMap <> ();
   @GuardedBy ("RWLOCK")
-  private static ICommonsOrderedMap <String, NameEntry> PROCESS_IDS = new CommonsLinkedHashMap <> ();
+  private static ICommonsOrderedMap <String, NiceNameEntry> PROCESS_IDS = new CommonsLinkedHashMap <> ();
 
   static
   {
@@ -55,12 +55,12 @@ public final class NiceNameHandler
 
   @Nonnull
   @ReturnsMutableCopy
-  public static ICommonsOrderedMap <String, NameEntry> readEntries (@Nonnull final IReadableResource aRes)
+  public static ICommonsOrderedMap <String, NiceNameEntry> readEntries (@Nonnull final IReadableResource aRes)
   {
     if (LOGGER.isInfoEnabled ())
       LOGGER.info ("Trying to read nice name entries from " + aRes.getPath ());
 
-    final ICommonsOrderedMap <String, NameEntry> ret = new CommonsLinkedHashMap <> ();
+    final ICommonsOrderedMap <String, NiceNameEntry> ret = new CommonsLinkedHashMap <> ();
     final IMicroDocument aDoc = MicroReader.readMicroXML (aRes);
     if (aDoc != null && aDoc.getDocumentElement () != null)
     {
@@ -69,7 +69,7 @@ public final class NiceNameHandler
         final String sID = eChild.getAttributeValue ("id");
         final String sName = eChild.getAttributeValue ("name");
         final boolean bDeprecated = eChild.getAttributeValueAsBool ("deprecated", false);
-        ret.put (sID, new NameEntry (sName, bDeprecated));
+        ret.put (sID, new NiceNameEntry (sName, bDeprecated));
       }
     }
     return ret;
@@ -89,7 +89,7 @@ public final class NiceNameHandler
       }
       if (aDocTypeIDRes == null)
         aDocTypeIDRes = new ClassPathResource ("codelists/doctypeid-mapping.xml");
-      final ICommonsOrderedMap <String, NameEntry> aDocTypeIDs = readEntries (aDocTypeIDRes);
+      final ICommonsOrderedMap <String, NiceNameEntry> aDocTypeIDs = readEntries (aDocTypeIDRes);
       RWLOCK.writeLocked ( () -> DOCTYPE_IDS = aDocTypeIDs);
     }
 
@@ -105,13 +105,13 @@ public final class NiceNameHandler
       }
       if (aProcessIDRes == null)
         aProcessIDRes = new ClassPathResource ("codelists/processid-mapping.xml");
-      final ICommonsOrderedMap <String, NameEntry> aProcessIDs = readEntries (aProcessIDRes);
+      final ICommonsOrderedMap <String, NiceNameEntry> aProcessIDs = readEntries (aProcessIDRes);
       RWLOCK.writeLocked ( () -> PROCESS_IDS = aProcessIDs);
     }
   }
 
   @Nullable
-  public static NameEntry getDocTypeNiceName (@Nullable final String sID)
+  public static NiceNameEntry getDocTypeNiceName (@Nullable final String sID)
   {
     if (StringHelper.hasNoText (sID))
       return null;
@@ -127,7 +127,7 @@ public final class NiceNameHandler
   }
 
   @Nullable
-  public static NameEntry getProcessNiceName (@Nullable final String sID)
+  public static NiceNameEntry getProcessNiceName (@Nullable final String sID)
   {
     if (StringHelper.hasNoText (sID))
       return null;

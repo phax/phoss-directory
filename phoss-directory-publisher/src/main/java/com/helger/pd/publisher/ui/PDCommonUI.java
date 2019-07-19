@@ -54,7 +54,7 @@ import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
 import com.helger.pd.indexer.storage.PDStoredContact;
 import com.helger.pd.indexer.storage.PDStoredIdentifier;
 import com.helger.pd.indexer.storage.PDStoredMLName;
-import com.helger.pd.publisher.app.NameEntry;
+import com.helger.pd.publisher.app.NiceNameEntry;
 import com.helger.pd.publisher.app.NiceNameHandler;
 import com.helger.peppolid.IDocumentTypeIdentifier;
 import com.helger.peppolid.IProcessIdentifier;
@@ -222,7 +222,7 @@ public final class PDCommonUI
   }
 
   @Nonnull
-  private static IHCNode _createID (@Nonnull final String sID, @Nullable final NameEntry aNiceName)
+  private static IHCNode _createID (@Nonnull final String sID, @Nullable final NiceNameEntry aNiceName)
   {
     final HCNodeList ret = new HCNodeList ();
     if (aNiceName == null)

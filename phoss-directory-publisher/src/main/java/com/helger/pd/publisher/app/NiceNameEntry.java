@@ -24,12 +24,12 @@ import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.hashcode.HashCodeGenerator;
 import com.helger.commons.string.ToStringGenerator;
 
-public final class NameEntry implements Serializable
+public final class NiceNameEntry implements Serializable
 {
   private final String m_sName;
   private final boolean m_bDeprecated;
 
-  public NameEntry (@Nonnull @Nonempty final String sName, final boolean bDeprecated)
+  public NiceNameEntry (@Nonnull @Nonempty final String sName, final boolean bDeprecated)
   {
     m_sName = sName;
     m_bDeprecated = bDeprecated;
@@ -54,7 +54,7 @@ public final class NameEntry implements Serializable
       return true;
     if (o == null || !getClass ().equals (o.getClass ()))
       return false;
-    final NameEntry rhs = (NameEntry) o;
+    final NiceNameEntry rhs = (NiceNameEntry) o;
     return m_sName.equals (rhs.m_sName) && m_bDeprecated == rhs.m_bDeprecated;
   }
 
