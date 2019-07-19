@@ -57,6 +57,7 @@ public final class SyncAllBusinessCardsJob extends AbstractScopeAwareJob
 
   private static final LocalDateTime INITIAL_SYNC = PDTFactory.createLocalDateTime (2018, Month.NOVEMBER, 7, 12, 0, 0);
 
+  @Nonnull
   private static File _getLastSyncFile ()
   {
     return WebFileIO.getDataIO ().getFile ("last-sync.dat");
