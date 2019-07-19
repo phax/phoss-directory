@@ -54,11 +54,11 @@ import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
 import com.helger.pd.indexer.storage.PDStoredContact;
 import com.helger.pd.indexer.storage.PDStoredIdentifier;
 import com.helger.pd.indexer.storage.PDStoredMLName;
+import com.helger.pd.publisher.app.NameEntry;
+import com.helger.pd.publisher.app.NiceNameHandler;
 import com.helger.peppolid.IDocumentTypeIdentifier;
 import com.helger.peppolid.IProcessIdentifier;
-import com.helger.peppolid.peppol.doctype.EPredefinedDocumentTypeIdentifier;
 import com.helger.peppolid.peppol.doctype.IPeppolDocumentTypeIdentifierParts;
-import com.helger.peppolid.peppol.process.EPredefinedProcessIdentifier;
 import com.helger.photon.app.html.PhotonCSS;
 import com.helger.photon.bootstrap4.badge.BootstrapBadge;
 import com.helger.photon.bootstrap4.badge.EBootstrapBadgeType;
@@ -210,7 +210,7 @@ public final class PDCommonUI
   {
     final HCNodeList ret = new HCNodeList ();
     String sRest = s;
-    final int nChars = 30;
+    final int nChars = 10;
     while (sRest.length () > nChars)
     {
       ret.addChild (sRest.substring (0, nChars)).addChild (new HCWBR ());
@@ -222,35 +222,39 @@ public final class PDCommonUI
   }
 
   @Nonnull
-  public static IHCNode getDocumentTypeID (@Nonnull final IDocumentTypeIdentifier aDocTypeID)
+  private static IHCNode _createID (@Nonnull final String sID, @Nullable final NameEntry aNiceName)
   {
     final HCNodeList ret = new HCNodeList ();
-
-    final EPredefinedDocumentTypeIdentifier ePredefined = EPredefinedDocumentTypeIdentifier.getFromDocumentTypeIdentifierOrNull (aDocTypeID);
-    if (ePredefined != null)
-      ret.addChild (new HCDiv ().addChild (new BootstrapBadge (EBootstrapBadgeType.SUCCESS).addChild ("Predefined document type"))
-                                .addChild (" " + ePredefined.getCommonName ()));
+    if (aNiceName == null)
+    {
+      // No nice name present
+      ret.addChild (new BootstrapBadge (EBootstrapBadgeType.WARNING).addChild ("Non-standard identifier"));
+    }
     else
-      ret.addChild (new HCDiv ().addChild (new BootstrapBadge (EBootstrapBadgeType.WARNING).addChild ("Non standard document type")));
-    ret.addChild (new HCCode ().addChild (_getWBRList (aDocTypeID.getURIEncoded ())));
+    {
+      ret.addChild (new BootstrapBadge (EBootstrapBadgeType.SUCCESS).addChild (aNiceName.getName ()));
+      if (aNiceName.isDeprecated ())
+      {
+        ret.addChild (" ")
+           .addChild (new BootstrapBadge (EBootstrapBadgeType.WARNING).addChild ("Identifier is deprecated"));
+      }
+    }
+    ret.addChild (" ").addChild (new HCCode ().addChild (_getWBRList (sID)));
     return ret;
   }
 
   @Nonnull
-  public static IHCNode getProcessID (@Nonnull final IProcessIdentifier aDocTypeID)
+  public static IHCNode getDocumentTypeID (@Nonnull final IDocumentTypeIdentifier aDocTypeID)
   {
-    EPredefinedProcessIdentifier ePredefined = null;
-    for (final EPredefinedProcessIdentifier e : EPredefinedProcessIdentifier.values ())
-      if (e.getAsProcessIdentifier ().equals (aDocTypeID))
-      {
-        ePredefined = e;
-        break;
-      }
+    final String sURI = aDocTypeID.getURIEncoded ();
+    return _createID (sURI, NiceNameHandler.getDocTypeNiceName (sURI));
+  }
 
-    if (ePredefined != null)
-      return new HCTextNode (ePredefined.getValue () + " [predefined]");
-
-    return _getWBRList (aDocTypeID.getURIEncoded ());
+  @Nonnull
+  public static IHCNode createProcessID (@Nonnull final IProcessIdentifier aProcessID)
+  {
+    final String sURI = aProcessID.getURIEncoded ();
+    return _createID (sURI, NiceNameHandler.getProcessNiceName (sURI));
   }
 
   @Nonnull
