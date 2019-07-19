@@ -25,7 +25,7 @@ import com.helger.html.hc.html.forms.HCEdit;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.publisher.search.EPDSearchField;
 import com.helger.pd.publisher.search.ESearchOperator;
-import com.helger.pd.publisher.search.ui.HCSearchOperatorSelect;
+import com.helger.pd.publisher.ui.HCSearchOperatorSelect;
 import com.helger.photon.bootstrap4.alert.BootstrapInfoBox;
 import com.helger.photon.bootstrap4.form.BootstrapFormGroup;
 import com.helger.photon.bootstrap4.form.BootstrapViewForm;

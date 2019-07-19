@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pd.publisher.search.ui;
+package com.helger.pd.publisher.ui;
 
 import java.util.EnumSet;
 import java.util.Locale;
