@@ -333,12 +333,19 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
                                .addChild (new HCA (LinkHelper.getURLWithContext (aRequestScope,
                                                                                  ExportServlet.SERVLET_DEFAULT_PATH +
                                                                                                 ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_XML)).addChild ("XML"));
-      if (CPDPublisher.EXCEL_EXPORT)
+      if (CPDPublisher.EXPORT_EXCEL)
       {
         aP.addChild (" | ")
           .addChild (new HCA (LinkHelper.getURLWithContext (aRequestScope,
                                                             ExportServlet.SERVLET_DEFAULT_PATH +
                                                                            ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_EXCEL)).addChild ("Excel"));
+      }
+      if (CPDPublisher.EXPORT_CSV)
+      {
+        aP.addChild (" | ")
+          .addChild (new HCA (LinkHelper.getURLWithContext (aRequestScope,
+                                                            ExportServlet.SERVLET_DEFAULT_PATH +
+                                                                           ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_CSV)).addChild ("CSV"));
       }
       aP.addChild ("]");
       aDiv.addChild (aP);

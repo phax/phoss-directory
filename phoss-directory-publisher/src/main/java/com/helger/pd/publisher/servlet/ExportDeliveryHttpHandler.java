@@ -39,6 +39,7 @@ public class ExportDeliveryHttpHandler extends AbstractObjectDeliveryHttpHandler
 {
   public static final String SPECIAL_BUSINESS_CARDS_XML = "/businesscards";
   public static final String SPECIAL_BUSINESS_CARDS_EXCEL = "/businesscards-excel";
+  public static final String SPECIAL_BUSINESS_CARDS_CSV = "/businesscards-csv";
   private static final Logger LOGGER = LoggerFactory.getLogger (ExportDeliveryHttpHandler.class);
 
   @Nonnull
@@ -58,7 +59,9 @@ public class ExportDeliveryHttpHandler extends AbstractObjectDeliveryHttpHandler
 
     // Allow only valid filenames
     final String sFilename = aRequestScope.attrs ().getAsString (REQUEST_ATTR_OBJECT_DELIVERY_FILENAME);
-    if (!sFilename.equals (SPECIAL_BUSINESS_CARDS_XML) && !sFilename.equals (SPECIAL_BUSINESS_CARDS_EXCEL))
+    if (!sFilename.equals (SPECIAL_BUSINESS_CARDS_XML) &&
+        !sFilename.equals (SPECIAL_BUSINESS_CARDS_EXCEL) &&
+        !sFilename.equals (SPECIAL_BUSINESS_CARDS_CSV))
     {
       LOGGER.warn ("Cannot special stream the resource '" + sFilename + "'");
       aUnifiedResponse.setStatus (HttpServletResponse.SC_NOT_FOUND);
@@ -75,19 +78,19 @@ public class ExportDeliveryHttpHandler extends AbstractObjectDeliveryHttpHandler
     if (sFilename.equals (SPECIAL_BUSINESS_CARDS_XML))
     {
       aUnifiedResponse.disableCaching ();
-      ExportAllManager.streamFileXMLTo (aUnifiedResponse);
+      ExportAllManager.streamFileXMLFullTo (aUnifiedResponse);
       aUnifiedResponse.setMimeType (CMimeType.APPLICATION_XML);
-      aUnifiedResponse.setContentDispositionFilename ("directory-export-business-cards.xml");
+      aUnifiedResponse.setContentDispositionFilename (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XML);
     }
     else
       if (sFilename.equals (SPECIAL_BUSINESS_CARDS_EXCEL))
       {
-        if (CPDPublisher.EXCEL_EXPORT)
+        if (CPDPublisher.EXPORT_EXCEL)
         {
           aUnifiedResponse.disableCaching ();
           ExportAllManager.streamFileExcelTo (aUnifiedResponse);
           aUnifiedResponse.setMimeType (EExcelVersion.XLSX.getMimeType ());
-          aUnifiedResponse.setContentDispositionFilename ("directory-export-business-cards.xlsx");
+          aUnifiedResponse.setContentDispositionFilename (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XLSX);
         }
         else
         {
@@ -96,8 +99,24 @@ public class ExportDeliveryHttpHandler extends AbstractObjectDeliveryHttpHandler
         }
       }
       else
-      {
-        throw new IllegalStateException ("Unexpected '" + sFilename + "'");
-      }
+        if (sFilename.equals (SPECIAL_BUSINESS_CARDS_CSV))
+        {
+          if (CPDPublisher.EXPORT_CSV)
+          {
+            aUnifiedResponse.disableCaching ();
+            ExportAllManager.streamFileCSVTo (aUnifiedResponse);
+            aUnifiedResponse.setMimeType (CMimeType.TEXT_CSV);
+            aUnifiedResponse.setContentDispositionFilename (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_CSV);
+          }
+          else
+          {
+            aUnifiedResponse.disableCaching ();
+            aUnifiedResponse.setStatus (HttpServletResponse.SC_NOT_FOUND);
+          }
+        }
+        else
+        {
+          throw new IllegalStateException ("Unexpected '" + sFilename + "'");
+        }
   }
 }

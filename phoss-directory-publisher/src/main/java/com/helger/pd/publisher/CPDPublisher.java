@@ -33,7 +33,8 @@ public final class CPDPublisher
 {
   // Email sender - depends on the used SMTP server
   public static final IEmailAddress EMAIL_SENDER = new EmailAddress ("no-reply@helger.com");
-  public static final boolean EXCEL_EXPORT = false;
+  public static final boolean EXPORT_EXCEL = false;
+  public static final boolean EXPORT_CSV = true;
 
   // APP Name - like "PEPPOL Directory"
   private static final String APPLICATION_TITLE = PDServerConfiguration.getAppName ();
