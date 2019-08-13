@@ -25,6 +25,9 @@ The official PEPPOL Directory (PD; former PEPPOL Yellow Pages - PYP; www.peppol.
   
 # News and noteworthy
 
+* v0.8.2 - work in progress
+    * Added support to download all participants as CSV
+    * Added support to download all participants as XML but without the document types (see [issue #42](https://github.com/phax/phoss-directory/issues/42))
 * v0.8.1 - 2019-07-29
     * Updated to Jersey 2.29
     * `PDClientConfiguration` can now be re-initialized during runtime
