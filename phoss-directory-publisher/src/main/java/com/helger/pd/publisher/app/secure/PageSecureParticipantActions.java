@@ -68,7 +68,8 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
   private static final Logger LOGGER = LoggerFactory.getLogger (PageSecureParticipantActions.class);
 
   private static final AjaxFunctionDeclaration s_aDownloadAllIDsXML;
-  private static final AjaxFunctionDeclaration s_aDownloadAllBCsXML;
+  private static final AjaxFunctionDeclaration s_aDownloadAllBCsXMLFull;
+  private static final AjaxFunctionDeclaration s_aDownloadAllBCsXMLNoDocTypes;
   private static final AjaxFunctionDeclaration s_aDownloadAllBCsExcel;
   private static final AjaxFunctionDeclaration s_aDownloadAllBCsCSV;
 
@@ -91,11 +92,17 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
       res.xml (aDoc);
       res.attachment ("directory-participant-list.xml");
     });
-    s_aDownloadAllBCsXML = addAjax ( (req, res) -> {
+    s_aDownloadAllBCsXMLFull = addAjax ( (req, res) -> {
       final IMicroDocument aDoc = ExportAllManager.queryAllContainedBusinessCardsAsXML (EQueryMode.NON_DELETED_ONLY,
                                                                                         true);
       res.xml (aDoc);
-      res.attachment (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XML);
+      res.attachment (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_FULL);
+    });
+    s_aDownloadAllBCsXMLNoDocTypes = addAjax ( (req, res) -> {
+      final IMicroDocument aDoc = ExportAllManager.queryAllContainedBusinessCardsAsXML (EQueryMode.NON_DELETED_ONLY,
+                                                                                        false);
+      res.xml (aDoc);
+      res.attachment (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_NO_DOC_TYPES);
     });
     s_aDownloadAllBCsExcel = addAjax ( (req, res) -> {
       final WorkbookCreationHelper aWBCH = ExportAllManager.queryAllContainedBusinessCardsAsExcel (EQueryMode.NON_DELETED_ONLY,
@@ -165,8 +172,11 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
                                                                      .setOnClick (s_aDownloadAllIDsXML.getInvocationURL (aRequestScope))
                                                                      .setIcon (EDefaultIcon.SAVE)));
 
-    aNodeList.addChild (new HCDiv ().addChild (new BootstrapButton ().addChild ("Download all Business Cards (XML, live) (may take long)")
-                                                                     .setOnClick (s_aDownloadAllBCsXML.getInvocationURL (aRequestScope))
+    aNodeList.addChild (new HCDiv ().addChild (new BootstrapButton ().addChild ("Download all Business Cards (XML, full, live) (may take long)")
+                                                                     .setOnClick (s_aDownloadAllBCsXMLFull.getInvocationURL (aRequestScope))
+                                                                     .setIcon (EDefaultIcon.CANCEL)));
+    aNodeList.addChild (new HCDiv ().addChild (new BootstrapButton ().addChild ("Download all Business Cards (XML, no document types, live) (may take long)")
+                                                                     .setOnClick (s_aDownloadAllBCsXMLNoDocTypes.getInvocationURL (aRequestScope))
                                                                      .setIcon (EDefaultIcon.CANCEL)));
     aNodeList.addChild (new HCDiv ().addChild (new BootstrapButton ().addChild ("Download all Business Cards (Excel, live) (may take long)")
                                                                      .setOnClick (s_aDownloadAllBCsExcel.getInvocationURL (aRequestScope))
@@ -175,10 +185,15 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
                                                                      .setOnClick (s_aDownloadAllBCsCSV.getInvocationURL (aRequestScope))
                                                                      .setIcon (EDefaultIcon.CANCEL)));
 
-    aNodeList.addChild (new HCDiv ().addChild (new BootstrapButton ().addChild ("Download all Business Cards (XML, cached)")
+    aNodeList.addChild (new HCDiv ().addChild (new BootstrapButton ().addChild ("Download all Business Cards (XML, full, cached)")
                                                                      .setOnClick (LinkHelper.getURLWithContext (aRequestScope,
                                                                                                                 ExportServlet.SERVLET_DEFAULT_PATH +
-                                                                                                                               ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_XML))
+                                                                                                                               ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_XML_FULL))
+                                                                     .setIcon (EDefaultIcon.SAVE_ALL)));
+    aNodeList.addChild (new HCDiv ().addChild (new BootstrapButton ().addChild ("Download all Business Cards (XML, no document types, cached)")
+                                                                     .setOnClick (LinkHelper.getURLWithContext (aRequestScope,
+                                                                                                                ExportServlet.SERVLET_DEFAULT_PATH +
+                                                                                                                               ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_XML_NO_DOC_TYPES))
                                                                      .setIcon (EDefaultIcon.SAVE_ALL)));
     if (CPDPublisher.EXPORT_EXCEL)
     {

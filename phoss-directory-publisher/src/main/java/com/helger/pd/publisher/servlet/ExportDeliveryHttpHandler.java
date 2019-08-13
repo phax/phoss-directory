@@ -37,7 +37,8 @@ import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 
 public class ExportDeliveryHttpHandler extends AbstractObjectDeliveryHttpHandler
 {
-  public static final String SPECIAL_BUSINESS_CARDS_XML = "/businesscards";
+  public static final String SPECIAL_BUSINESS_CARDS_XML_FULL = "/businesscards";
+  public static final String SPECIAL_BUSINESS_CARDS_XML_NO_DOC_TYPES = "/businesscards-xml-no-doc-types";
   public static final String SPECIAL_BUSINESS_CARDS_EXCEL = "/businesscards-excel";
   public static final String SPECIAL_BUSINESS_CARDS_CSV = "/businesscards-csv";
   private static final Logger LOGGER = LoggerFactory.getLogger (ExportDeliveryHttpHandler.class);
@@ -59,7 +60,8 @@ public class ExportDeliveryHttpHandler extends AbstractObjectDeliveryHttpHandler
 
     // Allow only valid filenames
     final String sFilename = aRequestScope.attrs ().getAsString (REQUEST_ATTR_OBJECT_DELIVERY_FILENAME);
-    if (!sFilename.equals (SPECIAL_BUSINESS_CARDS_XML) &&
+    if (!sFilename.equals (SPECIAL_BUSINESS_CARDS_XML_FULL) &&
+        !sFilename.equals (SPECIAL_BUSINESS_CARDS_XML_NO_DOC_TYPES) &&
         !sFilename.equals (SPECIAL_BUSINESS_CARDS_EXCEL) &&
         !sFilename.equals (SPECIAL_BUSINESS_CARDS_CSV))
     {
@@ -75,38 +77,30 @@ public class ExportDeliveryHttpHandler extends AbstractObjectDeliveryHttpHandler
                                     @Nonnull final UnifiedResponse aUnifiedResponse,
                                     @Nonnull final String sFilename) throws IOException
   {
-    if (sFilename.equals (SPECIAL_BUSINESS_CARDS_XML))
+    if (sFilename.equals (SPECIAL_BUSINESS_CARDS_XML_FULL))
     {
       aUnifiedResponse.disableCaching ();
       ExportAllManager.streamFileXMLFullTo (aUnifiedResponse);
       aUnifiedResponse.setMimeType (CMimeType.APPLICATION_XML);
-      aUnifiedResponse.setContentDispositionFilename (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XML);
+      aUnifiedResponse.setContentDispositionFilename (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_FULL);
     }
     else
-      if (sFilename.equals (SPECIAL_BUSINESS_CARDS_EXCEL))
+      if (sFilename.equals (SPECIAL_BUSINESS_CARDS_XML_NO_DOC_TYPES))
       {
-        if (CPDPublisher.EXPORT_EXCEL)
-        {
-          aUnifiedResponse.disableCaching ();
-          ExportAllManager.streamFileExcelTo (aUnifiedResponse);
-          aUnifiedResponse.setMimeType (EExcelVersion.XLSX.getMimeType ());
-          aUnifiedResponse.setContentDispositionFilename (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XLSX);
-        }
-        else
-        {
-          aUnifiedResponse.disableCaching ();
-          aUnifiedResponse.setStatus (HttpServletResponse.SC_NOT_FOUND);
-        }
+        aUnifiedResponse.disableCaching ();
+        ExportAllManager.streamFileXMLNoDocTypesTo (aUnifiedResponse);
+        aUnifiedResponse.setMimeType (CMimeType.APPLICATION_XML);
+        aUnifiedResponse.setContentDispositionFilename (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_NO_DOC_TYPES);
       }
       else
-        if (sFilename.equals (SPECIAL_BUSINESS_CARDS_CSV))
+        if (sFilename.equals (SPECIAL_BUSINESS_CARDS_EXCEL))
         {
-          if (CPDPublisher.EXPORT_CSV)
+          if (CPDPublisher.EXPORT_EXCEL)
           {
             aUnifiedResponse.disableCaching ();
-            ExportAllManager.streamFileCSVTo (aUnifiedResponse);
-            aUnifiedResponse.setMimeType (CMimeType.TEXT_CSV);
-            aUnifiedResponse.setContentDispositionFilename (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_CSV);
+            ExportAllManager.streamFileExcelTo (aUnifiedResponse);
+            aUnifiedResponse.setMimeType (EExcelVersion.XLSX.getMimeType ());
+            aUnifiedResponse.setContentDispositionFilename (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XLSX);
           }
           else
           {
@@ -115,8 +109,24 @@ public class ExportDeliveryHttpHandler extends AbstractObjectDeliveryHttpHandler
           }
         }
         else
-        {
-          throw new IllegalStateException ("Unexpected '" + sFilename + "'");
-        }
+          if (sFilename.equals (SPECIAL_BUSINESS_CARDS_CSV))
+          {
+            if (CPDPublisher.EXPORT_CSV)
+            {
+              aUnifiedResponse.disableCaching ();
+              ExportAllManager.streamFileCSVTo (aUnifiedResponse);
+              aUnifiedResponse.setMimeType (CMimeType.TEXT_CSV);
+              aUnifiedResponse.setContentDispositionFilename (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_CSV);
+            }
+            else
+            {
+              aUnifiedResponse.disableCaching ();
+              aUnifiedResponse.setStatus (HttpServletResponse.SC_NOT_FOUND);
+            }
+          }
+          else
+          {
+            throw new IllegalStateException ("Unexpected '" + sFilename + "'");
+          }
   }
 }

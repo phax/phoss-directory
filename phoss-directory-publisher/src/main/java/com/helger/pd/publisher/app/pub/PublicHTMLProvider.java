@@ -329,10 +329,14 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
       final HCP aP = new HCP ().addChild ("Follow us on Twitter: ")
                                .addChild (new HCA (new SimpleURL ("https://twitter.com/PEPPOLDirectory")).addChild ("@PEPPOLDirectory"))
                                .addChild (" - ")
-                               .addChild ("Download all [")
-                               .addChild (new HCA (LinkHelper.getURLWithContext (aRequestScope,
-                                                                                 ExportServlet.SERVLET_DEFAULT_PATH +
-                                                                                                ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_XML)).addChild ("XML"));
+                               .addChild ("Download all [");
+      aP.addChild (new HCA (LinkHelper.getURLWithContext (aRequestScope,
+                                                          ExportServlet.SERVLET_DEFAULT_PATH +
+                                                                         ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_XML_FULL)).addChild ("XML"));
+      aP.addChild (" | ")
+        .addChild (new HCA (LinkHelper.getURLWithContext (aRequestScope,
+                                                          ExportServlet.SERVLET_DEFAULT_PATH +
+                                                                         ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_XML_NO_DOC_TYPES)).addChild ("XML (no doctypes)"));
       if (CPDPublisher.EXPORT_EXCEL)
       {
         aP.addChild (" | ")

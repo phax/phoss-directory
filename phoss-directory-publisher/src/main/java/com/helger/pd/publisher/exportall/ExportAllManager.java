@@ -66,12 +66,14 @@ import com.helger.xml.microdom.serialize.MicroWriter;
 public final class ExportAllManager
 {
   // Filenames for download
-  public static final String EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XML = "directory-export-business-cards.xml";
+  public static final String EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_FULL = "directory-export-business-cards.xml";
+  public static final String EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_NO_DOC_TYPES = "directory-export-business-cards-no-doc-types.xml";
   public static final String EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XLSX = "directory-export-business-cards.xlsx";
   public static final String EXTERNAL_EXPORT_ALL_BUSINESSCARDS_CSV = "directory-export-business-cards.csv";
 
   // Internal filenames
-  private static final String INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML = "export-all-businesscards.xml";
+  private static final String INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_FULL = "export-all-businesscards.xml";
+  private static final String INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_NO_DOC_TYPES = "export-all-businesscards-no-doc-types.xml";
   private static final String INTERNAL_EXPORT_ALL_BUSINESSCARDS_XLSX = "export-all-businesscards.xlsx";
   private static final String INTERNAL_EXPORT_ALL_BUSINESSCARDS_CSV = "export-all-businesscards.csv";
   private static final Logger LOGGER = LoggerFactory.getLogger (ExportAllManager.class);
@@ -127,7 +129,7 @@ public final class ExportAllManager
   @Nonnull
   private static File _getInternalFileXMLFull ()
   {
-    return WebFileIO.getDataIO ().getFile (INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML);
+    return WebFileIO.getDataIO ().getFile (INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_FULL);
   }
 
   @Nonnull
@@ -142,10 +144,10 @@ public final class ExportAllManager
       if (MicroWriter.writeToFile (aDoc, f).isFailure ())
       {
         if (LOGGER.isErrorEnabled ())
-          LOGGER.error ("Failed to export all BCs as XML to " + f.getAbsolutePath ());
+          LOGGER.error ("Failed to export all BCs as XML (full) to " + f.getAbsolutePath ());
         return ESuccess.FAILURE;
       }
-      LOGGER.info ("Successfully wrote all BCs as XML to " + f.getAbsolutePath ());
+      LOGGER.info ("Successfully wrote all BCs as XML (full) to " + f.getAbsolutePath ());
     }
     finally
     {
@@ -167,6 +169,58 @@ public final class ExportAllManager
     try
     {
       final File f = _getInternalFileXMLFull ();
+      // setContent(IReadableResource) is lazy
+      aUR.setContent (new FileSystemResource (f));
+    }
+    finally
+    {
+      s_aRWLock.readLock ().unlock ();
+    }
+  }
+
+  @Nonnull
+  private static File _getInternalFileXMLNoDocTypes ()
+  {
+    return WebFileIO.getDataIO ().getFile (INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_NO_DOC_TYPES);
+  }
+
+  @Nonnull
+  static ESuccess writeFileXMLNoDocTypes (@Nonnull final IMicroDocument aDoc)
+  {
+    final File f = _getInternalFileXMLNoDocTypes ();
+
+    // Do it in a write lock!
+    s_aRWLock.writeLock ().lock ();
+    try
+    {
+      if (MicroWriter.writeToFile (aDoc, f).isFailure ())
+      {
+        if (LOGGER.isErrorEnabled ())
+          LOGGER.error ("Failed to export all BCs as XML (no doctypes) to " + f.getAbsolutePath ());
+        return ESuccess.FAILURE;
+      }
+      LOGGER.info ("Successfully wrote all BCs as XML (no doctypes) to " + f.getAbsolutePath ());
+    }
+    finally
+    {
+      s_aRWLock.writeLock ().unlock ();
+    }
+    return ESuccess.SUCCESS;
+  }
+
+  /**
+   * Stream the stored XML file to the provided HTTP response
+   *
+   * @param aUR
+   *        The response to stream to. May not be <code>null</code>.
+   */
+  public static void streamFileXMLNoDocTypesTo (@Nonnull final UnifiedResponse aUR)
+  {
+    // Do it in a read lock!
+    s_aRWLock.readLock ().lock ();
+    try
+    {
+      final File f = _getInternalFileXMLNoDocTypes ();
       // setContent(IReadableResource) is lazy
       aUR.setContent (new FileSystemResource (f));
     }

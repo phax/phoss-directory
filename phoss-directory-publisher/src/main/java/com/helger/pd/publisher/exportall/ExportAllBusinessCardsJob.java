@@ -53,7 +53,7 @@ public final class ExportAllBusinessCardsJob extends AbstractScopeAwareJob
     s_aLock.lock ();
     try
     {
-      LOGGER.info ("Start exporting business cards as XML");
+      LOGGER.info ("Start exporting business cards as XML (full)");
       try
       {
         final IMicroDocument aDoc = ExportAllManager.queryAllContainedBusinessCardsAsXML (EQueryMode.NON_DELETED_ONLY,
@@ -62,7 +62,19 @@ public final class ExportAllBusinessCardsJob extends AbstractScopeAwareJob
       }
       finally
       {
-        LOGGER.info ("Finished exporting business cards as XML");
+        LOGGER.info ("Finished exporting business cards as XML (full)");
+      }
+
+      LOGGER.info ("Start exporting business cards as XML (no doc types)");
+      try
+      {
+        final IMicroDocument aDoc = ExportAllManager.queryAllContainedBusinessCardsAsXML (EQueryMode.NON_DELETED_ONLY,
+                                                                                          false);
+        ExportAllManager.writeFileXMLNoDocTypes (aDoc);
+      }
+      finally
+      {
+        LOGGER.info ("Finished exporting business cards as XML (no doc types)");
       }
 
       if (CPDPublisher.EXPORT_EXCEL)
