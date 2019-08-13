@@ -2,7 +2,7 @@
 
 [![Join the chat at https://gitter.im/phax/peppol-directory](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/phax/peppol-directory?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Current release (on Maven central): **0.8.0**
+Current release (on Maven central): **0.8.1**
 
 The official PEPPOL Directory (PD; former PEPPOL Yellow Pages - PYP; www.peppol.eu) and TOOP Directory software (The Once-Only Project; www.toop.eu). It is split into the following sub-projects (all require Java 8 except where noted):
   * `phoss-directory-businesscard` - the common Business Card API
@@ -25,7 +25,7 @@ The official PEPPOL Directory (PD; former PEPPOL Yellow Pages - PYP; www.peppol.
   
 # News and noteworthy
 
-* v0.8.1 - work in progress
+* v0.8.1 - 2019-07-29
     * Updated to Jersey 2.29
     * `PDClientConfiguration` can now be re-initialized during runtime
     * Known document type identifiers and process identifiers can now be used (see [issue #13](https://github.com/phax/phoss-directory/issues/13))
