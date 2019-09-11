@@ -104,7 +104,8 @@ public class PDName implements Serializable
   {
     final IJsonObject ret = new JsonObject ();
     ret.add ("name", m_sName);
-    ret.add ("language", m_sLanguageCode);
+    if (m_sLanguageCode != null)
+      ret.add ("language", m_sLanguageCode);
     return ret;
   }
 

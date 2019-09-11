@@ -275,7 +275,7 @@ public class PDBusinessEntity implements Serializable, ICloneable <PDBusinessEnt
     ret.add ("countrycode", m_sCountryCode);
     if (hasGeoInfo ())
       ret.add ("geoinfo", m_sGeoInfo);
-    if (m_aIDs != null)
+    if (m_aIDs.isNotEmpty ())
       ret.add ("id", new JsonArray ().addAllMapped (m_aIDs, PDIdentifier::getAsJson));
     if (m_aWebsiteURIs.isNotEmpty ())
       ret.add ("website", new JsonArray ().addAll (m_aWebsiteURIs));
