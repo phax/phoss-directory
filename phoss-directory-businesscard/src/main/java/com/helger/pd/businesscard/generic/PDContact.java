@@ -28,6 +28,8 @@ import com.helger.commons.equals.EqualsHelper;
 import com.helger.commons.hashcode.HashCodeGenerator;
 import com.helger.commons.lang.ICloneable;
 import com.helger.commons.string.ToStringGenerator;
+import com.helger.json.IJsonObject;
+import com.helger.json.JsonObject;
 import com.helger.xml.microdom.IMicroElement;
 import com.helger.xml.microdom.MicroElement;
 
@@ -179,6 +181,17 @@ public class PDContact implements Serializable, ICloneable <PDContact>
     ret.setAttribute ("name", m_sName);
     ret.setAttribute ("phonenumber", m_sPhoneNumber);
     ret.setAttribute ("type", m_sType);
+    return ret;
+  }
+
+  @Nonnull
+  public IJsonObject getAsJson ()
+  {
+    final IJsonObject ret = new JsonObject ();
+    ret.add ("email", m_sEmail);
+    ret.add ("name", m_sName);
+    ret.add ("phonenumber", m_sPhoneNumber);
+    ret.add ("type", m_sType);
     return ret;
   }
 

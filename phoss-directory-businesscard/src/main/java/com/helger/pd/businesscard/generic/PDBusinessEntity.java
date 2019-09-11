@@ -33,6 +33,9 @@ import com.helger.commons.hashcode.HashCodeGenerator;
 import com.helger.commons.lang.ICloneable;
 import com.helger.commons.string.StringHelper;
 import com.helger.commons.string.ToStringGenerator;
+import com.helger.json.IJsonObject;
+import com.helger.json.JsonArray;
+import com.helger.json.JsonObject;
 import com.helger.xml.microdom.IMicroElement;
 import com.helger.xml.microdom.MicroElement;
 
@@ -261,6 +264,25 @@ public class PDBusinessEntity implements Serializable, ICloneable <PDBusinessEnt
       ret.appendChild (aContact.getAsMicroXML (sNamespaceURI, "contact"));
     if (hasAdditionalInfo ())
       ret.appendElement (sNamespaceURI, "additionalinfo").appendText (m_sAdditionalInfo);
+    return ret;
+  }
+
+  @Nonnull
+  public IJsonObject getAsJson ()
+  {
+    final IJsonObject ret = new JsonObject ();
+    ret.add ("name", new JsonArray ().addAllMapped (m_aNames, PDName::getAsJson));
+    ret.add ("countrycode", m_sCountryCode);
+    if (hasGeoInfo ())
+      ret.add ("geoinfo", m_sGeoInfo);
+    if (m_aIDs != null)
+      ret.add ("id", new JsonArray ().addAllMapped (m_aIDs, PDIdentifier::getAsJson));
+    if (m_aWebsiteURIs.isNotEmpty ())
+      ret.add ("website", new JsonArray ().addAll (m_aWebsiteURIs));
+    if (m_aContacts.isNotEmpty ())
+      ret.add ("contact", new JsonArray ().addAllMapped (m_aContacts, PDContact::getAsJson));
+    if (hasAdditionalInfo ())
+      ret.add ("additionalinfo", m_sAdditionalInfo);
     return ret;
   }
 

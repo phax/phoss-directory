@@ -26,6 +26,8 @@ import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.equals.EqualsHelper;
 import com.helger.commons.hashcode.HashCodeGenerator;
 import com.helger.commons.string.ToStringGenerator;
+import com.helger.json.IJsonObject;
+import com.helger.json.JsonObject;
 import com.helger.xml.microdom.IMicroElement;
 import com.helger.xml.microdom.MicroElement;
 
@@ -71,6 +73,15 @@ public class PDIdentifier implements Serializable
     final IMicroElement ret = new MicroElement (sNamespaceURI, sElementName);
     ret.setAttribute ("scheme", m_sScheme);
     ret.setAttribute ("value", m_sValue);
+    return ret;
+  }
+
+  @Nonnull
+  public IJsonObject getAsJson ()
+  {
+    final IJsonObject ret = new JsonObject ();
+    ret.add ("scheme", m_sScheme);
+    ret.add ("value", m_sValue);
     return ret;
   }
 

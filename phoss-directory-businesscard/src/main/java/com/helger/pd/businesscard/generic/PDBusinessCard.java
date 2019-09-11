@@ -31,6 +31,9 @@ import com.helger.commons.equals.EqualsHelper;
 import com.helger.commons.hashcode.HashCodeGenerator;
 import com.helger.commons.lang.ICloneable;
 import com.helger.commons.string.ToStringGenerator;
+import com.helger.json.IJsonObject;
+import com.helger.json.JsonArray;
+import com.helger.json.JsonObject;
 import com.helger.xml.microdom.IMicroElement;
 import com.helger.xml.microdom.MicroElement;
 
@@ -114,6 +117,15 @@ public class PDBusinessCard implements Serializable, ICloneable <PDBusinessCard>
     ret.appendChild (m_aParticipantIdentifier.getAsMicroXML (sNamespaceURI, "participant"));
     for (final PDBusinessEntity aEntity : m_aEntities)
       ret.appendChild (aEntity.getAsMicroXML (sNamespaceURI, "entity"));
+    return ret;
+  }
+
+  @Nonnull
+  public IJsonObject getAsJson ()
+  {
+    final IJsonObject ret = new JsonObject ();
+    ret.add ("participant", m_aParticipantIdentifier.getAsJson ());
+    ret.add ("entity", new JsonArray ().addAllMapped (m_aEntities, PDBusinessEntity::getAsJson));
     return ret;
   }
 

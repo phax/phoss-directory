@@ -30,6 +30,8 @@ import com.helger.commons.locale.LocaleHelper;
 import com.helger.commons.locale.language.LanguageCache;
 import com.helger.commons.string.StringHelper;
 import com.helger.commons.string.ToStringGenerator;
+import com.helger.json.IJsonObject;
+import com.helger.json.JsonObject;
 import com.helger.xml.microdom.IMicroElement;
 import com.helger.xml.microdom.MicroElement;
 
@@ -94,6 +96,15 @@ public class PDName implements Serializable
     final IMicroElement ret = new MicroElement (sNamespaceURI, sElementName);
     ret.setAttribute ("name", m_sName);
     ret.setAttribute ("language", m_sLanguageCode);
+    return ret;
+  }
+
+  @Nonnull
+  public IJsonObject getAsJson ()
+  {
+    final IJsonObject ret = new JsonObject ();
+    ret.add ("name", m_sName);
+    ret.add ("language", m_sLanguageCode);
     return ret;
   }
 
