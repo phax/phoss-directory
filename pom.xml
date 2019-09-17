@@ -68,7 +68,7 @@
     <!--  
     <lucene.version>8.1.1</lucene.version>
     -->
-    <jersey.version>2.29</jersey.version>
+    <jersey.version>2.29.1</jersey.version>
     <log4j.version>2.12.1</log4j.version>
   </properties>
   
@@ -178,7 +178,7 @@
       <dependency>
         <groupId>org.apache.httpcomponents</groupId>
         <artifactId>httpclient</artifactId>
-        <version>4.5.9</version>
+        <version>4.5.10</version>
       </dependency>
   
       <dependency>
