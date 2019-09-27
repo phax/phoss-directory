@@ -86,7 +86,7 @@ public final class NiceNameUI
   }
 
   @Nonnull
-  public static IHCNode createProcessID (@Nonnull final IProcessIdentifier aProcessID)
+  public static IHCNode getProcessID (@Nonnull final IProcessIdentifier aProcessID)
   {
     final String sURI = aProcessID.getURIEncoded ();
     return _createID (sURI, NiceNameHandler.getProcessNiceName (sURI));
