@@ -17,12 +17,13 @@
 package com.helger.pd.indexer;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 
 import org.junit.Test;
 
 /**
  * Test class for class {@link CDirectory}
- * 
+ *
  * @author Philip Helger
  */
 public final class CDirectoryTest
@@ -30,7 +31,11 @@ public final class CDirectoryTest
   @Test
   public void testBasic ()
   {
-    assertFalse (CDirectory.APPLICATION_VERSION.equals ("undefined"));
-    assertFalse (CDirectory.APPLICATION_TIMESTAMP.equals ("undefined"));
+    assertNotEquals ("undefined", CDirectory.APPLICATION_VERSION);
+    assertNotEquals ("undefined", CDirectory.APPLICATION_TIMESTAMP);
+
+    // Check variable resolution
+    assertFalse (CDirectory.APPLICATION_VERSION.contains ("${"));
+    assertFalse (CDirectory.APPLICATION_TIMESTAMP.contains ("${"));
   }
 }
