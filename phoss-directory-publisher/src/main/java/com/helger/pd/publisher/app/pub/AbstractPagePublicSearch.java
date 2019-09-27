@@ -48,6 +48,7 @@ import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
 import com.helger.pd.indexer.storage.PDStoredMLName;
+import com.helger.pd.publisher.nicename.NiceNameUI;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.pd.publisher.ui.PDCommonUI;
 import com.helger.peppolid.IDocumentTypeIdentifier;
@@ -256,7 +257,7 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
             aDocTypeOL = aDocTypeCtrl.addAndReturnChild (new HCOL ());
 
           final HCLI aLI = aDocTypeOL.addItem ();
-          aLI.addChild (PDCommonUI.getDocumentTypeID (aDocTypeID));
+          aLI.addChild (NiceNameUI.getDocumentTypeID (aDocTypeID));
         }
 
         if (aDocTypeOL == null)
