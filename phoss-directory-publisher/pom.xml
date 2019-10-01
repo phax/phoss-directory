@@ -167,7 +167,6 @@
           <schemaIncludes>
             <schemaInclude>directory-export-v1.xsd</schemaInclude>
             <schemaInclude>directory-export-v2.xsd</schemaInclude>
-            <schemaInclude>directory-search-result-list-v1.xsd</schemaInclude>
           </schemaIncludes>
           <extension>true</extension>
           <strict>false</strict>
