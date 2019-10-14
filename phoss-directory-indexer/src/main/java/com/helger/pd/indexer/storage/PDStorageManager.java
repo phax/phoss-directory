@@ -19,6 +19,7 @@ package com.helger.pd.indexer.storage;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.ObjIntConsumer;
 
 import javax.annotation.CheckForSigned;
@@ -446,25 +447,30 @@ public final class PDStorageManager implements IPDStorageManager
    * the provided {@link Consumer}.
    *
    * @param aQuery
-   *        Query to execute. May not be <code>null</code>-
+   *        Query to execute. May not be <code>null</code>.
    * @param nMaxResultCount
    *        Maximum number of results. Values &le; 0 mean all.
+   * @param aFromDocumentConverter
+   *        The function to extract data from the Lucene Document. May not be
+   *        <code>null</code>.
    * @param aConsumer
-   *        The consumer of the {@link PDStoredBusinessEntity} objects.
+   *        The consumer of the mapped objects. May not be <code>null</code>.
    * @throws IOException
    *         On Lucene error
    * @see #searchAtomic(Query, Collector)
    * @see #getAllDocuments(Query,int)
    */
-  public void searchAllDocuments (@Nonnull final Query aQuery,
-                                  @CheckForSigned final int nMaxResultCount,
-                                  @Nonnull final Consumer <? super PDStoredBusinessEntity> aConsumer) throws IOException
+  public <T> void searchAll (@Nonnull final Query aQuery,
+                             @CheckForSigned final int nMaxResultCount,
+                             @Nonnull final Function <Document, T> aFromDocumentConverter,
+                             @Nonnull final Consumer <? super T> aConsumer) throws IOException
   {
     ValueEnforcer.notNull (aQuery, "Query");
+    ValueEnforcer.notNull (aFromDocumentConverter, "FromDocumentConverter");
     ValueEnforcer.notNull (aConsumer, "Consumer");
 
     final ObjIntConsumer <Document> aConverter = (aDoc,
-                                                  nDocID) -> aConsumer.accept (PDStoredBusinessEntity.create (aDoc));
+                                                  nDocID) -> aConsumer.accept (aFromDocumentConverter.apply (aDoc));
     if (nMaxResultCount <= 0)
     {
       // Search all
@@ -485,9 +491,34 @@ public final class PDStorageManager implements IPDStorageManager
         if (aDoc == null)
           throw new IllegalStateException ("Failed to resolve Lucene Document with ID " + aScoreDoc.doc);
         // Pass to Consumer
-        aConsumer.accept (PDStoredBusinessEntity.create (aDoc));
+        aConsumer.accept (aFromDocumentConverter.apply (aDoc));
       }
     }
+  }
+
+  /**
+   * Search all documents matching the passed query and pass the result on to
+   * the provided {@link Consumer}. This is a specific version of
+   * #searchAll(Query, int, Function, Consumer) with
+   * {@link PDStoredBusinessEntity} objects.
+   *
+   * @param aQuery
+   *        Query to execute. May not be <code>null</code>.
+   * @param nMaxResultCount
+   *        Maximum number of results. Values &le; 0 mean all.
+   * @param aConsumer
+   *        The consumer of the {@link PDStoredBusinessEntity} objects. May not
+   *        be <code>null</code>.
+   * @throws IOException
+   *         On Lucene error
+   * @see #searchAtomic(Query, Collector)
+   * @see #getAllDocuments(Query,int)
+   */
+  public void searchAllDocuments (@Nonnull final Query aQuery,
+                                  @CheckForSigned final int nMaxResultCount,
+                                  @Nonnull final Consumer <? super PDStoredBusinessEntity> aConsumer) throws IOException
+  {
+    searchAll (aQuery, nMaxResultCount, PDStoredBusinessEntity::create, aConsumer);
   }
 
   /**
