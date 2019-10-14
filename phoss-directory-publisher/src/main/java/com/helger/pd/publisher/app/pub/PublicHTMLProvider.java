@@ -150,7 +150,7 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
                .setHref (aLEC.getLinkToMenuItem (CMenuPublic.MENU_SUPPORT_SMP_IMPLEMENTATIONS));
       aDropDown.createAndAddItem ()
                .addChild ("Issue tracker (external)")
-               .setHref (new SimpleURL ("https://github.com/phax/peppol-directory/issues"))
+               .setHref (new SimpleURL ("https://github.com/phax/phoss-directory/issues"))
                .setTargetBlank ();
       aNav.addItem ().addNavDropDown ("Support", aDropDown);
     }
