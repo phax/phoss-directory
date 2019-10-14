@@ -27,13 +27,11 @@ import org.slf4j.LoggerFactory;
 import com.helger.commons.concurrent.SimpleLock;
 import com.helger.pd.indexer.storage.EQueryMode;
 import com.helger.pd.publisher.CPDPublisher;
-import com.helger.poi.excel.WorkbookCreationHelper;
 import com.helger.quartz.DisallowConcurrentExecution;
 import com.helger.quartz.IJobExecutionContext;
 import com.helger.quartz.JobDataMap;
 import com.helger.quartz.JobExecutionException;
 import com.helger.web.scope.util.AbstractScopeAwareJob;
-import com.helger.xml.microdom.IMicroDocument;
 
 /**
  * Job to export all BCs regularly to disk.
@@ -41,9 +39,9 @@ import com.helger.xml.microdom.IMicroDocument;
  * @author Philip Helger
  */
 @DisallowConcurrentExecution
-public final class ExportAllBusinessCardsJob extends AbstractScopeAwareJob
+public final class ExportAllDataJob extends AbstractScopeAwareJob
 {
-  private static final Logger LOGGER = LoggerFactory.getLogger (ExportAllBusinessCardsJob.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger (ExportAllDataJob.class);
 
   private static final Lock s_aLock = new SimpleLock ();
 
@@ -56,9 +54,7 @@ public final class ExportAllBusinessCardsJob extends AbstractScopeAwareJob
       LOGGER.info ("Start exporting business cards as XML (full)");
       try
       {
-        final IMicroDocument aDoc = ExportAllManager.queryAllContainedBusinessCardsAsXML (EQueryMode.NON_DELETED_ONLY,
-                                                                                          true);
-        ExportAllManager.writeFileXMLFull (aDoc);
+        ExportAllManager.writeFileBusinessCardXMLFull (EQueryMode.NON_DELETED_ONLY);
       }
       finally
       {
@@ -68,23 +64,19 @@ public final class ExportAllBusinessCardsJob extends AbstractScopeAwareJob
       LOGGER.info ("Start exporting business cards as XML (no doc types)");
       try
       {
-        final IMicroDocument aDoc = ExportAllManager.queryAllContainedBusinessCardsAsXML (EQueryMode.NON_DELETED_ONLY,
-                                                                                          false);
-        ExportAllManager.writeFileXMLNoDocTypes (aDoc);
+        ExportAllManager.writeFileBusinessCardXMLNoDocTypes (EQueryMode.NON_DELETED_ONLY);
       }
       finally
       {
         LOGGER.info ("Finished exporting business cards as XML (no doc types)");
       }
 
-      if (CPDPublisher.EXPORT_EXCEL)
+      if (CPDPublisher.EXPORT_BUSINESS_CARDS_EXCEL)
       {
         LOGGER.info ("Start exporting business cards as Excel");
         try
         {
-          final WorkbookCreationHelper aWBCH = ExportAllManager.queryAllContainedBusinessCardsAsExcel (EQueryMode.NON_DELETED_ONLY,
-                                                                                                       true);
-          ExportAllManager.writeFileExcel (aWBCH::writeTo);
+          ExportAllManager.writeFileBusinessCardExcel (EQueryMode.NON_DELETED_ONLY);
         }
         finally
         {
@@ -92,11 +84,44 @@ public final class ExportAllBusinessCardsJob extends AbstractScopeAwareJob
         }
       }
 
-      if (CPDPublisher.EXPORT_CSV)
+      if (CPDPublisher.EXPORT_BUSINESS_CARDS_CSV)
       {
         LOGGER.info ("Start exporting business cards as CSV");
-        ExportAllManager.writeFileCSV (EQueryMode.NON_DELETED_ONLY);
+        ExportAllManager.writeFileBusinessCardCSV (EQueryMode.NON_DELETED_ONLY);
         LOGGER.info ("Finished exporting business cards as CSV");
+      }
+
+      if (CPDPublisher.EXPORT_PARTICIPANTS_XML)
+      {
+        LOGGER.info ("Start exporting participants as XML");
+        try
+        {
+          ExportAllManager.writeFileParticipantXML (EQueryMode.NON_DELETED_ONLY);
+        }
+        finally
+        {
+          LOGGER.info ("Finished exporting participants as XML");
+        }
+      }
+
+      if (CPDPublisher.EXPORT_PARTICIPANTS_JSON)
+      {
+        LOGGER.info ("Start exporting participants as JSON");
+        try
+        {
+          ExportAllManager.writeFileParticipantJSON (EQueryMode.NON_DELETED_ONLY);
+        }
+        finally
+        {
+          LOGGER.info ("Finished exporting participants as JSON");
+        }
+      }
+
+      if (CPDPublisher.EXPORT_PARTICIPANTS_CSV)
+      {
+        LOGGER.info ("Start exporting participants as CSV");
+        ExportAllManager.writeFileParticipantCSV (EQueryMode.NON_DELETED_ONLY);
+        LOGGER.info ("Finished exporting participants as CSV");
       }
     }
     finally

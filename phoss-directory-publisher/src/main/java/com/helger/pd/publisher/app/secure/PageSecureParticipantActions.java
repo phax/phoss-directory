@@ -37,7 +37,7 @@ import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.EQueryMode;
 import com.helger.pd.publisher.CPDPublisher;
-import com.helger.pd.publisher.exportall.ExportAllBusinessCardsJob;
+import com.helger.pd.publisher.exportall.ExportAllDataJob;
 import com.helger.pd.publisher.exportall.ExportAllManager;
 import com.helger.pd.publisher.servlet.ExportDeliveryHttpHandler;
 import com.helger.pd.publisher.servlet.ExportServlet;
@@ -139,7 +139,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
     {
       try
       {
-        ExportAllBusinessCardsJob.exportAllBusinessCards ();
+        ExportAllDataJob.exportAllBusinessCards ();
         aWPEC.postRedirectGetInternal (new BootstrapSuccessBox ().addChild ("The new exported data is now available"));
       }
       catch (final IOException ex)
@@ -195,7 +195,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
                                                                                                                 ExportServlet.SERVLET_DEFAULT_PATH +
                                                                                                                                ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_XML_NO_DOC_TYPES))
                                                                      .setIcon (EDefaultIcon.SAVE_ALL)));
-    if (CPDPublisher.EXPORT_EXCEL)
+    if (CPDPublisher.EXPORT_BUSINESS_CARDS_EXCEL)
     {
       aNodeList.addChild (new HCDiv ().addChild (new BootstrapButton ().addChild ("Download all Business Cards (Excel, cached)")
                                                                        .setOnClick (LinkHelper.getURLWithContext (aRequestScope,
@@ -203,12 +203,36 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
                                                                                                                                  ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_EXCEL))
                                                                        .setIcon (EDefaultIcon.SAVE_ALL)));
     }
-    if (CPDPublisher.EXPORT_CSV)
+    if (CPDPublisher.EXPORT_BUSINESS_CARDS_CSV)
     {
       aNodeList.addChild (new HCDiv ().addChild (new BootstrapButton ().addChild ("Download all Business Cards (CSV, cached)")
                                                                        .setOnClick (LinkHelper.getURLWithContext (aRequestScope,
                                                                                                                   ExportServlet.SERVLET_DEFAULT_PATH +
                                                                                                                                  ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_CSV))
+                                                                       .setIcon (EDefaultIcon.SAVE_ALL)));
+    }
+    if (CPDPublisher.EXPORT_PARTICIPANTS_XML)
+    {
+      aNodeList.addChild (new HCDiv ().addChild (new BootstrapButton ().addChild ("Download all Participants (XML, cached)")
+                                                                       .setOnClick (LinkHelper.getURLWithContext (aRequestScope,
+                                                                                                                  ExportServlet.SERVLET_DEFAULT_PATH +
+                                                                                                                                 ExportDeliveryHttpHandler.SPECIAL_PARTICIPANTS_XML))
+                                                                       .setIcon (EDefaultIcon.SAVE_ALL)));
+    }
+    if (CPDPublisher.EXPORT_PARTICIPANTS_JSON)
+    {
+      aNodeList.addChild (new HCDiv ().addChild (new BootstrapButton ().addChild ("Download all Participants (JSON, cached)")
+                                                                       .setOnClick (LinkHelper.getURLWithContext (aRequestScope,
+                                                                                                                  ExportServlet.SERVLET_DEFAULT_PATH +
+                                                                                                                                 ExportDeliveryHttpHandler.SPECIAL_PARTICIPANTS_JSON))
+                                                                       .setIcon (EDefaultIcon.SAVE_ALL)));
+    }
+    if (CPDPublisher.EXPORT_PARTICIPANTS_CSV)
+    {
+      aNodeList.addChild (new HCDiv ().addChild (new BootstrapButton ().addChild ("Download all Participants (CSV, cached)")
+                                                                       .setOnClick (LinkHelper.getURLWithContext (aRequestScope,
+                                                                                                                  ExportServlet.SERVLET_DEFAULT_PATH +
+                                                                                                                                 ExportDeliveryHttpHandler.SPECIAL_PARTICIPANTS_CSV))
                                                                        .setIcon (EDefaultIcon.SAVE_ALL)));
     }
 

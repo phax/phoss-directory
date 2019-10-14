@@ -33,7 +33,7 @@ import com.helger.pd.publisher.app.AppSecurity;
 import com.helger.pd.publisher.app.PDPMetaManager;
 import com.helger.pd.publisher.app.pub.MenuPublic;
 import com.helger.pd.publisher.app.secure.MenuSecure;
-import com.helger.pd.publisher.exportall.ExportAllBusinessCardsJob;
+import com.helger.pd.publisher.exportall.ExportAllDataJob;
 import com.helger.pd.publisher.updater.SyncAllBusinessCardsJob;
 import com.helger.photon.ajax.IAjaxRegistry;
 import com.helger.photon.bootstrap4.servlet.WebAppListenerBootstrap;
@@ -174,12 +174,14 @@ public final class AppWebAppListener extends WebAppListenerBootstrap
   protected void initJobs ()
   {
     GlobalQuartzScheduler.getInstance ()
-                         .scheduleJob (ExportAllBusinessCardsJob.class.getName (),
+                         .scheduleJob (ExportAllDataJob.class.getName (),
                                        JDK8TriggerBuilder.newTrigger ()
-                                                         .startNow ()
+                                                         .startAt (GlobalDebug.isDebugMode () ? PDTFactory.getCurrentLocalDateTime ()
+                                                                                              : PDTFactory.getCurrentLocalDateTime ()
+                                                                                                          .plusHours (1))
                                                          .withSchedule (GlobalDebug.isDebugMode () ? SimpleScheduleBuilder.repeatMinutelyForever (2)
                                                                                                    : SimpleScheduleBuilder.repeatHourlyForever (24)),
-                                       ExportAllBusinessCardsJob.class,
+                                       ExportAllDataJob.class,
                                        null);
 
     if (GlobalDebug.isProductionMode ())

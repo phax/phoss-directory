@@ -18,10 +18,11 @@ package com.helger.pd.publisher.exportall;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import javax.annotation.Nonnull;
 import javax.annotation.WillNotClose;
@@ -33,7 +34,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.collection.multimap.MultiLinkedHashMapArrayListBased;
+import com.helger.commons.collection.impl.CommonsTreeSet;
 import com.helger.commons.collection.impl.ICommonsList;
+import com.helger.commons.collection.impl.ICommonsSortedSet;
 import com.helger.commons.concurrent.SimpleReadWriteLock;
 import com.helger.commons.csv.CSVWriter;
 import com.helger.commons.datetime.PDTFactory;
@@ -42,6 +45,11 @@ import com.helger.commons.io.file.FileHelper;
 import com.helger.commons.io.resource.FileSystemResource;
 import com.helger.commons.state.ESuccess;
 import com.helger.commons.string.StringHelper;
+import com.helger.json.IJsonArray;
+import com.helger.json.IJsonObject;
+import com.helger.json.JsonArray;
+import com.helger.json.JsonObject;
+import com.helger.json.serialize.JsonWriter;
 import com.helger.pd.businesscard.generic.PDBusinessCard;
 import com.helger.pd.businesscard.generic.PDIdentifier;
 import com.helger.pd.indexer.mgr.PDMetaManager;
@@ -50,6 +58,7 @@ import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
 import com.helger.pd.indexer.storage.PDStoredContact;
 import com.helger.pd.indexer.storage.PDStoredIdentifier;
 import com.helger.pd.indexer.storage.PDStoredMLName;
+import com.helger.pd.indexer.storage.field.PDField;
 import com.helger.peppolid.IDocumentTypeIdentifier;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.photon.app.io.WebFileIO;
@@ -70,12 +79,20 @@ public final class ExportAllManager
   public static final String EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_NO_DOC_TYPES = "directory-export-business-cards-no-doc-types.xml";
   public static final String EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XLSX = "directory-export-business-cards.xlsx";
   public static final String EXTERNAL_EXPORT_ALL_BUSINESSCARDS_CSV = "directory-export-business-cards.csv";
+  public static final String EXTERNAL_EXPORT_ALL_PARTICIPANTS_XML = "directory-export-participants.xml";
+  public static final String EXTERNAL_EXPORT_ALL_PARTICIPANTS_JSON = "directory-export-participants.json";
+  public static final String EXTERNAL_EXPORT_ALL_PARTICIPANTS_CSV = "directory-export-participants.csv";
 
   // Internal filenames
   private static final String INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_FULL = "export-all-businesscards.xml";
   private static final String INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_NO_DOC_TYPES = "export-all-businesscards-no-doc-types.xml";
   private static final String INTERNAL_EXPORT_ALL_BUSINESSCARDS_XLSX = "export-all-businesscards.xlsx";
   private static final String INTERNAL_EXPORT_ALL_BUSINESSCARDS_CSV = "export-all-businesscards.csv";
+  private static final String INTERNAL_EXPORT_ALL_PARTICIPANTS_XML = "export-all-participants.xml";
+  private static final String INTERNAL_EXPORT_ALL_PARTICIPANTS_JSON = "export-all-participants.json";
+  private static final String INTERNAL_EXPORT_ALL_PARTICIPANTS_CSV = "export-all-participants.csv";
+
+  // Rest
   private static final Logger LOGGER = LoggerFactory.getLogger (ExportAllManager.class);
 
   private static final SimpleReadWriteLock s_aRWLock = new SimpleReadWriteLock ();
@@ -127,15 +144,16 @@ public final class ExportAllManager
   }
 
   @Nonnull
-  private static File _getInternalFileXMLFull ()
+  private static File _getInternalFileBusinessCardXMLFull ()
   {
     return WebFileIO.getDataIO ().getFile (INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_FULL);
   }
 
   @Nonnull
-  static ESuccess writeFileXMLFull (@Nonnull final IMicroDocument aDoc)
+  static ESuccess writeFileBusinessCardXMLFull (@Nonnull final EQueryMode eQueryMode) throws IOException
   {
-    final File f = _getInternalFileXMLFull ();
+    final IMicroDocument aDoc = queryAllContainedBusinessCardsAsXML (eQueryMode, true);
+    final File f = _getInternalFileBusinessCardXMLFull ();
 
     // Do it in a write lock!
     s_aRWLock.writeLock ().lock ();
@@ -162,13 +180,13 @@ public final class ExportAllManager
    * @param aUR
    *        The response to stream to. May not be <code>null</code>.
    */
-  public static void streamFileXMLFullTo (@Nonnull final UnifiedResponse aUR)
+  public static void streamFileBusinessCardXMLFullTo (@Nonnull final UnifiedResponse aUR)
   {
     // Do it in a read lock!
     s_aRWLock.readLock ().lock ();
     try
     {
-      final File f = _getInternalFileXMLFull ();
+      final File f = _getInternalFileBusinessCardXMLFull ();
       // setContent(IReadableResource) is lazy
       aUR.setContent (new FileSystemResource (f));
     }
@@ -179,15 +197,16 @@ public final class ExportAllManager
   }
 
   @Nonnull
-  private static File _getInternalFileXMLNoDocTypes ()
+  private static File _getInternalFileBusinessCardXMLNoDocTypes ()
   {
     return WebFileIO.getDataIO ().getFile (INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_NO_DOC_TYPES);
   }
 
   @Nonnull
-  static ESuccess writeFileXMLNoDocTypes (@Nonnull final IMicroDocument aDoc)
+  static ESuccess writeFileBusinessCardXMLNoDocTypes (@Nonnull final EQueryMode eQueryMode) throws IOException
   {
-    final File f = _getInternalFileXMLNoDocTypes ();
+    final IMicroDocument aDoc = ExportAllManager.queryAllContainedBusinessCardsAsXML (eQueryMode, false);
+    final File f = _getInternalFileBusinessCardXMLNoDocTypes ();
 
     // Do it in a write lock!
     s_aRWLock.writeLock ().lock ();
@@ -214,13 +233,13 @@ public final class ExportAllManager
    * @param aUR
    *        The response to stream to. May not be <code>null</code>.
    */
-  public static void streamFileXMLNoDocTypesTo (@Nonnull final UnifiedResponse aUR)
+  public static void streamFileBusinessCardXMLNoDocTypesTo (@Nonnull final UnifiedResponse aUR)
   {
     // Do it in a read lock!
     s_aRWLock.readLock ().lock ();
     try
     {
-      final File f = _getInternalFileXMLNoDocTypes ();
+      final File f = _getInternalFileBusinessCardXMLNoDocTypes ();
       // setContent(IReadableResource) is lazy
       aUR.setContent (new FileSystemResource (f));
     }
@@ -301,21 +320,22 @@ public final class ExportAllManager
   }
 
   @Nonnull
-  private static File _getInternalFileExcel ()
+  private static File _getInternalFileBusinessCardExcel ()
   {
     return WebFileIO.getDataIO ().getFile (INTERNAL_EXPORT_ALL_BUSINESSCARDS_XLSX);
   }
 
   @Nonnull
-  static ESuccess writeFileExcel (@Nonnull final Function <File, ESuccess> aFileWriter)
+  static ESuccess writeFileBusinessCardExcel (@Nonnull final EQueryMode eQueryMode) throws IOException
   {
-    final File f = _getInternalFileExcel ();
+    final WorkbookCreationHelper aWBCH = queryAllContainedBusinessCardsAsExcel (eQueryMode, true);
+    final File f = _getInternalFileBusinessCardExcel ();
 
     // Do it in a write lock!
     s_aRWLock.writeLock ().lock ();
     try
     {
-      if (aFileWriter.apply (f).isFailure ())
+      if (aWBCH.writeTo (f).isFailure ())
       {
         if (LOGGER.isErrorEnabled ())
           LOGGER.error ("Failed to export all BCs as XLSX to " + f.getAbsolutePath ());
@@ -337,13 +357,13 @@ public final class ExportAllManager
    * @param aUR
    *        The response to stream to. May not be <code>null</code>.
    */
-  public static void streamFileExcelTo (@Nonnull final UnifiedResponse aUR)
+  public static void streamFileBusinessCardExcelTo (@Nonnull final UnifiedResponse aUR)
   {
     // Do it in a read lock!
     s_aRWLock.readLock ().lock ();
     try
     {
-      final File f = _getInternalFileExcel ();
+      final File f = _getInternalFileBusinessCardExcel ();
       // setContent(IReadableResource) is lazy
       aUR.setContent (new FileSystemResource (f));
     }
@@ -353,10 +373,15 @@ public final class ExportAllManager
     }
   }
 
+  private static void _unify (@Nonnull @WillNotClose final CSVWriter aCSVWriter)
+  {
+    aCSVWriter.setSeparatorChar (';');
+  }
+
   public static void queryAllContainedBusinessCardsAsCSV (@Nonnull final EQueryMode eQueryMode,
                                                           @Nonnull @WillNotClose final CSVWriter aCSVWriter) throws IOException
   {
-    aCSVWriter.setSeparatorChar (';');
+    _unify (aCSVWriter);
 
     final Query aQuery = eQueryMode.getEffectiveQuery (new MatchAllDocsQuery ());
 
@@ -402,21 +427,21 @@ public final class ExportAllManager
   }
 
   @Nonnull
-  private static File _getInternalFileCSV ()
+  private static File _getInternalFileBusinessCardCSV ()
   {
     return WebFileIO.getDataIO ().getFile (INTERNAL_EXPORT_ALL_BUSINESSCARDS_CSV);
   }
 
   @Nonnull
-  static ESuccess writeFileCSV (@Nonnull final EQueryMode eQueryMode)
+  static ESuccess writeFileBusinessCardCSV (@Nonnull final EQueryMode eQueryMode)
   {
-    final File f = _getInternalFileCSV ();
+    final File f = _getInternalFileBusinessCardCSV ();
 
     // Do it in a write lock!
     s_aRWLock.writeLock ().lock ();
     try (final CSVWriter aCSVWriter = new CSVWriter (FileHelper.getBufferedWriter (f, StandardCharsets.ISO_8859_1)))
     {
-      ExportAllManager.queryAllContainedBusinessCardsAsCSV (eQueryMode, aCSVWriter);
+      queryAllContainedBusinessCardsAsCSV (eQueryMode, aCSVWriter);
       LOGGER.info ("Successfully exported all BCs as CSV to " + f.getAbsolutePath ());
     }
     catch (final IOException ex)
@@ -437,13 +462,237 @@ public final class ExportAllManager
    * @param aUR
    *        The response to stream to. May not be <code>null</code>.
    */
-  public static void streamFileCSVTo (@Nonnull final UnifiedResponse aUR)
+  public static void streamFileBusinessCardCSVTo (@Nonnull final UnifiedResponse aUR)
   {
     // Do it in a read lock!
     s_aRWLock.readLock ().lock ();
     try
     {
-      final File f = _getInternalFileCSV ();
+      final File f = _getInternalFileBusinessCardCSV ();
+      // setContent(IReadableResource) is lazy
+      aUR.setContent (new FileSystemResource (f));
+    }
+    finally
+    {
+      s_aRWLock.readLock ().unlock ();
+    }
+  }
+
+  @Nonnull
+  private static File _getInternalFileParticipantXML ()
+  {
+    return WebFileIO.getDataIO ().getFile (INTERNAL_EXPORT_ALL_PARTICIPANTS_XML);
+  }
+
+  @Nonnull
+  public static IMicroDocument queryAllContainedParticipantsAsXML (@Nonnull final EQueryMode eQueryMode) throws IOException
+  {
+    final Query aQuery = eQueryMode.getEffectiveQuery (new MatchAllDocsQuery ());
+
+    // Query all and group by participant ID
+    final ICommonsSortedSet <IParticipantIdentifier> aSet = new CommonsTreeSet <> (Comparator.comparing (IParticipantIdentifier::getURIEncoded));
+    PDMetaManager.getStorageMgr ().searchAll (aQuery, -1, PDField.PARTICIPANT_ID::getDocValue, aSet::add);
+
+    // XML root
+    final IMicroDocument aDoc = new MicroDocument ();
+    final String sNamespaceURI = "http://www.peppol.eu/schema/pd/participant-generic/201910/";
+    final IMicroElement aRoot = aDoc.appendElement (sNamespaceURI, "root");
+    aRoot.setAttribute ("version", "1");
+    aRoot.setAttribute ("creationdt", PDTWebDateHelper.getAsStringXSD (PDTFactory.getCurrentZonedDateTimeUTC ()));
+    aRoot.setAttribute ("count", aSet.size ());
+
+    // For all participants
+    for (final IParticipantIdentifier aParticipantID : aSet)
+    {
+      aRoot.appendElement (sNamespaceURI, "participantID")
+           .setAttribute ("scheme", aParticipantID.getScheme ())
+           .setAttribute ("value", aParticipantID.getValue ());
+    }
+
+    return aDoc;
+  }
+
+  @Nonnull
+  static ESuccess writeFileParticipantXML (@Nonnull final EQueryMode eQueryMode) throws IOException
+  {
+    final IMicroDocument aDoc = queryAllContainedParticipantsAsXML (eQueryMode);
+    final File f = _getInternalFileParticipantXML ();
+
+    // Do it in a write lock!
+    s_aRWLock.writeLock ().lock ();
+    try
+    {
+      if (MicroWriter.writeToFile (aDoc, f).isFailure ())
+      {
+        if (LOGGER.isErrorEnabled ())
+          LOGGER.error ("Failed to export all Participants as XML to " + f.getAbsolutePath ());
+        return ESuccess.FAILURE;
+      }
+      LOGGER.info ("Successfully wrote all Participants as XML to " + f.getAbsolutePath ());
+    }
+    finally
+    {
+      s_aRWLock.writeLock ().unlock ();
+    }
+    return ESuccess.SUCCESS;
+  }
+
+  /**
+   * Stream the stored XML file to the provided HTTP response
+   *
+   * @param aUR
+   *        The response to stream to. May not be <code>null</code>.
+   */
+  public static void streamFileParticipantXMLTo (@Nonnull final UnifiedResponse aUR)
+  {
+    // Do it in a read lock!
+    s_aRWLock.readLock ().lock ();
+    try
+    {
+      final File f = _getInternalFileParticipantXML ();
+      // setContent(IReadableResource) is lazy
+      aUR.setContent (new FileSystemResource (f));
+    }
+    finally
+    {
+      s_aRWLock.readLock ().unlock ();
+    }
+  }
+
+  @Nonnull
+  private static File _getInternalFileParticipantJSON ()
+  {
+    return WebFileIO.getDataIO ().getFile (INTERNAL_EXPORT_ALL_PARTICIPANTS_JSON);
+  }
+
+  @Nonnull
+  public static IJsonObject queryAllContainedParticipantsAsJSON (@Nonnull final EQueryMode eQueryMode) throws IOException
+  {
+    final Query aQuery = eQueryMode.getEffectiveQuery (new MatchAllDocsQuery ());
+
+    // Query all and group by participant ID
+    final ICommonsSortedSet <IParticipantIdentifier> aSet = new CommonsTreeSet <> (Comparator.comparing (IParticipantIdentifier::getURIEncoded));
+    PDMetaManager.getStorageMgr ().searchAll (aQuery, -1, PDField.PARTICIPANT_ID::getDocValue, aSet::add);
+
+    // XML root
+    final IJsonObject aObj = new JsonObject ();
+    aObj.add ("version", 1);
+    aObj.add ("creationdt", PDTWebDateHelper.getAsStringXSD (PDTFactory.getCurrentZonedDateTimeUTC ()));
+    aObj.add ("count", aSet.size ());
+
+    // For all participants
+    final IJsonArray aArray = new JsonArray ();
+    for (final IParticipantIdentifier aParticipantID : aSet)
+      aArray.add (aParticipantID.getURIEncoded ());
+    aObj.add ("participants", aArray);
+
+    return aObj;
+  }
+
+  @Nonnull
+  static ESuccess writeFileParticipantJSON (@Nonnull final EQueryMode eQueryMode) throws IOException
+  {
+    final IJsonObject aObj = queryAllContainedParticipantsAsJSON (eQueryMode);
+    final File f = _getInternalFileParticipantJSON ();
+
+    // Do it in a write lock!
+    s_aRWLock.writeLock ().lock ();
+    try (final Writer aWriter = FileHelper.getBufferedWriter (f, StandardCharsets.UTF_8))
+    {
+      new JsonWriter ().writeToWriterAndClose (aObj, aWriter);
+      LOGGER.info ("Successfully wrote all Participants as JSON to " + f.getAbsolutePath ());
+    }
+    catch (final IOException ex)
+    {
+      LOGGER.error ("Failed to export all Participants as JSON to " + f.getAbsolutePath (), ex);
+    }
+    finally
+    {
+      s_aRWLock.writeLock ().unlock ();
+    }
+    return ESuccess.SUCCESS;
+  }
+
+  /**
+   * Stream the stored JSON file to the provided HTTP response
+   *
+   * @param aUR
+   *        The response to stream to. May not be <code>null</code>.
+   */
+  public static void streamFileParticipantJSONTo (@Nonnull final UnifiedResponse aUR)
+  {
+    // Do it in a read lock!
+    s_aRWLock.readLock ().lock ();
+    try
+    {
+      final File f = _getInternalFileParticipantJSON ();
+      // setContent(IReadableResource) is lazy
+      aUR.setContent (new FileSystemResource (f));
+    }
+    finally
+    {
+      s_aRWLock.readLock ().unlock ();
+    }
+  }
+
+  @Nonnull
+  private static File _getInternalFileParticipantCSV ()
+  {
+    return WebFileIO.getDataIO ().getFile (INTERNAL_EXPORT_ALL_PARTICIPANTS_CSV);
+  }
+
+  public static void queryAllContainedParticipantsAsCSV (@Nonnull final EQueryMode eQueryMode,
+                                                         @Nonnull @WillNotClose final CSVWriter aCSVWriter) throws IOException
+  {
+    _unify (aCSVWriter);
+
+    final Query aQuery = eQueryMode.getEffectiveQuery (new MatchAllDocsQuery ());
+
+    aCSVWriter.writeNext ("Participant ID");
+
+    final Consumer <? super IParticipantIdentifier> aConsumer = aEntity -> {
+      aCSVWriter.writeNext (aEntity.getURIEncoded ());
+    };
+    PDMetaManager.getStorageMgr ().searchAll (aQuery, -1, PDField.PARTICIPANT_ID::getDocValue, aConsumer);
+    aCSVWriter.flush ();
+  }
+
+  @Nonnull
+  static ESuccess writeFileParticipantCSV (@Nonnull final EQueryMode eQueryMode)
+  {
+    final File f = _getInternalFileParticipantCSV ();
+
+    // Do it in a write lock!
+    s_aRWLock.writeLock ().lock ();
+    try (final CSVWriter aCSVWriter = new CSVWriter (FileHelper.getBufferedWriter (f, StandardCharsets.ISO_8859_1)))
+    {
+      queryAllContainedParticipantsAsCSV (eQueryMode, aCSVWriter);
+      LOGGER.info ("Successfully wrote all Participants as CSV to " + f.getAbsolutePath ());
+    }
+    catch (final IOException ex)
+    {
+      LOGGER.error ("Failed to export all Participants as CSV to " + f.getAbsolutePath (), ex);
+    }
+    finally
+    {
+      s_aRWLock.writeLock ().unlock ();
+    }
+    return ESuccess.SUCCESS;
+  }
+
+  /**
+   * Stream the stored CSV file to the provided HTTP response
+   *
+   * @param aUR
+   *        The response to stream to. May not be <code>null</code>.
+   */
+  public static void streamFileParticipantCSVTo (@Nonnull final UnifiedResponse aUR)
+  {
+    // Do it in a read lock!
+    s_aRWLock.readLock ().lock ();
+    try
+    {
+      final File f = _getInternalFileParticipantCSV ();
       // setContent(IReadableResource) is lazy
       aUR.setContent (new FileSystemResource (f));
     }
