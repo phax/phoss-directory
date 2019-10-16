@@ -181,6 +181,12 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   }
 
   @Nullable
+  public static String getAppLogoImagePath ()
+  {
+    return getConfigFile ().getAsString ("webapp.applogo.image.path");
+  }
+
+  @Nullable
   public static String getVendorName ()
   {
     return getConfigFile ().getAsString ("webapp.vendor.name", "OpenPEPPOL AISBL");

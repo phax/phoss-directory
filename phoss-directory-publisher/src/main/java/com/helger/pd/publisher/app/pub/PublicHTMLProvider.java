@@ -31,6 +31,7 @@ import com.helger.html.css.DefaultCSSClassProvider;
 import com.helger.html.css.ICSSClassProvider;
 import com.helger.html.hc.IHCNode;
 import com.helger.html.hc.html.IHCElement;
+import com.helger.html.hc.html.embedded.HCImg;
 import com.helger.html.hc.html.grouping.HCDiv;
 import com.helger.html.hc.html.grouping.HCP;
 import com.helger.html.hc.html.grouping.HCUL;
@@ -210,6 +211,11 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
     final ISimpleURL aLinkToStartPage = aLEC.getLinkToMenuItem (aLEC.getMenuTree ().getDefaultMenuItemID ());
 
     final BootstrapNavbar aNavbar = new BootstrapNavbar ();
+
+    final HCImg aImg = AppCommonUI.createLogoImg ();
+    if (aImg != null)
+      aNavbar.addBrand (aImg, aLinkToStartPage);
+
     aNavbar.addBrand (new HCSpan ().addClass (AppCommonUI.CSS_CLASS_LOGO1)
                                    .addChild (CPDPublisher.getApplicationTitle ()),
                       aLinkToStartPage);

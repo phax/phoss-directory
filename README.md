@@ -25,6 +25,8 @@ The official PEPPOL Directory (PD; former PEPPOL Yellow Pages - PYP; www.peppol.
   
 # News and noteworthy
 
+* v0.8.3 - work in progress
+    * Added logo in the left top (using configuration property `webapp.applogo.image.path`)
 * v0.8.2 - 2019-10-14
     * Added support to download all Business Cards as CSV
     * Added support to download all Business Cards as XML but without the document types (see [issue #42](https://github.com/phax/phoss-directory/issues/42))

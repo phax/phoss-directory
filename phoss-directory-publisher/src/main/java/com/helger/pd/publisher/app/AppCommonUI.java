@@ -27,8 +27,10 @@ import com.helger.commons.id.factory.GlobalIDFactory;
 import com.helger.commons.locale.LocaleCache;
 import com.helger.commons.string.StringHelper;
 import com.helger.css.property.CCSSProperties;
+import com.helger.css.propertyvalue.CCSSValue;
 import com.helger.html.css.DefaultCSSClassProvider;
 import com.helger.html.css.ICSSClassProvider;
+import com.helger.html.hc.html.embedded.HCImg;
 import com.helger.html.hc.html.forms.HCEdit;
 import com.helger.html.hc.html.forms.HCEditPassword;
 import com.helger.html.hc.html.grouping.HCDiv;
@@ -43,6 +45,7 @@ import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.ajax.AjaxExecutorPublicLogin;
 import com.helger.pd.publisher.ajax.CAjax;
+import com.helger.photon.app.url.LinkHelper;
 import com.helger.photon.bootstrap4.buttongroup.BootstrapButtonToolbar;
 import com.helger.photon.bootstrap4.ext.BootstrapSystemMessage;
 import com.helger.photon.bootstrap4.form.BootstrapForm;
@@ -153,5 +156,17 @@ public final class AppCommonUI
     aOnClick._return (false);
     aToolbar.addSubmitButton (EPhotonCoreText.LOGIN_BUTTON_SUBMIT.getDisplayText (aDisplayLocale), aOnClick);
     return aForm;
+  }
+
+  @Nullable
+  public static HCImg createLogoImg ()
+  {
+    final String sSrc = PDServerConfiguration.getAppLogoImagePath ();
+    if (StringHelper.hasNoText (sSrc))
+      return null;
+    return new HCImg ().setSrc (LinkHelper.getURLWithContext (sSrc))
+                       .addStyle (CCSSProperties.MARGIN.newValue ("-15px"))
+                       .addStyle (CCSSProperties.VERTICAL_ALIGN.newValue (CCSSValue.TOP))
+                       .addStyle (CCSSProperties.PADDING.newValue ("0 15px 0 6px"));
   }
 }
