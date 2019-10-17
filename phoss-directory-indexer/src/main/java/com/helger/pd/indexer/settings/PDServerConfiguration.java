@@ -177,7 +177,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   @Nonempty
   public static String getAppName ()
   {
-    return getConfigFile ().getAsString ("webapp.appname", "PEPPOL Directory");
+    return getConfigFile ().getAsString ("webapp.appname", "Peppol Directory");
   }
 
   @Nullable
