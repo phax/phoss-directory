@@ -41,6 +41,7 @@ import com.helger.commons.concurrent.SimpleReadWriteLock;
 import com.helger.commons.csv.CSVWriter;
 import com.helger.commons.datetime.PDTFactory;
 import com.helger.commons.datetime.PDTWebDateHelper;
+import com.helger.commons.http.CHttpHeader;
 import com.helger.commons.io.file.FileHelper;
 import com.helger.commons.io.resource.FileSystemResource;
 import com.helger.commons.state.ESuccess;
@@ -189,6 +190,9 @@ public final class ExportAllManager
       final File f = _getInternalFileBusinessCardXMLFull ();
       // setContent(IReadableResource) is lazy
       aUR.setContent (new FileSystemResource (f));
+      final long nFileLen = f.length ();
+      if (nFileLen > 0)
+        aUR.setCustomResponseHeader (CHttpHeader.CONTENT_LENGTH, Long.toString (nFileLen));
     }
     finally
     {
@@ -242,6 +246,9 @@ public final class ExportAllManager
       final File f = _getInternalFileBusinessCardXMLNoDocTypes ();
       // setContent(IReadableResource) is lazy
       aUR.setContent (new FileSystemResource (f));
+      final long nFileLen = f.length ();
+      if (nFileLen > 0)
+        aUR.setCustomResponseHeader (CHttpHeader.CONTENT_LENGTH, Long.toString (nFileLen));
     }
     finally
     {
@@ -366,6 +373,9 @@ public final class ExportAllManager
       final File f = _getInternalFileBusinessCardExcel ();
       // setContent(IReadableResource) is lazy
       aUR.setContent (new FileSystemResource (f));
+      final long nFileLen = f.length ();
+      if (nFileLen > 0)
+        aUR.setCustomResponseHeader (CHttpHeader.CONTENT_LENGTH, Long.toString (nFileLen));
     }
     finally
     {
@@ -471,6 +481,9 @@ public final class ExportAllManager
       final File f = _getInternalFileBusinessCardCSV ();
       // setContent(IReadableResource) is lazy
       aUR.setContent (new FileSystemResource (f));
+      final long nFileLen = f.length ();
+      if (nFileLen > 0)
+        aUR.setCustomResponseHeader (CHttpHeader.CONTENT_LENGTH, Long.toString (nFileLen));
     }
     finally
     {
@@ -552,6 +565,9 @@ public final class ExportAllManager
       final File f = _getInternalFileParticipantXML ();
       // setContent(IReadableResource) is lazy
       aUR.setContent (new FileSystemResource (f));
+      final long nFileLen = f.length ();
+      if (nFileLen > 0)
+        aUR.setCustomResponseHeader (CHttpHeader.CONTENT_LENGTH, Long.toString (nFileLen));
     }
     finally
     {
@@ -628,6 +644,9 @@ public final class ExportAllManager
       final File f = _getInternalFileParticipantJSON ();
       // setContent(IReadableResource) is lazy
       aUR.setContent (new FileSystemResource (f));
+      final long nFileLen = f.length ();
+      if (nFileLen > 0)
+        aUR.setCustomResponseHeader (CHttpHeader.CONTENT_LENGTH, Long.toString (nFileLen));
     }
     finally
     {
@@ -695,6 +714,9 @@ public final class ExportAllManager
       final File f = _getInternalFileParticipantCSV ();
       // setContent(IReadableResource) is lazy
       aUR.setContent (new FileSystemResource (f));
+      final long nFileLen = f.length ();
+      if (nFileLen > 0)
+        aUR.setCustomResponseHeader (CHttpHeader.CONTENT_LENGTH, Long.toString (nFileLen));
     }
     finally
     {
