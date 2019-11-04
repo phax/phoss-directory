@@ -424,6 +424,7 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
     aHead.setPageTitle (StringHelper.getConcatenatedOnDemand (CPDPublisher.getApplicationTitle (),
                                                               " - ",
                                                               aMenuItem.getDisplayText (aDisplayLocale)));
+    AppCommonUI.addFavIcons (aHead);
 
     final IHCNode aNode = getContent (aLEC);
     aBody.addChild (aNode);

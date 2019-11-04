@@ -22,10 +22,14 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+import com.helger.commons.collection.impl.CommonsArrayList;
+import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.http.EHttpMethod;
 import com.helger.commons.id.factory.GlobalIDFactory;
 import com.helger.commons.locale.LocaleCache;
+import com.helger.commons.mime.CMimeType;
 import com.helger.commons.string.StringHelper;
+import com.helger.commons.url.SimpleURL;
 import com.helger.css.property.CCSSProperties;
 import com.helger.css.propertyvalue.CCSSValue;
 import com.helger.html.css.DefaultCSSClassProvider;
@@ -34,6 +38,9 @@ import com.helger.html.hc.html.embedded.HCImg;
 import com.helger.html.hc.html.forms.HCEdit;
 import com.helger.html.hc.html.forms.HCEditPassword;
 import com.helger.html.hc.html.grouping.HCDiv;
+import com.helger.html.hc.html.metadata.EHCLinkType;
+import com.helger.html.hc.html.metadata.HCHead;
+import com.helger.html.hc.html.metadata.HCLink;
 import com.helger.html.jquery.JQuery;
 import com.helger.html.jquery.JQueryAjaxBuilder;
 import com.helger.html.jscode.JSAnonymousFunction;
@@ -77,6 +84,32 @@ public final class AppCommonUI
                                                                                      .addItem (100)
                                                                                      .addItemAll ();
 
+  private static final ICommonsList <HCLink> DEFAULT_FAV_ICONS = new CommonsArrayList <> ();
+
+  static
+  {
+    final String sFavIcon16x16 = PDServerConfiguration.getConfigFile ().getAsString ("webapp.favicon.png.16x16");
+    if (StringHelper.hasText (sFavIcon16x16))
+      DEFAULT_FAV_ICONS.add (new HCLink ().setRel (EHCLinkType.ICON)
+                                          .setType (CMimeType.IMAGE_PNG)
+                                          .setSizes ("16x16")
+                                          .setHref (new SimpleURL (sFavIcon16x16)));
+
+    final String sFavIcon32x32 = PDServerConfiguration.getConfigFile ().getAsString ("webapp.favicon.png.32x32");
+    if (StringHelper.hasText (sFavIcon32x32))
+      DEFAULT_FAV_ICONS.add (new HCLink ().setRel (EHCLinkType.ICON)
+                                          .setType (CMimeType.IMAGE_PNG)
+                                          .setSizes ("32x32")
+                                          .setHref (new SimpleURL (sFavIcon32x32)));
+
+    final String sFavIcon96x96 = PDServerConfiguration.getConfigFile ().getAsString ("webapp.favicon.png.96x96");
+    if (StringHelper.hasText (sFavIcon96x96))
+      DEFAULT_FAV_ICONS.add (new HCLink ().setRel (EHCLinkType.ICON)
+                                          .setType (CMimeType.IMAGE_PNG)
+                                          .setSizes ("96x96")
+                                          .setHref (new SimpleURL (sFavIcon96x96)));
+  }
+
   private AppCommonUI ()
   {}
 
@@ -102,6 +135,11 @@ public final class AppCommonUI
     final String sLogoImageURL = PDServerConfiguration.getLogoImageURL ();
     if (StringHelper.hasText (sLogoImageURL))
       CPDPublisher.setLogoImageURL (sLogoImageURL);
+  }
+
+  public static void addFavIcons (@Nonnull final HCHead aHead)
+  {
+    aHead.links ().addAll (DEFAULT_FAV_ICONS);
   }
 
   @Nonnull

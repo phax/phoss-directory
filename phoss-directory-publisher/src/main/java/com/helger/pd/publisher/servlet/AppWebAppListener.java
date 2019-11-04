@@ -23,6 +23,7 @@ import com.helger.commons.datetime.PDTFactory;
 import com.helger.commons.debug.GlobalDebug;
 import com.helger.commons.io.resource.ClassPathResource;
 import com.helger.commons.vendor.VendorInfo;
+import com.helger.html.meta.MetaElement;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.pd.publisher.CPDPublisher;
@@ -36,6 +37,7 @@ import com.helger.pd.publisher.app.secure.MenuSecure;
 import com.helger.pd.publisher.exportall.ExportAllDataJob;
 import com.helger.pd.publisher.updater.SyncAllBusinessCardsJob;
 import com.helger.photon.ajax.IAjaxRegistry;
+import com.helger.photon.app.html.PhotonMetaElements;
 import com.helger.photon.bootstrap4.servlet.WebAppListenerBootstrap;
 import com.helger.photon.core.appid.CApplicationID;
 import com.helger.photon.core.appid.PhotonGlobalState;
@@ -160,6 +162,7 @@ public final class AppWebAppListener extends WebAppListenerBootstrap
   {
     // UI stuff
     AppCommonUI.init ();
+    PhotonMetaElements.registerMetaElementForGlobal (MetaElement.createMeta ("theme-color", "#ffffff"));
   }
 
   @Override
