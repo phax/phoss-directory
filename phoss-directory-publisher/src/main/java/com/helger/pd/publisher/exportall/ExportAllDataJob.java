@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.commons.concurrent.SimpleLock;
+import com.helger.commons.timing.StopWatch;
 import com.helger.pd.indexer.storage.EQueryMode;
 import com.helger.pd.publisher.CPDPublisher;
 import com.helger.quartz.DisallowConcurrentExecution;
@@ -51,6 +52,7 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
     s_aLock.lock ();
     try
     {
+      final StopWatch aSW = StopWatch.createdStarted ();
       LOGGER.info ("Start exporting business cards as XML (full)");
       try
       {
@@ -58,9 +60,12 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
       }
       finally
       {
-        LOGGER.info ("Finished exporting business cards as XML (full)");
+        LOGGER.info ("Finished exporting business cards as XML (full) after " +
+                     aSW.stopAndGetMillis () +
+                     " milliseconds");
       }
 
+      aSW.restart ();
       LOGGER.info ("Start exporting business cards as XML (no doc types)");
       try
       {
@@ -68,11 +73,14 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
       }
       finally
       {
-        LOGGER.info ("Finished exporting business cards as XML (no doc types)");
+        LOGGER.info ("Finished exporting business cards as XML (no doc types) after " +
+                     aSW.stopAndGetMillis () +
+                     " milliseconds");
       }
 
       if (CPDPublisher.EXPORT_BUSINESS_CARDS_EXCEL)
       {
+        aSW.restart ();
         LOGGER.info ("Start exporting business cards as Excel");
         try
         {
@@ -80,19 +88,27 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
         }
         finally
         {
-          LOGGER.info ("Finished exporting business cards as Excel");
+          LOGGER.info ("Finished exporting business cards as Excel after " + aSW.stopAndGetMillis () + " milliseconds");
         }
       }
 
       if (CPDPublisher.EXPORT_BUSINESS_CARDS_CSV)
       {
+        aSW.restart ();
         LOGGER.info ("Start exporting business cards as CSV");
-        ExportAllManager.writeFileBusinessCardCSV (EQueryMode.NON_DELETED_ONLY);
-        LOGGER.info ("Finished exporting business cards as CSV");
+        try
+        {
+          ExportAllManager.writeFileBusinessCardCSV (EQueryMode.NON_DELETED_ONLY);
+        }
+        finally
+        {
+          LOGGER.info ("Finished exporting business cards as CSV after " + aSW.stopAndGetMillis () + " milliseconds");
+        }
       }
 
       if (CPDPublisher.EXPORT_PARTICIPANTS_XML)
       {
+        aSW.restart ();
         LOGGER.info ("Start exporting participants as XML");
         try
         {
@@ -100,12 +116,13 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
         }
         finally
         {
-          LOGGER.info ("Finished exporting participants as XML");
+          LOGGER.info ("Finished exporting participants as XML after " + aSW.stopAndGetMillis () + " milliseconds");
         }
       }
 
       if (CPDPublisher.EXPORT_PARTICIPANTS_JSON)
       {
+        aSW.restart ();
         LOGGER.info ("Start exporting participants as JSON");
         try
         {
@@ -113,15 +130,22 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
         }
         finally
         {
-          LOGGER.info ("Finished exporting participants as JSON");
+          LOGGER.info ("Finished exporting participants as JSON after " + aSW.stopAndGetMillis () + " milliseconds");
         }
       }
 
       if (CPDPublisher.EXPORT_PARTICIPANTS_CSV)
       {
+        aSW.restart ();
         LOGGER.info ("Start exporting participants as CSV");
-        ExportAllManager.writeFileParticipantCSV (EQueryMode.NON_DELETED_ONLY);
-        LOGGER.info ("Finished exporting participants as CSV");
+        try
+        {
+          ExportAllManager.writeFileParticipantCSV (EQueryMode.NON_DELETED_ONLY);
+        }
+        finally
+        {
+          LOGGER.info ("Finished exporting participants as CSV after " + aSW.stopAndGetMillis () + " milliseconds");
+        }
       }
     }
     finally
