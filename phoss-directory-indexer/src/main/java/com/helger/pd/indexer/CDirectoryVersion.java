@@ -31,14 +31,14 @@ import com.helger.commons.lang.PropertiesHelper;
  * @author Philip Helger
  */
 @Immutable
-public final class CDirectory
+public final class CDirectoryVersion
 {
   /** Current version - from properties file */
-  public static final String APPLICATION_VERSION;
+  public static final String BUILD_VERSION;
   /** Build timestamp - from properties file */
-  public static final String APPLICATION_TIMESTAMP;
+  public static final String BUILD_TIMESTAMP;
 
-  private static final Logger LOGGER = LoggerFactory.getLogger (CDirectory.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger (CDirectoryVersion.class);
 
   static
   {
@@ -55,15 +55,15 @@ public final class CDirectory
       sProjectVersion = "undefined";
       LOGGER.warn ("Failed to load version number");
     }
-    APPLICATION_VERSION = sProjectVersion;
+    BUILD_VERSION = sProjectVersion;
     if (sProjectTimestamp == null)
     {
       sProjectTimestamp = "undefined";
       LOGGER.warn ("Failed to load timestamp");
     }
-    APPLICATION_TIMESTAMP = sProjectTimestamp;
+    BUILD_TIMESTAMP = sProjectTimestamp;
   }
 
-  private CDirectory ()
+  private CDirectoryVersion ()
   {}
 }

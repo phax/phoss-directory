@@ -32,7 +32,7 @@ import com.helger.html.hc.html.textlevel.HCSmall;
 import com.helger.html.hc.html.textlevel.HCSpan;
 import com.helger.html.hc.html.textlevel.HCStrong;
 import com.helger.html.hc.impl.HCNodeList;
-import com.helger.pd.indexer.CDirectory;
+import com.helger.pd.indexer.CDirectoryVersion;
 import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.app.AppCommonUI;
 import com.helger.pd.publisher.app.pub.PublicHTMLProvider;
@@ -142,8 +142,8 @@ public class SecureHTMLProvider extends AbstractSWECHTMLProvider
       aCol1.addClass (CBootstrapCSS.D_PRINT_NONE)
            .addChild (new HCSpan ().setID (CLayout.LAYOUT_AREAID_MENU)
                                    .addChild (getMenuContent (aLEC))
-                                   .addChild (new HCDiv ().addChild (new HCSmall ().addChild (CDirectory.APPLICATION_VERSION)))
-                                   .addChild (new HCDiv ().addChild (new HCSmall ().addChild (CDirectory.APPLICATION_TIMESTAMP))));
+                                   .addChild (new HCDiv ().addChild (new HCSmall ().addChild (CDirectoryVersion.BUILD_VERSION)))
+                                   .addChild (new HCDiv ().addChild (new HCSmall ().addChild (CDirectoryVersion.BUILD_TIMESTAMP))));
       aCol1.addChild (new HCDiv ().setID (CLayout.LAYOUT_AREAID_SPECIAL));
 
       // content - determine is exactly same as for view

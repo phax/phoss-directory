@@ -22,7 +22,7 @@ import javax.annotation.Nullable;
 import com.helger.html.hc.IHCNode;
 import com.helger.html.hc.html.grouping.HCDiv;
 import com.helger.html.hc.html.textlevel.HCSmall;
-import com.helger.pd.indexer.CDirectory;
+import com.helger.pd.indexer.CDirectoryVersion;
 import com.helger.pd.publisher.CPDPublisher;
 import com.helger.photon.app.html.IHTMLProvider;
 import com.helger.photon.bootstrap4.CBootstrapCSS;
@@ -52,7 +52,7 @@ public final class PDLoginManager extends BootstrapLoginManager
         final HCDiv aDiv = new HCDiv ().addClass (CBootstrapCSS.D_FLEX).addClass (CBootstrapCSS.MT_5);
         aDiv.addChild (new HCSmall ().addChild (CPDPublisher.getApplicationTitleWithVersion () +
                                                 " / " +
-                                                CDirectory.APPLICATION_TIMESTAMP));
+                                                CDirectoryVersion.BUILD_TIMESTAMP));
         return aDiv;
       }
     };

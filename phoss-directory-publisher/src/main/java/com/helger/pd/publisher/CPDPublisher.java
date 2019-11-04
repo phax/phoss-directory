@@ -25,7 +25,7 @@ import com.helger.commons.email.EmailAddress;
 import com.helger.commons.email.IEmailAddress;
 import com.helger.commons.url.ISimpleURL;
 import com.helger.commons.url.SimpleURL;
-import com.helger.pd.indexer.CDirectory;
+import com.helger.pd.indexer.CDirectoryVersion;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
 
 @NotThreadSafe
@@ -77,6 +77,6 @@ public final class CPDPublisher
   @Nonempty
   public static String getApplicationTitleWithVersion ()
   {
-    return getApplicationTitle () + " v" + CDirectory.APPLICATION_VERSION;
+    return getApplicationTitle () + " v" + CDirectoryVersion.BUILD_VERSION;
   }
 }

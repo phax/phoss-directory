@@ -22,20 +22,20 @@ import static org.junit.Assert.assertNotEquals;
 import org.junit.Test;
 
 /**
- * Test class for class {@link CDirectory}
+ * Test class for class {@link CDirectoryVersion}
  *
  * @author Philip Helger
  */
-public final class CDirectoryTest
+public final class CDirectoryVersionTest
 {
   @Test
   public void testBasic ()
   {
-    assertNotEquals ("undefined", CDirectory.APPLICATION_VERSION);
-    assertNotEquals ("undefined", CDirectory.APPLICATION_TIMESTAMP);
+    assertNotEquals ("undefined", CDirectoryVersion.BUILD_VERSION);
+    assertNotEquals ("undefined", CDirectoryVersion.BUILD_TIMESTAMP);
 
     // Check variable resolution
-    assertFalse (CDirectory.APPLICATION_VERSION.contains ("${"));
-    assertFalse (CDirectory.APPLICATION_TIMESTAMP.contains ("${"));
+    assertFalse (CDirectoryVersion.BUILD_VERSION.contains ("${"));
+    assertFalse (CDirectoryVersion.BUILD_TIMESTAMP.contains ("${"));
   }
 }
