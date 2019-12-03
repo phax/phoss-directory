@@ -33,6 +33,7 @@ import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.id.IHasID;
 import com.helger.commons.lang.EnumHelper;
+import com.helger.commons.string.StringHelper;
 import com.helger.html.css.DefaultCSSClassProvider;
 import com.helger.html.css.ICSSClassProvider;
 import com.helger.html.hc.IHCNode;
@@ -194,11 +195,10 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
           final IParticipantIdentifierScheme aIIA = ParticipantIdentifierSchemeManager.getSchemeOfIdentifier (aParticipantID);
           if (aIIA != null)
           {
-            aDetailsHeader = new BootstrapPageHeader ().addChild (new HCH1 ().addChild ("Details for: " +
-                                                                                        aParticipantID.getValue ())
-                                                                             .addChild (new HCSmall ().addChild (" (" +
-                                                                                                                 aIIA.getSchemeAgency () +
-                                                                                                                 ")")));
+            final HCH1 aH1 = new HCH1 ().addChild ("Details for: " + aParticipantID.getValue ());
+            if (StringHelper.hasText (aIIA.getSchemeAgency ()))
+              aH1.addChild (new HCSmall ().addChild (" (" + aIIA.getSchemeAgency () + ")"));
+            aDetailsHeader = new BootstrapPageHeader ().addChild (aH1);
           }
         }
         if (aDetailsHeader == null)

@@ -188,9 +188,11 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
                                                                                                             sQuery +
                                                                                                             "'")));
       if (nTotalBEs > nMaxResults)
+      {
         aNodeList.addChild (new HCDiv ().addChild (new BootstrapBadge (EBootstrapBadgeType.WARNING).addChild ("Found more entities than displayed (" +
                                                                                                               nTotalBEs +
                                                                                                               " entries exist). Try to be more specific.")));
+      }
 
       // Show basic information
       final HCOL aOL = new HCOL ().setStart (1);
