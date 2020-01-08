@@ -66,7 +66,8 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
 
   static
   {
-    final ConfigFileBuilder aCFB = new ConfigFileBuilder ().addPathFromSystemProperty ("peppol.directory.server.properties.path")
+    final ConfigFileBuilder aCFB = new ConfigFileBuilder ().addPathFromEnvVar ("DIRECTORY_SERVER_CONFIG")
+                                                           .addPathFromSystemProperty ("peppol.directory.server.properties.path")
                                                            .addPathFromSystemProperty ("directory.server.properties.path")
                                                            .addPath ("private-pd.properties")
                                                            .addPath ("pd.properties");

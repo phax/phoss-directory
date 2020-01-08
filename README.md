@@ -113,6 +113,7 @@ Additionally to the contained projects you *MAY* need the latest SNAPSHOT of [ph
 
 The PD client is a small Java library that uses Apache HttpClient to connect to an arbitrary phoss Directory Indexer to perform all the allowed operations (get, create/update, delete).
 The client has its own configuration file that is resolved from one of the following locations (whatever is found first):
+* An environment variable called `DIRECTORY_SERVER_CONFIG` (since 0.8.3)
 * A path denoted by the content of the Java system property `peppol.pd.client.properties.path`
 * A path denoted by the content of the Java system property `pd.client.properties.path`
 * A file with the filename `private-pd-client.properties` in the root of the classpath
