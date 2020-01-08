@@ -168,8 +168,10 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
       if (bOverLimit)
       {
         // Too Many Requests
+        if (LOGGER.isDebugEnabled ())
+          LOGGER.debug ("REST search rate limit exceeded for " + sRateLimitKey);
+
         // TODO Use constant in ph-commons CHttp 9.3.10 or later
-        LOGGER.error ("REST search rate limit exceeded for " + sRateLimitKey);
         aUnifiedResponse.setStatus (429);
         return;
       }
