@@ -17,6 +17,7 @@
 package com.helger.pd.publisher.servlet;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -24,7 +25,6 @@ import java.util.Map;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletResponse;
 import javax.xml.validation.Validator;
 
 import org.apache.lucene.search.BooleanClause.Occur;
@@ -43,6 +43,7 @@ import com.helger.commons.collection.impl.ICommonsMap;
 import com.helger.commons.datetime.PDTFactory;
 import com.helger.commons.datetime.PDTWebDateHelper;
 import com.helger.commons.error.IError;
+import com.helger.commons.http.CHttp;
 import com.helger.commons.io.resource.ClassPathResource;
 import com.helger.commons.string.StringHelper;
 import com.helger.json.IJsonArray;
@@ -51,6 +52,7 @@ import com.helger.json.JsonArray;
 import com.helger.json.JsonObject;
 import com.helger.json.serialize.JsonWriterSettings;
 import com.helger.pd.indexer.mgr.PDMetaManager;
+import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.pd.indexer.storage.PDQueryManager;
 import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
@@ -71,6 +73,10 @@ import com.helger.xml.serialize.write.EXMLSerializeIndent;
 import com.helger.xml.serialize.write.XMLWriterSettings;
 import com.helger.xml.transform.TransformSourceFactory;
 import com.helger.xservlet.handler.simple.IXServletSimpleHandler;
+
+import es.moki.ratelimitj.core.limiter.request.RequestLimitRule;
+import es.moki.ratelimitj.core.limiter.request.RequestRateLimiter;
+import es.moki.ratelimitj.inmemory.request.InMemorySlidingWindowRequestRateLimiter;
 
 /**
  * The REST search servlet. Handles only GET requests.
@@ -132,9 +138,43 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
     }
   }
 
+  private final RequestRateLimiter m_aRequestRateLimiter;
+
+  public PublicSearchXServletHandler ()
+  {
+    final long nRequestsPerSec = PDServerConfiguration.getRESTAPIMaxRequestsPerSecond ();
+    if (nRequestsPerSec > 0)
+    {
+      // 2 request per second, per key
+      // Note: duration must be > 1 second
+      m_aRequestRateLimiter = new InMemorySlidingWindowRequestRateLimiter (RequestLimitRule.of (Duration.ofSeconds (2),
+                                                                                                nRequestsPerSec * 2));
+      LOGGER.info ("Installed REST search rate limiter with a maximum of " + nRequestsPerSec + " requests per second");
+    }
+    else
+    {
+      m_aRequestRateLimiter = null;
+      LOGGER.info ("REST search API runs without limit");
+    }
+  }
+
   public void handleRequest (@Nonnull final IRequestWebScopeWithoutResponse aRequestScope,
                              @Nonnull final UnifiedResponse aUnifiedResponse) throws Exception
   {
+    if (m_aRequestRateLimiter != null)
+    {
+      final String sRateLimitKey = "ip:" + aRequestScope.getRemoteAddr ();
+      final boolean bOverLimit = m_aRequestRateLimiter.overLimitWhenIncremented (sRateLimitKey);
+      if (bOverLimit)
+      {
+        // Too Many Requests
+        // TODO Use constant in ph-commons CHttp 9.3.10 or later
+        LOGGER.error ("REST search rate limit exceeded for " + sRateLimitKey);
+        aUnifiedResponse.setStatus (429);
+        return;
+      }
+    }
+
     final IRequestParamContainer aParams = aRequestScope.params ();
 
     // http://127.0.0.1:8080/search -> null
@@ -152,13 +192,14 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
       final String sFormat = aParts.getAtIndex (1);
       final EPDOutputFormat eOutputFormat = EPDOutputFormat.getFromIDCaseInsensitiveOrDefault (sFormat,
                                                                                                EPDOutputFormat.XML);
-      LOGGER.info ("Using REST query API 1.0 with output format " +
-                   eOutputFormat +
-                   " (" +
-                   sPathInfo +
-                   ") from '" +
-                   aRequestScope.getUserAgent ().getAsString () +
-                   "'");
+      if (LOGGER.isDebugEnabled ())
+        LOGGER.debug ("Using REST query API 1.0 with output format " +
+                      eOutputFormat +
+                      " (" +
+                      sPathInfo +
+                      ") from '" +
+                      aRequestScope.getUserAgent ().getAsString () +
+                      "'");
 
       // Determine result offset and count
       final int nResultPageIndex = aParams.getAsInt (PARAM_RESULT_PAGE_INDEX,
@@ -166,7 +207,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
       if (nResultPageIndex < 0)
       {
         LOGGER.error ("ResultPageIndex " + nResultPageIndex + " is invalid. It must be >= 0.");
-        aUnifiedResponse.setStatus (HttpServletResponse.SC_BAD_REQUEST);
+        aUnifiedResponse.setStatus (CHttp.HTTP_BAD_REQUEST);
         return;
       }
       final int nResultPageCount = aParams.getAsInt (PARAM_RESULT_PAGE_COUNT,
@@ -174,7 +215,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
       if (nResultPageCount <= 0)
       {
         LOGGER.error ("ResultPageCount " + nResultPageCount + " is invalid. It must be > 0.");
-        aUnifiedResponse.setStatus (HttpServletResponse.SC_BAD_REQUEST);
+        aUnifiedResponse.setStatus (CHttp.HTTP_BAD_REQUEST);
         return;
       }
       final int nFirstResultIndex = nResultPageIndex * nResultPageCount;
@@ -186,13 +227,13 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
                       " is invalid. It must be <= " +
                       MAX_RESULTS +
                       ".");
-        aUnifiedResponse.setStatus (HttpServletResponse.SC_BAD_REQUEST);
+        aUnifiedResponse.setStatus (CHttp.HTTP_BAD_REQUEST);
         return;
       }
       if (nLastResultIndex > MAX_RESULTS)
       {
         LOGGER.error ("The last result index " + nLastResultIndex + " is invalid. It must be <= " + MAX_RESULTS + ".");
-        aUnifiedResponse.setStatus (HttpServletResponse.SC_BAD_REQUEST);
+        aUnifiedResponse.setStatus (CHttp.HTTP_BAD_REQUEST);
         return;
       }
 
@@ -222,10 +263,11 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
       if (aQueryValues.isEmpty ())
       {
         LOGGER.error ("No valid query term provided!");
-        aUnifiedResponse.setStatus (HttpServletResponse.SC_BAD_REQUEST);
+        aUnifiedResponse.setStatus (CHttp.HTTP_BAD_REQUEST);
         return;
       }
-      LOGGER.info ("Using the following query terms: " + aQueryValues);
+      if (LOGGER.isDebugEnabled ())
+        LOGGER.debug ("Using the following query terms: " + aQueryValues);
 
       final ICommonsList <Query> aQueries = new CommonsArrayList <> ();
       for (final Map.Entry <EPDSearchField, ICommonsList <String>> aEntry : aQueryValues.entrySet ())
@@ -243,7 +285,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
       if (aQueries.isEmpty ())
       {
         LOGGER.error ("No valid queries could be created!");
-        aUnifiedResponse.setStatus (HttpServletResponse.SC_BAD_REQUEST);
+        aUnifiedResponse.setStatus (CHttp.HTTP_BAD_REQUEST);
         return;
       }
 
@@ -276,12 +318,13 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
       // error
       final int nTotalBEs = aStorageMgr.getCount (aLuceneQuery);
 
-      LOGGER.info ("  Result for <" +
-                   aLuceneQuery +
-                   "> (max=" +
-                   nMaxResults +
-                   ") " +
-                   (nTotalBEs == 1 ? "is 1 document" : "are " + nTotalBEs + " documents"));
+      if (LOGGER.isDebugEnabled ())
+        LOGGER.debug ("  Result for <" +
+                      aLuceneQuery +
+                      "> (max=" +
+                      nMaxResults +
+                      ") " +
+                      (nTotalBEs == 1 ? "is 1 document" : "are " + nTotalBEs + " documents"));
 
       // Filter by index/count
       final int nEffectiveLastIndex = Math.min (nLastResultIndex, aResultDocs.size () - 1);
@@ -367,7 +410,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
     else
     {
       LOGGER.error ("Unsupported version provided (" + sPathInfo + ")");
-      aUnifiedResponse.setStatus (HttpServletResponse.SC_NOT_FOUND);
+      aUnifiedResponse.setStatus (CHttp.HTTP_NOT_FOUND);
     }
   }
 }

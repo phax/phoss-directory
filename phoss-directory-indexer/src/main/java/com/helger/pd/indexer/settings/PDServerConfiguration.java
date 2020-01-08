@@ -18,6 +18,7 @@ package com.helger.pd.indexer.settings;
 
 import java.net.URI;
 
+import javax.annotation.CheckForSigned;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -398,5 +399,11 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
 
     // Default is PEPPOL
     return EPDSMPMode.PEPPOL;
+  }
+
+  @CheckForSigned
+  public static long getRESTAPIMaxRequestsPerSecond ()
+  {
+    return getConfigFile ().getAsLong ("rest.limit.requestspersecond", -1);
   }
 }
