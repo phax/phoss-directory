@@ -2,7 +2,7 @@
 
 [![Join the chat at https://gitter.im/phax/peppol-directory](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/phax/peppol-directory?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Current release (on Maven central): **0.8.2**
+Current release (on Maven central): **0.8.3**
 
 The official PEPPOL Directory (PD; former PEPPOL Yellow Pages - PYP; www.peppol.eu) and TOOP Directory software (The Once-Only Project; www.toop.eu). It is split into the following sub-projects (all require Java 8 except where noted):
   * `phoss-directory-businesscard` - the common Business Card API
@@ -25,11 +25,11 @@ The official PEPPOL Directory (PD; former PEPPOL Yellow Pages - PYP; www.peppol.
   
 # News and noteworthy
 
-* v0.8.3 - work in progress
+* v0.8.3 - 2020-01-08
     * Added logo in the left top (using configuration property `webapp.applogo.image.path`)
     * Setting `Content-Length` HTTP header for the downloads
     * Made FavIcons customizable
-    * Added rate limit for search API
+    * Added rate limit for search API (using configuration property `rest.limit.requestspersecond`)
 * v0.8.2 - 2019-10-14
     * Added support to download all Business Cards as CSV
     * Added support to download all Business Cards as XML but without the document types (see [issue #42](https://github.com/phax/phoss-directory/issues/42))
