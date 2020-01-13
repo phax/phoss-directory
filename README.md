@@ -24,7 +24,9 @@ The official PEPPOL Directory (PD; former PEPPOL Yellow Pages - PYP; www.peppol.
 * [phoss SMP Server](https://github.com/phax/peppol-smp-server) supports starting with version 4.1.2 the graphical editing of Business Card incl. the new `/businesscard` API.
   
 # News and noteworthy
-
+ 
+* v0.8.4 - work in progress
+    * Updated to Jersey 2.30
 * v0.8.3 - 2020-01-08
     * Added logo in the left top (using configuration property `webapp.applogo.image.path`)
     * Setting `Content-Length` HTTP header for the downloads
