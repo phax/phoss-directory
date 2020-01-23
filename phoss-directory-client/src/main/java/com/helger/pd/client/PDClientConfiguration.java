@@ -70,7 +70,8 @@ public final class PDClientConfiguration
    */
   public static void reloadConfiguration ()
   {
-    final ConfigFileBuilder aCFB = new ConfigFileBuilder ().addPathFromSystemProperty (SYSTEM_PROPERTY_PRIMARY)
+    final ConfigFileBuilder aCFB = new ConfigFileBuilder ().addPathFromEnvVar ("DIRECTORY_CLIENT_CONFIG")
+                                                           .addPathFromSystemProperty (SYSTEM_PROPERTY_PRIMARY)
                                                            .addPathFromSystemProperty (SYSTEM_PROPERTY_SECONDARY)
                                                            .addPath (PROPERTY_FILE_PRIMARY)
                                                            .addPath (PROPERTY_FILE_SECONDARY);

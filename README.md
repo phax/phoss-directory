@@ -4,7 +4,7 @@
 
 Current release (on Maven central): **0.8.3**
 
-The official PEPPOL Directory (PD; former PEPPOL Yellow Pages - PYP; www.peppol.eu) and TOOP Directory software (The Once-Only Project; www.toop.eu). It is split into the following sub-projects (all require Java 8 except where noted):
+The official Peppol Directory (PD; https://directory.peppol.eu) and TOOP Directory software (The Once-Only Project; www.toop.eu). It is split into the following sub-projects (all require Java 8 except where noted):
   * `phoss-directory-businesscard` - the common Business Card API
   * `phoss-directory-indexer` - the PD indexer part
   * `phoss-directory-publisher` - the PD publisher web application
@@ -22,12 +22,13 @@ The official PEPPOL Directory (PD; former PEPPOL Yellow Pages - PYP; www.peppol.
   * For the indexing REST API, no client certificate is needed
 * A Java library to be used in SMPs to communicate with the PD is available
 * [phoss SMP Server](https://github.com/phax/peppol-smp-server) supports starting with version 4.1.2 the graphical editing of Business Card incl. the new `/businesscard` API.
-  
+
 # News and noteworthy
  
 * v0.8.4 - work in progress
     * Updated to Jersey 2.30
-    * The Directory client has no more default truststore path and password 
+    * The Directory client has no more default truststore path and password
+    * The directory client configuration can now be read from the path denoted by the environment variable `DIRECTORY_CLIENT_CONFIG` 
 * v0.8.3 - 2020-01-08
     * Added logo in the left top (using configuration property `webapp.applogo.image.path`)
     * Setting `Content-Length` HTTP header for the downloads
@@ -117,7 +118,7 @@ Additionally to the contained projects you *MAY* need the latest SNAPSHOT of [ph
 
 The PD client is a small Java library that uses Apache HttpClient to connect to an arbitrary phoss Directory Indexer to perform all the allowed operations (get, create/update, delete).
 The client has its own configuration file that is resolved from one of the following locations (whatever is found first):
-* An environment variable called `DIRECTORY_SERVER_CONFIG` (since 0.8.3)
+* An environment variable called `DIRECTORY_CLIENT_CONFIG` (since 0.8.4)
 * A path denoted by the content of the Java system property `peppol.pd.client.properties.path`
 * A path denoted by the content of the Java system property `pd.client.properties.path`
 * A file with the filename `private-pd-client.properties` in the root of the classpath
@@ -166,6 +167,13 @@ https.hostname-verification.disabled = false
 # PD Indexer
 
 The PD Indexer is a REST component that is responsible for taking indexing requests from SMPs and processes them in a queue (PEPPOL SMP client certificate required). Only the PEPPOL participant identifiers are taken and the PD Indexer is responsible for querying the respective SMP data directly. Therefore the respective SMP must have the appropriate `Extension` element of the service group filled with the business information metadata as required by PD. Please see the [PD specification](https://github.com/OpenPEPPOL/documentation/blob/master/TransportInfrastructure/PEPPOL-EDN-Directory-1.1-2018-07-17.pdf) for a detailed description of the required data format as well as for the REST interface.
+
+The Indexer has its own configuration file that is resolved from one of the following locations (whatever is found first):
+* An environment variable called `DIRECTORY_SERVER_CONFIG` (since 0.8.3)
+* A path denoted by the content of the Java system property `peppol.directory.server.properties.path`
+* A path denoted by the content of the Java system property `directory.server.properties.path`
+* A file with the filename `private-pd.properties` in the root of the classpath
+* A file with the filename `pd.properties` in the root of the classpath
 
 # PD Publisher
 
