@@ -54,8 +54,6 @@ public final class PDClientConfiguration
   public static final String PROPERTY_FILE_SECONDARY = "pd-client.properties";
 
   public static final EKeyStoreType DEFAULT_TRUSTSTORE_TYPE = EKeyStoreType.JKS;
-  public static final String DEFAULT_TRUSTSTORE_PATH = "truststore/pd-client.truststore.jks";
-  public static final String DEFAULT_TRUSTSTORE_PASSWORD = "peppol";
   public static final int DEFAULT_CONNECTION_TIMEOUT_MS = 5_000;
   public static final int DEFAULT_REQUEST_TIMEOUT_MS = 10_000;
 
@@ -178,25 +176,25 @@ public final class PDClientConfiguration
   /**
    * @return The trust store location as specified in the configuration file by
    *         the property <code>truststore.path</code>. Defaults to
-   *         {@value #DEFAULT_TRUSTSTORE_PATH}.
+   *         <code>null</code>
    * @since 0.5.1
    */
   @Nullable
   public static String getTrustStorePath ()
   {
-    return getConfigFile ().getAsString ("truststore.path", DEFAULT_TRUSTSTORE_PATH);
+    return getConfigFile ().getAsString ("truststore.path");
   }
 
   /**
    * @return The trust store password as specified in the configuration file by
    *         the property <code>truststore.password</code>. Defaults to
-   *         {@value #DEFAULT_TRUSTSTORE_PASSWORD}.
+   *         <code>null</code>.
    * @since 0.5.1
    */
   @Nullable
   public static String getTrustStorePassword ()
   {
-    return getConfigFile ().getAsString ("truststore.password", DEFAULT_TRUSTSTORE_PASSWORD);
+    return getConfigFile ().getAsString ("truststore.password");
   }
 
   /**

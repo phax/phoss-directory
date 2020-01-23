@@ -27,6 +27,7 @@ The official PEPPOL Directory (PD; former PEPPOL Yellow Pages - PYP; www.peppol.
  
 * v0.8.4 - work in progress
     * Updated to Jersey 2.30
+    * The Directory client has no more default truststore path and password 
 * v0.8.3 - 2020-01-08
     * Added logo in the left top (using configuration property `webapp.applogo.image.path`)
     * Setting `Content-Length` HTTP header for the downloads
