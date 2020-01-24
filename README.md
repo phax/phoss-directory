@@ -2,7 +2,7 @@
 
 [![Join the chat at https://gitter.im/phax/peppol-directory](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/phax/peppol-directory?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Current release (on Maven central): **0.8.3**
+Current release (on Maven central): **0.8.4**
 
 The official Peppol Directory (PD; https://directory.peppol.eu) and TOOP Directory software (The Once-Only Project; www.toop.eu). It is split into the following sub-projects (all require Java 8 except where noted):
   * `phoss-directory-businesscard` - the common Business Card API
@@ -23,12 +23,84 @@ The official Peppol Directory (PD; https://directory.peppol.eu) and TOOP Directo
 * A Java library to be used in SMPs to communicate with the PD is available
 * [phoss SMP Server](https://github.com/phax/peppol-smp-server) supports starting with version 4.1.2 the graphical editing of Business Card incl. the new `/businesscard` API.
 
+# Building requirements
+
+To build the PD software you need at least Java 1.8 and Apache Maven 3.x. Configuration for usage with Eclipse Neon and Oxygen is contained in the repository.
+
+Additionally to the contained projects you *MAY* need the latest SNAPSHOT of [ph-oton](https://github.com/phax/ph-oton) as part of your build environment.
+
+# PD Client
+
+The PD client is a small Java library that uses Apache HttpClient to connect to an arbitrary phoss Directory Indexer to perform all the allowed operations (get, create/update, delete).
+The client has its own configuration file that is resolved from one of the following locations (whatever is found first):
+* An environment variable called `DIRECTORY_CLIENT_CONFIG` (since 0.8.4)
+* A path denoted by the content of the Java system property `peppol.pd.client.properties.path`
+* A path denoted by the content of the Java system property `pd.client.properties.path`
+* A file with the filename `private-pd-client.properties` in the root of the classpath
+* A file with the filename `pd-client.properties` in the root of the classpath
+
+If no configuration file is found a warning is emitted and you cannot invoke any operations because the certificate configuration is missing.
+
+The following options are supported in the `pd-client.properties` file:
+  * **keystore.type** (since v0.6.0) - the type of the keystore. Can be `JKS` or `PKCS12` (case insensitive). Defaults to `JKS`.
+  * **keystore.path** - the path to the keystore where the SMP certificate is contained
+  * **keystore.password** - the password to open the key store
+  * **keystore.key.alias** - the alias in the key store that denotes the SMP key 
+  * **keystore.key.password** - the password to open the key in the key store
+  * **truststore.type** (since v0.6.0) - the type of the keystore. Can be `JKS` or `PKCS12` (case insensitive). Defaults to `JKS`.
+  * **truststore.path** (since v0.5.1) - the path to the trust store, where the public certificates of the phoss Directory servers are contained. Defaults to `truststore/pd-client.truststore.jks`
+  * **truststore.password** (since v0.5.1) - the password to open the truststore store. Defaults to `peppol`
+  * **http.proxyHost** - the HTTP proxy host for `http` connections only. No default. 
+  * **http.proxyPort** - the HTTP proxy port for `http` connections only. No default. 
+  * **https.proxyHost** - the HTTP proxy host for `https` connections only. No default. 
+  * **https.proxyPort** - the HTTP proxy port for `https` connections only. No default. 
+  * **https.hostname-verification.disabled** (since v0.5.1) - a boolean value to indicate if https hostname verification should be disabled (`true`) or enabled (`false`). The default value is `true`. 
+  * **proxy.username** (since v0.6.0) - the proxy username if http or https proxy is enabled. No default. 
+  * **proxy.password** (since v0.6.0) - the proxy password if http or https proxy is enabled. No default.
+  * **connect.timeout.ms** (since v0.6.0) - the connection timeout in milliseconds to connect to the server. The default value is `5000` (5 seconds). A value of `0` means indefinite. A value of `-1` means using the system default.
+  * **request.timeout.ms** (since v0.6.0) - the request/read/socket timeout in milliseconds to read from the server. The default value is `10000` (10 seconds). A value of `0` means indefinite. A value of `-1` means using the system default.
+
+Example PD client configuration file:
+
+```ini
+# Key store with SMP key (required)
+keystore.type         = jks
+keystore.path         = smp.pilot.jks
+keystore.password     = password
+keystore.key.alias    = smp.pilot
+keystore.key.password = password
+
+# Default trust store (optional)
+truststore.type     = jks
+truststore.path     = truststore/pd-client.truststore.jks
+truststore.password = peppol
+
+# TLS settings
+https.hostname-verification.disabled = false
+```
+
+# PD Indexer
+
+The PD Indexer is a REST component that is responsible for taking indexing requests from SMPs and processes them in a queue (PEPPOL SMP client certificate required). Only the PEPPOL participant identifiers are taken and the PD Indexer is responsible for querying the respective SMP data directly. Therefore the respective SMP must have the appropriate `Extension` element of the service group filled with the business information metadata as required by PD. Please see the [PD specification](https://github.com/OpenPEPPOL/documentation/blob/master/TransportInfrastructure/PEPPOL-EDN-Directory-1.1-2018-07-17.pdf) for a detailed description of the required data format as well as for the REST interface.
+
+The Indexer has its own configuration file that is resolved from one of the following locations (whatever is found first):
+* An environment variable called `DIRECTORY_SERVER_CONFIG` (since 0.8.3)
+* A path denoted by the content of the Java system property `peppol.directory.server.properties.path`
+* A path denoted by the content of the Java system property `directory.server.properties.path`
+* A file with the filename `private-pd.properties` in the root of the classpath
+* A file with the filename `pd.properties` in the root of the classpath
+
+# PD Publisher
+
+The PD Publisher is the publicly accessible web site with listing and search functionality for certain participants.
+
 # News and noteworthy
  
-* v0.8.4 - work in progress
+* v0.8.4 - 2020-01-24
     * Updated to Jersey 2.30
     * The Directory client has no more default truststore path and password
-    * The directory client configuration can now be read from the path denoted by the environment variable `DIRECTORY_CLIENT_CONFIG` 
+    * The directory client configuration can now be read from the path denoted by the environment variable `DIRECTORY_CLIENT_CONFIG`
+    * Updated the static texts changing `PEPPOL` to `Peppol`
 * v0.8.3 - 2020-01-08
     * Added logo in the left top (using configuration property `webapp.applogo.image.path`)
     * Setting `Content-Length` HTTP header for the downloads
@@ -107,77 +179,6 @@ The official Peppol Directory (PD; https://directory.peppol.eu) and TOOP Directo
     * Removed the JDK 6 PD client because the ECC certificates used are only supported by JDK 7 onwards. The old version is anyway in the Maven central repository.
 * v0.5.0 - 2017-07-12
     * Updated release for `https://directory.peppol.eu` and `https://test-directory.peppol.eu`
-
-# Building requirements
-
-To build the PD software you need at least Java 1.8 and Apache Maven 3.x. Configuration for usage with Eclipse Neon and Oxygen is contained in the repository.
-
-Additionally to the contained projects you *MAY* need the latest SNAPSHOT of [ph-oton](https://github.com/phax/ph-oton) as part of your build environment.
-
-# PD Client
-
-The PD client is a small Java library that uses Apache HttpClient to connect to an arbitrary phoss Directory Indexer to perform all the allowed operations (get, create/update, delete).
-The client has its own configuration file that is resolved from one of the following locations (whatever is found first):
-* An environment variable called `DIRECTORY_CLIENT_CONFIG` (since 0.8.4)
-* A path denoted by the content of the Java system property `peppol.pd.client.properties.path`
-* A path denoted by the content of the Java system property `pd.client.properties.path`
-* A file with the filename `private-pd-client.properties` in the root of the classpath
-* A file with the filename `pd-client.properties` in the root of the classpath
-
-If no configuration file is found a warning is emitted and you cannot invoke any operations because the certificate configuration is missing.
-
-The following options are supported in the `pd-client.properties` file:
-  * **keystore.type** (since v0.6.0) - the type of the keystore. Can be `JKS` or `PKCS12` (case insensitive). Defaults to `JKS`.
-  * **keystore.path** - the path to the keystore where the SMP certificate is contained
-  * **keystore.password** - the password to open the key store
-  * **keystore.key.alias** - the alias in the key store that denotes the SMP key 
-  * **keystore.key.password** - the password to open the key in the key store
-  * **truststore.type** (since v0.6.0) - the type of the keystore. Can be `JKS` or `PKCS12` (case insensitive). Defaults to `JKS`.
-  * **truststore.path** (since v0.5.1) - the path to the trust store, where the public certificates of the phoss Directory servers are contained. Defaults to `truststore/pd-client.truststore.jks`
-  * **truststore.password** (since v0.5.1) - the password to open the truststore store. Defaults to `peppol`
-  * **http.proxyHost** - the HTTP proxy host for `http` connections only. No default. 
-  * **http.proxyPort** - the HTTP proxy port for `http` connections only. No default. 
-  * **https.proxyHost** - the HTTP proxy host for `https` connections only. No default. 
-  * **https.proxyPort** - the HTTP proxy port for `https` connections only. No default. 
-  * **https.hostname-verification.disabled** (since v0.5.1) - a boolean value to indicate if https hostname verification should be disabled (`true`) or enabled (`false`). The default value is `true`. 
-  * **proxy.username** (since v0.6.0) - the proxy username if http or https proxy is enabled. No default. 
-  * **proxy.password** (since v0.6.0) - the proxy password if http or https proxy is enabled. No default.
-  * **connect.timeout.ms** (since v0.6.0) - the connection timeout in milliseconds to connect to the server. The default value is `5000` (5 seconds). A value of `0` means indefinite. A value of `-1` means using the system default.
-  * **request.timeout.ms** (since v0.6.0) - the request/read/socket timeout in milliseconds to read from the server. The default value is `10000` (10 seconds). A value of `0` means indefinite. A value of `-1` means using the system default.
-
-Example PD client configuration file:
-
-```ini
-# Key store with SMP key (required)
-keystore.type         = jks
-keystore.path         = smp.pilot.jks
-keystore.password     = password
-keystore.key.alias    = smp.pilot
-keystore.key.password = password
-
-# Default trust store (optional)
-truststore.type     = jks
-truststore.path     = truststore/pd-client.truststore.jks
-truststore.password = peppol
-
-# TLS settings
-https.hostname-verification.disabled = false
-```
-
-# PD Indexer
-
-The PD Indexer is a REST component that is responsible for taking indexing requests from SMPs and processes them in a queue (PEPPOL SMP client certificate required). Only the PEPPOL participant identifiers are taken and the PD Indexer is responsible for querying the respective SMP data directly. Therefore the respective SMP must have the appropriate `Extension` element of the service group filled with the business information metadata as required by PD. Please see the [PD specification](https://github.com/OpenPEPPOL/documentation/blob/master/TransportInfrastructure/PEPPOL-EDN-Directory-1.1-2018-07-17.pdf) for a detailed description of the required data format as well as for the REST interface.
-
-The Indexer has its own configuration file that is resolved from one of the following locations (whatever is found first):
-* An environment variable called `DIRECTORY_SERVER_CONFIG` (since 0.8.3)
-* A path denoted by the content of the Java system property `peppol.directory.server.properties.path`
-* A path denoted by the content of the Java system property `directory.server.properties.path`
-* A file with the filename `private-pd.properties` in the root of the classpath
-* A file with the filename `pd.properties` in the root of the classpath
-
-# PD Publisher
-
-The PD Publisher is the publicly accessible web site with listing and search functionality for certain participants.
 
 ---
 
