@@ -17,52 +17,14 @@
 
 -->
 <p>
-  The PEPPOL Directory specification is newer than the PEPPOL SMP specification and
-  therefore not all SMPs support PEPPOL Directory.
-  This page contains all known SMP implementations that are known to support the PEPPOL Directory
+  The Peppol Directory specification is newer than the Peppol SMP specification and
+  therefore not all SMPs support Peppol Directory.
+  This page contains all known SMP implementations that are known to support the Peppol Directory
   specification.
 </p>
 
 <p>
-  If you want to be part of this list, use the 
-  <a href="/public/menuitem-contact-us">contact form</a>
-  and drop us a note - we will put you on the list.
+  Since October 3<sup>rd</sup> 2019 all Peppol SMP providers MUST be able to support the 
+  Peppol Directory interface from their SMPs.
+  Specification v1.1 is the latest one.
 </p>
-
-<table class="table table-borded">
-  <thead>
-    <tr>
-      <th>Vendor/Provider</th>
-      <th>Website</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>
-        Philip Helger - phoss SMP Server
-        <br /><small>Since version 5.0.0</small>
-      </td>
-      <td><a href="https://github.com/phax/peppol-smp-server">https://github.com/phax/peppol-smp-server</a></td>
-    </tr>
-    <tr>
-      <td>Invinet SMP Server</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>IBM SMP</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>NHS (UK)</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>InterCentER (Italy)</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>Babelway SMP</td>
-      <td></td>
-    </tr>
-  </tbody>
-</table>

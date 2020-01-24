@@ -76,7 +76,7 @@
   <div>Name: <span class="pname">participant</span></div>
   <div>Description:
     <span class="pdesc">
-      Searches for exact matches in the PEPPOL participant identifier field
+      Searches for exact matches in the Peppol participant identifier field
       (the identifier scheme must be part of the value).
     </span>
   </div>
@@ -87,7 +87,7 @@
   </div>
   <div>
     <span class="badge badge-warning">Warning</span>
-    If the provided parameter value cannot be converted to a PEPPOL participant identifier
+    If the provided parameter value cannot be converted to a Peppol participant identifier
     (as e.g. in <code>iso6523-actorid-upis::9915:test</code>) the search will return HTTP status code 400.
   </div>
   <div>
@@ -338,7 +338,7 @@
   <div>Name: <span class="pname">doctype</span></div>
   <div>Description:
     <span class="pdesc">
-      Searches for exact matches in the PEPPOL document type identifiers field
+      Searches for exact matches in the Peppol document type identifiers field
       (the identifier scheme must be part of the value).
     </span>
   </div>
@@ -352,7 +352,7 @@
   </div>
   <div>
     <span class="badge badge-warning">Warning</span>
-    If the provided parameter value cannot be converted to a PEPPOL document type identifier
+    If the provided parameter value cannot be converted to a Peppol document type identifier
     (as e.g. in <code>busdox-docid-qns::urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:www.cenbii.eu:transaction:biitrns010:ver2.0:extended:urn:www.peppol.eu:bis:peppol5a:ver2.0::2.1</code>)
     the search will return HTTP status code 400.
   </div>
@@ -528,14 +528,14 @@
       &lt;name&gt;Second entity name&lt;/name&gt;
       &lt;countryCode&gt;AU&lt;/countryCode&gt;
       &lt;identifier scheme="GLN"&gt;123454321&lt;/identifier&gt;
-      &lt;additionalInfo&gt;Whatever it takes - PEPPOL Directory will index this&lt;/additionalInfo&gt;
+      &lt;additionalInfo&gt;Whatever it takes - Peppol Directory will index this&lt;/additionalInfo&gt;
     &lt;/entity&gt;
     &lt;entity&gt;
       &lt;name&gt;Third entity - to the rescue&lt;/name&gt;
       &lt;countryCode&gt;DE&lt;/countryCode&gt;
       &lt;geoInfo&gt;Germany, Baden-Württemberg&lt;/geoInfo&gt;
       &lt;identifier scheme="PLZ"&gt;79110&lt;/identifier&gt;
-      &lt;additionalInfo&gt;We need more German PEPPOL endpoints&lt;/additionalInfo&gt;
+      &lt;additionalInfo&gt;We need more German Peppol endpoints&lt;/additionalInfo&gt;
     &lt;/entity&gt;
   &lt;/match&gt;
 &lt;/resultlist&gt;
@@ -626,7 +626,7 @@
               "value":"123454321"
             }
           ],
-          "additionalInfo":"Whatever it takes - PEPPOL Directory will index this"
+          "additionalInfo":"Whatever it takes - Peppol Directory will index this"
         },
         {
           "name":"Third entity - to the rescue",
@@ -638,7 +638,7 @@
               "value":"79110"
             }
           ],
-          "additionalInfo":"We need more German PEPPOL endpoints"
+          "additionalInfo":"We need more German Peppol endpoints"
         }
       ]
     }

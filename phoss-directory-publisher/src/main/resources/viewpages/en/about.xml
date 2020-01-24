@@ -18,22 +18,22 @@
 -->
 <h2>Introduction</h2>
 <p>
-  PEPPOL Directory is a Open Source Software developed on behalf of
+  phoss Directory is a Open Source Software developed on behalf of
   <a href="http://www.peppol.eu" target="peppol">OpenPEPPOL AISBL</a>.
 </p>
 
 <p>
-  OpenPEPPOL is not liable for the data published in the PEPPOL Directory.
+  OpenPEPPOL is not liable for the data published in the Peppol Directory.
   All information presented here is automatically assembled from information
-  provided by PEPPOL SMPs and is only collected and indexed for searchability.
+  provided by Peppol SMPs and is only collected and indexed for searchability.
 </p>
 
 <h2>Technical information</h2>
 <p>
-  The source code of PEPPOL Directory can be found on
-  <a href="https://github.com/phax/peppol-directory">GitHub phax/peppol-directory</a>.
+  The source code of phoss Directory can be found on
+  <a href="https://github.com/phax/phoss-directory">GitHub phax/phoss-directory</a>.
   The source code is licensed under the Apache 2.0 license.
 </p>
 <p>
-  Original development by <a href="https://github.com/phax">Philip Helger</a> / <a href="https://twitter.com/philiphelger">@philiphelger</a> for PEPPOL Directory.
+  Original development by <a href="https://github.com/phax">Philip Helger</a> / <a href="https://twitter.com/philiphelger">@philiphelger</a> for Peppol Directory.
 </p>

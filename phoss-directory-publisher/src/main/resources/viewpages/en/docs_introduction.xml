@@ -16,53 +16,53 @@
     limitations under the License.
 
 -->
-<h2>What is PEPPOL Directory?</h2>
+<h2>What is Peppol Directory?</h2>
 
 <p>
-  The PEPPOL Directory contains information about entities participating in the <a href="http://www.peppol.eu">PEPPOL</a> network.
-  It is intended to support business cases that are concerned with finding PEPPOL participants registered 
-  on the PEPPOL network in order to start exchanging business documents with them.
+  The Peppol Directory contains information about entities participating in the <a href="http://www.peppol.eu">Peppol</a> network.
+  It is intended to support business cases that are concerned with finding Peppol participants registered 
+  on the Peppol network in order to start exchanging business documents with them.
 </p>
 
 <p>
-  The PEPPOL Directory aggregates public information from SMPs (Service Metadata Publisher) and provides them 
+  The Peppol Directory aggregates public information from SMPs (Service Metadata Publisher) and provides them 
   centrally in a structured way.
 </p>
 
 <h2>Target audience</h2>
 
 <p>
-  This page is intended for all users that are trying to locate their business partners in the PEPPOL network.
+  This page is intended for all users that are trying to locate their business partners in the Peppol network.
   Both for onboarding as well for extending the scope of document exchange.
 </p>
 
 <h2>Who is listed here?</h2>
 
 <p>
-  Currently the publication of PEPPOL participant information in an SMP happens on a voluntary basis.
-  That implies that not all business entities are listed in the PEPPOL Directory which implies
+  Currently the publication of Peppol participant information in an SMP happens on a voluntary basis.
+  That implies that not all business entities are listed in the Peppol Directory which implies
   that if your desired partner does not show up in here it doesn't mean that the entity is not
-  in the PEPPOL network!
-  On the other hand if an entity shows up in the PEPPOL Directory you can be sure that the
-  participant is a participant of the PEPPOL network. 
+  in the Peppol network!
+  On the other hand if an entity shows up in the Peppol Directory you can be sure that the
+  participant is a participant of the Peppol network. 
 </p>
 
 <h3>Why only receiving capabilities are listed?</h3>
 
 <p>
-  The current administrative policy of the PEPPOL network requires that only Document Receiving capabilities 
-  of PEPPOL participants are registered on the network.
+  The current administrative policy of the Peppol network requires that only Document Receiving capabilities 
+  of Peppol participants are registered on the network.
   There are plans to expand this in future to also encompass Document senders.
 </p>  
 
 <p>
-  Until then, however, PEPPOL Directory can only natively index Receivers.
-  Until the PEPPOL Policy changes, PEPPOL Senders without receiving capabilities 
-  would thus be invisible to PEPPOL Directory.
+  Until then, however, Peppol Directory can only natively index Receivers.
+  Until the Peppol Policy changes, Peppol Senders without receiving capabilities 
+  would thus be invisible to Peppol Directory.
 </p>
 
 <p>
-  If a Participant has connectivity to send PEPPOL documents (e.g. Invoices) but not yet receive (e.g. Purchase Orders), 
-  then they still can be set up on PEPPOL Directory by means of a workaround
-  (where their PEPPOL Provider creates a Dummy ID for indexing).
+  If a Participant has connectivity to send Peppol documents (e.g. Invoices) but not yet receive (e.g. Purchase Orders), 
+  then they still can be set up on Peppol Directory by means of a workaround
+  (where their Peppol Provider creates a Dummy ID for indexing).
 </p>
