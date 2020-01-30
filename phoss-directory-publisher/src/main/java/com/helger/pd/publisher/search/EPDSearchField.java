@@ -37,7 +37,7 @@ import com.helger.peppolid.IDocumentTypeIdentifier;
 import com.helger.peppolid.IParticipantIdentifier;
 
 /**
- * The PEPPOL Directory specific search fields. The fields here should be
+ * The Peppol Directory specific search fields. The fields here should be
  * conform to the fields in {@link PDStoredBusinessEntity}.
  *
  * @author Philip Helger

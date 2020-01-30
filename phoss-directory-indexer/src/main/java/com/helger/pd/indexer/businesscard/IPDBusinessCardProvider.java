@@ -23,7 +23,7 @@ import com.helger.peppolid.IParticipantIdentifier;
 
 /**
  * Abstract interface to retrieve the {@link PDExtendedBusinessCard} from a
- * provided PEPPOL participant ID. By default an SMP <code>/businesscard</code>
+ * provided Peppol participant ID. By default an SMP <code>/businesscard</code>
  * API is queried. Nevertheless for testing purposes it may be possible to
  * provide mock data.
  *
@@ -36,7 +36,7 @@ public interface IPDBusinessCardProvider
    * Get the {@link PDExtendedBusinessCard} for the given participant ID.
    *
    * @param aParticipantID
-   *        PEPPOL participant ID. May not be <code>null</code>.
+   *        Peppol participant ID. May not be <code>null</code>.
    * @return <code>null</code> if no business card exists for the provided
    *         participant ID.
    */

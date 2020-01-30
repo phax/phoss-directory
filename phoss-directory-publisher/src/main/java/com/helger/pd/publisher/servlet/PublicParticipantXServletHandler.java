@@ -75,7 +75,7 @@ public final class PublicParticipantXServletHandler implements IXServletSimpleHa
 
       if (aPI == null)
       {
-        // Still failure - try PEPPOL default scheme
+        // Still failure - try Peppol default scheme
         aPI = PDMetaManager.getIdentifierFactory ()
                            .createParticipantIdentifier (PeppolIdentifierFactory.INSTANCE.getDefaultParticipantIdentifierScheme (),
                                                          sID);

@@ -45,7 +45,7 @@ import com.helger.settings.exchange.configfile.ConfigFile;
 import com.helger.settings.exchange.configfile.ConfigFileBuilder;
 
 /**
- * This class manages the configuration properties of the PEPPOL Directory
+ * This class manages the configuration properties of the Peppol Directory
  * Server. The order of the properties file resolving is as follows:
  * <ol>
  * <li>Check for the value of the system property
@@ -75,9 +75,9 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
 
     s_aConfigFile = aCFB.build ();
     if (s_aConfigFile.isRead ())
-      LOGGER.info ("Read PEPPOL Directory server properties from " + s_aConfigFile.getReadResource ().getPath ());
+      LOGGER.info ("Read Peppol Directory server properties from " + s_aConfigFile.getReadResource ().getPath ());
     else
-      LOGGER.warn ("Failed to read PEPPOL Directory server properties from " + aCFB.getAllPaths ());
+      LOGGER.warn ("Failed to read Peppol Directory server properties from " + aCFB.getAllPaths ());
   }
 
   @Deprecated
@@ -86,7 +86,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   {}
 
   /**
-   * @return The global config file for the PEPPOL Directory server. Never
+   * @return The global config file for the Peppol Directory server. Never
    *         <code>null</code>.
    */
   @Nonnull
@@ -384,7 +384,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
     if ("esens".equalsIgnoreCase (sSMLURLProvider) || "bdxl".equalsIgnoreCase (sSMLURLProvider))
       return BDXLURLProvider.INSTANCE;
 
-    // Default is PEPPOL
+    // Default is Peppol
     return PeppolURLProvider.INSTANCE;
   }
 
@@ -397,7 +397,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
     if ("oasis-bdxr-v2".equalsIgnoreCase (sSMPMode))
       return EPDSMPMode.OASIS_BDXR_V2;
 
-    // Default is PEPPOL
+    // Default is Peppol
     return EPDSMPMode.PEPPOL;
   }
 

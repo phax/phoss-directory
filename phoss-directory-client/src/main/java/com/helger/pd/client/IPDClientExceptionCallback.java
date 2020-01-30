@@ -22,7 +22,7 @@ import com.helger.commons.callback.ICallback;
 import com.helger.peppolid.IParticipantIdentifier;
 
 /**
- * Special exception callback interface for the PEPPOL Directory client.
+ * Special exception callback interface for the Peppol Directory client.
  *
  * @author Philip Helger
  * @since 0.5.1

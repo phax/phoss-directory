@@ -88,7 +88,7 @@ public final class LocalHost8080FuncTest
     aBI.setParticipantIdentifier (new PDIdentifier (PeppolIdentifierHelper.DEFAULT_PARTICIPANT_SCHEME, "9915:mock"));
     {
       final PDBusinessEntity aEntity = new PDBusinessEntity ();
-      aEntity.names ().add (new PDName ("Philip's mock PEPPOL receiver"));
+      aEntity.names ().add (new PDName ("Philip's mock Peppol receiver"));
       aEntity.setCountryCode ("AT");
       aEntity.identifiers ().add (new PDIdentifier ("mock", "12345678"));
       aEntity.identifiers ().add (new PDIdentifier (aParticipantID.getScheme (), aParticipantID.getValue ()));
@@ -97,7 +97,7 @@ public final class LocalHost8080FuncTest
     }
     {
       final PDBusinessEntity aEntity = new PDBusinessEntity ();
-      aEntity.names ().add (new PDName ("Philip's mock PEPPOL receiver 2"));
+      aEntity.names ().add (new PDName ("Philip's mock Peppol receiver 2"));
       aEntity.setCountryCode ("NO");
       aEntity.identifiers ().add (new PDIdentifier ("mock", "abcdefgh"));
       aEntity.setAdditionalInfo ("This is another mock entry for testing purposes only");

@@ -30,7 +30,7 @@ import com.helger.settings.exchange.configfile.ConfigFile;
 import com.helger.settings.exchange.configfile.ConfigFileBuilder;
 
 /**
- * This class manages the configuration properties of the PEPPOL Directory
+ * This class manages the configuration properties of the Peppol Directory
  * client. The order of the properties file resolving is as follows:
  * <ol>
  * <li>Check for the value of the system property
@@ -78,9 +78,9 @@ public final class PDClientConfiguration
 
     final ConfigFile aConfigFile = aCFB.build ();
     if (aConfigFile.isRead ())
-      LOGGER.info ("Read PEPPOL Directory client properties from " + aConfigFile.getReadResource ().getPath ());
+      LOGGER.info ("Read Peppol Directory client properties from " + aConfigFile.getReadResource ().getPath ());
     else
-      LOGGER.warn ("Failed to read PEPPOL Directory client properties from " + aCFB.getAllPaths ());
+      LOGGER.warn ("Failed to read Peppol Directory client properties from " + aCFB.getAllPaths ());
 
     // Remember globally
     s_aRWLock.writeLocked ( () -> s_aConfigFile = aConfigFile);

@@ -57,7 +57,7 @@ import com.helger.commons.state.ESuccess;
 import com.helger.photon.app.io.WebFileIO;
 
 /**
- * The singleton wrapper around the Lucene index to be used in PEPPOL Directory.
+ * The singleton wrapper around the Lucene index to be used in Peppol Directory.
  *
  * @author Philip Helger
  */

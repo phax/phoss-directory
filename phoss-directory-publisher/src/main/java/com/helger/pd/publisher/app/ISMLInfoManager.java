@@ -52,7 +52,7 @@ public interface ISMLInfoManager
    * @param bClientCertificateRequired
    *        <code>true</code> if this SML requires a client certificate for
    *        access, <code>false</code> otherwise.<br>
-   *        Both PEPPOL production SML and SMK require a client certificate.
+   *        Both Peppol production SML and SMK require a client certificate.
    *        Only a locally running SML software may not require a client
    *        certificate.
    * @return Never <code>null</code>.
@@ -84,7 +84,7 @@ public interface ISMLInfoManager
    * @param bClientCertificateRequired
    *        <code>true</code> if this SML requires a client certificate for
    *        access, <code>false</code> otherwise.<br>
-   *        Both PEPPOL production SML and SMK require a client certificate.
+   *        Both Peppol production SML and SMK require a client certificate.
    *        Only a locally running SML software may not require a client
    *        certificate.
    * @return {@link EChange#CHANGED} if something was changed.

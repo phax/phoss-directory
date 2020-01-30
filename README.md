@@ -95,7 +95,9 @@ The Indexer has its own configuration file that is resolved from one of the foll
 The PD Publisher is the publicly accessible web site with listing and search functionality for certain participants.
 
 # News and noteworthy
- 
+
+* v0.8.5 - work in progress
+    * Finalized PEPPOL -> Peppol change
 * v0.8.4 - 2020-01-24
     * Updated to Jersey 2.30
     * The Directory client has no more default truststore path and password

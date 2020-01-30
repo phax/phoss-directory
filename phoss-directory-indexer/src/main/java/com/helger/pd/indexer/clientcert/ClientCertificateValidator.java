@@ -68,7 +68,7 @@ public final class ClientCertificateValidator
   private static final AtomicBoolean s_bIsCheckDisabled = new AtomicBoolean (!PDServerConfiguration.isClientCertificateValidationActive ());
 
   /**
-   * All PEPPOL root certificates from the truststore configuration. Never
+   * All Peppol root certificates from the truststore configuration. Never
    * empty.
    */
   private static final ICommonsList <X509Certificate> s_aPeppolSMPRootCerts = new CommonsArrayList <> ();
@@ -172,8 +172,8 @@ public final class ClientCertificateValidator
    * @param aCert
    *        The certificate to validate. May not be <code>null</code>.
    * @param aTrustedRootCert
-   *        The trusted root certificate. E.g. the PEPPOL or the OpenPEPPOL SMP
-   *        root certificate.
+   *        The trusted root certificate. E.g. the OpenPEPPOL SMP root
+   *        certificate.
    * @param aCRLs
    *        A non-<code>null</code> list with revocation lists to handle
    * @param aDT
@@ -332,7 +332,7 @@ public final class ClientCertificateValidator
 
     final String sClientID = getClientUniqueID (aClientCertToVerify);
 
-    // This is the main verification process against the PEPPOL SMP root
+    // This is the main verification process against the Peppol SMP root
     // certificate
     for (final X509Certificate aRootCert : s_aPeppolSMPRootCerts)
     {

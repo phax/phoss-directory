@@ -50,7 +50,7 @@ import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.factory.IIdentifierFactory;
 
 /**
- * PEPPOL Directory Lucene Query manager
+ * Peppol Directory Lucene Query manager
  *
  * @author Philip Helger
  */

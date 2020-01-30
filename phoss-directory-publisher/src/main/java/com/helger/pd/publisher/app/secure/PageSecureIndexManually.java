@@ -119,7 +119,7 @@ public final class PageSecureIndexManually extends AbstractAppWebPage
                                                  .setCtrl (new HCEdit (new RequestField (FIELD_PARTICIPANT_ID,
                                                                                          PeppolIdentifierHelper.DEFAULT_PARTICIPANT_SCHEME +
                                                                                                                CIdentifier.URL_SCHEME_VALUE_SEPARATOR)))
-                                                 .setHelpText ("Enter the fully qualified PEPPOL participant ID (including the scheme) you want to index.\nExample identifier layout: " +
+                                                 .setHelpText ("Enter the fully qualified Peppol participant ID (including the scheme) you want to index.\nExample identifier layout: " +
                                                                aIdentifierFactory.createParticipantIdentifier (PeppolIdentifierHelper.DEFAULT_PARTICIPANT_SCHEME,
                                                                                                                "9999:test")
                                                                                  .getURIEncoded ())

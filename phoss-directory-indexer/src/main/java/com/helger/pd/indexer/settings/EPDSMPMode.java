@@ -23,7 +23,7 @@ package com.helger.pd.indexer.settings;
  */
 public enum EPDSMPMode
 {
-  /** PEPPOL mode */
+  /** Peppol mode */
   PEPPOL,
   /** OASIS SMP v1 mode */
   OASIS_BDXR_V1,

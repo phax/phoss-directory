@@ -28,7 +28,7 @@ import com.helger.xml.microdom.convert.IMicroTypeConverterRegistrarSPI;
 import com.helger.xml.microdom.convert.IMicroTypeConverterRegistry;
 
 /**
- * Implementation of {@link IMicroTypeConverterRegistrarSPI} for PEPPOL
+ * Implementation of {@link IMicroTypeConverterRegistrarSPI} for Peppol
  * Directory indexer types
  *
  * @author Philip Helger

@@ -222,7 +222,7 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
           if (aStoredEntities.size () > 1)
             aCard.createAndAddHeader ().addChild ("Business information entity " + nIndex);
           final BootstrapViewForm aViewForm = PDCommonUI.showBusinessInfoDetails (aStoredEntity, aDisplayLocale);
-          aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Full PEPPOL participant ID")
+          aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Full Peppol participant ID")
                                                            .setCtrl (new HCCode ().addChild (sParticipantID)));
           aCard.createAndAddBody ().addChild (aViewForm);
           ++nIndex;

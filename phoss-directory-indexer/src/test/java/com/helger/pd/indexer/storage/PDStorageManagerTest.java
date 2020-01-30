@@ -71,7 +71,7 @@ public final class PDStorageManagerTest
       final PDBusinessEntity aEntity = new PDBusinessEntity ();
       aEntity.setCountryCode ("AT");
       aEntity.setRegistrationDate (PDTFactory.createLocalDate (2015, Month.JULY, 6));
-      aEntity.names ().add (new PDName ("Philip's mock PEPPOL receiver"));
+      aEntity.names ().add (new PDName ("Philip's mock Peppol receiver"));
       aEntity.setGeoInfo ("Vienna");
 
       for (int i = 0; i < 10; ++i)
@@ -117,7 +117,7 @@ public final class PDStorageManagerTest
         assertEquals ("AT", aDoc1.getCountryCode ());
         assertEquals (PDTFactory.createLocalDate (2015, Month.JULY, 6), aDoc1.getRegistrationDate ());
         assertEquals (1, aDoc1.names ().size ());
-        assertEquals ("Philip's mock PEPPOL receiver", aDoc1.names ().get (0).getName ());
+        assertEquals ("Philip's mock Peppol receiver", aDoc1.names ().get (0).getName ());
         assertNull (aDoc1.names ().get (0).getLanguageCode ());
         assertEquals ("Vienna", aDoc1.getGeoInfo ());
 

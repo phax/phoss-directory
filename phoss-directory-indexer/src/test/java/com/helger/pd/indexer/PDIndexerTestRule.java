@@ -30,7 +30,7 @@ import com.helger.photon.app.mock.PhotonAppWebTestRule;
 import com.helger.scope.mock.ScopeTestRule;
 
 /**
- * Special PEPPOL Directory test rule with the correct data path from the
+ * Special Peppol Directory test rule with the correct data path from the
  * settings file.
  *
  * @author Philip Helger

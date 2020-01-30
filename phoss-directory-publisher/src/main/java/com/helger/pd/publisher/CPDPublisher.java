@@ -39,7 +39,7 @@ public final class CPDPublisher
   public static final boolean EXPORT_PARTICIPANTS_JSON = true;
   public static final boolean EXPORT_PARTICIPANTS_CSV = true;
 
-  // APP Name - like "PEPPOL Directory"
+  // APP Name - like "Peppol Directory"
   private static final String APPLICATION_TITLE = PDServerConfiguration.getAppName ();
 
   private static ISimpleURL s_aLogoImageURL = new SimpleURL ("/imgs/peppol.png");

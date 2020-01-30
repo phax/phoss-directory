@@ -40,8 +40,8 @@ import com.helger.scope.IScope;
 import com.helger.scope.singleton.AbstractGlobalSingleton;
 
 /**
- * The PEPPOL Directory meta manager. It consists all the other managers for the
- * PEPPOL Directory indexing.
+ * The Peppol Directory meta manager. It consists all the other managers for the
+ * Peppol Directory indexing.
  *
  * @author Philip Helger
  */

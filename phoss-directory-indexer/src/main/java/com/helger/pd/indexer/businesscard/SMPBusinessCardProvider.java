@@ -60,7 +60,7 @@ import com.helger.peppolid.factory.IIdentifierFactory;
 /**
  * The SMP based {@link IPDBusinessCardProvider} implementation. An SMP lookup
  * of the ServiceGroup is performed, and the <code>Extension</code> element is
- * parsed for the elements as specified in the PEPPOL Directory specification.
+ * parsed for the elements as specified in the Peppol Directory specification.
  *
  * @author Philip Helger
  */
@@ -171,7 +171,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
 
     LOGGER.info ("Querying BusinessCard for '" +
                  aParticipantID.getURIEncoded () +
-                 "' from PEPPOL SMP '" +
+                 "' from Peppol SMP '" +
                  aSMPClient.getSMPHostURI () +
                  "'");
 

@@ -68,7 +68,7 @@ public class PDClient implements Closeable
   }
 
   /**
-   * The string representation of the PEPPOL Directory host URL, always ending
+   * The string representation of the Peppol Directory host URL, always ending
    * with a trailing slash!
    */
   private final String m_sPDHost;
@@ -80,10 +80,10 @@ public class PDClient implements Closeable
   private Credentials m_aProxyCredentials;
 
   /**
-   * Constructor with a direct PEPPOL Directory URL.
+   * Constructor with a direct Peppol Directory URL.
    *
    * @param sPDHost
-   *        The address of the PEPPOL Directory Server including the application
+   *        The address of the Peppol Directory Server including the application
    *        server context path but without the REST interface. May be http or
    *        https. Example: https://directory.peppol.eu/
    */
@@ -93,10 +93,10 @@ public class PDClient implements Closeable
   }
 
   /**
-   * Constructor with a direct PEPPOL Directory URL.
+   * Constructor with a direct Peppol Directory URL.
    *
    * @param aPDHost
-   *        The address of the PEPPOL Directory Server including the application
+   *        The address of the Peppol Directory Server including the application
    *        server context path but without the REST interface. May be http or
    *        https. Example: https://directory.peppol.eu/
    */
@@ -163,7 +163,7 @@ public class PDClient implements Closeable
   }
 
   /**
-   * @return The PEPPOL Directory host URI string we're operating on. Never
+   * @return The Peppol Directory host URI string we're operating on. Never
    *         <code>null</code>. Always has a trailing "/".
    */
   @Nonnull
@@ -173,7 +173,7 @@ public class PDClient implements Closeable
   }
 
   /**
-   * @return The HTTP proxy to be used to access the PEPPOL Directory server. Is
+   * @return The HTTP proxy to be used to access the Peppol Directory server. Is
    *         <code>null</code> by default.
    */
   @Nullable
@@ -183,7 +183,7 @@ public class PDClient implements Closeable
   }
 
   /**
-   * Set the proxy to be used to access the PEPPOL Directory server. By default
+   * Set the proxy to be used to access the Peppol Directory server. By default
    * the proxy is set in the constructor based on the client configuration.
    *
    * @param aProxy
@@ -195,7 +195,7 @@ public class PDClient implements Closeable
   }
 
   /**
-   * @return The HTTP proxy credentials to be used to access the PEPPOL
+   * @return The HTTP proxy credentials to be used to access the Peppol
    *         Directory server. Is <code>null</code> by default.
    */
   @Nullable
@@ -205,7 +205,7 @@ public class PDClient implements Closeable
   }
 
   /**
-   * Set the proxy Credentials to be used to access the PEPPOL Directory server.
+   * Set the proxy Credentials to be used to access the Peppol Directory server.
    *
    * @param aProxyCredentials
    *        May be <code>null</code> to indicate no proxy credentials necessary.
@@ -293,8 +293,8 @@ public class PDClient implements Closeable
       if (executeRequest (aPut, new PDClientResponseHandler ()).isSuccess ())
       {
         LOGGER.info ("Added service group '" +
-                        sParticipantID +
-                        "' to PEPPOL Directory index. May take some time until it shows up.");
+                     sParticipantID +
+                     "' to Peppol Directory index. May take some time until it shows up.");
         return ESuccess.SUCCESS;
       }
     }
@@ -317,8 +317,8 @@ public class PDClient implements Closeable
       {
         final String sParticipantID = aParticipantID.getURIEncoded ();
         LOGGER.info ("Removed service group '" +
-                        sParticipantID +
-                        "' from PEPPOL Directory index. May take some time until it is removed.");
+                     sParticipantID +
+                     "' from Peppol Directory index. May take some time until it is removed.");
         return ESuccess.SUCCESS;
       }
     }
