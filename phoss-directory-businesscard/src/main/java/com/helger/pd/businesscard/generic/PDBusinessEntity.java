@@ -28,6 +28,7 @@ import com.helger.commons.annotation.ReturnsMutableCopy;
 import com.helger.commons.annotation.ReturnsMutableObject;
 import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.ICommonsList;
+import com.helger.commons.datetime.PDTWebDateHelper;
 import com.helger.commons.equals.EqualsHelper;
 import com.helger.commons.hashcode.HashCodeGenerator;
 import com.helger.commons.lang.ICloneable;
@@ -264,6 +265,8 @@ public class PDBusinessEntity implements Serializable, ICloneable <PDBusinessEnt
       ret.appendChild (aContact.getAsMicroXML (sNamespaceURI, "contact"));
     if (hasAdditionalInfo ())
       ret.appendElement (sNamespaceURI, "additionalinfo").appendText (m_sAdditionalInfo);
+    if (hasRegistrationDate ())
+      ret.appendElement (sNamespaceURI, "regdate").appendText (PDTWebDateHelper.getAsStringXSD (m_aRegistrationDate));
     return ret;
   }
 
@@ -283,6 +286,8 @@ public class PDBusinessEntity implements Serializable, ICloneable <PDBusinessEnt
       ret.add ("contact", new JsonArray ().addAllMapped (m_aContacts, PDContact::getAsJson));
     if (hasAdditionalInfo ())
       ret.add ("additionalinfo", m_sAdditionalInfo);
+    if (hasRegistrationDate ())
+      ret.add ("regdate", PDTWebDateHelper.getAsStringXSD (m_aRegistrationDate));
     return ret;
   }
 
