@@ -34,15 +34,15 @@ import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.debug.GlobalDebug;
 import com.helger.commons.string.StringHelper;
 import com.helger.commons.url.URLHelper;
-import com.helger.peppol.url.BDXLURLProvider;
-import com.helger.peppol.url.IPeppolURLProvider;
-import com.helger.peppol.url.PeppolURLProvider;
 import com.helger.peppol.utils.PeppolKeyStoreHelper;
 import com.helger.scope.singleton.AbstractGlobalSingleton;
 import com.helger.security.keystore.EKeyStoreType;
 import com.helger.settings.ISettings;
 import com.helger.settings.exchange.configfile.ConfigFile;
 import com.helger.settings.exchange.configfile.ConfigFileBuilder;
+import com.helger.smpclient.url.BDXLURLProvider;
+import com.helger.smpclient.url.IPeppolURLProvider;
+import com.helger.smpclient.url.PeppolURLProvider;
 
 /**
  * This class manages the configuration properties of the Peppol Directory

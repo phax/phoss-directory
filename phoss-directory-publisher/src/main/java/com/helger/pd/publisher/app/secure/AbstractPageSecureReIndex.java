@@ -39,8 +39,6 @@ import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.pd.publisher.app.PDPMetaManager;
 import com.helger.pd.publisher.ui.AbstractAppWebPageForm;
 import com.helger.peppol.sml.ISMLInfo;
-import com.helger.peppol.url.IPeppolURLProvider;
-import com.helger.peppol.url.PeppolDNSResolutionException;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.photon.bootstrap4.alert.BootstrapErrorBox;
 import com.helger.photon.bootstrap4.alert.BootstrapQuestionBox;
@@ -59,6 +57,8 @@ import com.helger.photon.uicore.page.EWebPageFormAction;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 import com.helger.photon.uictrls.datatables.column.DTCol;
 import com.helger.photon.uictrls.datatables.column.EDTColType;
+import com.helger.smpclient.url.IPeppolURLProvider;
+import com.helger.smpclient.url.PeppolDNSResolutionException;
 
 public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <IReIndexWorkItem>
 {

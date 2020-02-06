@@ -29,7 +29,7 @@ import org.apache.http.entity.ContentType;
 import com.helger.commons.io.stream.StreamHelper;
 import com.helger.pd.businesscard.generic.PDBusinessCard;
 import com.helger.pd.businesscard.helper.PDBusinessCardHelper;
-import com.helger.peppol.httpclient.AbstractSMPResponseHandler;
+import com.helger.smpclient.httpclient.AbstractSMPResponseHandler;
 
 /**
  * Handle unsigned SMP responses and interpret as PD v1 or v2 or v3.

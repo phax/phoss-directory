@@ -31,9 +31,9 @@ import com.helger.commons.functional.ISupplier;
 import com.helger.commons.url.URLHelper;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.peppol.sml.ESML;
-import com.helger.peppol.smpclient.SMPClientReadOnly;
 import com.helger.peppolid.factory.PeppolIdentifierFactory;
 import com.helger.photon.app.mock.PhotonAppWebTestRule;
+import com.helger.smpclient.peppol.SMPClientReadOnly;
 
 /**
  * Test class for class {@link SMPBusinessCardProvider}.

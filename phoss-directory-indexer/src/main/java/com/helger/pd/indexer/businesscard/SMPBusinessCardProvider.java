@@ -46,16 +46,16 @@ import com.helger.pd.businesscard.generic.PDBusinessCard;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.settings.EPDSMPMode;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
-import com.helger.peppol.bdxr2client.BDXR2ClientReadOnly;
-import com.helger.peppol.bdxrclient.BDXRClientReadOnly;
 import com.helger.peppol.sml.ISMLInfo;
-import com.helger.peppol.smpclient.SMPClientReadOnly;
-import com.helger.peppol.smpclient.exception.SMPClientException;
-import com.helger.peppol.url.IPeppolURLProvider;
-import com.helger.peppol.url.PeppolDNSResolutionException;
 import com.helger.peppolid.IDocumentTypeIdentifier;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.factory.IIdentifierFactory;
+import com.helger.smpclient.bdxr1.BDXRClientReadOnly;
+import com.helger.smpclient.bdxr2.BDXR2ClientReadOnly;
+import com.helger.smpclient.exception.SMPClientException;
+import com.helger.smpclient.peppol.SMPClientReadOnly;
+import com.helger.smpclient.url.IPeppolURLProvider;
+import com.helger.smpclient.url.PeppolDNSResolutionException;
 
 /**
  * The SMP based {@link IPDBusinessCardProvider} implementation. An SMP lookup
