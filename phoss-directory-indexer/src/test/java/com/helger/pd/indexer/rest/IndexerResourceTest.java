@@ -152,7 +152,8 @@ public final class IndexerResourceTest
   @After
   public void tearDown ()
   {
-    m_aServer.shutdownNow ();
+    if (m_aServer != null)
+      m_aServer.shutdownNow ();
   }
 
   @Test
