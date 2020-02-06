@@ -100,6 +100,7 @@ The PD Publisher is the publicly accessible web site with listing and search fun
     * Finalized PEPPOL -> Peppol change
     * Added registration date to the export data (see [issue #45](https://github.com/phax/phoss-directory/issues/45))
     * Updated to peppol-commons 8.x
+    * Removed support for old PKI v2
 * v0.8.4 - 2020-01-24
     * Updated to Jersey 2.30
     * The Directory client has no more default truststore path and password
