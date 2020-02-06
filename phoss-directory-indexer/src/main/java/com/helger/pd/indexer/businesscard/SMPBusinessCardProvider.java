@@ -176,7 +176,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
                  "'");
 
     // First query the service group
-    com.helger.peppol.smp.ServiceGroupType aServiceGroup;
+    com.helger.smpclient.peppol.jaxb.ServiceGroupType aServiceGroup;
     try
     {
       aServiceGroup = aSMPClient.getServiceGroupOrNull (aParticipantID);
@@ -226,8 +226,8 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
     final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
     final ICommonsList <IDocumentTypeIdentifier> aDocumentTypeIDs = new CommonsArrayList <> ();
     if (aServiceGroup != null)
-      for (final com.helger.peppol.smp.ServiceMetadataReferenceType aRef : aServiceGroup.getServiceMetadataReferenceCollection ()
-                                                                                        .getServiceMetadataReference ())
+      for (final com.helger.smpclient.peppol.jaxb.ServiceMetadataReferenceType aRef : aServiceGroup.getServiceMetadataReferenceCollection ()
+                                                                                                   .getServiceMetadataReference ())
       {
         // Extract the path in case there are parameters or anchors attached
         final String sHref = new SimpleURL (aRef.getHref ()).getPath ();

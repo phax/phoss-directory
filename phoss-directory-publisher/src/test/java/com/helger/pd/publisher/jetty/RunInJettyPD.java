@@ -19,8 +19,8 @@ package com.helger.pd.publisher.jetty;
 import javax.annotation.concurrent.Immutable;
 
 import com.helger.httpclient.HttpDebugger;
-import com.helger.peppol.smpclient.SMPClientConfiguration;
 import com.helger.photon.jetty.JettyStarter;
+import com.helger.smpclient.config.SMPClientConfiguration;
 
 /**
  * Run as a standalone web application in Jetty on port 8080.<br>
