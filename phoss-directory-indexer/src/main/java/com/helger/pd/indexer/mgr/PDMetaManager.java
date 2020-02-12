@@ -32,9 +32,9 @@ import com.helger.commons.lang.ClassHelper;
 import com.helger.httpclient.HttpClientManager;
 import com.helger.pd.indexer.businesscard.IPDBusinessCardProvider;
 import com.helger.pd.indexer.lucene.PDLucene;
+import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.peppolid.factory.IIdentifierFactory;
-import com.helger.peppolid.factory.SimpleIdentifierFactory;
 import com.helger.photon.core.interror.InternalErrorBuilder;
 import com.helger.scope.IScope;
 import com.helger.scope.singleton.AbstractGlobalSingleton;
@@ -50,6 +50,7 @@ public final class PDMetaManager extends AbstractGlobalSingleton
   private static final Logger LOGGER = LoggerFactory.getLogger (PDMetaManager.class);
 
   private static final SimpleReadWriteLock s_aRWLock = new SimpleReadWriteLock ();
+  private static final IIdentifierFactory s_aIF = PDServerConfiguration.getIdentifierFactory ();
   @GuardedBy ("s_aRWLock")
   private static IPDBusinessCardProvider s_aBCProvider;
 
@@ -156,6 +157,6 @@ public final class PDMetaManager extends AbstractGlobalSingleton
   @Nonnull
   public static IIdentifierFactory getIdentifierFactory ()
   {
-    return SimpleIdentifierFactory.INSTANCE;
+    return s_aIF;
   }
 }

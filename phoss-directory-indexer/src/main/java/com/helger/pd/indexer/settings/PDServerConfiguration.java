@@ -36,6 +36,11 @@ import com.helger.commons.string.StringHelper;
 import com.helger.commons.url.URLHelper;
 import com.helger.peppol.sml.ESMPAPIType;
 import com.helger.peppol.utils.PeppolKeyStoreHelper;
+import com.helger.peppolid.factory.BDXR1IdentifierFactory;
+import com.helger.peppolid.factory.BDXR2IdentifierFactory;
+import com.helger.peppolid.factory.IIdentifierFactory;
+import com.helger.peppolid.factory.PeppolIdentifierFactory;
+import com.helger.peppolid.factory.SimpleIdentifierFactory;
 import com.helger.scope.singleton.AbstractGlobalSingleton;
 import com.helger.security.keystore.EKeyStoreType;
 import com.helger.settings.ISettings;
@@ -400,6 +405,21 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
 
     // Default is Peppol
     return ESMPAPIType.PEPPOL;
+  }
+
+  @Nonnull
+  public static IIdentifierFactory getIdentifierFactory ()
+  {
+    final String sSMPMode = getConfigFile ().getAsString ("identifier.type");
+    if ("oasis-bdxr-v1".equalsIgnoreCase (sSMPMode))
+      return BDXR1IdentifierFactory.INSTANCE;
+    if ("oasis-bdxr-v2".equalsIgnoreCase (sSMPMode))
+      return BDXR2IdentifierFactory.INSTANCE;
+    if ("simple".equalsIgnoreCase (sSMPMode))
+      return SimpleIdentifierFactory.INSTANCE;
+
+    // Default is Peppol
+    return PeppolIdentifierFactory.INSTANCE;
   }
 
   @CheckForSigned
