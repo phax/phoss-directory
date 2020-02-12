@@ -35,15 +35,21 @@ import com.helger.photon.bootstrap4.badge.BootstrapBadge;
 public interface IHCBootstrap4Trait extends IHCTrait
 {
   @Nonnull
+  default BootstrapBadge badge ()
+  {
+    return new BootstrapBadge ();
+  }
+
+  @Nonnull
   default BootstrapBadge badge (final int nValue)
   {
-    return BootstrapBadge.createNumeric (nValue);
+    return new BootstrapBadge ().addChild (Integer.toString (nValue));
   }
 
   @Nonnull
   default BootstrapBadge badge (final long nValue)
   {
-    return BootstrapBadge.createNumeric (nValue);
+    return new BootstrapBadge ().addChild (Long.toString (nValue));
   }
 
   @Nonnull
@@ -56,6 +62,12 @@ public interface IHCBootstrap4Trait extends IHCTrait
   default BootstrapBadge badge (@Nullable final String s)
   {
     return new BootstrapBadge ().addChild (s);
+  }
+
+  @Nonnull
+  default BootstrapBadge badge (@Nullable final Iterable <? extends IHCNode> aNodes)
+  {
+    return new BootstrapBadge ().addChildren (aNodes);
   }
 
   @Nonnull
@@ -77,6 +89,12 @@ public interface IHCBootstrap4Trait extends IHCTrait
   }
 
   @Nonnull
+  default BootstrapErrorBox error (@Nullable final Iterable <? extends IHCNode> aNodes)
+  {
+    return new BootstrapErrorBox ().addChildren (aNodes);
+  }
+
+  @Nonnull
   default BootstrapInfoBox info ()
   {
     return new BootstrapInfoBox ();
@@ -92,6 +110,12 @@ public interface IHCBootstrap4Trait extends IHCTrait
   default BootstrapInfoBox info (@Nullable final String s)
   {
     return new BootstrapInfoBox ().addChild (s);
+  }
+
+  @Nonnull
+  default BootstrapInfoBox info (@Nullable final Iterable <? extends IHCNode> aNodes)
+  {
+    return new BootstrapInfoBox ().addChildren (aNodes);
   }
 
   @Nonnull
@@ -113,6 +137,12 @@ public interface IHCBootstrap4Trait extends IHCTrait
   }
 
   @Nonnull
+  default BootstrapQuestionBox question (@Nullable final Iterable <? extends IHCNode> aNodes)
+  {
+    return new BootstrapQuestionBox ().addChildren (aNodes);
+  }
+
+  @Nonnull
   default BootstrapSuccessBox success ()
   {
     return new BootstrapSuccessBox ();
@@ -131,6 +161,12 @@ public interface IHCBootstrap4Trait extends IHCTrait
   }
 
   @Nonnull
+  default BootstrapSuccessBox success (@Nullable final Iterable <? extends IHCNode> aNodes)
+  {
+    return new BootstrapSuccessBox ().addChildren (aNodes);
+  }
+
+  @Nonnull
   default BootstrapWarnBox warn ()
   {
     return new BootstrapWarnBox ();
@@ -146,5 +182,11 @@ public interface IHCBootstrap4Trait extends IHCTrait
   default BootstrapWarnBox warn (@Nullable final String s)
   {
     return new BootstrapWarnBox ().addChild (s);
+  }
+
+  @Nonnull
+  default BootstrapWarnBox warn (@Nullable final Iterable <? extends IHCNode> aNodes)
+  {
+    return new BootstrapWarnBox ().addChildren (aNodes);
   }
 }
