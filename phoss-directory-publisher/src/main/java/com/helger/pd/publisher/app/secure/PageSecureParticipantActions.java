@@ -256,7 +256,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
         aIndexerMgr.queueWorkItem (aIF.parseParticipantIdentifier (s),
                                    EIndexerWorkItemType.DELETE,
                                    "duplicate-elimination",
-                                   "localhost");
+                                   PDIndexerManager.HOST_LOCALHOST);
       }
 
       if (aPIsToAdd.isNotEmpty ())
@@ -269,7 +269,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
           aIndexerMgr.queueWorkItem (aIF.parseParticipantIdentifier (s),
                                      EIndexerWorkItemType.CREATE_UPDATE,
                                      "duplicate-elimination",
-                                     "localhost");
+                                     PDIndexerManager.HOST_LOCALHOST);
         }
       }
 

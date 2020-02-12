@@ -40,9 +40,6 @@ import com.helger.html.hc.IHCNode;
 import com.helger.html.hc.html.grouping.HCLI;
 import com.helger.html.hc.html.grouping.HCOL;
 import com.helger.html.hc.html.sections.HCH1;
-import com.helger.html.hc.html.textlevel.HCCode;
-import com.helger.html.hc.html.textlevel.HCSmall;
-import com.helger.html.hc.html.textlevel.HCSpan;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
@@ -57,9 +54,6 @@ import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.factory.PeppolIdentifierFactory;
 import com.helger.peppolid.peppol.pidscheme.IParticipantIdentifierScheme;
 import com.helger.peppolid.peppol.pidscheme.ParticipantIdentifierSchemeManager;
-import com.helger.photon.bootstrap4.alert.BootstrapInfoBox;
-import com.helger.photon.bootstrap4.alert.BootstrapWarnBox;
-import com.helger.photon.bootstrap4.badge.BootstrapBadge;
 import com.helger.photon.bootstrap4.badge.EBootstrapBadgeType;
 import com.helger.photon.bootstrap4.card.BootstrapCard;
 import com.helger.photon.bootstrap4.form.BootstrapFormGroup;
@@ -162,9 +156,9 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
   }
 
   @Nonnull
-  protected static HCNodeList createParticipantDetails (@Nonnull final Locale aDisplayLocale,
-                                                        @Nonnull final String sParticipantID,
-                                                        @Nonnull final IParticipantIdentifier aParticipantID)
+  protected HCNodeList createParticipantDetails (@Nonnull final Locale aDisplayLocale,
+                                                 @Nonnull final String sParticipantID,
+                                                 @Nonnull final IParticipantIdentifier aParticipantID)
   {
     final HCNodeList aDetails = new HCNodeList ();
 
@@ -195,9 +189,9 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
           final IParticipantIdentifierScheme aIIA = ParticipantIdentifierSchemeManager.getSchemeOfIdentifier (aParticipantID);
           if (aIIA != null)
           {
-            final HCH1 aH1 = new HCH1 ().addChild ("Details for: " + aParticipantID.getValue ());
+            final HCH1 aH1 = h1 ("Details for: " + aParticipantID.getValue ());
             if (StringHelper.hasText (aIIA.getSchemeAgency ()))
-              aH1.addChild (new HCSmall ().addChild (" (" + aIIA.getSchemeAgency () + ")"));
+              aH1.addChild (small (" (" + aIIA.getSchemeAgency () + ")"));
             aDetailsHeader = new BootstrapPageHeader ().addChild (aH1);
           }
         }
@@ -223,14 +217,12 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
             aCard.createAndAddHeader ().addChild ("Business information entity " + nIndex);
           final BootstrapViewForm aViewForm = PDCommonUI.showBusinessInfoDetails (aStoredEntity, aDisplayLocale);
           aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Full Peppol participant ID")
-                                                           .setCtrl (new HCCode ().addChild (sParticipantID)));
+                                                           .setCtrl (code (sParticipantID)));
           aCard.createAndAddBody ().addChild (aViewForm);
           ++nIndex;
         }
         // Add whole list or just the first item?
-        final IHCNode aTabLabel = new HCSpan ().addChild ("Business information ")
-                                               .addChild (BootstrapBadge.createNumeric (aStoredEntities.size ())
-                                                                        .setBadgeType (EBootstrapBadgeType.PRIMARY));
+        final IHCNode aTabLabel = span ("Business information ").addChild (badge (aStoredEntities.size ()).setBadgeType (EBootstrapBadgeType.PRIMARY));
         aTabBox.addTab ("businessinfo", aTabLabel, aOL, true);
       }
 
@@ -240,12 +232,9 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
         final ICommonsList <String> aNames = new CommonsArrayList <> ();
         for (final PDStoredBusinessEntity aStoredEntity : aStoredEntities)
           aNames.addAllMapped (aStoredEntity.names (), PDStoredMLName::getName);
-        aDocTypeCtrl.addChild (new BootstrapInfoBox ().addChild ("The following document types are supported by " +
-                                                                 _getImplodedMapped (", ",
-                                                                                     " and ",
-                                                                                     aNames,
-                                                                                     x -> "'" + x + "'") +
-                                                                 ":"));
+        aDocTypeCtrl.addChild (info ("The following document types are supported by " +
+                                     _getImplodedMapped (", ", " and ", aNames, x -> "'" + x + "'") +
+                                     ":"));
 
         HCOL aDocTypeOL = null;
         final ICommonsList <IDocumentTypeIdentifier> aDocTypeIDs = aResultDocs.getFirst ()
@@ -261,12 +250,10 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
         }
 
         if (aDocTypeOL == null)
-          aDocTypeCtrl.addChild (new BootstrapWarnBox ().addChild ("This participant does not support any document types!"));
+          aDocTypeCtrl.addChild (warn ("This participant does not support any document types!"));
 
         aTabBox.addTab ("doctypes",
-                        new HCSpan ().addChild ("Supported document types ")
-                                     .addChild (BootstrapBadge.createNumeric (aDocTypeIDs.size ())
-                                                              .setBadgeType (EBootstrapBadgeType.PRIMARY)),
+                        span ("Supported document types ").addChild (badge (aDocTypeIDs.size ()).setBadgeType (EBootstrapBadgeType.PRIMARY)),
                         aDocTypeCtrl,
                         false);
       }

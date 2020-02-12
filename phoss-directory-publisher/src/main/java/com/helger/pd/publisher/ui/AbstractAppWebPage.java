@@ -23,7 +23,7 @@ import com.helger.photon.bootstrap4.pages.AbstractBootstrapWebPage;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 
 public abstract class AbstractAppWebPage extends AbstractBootstrapWebPage <WebPageExecutionContext> implements
-                                         ISimpleHCBootstrap4
+                                         IHCBootstrap4Trait
 {
   public AbstractAppWebPage (@Nonnull @Nonempty final String sID, @Nonnull final String sName)
   {

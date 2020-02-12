@@ -99,7 +99,10 @@ public final class SyncAllBusinessCardsJob extends AbstractScopeAwareJob
                                                            .keySet ();
     for (final IParticipantIdentifier aParticipantID : aAll)
     {
-      aIndexerMgr.queueWorkItem (aParticipantID, EIndexerWorkItemType.SYNC, "sync-job", "localhost");
+      aIndexerMgr.queueWorkItem (aParticipantID,
+                                 EIndexerWorkItemType.SYNC,
+                                 "sync-job",
+                                 PDIndexerManager.HOST_LOCALHOST);
     }
     LOGGER.info ("Finished synchronizing of " + aAll.size () + " business cards");
     AuditHelper.onAuditExecuteSuccess ("sync-bc-started",

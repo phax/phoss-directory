@@ -38,6 +38,7 @@ import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.businesscard.IPDBusinessCardProvider;
 import com.helger.pd.indexer.businesscard.SMPBusinessCardProvider;
 import com.helger.pd.indexer.index.EIndexerWorkItemType;
+import com.helger.pd.indexer.mgr.PDIndexerManager;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.publisher.app.AppCommonUI;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
@@ -140,7 +141,7 @@ public final class PageSecureIndexImport extends AbstractAppWebPage
                                  .queueWorkItem (aParticipantID,
                                                  EIndexerWorkItemType.CREATE_UPDATE,
                                                  "import-triggered",
-                                                 "localhost")
+                                                 PDIndexerManager.HOST_LOCALHOST)
                                  .isChanged ())
                 {
                   aQueued.add (aParticipantID);

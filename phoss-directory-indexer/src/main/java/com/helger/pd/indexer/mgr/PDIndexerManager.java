@@ -69,6 +69,8 @@ import com.helger.xml.microdom.serialize.MicroWriter;
  */
 public final class PDIndexerManager implements Closeable
 {
+  public static final String HOST_LOCALHOST = "localhost";
+
   private static final Logger LOGGER = LoggerFactory.getLogger (PDIndexerManager.class);
   private static final String ELEMENT_ROOT = "root";
   private static final String ELEMENT_ITEM = "item";

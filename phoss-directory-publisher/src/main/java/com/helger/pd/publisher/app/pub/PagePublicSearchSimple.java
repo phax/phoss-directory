@@ -43,8 +43,6 @@ import com.helger.html.hc.html.grouping.HCDiv;
 import com.helger.html.hc.html.grouping.HCOL;
 import com.helger.html.hc.html.grouping.HCUL;
 import com.helger.html.hc.html.tabular.HCCol;
-import com.helger.html.hc.html.textlevel.HCCode;
-import com.helger.html.hc.html.textlevel.HCSpan;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.CPDStorage;
@@ -61,9 +59,6 @@ import com.helger.peppolid.factory.PeppolIdentifierFactory;
 import com.helger.peppolid.peppol.pidscheme.IParticipantIdentifierScheme;
 import com.helger.peppolid.peppol.pidscheme.ParticipantIdentifierSchemeManager;
 import com.helger.photon.bootstrap4.CBootstrapCSS;
-import com.helger.photon.bootstrap4.alert.BootstrapErrorBox;
-import com.helger.photon.bootstrap4.alert.BootstrapInfoBox;
-import com.helger.photon.bootstrap4.badge.BootstrapBadge;
 import com.helger.photon.bootstrap4.badge.EBootstrapBadgeType;
 import com.helger.photon.bootstrap4.button.BootstrapButton;
 import com.helger.photon.bootstrap4.button.BootstrapSubmitButton;
@@ -105,17 +100,17 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
   }
 
   @Nonnull
-  private static BootstrapRow _createInitialSearchForm (final WebPageExecutionContext aWPEC)
+  private BootstrapRow _createInitialSearchForm (final WebPageExecutionContext aWPEC)
   {
     final HCForm aBigQueryBox = new HCForm ().setAction (aWPEC.getSelfHref ()).setMethod (EHCFormMethod.GET);
 
     final HCEdit aQueryEdit = _createQueryEdit ();
-    aBigQueryBox.addChild (new HCDiv ().addClass (CSS_CLASS_BIG_QUERY_BOX).addChild (aQueryEdit));
+    aBigQueryBox.addChild (div (aQueryEdit).addClass (CSS_CLASS_BIG_QUERY_BOX));
 
     {
       final String sHelpText = "Enter the name, address, ID or any other keyword of the entity you are looking for.";
       if (s_eUIMode.isUseHelptext ())
-        aBigQueryBox.addChild (new HCDiv ().addClass (CSS_CLASS_BIG_QUERY_HELPTEXT).addChild (sHelpText));
+        aBigQueryBox.addChild (div (sHelpText).addClass (CSS_CLASS_BIG_QUERY_HELPTEXT));
       else
         aQueryEdit.setPlaceholder (sHelpText);
     }
@@ -135,9 +130,9 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     return aBodyRow;
   }
 
-  private static void _showResultList (@Nonnull final WebPageExecutionContext aWPEC,
-                                       @Nonnull @Nonempty final String sQuery,
-                                       @Nonnegative final int nMaxResults)
+  private void _showResultList (@Nonnull final WebPageExecutionContext aWPEC,
+                                @Nonnull @Nonempty final String sQuery,
+                                @Nonnegative final int nMaxResults)
   {
     final HCNodeList aNodeList = aWPEC.getNodeList ();
     final Locale aDisplayLocale = aWPEC.getDisplayLocale ();
@@ -176,22 +171,20 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     // Display results
     if (aGroupedBEs.isEmpty ())
     {
-      aNodeList.addChild (new BootstrapInfoBox ().addChild ("No search results found for query '" + sQuery + "'"));
+      aNodeList.addChild (info ("No search results found for query '" + sQuery + "'"));
     }
     else
     {
-      aNodeList.addChild (new HCDiv ().addChild (new BootstrapBadge (EBootstrapBadgeType.SUCCESS).addChild ("Found " +
-                                                                                                            (aGroupedBEs.size () == 1 ? "1 entity"
-                                                                                                                                      : aGroupedBEs.size () +
-                                                                                                                                        " entities") +
-                                                                                                            " matching '" +
-                                                                                                            sQuery +
-                                                                                                            "'")));
+      aNodeList.addChild (div (badge ("Found " +
+                                      (aGroupedBEs.size () == 1 ? "1 entity" : aGroupedBEs.size () + " entities") +
+                                      " matching '" +
+                                      sQuery +
+                                      "'")));
       if (nTotalBEs > nMaxResults)
       {
-        aNodeList.addChild (new HCDiv ().addChild (new BootstrapBadge (EBootstrapBadgeType.WARNING).addChild ("Found more entities than displayed (" +
-                                                                                                              nTotalBEs +
-                                                                                                              " entries exist). Try to be more specific.")));
+        aNodeList.addChild (div (badge ("Found more entities than displayed (" +
+                                        nTotalBEs +
+                                        " entries exist). Try to be more specific.").setBadgeType (EBootstrapBadgeType.WARNING)));
       }
 
       // Show basic information
@@ -202,7 +195,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
         final ICommonsList <PDStoredBusinessEntity> aDocs = aEntry.getValue ();
 
         // Start result document
-        final HCDiv aResultItem = new HCDiv ().addClass (CSS_CLASS_RESULT_DOC);
+        final HCDiv aResultItem = div ().addClass (CSS_CLASS_RESULT_DOC);
         final HCDiv aHeadRow = aResultItem.addAndReturnChild (new HCDiv ());
         {
           final boolean bIsPeppolDefault = aDocParticipantID.hasScheme (PeppolIdentifierFactory.INSTANCE.getDefaultParticipantIdentifierScheme ());
@@ -211,15 +204,16 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
           {
             final IParticipantIdentifierScheme aIIA = ParticipantIdentifierSchemeManager.getSchemeOfIdentifier (aDocParticipantID);
             if (aIIA != null)
-              aParticipant = new HCNodeList ().addChild (aDocParticipantID.getValue () +
-                                                         " (" +
-                                                         aIIA.getSchemeAgency () +
-                                                         ")");
+            {
+              aParticipant = new HCNodeList ().addChild (aDocParticipantID.getValue ());
+              if (StringHelper.hasText (aIIA.getSchemeAgency ()))
+                ((HCNodeList) aParticipant).addChild (" (" + aIIA.getSchemeAgency () + ")");
+            }
           }
           if (aParticipant == null)
           {
             // Fallback
-            aParticipant = new HCCode ().addChild (aDocParticipantID.getURIEncoded ());
+            aParticipant = code (aDocParticipantID.getURIEncoded ());
           }
           aHeadRow.addChild ("Participant ID: ").addChild (aParticipant);
         }
@@ -241,12 +235,11 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
                   .addCell ("Country:")
                   .addCell (new HCNodeList ().addChild (PDCommonUI.getFlagNode (sCountryCode))
                                              .addChild (" ")
-                                             .addChild (new HCSpan ().addChild (aCountry != null ? aCountry.getDisplayCountry (aDisplayLocale) +
-                                                                                                   " (" +
-                                                                                                   sCountryCode +
-                                                                                                   ")"
-                                                                                                 : sCountryCode)
-                                                                     .addClass (CSS_CLASS_RESULT_DOC_COUNTRY_CODE)));
+                                             .addChild (span (aCountry != null ? aCountry.getDisplayCountry (aDisplayLocale) +
+                                                                                 " (" +
+                                                                                 sCountryCode +
+                                                                                 ")"
+                                                                               : sCountryCode).addClass (CSS_CLASS_RESULT_DOC_COUNTRY_CODE)));
           }
 
           if (aStoredDoc.names ().isNotEmpty ())
@@ -267,19 +260,17 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
 
             aTable.addBodyRow ()
                   .addCell ("Entity Name:")
-                  .addCell (new HCSpan ().addChild (aNameCtrl).addClass (CSS_CLASS_RESULT_DOC_NAME));
+                  .addCell (span (aNameCtrl).addClass (CSS_CLASS_RESULT_DOC_NAME));
           }
 
           if (aStoredDoc.hasGeoInfo ())
             aTable.addBodyRow ()
                   .addCell ("Geographical information:")
-                  .addCell (new HCDiv ().addChildren (HCExtHelper.nl2divList (aStoredDoc.getGeoInfo ()))
-                                        .addClass (CSS_CLASS_RESULT_DOC_GEOINFO));
+                  .addCell (div (HCExtHelper.nl2divList (aStoredDoc.getGeoInfo ())).addClass (CSS_CLASS_RESULT_DOC_GEOINFO));
           if (aStoredDoc.hasAdditionalInformation ())
             aTable.addBodyRow ()
                   .addCell ("Additional information:")
-                  .addCell (new HCDiv ().addChildren (HCExtHelper.nl2divList (aStoredDoc.getAdditionalInformation ()))
-                                        .addClass (CSS_CLASS_RESULT_DOC_FREETEXT));
+                  .addCell (div (HCExtHelper.nl2divList (aStoredDoc.getAdditionalInformation ())).addClass (CSS_CLASS_RESULT_DOC_FREETEXT));
           aUL.addAndReturnItem (aTable).addClass (CSS_CLASS_RESULT_DOC_HEADER);
         }
 
@@ -294,7 +285,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
                                                                                                                           CPageParam.ACTION_VIEW)
                                                                                                                     .add (FIELD_PARTICIPANT_ID,
                                                                                                                           aDocParticipantID.getURIEncoded ()));
-        aResultItem.addChild (new HCDiv ().addChild (aShowDetailsBtn));
+        aResultItem.addChild (div (aShowDetailsBtn));
         aOL.addItem (aResultItem);
 
         // Is the max result limit reached?
@@ -356,9 +347,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
       }
       else
       {
-        aLogo.addChild (new BootstrapErrorBox ().addChild ("Failed to parse participant identifier '" +
-                                                           sParticipantID +
-                                                           "'"));
+        aLogo.addChild (error ("Failed to parse participant identifier '" + sParticipantID + "'"));
       }
     }
 

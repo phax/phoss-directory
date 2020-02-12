@@ -30,7 +30,6 @@ import com.helger.commons.collection.impl.ICommonsSortedMap;
 import com.helger.commons.compare.ESortOrder;
 import com.helger.commons.mutable.MutableInt;
 import com.helger.commons.url.ISimpleURL;
-import com.helger.html.hc.html.sections.HCH3;
 import com.helger.html.hc.html.tabular.HCRow;
 import com.helger.html.hc.html.tabular.HCTable;
 import com.helger.html.hc.html.tabular.IHCCell;
@@ -43,8 +42,6 @@ import com.helger.pd.publisher.app.pub.PagePublicSearchSimple;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.factory.IIdentifierFactory;
-import com.helger.photon.bootstrap4.alert.BootstrapErrorBox;
-import com.helger.photon.bootstrap4.alert.BootstrapInfoBox;
 import com.helger.photon.bootstrap4.uictrls.datatables.BootstrapDTColAction;
 import com.helger.photon.bootstrap4.uictrls.datatables.BootstrapDataTables;
 import com.helger.photon.core.appid.CApplicationID;
@@ -93,19 +90,19 @@ public final class PageSecureParticipantList extends AbstractAppWebPage
           // ignore
         }
         if (bSuccess)
-          aNodeList.addChild (new BootstrapInfoBox ().addChild ("The participant '" +
-                                                                aParticipantID.getURIEncoded () +
-                                                                "' was scheduled for deletion"));
+          aNodeList.addChild (info ("The participant '" +
+                                    aParticipantID.getURIEncoded () +
+                                    "' was scheduled for deletion"));
         else
-          aNodeList.addChild (new BootstrapErrorBox ().addChild ("Error scheduling participant '" +
-                                                                 aParticipantID.getURIEncoded () +
-                                                                 "' for deletion"));
+          aNodeList.addChild (error ("Error scheduling participant '" +
+                                     aParticipantID.getURIEncoded () +
+                                     "' for deletion"));
       }
     }
 
     final ICommonsSortedMap <IParticipantIdentifier, MutableInt> aAllIDs = PDMetaManager.getStorageMgr ()
                                                                                         .getAllContainedParticipantIDs (EQueryMode.NON_DELETED_ONLY);
-    aNodeList.addChild (new HCH3 ().addChild (aAllIDs.size () + " participants (=Business Cards) are contained"));
+    aNodeList.addChild (h3 (aAllIDs.size () + " participants (=Business Cards) are contained"));
 
     int nMaxEntries;
     if (aWPEC.params ().containsKey (PARAM_SHOW_ALL))
@@ -121,13 +118,13 @@ public final class PageSecureParticipantList extends AbstractAppWebPage
 
       if (aAllIDs.size () > nMaxEntries)
       {
-        aNodeList.addChild (new BootstrapInfoBox ().addChild ("Showing only the first " +
-                                                              nMaxEntries +
-                                                              " participant(s), to avoid too much load on the server. Use the parameter '" +
-                                                              PARAM_SHOW_ALL +
-                                                              "' to show all participants, or '" +
-                                                              PARAM_MAX_ENTRIES +
-                                                              "' to specify a maximum number of entries."));
+        aNodeList.addChild (info ("Showing only the first " +
+                                  nMaxEntries +
+                                  " participant(s), to avoid too much load on the server. Use the parameter '" +
+                                  PARAM_SHOW_ALL +
+                                  "' to show all participants, or '" +
+                                  PARAM_MAX_ENTRIES +
+                                  "' to specify a maximum number of entries."));
       }
     }
 

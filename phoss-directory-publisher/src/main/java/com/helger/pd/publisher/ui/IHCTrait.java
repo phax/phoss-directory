@@ -29,6 +29,7 @@ import com.helger.html.hc.html.sections.HCH5;
 import com.helger.html.hc.html.sections.HCH6;
 import com.helger.html.hc.html.textlevel.HCCode;
 import com.helger.html.hc.html.textlevel.HCEM;
+import com.helger.html.hc.html.textlevel.HCSmall;
 import com.helger.html.hc.html.textlevel.HCSpan;
 import com.helger.html.hc.html.textlevel.HCStrong;
 
@@ -37,7 +38,7 @@ import com.helger.html.hc.html.textlevel.HCStrong;
  *
  * @author Philip Helger
  */
-public interface ISimpleHC
+public interface IHCTrait
 {
   @Nonnull
   default HCCode code (@Nullable final IHCNode aNode)
@@ -52,6 +53,12 @@ public interface ISimpleHC
   }
 
   @Nonnull
+  default HCDiv div ()
+  {
+    return new HCDiv ();
+  }
+
+  @Nonnull
   default HCDiv div (@Nullable final IHCNode aNode)
   {
     return new HCDiv ().addChild (aNode);
@@ -61,6 +68,12 @@ public interface ISimpleHC
   default HCDiv div (@Nullable final String s)
   {
     return new HCDiv ().addChild (s);
+  }
+
+  @Nonnull
+  default HCDiv div (@Nullable final Iterable <? extends IHCNode> aNodes)
+  {
+    return new HCDiv ().addChildren (aNodes);
   }
 
   @Nonnull
@@ -145,6 +158,18 @@ public interface ISimpleHC
   default HCH6 h6 (@Nullable final String s)
   {
     return new HCH6 ().addChild (s);
+  }
+
+  @Nonnull
+  default HCSmall small (@Nullable final IHCNode aNode)
+  {
+    return new HCSmall ().addChild (aNode);
+  }
+
+  @Nonnull
+  default HCSmall small (@Nullable final String s)
+  {
+    return new HCSmall ().addChild (s);
   }
 
   @Nonnull

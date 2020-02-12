@@ -29,9 +29,7 @@ import com.helger.html.hc.html.forms.HCHiddenField;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
-import com.helger.photon.bootstrap4.alert.BootstrapInfoBox;
 import com.helger.photon.bootstrap4.alert.BootstrapSuccessBox;
-import com.helger.photon.bootstrap4.alert.BootstrapWarnBox;
 import com.helger.photon.bootstrap4.button.BootstrapButton;
 import com.helger.photon.bootstrap4.button.BootstrapSubmitButton;
 import com.helger.photon.bootstrap4.form.BootstrapForm;
@@ -125,8 +123,8 @@ public final class PagePublicContact extends AbstractAppWebPage
 
     if (bShowForm)
     {
-      aNodeList.addChild (new BootstrapInfoBox ().addChild ("Alternatively write an email to pd[at]helger.com - usually using the below form is more effective!"));
-      aNodeList.addChild (new BootstrapWarnBox ().addChild ("Please don't request any change of data via this contact form - contact your service provider instead. Thank you."));
+      aNodeList.addChild (info ("Alternatively write an email to pd[at]helger.com - usually using the below form is more effective!"));
+      aNodeList.addChild (warn ("Please don't request any change of data via this contact form - contact your service provider instead. Thank you."));
 
       final BootstrapForm aForm = aNodeList.addAndReturnChild (getUIHandler ().createFormSelf (aWPEC));
       aForm.addFormGroup (new BootstrapFormGroup ().setLabelMandatory ("Your name")

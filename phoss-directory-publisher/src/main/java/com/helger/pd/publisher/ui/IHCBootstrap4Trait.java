@@ -25,14 +25,39 @@ import com.helger.photon.bootstrap4.alert.BootstrapInfoBox;
 import com.helger.photon.bootstrap4.alert.BootstrapQuestionBox;
 import com.helger.photon.bootstrap4.alert.BootstrapSuccessBox;
 import com.helger.photon.bootstrap4.alert.BootstrapWarnBox;
+import com.helger.photon.bootstrap4.badge.BootstrapBadge;
 
 /**
  * Traits interface to add simpler UI codes.
  *
  * @author Philip Helger
  */
-public interface ISimpleHCBootstrap4 extends ISimpleHC
+public interface IHCBootstrap4Trait extends IHCTrait
 {
+  @Nonnull
+  default BootstrapBadge badge (final int nValue)
+  {
+    return BootstrapBadge.createNumeric (nValue);
+  }
+
+  @Nonnull
+  default BootstrapBadge badge (final long nValue)
+  {
+    return BootstrapBadge.createNumeric (nValue);
+  }
+
+  @Nonnull
+  default BootstrapBadge badge (@Nullable final IHCNode aNode)
+  {
+    return new BootstrapBadge ().addChild (aNode);
+  }
+
+  @Nonnull
+  default BootstrapBadge badge (@Nullable final String s)
+  {
+    return new BootstrapBadge ().addChild (s);
+  }
+
   @Nonnull
   default BootstrapErrorBox error ()
   {

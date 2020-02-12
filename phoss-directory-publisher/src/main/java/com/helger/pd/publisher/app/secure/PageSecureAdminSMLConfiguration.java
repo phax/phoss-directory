@@ -29,7 +29,6 @@ import com.helger.commons.url.ISimpleURL;
 import com.helger.commons.url.URLHelper;
 import com.helger.html.hc.html.forms.HCCheckBox;
 import com.helger.html.hc.html.forms.HCEdit;
-import com.helger.html.hc.html.grouping.HCDiv;
 import com.helger.html.hc.html.tabular.HCRow;
 import com.helger.html.hc.html.tabular.HCTable;
 import com.helger.html.hc.html.textlevel.HCA;
@@ -41,9 +40,7 @@ import com.helger.pd.publisher.app.PDPMetaManager;
 import com.helger.pd.publisher.ui.AbstractAppWebPageForm;
 import com.helger.peppol.sml.CSMLDefault;
 import com.helger.peppol.sml.ISMLInfo;
-import com.helger.photon.bootstrap4.alert.BootstrapErrorBox;
 import com.helger.photon.bootstrap4.alert.BootstrapInfoBox;
-import com.helger.photon.bootstrap4.alert.BootstrapQuestionBox;
 import com.helger.photon.bootstrap4.alert.BootstrapSuccessBox;
 import com.helger.photon.bootstrap4.buttongroup.BootstrapButtonToolbar;
 import com.helger.photon.bootstrap4.form.BootstrapForm;
@@ -79,9 +76,9 @@ public class PageSecureAdminSMLConfiguration extends AbstractAppWebPageForm <ISM
                                       @Nonnull final BootstrapForm aForm,
                                       @Nonnull final ISMLInfo aSelectedObject)
       {
-        aForm.addChild (new BootstrapQuestionBox ().addChild (new HCDiv ().addChild ("Are you sure you want to delete the SML configuration '" +
-                                                                                     aSelectedObject.getDisplayName () +
-                                                                                     "'?")));
+        aForm.addChild (question ("Are you sure you want to delete the SML configuration '" +
+                                  aSelectedObject.getDisplayName () +
+                                  "'?"));
       }
 
       @Override
@@ -90,13 +87,13 @@ public class PageSecureAdminSMLConfiguration extends AbstractAppWebPageForm <ISM
       {
         final ISMLInfoManager aSMLInfoMgr = PDPMetaManager.getSMLInfoMgr ();
         if (aSMLInfoMgr.removeSMLInfo (aSelectedObject.getID ()).isChanged ())
-          aWPEC.postRedirectGetInternal (new BootstrapSuccessBox ().addChild ("The SML configuration '" +
-                                                                              aSelectedObject.getDisplayName () +
-                                                                              "' was successfully deleted!"));
+          aWPEC.postRedirectGetInternal (success ("The SML configuration '" +
+                                                  aSelectedObject.getDisplayName () +
+                                                  "' was successfully deleted!"));
         else
-          aWPEC.postRedirectGetInternal (new BootstrapErrorBox ().addChild ("The SML configuration '" +
-                                                                            aSelectedObject.getDisplayName () +
-                                                                            "' could not be deleted!"));
+          aWPEC.postRedirectGetInternal (error ("The SML configuration '" +
+                                                aSelectedObject.getDisplayName () +
+                                                "' could not be deleted!"));
       }
     });
   }

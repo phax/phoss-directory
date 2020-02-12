@@ -26,18 +26,21 @@ import com.helger.commons.compare.ESortOrder;
 import com.helger.commons.datetime.PDTFactory;
 import com.helger.commons.datetime.PDTToString;
 import com.helger.commons.url.ISimpleURL;
-import com.helger.html.hc.html.grouping.HCDiv;
 import com.helger.html.hc.html.tabular.HCRow;
 import com.helger.html.hc.html.tabular.HCTable;
 import com.helger.html.hc.html.tabular.IHCCell;
 import com.helger.html.hc.html.textlevel.HCA;
 import com.helger.html.hc.impl.HCNodeList;
+import com.helger.pd.indexer.index.EIndexerWorkItemType;
 import com.helger.pd.indexer.index.IIndexerWorkItem;
+import com.helger.pd.indexer.mgr.PDIndexerManager;
+import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.reindex.IReIndexWorkItem;
 import com.helger.pd.indexer.reindex.IReIndexWorkItemList;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.pd.publisher.app.PDPMetaManager;
 import com.helger.pd.publisher.ui.AbstractAppWebPageForm;
+import com.helger.pd.publisher.ui.AbstractBootstrapWebPageActionHandlerWithQuery;
 import com.helger.pd.publisher.ui.PDCommonUI;
 import com.helger.peppol.sml.ISMLInfo;
 import com.helger.peppolid.IParticipantIdentifier;
@@ -46,11 +49,14 @@ import com.helger.photon.bootstrap4.buttongroup.BootstrapButtonToolbar;
 import com.helger.photon.bootstrap4.form.BootstrapForm;
 import com.helger.photon.bootstrap4.form.BootstrapFormGroup;
 import com.helger.photon.bootstrap4.form.BootstrapViewForm;
+import com.helger.photon.bootstrap4.pages.handler.AbstractBootstrapWebPageActionHandler;
 import com.helger.photon.bootstrap4.pages.handler.AbstractBootstrapWebPageActionHandlerDelete;
 import com.helger.photon.bootstrap4.uictrls.datatables.BootstrapDTColAction;
 import com.helger.photon.bootstrap4.uictrls.datatables.BootstrapDataTables;
 import com.helger.photon.core.form.FormErrorList;
+import com.helger.photon.uicore.css.CPageParam;
 import com.helger.photon.uicore.icon.EDefaultIcon;
+import com.helger.photon.uicore.page.EShowList;
 import com.helger.photon.uicore.page.EWebPageFormAction;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 import com.helger.photon.uictrls.datatables.column.DTCol;
@@ -60,6 +66,9 @@ import com.helger.smpclient.url.PeppolDNSResolutionException;
 
 public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <IReIndexWorkItem>
 {
+  private static final String ACTION_DELETE_ALL = "deleteall";
+  private static final String ACTION_REINDEX_NOW = "reindexnow";
+
   private final boolean m_bDeadIndex;
 
   public AbstractPageSecureReIndex (@Nonnull @Nonempty final String sID,
@@ -94,6 +103,58 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
         }
       }
     });
+    addCustomHandler (ACTION_DELETE_ALL,
+                      new AbstractBootstrapWebPageActionHandlerWithQuery <IReIndexWorkItem, WebPageExecutionContext> (false,
+                                                                                                                      ACTION_DELETE_ALL)
+                      {
+                        @Override
+                        protected void showQuery (@Nonnull final WebPageExecutionContext aWPEC,
+                                                  @Nonnull final BootstrapForm aForm,
+                                                  @Nullable final IReIndexWorkItem aSelectedObject)
+                        {
+                          aForm.addChild (question ("Are you sure to delete alls items?"));
+                        }
+
+                        @Override
+                        protected void performAction (final WebPageExecutionContext aWPEC,
+                                                      final IReIndexWorkItem aSelectedObject)
+                        {
+                          if (getReIndexWorkItemList ().deleteAllItems ().isChanged ())
+                            aWPEC.postRedirectGetInternal (success ("Successfully deleted all items."));
+                          else
+                            aWPEC.postRedirectGetInternal (warn ("Seems like there is no item to be deleted."));
+                        }
+
+                      });
+    addCustomHandler (ACTION_REINDEX_NOW,
+                      new AbstractBootstrapWebPageActionHandler <IReIndexWorkItem, WebPageExecutionContext> (true)
+                      {
+                        @Nonnull
+                        public EShowList handleAction (@Nonnull final WebPageExecutionContext aWPEC,
+                                                       @Nonnull final IReIndexWorkItem aSelectedObject)
+                        {
+                          final IParticipantIdentifier aParticipantID = aSelectedObject.getWorkItem ()
+                                                                                       .getParticipantID ();
+                          if (PDMetaManager.getIndexerMgr ()
+                                           .queueWorkItem (aParticipantID,
+                                                           EIndexerWorkItemType.CREATE_UPDATE,
+                                                           "manually-triggered",
+                                                           PDIndexerManager.HOST_LOCALHOST)
+                                           .isChanged ())
+                          {
+                            aWPEC.postRedirectGetInternal (success ("The re-indexing of participant ID '" +
+                                                                    aParticipantID.getURIEncoded () +
+                                                                    "' was successfully triggered!"));
+                          }
+                          else
+                          {
+                            aWPEC.postRedirectGetInternal (warn ("Participant ID '" +
+                                                                 aParticipantID.getURIEncoded () +
+                                                                 "' is already in the indexing queue!"));
+                          }
+                          return EShowList.SHOW_LIST;
+                        }
+                      });
   }
 
   @Nonnull
@@ -141,25 +202,24 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
       for (final ISMLInfo aSMLInfo : PDPMetaManager.getSMLInfoMgr ().getAll ())
       {
         if (aURLs.hasChildren ())
-          aURLs.addChild (new HCDiv ().addChild ("or"));
+          aURLs.addChild (div ("or"));
         try
         {
-          aURLs.addChild (new HCDiv ().addChild (HCA.createLinkedWebsite (aURLProvider.getSMPURIOfParticipant (aParticipantID,
-                                                                                                               aSMLInfo)
-                                                                                      .toString () +
-                                                                          sBCSuffix)));
+          aURLs.addChild (div (HCA.createLinkedWebsite (aURLProvider.getSMPURIOfParticipant (aParticipantID, aSMLInfo)
+                                                                    .toString () +
+                                                        sBCSuffix)));
         }
         catch (final PeppolDNSResolutionException ex)
         {
           // Non existing participant!
-          aURLs.addChild (new HCDiv ().addChild (aParticipantID.getURIPercentEncoded () +
-                                                 " on " +
-                                                 aSMLInfo.getDisplayName () +
-                                                 " @ " +
-                                                 sBCSuffix +
-                                                 " [" +
-                                                 ex.getMessage () +
-                                                 "]"));
+          aURLs.addChild (div (aParticipantID.getURIPercentEncoded () +
+                               " on " +
+                               aSMLInfo.getDisplayName () +
+                               " @ " +
+                               sBCSuffix +
+                               " [" +
+                               ex.getMessage () +
+                               "]"));
         }
       }
       aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Business Card URL").setCtrl (aURLs));
@@ -216,7 +276,11 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
       aToolbar.addChild (new BootstrapButton ().addChild ("Refresh")
                                                .setIcon (EDefaultIcon.REFRESH)
                                                .setOnClick (aWPEC.getSelfHref ()));
-      aToolbar.addChild (span (" Current server time: " +
+      aToolbar.addChild (new BootstrapButton ().addChild ("Delete all entries")
+                                               .setIcon (EDefaultIcon.DELETE)
+                                               .setOnClick (aWPEC.getSelfHref ()
+                                                                 .add (CPageParam.PARAM_ACTION, ACTION_DELETE_ALL)));
+      aToolbar.addChild (span ("Current server time: " +
                                PDTToString.getAsString (PDTFactory.getCurrentLocalTime (), aDisplayLocale))
                                                                                                            .addClass (PDCommonUI.CSS_CLASS_VERTICAL_PADDED_TEXT));
     }
@@ -248,6 +312,15 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
       aRow.addCell (PDTToString.getAsString (aItem.getMaxRetryDT (), aDisplayLocale));
 
       final IHCCell <?> aActionCell = aRow.addCell ();
+      if (m_bDeadIndex)
+      {
+        aActionCell.addChild (new HCA (aWPEC.getSelfHref ()
+                                            .add (CPageParam.PARAM_ACTION, ACTION_REINDEX_NOW)
+                                            .add (CPageParam.PARAM_OBJECT, aItem.getID ()))
+                                                                                           .setTitle ("Re-index the entry now")
+                                                                                           .addChild (EDefaultIcon.NEXT.getAsNode ()));
+        aActionCell.addChild (" ");
+      }
       aActionCell.addChild (createDeleteLink (aWPEC, aItem));
     }
 
