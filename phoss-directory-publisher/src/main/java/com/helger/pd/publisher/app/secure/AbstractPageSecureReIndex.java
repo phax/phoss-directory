@@ -40,7 +40,6 @@ import com.helger.pd.indexer.reindex.IReIndexWorkItemList;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.pd.publisher.app.PDPMetaManager;
 import com.helger.pd.publisher.ui.AbstractAppWebPageForm;
-import com.helger.pd.publisher.ui.AbstractBootstrapWebPageActionHandlerWithQuery;
 import com.helger.pd.publisher.ui.PDCommonUI;
 import com.helger.peppol.sml.ISMLInfo;
 import com.helger.peppolid.IParticipantIdentifier;
@@ -51,6 +50,7 @@ import com.helger.photon.bootstrap4.form.BootstrapFormGroup;
 import com.helger.photon.bootstrap4.form.BootstrapViewForm;
 import com.helger.photon.bootstrap4.pages.handler.AbstractBootstrapWebPageActionHandler;
 import com.helger.photon.bootstrap4.pages.handler.AbstractBootstrapWebPageActionHandlerDelete;
+import com.helger.photon.bootstrap4.pages.handler.AbstractBootstrapWebPageActionHandlerWithQuery;
 import com.helger.photon.bootstrap4.uictrls.datatables.BootstrapDTColAction;
 import com.helger.photon.bootstrap4.uictrls.datatables.BootstrapDataTables;
 import com.helger.photon.core.form.FormErrorList;
@@ -80,15 +80,15 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
     setDeleteHandler (new AbstractBootstrapWebPageActionHandlerDelete <IReIndexWorkItem, WebPageExecutionContext> ()
     {
       @Override
-      protected void showDeleteQuery (@Nonnull final WebPageExecutionContext aWPEC,
-                                      @Nonnull final BootstrapForm aForm,
-                                      @Nonnull final IReIndexWorkItem aSelectedObject)
+      protected void showQuery (@Nonnull final WebPageExecutionContext aWPEC,
+                                @Nonnull final BootstrapForm aForm,
+                                @Nonnull final IReIndexWorkItem aSelectedObject)
       {
         aForm.addChild (question ("Are you sure to delete the item " + aSelectedObject.getDisplayName () + "?"));
       }
 
       @Override
-      protected void performDelete (@Nonnull final WebPageExecutionContext aWPEC,
+      protected void performAction (@Nonnull final WebPageExecutionContext aWPEC,
                                     @Nonnull final IReIndexWorkItem aSelectedObject)
       {
         if (getReIndexWorkItemList ().deleteItem (aSelectedObject.getID ()).isChanged ())
@@ -105,7 +105,8 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
     });
     addCustomHandler (ACTION_DELETE_ALL,
                       new AbstractBootstrapWebPageActionHandlerWithQuery <IReIndexWorkItem, WebPageExecutionContext> (false,
-                                                                                                                      ACTION_DELETE_ALL)
+                                                                                                                      ACTION_DELETE_ALL,
+                                                                                                                      "deleteall")
                       {
                         @Override
                         protected void showQuery (@Nonnull final WebPageExecutionContext aWPEC,

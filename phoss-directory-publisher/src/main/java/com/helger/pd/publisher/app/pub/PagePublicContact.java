@@ -29,7 +29,6 @@ import com.helger.html.hc.html.forms.HCHiddenField;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
-import com.helger.photon.bootstrap4.alert.BootstrapSuccessBox;
 import com.helger.photon.bootstrap4.button.BootstrapButton;
 import com.helger.photon.bootstrap4.button.BootstrapSubmitButton;
 import com.helger.photon.bootstrap4.form.BootstrapForm;
@@ -117,7 +116,7 @@ public final class PagePublicContact extends AbstractAppWebPage
 
         ScopedMailAPI.getInstance ().queueMail (InternalErrorSettings.getSMTPSettings (), aEmailData);
 
-        aWPEC.postRedirectGetInternal (new BootstrapSuccessBox ().addChild ("Thank you for your message. We will come back to you asap."));
+        aWPEC.postRedirectGetInternal (success ("Thank you for your message. We will come back to you asap."));
       }
     }
 

@@ -26,7 +26,6 @@ import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.publisher.search.EPDSearchField;
 import com.helger.pd.publisher.search.ESearchOperator;
 import com.helger.pd.publisher.ui.HCSearchOperatorSelect;
-import com.helger.photon.bootstrap4.alert.BootstrapInfoBox;
 import com.helger.photon.bootstrap4.form.BootstrapFormGroup;
 import com.helger.photon.bootstrap4.form.BootstrapViewForm;
 import com.helger.photon.bootstrap4.grid.BootstrapRow;
@@ -73,7 +72,7 @@ public final class PagePublicSearchExtended extends AbstractPagePublicSearch
     final HCNodeList aNodeList = aWPEC.getNodeList ();
     final Locale aDisplayLocale = aWPEC.getDisplayLocale ();
 
-    aNodeList.addChild (new BootstrapInfoBox ().addChild ("This is a placeholder page - has no effect yet!"));
+    aNodeList.addChild (info ("This is a placeholder page - has no effect yet!"));
 
     final BootstrapViewForm aViewForm = new BootstrapViewForm ();
     // Add all search fields

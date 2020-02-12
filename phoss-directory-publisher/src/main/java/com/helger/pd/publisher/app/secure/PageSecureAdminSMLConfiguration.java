@@ -40,8 +40,6 @@ import com.helger.pd.publisher.app.PDPMetaManager;
 import com.helger.pd.publisher.ui.AbstractAppWebPageForm;
 import com.helger.peppol.sml.CSMLDefault;
 import com.helger.peppol.sml.ISMLInfo;
-import com.helger.photon.bootstrap4.alert.BootstrapInfoBox;
-import com.helger.photon.bootstrap4.alert.BootstrapSuccessBox;
 import com.helger.photon.bootstrap4.buttongroup.BootstrapButtonToolbar;
 import com.helger.photon.bootstrap4.form.BootstrapForm;
 import com.helger.photon.bootstrap4.form.BootstrapFormGroup;
@@ -72,9 +70,9 @@ public class PageSecureAdminSMLConfiguration extends AbstractAppWebPageForm <ISM
     setDeleteHandler (new AbstractBootstrapWebPageActionHandlerDelete <ISMLInfo, WebPageExecutionContext> ()
     {
       @Override
-      protected void showDeleteQuery (@Nonnull final WebPageExecutionContext aWPEC,
-                                      @Nonnull final BootstrapForm aForm,
-                                      @Nonnull final ISMLInfo aSelectedObject)
+      protected void showQuery (@Nonnull final WebPageExecutionContext aWPEC,
+                                @Nonnull final BootstrapForm aForm,
+                                @Nonnull final ISMLInfo aSelectedObject)
       {
         aForm.addChild (question ("Are you sure you want to delete the SML configuration '" +
                                   aSelectedObject.getDisplayName () +
@@ -82,7 +80,7 @@ public class PageSecureAdminSMLConfiguration extends AbstractAppWebPageForm <ISM
       }
 
       @Override
-      protected void performDelete (@Nonnull final WebPageExecutionContext aWPEC,
+      protected void performAction (@Nonnull final WebPageExecutionContext aWPEC,
                                     @Nonnull final ISMLInfo aSelectedObject)
       {
         final ISMLInfoManager aSMLInfoMgr = PDPMetaManager.getSMLInfoMgr ();
@@ -242,16 +240,16 @@ public class PageSecureAdminSMLConfiguration extends AbstractAppWebPageForm <ISM
                                    sDNSZoneLC,
                                    sManagementAddressURL,
                                    bClientCertificateRequired);
-        aWPEC.postRedirectGetInternal (new BootstrapSuccessBox ().addChild ("The SML configuration '" +
-                                                                            sDisplayName +
-                                                                            "' was successfully edited."));
+        aWPEC.postRedirectGetInternal (success ("The SML configuration '" +
+                                                sDisplayName +
+                                                "' was successfully edited."));
       }
       else
       {
         aSMLInfoMgr.createSMLInfo (sDisplayName, sDNSZoneLC, sManagementAddressURL, bClientCertificateRequired);
-        aWPEC.postRedirectGetInternal (new BootstrapSuccessBox ().addChild ("The new SML configuration '" +
-                                                                            sDisplayName +
-                                                                            "' was successfully created."));
+        aWPEC.postRedirectGetInternal (success ("The new SML configuration '" +
+                                                sDisplayName +
+                                                "' was successfully created."));
       }
     }
   }
@@ -263,7 +261,7 @@ public class PageSecureAdminSMLConfiguration extends AbstractAppWebPageForm <ISM
     final HCNodeList aNodeList = aWPEC.getNodeList ();
     final ISMLInfoManager aSMLInfoMgr = PDPMetaManager.getSMLInfoMgr ();
 
-    aNodeList.addChild (new BootstrapInfoBox ().addChild ("This page lets you create custom SML configurations that can be used for registration."));
+    aNodeList.addChild (info ("This page lets you create custom SML configurations that can be used for registration."));
 
     final BootstrapButtonToolbar aToolbar = new BootstrapButtonToolbar (aWPEC);
     aToolbar.addButton ("Create new SML configuration", createCreateURL (aWPEC), EDefaultIcon.NEW);

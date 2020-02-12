@@ -64,8 +64,6 @@ import com.helger.peppolid.factory.SimpleIdentifierFactory;
 import com.helger.photon.ajax.decl.AjaxFunctionDeclaration;
 import com.helger.photon.app.url.LinkHelper;
 import com.helger.photon.bootstrap4.CBootstrapCSS;
-import com.helger.photon.bootstrap4.badge.BootstrapBadge;
-import com.helger.photon.bootstrap4.badge.EBootstrapBadgeType;
 import com.helger.photon.bootstrap4.button.BootstrapButton;
 import com.helger.photon.bootstrap4.button.EBootstrapButtonType;
 import com.helger.photon.bootstrap4.card.BootstrapCard;
@@ -197,7 +195,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
         final boolean bIsDesired = sDesiredVersion.equals (sVersion);
         final IHCLI <?> aLI = aOL.addAndReturnItem (code (sVersion));
         if (bIsDesired)
-          aLI.addChild (" ").addChild (new BootstrapBadge (EBootstrapBadgeType.SUCCESS).addChild ("desired version"));
+          aLI.addChild (" ").addChild (badgeSuccess ("desired version"));
       }
       aNL.addChild (aDiv);
     }

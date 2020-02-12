@@ -26,8 +26,7 @@ import com.helger.photon.bootstrap4.pages.AbstractBootstrapWebPageForm;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 
 public abstract class AbstractAppWebPageForm <DATATYPE extends IHasID <String>> extends
-                                             AbstractBootstrapWebPageForm <DATATYPE, WebPageExecutionContext> implements
-                                             IHCBootstrap4Trait
+                                             AbstractBootstrapWebPageForm <DATATYPE, WebPageExecutionContext>
 {
   public AbstractAppWebPageForm (@Nonnull @Nonempty final String sID, @Nonnull final String sName)
   {

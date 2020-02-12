@@ -54,7 +54,6 @@ import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.factory.PeppolIdentifierFactory;
 import com.helger.peppolid.peppol.pidscheme.IParticipantIdentifierScheme;
 import com.helger.peppolid.peppol.pidscheme.ParticipantIdentifierSchemeManager;
-import com.helger.photon.bootstrap4.badge.EBootstrapBadgeType;
 import com.helger.photon.bootstrap4.card.BootstrapCard;
 import com.helger.photon.bootstrap4.form.BootstrapFormGroup;
 import com.helger.photon.bootstrap4.form.BootstrapViewForm;
@@ -222,7 +221,7 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
           ++nIndex;
         }
         // Add whole list or just the first item?
-        final IHCNode aTabLabel = span ("Business information ").addChild (badge (aStoredEntities.size ()).setBadgeType (EBootstrapBadgeType.PRIMARY));
+        final IHCNode aTabLabel = span ("Business information ").addChild (badgePrimary (aStoredEntities.size ()));
         aTabBox.addTab ("businessinfo", aTabLabel, aOL, true);
       }
 
@@ -253,7 +252,7 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
           aDocTypeCtrl.addChild (warn ("This participant does not support any document types!"));
 
         aTabBox.addTab ("doctypes",
-                        span ("Supported document types ").addChild (badge (aDocTypeIDs.size ()).setBadgeType (EBootstrapBadgeType.PRIMARY)),
+                        span ("Supported document types ").addChild (badgePrimary (aDocTypeIDs.size ())),
                         aDocTypeCtrl,
                         false);
       }

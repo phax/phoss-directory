@@ -59,7 +59,6 @@ import com.helger.peppolid.factory.PeppolIdentifierFactory;
 import com.helger.peppolid.peppol.pidscheme.IParticipantIdentifierScheme;
 import com.helger.peppolid.peppol.pidscheme.ParticipantIdentifierSchemeManager;
 import com.helger.photon.bootstrap4.CBootstrapCSS;
-import com.helger.photon.bootstrap4.badge.EBootstrapBadgeType;
 import com.helger.photon.bootstrap4.button.BootstrapButton;
 import com.helger.photon.bootstrap4.button.BootstrapSubmitButton;
 import com.helger.photon.bootstrap4.button.EBootstrapButtonSize;
@@ -175,16 +174,17 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     }
     else
     {
-      aNodeList.addChild (div (badge ("Found " +
-                                      (aGroupedBEs.size () == 1 ? "1 entity" : aGroupedBEs.size () + " entities") +
-                                      " matching '" +
-                                      sQuery +
-                                      "'")));
+      aNodeList.addChild (div (badgeSuccess ("Found " +
+                                             (aGroupedBEs.size () == 1 ? "1 entity"
+                                                                       : aGroupedBEs.size () + " entities") +
+                                             " matching '" +
+                                             sQuery +
+                                             "'")));
       if (nTotalBEs > nMaxResults)
       {
-        aNodeList.addChild (div (badge ("Found more entities than displayed (" +
-                                        nTotalBEs +
-                                        " entries exist). Try to be more specific.").setBadgeType (EBootstrapBadgeType.WARNING)));
+        aNodeList.addChild (div (badgeWarn ("Found more entities than displayed (" +
+                                            nTotalBEs +
+                                            " entries exist). Try to be more specific.")));
       }
 
       // Show basic information
