@@ -34,6 +34,7 @@ import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.debug.GlobalDebug;
 import com.helger.commons.string.StringHelper;
 import com.helger.commons.url.URLHelper;
+import com.helger.peppol.sml.ESMPAPIType;
 import com.helger.peppol.utils.PeppolKeyStoreHelper;
 import com.helger.scope.singleton.AbstractGlobalSingleton;
 import com.helger.security.keystore.EKeyStoreType;
@@ -67,9 +68,9 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
 
   static
   {
-    final ConfigFileBuilder aCFB = new ConfigFileBuilder ().addPathFromEnvVar ("DIRECTORY_SERVER_CONFIG")
-                                                           .addPathFromSystemProperty ("peppol.directory.server.properties.path")
+    final ConfigFileBuilder aCFB = new ConfigFileBuilder ().addPathFromSystemProperty ("peppol.directory.server.properties.path")
                                                            .addPathFromSystemProperty ("directory.server.properties.path")
+                                                           .addPathFromEnvVar ("DIRECTORY_SERVER_CONFIG")
                                                            .addPath ("private-pd.properties")
                                                            .addPath ("pd.properties");
 
@@ -389,16 +390,16 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   }
 
   @Nonnull
-  public static EPDSMPMode getSMPMode ()
+  public static ESMPAPIType getSMPMode ()
   {
     final String sSMPMode = getConfigFile ().getAsString ("smp.mode");
     if ("oasis-bdxr-v1".equalsIgnoreCase (sSMPMode))
-      return EPDSMPMode.OASIS_BDXR_V1;
+      return ESMPAPIType.OASIS_BDXR_V1;
     if ("oasis-bdxr-v2".equalsIgnoreCase (sSMPMode))
-      return EPDSMPMode.OASIS_BDXR_V2;
+      return ESMPAPIType.OASIS_BDXR_V2;
 
     // Default is Peppol
-    return EPDSMPMode.PEPPOL;
+    return ESMPAPIType.PEPPOL;
   }
 
   @CheckForSigned
