@@ -60,6 +60,8 @@ import com.helger.pd.indexer.storage.PDStoredContact;
 import com.helger.pd.indexer.storage.PDStoredIdentifier;
 import com.helger.pd.indexer.storage.PDStoredMLName;
 import com.helger.pd.indexer.storage.field.PDField;
+import com.helger.pd.publisher.nicename.NiceNameEntry;
+import com.helger.pd.publisher.nicename.NiceNameHandler;
 import com.helger.peppolid.IDocumentTypeIdentifier;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.photon.app.io.WebFileIO;
@@ -133,9 +135,17 @@ public final class ExportAllManager
       if (bIncludeDocTypes && aEntry.getValue ().isNotEmpty ())
         for (final IDocumentTypeIdentifier aDocTypeID : aEntry.getValue ().getFirst ().documentTypeIDs ())
         {
-          eBC.appendElement (sNamespaceURI, "doctypeid")
-             .setAttribute ("scheme", aDocTypeID.getScheme ())
-             .setAttribute ("value", aDocTypeID.getValue ());
+          final IMicroElement eDocTypeID = eBC.appendElement (sNamespaceURI, "doctypeid")
+                                              .setAttribute ("scheme", aDocTypeID.getScheme ())
+                                              .setAttribute ("value", aDocTypeID.getValue ());
+          final NiceNameEntry aNiceName = NiceNameHandler.getDocTypeNiceName (aDocTypeID.getURIEncoded ());
+          if (aNiceName == null)
+            eDocTypeID.setAttribute ("non-standard", true);
+          else
+          {
+            eDocTypeID.setAttribute ("displayname", aNiceName.getName ());
+            eDocTypeID.setAttribute ("deprecated", aNiceName.isDeprecated ());
+          }
         }
 
       aRoot.appendChild (eBC);

@@ -106,6 +106,7 @@ The PD Publisher is the publicly accessible web site with listing and search fun
     * Added possibility to automatically purge unwanted duplicate entries
     * Updated the underlying UI libraries
     * The lists of known document type IDs and process ID were updated
+    * Details about document types are now part of the export (see [issue #46](https://github.com/phax/phoss-directory/issues/46))
 * v0.8.4 - 2020-01-24
     * Updated to Jersey 2.30
     * The Directory client has no more default truststore path and password
