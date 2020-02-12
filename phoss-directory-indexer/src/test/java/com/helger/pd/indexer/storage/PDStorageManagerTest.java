@@ -165,7 +165,7 @@ public final class PDStorageManagerTest
       finally
       {
         // Finally delete the entry again
-        aMgr.markEntryDeleted (aParticipantID, aMetaData);
+        aMgr.deleteEntry (aParticipantID, aMetaData);
       }
     }
   }
@@ -198,7 +198,7 @@ public final class PDStorageManagerTest
       finally
       {
         // Finally delete the entry again
-        aMgr.markEntryDeleted (aParticipantID, aMetaData);
+        aMgr.deleteEntry (aParticipantID, aMetaData);
       }
     }
   }
