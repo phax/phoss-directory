@@ -18,6 +18,7 @@ package com.helger.pd.indexer.storage;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
@@ -100,7 +101,10 @@ public final class PDStorageManagerTest
   public void testGetAllDocumentsOfParticipant () throws IOException
   {
     final IParticipantIdentifier aParticipantID = PDMetaManager.getIdentifierFactory ()
-                                                               .createParticipantIdentifier ("myscheme", "0088:test");
+                                                               .createParticipantIdentifier ("myscheme-actorid-upis",
+                                                                                             "0088:test");
+    assertNotNull (aParticipantID);
+
     try (PDStorageManager aMgr = new PDStorageManager (new PDLucene ()))
     {
       final PDStoredMetaData aMetaData = _createMockMetaData ();
@@ -174,7 +178,10 @@ public final class PDStorageManagerTest
   public void testGetAllDocumentsOfCountryCode () throws IOException
   {
     final IParticipantIdentifier aParticipantID = PDMetaManager.getIdentifierFactory ()
-                                                               .createParticipantIdentifier ("myscheme", "0088:test");
+                                                               .createParticipantIdentifier ("myscheme-actorid-upis",
+                                                                                             "0088:test");
+    assertNotNull (aParticipantID);
+
     try (PDStorageManager aMgr = new PDStorageManager (new PDLucene ()))
     {
       final PDStoredMetaData aMetaData = _createMockMetaData ();
