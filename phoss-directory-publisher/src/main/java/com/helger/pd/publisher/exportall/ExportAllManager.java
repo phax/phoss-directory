@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
-import java.util.Map;
 import java.util.function.Consumer;
 
 import javax.annotation.Nonnull;
@@ -35,7 +34,6 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.collection.multimap.MultiLinkedHashMapArrayListBased;
 import com.helger.commons.collection.impl.CommonsTreeSet;
-import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.collection.impl.ICommonsSortedSet;
 import com.helger.commons.concurrent.SimpleReadWriteLock;
 import com.helger.commons.csv.CSVWriter;
@@ -51,8 +49,6 @@ import com.helger.json.IJsonObject;
 import com.helger.json.JsonArray;
 import com.helger.json.JsonObject;
 import com.helger.json.serialize.JsonWriter;
-import com.helger.pd.businesscard.generic.PDBusinessCard;
-import com.helger.pd.businesscard.generic.PDIdentifier;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.EQueryMode;
 import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
@@ -60,8 +56,6 @@ import com.helger.pd.indexer.storage.PDStoredContact;
 import com.helger.pd.indexer.storage.PDStoredIdentifier;
 import com.helger.pd.indexer.storage.PDStoredMLName;
 import com.helger.pd.indexer.storage.field.PDField;
-import com.helger.pd.publisher.nicename.NiceNameEntry;
-import com.helger.pd.publisher.nicename.NiceNameHandler;
 import com.helger.peppolid.IDocumentTypeIdentifier;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.photon.app.io.WebFileIO;
@@ -113,45 +107,7 @@ public final class ExportAllManager
     final MultiLinkedHashMapArrayListBased <IParticipantIdentifier, PDStoredBusinessEntity> aMap = new MultiLinkedHashMapArrayListBased <> ();
     PDMetaManager.getStorageMgr ().searchAllDocuments (aQuery, -1, x -> aMap.putSingle (x.getParticipantID (), x));
 
-    // XML root
-    final IMicroDocument aDoc = new MicroDocument ();
-    final String sNamespaceURI = "http://www.peppol.eu/schema/pd/businesscard-generic/201907/";
-    final IMicroElement aRoot = aDoc.appendElement (sNamespaceURI, "root");
-    aRoot.setAttribute ("version", "2");
-    aRoot.setAttribute ("creationdt", PDTWebDateHelper.getAsStringXSD (PDTFactory.getCurrentZonedDateTimeUTC ()));
-
-    // For all BCs
-    for (final Map.Entry <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> aEntry : aMap.entrySet ())
-    {
-      final IParticipantIdentifier aParticipantID = aEntry.getKey ();
-
-      final PDBusinessCard aBC = new PDBusinessCard ();
-      aBC.setParticipantIdentifier (new PDIdentifier (aParticipantID.getScheme (), aParticipantID.getValue ()));
-      for (final PDStoredBusinessEntity aSBE : aEntry.getValue ())
-        aBC.businessEntities ().add (aSBE.getAsBusinessEntity ());
-      final IMicroElement eBC = aBC.getAsMicroXML (sNamespaceURI, "businesscard");
-
-      // New in v2 - add all Document types
-      if (bIncludeDocTypes && aEntry.getValue ().isNotEmpty ())
-        for (final IDocumentTypeIdentifier aDocTypeID : aEntry.getValue ().getFirst ().documentTypeIDs ())
-        {
-          final IMicroElement eDocTypeID = eBC.appendElement (sNamespaceURI, "doctypeid")
-                                              .setAttribute ("scheme", aDocTypeID.getScheme ())
-                                              .setAttribute ("value", aDocTypeID.getValue ());
-          final NiceNameEntry aNiceName = NiceNameHandler.getDocTypeNiceName (aDocTypeID.getURIEncoded ());
-          if (aNiceName == null)
-            eDocTypeID.setAttribute ("non-standard", true);
-          else
-          {
-            eDocTypeID.setAttribute ("displayname", aNiceName.getName ());
-            eDocTypeID.setAttribute ("deprecated", aNiceName.isDeprecated ());
-          }
-        }
-
-      aRoot.appendChild (eBC);
-    }
-
-    return aDoc;
+    return ExportHelper.getAsXML (aMap, bIncludeDocTypes);
   }
 
   @Nonnull
@@ -219,7 +175,7 @@ public final class ExportAllManager
   @Nonnull
   static ESuccess writeFileBusinessCardXMLNoDocTypes (@Nonnull final EQueryMode eQueryMode) throws IOException
   {
-    final IMicroDocument aDoc = ExportAllManager.queryAllContainedBusinessCardsAsXML (eQueryMode, false);
+    final IMicroDocument aDoc = queryAllContainedBusinessCardsAsXML (eQueryMode, false);
     final File f = _getInternalFileBusinessCardXMLNoDocTypes ();
 
     // Do it in a write lock!
