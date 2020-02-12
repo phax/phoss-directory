@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.collection.impl.ICommonsSortedMap;
+import com.helger.commons.compare.ESortOrder;
 import com.helger.commons.mutable.MutableInt;
 import com.helger.commons.url.ISimpleURL;
 import com.helger.html.hc.html.sections.HCH3;
@@ -130,7 +131,7 @@ public final class PageSecureParticipantList extends AbstractAppWebPage
       }
     }
 
-    final HCTable aTable = new HCTable (new DTCol ("ID"),
+    final HCTable aTable = new HCTable (new DTCol ("ID").setInitialSorting (ESortOrder.ASCENDING),
                                         new DTCol ("Entities").setDisplayType (EDTColType.INT, aDisplayLocale),
                                         new BootstrapDTColAction ()).setID (getID ());
     for (final Map.Entry <IParticipantIdentifier, MutableInt> aEntry : aAllIDs.entrySet ())
