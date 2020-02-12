@@ -38,11 +38,9 @@ import com.helger.pd.indexer.reindex.IReIndexWorkItemList;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.pd.publisher.app.PDPMetaManager;
 import com.helger.pd.publisher.ui.AbstractAppWebPageForm;
+import com.helger.pd.publisher.ui.PDCommonUI;
 import com.helger.peppol.sml.ISMLInfo;
 import com.helger.peppolid.IParticipantIdentifier;
-import com.helger.photon.bootstrap4.alert.BootstrapErrorBox;
-import com.helger.photon.bootstrap4.alert.BootstrapQuestionBox;
-import com.helger.photon.bootstrap4.alert.BootstrapSuccessBox;
 import com.helger.photon.bootstrap4.button.BootstrapButton;
 import com.helger.photon.bootstrap4.buttongroup.BootstrapButtonToolbar;
 import com.helger.photon.bootstrap4.form.BootstrapForm;
@@ -77,9 +75,7 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
                                       @Nonnull final BootstrapForm aForm,
                                       @Nonnull final IReIndexWorkItem aSelectedObject)
       {
-        aForm.addChild (new BootstrapQuestionBox ().addChild ("Are you sure to delete the item " +
-                                                              aSelectedObject.getDisplayName () +
-                                                              "?"));
+        aForm.addChild (question ("Are you sure to delete the item " + aSelectedObject.getDisplayName () + "?"));
       }
 
       @Override
@@ -88,15 +84,13 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
       {
         if (getReIndexWorkItemList ().deleteItem (aSelectedObject.getID ()).isChanged ())
         {
-          aWPEC.postRedirectGetInternal (new BootstrapSuccessBox ().addChild ("The item " +
-                                                                              aSelectedObject.getDisplayName () +
-                                                                              " was successfully deleted!"));
+          aWPEC.postRedirectGetInternal (success ("The item " +
+                                                  aSelectedObject.getDisplayName () +
+                                                  " was successfully deleted!"));
         }
         else
         {
-          aWPEC.postRedirectGetInternal (new BootstrapErrorBox ().addChild ("Error deleting the item " +
-                                                                            aSelectedObject.getDisplayName () +
-                                                                            "!"));
+          aWPEC.postRedirectGetInternal (error ("Error deleting the item " + aSelectedObject.getDisplayName () + "!"));
         }
       }
     });
@@ -222,8 +216,9 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
       aToolbar.addChild (new BootstrapButton ().addChild ("Refresh")
                                                .setIcon (EDefaultIcon.REFRESH)
                                                .setOnClick (aWPEC.getSelfHref ()));
-      aToolbar.addChild (" Current server time: " +
-                         PDTToString.getAsString (PDTFactory.getCurrentLocalTime (), aDisplayLocale));
+      aToolbar.addChild (span (" Current server time: " +
+                               PDTToString.getAsString (PDTFactory.getCurrentLocalTime (), aDisplayLocale))
+                                                                                                           .addClass (PDCommonUI.CSS_CLASS_VERTICAL_PADDED_TEXT));
     }
 
     final HCTable aTable = new HCTable (new DTCol ("Reg date").setDisplayType (EDTColType.DATETIME, aDisplayLocale)

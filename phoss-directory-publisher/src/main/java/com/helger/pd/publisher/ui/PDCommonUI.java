@@ -38,6 +38,8 @@ import com.helger.commons.locale.LocaleHelper;
 import com.helger.commons.locale.country.CountryCache;
 import com.helger.commons.locale.language.LanguageCache;
 import com.helger.commons.math.MathHelper;
+import com.helger.html.css.DefaultCSSClassProvider;
+import com.helger.html.css.ICSSClassProvider;
 import com.helger.html.hc.IHCNode;
 import com.helger.html.hc.ext.HCExtHelper;
 import com.helger.html.hc.html.HC_Target;
@@ -70,6 +72,8 @@ import com.helger.photon.uictrls.famfam.EFamFamFlagIcon;
 @Immutable
 public final class PDCommonUI
 {
+  public static final ICSSClassProvider CSS_CLASS_VERTICAL_PADDED_TEXT = DefaultCSSClassProvider.create ("vertical-padded-text");
+
   private PDCommonUI ()
   {}
 

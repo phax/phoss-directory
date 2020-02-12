@@ -23,7 +23,6 @@ import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.mgr.PDIndexerManager;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.reindex.IReIndexWorkItemList;
-import com.helger.photon.bootstrap4.alert.BootstrapInfoBox;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 
 public final class PageSecureListDeadIndex extends AbstractPageSecureReIndex
@@ -45,7 +44,7 @@ public final class PageSecureListDeadIndex extends AbstractPageSecureReIndex
   protected void showListOfExistingObjects (@Nonnull final WebPageExecutionContext aWPEC)
   {
     final HCNodeList aNodeList = aWPEC.getNodeList ();
-    aNodeList.addChild (new BootstrapInfoBox ().addChild ("This page contains all entries where indexing failed totally."));
+    aNodeList.addChild (info ("This page contains all entries where indexing failed totally."));
     super.showListOfExistingObjects (aWPEC);
   }
 }

@@ -175,3 +175,8 @@ div.result-doc ul li{
   padding: 2px 4px;
   border-radius: 4px;
 }
+
+/* As defined in Bootstrap for e.g. .input-group-text */
+.vertical-padded-text {
+  padding: 0.375rem 0.75rem;
+}
