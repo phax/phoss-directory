@@ -176,6 +176,7 @@ public final class AppWebAppListener extends WebAppListenerBootstrap
   @Override
   protected void initJobs ()
   {
+    // In production: avoid creating too much load directly after startup
     GlobalQuartzScheduler.getInstance ()
                          .scheduleJob (ExportAllDataJob.class.getName (),
                                        JDK8TriggerBuilder.newTrigger ()
