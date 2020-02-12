@@ -102,10 +102,12 @@ The PD Publisher is the publicly accessible web site with listing and search fun
     * Updated to peppol-commons 8.x
     * Removed support for old PKI v2
     * Made the identifier factory customizable to avoid duplicate entries
+    * Improved the internal Admin interface a bit
+    * Added possibility to automatically purge unwanted duplicate entries
 * v0.8.4 - 2020-01-24
     * Updated to Jersey 2.30
     * The Directory client has no more default truststore path and password
-    * The directory client configuration can now be read from the path denoted by the environment variable `DIRECTORY_CLIENT_CONFIG`
+    * The Directory client configuration can now be read from the path denoted by the environment variable `DIRECTORY_CLIENT_CONFIG`
     * Updated the static texts changing `PEPPOL` to `Peppol`
 * v0.8.3 - 2020-01-08
     * Added logo in the left top (using configuration property `webapp.applogo.image.path`)

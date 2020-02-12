@@ -469,11 +469,20 @@ public final class PDStorageManager implements IPDStorageManager
     ValueEnforcer.notNull (aFromDocumentConverter, "FromDocumentConverter");
     ValueEnforcer.notNull (aConsumer, "Consumer");
 
-    final ObjIntConsumer <Document> aConverter = (aDoc,
-                                                  nDocID) -> aConsumer.accept (aFromDocumentConverter.apply (aDoc));
+    searchAll (aQuery, nMaxResultCount, aDoc -> aConsumer.accept (aFromDocumentConverter.apply (aDoc)));
+  }
+
+  public void searchAll (@Nonnull final Query aQuery,
+                         @CheckForSigned final int nMaxResultCount,
+                         @Nonnull final Consumer <Document> aConsumer) throws IOException
+  {
+    ValueEnforcer.notNull (aQuery, "Query");
+    ValueEnforcer.notNull (aConsumer, "Consumer");
+
     if (nMaxResultCount <= 0)
     {
       // Search all
+      final ObjIntConsumer <Document> aConverter = (aDoc, nDocID) -> aConsumer.accept (aDoc);
       final Collector aCollector = new AllDocumentsCollector (m_aLucene, aConverter);
       searchAtomic (aQuery, aCollector);
     }
@@ -491,7 +500,7 @@ public final class PDStorageManager implements IPDStorageManager
         if (aDoc == null)
           throw new IllegalStateException ("Failed to resolve Lucene Document with ID " + aScoreDoc.doc);
         // Pass to Consumer
-        aConsumer.accept (aFromDocumentConverter.apply (aDoc));
+        aConsumer.accept (aDoc);
       }
     }
   }
