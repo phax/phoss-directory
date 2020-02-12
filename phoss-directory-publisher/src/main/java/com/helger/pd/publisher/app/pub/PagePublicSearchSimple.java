@@ -51,6 +51,8 @@ import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
 import com.helger.pd.indexer.storage.PDStoredMLName;
 import com.helger.pd.publisher.CPDPublisher;
+import com.helger.pd.publisher.app.PDSessionSingleton;
+import com.helger.pd.publisher.exportall.ExportAllManager;
 import com.helger.pd.publisher.search.EPDSearchField;
 import com.helger.pd.publisher.ui.PDCommonUI;
 import com.helger.peppolid.IParticipantIdentifier;
@@ -58,6 +60,7 @@ import com.helger.peppolid.factory.IIdentifierFactory;
 import com.helger.peppolid.factory.PeppolIdentifierFactory;
 import com.helger.peppolid.peppol.pidscheme.IParticipantIdentifierScheme;
 import com.helger.peppolid.peppol.pidscheme.ParticipantIdentifierSchemeManager;
+import com.helger.photon.ajax.decl.AjaxFunctionDeclaration;
 import com.helger.photon.bootstrap4.CBootstrapCSS;
 import com.helger.photon.bootstrap4.button.BootstrapButton;
 import com.helger.photon.bootstrap4.button.BootstrapSubmitButton;
@@ -69,6 +72,8 @@ import com.helger.photon.core.form.RequestField;
 import com.helger.photon.uicore.css.CPageParam;
 import com.helger.photon.uicore.icon.EDefaultIcon;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
+import com.helger.web.scope.IRequestWebScopeWithoutResponse;
+import com.helger.xml.microdom.IMicroDocument;
 
 public final class PagePublicSearchSimple extends AbstractPagePublicSearch
 {
@@ -77,7 +82,25 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
   public static final String PARAM_MAX = "max";
   public static final int DEFAULT_MAX = 50;
   public static final int MAX_MAX = 1000;
+
   private static final Logger LOGGER = LoggerFactory.getLogger (PagePublicSearchSimple.class);
+  private static final String PEPPOL_DEFAULT_SCHEME = PeppolIdentifierFactory.INSTANCE.getDefaultParticipantIdentifierScheme ();
+  private static final AjaxFunctionDeclaration s_aExportLast;
+
+  static
+  {
+    s_aExportLast = addAjax ("export", (aRequestScope, aAjaxResponse) -> {
+      final Query aLastQuery = PDSessionSingleton.getInstance ().getLastQuery ();
+      if (aLastQuery == null)
+        aAjaxResponse.createNotFound ();
+      else
+      {
+        final IMicroDocument aDoc = ExportAllManager.queryAllContainedBusinessCardsAsXML (aLastQuery, true);
+        aAjaxResponse.xml (aDoc);
+        aAjaxResponse.attachment ("last-query-export.xml");
+      }
+    });
+  }
 
   public PagePublicSearchSimple (@Nonnull @Nonempty final String sID)
   {
@@ -135,6 +158,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
   {
     final HCNodeList aNodeList = aWPEC.getNodeList ();
     final Locale aDisplayLocale = aWPEC.getDisplayLocale ();
+    final IRequestWebScopeWithoutResponse aRequestScope = aWPEC.getRequestScope ();
     final PDStorageManager aStorageMgr = PDMetaManager.getStorageMgr ();
 
     // Search all documents
@@ -148,6 +172,8 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     aLuceneQuery = PDQueryManager.andNotDeleted (aLuceneQuery);
     if (LOGGER.isDebugEnabled ())
       LOGGER.debug ("Created query for '" + sQuery + "' is <" + aLuceneQuery + ">");
+
+    PDSessionSingleton.getInstance ().setLastQuery (aLuceneQuery);
 
     // Search all documents
     final ICommonsList <PDStoredBusinessEntity> aResultBEs = aStorageMgr.getAllDocuments (aLuceneQuery, nMaxResults);
@@ -198,24 +224,24 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
         final HCDiv aResultItem = div ().addClass (CSS_CLASS_RESULT_DOC);
         final HCDiv aHeadRow = aResultItem.addAndReturnChild (new HCDiv ());
         {
-          final boolean bIsPeppolDefault = aDocParticipantID.hasScheme (PeppolIdentifierFactory.INSTANCE.getDefaultParticipantIdentifierScheme ());
-          IHCNode aParticipant = null;
+          final boolean bIsPeppolDefault = aDocParticipantID.hasScheme (PEPPOL_DEFAULT_SCHEME);
+          IHCNode aParticipantNode = null;
           if (bIsPeppolDefault)
           {
-            final IParticipantIdentifierScheme aIIA = ParticipantIdentifierSchemeManager.getSchemeOfIdentifier (aDocParticipantID);
-            if (aIIA != null)
+            final IParticipantIdentifierScheme aScheme = ParticipantIdentifierSchemeManager.getSchemeOfIdentifier (aDocParticipantID);
+            if (aScheme != null)
             {
-              aParticipant = new HCNodeList ().addChild (aDocParticipantID.getValue ());
-              if (StringHelper.hasText (aIIA.getSchemeAgency ()))
-                ((HCNodeList) aParticipant).addChild (" (" + aIIA.getSchemeAgency () + ")");
+              aParticipantNode = new HCNodeList ().addChild (aDocParticipantID.getValue ());
+              if (StringHelper.hasText (aScheme.getSchemeAgency ()))
+                ((HCNodeList) aParticipantNode).addChild (" (" + aScheme.getSchemeAgency () + ")");
             }
           }
-          if (aParticipant == null)
+          if (aParticipantNode == null)
           {
             // Fallback
-            aParticipant = code (aDocParticipantID.getURIEncoded ());
+            aParticipantNode = code (aDocParticipantID.getURIEncoded ());
           }
-          aHeadRow.addChild ("Participant ID: ").addChild (aParticipant);
+          aHeadRow.addChild ("Participant ID: ").addChild (aParticipantNode);
         }
         if (aDocs.size () > 1)
           aHeadRow.addChild (" (" + aDocs.size () + " entities)");
@@ -293,6 +319,10 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
           break;
       }
       aNodeList.addChild (aOL);
+
+      aNodeList.addChild (div (new BootstrapButton ().setOnClick (s_aExportLast.getInvocationURL (aRequestScope))
+                                                     .addChild ("Download results as XML")
+                                                     .setIcon (EDefaultIcon.SAVE_ALL)));
     }
   }
 

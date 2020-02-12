@@ -98,16 +98,22 @@ public final class ExportAllManager
   {}
 
   @Nonnull
-  public static IMicroDocument queryAllContainedBusinessCardsAsXML (@Nonnull final EQueryMode eQueryMode,
+  public static IMicroDocument queryAllContainedBusinessCardsAsXML (@Nonnull final Query aQuery,
                                                                     final boolean bIncludeDocTypes) throws IOException
   {
-    final Query aQuery = eQueryMode.getEffectiveQuery (new MatchAllDocsQuery ());
-
     // Query all and group by participant ID
     final MultiLinkedHashMapArrayListBased <IParticipantIdentifier, PDStoredBusinessEntity> aMap = new MultiLinkedHashMapArrayListBased <> ();
     PDMetaManager.getStorageMgr ().searchAllDocuments (aQuery, -1, x -> aMap.putSingle (x.getParticipantID (), x));
 
     return ExportHelper.getAsXML (aMap, bIncludeDocTypes);
+  }
+
+  @Nonnull
+  public static IMicroDocument queryAllContainedBusinessCardsAsXML (@Nonnull final EQueryMode eQueryMode,
+                                                                    final boolean bIncludeDocTypes) throws IOException
+  {
+    final Query aQuery = eQueryMode.getEffectiveQuery (new MatchAllDocsQuery ());
+    return queryAllContainedBusinessCardsAsXML (aQuery, bIncludeDocTypes);
   }
 
   @Nonnull
