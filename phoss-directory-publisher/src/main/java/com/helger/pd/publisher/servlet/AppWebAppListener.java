@@ -196,7 +196,7 @@ public final class AppWebAppListener extends WebAppListenerBootstrap
                            .scheduleJob (SyncAllBusinessCardsJob.class.getName (),
                                          JDK8TriggerBuilder.newTrigger ()
                                                            .startAt (PDTFactory.getCurrentLocalDateTime ()
-                                                                               .plusMinutes (1))
+                                                                               .plusMinutes (2))
                                                            .withSchedule (SimpleScheduleBuilder.repeatHourlyForever (1)),
                                          SyncAllBusinessCardsJob.class,
                                          null);
