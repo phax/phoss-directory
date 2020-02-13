@@ -23,27 +23,33 @@ import java.util.Arrays;
 import javax.annotation.Nonnull;
 
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.ssl.PrivateKeyStrategy;
 import org.apache.http.ssl.SSLContexts;
+import org.apache.http.ssl.TrustStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.commons.ws.HostnameVerifierVerifyAll;
 import com.helger.httpclient.HttpClientFactory;
 import com.helger.peppol.utils.PeppolKeyStoreHelper;
 import com.helger.security.keystore.KeyStoreHelper;
 import com.helger.security.keystore.LoadedKeyStore;
 
+/**
+ * Special {@link HttpClientFactory} that incorporates all the parameters from
+ * "pd-client.properties" file.
+ * 
+ * @author Philip Helger
+ */
 public class PDHttpClientFactory extends HttpClientFactory
 {
   private static final Logger LOGGER = LoggerFactory.getLogger (PDHttpClientFactory.class);
 
   public PDHttpClientFactory ()
   {
-    // Required per 2017-07 because [test-]directory.peppol.eu runs on servers
-    // with a certificate of test.erb.gv.at
     if (PDClientConfiguration.isHttpsHostnameVerificationDisabled ())
     {
-      setHostnameVerifier (new HostnameVerifierVerifyAll (false));
+      LOGGER.info ("PD client uses disabled hostname verification");
+      setHostnameVerifierVerifyAll ();
     }
 
     // Load key store
@@ -52,38 +58,47 @@ public class PDHttpClientFactory extends HttpClientFactory
                                                                         PDClientConfiguration.getKeyStorePassword ());
     if (aLoadedKeyStore.isFailure ())
     {
-      LOGGER.error ("Failed to initialize keystore for service connection! Can only use http now! Details: " +
+      LOGGER.error ("PD client failed to initialize keystore for service connection! Can only use http now! Details: " +
                     PeppolKeyStoreHelper.getLoadError (aLoadedKeyStore));
     }
     else
     {
+      LOGGER.info ("PD client keystore successfully loaded");
       // Load trust store (may not be present/configured)
       final LoadedKeyStore aLoadedTrustStore = KeyStoreHelper.loadKeyStore (PDClientConfiguration.getTrustStoreType (),
                                                                             PDClientConfiguration.getTrustStorePath (),
                                                                             PDClientConfiguration.getTrustStorePassword ());
+      if (aLoadedTrustStore.isFailure ())
+        LOGGER.error ("PD client failed to initialize truststore for service connection! Details: " +
+                      PeppolKeyStoreHelper.getLoadError (aLoadedTrustStore));
+      else
+        LOGGER.info ("PD client truststore successfully loaded");
+
       final KeyStore aTrustStore = aLoadedTrustStore.getKeyStore ();
 
       try
       {
+        final PrivateKeyStrategy aPKS = (aAliases, aSocket) -> {
+          if (LOGGER.isDebugEnabled ())
+            LOGGER.debug ("chooseAlias(" + aAliases + ", " + aSocket + ")");
+          final String sAlias = PDClientConfiguration.getKeyStoreKeyAlias ();
+          return aAliases.containsKey (sAlias) ? sAlias : null;
+        };
+        final TrustStrategy aTS = (aChain, aAuthType) -> {
+          if (LOGGER.isDebugEnabled ())
+            LOGGER.debug ("isTrusted(" + Arrays.toString (aChain) + ", " + aAuthType + ")");
+          return true;
+        };
         setSSLContext (SSLContexts.custom ()
                                   .loadKeyMaterial (aLoadedKeyStore.getKeyStore (),
                                                     PDClientConfiguration.getKeyStoreKeyPassword (),
-                                                    (aAliases, aSocket) -> {
-                                                      if (LOGGER.isDebugEnabled ())
-                                                        LOGGER.debug ("chooseAlias(" + aAliases + ", " + aSocket + ")");
-                                                      final String sAlias = PDClientConfiguration.getKeyStoreKeyAlias ();
-                                                      return aAliases.containsKey (sAlias) ? sAlias : null;
-                                                    })
-                                  .loadTrustMaterial (aTrustStore, (aChain, aAuthType) -> {
-                                    if (LOGGER.isDebugEnabled ())
-                                      LOGGER.debug ("isTrusted(" + Arrays.toString (aChain) + ", " + aAuthType + ")");
-                                    return true;
-                                  })
+                                                    aPKS)
+                                  .loadTrustMaterial (aTrustStore, aTS)
                                   .build ());
       }
       catch (final GeneralSecurityException ex)
       {
-        throw new IllegalStateException ("Failed to create SSL context", ex);
+        throw new IllegalStateException ("PD client failed to set SSL context", ex);
       }
     }
   }

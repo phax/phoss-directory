@@ -75,6 +75,7 @@ public class PDClient implements Closeable
   private final String m_sPDIndexerURL;
   private IPDClientExceptionCallback m_aExceptionHdl = _createDefaultExCb ();
 
+  // Important to use the PDHttpClientFactory
   private HttpClientManager m_aHttpClientMgr = new HttpClientManager (new PDHttpClientFactory ());
   private HttpHost m_aProxy;
   private Credentials m_aProxyCredentials;
