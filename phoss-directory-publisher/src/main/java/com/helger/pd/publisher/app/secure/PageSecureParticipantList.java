@@ -22,11 +22,14 @@ import java.util.Map;
 
 import javax.annotation.Nonnull;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.collection.impl.ICommonsSortedMap;
+import com.helger.commons.compare.ESortOrder;
 import com.helger.commons.mutable.MutableInt;
 import com.helger.commons.url.ISimpleURL;
-import com.helger.html.hc.html.sections.HCH3;
 import com.helger.html.hc.html.tabular.HCRow;
 import com.helger.html.hc.html.tabular.HCTable;
 import com.helger.html.hc.html.tabular.IHCCell;
@@ -39,8 +42,6 @@ import com.helger.pd.publisher.app.pub.PagePublicSearchSimple;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.factory.IIdentifierFactory;
-import com.helger.photon.bootstrap4.alert.BootstrapErrorBox;
-import com.helger.photon.bootstrap4.alert.BootstrapInfoBox;
 import com.helger.photon.bootstrap4.uictrls.datatables.BootstrapDTColAction;
 import com.helger.photon.bootstrap4.uictrls.datatables.BootstrapDataTables;
 import com.helger.photon.core.appid.CApplicationID;
@@ -52,6 +53,10 @@ import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 
 public final class PageSecureParticipantList extends AbstractAppWebPage
 {
+  private static final Logger LOGGER = LoggerFactory.getLogger (PageSecureParticipantList.class);
+
+  private static final String PARAM_SHOW_ALL = "showall";
+  private static final String PARAM_MAX_ENTRIES = "maxentries";
   private static final String FIELD_PARTICIPANT_ID = "partid";
 
   public PageSecureParticipantList (@Nonnull @Nonempty final String sID)
@@ -85,21 +90,45 @@ public final class PageSecureParticipantList extends AbstractAppWebPage
           // ignore
         }
         if (bSuccess)
-          aNodeList.addChild (new BootstrapInfoBox ().addChild ("The participant '" +
-                                                                aParticipantID.getURIEncoded () +
-                                                                "' was scheduled for deletion"));
+          aNodeList.addChild (info ("The participant '" +
+                                    aParticipantID.getURIEncoded () +
+                                    "' was scheduled for deletion"));
         else
-          aNodeList.addChild (new BootstrapErrorBox ().addChild ("Error scheduling participant '" +
-                                                                 aParticipantID.getURIEncoded () +
-                                                                 "' for deletion"));
+          aNodeList.addChild (error ("Error scheduling participant '" +
+                                     aParticipantID.getURIEncoded () +
+                                     "' for deletion"));
       }
     }
 
     final ICommonsSortedMap <IParticipantIdentifier, MutableInt> aAllIDs = PDMetaManager.getStorageMgr ()
                                                                                         .getAllContainedParticipantIDs (EQueryMode.NON_DELETED_ONLY);
-    aNodeList.addChild (new HCH3 ().addChild (aAllIDs.size () + " participants (=Business Cards) are contained"));
+    aNodeList.addChild (h3 (aAllIDs.size () + " participants (=Business Cards) are contained"));
 
-    final HCTable aTable = new HCTable (new DTCol ("ID"),
+    int nMaxEntries;
+    if (aWPEC.params ().containsKey (PARAM_SHOW_ALL))
+      nMaxEntries = Integer.MAX_VALUE;
+    else
+    {
+      nMaxEntries = aWPEC.params ().getAsInt (PARAM_MAX_ENTRIES, -1);
+      if (nMaxEntries <= 0)
+      {
+        // Avoid negative entry count
+        nMaxEntries = 500;
+      }
+
+      if (aAllIDs.size () > nMaxEntries)
+      {
+        aNodeList.addChild (info ("Showing only the first " +
+                                  nMaxEntries +
+                                  " participant(s), to avoid too much load on the server. Use the parameter '" +
+                                  PARAM_SHOW_ALL +
+                                  "' to show all participants, or '" +
+                                  PARAM_MAX_ENTRIES +
+                                  "' to specify a maximum number of entries."));
+      }
+    }
+
+    final HCTable aTable = new HCTable (new DTCol ("ID").setInitialSorting (ESortOrder.ASCENDING),
                                         new DTCol ("Entities").setDisplayType (EDTColType.INT, aDisplayLocale),
                                         new BootstrapDTColAction ()).setID (getID ());
     for (final Map.Entry <IParticipantIdentifier, MutableInt> aEntry : aAllIDs.entrySet ())
@@ -127,6 +156,12 @@ public final class PageSecureParticipantList extends AbstractAppWebPage
                                       .add (FIELD_PARTICIPANT_ID, sParticipantID)
                                       .add (CPageParam.PARAM_ACTION, CPageParam.ACTION_DELETE);
       aActionCell.addChild (new HCA (aDelete).addChild ("Delete"));
+
+      if (aTable.getBodyRowCount () >= nMaxEntries)
+      {
+        LOGGER.info ("Stopping rendering after " + nMaxEntries + " entries");
+        break;
+      }
     }
 
     aNodeList.addChild (aTable).addChild (BootstrapDataTables.createDefaultDataTables (aWPEC, aTable));

@@ -32,22 +32,18 @@ import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.error.IError;
 import com.helger.commons.state.ESuccess;
 import com.helger.commons.string.StringHelper;
-import com.helger.html.hc.html.grouping.HCDiv;
 import com.helger.html.hc.html.grouping.HCUL;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.businesscard.IPDBusinessCardProvider;
 import com.helger.pd.indexer.businesscard.SMPBusinessCardProvider;
 import com.helger.pd.indexer.index.EIndexerWorkItemType;
+import com.helger.pd.indexer.mgr.PDIndexerManager;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.publisher.app.AppCommonUI;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.peppol.sml.ISMLInfo;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.factory.IIdentifierFactory;
-import com.helger.photon.bootstrap4.alert.BootstrapErrorBox;
-import com.helger.photon.bootstrap4.alert.BootstrapInfoBox;
-import com.helger.photon.bootstrap4.alert.BootstrapSuccessBox;
-import com.helger.photon.bootstrap4.alert.BootstrapWarnBox;
 import com.helger.photon.bootstrap4.buttongroup.BootstrapButtonToolbar;
 import com.helger.photon.bootstrap4.form.BootstrapForm;
 import com.helger.photon.bootstrap4.form.BootstrapFormGroup;
@@ -88,16 +84,14 @@ public final class PageSecureIndexImport extends AbstractAppWebPage
         final SMPBusinessCardProvider aSMPBCProv = (SMPBusinessCardProvider) aBCProv;
         if (aSMPBCProv.isFixedSMP ())
         {
-          aNodeList.addChild (new BootstrapInfoBox ().addChild ("Fixed SMP URI " +
-                                                                aSMPBCProv.getFixedSMPURI () +
-                                                                " is used."));
+          aNodeList.addChild (info ("Fixed SMP URI " + aSMPBCProv.getFixedSMPURI () + " is used."));
         }
         else
         {
-          aNodeList.addChild (new BootstrapInfoBox ().addChild ("The following SMLs are crawled for entries: " +
-                                                                StringHelper.getImplodedMapped (", ",
-                                                                                                aSMPBCProv.getAllSMLsToUse (),
-                                                                                                ISMLInfo::getDisplayName)));
+          aNodeList.addChild (info ("The following SMLs are crawled for entries: " +
+                                    StringHelper.getImplodedMapped (", ",
+                                                                    aSMPBCProv.getAllSMLsToUse (),
+                                                                    ISMLInfo::getDisplayName)));
         }
       }
     }
@@ -140,7 +134,7 @@ public final class PageSecureIndexImport extends AbstractAppWebPage
                                  .queueWorkItem (aParticipantID,
                                                  EIndexerWorkItemType.CREATE_UPDATE,
                                                  "import-triggered",
-                                                 "localhost")
+                                                 PDIndexerManager.HOST_LOCALHOST)
                                  .isChanged ())
                 {
                   aQueued.add (aParticipantID);
@@ -173,16 +167,14 @@ public final class PageSecureIndexImport extends AbstractAppWebPage
           final HCUL aUL = new HCUL ();
           for (final IParticipantIdentifier aPI : aQueued)
             aUL.addItem (aPI.getURIEncoded ());
-          aResultNL.addChild (new BootstrapSuccessBox ().addChild (new HCDiv ().addChild ("The following identifiers were successfully queued for indexing:"))
-                                                        .addChild (aUL));
+          aResultNL.addChild (success (div ("The following identifiers were successfully queued for indexing:")).addChild (aUL));
         }
         if (aNotQueued.isNotEmpty ())
         {
           final HCUL aUL = new HCUL ();
           for (final IParticipantIdentifier aPI : aNotQueued)
             aUL.addItem (aPI.getURIEncoded ());
-          aResultNL.addChild (new BootstrapWarnBox ().addChild (new HCDiv ().addChild ("The following identifiers could not be queued (because they are already in the queue):"))
-                                                     .addChild (aUL));
+          aResultNL.addChild (warn (div ("The following identifiers could not be queued (because they are already in the queue):")).addChild (aUL));
         }
 
         if (eSuccess.isFailure ())
@@ -194,8 +186,7 @@ public final class PageSecureIndexImport extends AbstractAppWebPage
             LOGGER.error ("  " + sMsg);
             aUL.addItem (sMsg);
           }
-          aResultNL.addChild (new BootstrapErrorBox ().addChild (new HCDiv ().addChild ("Error parsing provided XML:"))
-                                                      .addChild (aUL));
+          aResultNL.addChild (error (div ("Error parsing provided XML:")).addChild (aUL));
         }
         aWPEC.postRedirectGetInternal (aResultNL);
       }

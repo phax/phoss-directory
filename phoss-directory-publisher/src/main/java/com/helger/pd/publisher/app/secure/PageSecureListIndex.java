@@ -30,8 +30,7 @@ import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.index.IIndexerWorkItem;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
-import com.helger.photon.bootstrap4.alert.BootstrapInfoBox;
-import com.helger.photon.bootstrap4.alert.BootstrapSuccessBox;
+import com.helger.pd.publisher.ui.PDCommonUI;
 import com.helger.photon.bootstrap4.button.BootstrapButton;
 import com.helger.photon.bootstrap4.buttongroup.BootstrapButtonToolbar;
 import com.helger.photon.bootstrap4.table.BootstrapTable;
@@ -60,19 +59,20 @@ public final class PageSecureListIndex extends AbstractAppWebPage
       aToolbar.addChild (new BootstrapButton ().addChild ("Refresh")
                                                .setIcon (EDefaultIcon.REFRESH)
                                                .setOnClick (aWPEC.getSelfHref ()));
-      aToolbar.addChild (" Current server time: " +
-                         PDTToString.getAsString (PDTFactory.getCurrentLocalTime (), aDisplayLocale));
+      aToolbar.addChild (span ("Current server time: " +
+                               PDTToString.getAsString (PDTFactory.getCurrentLocalTime (), aDisplayLocale))
+                                                                                                           .addClass (PDCommonUI.CSS_CLASS_VERTICAL_PADDED_TEXT));
     }
 
     final LinkedBlockingQueue <Object> aQueue = PDMetaManager.getIndexerMgr ().getIndexerWorkQueue ().getQueue ();
     final int nLength = aQueue.size ();
     if (nLength == 0)
     {
-      aNodeList.addChild (new BootstrapSuccessBox ().addChild ("The Index Queue is currently empty"));
+      aNodeList.addChild (success ("The Index Queue is currently empty"));
     }
     else
     {
-      aNodeList.addChild (new BootstrapInfoBox ().addChild ("The Index Queue contains " + nLength + " entries"));
+      aNodeList.addChild (info ("The Index Queue contains " + nLength + " entries"));
 
       final BootstrapTable aTable = new BootstrapTable (new DTCol ("Queue date time").setDisplayType (EDTColType.DATETIME,
                                                                                                       aDisplayLocale)

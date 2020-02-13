@@ -60,16 +60,33 @@ public interface IReIndexWorkItemList
   /**
    * Find and remove the first work item matching the provided predicate.
    *
-   * @param aPred
+   * @param aFilter
    *        The predicate to use. May not be <code>null</code>.
    * @return <code>null</code> if no such entry exists.
    */
   @Nullable
-  IReIndexWorkItem getAndRemoveEntry (@Nonnull Predicate <? super IReIndexWorkItem> aPred);
+  IReIndexWorkItem getAndRemoveEntry (@Nonnull Predicate <? super IReIndexWorkItem> aFilter);
 
   @Nonnull
   default EChange deleteItem (@Nullable final String sID)
   {
     return EChange.valueOf (sID != null && getAndRemoveEntry (x -> x.getID ().equals (sID)) != null);
+  }
+
+  /**
+   * Remove all work items matching the provided predicate.
+   *
+   * @param aFilter
+   *        The predicate to use. May not be <code>null</code>.
+   * @return <code>null</code> if no such entry exists.
+   */
+  @Nonnull
+  @ReturnsMutableCopy
+  ICommonsList <IReIndexWorkItem> getAndRemoveAllEntries (@Nonnull Predicate <? super IReIndexWorkItem> aFilter);
+
+  @Nonnull
+  default EChange deleteAllItems ()
+  {
+    return EChange.valueOf (getAndRemoveAllEntries (x -> true).isNotEmpty ());
   }
 }

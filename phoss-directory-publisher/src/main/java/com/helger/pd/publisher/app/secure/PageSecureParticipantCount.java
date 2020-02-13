@@ -26,7 +26,6 @@ import org.apache.lucene.search.MatchAllDocsQuery;
 
 import com.helger.commons.annotation.Nonempty;
 import com.helger.html.hc.html.grouping.HCHR;
-import com.helger.html.hc.html.sections.HCH3;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.lucene.AllDocumentsCollector;
 import com.helger.pd.indexer.mgr.PDMetaManager;
@@ -57,16 +56,16 @@ public final class PageSecureParticipantCount extends AbstractAppWebPage
 
     final int nNotDeletedCount = PDMetaManager.getStorageMgr ()
                                               .getContainedParticipantCount (EQueryMode.NON_DELETED_ONLY);
-    aNodeList.addChild (new HCH3 ().addChild (nNotDeletedCount + " participants (entities) are contained"));
+    aNodeList.addChild (h3 (nNotDeletedCount + " participants (entities) are contained"));
 
     final int nDeletedCount = PDMetaManager.getStorageMgr ().getContainedParticipantCount (EQueryMode.DELETED_ONLY);
-    aNodeList.addChild (new HCH3 ().addChild (nDeletedCount + " deleted participants (entities) are contained"));
+    aNodeList.addChild (h3 (nDeletedCount + " deleted participants (entities) are contained"));
 
     final int nReIndexCount = PDMetaManager.getIndexerMgr ().getReIndexList ().getItemCount ();
-    aNodeList.addChild (new HCH3 ().addChild (nReIndexCount + " re-index items are contained"));
+    aNodeList.addChild (h3 (nReIndexCount + " re-index items are contained"));
 
     final int nDeadCount = PDMetaManager.getIndexerMgr ().getDeadList ().getItemCount ();
-    aNodeList.addChild (new HCH3 ().addChild (nDeadCount + " dead items are contained"));
+    aNodeList.addChild (h3 (nDeadCount + " dead items are contained"));
 
     if (false)
       try

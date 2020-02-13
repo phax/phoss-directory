@@ -25,6 +25,7 @@ import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.businesscard.IPDBusinessCardProvider;
 import com.helger.pd.indexer.businesscard.SMPBusinessCardProvider;
 import com.helger.pd.indexer.index.EIndexerWorkItemType;
+import com.helger.pd.indexer.mgr.PDIndexerManager;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.peppol.sml.ISMLInfo;
@@ -32,9 +33,6 @@ import com.helger.peppolid.CIdentifier;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.factory.IIdentifierFactory;
 import com.helger.peppolid.peppol.PeppolIdentifierHelper;
-import com.helger.photon.bootstrap4.alert.BootstrapInfoBox;
-import com.helger.photon.bootstrap4.alert.BootstrapSuccessBox;
-import com.helger.photon.bootstrap4.alert.BootstrapWarnBox;
 import com.helger.photon.bootstrap4.buttongroup.BootstrapButtonToolbar;
 import com.helger.photon.bootstrap4.form.BootstrapForm;
 import com.helger.photon.bootstrap4.form.BootstrapFormGroup;
@@ -67,16 +65,14 @@ public final class PageSecureIndexManually extends AbstractAppWebPage
         final SMPBusinessCardProvider aSMPBCProv = (SMPBusinessCardProvider) aBCProv;
         if (aSMPBCProv.isFixedSMP ())
         {
-          aNodeList.addChild (new BootstrapInfoBox ().addChild ("Fixed SMP URI " +
-                                                                aSMPBCProv.getFixedSMPURI () +
-                                                                " is used."));
+          aNodeList.addChild (info ("Fixed SMP URI " + aSMPBCProv.getFixedSMPURI () + " is used."));
         }
         else
         {
-          aNodeList.addChild (new BootstrapInfoBox ().addChild ("The following SMLs are crawled for entries: " +
-                                                                StringHelper.getImplodedMapped (", ",
-                                                                                                aSMPBCProv.getAllSMLsToUse (),
-                                                                                                ISMLInfo::getDisplayName)));
+          aNodeList.addChild (info ("The following SMLs are crawled for entries: " +
+                                    StringHelper.getImplodedMapped (", ",
+                                                                    aSMPBCProv.getAllSMLsToUse (),
+                                                                    ISMLInfo::getDisplayName)));
         }
       }
     }
@@ -98,18 +94,18 @@ public final class PageSecureIndexManually extends AbstractAppWebPage
                          .queueWorkItem (aParticipantID,
                                          EIndexerWorkItemType.CREATE_UPDATE,
                                          "manually-triggered",
-                                         "localhost")
+                                         PDIndexerManager.HOST_LOCALHOST)
                          .isChanged ())
         {
-          aWPEC.postRedirectGetInternal (new BootstrapSuccessBox ().addChild ("The indexing of participant ID '" +
-                                                                              sParticipantID +
-                                                                              "' was successfully triggered!"));
+          aWPEC.postRedirectGetInternal (success ("The indexing of participant ID '" +
+                                                  sParticipantID +
+                                                  "' was successfully triggered!"));
         }
         else
         {
-          aWPEC.postRedirectGetInternal (new BootstrapWarnBox ().addChild ("Participant ID '" +
-                                                                           sParticipantID +
-                                                                           "' is already in the indexing queue!"));
+          aWPEC.postRedirectGetInternal (warn ("Participant ID '" +
+                                               sParticipantID +
+                                               "' is already in the indexing queue!"));
         }
       }
     }

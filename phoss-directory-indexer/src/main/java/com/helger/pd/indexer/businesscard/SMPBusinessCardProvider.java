@@ -44,8 +44,8 @@ import com.helger.commons.url.URLHelper;
 import com.helger.httpclient.HttpClientHelper;
 import com.helger.pd.businesscard.generic.PDBusinessCard;
 import com.helger.pd.indexer.mgr.PDMetaManager;
-import com.helger.pd.indexer.settings.EPDSMPMode;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
+import com.helger.peppol.sml.ESMPAPIType;
 import com.helger.peppol.sml.ISMLInfo;
 import com.helger.peppolid.IDocumentTypeIdentifier;
 import com.helger.peppolid.IParticipantIdentifier;
@@ -69,7 +69,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
   private static final String URL_PART_SERVICES = "/services/";
   private static final Logger LOGGER = LoggerFactory.getLogger (SMPBusinessCardProvider.class);
 
-  private final EPDSMPMode m_eSMPMode;
+  private final ESMPAPIType m_eSMPMode;
   private final URI m_aSMPURI;
   private final IPeppolURLProvider m_aURLProvider;
   private final ISupplier <? extends ICommonsList <? extends ISMLInfo>> m_aSMLInfoProvider;
@@ -89,7 +89,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
    *        The URL provider to be used. Must be non-<code>null</code> if SML is
    *        to be used.
    */
-  protected SMPBusinessCardProvider (@Nonnull final EPDSMPMode eSMPMode,
+  protected SMPBusinessCardProvider (@Nonnull final ESMPAPIType eSMPMode,
                                      @Nullable final URI aSMPURI,
                                      @Nullable final IPeppolURLProvider aURLProvider,
                                      @Nullable final ISupplier <? extends ICommonsList <? extends ISMLInfo>> aSMLInfoProvider)
@@ -406,6 +406,8 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
     try
     {
       // Use the optional business card API
+      // FIXME is the path "bdxr-smp-2" needed? Well, the PD is not yet
+      // specified for this SMP type....
       final HttpGet aRequest = new HttpGet (aSMPClient.getSMPHostURI () +
                                             "businesscard/" +
                                             aParticipantID.getURIPercentEncoded ());
@@ -552,7 +554,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
   }
 
   @Nonnull
-  public static SMPBusinessCardProvider createWithSMLAutoDetect (@Nonnull final EPDSMPMode eSMPMode,
+  public static SMPBusinessCardProvider createWithSMLAutoDetect (@Nonnull final ESMPAPIType eSMPMode,
                                                                  @Nonnull final IPeppolURLProvider aURLProvider,
                                                                  @Nullable final ISupplier <? extends ICommonsList <? extends ISMLInfo>> aSMLInfoProvider)
   {
@@ -563,7 +565,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
   }
 
   @Nonnull
-  public static SMPBusinessCardProvider createForFixedSMP (@Nonnull final EPDSMPMode eSMPMode,
+  public static SMPBusinessCardProvider createForFixedSMP (@Nonnull final ESMPAPIType eSMPMode,
                                                            @Nonnull final URI aSMPURI)
   {
     ValueEnforcer.notNull (eSMPMode, "SMPMode");

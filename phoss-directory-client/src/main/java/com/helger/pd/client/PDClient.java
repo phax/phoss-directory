@@ -72,7 +72,7 @@ public class PDClient implements Closeable
    * with a trailing slash!
    */
   private final String m_sPDHost;
-  private final String m_sPDIndexerURL;
+  private final String m_sPDIndexerURI;
   private IPDClientExceptionCallback m_aExceptionHdl = _createDefaultExCb ();
 
   // Important to use the PDHttpClientFactory
@@ -108,7 +108,7 @@ public class PDClient implements Closeable
     // Build string and ensure it ends with a "/"
     final String sSMPHost = aPDHost.toString ();
     m_sPDHost = sSMPHost.endsWith ("/") ? sSMPHost : sSMPHost + '/';
-    m_sPDIndexerURL = m_sPDHost + PATH_INDEXER_10;
+    m_sPDIndexerURI = m_sPDHost + PATH_INDEXER_10;
 
     // Get proxy settings
     final boolean bIsHttp = m_sPDHost.startsWith ("http:");
@@ -141,7 +141,7 @@ public class PDClient implements Closeable
    * @since 0.5.1
    */
   @Nonnull
-  public IPDClientExceptionCallback getExceptionHandler ()
+  public final IPDClientExceptionCallback getExceptionHandler ()
   {
     return m_aExceptionHdl;
   }
@@ -157,7 +157,7 @@ public class PDClient implements Closeable
    * @see #getExceptionHandler()
    * @since 0.5.1
    */
-  public void setExceptionHandler (@Nonnull final IPDClientExceptionCallback aExceptionHdl)
+  public final void setExceptionHandler (@Nonnull final IPDClientExceptionCallback aExceptionHdl)
   {
     ValueEnforcer.notNull (aExceptionHdl, "ExceptionHdl");
     m_aExceptionHdl = aExceptionHdl;
@@ -168,9 +168,20 @@ public class PDClient implements Closeable
    *         <code>null</code>. Always has a trailing "/".
    */
   @Nonnull
-  public String getPDHostURI ()
+  public final String getPDHostURI ()
   {
     return m_sPDHost;
+  }
+
+  /**
+   * @return The Peppol Directory indexer URL to use. Never <code>null</code>.
+   *         Always has a trailing "/".
+   * @since 0.8.5
+   */
+  @Nonnull
+  public final String getPDIndexerURI ()
+  {
+    return m_sPDIndexerURI;
   }
 
   /**
@@ -178,7 +189,7 @@ public class PDClient implements Closeable
    *         <code>null</code> by default.
    */
   @Nullable
-  public HttpHost getProxy ()
+  public final HttpHost getProxy ()
   {
     return m_aProxy;
   }
@@ -200,7 +211,7 @@ public class PDClient implements Closeable
    *         Directory server. Is <code>null</code> by default.
    */
   @Nullable
-  public Credentials getProxyCredentials ()
+  public final Credentials getProxyCredentials ()
   {
     return m_aProxyCredentials;
   }
@@ -217,13 +228,23 @@ public class PDClient implements Closeable
   }
 
   /**
+   * @return The internal HTTP client manager. Don't mess with it.
+   * @since 0.8.5
+   */
+  @Nonnull
+  public final HttpClientManager getHttpClientManager ()
+  {
+    return m_aHttpClientMgr;
+  }
+
+  /**
    * Internal method to set a different {@link HttpClientManager} in case the
    * default one using {@link PDHttpClientFactory} is not suitable (any more).
    *
    * @param aHttpClientMgr
    *        The new HTTP client manager to use. May not be <code>null</code>.
    */
-  public void setHttpClientManager (@Nonnull final HttpClientManager aHttpClientMgr)
+  public final void setHttpClientManager (@Nonnull final HttpClientManager aHttpClientMgr)
   {
     ValueEnforcer.notNull (aHttpClientMgr, "HttpClientMgr");
     m_aHttpClientMgr = aHttpClientMgr;
@@ -268,7 +289,7 @@ public class PDClient implements Closeable
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
 
-    final HttpGet aGet = new HttpGet (m_sPDIndexerURL + aParticipantID.getURIPercentEncoded ());
+    final HttpGet aGet = new HttpGet (m_sPDIndexerURI + aParticipantID.getURIPercentEncoded ());
     try
     {
       return executeRequest (aGet, new PDClientResponseHandler ()).isSuccess ();
@@ -286,7 +307,7 @@ public class PDClient implements Closeable
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
     final String sParticipantID = aParticipantID.getURIEncoded ();
 
-    final HttpPut aPut = new HttpPut (m_sPDIndexerURL);
+    final HttpPut aPut = new HttpPut (m_sPDIndexerURI);
     aPut.setEntity (new StringEntity (sParticipantID, StandardCharsets.UTF_8));
 
     try
@@ -311,7 +332,7 @@ public class PDClient implements Closeable
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
 
-    final HttpDelete aDelete = new HttpDelete (m_sPDIndexerURL + aParticipantID.getURIPercentEncoded ());
+    final HttpDelete aDelete = new HttpDelete (m_sPDIndexerURI + aParticipantID.getURIPercentEncoded ());
     try
     {
       if (executeRequest (aDelete, new PDClientResponseHandler ()).isSuccess ())
