@@ -21,6 +21,8 @@ import java.util.Arrays;
 
 import javax.annotation.Nonnull;
 
+import org.apache.http.HttpHost;
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.ssl.PrivateKeyStrategy;
 import org.apache.http.ssl.SSLContexts;
@@ -28,6 +30,7 @@ import org.apache.http.ssl.TrustStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.helger.commons.string.StringHelper;
 import com.helger.httpclient.HttpClientFactory;
 import com.helger.peppol.utils.PeppolKeyStoreHelper;
 import com.helger.security.keystore.KeyStoreHelper;
@@ -43,60 +46,81 @@ public class PDHttpClientFactory extends HttpClientFactory
 {
   private static final Logger LOGGER = LoggerFactory.getLogger (PDHttpClientFactory.class);
 
-  public PDHttpClientFactory ()
+  public PDHttpClientFactory (final boolean bUseHttps)
   {
-    if (PDClientConfiguration.isHttpsHostnameVerificationDisabled ())
+    final String sProxyHost = bUseHttps ? PDClientConfiguration.getHttpsProxyHost ()
+                                        : PDClientConfiguration.getHttpProxyHost ();
+    final int nProxyPort = bUseHttps ? PDClientConfiguration.getHttpsProxyPort ()
+                                     : PDClientConfiguration.getHttpProxyPort ();
+    UsernamePasswordCredentials aProxyCredentials = null;
+
+    final String sProxyUsername = PDClientConfiguration.getProxyUsername ();
+    if (StringHelper.hasText (sProxyUsername))
     {
-      LOGGER.info ("PD client uses disabled hostname verification");
-      setHostnameVerifierVerifyAll ();
+      final String sProxyPassword = PDClientConfiguration.getProxyPassword ();
+      aProxyCredentials = new UsernamePasswordCredentials (sProxyUsername, sProxyPassword);
+    }
+    if (sProxyHost != null && nProxyPort > 0)
+    {
+      LOGGER.info ("PD client uses proxy configuration");
+      setProxy (new HttpHost (sProxyHost, nProxyPort), aProxyCredentials);
     }
 
-    // Load key store
-    final LoadedKeyStore aLoadedKeyStore = KeyStoreHelper.loadKeyStore (PDClientConfiguration.getKeyStoreType (),
-                                                                        PDClientConfiguration.getKeyStorePath (),
-                                                                        PDClientConfiguration.getKeyStorePassword ());
-    if (aLoadedKeyStore.isFailure ())
+    if (bUseHttps)
     {
-      LOGGER.error ("PD client failed to initialize keystore for service connection! Can only use http now! Details: " +
-                    PeppolKeyStoreHelper.getLoadError (aLoadedKeyStore));
-    }
-    else
-    {
-      LOGGER.info ("PD client keystore successfully loaded");
-      // Load trust store (may not be present/configured)
-      final LoadedKeyStore aLoadedTrustStore = KeyStoreHelper.loadKeyStore (PDClientConfiguration.getTrustStoreType (),
-                                                                            PDClientConfiguration.getTrustStorePath (),
-                                                                            PDClientConfiguration.getTrustStorePassword ());
-      if (aLoadedTrustStore.isFailure ())
-        LOGGER.error ("PD client failed to initialize truststore for service connection! Details: " +
-                      PeppolKeyStoreHelper.getLoadError (aLoadedTrustStore));
-      else
-        LOGGER.info ("PD client truststore successfully loaded");
-
-      try
+      if (PDClientConfiguration.isHttpsHostnameVerificationDisabled ())
       {
-        final PrivateKeyStrategy aPKS = (aAliases, aSocket) -> {
-          if (LOGGER.isDebugEnabled ())
-            LOGGER.debug ("chooseAlias(" + aAliases + ", " + aSocket + ")");
-          final String sAlias = PDClientConfiguration.getKeyStoreKeyAlias ();
-          return aAliases.containsKey (sAlias) ? sAlias : null;
-        };
-        final TrustStrategy aTS = (aChain, aAuthType) -> {
-          if (LOGGER.isDebugEnabled ())
-            LOGGER.debug ("isTrusted(" + Arrays.toString (aChain) + ", " + aAuthType + ")");
-          return true;
-        };
-        setSSLContext (SSLContexts.custom ()
-                                  .loadKeyMaterial (aLoadedKeyStore.getKeyStore (),
-                                                    PDClientConfiguration.getKeyStoreKeyPassword (),
-                                                    aPKS)
-                                  .loadTrustMaterial (aLoadedTrustStore.getKeyStore (), aTS)
-                                  .build ());
-        LOGGER.info ("PD client successfully set SSL context");
+        LOGGER.info ("PD client uses disabled hostname verification");
+        setHostnameVerifierVerifyAll ();
       }
-      catch (final GeneralSecurityException ex)
+
+      // Load key store
+      final LoadedKeyStore aLoadedKeyStore = KeyStoreHelper.loadKeyStore (PDClientConfiguration.getKeyStoreType (),
+                                                                          PDClientConfiguration.getKeyStorePath (),
+                                                                          PDClientConfiguration.getKeyStorePassword ());
+      if (aLoadedKeyStore.isFailure ())
       {
-        throw new IllegalStateException ("PD client failed to set SSL context", ex);
+        LOGGER.error ("PD client failed to initialize keystore for service connection! Can only use http now! Details: " +
+                      PeppolKeyStoreHelper.getLoadError (aLoadedKeyStore));
+      }
+      else
+      {
+        LOGGER.info ("PD client keystore successfully loaded");
+        // Load trust store (may not be present/configured)
+        final LoadedKeyStore aLoadedTrustStore = KeyStoreHelper.loadKeyStore (PDClientConfiguration.getTrustStoreType (),
+                                                                              PDClientConfiguration.getTrustStorePath (),
+                                                                              PDClientConfiguration.getTrustStorePassword ());
+        if (aLoadedTrustStore.isFailure ())
+          LOGGER.error ("PD client failed to initialize truststore for service connection! Details: " +
+                        PeppolKeyStoreHelper.getLoadError (aLoadedTrustStore));
+        else
+          LOGGER.info ("PD client truststore successfully loaded");
+
+        try
+        {
+          final PrivateKeyStrategy aPKS = (aAliases, aSocket) -> {
+            if (LOGGER.isDebugEnabled ())
+              LOGGER.debug ("chooseAlias(" + aAliases + ", " + aSocket + ")");
+            final String sAlias = PDClientConfiguration.getKeyStoreKeyAlias ();
+            return aAliases.containsKey (sAlias) ? sAlias : null;
+          };
+          final TrustStrategy aTS = (aChain, aAuthType) -> {
+            if (LOGGER.isDebugEnabled ())
+              LOGGER.debug ("isTrusted(" + Arrays.toString (aChain) + ", " + aAuthType + ")");
+            return true;
+          };
+          setSSLContext (SSLContexts.custom ()
+                                    .loadKeyMaterial (aLoadedKeyStore.getKeyStore (),
+                                                      PDClientConfiguration.getKeyStoreKeyPassword (),
+                                                      aPKS)
+                                    .loadTrustMaterial (aLoadedTrustStore.getKeyStore (), aTS)
+                                    .build ());
+          LOGGER.info ("PD client successfully set SSL context");
+        }
+        catch (final GeneralSecurityException ex)
+        {
+          throw new IllegalStateException ("PD client failed to set SSL context", ex);
+        }
       }
     }
   }

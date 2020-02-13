@@ -22,19 +22,14 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.apache.http.HttpHost;
-import org.apache.http.auth.Credentials;
-import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,9 +37,7 @@ import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.OverrideOnDemand;
 import com.helger.commons.io.stream.StreamHelper;
 import com.helger.commons.state.ESuccess;
-import com.helger.commons.string.StringHelper;
 import com.helger.commons.url.URLHelper;
-import com.helger.httpclient.HttpClientHelper;
 import com.helger.httpclient.HttpClientManager;
 import com.helger.peppolid.IParticipantIdentifier;
 
@@ -76,9 +69,7 @@ public class PDClient implements Closeable
   private IPDClientExceptionCallback m_aExceptionHdl = _createDefaultExCb ();
 
   // Important to use the PDHttpClientFactory
-  private HttpClientManager m_aHttpClientMgr = new HttpClientManager (new PDHttpClientFactory ());
-  private HttpHost m_aProxy;
-  private Credentials m_aProxyCredentials;
+  private HttpClientManager m_aHttpClientMgr;
 
   /**
    * Constructor with a direct Peppol Directory URL.
@@ -111,20 +102,8 @@ public class PDClient implements Closeable
     m_sPDIndexerURI = m_sPDHost + PATH_INDEXER_10;
 
     // Get proxy settings
-    final boolean bIsHttp = m_sPDHost.startsWith ("http:");
-    final String sProxyHost = bIsHttp ? PDClientConfiguration.getHttpProxyHost ()
-                                      : PDClientConfiguration.getHttpsProxyHost ();
-    final int nProxyPort = bIsHttp ? PDClientConfiguration.getHttpProxyPort ()
-                                   : PDClientConfiguration.getHttpsProxyPort ();
-    if (sProxyHost != null && nProxyPort > 0)
-      setProxy (new HttpHost (sProxyHost, nProxyPort));
-
-    final String sProxyUsername = PDClientConfiguration.getProxyUsername ();
-    if (StringHelper.hasText (sProxyUsername))
-    {
-      final String sProxyPassword = PDClientConfiguration.getProxyPassword ();
-      setProxyCredentials (new UsernamePasswordCredentials (sProxyUsername, sProxyPassword));
-    }
+    final boolean bIsHttps = m_sPDHost.startsWith ("https:");
+    m_aHttpClientMgr = new HttpClientManager (new PDHttpClientFactory (bIsHttps));
   }
 
   public void close ()
@@ -185,49 +164,6 @@ public class PDClient implements Closeable
   }
 
   /**
-   * @return The HTTP proxy to be used to access the Peppol Directory server. Is
-   *         <code>null</code> by default.
-   */
-  @Nullable
-  public final HttpHost getProxy ()
-  {
-    return m_aProxy;
-  }
-
-  /**
-   * Set the proxy to be used to access the Peppol Directory server. By default
-   * the proxy is set in the constructor based on the client configuration.
-   *
-   * @param aProxy
-   *        May be <code>null</code> to indicate no proxy.
-   */
-  public final void setProxy (@Nullable final HttpHost aProxy)
-  {
-    m_aProxy = aProxy;
-  }
-
-  /**
-   * @return The HTTP proxy credentials to be used to access the Peppol
-   *         Directory server. Is <code>null</code> by default.
-   */
-  @Nullable
-  public final Credentials getProxyCredentials ()
-  {
-    return m_aProxyCredentials;
-  }
-
-  /**
-   * Set the proxy Credentials to be used to access the Peppol Directory server.
-   *
-   * @param aProxyCredentials
-   *        May be <code>null</code> to indicate no proxy credentials necessary.
-   */
-  public final void setProxyCredentials (@Nullable final Credentials aProxyCredentials)
-  {
-    m_aProxyCredentials = aProxyCredentials;
-  }
-
-  /**
    * @return The internal HTTP client manager. Don't mess with it.
    * @since 0.8.5
    */
@@ -269,10 +205,7 @@ public class PDClient implements Closeable
   protected <T> T executeRequest (@Nonnull final HttpRequestBase aRequest,
                                   @Nonnull final ResponseHandler <T> aHandler) throws IOException
   {
-    // Contextual attributes set the local context level will take
-    // precedence over those set at the client level.
-    final HttpContext aContext = HttpClientHelper.createHttpContext (m_aProxy, m_aProxyCredentials);
-    return m_aHttpClientMgr.execute (aRequest, aContext, aHandler);
+    return m_aHttpClientMgr.execute (aRequest, aHandler);
   }
 
   /**
