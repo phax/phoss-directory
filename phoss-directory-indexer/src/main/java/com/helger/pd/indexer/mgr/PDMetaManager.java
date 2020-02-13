@@ -17,6 +17,7 @@
 package com.helger.pd.indexer.mgr;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 
 import org.slf4j.Logger;
@@ -105,13 +106,23 @@ public final class PDMetaManager extends AbstractGlobalSingleton
   }
 
   /**
+   * @return The global {@link IPDBusinessCardProvider}. May be
+   *         <code>null</code> .
+   */
+  @Nullable
+  public static IPDBusinessCardProvider getBusinessCardProviderOrNull ()
+  {
+    return s_aRWLock.readLocked ( () -> s_aBCProvider);
+  }
+
+  /**
    * @return The global {@link IPDBusinessCardProvider}. Never <code>null</code>
    *         .
    */
   @Nonnull
   public static IPDBusinessCardProvider getBusinessCardProvider ()
   {
-    final IPDBusinessCardProvider ret = s_aRWLock.readLocked ( () -> s_aBCProvider);
+    final IPDBusinessCardProvider ret = getBusinessCardProviderOrNull ();
     if (ret == null)
       throw new IllegalStateException ("No BusinessCardProvider is present!");
     return ret;

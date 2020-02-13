@@ -96,7 +96,7 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
-* v0.8.5 - 2020-02-12
+* v0.8.5 - 2020-02-13 (hopefully)
     * Finalized PEPPOL -> Peppol change
     * Added registration date to the export data (see [issue #45](https://github.com/phax/phoss-directory/issues/45))
     * Updated to peppol-commons 8.x
@@ -109,6 +109,7 @@ The PD Publisher is the publicly accessible web site with listing and search fun
     * Details about document types are now part of the export (see [issue #46](https://github.com/phax/phoss-directory/issues/46))
     * Added the possibility to export search result as XML (see [issue #43](https://github.com/phax/phoss-directory/issues/43))
     * Enforcing the `PDClient` proxy configuration to be part of `PDHttpClientFactory`
+    * Improved internal error resilience
 * v0.8.4 - 2020-01-24
     * Updated to Jersey 2.30
     * The Directory client has no more default truststore path and password

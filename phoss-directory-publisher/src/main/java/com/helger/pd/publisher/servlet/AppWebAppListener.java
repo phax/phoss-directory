@@ -50,6 +50,7 @@ import com.helger.photon.core.menu.MenuTree;
 import com.helger.photon.core.requestparam.RequestParameterHandlerURLPathNamed;
 import com.helger.photon.core.requestparam.RequestParameterManager;
 import com.helger.quartz.SimpleScheduleBuilder;
+import com.helger.quartz.TriggerKey;
 import com.helger.schedule.quartz.GlobalQuartzScheduler;
 import com.helger.schedule.quartz.listener.LoggingJobListener;
 import com.helger.schedule.quartz.trigger.JDK8TriggerBuilder;
@@ -63,6 +64,9 @@ import com.helger.servlet.ServletContextPathHolder;
  */
 public final class AppWebAppListener extends WebAppListenerBootstrap
 {
+  private TriggerKey m_aExportJobTrigger;
+  private TriggerKey m_aSyncJobTrigger;
+
   @Override
   protected String getInitParameterDebug (@Nonnull final ServletContext aSC)
   {
@@ -181,29 +185,41 @@ public final class AppWebAppListener extends WebAppListenerBootstrap
   protected void initJobs ()
   {
     // In production: avoid creating too much load directly after startup
-    GlobalQuartzScheduler.getInstance ()
-                         .scheduleJob (ExportAllDataJob.class.getName (),
-                                       JDK8TriggerBuilder.newTrigger ()
-                                                         .startAt (GlobalDebug.isDebugMode () ? PDTFactory.getCurrentLocalDateTime ()
-                                                                                              : PDTFactory.getCurrentLocalDateTime ()
-                                                                                                          .plusHours (1))
-                                                         .withSchedule (GlobalDebug.isDebugMode () ? SimpleScheduleBuilder.repeatMinutelyForever (2)
-                                                                                                   : SimpleScheduleBuilder.repeatHourlyForever (24)),
-                                       ExportAllDataJob.class,
-                                       null);
+    m_aExportJobTrigger = GlobalQuartzScheduler.getInstance ()
+                                               .scheduleJob (ExportAllDataJob.class.getName (),
+                                                             JDK8TriggerBuilder.newTrigger ()
+                                                                               .startAt (GlobalDebug.isDebugMode () ? PDTFactory.getCurrentLocalDateTime ()
+                                                                                                                    : PDTFactory.getCurrentLocalDateTime ()
+                                                                                                                                .plusHours (1))
+                                                                               .withSchedule (GlobalDebug.isDebugMode () ? SimpleScheduleBuilder.repeatMinutelyForever (2)
+                                                                                                                         : SimpleScheduleBuilder.repeatHourlyForever (24)),
+                                                             ExportAllDataJob.class,
+                                                             null);
 
     if (GlobalDebug.isProductionMode ())
     {
       // Schedule the sync job every hour - it keeps track of the last sync
       // internally
-      GlobalQuartzScheduler.getInstance ()
-                           .scheduleJob (SyncAllBusinessCardsJob.class.getName (),
-                                         JDK8TriggerBuilder.newTrigger ()
-                                                           .startAt (PDTFactory.getCurrentLocalDateTime ()
-                                                                               .plusMinutes (2))
-                                                           .withSchedule (SimpleScheduleBuilder.repeatHourlyForever (1)),
-                                         SyncAllBusinessCardsJob.class,
-                                         null);
+      m_aSyncJobTrigger = GlobalQuartzScheduler.getInstance ()
+                                               .scheduleJob (SyncAllBusinessCardsJob.class.getName (),
+                                                             JDK8TriggerBuilder.newTrigger ()
+                                                                               .startAt (PDTFactory.getCurrentLocalDateTime ()
+                                                                                                   .plusMinutes (2))
+                                                                               .withSchedule (SimpleScheduleBuilder.repeatHourlyForever (1)),
+                                                             SyncAllBusinessCardsJob.class,
+                                                             null);
     }
+  }
+
+  @Override
+  protected void beforeContextDestroyed (final ServletContext aSC)
+  {
+    // Explicitly stop
+    if (m_aExportJobTrigger != null)
+      GlobalQuartzScheduler.getInstance ().unscheduleJob (m_aExportJobTrigger);
+    if (m_aSyncJobTrigger != null)
+      GlobalQuartzScheduler.getInstance ().unscheduleJob (m_aSyncJobTrigger);
+
+    super.beforeContextDestroyed (aSC);
   }
 }

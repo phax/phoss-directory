@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.commons.state.ESuccess;
+import com.helger.pd.indexer.businesscard.IPDBusinessCardProvider;
 import com.helger.pd.indexer.businesscard.PDExtendedBusinessCard;
 import com.helger.pd.indexer.index.IIndexerWorkItem;
 import com.helger.peppolid.IParticipantIdentifier;
@@ -71,6 +72,13 @@ final class PDIndexExecutor
                  " - " +
                  (nRetryCount > 0 ? "retry #" + nRetryCount : "initial try"));
 
+    final IPDBusinessCardProvider aBCProvider = PDMetaManager.getBusinessCardProviderOrNull ();
+    if (aBCProvider == null)
+    {
+      // Maybe null upon shutdown - in that case ignore it and don't reindex
+      return ESuccess.FAILURE;
+    }
+
     try
     {
       final IParticipantIdentifier aParticipantID = aWorkItem.getParticipantID ();
@@ -81,7 +89,7 @@ final class PDIndexExecutor
         case CREATE_UPDATE:
         {
           // Get BI from participant (e.g. from SMP)
-          final PDExtendedBusinessCard aBI = PDMetaManager.getBusinessCardProvider ().getBusinessCard (aParticipantID);
+          final PDExtendedBusinessCard aBI = aBCProvider.getBusinessCard (aParticipantID);
           if (aBI == null)
           {
             // No/invalid extension present - no need to try again
@@ -103,7 +111,7 @@ final class PDIndexExecutor
         case SYNC:
         {
           // Get BI from participant (e.g. from SMP)
-          final PDExtendedBusinessCard aBI = PDMetaManager.getBusinessCardProvider ().getBusinessCard (aParticipantID);
+          final PDExtendedBusinessCard aBI = aBCProvider.getBusinessCard (aParticipantID);
           if (aBI == null)
           {
             // No/invalid extension present - delete from index
