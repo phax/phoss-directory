@@ -19,6 +19,7 @@ package com.helger.pd.publisher.servlet;
 import javax.annotation.Nonnull;
 import javax.servlet.ServletContext;
 
+import com.helger.commons.ValueEnforcer;
 import com.helger.commons.datetime.PDTFactory;
 import com.helger.commons.debug.GlobalDebug;
 import com.helger.commons.io.resource.ClassPathResource;
@@ -101,6 +102,9 @@ public final class AppWebAppListener extends WebAppListenerBootstrap
       // Enforce an empty context path according to the specs!
       ServletContextPathHolder.setCustomContextPath ("");
     }
+
+    if (GlobalDebug.isProductionMode ())
+      ValueEnforcer.setEnabled (false);
 
     RequestParameterManager.getInstance ().setParameterHandler (new RequestParameterHandlerURLPathNamed ());
     AppInternalErrorHandler.doSetup ();
