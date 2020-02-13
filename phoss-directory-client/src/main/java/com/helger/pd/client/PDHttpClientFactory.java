@@ -17,7 +17,6 @@
 package com.helger.pd.client;
 
 import java.security.GeneralSecurityException;
-import java.security.KeyStore;
 import java.util.Arrays;
 
 import javax.annotation.Nonnull;
@@ -37,7 +36,7 @@ import com.helger.security.keystore.LoadedKeyStore;
 /**
  * Special {@link HttpClientFactory} that incorporates all the parameters from
  * "pd-client.properties" file.
- * 
+ *
  * @author Philip Helger
  */
 public class PDHttpClientFactory extends HttpClientFactory
@@ -74,8 +73,6 @@ public class PDHttpClientFactory extends HttpClientFactory
       else
         LOGGER.info ("PD client truststore successfully loaded");
 
-      final KeyStore aTrustStore = aLoadedTrustStore.getKeyStore ();
-
       try
       {
         final PrivateKeyStrategy aPKS = (aAliases, aSocket) -> {
@@ -93,8 +90,9 @@ public class PDHttpClientFactory extends HttpClientFactory
                                   .loadKeyMaterial (aLoadedKeyStore.getKeyStore (),
                                                     PDClientConfiguration.getKeyStoreKeyPassword (),
                                                     aPKS)
-                                  .loadTrustMaterial (aTrustStore, aTS)
+                                  .loadTrustMaterial (aLoadedTrustStore.getKeyStore (), aTS)
                                   .build ());
+        LOGGER.info ("PD client successfully set SSL context");
       }
       catch (final GeneralSecurityException ex)
       {
