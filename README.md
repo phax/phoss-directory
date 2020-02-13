@@ -110,6 +110,7 @@ The PD Publisher is the publicly accessible web site with listing and search fun
     * Added the possibility to export search result as XML (see [issue #43](https://github.com/phax/phoss-directory/issues/43))
     * Enforcing the `PDClient` proxy configuration to be part of `PDHttpClientFactory`
     * Improved internal error resilience
+    * Updated to ph-web 9.1.7
 * v0.8.4 - 2020-01-24
     * Updated to Jersey 2.30
     * The Directory client has no more default truststore path and password

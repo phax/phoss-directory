@@ -52,18 +52,19 @@ public class PDHttpClientFactory extends HttpClientFactory
                                         : PDClientConfiguration.getHttpProxyHost ();
     final int nProxyPort = bUseHttps ? PDClientConfiguration.getHttpsProxyPort ()
                                      : PDClientConfiguration.getHttpProxyPort ();
-    UsernamePasswordCredentials aProxyCredentials = null;
+
+    if (sProxyHost != null && nProxyPort > 0)
+    {
+      LOGGER.info ("PD client uses proxy host");
+      setProxyHost (new HttpHost (sProxyHost, nProxyPort));
+    }
 
     final String sProxyUsername = PDClientConfiguration.getProxyUsername ();
     if (StringHelper.hasText (sProxyUsername))
     {
+      LOGGER.info ("PD client uses proxy credentials");
       final String sProxyPassword = PDClientConfiguration.getProxyPassword ();
-      aProxyCredentials = new UsernamePasswordCredentials (sProxyUsername, sProxyPassword);
-    }
-    if (sProxyHost != null && nProxyPort > 0)
-    {
-      LOGGER.info ("PD client uses proxy configuration");
-      setProxy (new HttpHost (sProxyHost, nProxyPort), aProxyCredentials);
+      setProxyCredentials (new UsernamePasswordCredentials (sProxyUsername, sProxyPassword));
     }
 
     if (bUseHttps)
