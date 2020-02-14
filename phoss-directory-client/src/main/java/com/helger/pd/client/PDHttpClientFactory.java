@@ -119,7 +119,19 @@ public class PDHttpClientFactory extends HttpClientFactory
             if (LOGGER.isDebugEnabled ())
               LOGGER.debug ("chooseAlias(" + aAliases + ", " + aSocket + ")");
             final String sAlias = PDClientConfiguration.getKeyStoreKeyAlias ();
-            return aAliases.containsKey (sAlias) ? sAlias : null;
+            for (final String sCurAlias : aAliases.keySet ())
+            {
+              // Case insensitive alias handling
+              if (sCurAlias.equalsIgnoreCase (sAlias))
+              {
+                if (LOGGER.isDebugEnabled ())
+                  LOGGER.debug ("  Chose alias '" + sCurAlias + "'");
+                return sCurAlias;
+              }
+            }
+            if (LOGGER.isDebugEnabled ())
+              LOGGER.debug ("  Found no alias matching '" + sAlias + "'");
+            return null;
           };
           final TrustStrategy aTS = (aChain, aAuthType) -> {
             if (LOGGER.isDebugEnabled ())
