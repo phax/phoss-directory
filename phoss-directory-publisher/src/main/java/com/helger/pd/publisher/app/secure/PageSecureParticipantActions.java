@@ -135,7 +135,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
     });
     s_aDownloadAllBCsCSV = addAjax ( (req, res) -> {
       try (final NonBlockingByteArrayOutputStream aBAOS = new NonBlockingByteArrayOutputStream ();
-           final CSVWriter aCSVWriter = new CSVWriter (StreamHelper.createWriter (aBAOS, StandardCharsets.ISO_8859_1)))
+          final CSVWriter aCSVWriter = new CSVWriter (StreamHelper.createWriter (aBAOS, StandardCharsets.ISO_8859_1)))
       {
         ExportAllManager.queryAllContainedBusinessCardsAsCSV (EQueryMode.NON_DELETED_ONLY, aCSVWriter);
         res.binary (aBAOS, CMimeType.TEXT_CSV, ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_CSV);
@@ -178,6 +178,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
 
   private void _showDuplicateIDs (@Nonnull final WebPageExecutionContext aWPEC)
   {
+    LOGGER.info ("Showing all duplicate participant identifiers");
     final Locale aDisplayLocale = aWPEC.getDisplayLocale ();
     final ICommonsMap <IParticipantIdentifier, ICommonsSortedSet <String>> aDupMap = _getDuplicateSourceMap ();
 
@@ -201,11 +202,12 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
     }
     if (aNL.hasChildren ())
     {
-      aNL.addChildAt (0,
-                      h2 ("Found duplicate entries for " +
+      final String sMsg = "Found duplicate entries for " +
                           aDupMap.size () +
                           " " +
-                          (aDupMap.size () == 1 ? "participant" : "participant")));
+                          (aDupMap.size () == 1 ? "participant" : "participant");
+      LOGGER.info (sMsg);
+      aNL.addChildAt (0, h2 (sMsg));
       aWPEC.postRedirectGetInternal (aNL);
     }
     else
@@ -214,6 +216,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
 
   private void _deleteDuplicateIDs (@Nonnull final WebPageExecutionContext aWPEC)
   {
+    LOGGER.info ("Deleting all duplicate participant identifiers");
     final Locale aDisplayLocale = aWPEC.getDisplayLocale ();
     final ICommonsMap <IParticipantIdentifier, ICommonsSortedSet <String>> aDupMap = _getDuplicateSourceMap ();
 
@@ -246,7 +249,9 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
       final IIdentifierFactory aIF = SimpleIdentifierFactory.INSTANCE;
       final PDIndexerManager aIndexerMgr = PDMetaManager.getIndexerMgr ();
 
-      aNL.addChild (h2 ("Deleting " + aPIsToDelete.size () + " participant ID(s):"));
+      String sMsg = "Deleting " + aPIsToDelete.size () + " participant ID(s):";
+      LOGGER.info (sMsg);
+      aNL.addChild (h2 (sMsg));
       HCOL aOL = aNL.addAndReturnChild (new HCOL ());
       for (final String s : aPIsToDelete.getSorted (IComparator.getComparatorCollating (aDisplayLocale)))
       {
@@ -259,7 +264,9 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
 
       if (aPIsToAdd.isNotEmpty ())
       {
-        aNL.addChild (h2 ("Adding " + aPIsToAdd.size () + " participant ID(s) instead:"));
+        sMsg = "Adding " + aPIsToAdd.size () + " participant ID(s) instead:";
+        LOGGER.info (sMsg);
+        aNL.addChild (h2 (sMsg));
         aOL = aNL.addAndReturnChild (new HCOL ());
         for (final String s : aPIsToAdd.getSorted (IComparator.getComparatorCollating (aDisplayLocale)))
         {
@@ -274,7 +281,11 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
       aWPEC.postRedirectGetInternal (aNL);
     }
     else
-      aWPEC.postRedirectGetInternal (success ("Found no duplicate entries to remove"));
+    {
+      final String sMsg = "Found no duplicate entries to remove";
+      LOGGER.info (sMsg);
+      aWPEC.postRedirectGetInternal (success (sMsg));
+    }
   }
 
   @Override
@@ -286,6 +297,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
 
     if (aWPEC.hasAction (ACTION_UPDATE_EXPORTED_BCS))
     {
+      LOGGER.info ("Manually exporting all Business Cards now");
       try
       {
         ExportAllDataJob.exportAllBusinessCards ();
@@ -301,6 +313,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
     else
       if (aWPEC.hasAction (ACTION_SYNC_BCS_UNFORCED))
       {
+        LOGGER.info ("Manually synchronizing all Business Cards now (unforced)");
         if (SyncAllBusinessCardsJob.syncAllBusinessCards (false).isChanged ())
           aWPEC.postRedirectGetInternal (success ("The unforced synchronization was started successfully and is now running in the background."));
         else
@@ -311,6 +324,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
       else
         if (aWPEC.hasAction (ACTION_SYNC_BCS_FORCED))
         {
+          LOGGER.info ("Manually synchronizing all Business Cards now (FORCED)");
           if (SyncAllBusinessCardsJob.syncAllBusinessCards (true).isChanged ())
             aWPEC.postRedirectGetInternal (success ("The forced synchronization was started successfully and is now running in the background."));
           else
