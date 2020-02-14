@@ -17,6 +17,7 @@
 package com.helger.pd.client;
 
 import java.security.GeneralSecurityException;
+import java.security.KeyStore.PrivateKeyEntry;
 import java.util.Arrays;
 
 import javax.annotation.Nonnull;
@@ -34,6 +35,7 @@ import com.helger.commons.string.StringHelper;
 import com.helger.httpclient.HttpClientFactory;
 import com.helger.peppol.utils.PeppolKeyStoreHelper;
 import com.helger.security.keystore.KeyStoreHelper;
+import com.helger.security.keystore.LoadedKey;
 import com.helger.security.keystore.LoadedKeyStore;
 
 /**
@@ -81,18 +83,32 @@ public class PDHttpClientFactory extends HttpClientFactory
                                                                           PDClientConfiguration.getKeyStorePassword ());
       if (aLoadedKeyStore.isFailure ())
       {
-        LOGGER.error ("PD client failed to initialize keystore for service connection! Can only use http now! Details: " +
+        LOGGER.error ("PD client failed to initialize keystore for service connection - can only use http now! Details: " +
                       PeppolKeyStoreHelper.getLoadError (aLoadedKeyStore));
       }
       else
       {
         LOGGER.info ("PD client keystore successfully loaded");
+
+        // Sanity check if key can be loaded
+        {
+          final LoadedKey <PrivateKeyEntry> aLoadedKey = KeyStoreHelper.loadPrivateKey (aLoadedKeyStore.getKeyStore (),
+                                                                                        PDClientConfiguration.getKeyStorePath (),
+                                                                                        PDClientConfiguration.getKeyStoreKeyAlias (),
+                                                                                        PDClientConfiguration.getKeyStoreKeyPassword ());
+          if (aLoadedKey.isFailure ())
+            LOGGER.error ("PD client failed to initialize key from keystore. Details: " +
+                          PeppolKeyStoreHelper.getLoadError (aLoadedKey));
+          else
+            LOGGER.info ("PD client key successfully loaded");
+        }
+
         // Load trust store (may not be present/configured)
         final LoadedKeyStore aLoadedTrustStore = KeyStoreHelper.loadKeyStore (PDClientConfiguration.getTrustStoreType (),
                                                                               PDClientConfiguration.getTrustStorePath (),
                                                                               PDClientConfiguration.getTrustStorePassword ());
         if (aLoadedTrustStore.isFailure ())
-          LOGGER.error ("PD client failed to initialize truststore for service connection! Details: " +
+          LOGGER.error ("PD client failed to initialize truststore for service connection. Details: " +
                         PeppolKeyStoreHelper.getLoadError (aLoadedTrustStore));
         else
           LOGGER.info ("PD client truststore successfully loaded");

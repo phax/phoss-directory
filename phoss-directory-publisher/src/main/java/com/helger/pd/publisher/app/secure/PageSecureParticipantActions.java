@@ -300,7 +300,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
       LOGGER.info ("Manually exporting all Business Cards now");
       // run in the background
       ExportAllDataJob.exportAllBusinessCardsInBackground ();
-      aWPEC.postRedirectGetInternal (success ("The new exported data is available in a few minutes"));
+      aWPEC.postRedirectGetInternal (success ("The new exported data is (hopefully) available in a few minutes. Check the 'is running' state below."));
     }
     else
       if (aWPEC.hasAction (ACTION_SYNC_BCS_UNFORCED))
