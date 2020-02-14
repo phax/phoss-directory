@@ -16,6 +16,8 @@
  */
 package com.helger.pd.client;
 
+import java.security.KeyStore;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
@@ -26,6 +28,9 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.commons.concurrent.SimpleReadWriteLock;
 import com.helger.security.keystore.EKeyStoreType;
+import com.helger.security.keystore.KeyStoreHelper;
+import com.helger.security.keystore.LoadedKey;
+import com.helger.security.keystore.LoadedKeyStore;
 import com.helger.settings.exchange.configfile.ConfigFile;
 import com.helger.settings.exchange.configfile.ConfigFileBuilder;
 
@@ -143,6 +148,15 @@ public final class PDClientConfiguration
   }
 
   /**
+   * @return The loaded key store and never <code>null</code>.
+   */
+  @Nonnull
+  public static LoadedKeyStore loadKeyStore ()
+  {
+    return KeyStoreHelper.loadKeyStore (getKeyStoreType (), getKeyStorePath (), getKeyStorePassword ());
+  }
+
+  /**
    * @return The private key alias as specified in the configuration file by the
    *         property <code>keystore.key.alias</code>.
    */
@@ -160,6 +174,20 @@ public final class PDClientConfiguration
   public static char [] getKeyStoreKeyPassword ()
   {
     return getConfigFile ().getAsCharArray ("keystore.key.password");
+  }
+
+  /**
+   * @param aKeyStore
+   *        The key store to be used. May not be <code>null</code>.
+   * @return The loaded key and never <code>null</code>.
+   */
+  @Nonnull
+  public static LoadedKey <KeyStore.PrivateKeyEntry> loadPrivateKey (@Nonnull final KeyStore aKeyStore)
+  {
+    return KeyStoreHelper.loadPrivateKey (aKeyStore,
+                                          getKeyStorePath (),
+                                          getKeyStoreKeyAlias (),
+                                          getKeyStoreKeyPassword ());
   }
 
   /**
@@ -196,6 +224,15 @@ public final class PDClientConfiguration
   public static String getTrustStorePassword ()
   {
     return getConfigFile ().getAsString ("truststore.password");
+  }
+
+  /**
+   * @return The loaded trust store and never <code>null</code>.
+   */
+  @Nonnull
+  public static LoadedKeyStore loadTrustStore ()
+  {
+    return KeyStoreHelper.loadKeyStore (getTrustStoreType (), getTrustStorePath (), getTrustStorePassword ());
   }
 
   /**

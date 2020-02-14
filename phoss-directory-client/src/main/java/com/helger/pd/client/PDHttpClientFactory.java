@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 import com.helger.commons.string.StringHelper;
 import com.helger.httpclient.HttpClientFactory;
 import com.helger.peppol.utils.PeppolKeyStoreHelper;
-import com.helger.security.keystore.KeyStoreHelper;
 import com.helger.security.keystore.LoadedKey;
 import com.helger.security.keystore.LoadedKeyStore;
 
@@ -78,9 +77,7 @@ public class PDHttpClientFactory extends HttpClientFactory
       }
 
       // Load key store
-      final LoadedKeyStore aLoadedKeyStore = KeyStoreHelper.loadKeyStore (PDClientConfiguration.getKeyStoreType (),
-                                                                          PDClientConfiguration.getKeyStorePath (),
-                                                                          PDClientConfiguration.getKeyStorePassword ());
+      final LoadedKeyStore aLoadedKeyStore = PDClientConfiguration.loadKeyStore ();
       if (aLoadedKeyStore.isFailure ())
       {
         LOGGER.error ("PD client failed to initialize keystore for service connection - can only use http now! Details: " +
@@ -92,10 +89,7 @@ public class PDHttpClientFactory extends HttpClientFactory
 
         // Sanity check if key can be loaded
         {
-          final LoadedKey <PrivateKeyEntry> aLoadedKey = KeyStoreHelper.loadPrivateKey (aLoadedKeyStore.getKeyStore (),
-                                                                                        PDClientConfiguration.getKeyStorePath (),
-                                                                                        PDClientConfiguration.getKeyStoreKeyAlias (),
-                                                                                        PDClientConfiguration.getKeyStoreKeyPassword ());
+          final LoadedKey <PrivateKeyEntry> aLoadedKey = PDClientConfiguration.loadPrivateKey (aLoadedKeyStore.getKeyStore ());
           if (aLoadedKey.isFailure ())
             LOGGER.error ("PD client failed to initialize key from keystore. Details: " +
                           PeppolKeyStoreHelper.getLoadError (aLoadedKey));
@@ -104,9 +98,7 @@ public class PDHttpClientFactory extends HttpClientFactory
         }
 
         // Load trust store (may not be present/configured)
-        final LoadedKeyStore aLoadedTrustStore = KeyStoreHelper.loadKeyStore (PDClientConfiguration.getTrustStoreType (),
-                                                                              PDClientConfiguration.getTrustStorePath (),
-                                                                              PDClientConfiguration.getTrustStorePassword ());
+        final LoadedKeyStore aLoadedTrustStore = PDClientConfiguration.loadTrustStore ();
         if (aLoadedTrustStore.isFailure ())
           LOGGER.error ("PD client failed to initialize truststore for service connection. Details: " +
                         PeppolKeyStoreHelper.getLoadError (aLoadedTrustStore));
@@ -118,19 +110,36 @@ public class PDHttpClientFactory extends HttpClientFactory
           final PrivateKeyStrategy aPKS = (aAliases, aSocket) -> {
             if (LOGGER.isDebugEnabled ())
               LOGGER.debug ("chooseAlias(" + aAliases + ", " + aSocket + ")");
-            final String sAlias = PDClientConfiguration.getKeyStoreKeyAlias ();
+
+            final String sConfiguredAlias = PDClientConfiguration.getKeyStoreKeyAlias ();
             for (final String sCurAlias : aAliases.keySet ())
             {
               // Case insensitive alias handling
-              if (sCurAlias.equalsIgnoreCase (sAlias))
+              if (sCurAlias.equalsIgnoreCase (sConfiguredAlias))
               {
-                if (LOGGER.isDebugEnabled ())
-                  LOGGER.debug ("  Chose alias '" + sCurAlias + "'");
+                if (sCurAlias.equals (sConfiguredAlias))
+                {
+                  if (LOGGER.isDebugEnabled ())
+                    LOGGER.debug ("  Chose alias '" + sCurAlias + "'");
+                }
+                else
+                {
+                  // Case insensitive match
+                  if (LOGGER.isWarnEnabled ())
+                    LOGGER.warn ("Chose the keystore alias '" +
+                                 sCurAlias +
+                                 "' but the configured alias '" +
+                                 sConfiguredAlias +
+                                 "' has a different casing. Please fix the configuration of the Directory client client-certificate.");
+                }
                 return sCurAlias;
               }
             }
-            if (LOGGER.isDebugEnabled ())
-              LOGGER.debug ("  Found no alias matching '" + sAlias + "'");
+            if (LOGGER.isWarnEnabled ())
+              LOGGER.warn ("Found no client-certificate alias matching '" +
+                           sConfiguredAlias +
+                           "' in the provided aliases " +
+                           aAliases.keySet ());
             return null;
           };
           final TrustStrategy aTS = (aChain, aAuthType) -> {
