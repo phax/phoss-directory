@@ -17,6 +17,7 @@
 package com.helger.pd.publisher.servlet;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import javax.annotation.Nonnull;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
@@ -122,6 +123,7 @@ public class ExportDeliveryHttpHandler extends AbstractObjectDeliveryHttpHandler
               aUnifiedResponse.disableCaching ();
               ExportAllManager.streamFileBusinessCardCSVTo (aUnifiedResponse);
               aUnifiedResponse.setMimeType (CMimeType.TEXT_CSV);
+              aUnifiedResponse.setCharset (StandardCharsets.UTF_8);
               aUnifiedResponse.setContentDispositionFilename (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_CSV);
             }
             else
@@ -170,6 +172,7 @@ public class ExportDeliveryHttpHandler extends AbstractObjectDeliveryHttpHandler
                     aUnifiedResponse.disableCaching ();
                     ExportAllManager.streamFileParticipantCSVTo (aUnifiedResponse);
                     aUnifiedResponse.setMimeType (CMimeType.TEXT_CSV);
+                    aUnifiedResponse.setCharset (StandardCharsets.UTF_8);
                     aUnifiedResponse.setContentDispositionFilename (ExportAllManager.EXTERNAL_EXPORT_ALL_PARTICIPANTS_CSV);
                   }
                   else
