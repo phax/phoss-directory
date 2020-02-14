@@ -17,17 +17,17 @@
 package com.helger.pd.publisher.exportall;
 
 import java.io.IOException;
-import java.util.concurrent.locks.Lock;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.Nonnull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.commons.concurrent.SimpleLock;
 import com.helger.commons.timing.StopWatch;
 import com.helger.pd.indexer.storage.EQueryMode;
 import com.helger.pd.publisher.CPDPublisher;
+import com.helger.pd.publisher.app.PDWorkerPool;
 import com.helger.quartz.DisallowConcurrentExecution;
 import com.helger.quartz.IJobExecutionContext;
 import com.helger.quartz.JobDataMap;
@@ -44,13 +44,23 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
 {
   private static final Logger LOGGER = LoggerFactory.getLogger (ExportAllDataJob.class);
 
-  private static final Lock s_aLock = new SimpleLock ();
+  private static final AtomicBoolean EXPORT_RUNNING = new AtomicBoolean (false);
+
+  public static boolean isExportCurrentlyRunning ()
+  {
+    return EXPORT_RUNNING.get ();
+  }
+
+  public static void exportAllBusinessCardsInBackground ()
+  {
+    // Start in background
+    PDWorkerPool.getInstance ().run (ExportAllDataJob::exportAllBusinessCards);
+  }
 
   public static void exportAllBusinessCards () throws IOException
   {
     // Avoid running it in parallel
-    s_aLock.lock ();
-    try
+    if (!EXPORT_RUNNING.getAndSet (true))
     {
       final StopWatch aSW = StopWatch.createdStarted ();
       LOGGER.info ("Start exporting business cards as XML (full)");
@@ -148,9 +158,9 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
         }
       }
     }
-    finally
+    else
     {
-      s_aLock.unlock ();
+      LOGGER.info ("Export is already running, so avoiding a parallel run");
     }
   }
 

@@ -298,17 +298,9 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
     if (aWPEC.hasAction (ACTION_UPDATE_EXPORTED_BCS))
     {
       LOGGER.info ("Manually exporting all Business Cards now");
-      try
-      {
-        ExportAllDataJob.exportAllBusinessCards ();
-        aWPEC.postRedirectGetInternal (success ("The new exported data is now available"));
-      }
-      catch (final IOException ex)
-      {
-        LOGGER.error ("Internal error exporting all business cards", ex);
-        aWPEC.postRedirectGetInternal (error ("Error exporting business cards. Technical details: " +
-                                              ex.getMessage ()));
-      }
+      // run in the background
+      ExportAllDataJob.exportAllBusinessCardsInBackground ();
+      aWPEC.postRedirectGetInternal (success ("The new exported data is available in a few minutes"));
     }
     else
       if (aWPEC.hasAction (ACTION_SYNC_BCS_UNFORCED))
@@ -417,10 +409,16 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
 
     aCard.createAndAddHeader ().addChild ("Cache management");
     aBody = aCard.createAndAddBody ();
-    aBody.addChild (new BootstrapButton ().addChild ("Update Business Card export cache (takes long)")
+    final boolean bIsRunning = ExportAllDataJob.isExportCurrentlyRunning ();
+    if (bIsRunning)
+    {
+      aBody.addChild (info ("Export of Business Card cache is currently running"));
+    }
+    aBody.addChild (new BootstrapButton ().addChild ("Update Business Card export cache (in background; takes too long)")
                                           .setOnClick (aWPEC.getSelfHref ()
                                                             .add (CPageParam.PARAM_ACTION, ACTION_UPDATE_EXPORTED_BCS))
-                                          .setIcon (EDefaultIcon.INFO));
+                                          .setIcon (EDefaultIcon.INFO)
+                                          .setDisabled (bIsRunning));
 
     aCard.createAndAddHeader ().addChild ("Data Synchronization");
     aBody = aCard.createAndAddBody ();
