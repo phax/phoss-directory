@@ -38,6 +38,7 @@ import com.helger.commons.annotation.OverrideOnDemand;
 import com.helger.commons.io.stream.StreamHelper;
 import com.helger.commons.state.ESuccess;
 import com.helger.commons.url.URLHelper;
+import com.helger.httpclient.HttpClientFactory;
 import com.helger.httpclient.HttpClientManager;
 import com.helger.peppolid.IParticipantIdentifier;
 
@@ -64,7 +65,7 @@ public class PDClient implements Closeable
    * The string representation of the Peppol Directory host URL, always ending
    * with a trailing slash!
    */
-  private final String m_sPDHost;
+  private final String m_sPDHostURI;
   private final String m_sPDIndexerURI;
   private IPDClientExceptionCallback m_aExceptionHdl = _createDefaultExCb ();
 
@@ -98,12 +99,12 @@ public class PDClient implements Closeable
 
     // Build string and ensure it ends with a "/"
     final String sSMPHost = aPDHost.toString ();
-    m_sPDHost = sSMPHost.endsWith ("/") ? sSMPHost : sSMPHost + '/';
-    m_sPDIndexerURI = m_sPDHost + PATH_INDEXER_10;
+    m_sPDHostURI = sSMPHost.endsWith ("/") ? sSMPHost : sSMPHost + '/';
+    m_sPDIndexerURI = m_sPDHostURI + PATH_INDEXER_10;
 
     // Get proxy settings
-    final boolean bIsHttps = m_sPDHost.startsWith ("https:");
-    m_aHttpClientMgr = new HttpClientManager (new PDHttpClientFactory (bIsHttps));
+    final boolean bIsHttps = m_sPDHostURI.startsWith ("https:");
+    m_aHttpClientMgr = new HttpClientManager (new HttpClientFactory (new PDHttpClientSettings (bIsHttps)));
   }
 
   public void close ()
@@ -149,7 +150,7 @@ public class PDClient implements Closeable
   @Nonnull
   public final String getPDHostURI ()
   {
-    return m_sPDHost;
+    return m_sPDHostURI;
   }
 
   /**
@@ -175,7 +176,7 @@ public class PDClient implements Closeable
 
   /**
    * Internal method to set a different {@link HttpClientManager} in case the
-   * default one using {@link PDHttpClientFactory} is not suitable (any more).
+   * default one using {@link PDHttpClientSettings} is not suitable (any more).
    *
    * @param aHttpClientMgr
    *        The new HTTP client manager to use. May not be <code>null</code>.
