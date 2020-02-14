@@ -95,6 +95,8 @@ public final class ClientCertificateValidator
 
   private static void _initCertificateIssuers ()
   {
+    LOGGER.info ("Initializing all client certificate issuer(s)");
+
     // Get the certificate issuer we need
     final ICommonsList <String> aIssuersToSearch = PDServerConfiguration.getAllClientCertIssuer ();
 
@@ -107,7 +109,11 @@ public final class ClientCertificateValidator
       if (s_bIsCheckDisabled.get ())
         LOGGER.warn ("The configuration file contains no entry for the client certificate issuer");
       else
-        throw new InitializationException ("The configuration file is missing the entry for the client certificate issuer");
+      {
+        final String sMsg = "The configuration file is missing the entry for the client certificate issuer";
+        LOGGER.error (sMsg);
+        throw new InitializationException (sMsg);
+      }
     }
     else
       LOGGER.info ("The following client certificate issuer(s) are valid: " + s_aSearchIssuers);
@@ -115,8 +121,14 @@ public final class ClientCertificateValidator
 
   private static void _initCerts ()
   {
+    LOGGER.info ("Initializing all trusted root certificates");
+
+    final ICommonsList <PDConfiguredTrustStore> aAllTrustStores = PDServerConfiguration.getAllTrustStores ();
+
+    LOGGER.info ("Scanning " + aAllTrustStores.size () + " trust stores");
+
     // Get data from config file
-    for (final PDConfiguredTrustStore aTS : PDServerConfiguration.getAllTrustStores ())
+    for (final PDConfiguredTrustStore aTS : aAllTrustStores)
     {
       X509Certificate aCert;
       try
@@ -126,18 +138,22 @@ public final class ClientCertificateValidator
       }
       catch (final Throwable t)
       {
-        final String sErrorMsg = "Failed to read trust store from '" + aTS.getPath () + "'";
-        LOGGER.error (sErrorMsg);
-        throw new InitializationException (sErrorMsg, t);
+        final String sMsg = "Failed to read trust store from '" + aTS.getPath () + "'";
+        LOGGER.error (sMsg);
+        throw new InitializationException (sMsg, t);
       }
 
       // Check if both root certificates could be loaded
       if (aCert == null)
-        throw new InitializationException ("Failed to resolve alias '" +
-                                           aTS.getAlias () +
-                                           "' in trust store '" +
-                                           aTS.getPath () +
-                                           "'!");
+      {
+        final String sMsg = "Failed to resolve alias '" +
+                            aTS.getAlias () +
+                            "' in trust store '" +
+                            aTS.getPath () +
+                            "'!";
+        LOGGER.error (sMsg);
+        throw new InitializationException (sMsg);
+      }
       s_aPeppolSMPRootCerts.add (aCert);
 
       LOGGER.info ("Root certificate loaded successfully from trust store '" +
@@ -155,7 +171,11 @@ public final class ClientCertificateValidator
       if (s_bIsCheckDisabled.get ())
         LOGGER.warn ("Server configuration contains no trusted root certificate configuration!");
       else
-        throw new InitializationException ("Server configuration contains no trusted root certificate configuration!");
+      {
+        final String sMsg = "Server configuration contains no trusted root certificate configuration!";
+        LOGGER.error (sMsg);
+        throw new InitializationException (sMsg);
+      }
     }
   }
 
