@@ -25,6 +25,7 @@ import com.helger.commons.debug.GlobalDebug;
 import com.helger.commons.io.resource.ClassPathResource;
 import com.helger.commons.vendor.VendorInfo;
 import com.helger.html.meta.MetaElement;
+import com.helger.pd.indexer.clientcert.ClientCertificateValidator;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.pd.publisher.CPDPublisher;
@@ -179,6 +180,10 @@ public final class AppWebAppListener extends WebAppListenerBootstrap
     // Load managers
     PDMetaManager.getInstance ();
     PDPMetaManager.getInstance ();
+    // Ensure this is loaded as well, to identify configuration errors as soon
+    // as possible. Ignore the result. It's just about the static class
+    // initialization
+    ClientCertificateValidator.getAllRootCerts ();
   }
 
   @Override

@@ -34,7 +34,9 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.annotation.PresentForCodeCoverage;
+import com.helger.commons.annotation.ReturnsMutableCopy;
 import com.helger.commons.annotation.VisibleForTesting;
 import com.helger.commons.collection.ArrayHelper;
 import com.helger.commons.collection.impl.CommonsArrayList;
@@ -65,16 +67,16 @@ public final class ClientCertificateValidator
   @PresentForCodeCoverage
   private static final ClientCertificateValidator s_aInstance = new ClientCertificateValidator ();
 
-  private static final AtomicBoolean s_bIsCheckDisabled = new AtomicBoolean (!PDServerConfiguration.isClientCertificateValidationActive ());
+  private static final AtomicBoolean s_aIsCheckDisabled = new AtomicBoolean (!PDServerConfiguration.isClientCertificateValidationActive ());
 
   /**
    * All Peppol root certificates from the truststore configuration. Never
    * empty.
    */
-  private static final ICommonsList <X509Certificate> s_aPeppolSMPRootCerts = new CommonsArrayList <> ();
+  private static final ICommonsList <X509Certificate> s_aAllowedRootCerts = new CommonsArrayList <> ();
 
   /** Sorted list with all issuers we're accepting. Never empty. */
-  private static final ICommonsList <X500Principal> s_aSearchIssuers = new CommonsArrayList <> ();
+  private static final ICommonsList <X500Principal> s_aAllowedCertificateIssuers = new CommonsArrayList <> ();
 
   /**
    * This method is only for testing purposes to disable the complete client
@@ -90,7 +92,12 @@ public final class ClientCertificateValidator
   @VisibleForTesting
   public static void allowAllForTests (final boolean bCheckDisabled)
   {
-    s_bIsCheckDisabled.set (bCheckDisabled);
+    s_aIsCheckDisabled.set (bCheckDisabled);
+  }
+
+  private static boolean _isCheckDisabled ()
+  {
+    return s_aIsCheckDisabled.get ();
   }
 
   private static void _initCertificateIssuers ()
@@ -102,21 +109,21 @@ public final class ClientCertificateValidator
 
     // Throws a runtime exception on syntax error anyway :)
     for (final String sIssuerToSearch : aIssuersToSearch)
-      s_aSearchIssuers.add (new X500Principal (sIssuerToSearch));
+      s_aAllowedCertificateIssuers.add (new X500Principal (sIssuerToSearch));
 
-    if (s_aSearchIssuers.isEmpty ())
+    if (s_aAllowedCertificateIssuers.isEmpty ())
     {
-      if (s_bIsCheckDisabled.get ())
-        LOGGER.warn ("The configuration file contains no entry for the client certificate issuer");
+      final String sMsg = "The configuration file is missing an entry for the client certificate issuer.";
+      if (_isCheckDisabled ())
+        LOGGER.warn (sMsg + " Continuing anyway.");
       else
       {
-        final String sMsg = "The configuration file is missing the entry for the client certificate issuer";
         LOGGER.error (sMsg);
         throw new InitializationException (sMsg);
       }
     }
     else
-      LOGGER.info ("The following client certificate issuer(s) are valid: " + s_aSearchIssuers);
+      LOGGER.info ("The following client certificate issuer(s) are valid: " + s_aAllowedCertificateIssuers);
   }
 
   private static void _initCerts ()
@@ -154,7 +161,7 @@ public final class ClientCertificateValidator
         LOGGER.error (sMsg);
         throw new InitializationException (sMsg);
       }
-      s_aPeppolSMPRootCerts.add (aCert);
+      s_aAllowedRootCerts.add (aCert);
 
       LOGGER.info ("Root certificate loaded successfully from trust store '" +
                    aTS.getPath () +
@@ -166,13 +173,13 @@ public final class ClientCertificateValidator
                    aCert.getIssuerX500Principal ().getName ());
     }
 
-    if (s_aPeppolSMPRootCerts.isEmpty ())
+    if (s_aAllowedRootCerts.isEmpty ())
     {
-      if (s_bIsCheckDisabled.get ())
-        LOGGER.warn ("Server configuration contains no trusted root certificate configuration!");
+      final String sMsg = "Server configuration contains no trusted root certificate configuration.";
+      if (_isCheckDisabled ())
+        LOGGER.warn (sMsg + " Continuing anyway.");
       else
       {
-        final String sMsg = "Server configuration contains no trusted root certificate configuration!";
         LOGGER.error (sMsg);
         throw new InitializationException (sMsg);
       }
@@ -187,6 +194,32 @@ public final class ClientCertificateValidator
 
   private ClientCertificateValidator ()
   {}
+
+  /**
+   * @return A list of all root certificates from the truststore configuration.
+   *         Never <code>null</code> nor empty.
+   * @since 0.8.5
+   */
+  @Nonnull
+  @Nonempty
+  @ReturnsMutableCopy
+  public static final ICommonsList <X509Certificate> getAllRootCerts ()
+  {
+    return s_aAllowedRootCerts.getClone ();
+  }
+
+  /**
+   * @return A sorted list with all issuers we're accepting. Never
+   *         <code>null</code> nor empty.
+   * @since 0.8.5
+   */
+  @Nonnull
+  @Nonempty
+  @ReturnsMutableCopy
+  public static final ICommonsList <X500Principal> getAllCertificateIssuers ()
+  {
+    return s_aAllowedCertificateIssuers.getClone ();
+  }
 
   /**
    * @param aCert
@@ -285,7 +318,7 @@ public final class ClientCertificateValidator
   public static ClientCertificateValidationResult verifyClientCertificate (@Nonnull final HttpServletRequest aHttpRequest,
                                                                            @Nonnull final String sLogPrefix)
   {
-    if (s_bIsCheckDisabled.get ())
+    if (_isCheckDisabled ())
     {
       if (LOGGER.isDebugEnabled ())
         LOGGER.debug (sLogPrefix + "Client certificate is considered valid because the 'allow all' for tests is set!");
@@ -329,7 +362,7 @@ public final class ClientCertificateValidator
       for (final X509Certificate aCert : aRequestCerts)
       {
         final X500Principal aIssuer = aCert.getIssuerX500Principal ();
-        if (s_aSearchIssuers.contains (aIssuer))
+        if (s_aAllowedCertificateIssuers.contains (aIssuer))
         {
           if (LOGGER.isInfoEnabled ())
             LOGGER.info (sLogPrefix +
@@ -344,7 +377,7 @@ public final class ClientCertificateValidator
       if (aClientCertToVerify == null)
       {
         throw new IllegalStateException ("Found no client certificate that was issued by one of the " +
-                                         s_aSearchIssuers.size () +
+                                         s_aAllowedCertificateIssuers.size () +
                                          " required issuers. Provided certs are: " +
                                          Arrays.toString (aRequestCerts));
       }
@@ -354,7 +387,7 @@ public final class ClientCertificateValidator
 
     // This is the main verification process against the Peppol SMP root
     // certificate
-    for (final X509Certificate aRootCert : s_aPeppolSMPRootCerts)
+    for (final X509Certificate aRootCert : s_aAllowedRootCerts)
     {
       final String sVerifyErrorMsg = _verifyCertificate (aClientCertToVerify, aRootCert, aCRLs, aVerificationDate);
       if (sVerifyErrorMsg == null)
