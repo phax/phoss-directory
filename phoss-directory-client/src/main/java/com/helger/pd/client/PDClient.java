@@ -101,10 +101,7 @@ public class PDClient implements Closeable
     final String sSMPHost = aPDHost.toString ();
     m_sPDHostURI = sSMPHost.endsWith ("/") ? sSMPHost : sSMPHost + '/';
     m_sPDIndexerURI = m_sPDHostURI + PATH_INDEXER_10;
-
-    // Get proxy settings
-    final boolean bIsHttps = m_sPDHostURI.startsWith ("https:");
-    m_aHttpClientMgr = new HttpClientManager (new HttpClientFactory (new PDHttpClientSettings (bIsHttps)));
+    m_aHttpClientMgr = new HttpClientManager (new HttpClientFactory (new PDHttpClientSettings (m_sPDHostURI)));
   }
 
   public void close ()

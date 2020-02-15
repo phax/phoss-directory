@@ -20,6 +20,8 @@ import java.security.GeneralSecurityException;
 import java.security.KeyStore.PrivateKeyEntry;
 import java.util.Arrays;
 
+import javax.annotation.Nonnull;
+
 import org.apache.http.HttpHost;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.ssl.PrivateKeyStrategy;
@@ -28,7 +30,10 @@ import org.apache.http.ssl.TrustStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.helger.commons.ValueEnforcer;
+import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.string.StringHelper;
+import com.helger.commons.url.EURLProtocol;
 import com.helger.httpclient.HttpClientSettings;
 import com.helger.peppol.utils.PeppolKeyStoreHelper;
 import com.helger.security.keystore.LoadedKey;
@@ -44,8 +49,24 @@ public class PDHttpClientSettings extends HttpClientSettings
 {
   private static final Logger LOGGER = LoggerFactory.getLogger (PDHttpClientSettings.class);
 
-  public PDHttpClientSettings (final boolean bUseHttps)
+  public PDHttpClientSettings (@Nonnull @Nonempty final String sTargetURI)
   {
+    resetToConfiguration (sTargetURI);
+  }
+
+  /**
+   * Overwrite all settings that can appear in the configuration file.
+   *
+   * @param sTargetURI
+   *        The target URI to connect to. Makes a difference if this is "http"
+   *        or "https". MAy neither be <code>null</code> nor empty.
+   */
+  public final void resetToConfiguration (@Nonnull @Nonempty final String sTargetURI)
+  {
+    ValueEnforcer.notEmpty (sTargetURI, "TargetURI");
+    final boolean bUseHttps = EURLProtocol.HTTPS.isUsedInURL (sTargetURI);
+
+    // Proxy host
     final String sProxyHost = bUseHttps ? PDClientConfiguration.getHttpsProxyHost ()
                                         : PDClientConfiguration.getHttpProxyHost ();
     final int nProxyPort = bUseHttps ? PDClientConfiguration.getHttpsProxyPort ()
@@ -55,13 +76,22 @@ public class PDHttpClientSettings extends HttpClientSettings
       LOGGER.info ("PD client uses proxy host");
       setProxyHost (new HttpHost (sProxyHost, nProxyPort));
     }
+    else
+      setProxyHost (null);
 
+    // Proxy credentials
     final String sProxyUsername = PDClientConfiguration.getProxyUsername ();
     if (StringHelper.hasText (sProxyUsername))
     {
       LOGGER.info ("PD client uses proxy credentials");
       setProxyCredentials (new UsernamePasswordCredentials (sProxyUsername, PDClientConfiguration.getProxyPassword ()));
     }
+    else
+      setProxyCredentials (null);
+
+    // Reset SSL stuff
+    setHostnameVerifier (null);
+    setSSLContext (null);
 
     if (bUseHttps)
     {
@@ -155,8 +185,9 @@ public class PDHttpClientSettings extends HttpClientSettings
           throw new IllegalStateException ("PD client failed to set SSL context", ex);
         }
       }
-
     }
+
+    // Timeouts
     setConnectionTimeoutMS (PDClientConfiguration.getConnectTimeoutMS ());
     setSocketTimeoutMS (PDClientConfiguration.getRequestTimeoutMS ());
   }
