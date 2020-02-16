@@ -17,13 +17,16 @@
 package com.helger.pd.publisher.exportall;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.helger.commons.datetime.PDTFactory;
 import com.helger.commons.timing.StopWatch;
 import com.helger.pd.indexer.storage.EQueryMode;
 import com.helger.pd.publisher.CPDPublisher;
@@ -45,10 +48,18 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
   private static final Logger LOGGER = LoggerFactory.getLogger (ExportAllDataJob.class);
 
   private static final AtomicBoolean EXPORT_RUNNING = new AtomicBoolean (false);
+  private static LocalDateTime EXPORT_START_DT;
 
   public static boolean isExportCurrentlyRunning ()
   {
     return EXPORT_RUNNING.get ();
+  }
+
+  @Nullable
+  public static LocalDateTime getExportAllBusinessCardsStartDT ()
+  {
+    // Start in background
+    return EXPORT_START_DT;
   }
 
   public static void exportAllBusinessCardsInBackground ()
@@ -62,100 +73,112 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
     // Avoid running it in parallel
     if (!EXPORT_RUNNING.getAndSet (true))
     {
+      EXPORT_START_DT = PDTFactory.getCurrentLocalDateTime ();
       final StopWatch aSW = StopWatch.createdStarted ();
-      LOGGER.info ("Start exporting business cards as XML (full)");
+
       try
       {
-        ExportAllManager.writeFileBusinessCardXMLFull (EQueryMode.NON_DELETED_ONLY);
+        LOGGER.info ("Start exporting business cards as XML (full)");
+        try
+        {
+          ExportAllManager.writeFileBusinessCardXMLFull (EQueryMode.NON_DELETED_ONLY);
+        }
+        finally
+        {
+          LOGGER.info ("Finished exporting business cards as XML (full) after " +
+                       aSW.stopAndGetMillis () +
+                       " milliseconds");
+        }
+
+        aSW.restart ();
+        LOGGER.info ("Start exporting business cards as XML (no doc types)");
+        try
+        {
+          ExportAllManager.writeFileBusinessCardXMLNoDocTypes (EQueryMode.NON_DELETED_ONLY);
+        }
+        finally
+        {
+          LOGGER.info ("Finished exporting business cards as XML (no doc types) after " +
+                       aSW.stopAndGetMillis () +
+                       " milliseconds");
+        }
+
+        if (CPDPublisher.EXPORT_BUSINESS_CARDS_EXCEL)
+        {
+          aSW.restart ();
+          LOGGER.info ("Start exporting business cards as Excel");
+          try
+          {
+            ExportAllManager.writeFileBusinessCardExcel (EQueryMode.NON_DELETED_ONLY);
+          }
+          finally
+          {
+            LOGGER.info ("Finished exporting business cards as Excel after " +
+                         aSW.stopAndGetMillis () +
+                         " milliseconds");
+          }
+        }
+
+        if (CPDPublisher.EXPORT_BUSINESS_CARDS_CSV)
+        {
+          aSW.restart ();
+          LOGGER.info ("Start exporting business cards as CSV");
+          try
+          {
+            ExportAllManager.writeFileBusinessCardCSV (EQueryMode.NON_DELETED_ONLY);
+          }
+          finally
+          {
+            LOGGER.info ("Finished exporting business cards as CSV after " + aSW.stopAndGetMillis () + " milliseconds");
+          }
+        }
+
+        if (CPDPublisher.EXPORT_PARTICIPANTS_XML)
+        {
+          aSW.restart ();
+          LOGGER.info ("Start exporting participants as XML");
+          try
+          {
+            ExportAllManager.writeFileParticipantXML (EQueryMode.NON_DELETED_ONLY);
+          }
+          finally
+          {
+            LOGGER.info ("Finished exporting participants as XML after " + aSW.stopAndGetMillis () + " milliseconds");
+          }
+        }
+
+        if (CPDPublisher.EXPORT_PARTICIPANTS_JSON)
+        {
+          aSW.restart ();
+          LOGGER.info ("Start exporting participants as JSON");
+          try
+          {
+            ExportAllManager.writeFileParticipantJSON (EQueryMode.NON_DELETED_ONLY);
+          }
+          finally
+          {
+            LOGGER.info ("Finished exporting participants as JSON after " + aSW.stopAndGetMillis () + " milliseconds");
+          }
+        }
+
+        if (CPDPublisher.EXPORT_PARTICIPANTS_CSV)
+        {
+          aSW.restart ();
+          LOGGER.info ("Start exporting participants as CSV");
+          try
+          {
+            ExportAllManager.writeFileParticipantCSV (EQueryMode.NON_DELETED_ONLY);
+          }
+          finally
+          {
+            LOGGER.info ("Finished exporting participants as CSV after " + aSW.stopAndGetMillis () + " milliseconds");
+          }
+        }
       }
       finally
       {
-        LOGGER.info ("Finished exporting business cards as XML (full) after " +
-                     aSW.stopAndGetMillis () +
-                     " milliseconds");
-      }
-
-      aSW.restart ();
-      LOGGER.info ("Start exporting business cards as XML (no doc types)");
-      try
-      {
-        ExportAllManager.writeFileBusinessCardXMLNoDocTypes (EQueryMode.NON_DELETED_ONLY);
-      }
-      finally
-      {
-        LOGGER.info ("Finished exporting business cards as XML (no doc types) after " +
-                     aSW.stopAndGetMillis () +
-                     " milliseconds");
-      }
-
-      if (CPDPublisher.EXPORT_BUSINESS_CARDS_EXCEL)
-      {
-        aSW.restart ();
-        LOGGER.info ("Start exporting business cards as Excel");
-        try
-        {
-          ExportAllManager.writeFileBusinessCardExcel (EQueryMode.NON_DELETED_ONLY);
-        }
-        finally
-        {
-          LOGGER.info ("Finished exporting business cards as Excel after " + aSW.stopAndGetMillis () + " milliseconds");
-        }
-      }
-
-      if (CPDPublisher.EXPORT_BUSINESS_CARDS_CSV)
-      {
-        aSW.restart ();
-        LOGGER.info ("Start exporting business cards as CSV");
-        try
-        {
-          ExportAllManager.writeFileBusinessCardCSV (EQueryMode.NON_DELETED_ONLY);
-        }
-        finally
-        {
-          LOGGER.info ("Finished exporting business cards as CSV after " + aSW.stopAndGetMillis () + " milliseconds");
-        }
-      }
-
-      if (CPDPublisher.EXPORT_PARTICIPANTS_XML)
-      {
-        aSW.restart ();
-        LOGGER.info ("Start exporting participants as XML");
-        try
-        {
-          ExportAllManager.writeFileParticipantXML (EQueryMode.NON_DELETED_ONLY);
-        }
-        finally
-        {
-          LOGGER.info ("Finished exporting participants as XML after " + aSW.stopAndGetMillis () + " milliseconds");
-        }
-      }
-
-      if (CPDPublisher.EXPORT_PARTICIPANTS_JSON)
-      {
-        aSW.restart ();
-        LOGGER.info ("Start exporting participants as JSON");
-        try
-        {
-          ExportAllManager.writeFileParticipantJSON (EQueryMode.NON_DELETED_ONLY);
-        }
-        finally
-        {
-          LOGGER.info ("Finished exporting participants as JSON after " + aSW.stopAndGetMillis () + " milliseconds");
-        }
-      }
-
-      if (CPDPublisher.EXPORT_PARTICIPANTS_CSV)
-      {
-        aSW.restart ();
-        LOGGER.info ("Start exporting participants as CSV");
-        try
-        {
-          ExportAllManager.writeFileParticipantCSV (EQueryMode.NON_DELETED_ONLY);
-        }
-        finally
-        {
-          LOGGER.info ("Finished exporting participants as CSV after " + aSW.stopAndGetMillis () + " milliseconds");
-        }
+        EXPORT_START_DT = null;
+        EXPORT_RUNNING.set (false);
       }
     }
     else

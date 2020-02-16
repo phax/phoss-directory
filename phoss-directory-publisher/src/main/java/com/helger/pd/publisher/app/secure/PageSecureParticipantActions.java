@@ -18,6 +18,7 @@ package com.helger.pd.publisher.app.secure;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -66,6 +67,7 @@ import com.helger.photon.app.url.LinkHelper;
 import com.helger.photon.bootstrap4.CBootstrapCSS;
 import com.helger.photon.bootstrap4.button.BootstrapButton;
 import com.helger.photon.bootstrap4.button.EBootstrapButtonType;
+import com.helger.photon.bootstrap4.buttongroup.BootstrapButtonToolbar;
 import com.helger.photon.bootstrap4.card.BootstrapCard;
 import com.helger.photon.bootstrap4.card.BootstrapCardBody;
 import com.helger.photon.uicore.css.CPageParam;
@@ -135,7 +137,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
     });
     s_aDownloadAllBCsCSV = addAjax ( (req, res) -> {
       try (final NonBlockingByteArrayOutputStream aBAOS = new NonBlockingByteArrayOutputStream ();
-          final CSVWriter aCSVWriter = new CSVWriter (StreamHelper.createWriter (aBAOS, StandardCharsets.ISO_8859_1)))
+           final CSVWriter aCSVWriter = new CSVWriter (StreamHelper.createWriter (aBAOS, StandardCharsets.ISO_8859_1)))
       {
         ExportAllManager.queryAllContainedBusinessCardsAsCSV (EQueryMode.NON_DELETED_ONLY, aCSVWriter);
         res.binary (aBAOS, CMimeType.TEXT_CSV, ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_CSV);
@@ -333,9 +335,15 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
               _deleteDuplicateIDs (aWPEC);
             }
 
+    {
+      final BootstrapButtonToolbar aToolbar = new BootstrapButtonToolbar (aWPEC);
+      aToolbar.addButton ("Refresh", aWPEC.getSelfHref (), EDefaultIcon.MAGNIFIER);
+      aNodeList.addChild (aToolbar);
+    }
+
     final BootstrapCard aCard = aNodeList.addAndReturnChild (new BootstrapCard ());
     aCard.createAndAddHeader ()
-         .addChild ("Liva data downloads - Danger zone")
+         .addChild ("Live data downloads - Danger zone")
          .addClasses (CBootstrapCSS.BG_DANGER, CBootstrapCSS.TEXT_WHITE);
     BootstrapCardBody aBody = aCard.createAndAddBody ();
     aBody.addChild (new BootstrapButton (EBootstrapButtonType.DANGER).addChild ("Download all IDs (XML, live)")
@@ -412,7 +420,9 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
     final boolean bIsRunning = ExportAllDataJob.isExportCurrentlyRunning ();
     if (bIsRunning)
     {
-      aBody.addChild (info ("Export of Business Card cache is currently running"));
+      final LocalDateTime aStartDT = ExportAllDataJob.getExportAllBusinessCardsStartDT ();
+      aBody.addChild (info ("Export of Business Card cache is currently running. Started at " +
+                            PDTToString.getAsString (aStartDT, aDisplayLocale)));
     }
     aBody.addChild (new BootstrapButton ().addChild ("Update Business Card export cache (in background; takes too long)")
                                           .setOnClick (aWPEC.getSelfHref ()

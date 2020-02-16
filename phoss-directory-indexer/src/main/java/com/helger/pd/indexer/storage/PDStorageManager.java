@@ -139,7 +139,8 @@ public final class PDStorageManager implements IPDStorageManager
       final long nMillis = aSW.stopAndGetMillis ();
       s_aStatsQueryTimer.addTime (aQuery.toString (), nMillis);
       if (nMillis > CGlobal.MILLISECONDS_PER_SECOND)
-        LOGGER.warn ("Lucene Query " + aQuery + " took too long: " + nMillis + "ms");
+        if (LOGGER.isWarnEnabled ())
+          LOGGER.warn ("Lucene Query " + aQuery + " took too long: " + nMillis + "ms");
     }
   }
 
