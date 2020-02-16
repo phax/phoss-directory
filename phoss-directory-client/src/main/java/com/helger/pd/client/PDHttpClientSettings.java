@@ -18,7 +18,6 @@ package com.helger.pd.client;
 
 import java.security.GeneralSecurityException;
 import java.security.KeyStore.PrivateKeyEntry;
-import java.util.Arrays;
 
 import javax.annotation.Nonnull;
 
@@ -35,6 +34,8 @@ import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.string.StringHelper;
 import com.helger.commons.url.EURLProtocol;
 import com.helger.httpclient.HttpClientSettings;
+import com.helger.httpclient.security.PrivateKeyStrategyFromAliasCaseInsensitive;
+import com.helger.httpclient.security.TrustStrategyTrustAll;
 import com.helger.peppol.utils.PeppolKeyStoreHelper;
 import com.helger.security.keystore.LoadedKey;
 import com.helger.security.keystore.LoadedKeyStore;
@@ -116,8 +117,10 @@ public class PDHttpClientSettings extends HttpClientSettings
         {
           final LoadedKey <PrivateKeyEntry> aLoadedKey = PDClientConfiguration.loadPrivateKey (aLoadedKeyStore.getKeyStore ());
           if (aLoadedKey.isFailure ())
+          {
             LOGGER.error ("PD client failed to initialize key from keystore. Details: " +
                           PeppolKeyStoreHelper.getLoadError (aLoadedKey));
+          }
           else
             LOGGER.info ("PD client key successfully loaded");
         }
@@ -132,46 +135,8 @@ public class PDHttpClientSettings extends HttpClientSettings
 
         try
         {
-          final PrivateKeyStrategy aPKS = (aAliases, aSocket) -> {
-            if (LOGGER.isDebugEnabled ())
-              LOGGER.debug ("chooseAlias(" + aAliases + ", " + aSocket + ")");
-
-            final String sConfiguredAlias = PDClientConfiguration.getKeyStoreKeyAlias ();
-            for (final String sCurAlias : aAliases.keySet ())
-            {
-              // Case insensitive alias handling
-              if (sCurAlias.equalsIgnoreCase (sConfiguredAlias))
-              {
-                if (sCurAlias.equals (sConfiguredAlias))
-                {
-                  if (LOGGER.isDebugEnabled ())
-                    LOGGER.debug ("  Chose alias '" + sCurAlias + "'");
-                }
-                else
-                {
-                  // Case insensitive match
-                  if (LOGGER.isWarnEnabled ())
-                    LOGGER.warn ("Chose the keystore alias '" +
-                                 sCurAlias +
-                                 "' but the configured alias '" +
-                                 sConfiguredAlias +
-                                 "' has a different casing. Please fix the configuration of the Directory client client-certificate.");
-                }
-                return sCurAlias;
-              }
-            }
-            if (LOGGER.isWarnEnabled ())
-              LOGGER.warn ("Found no client-certificate alias matching '" +
-                           sConfiguredAlias +
-                           "' in the provided aliases " +
-                           aAliases.keySet ());
-            return null;
-          };
-          final TrustStrategy aTS = (aChain, aAuthType) -> {
-            if (LOGGER.isDebugEnabled ())
-              LOGGER.debug ("isTrusted(" + Arrays.toString (aChain) + ", " + aAuthType + ")");
-            return true;
-          };
+          final PrivateKeyStrategy aPKS = new PrivateKeyStrategyFromAliasCaseInsensitive (PDClientConfiguration.getKeyStoreKeyAlias ());
+          final TrustStrategy aTS = new TrustStrategyTrustAll ();
           setSSLContext (SSLContexts.custom ()
                                     .loadKeyMaterial (aLoadedKeyStore.getKeyStore (),
                                                       PDClientConfiguration.getKeyStoreKeyPassword (),

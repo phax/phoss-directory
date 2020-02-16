@@ -23,14 +23,12 @@ import java.nio.charset.StandardCharsets;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.http.HttpHost;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,9 +37,11 @@ import com.helger.commons.annotation.VisibleForTesting;
 import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.functional.ISupplier;
+import com.helger.commons.http.CHttp;
 import com.helger.commons.url.SimpleURL;
 import com.helger.commons.url.URLHelper;
-import com.helger.httpclient.HttpClientHelper;
+import com.helger.httpclient.HttpClientManager;
+import com.helger.httpclient.HttpClientSettings;
 import com.helger.pd.businesscard.generic.PDBusinessCard;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
@@ -134,7 +134,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
    *         https is not needed, because SMPs must run on http only.
    */
   @Nullable
-  public HttpHost getHttpProxy ()
+  private static HttpHost _getHttpProxy ()
   {
     final String sProxyHost = PDServerConfiguration.getProxyHost ();
     final int nProxyPort = PDServerConfiguration.getProxyPort ();
@@ -148,7 +148,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
    * @return The proxy credentials to be used. May be <code>null</code>.
    */
   @Nullable
-  public Credentials getHttpProxyCredentials ()
+  private static Credentials _getHttpProxyCredentials ()
   {
     final String sProxyUsername = PDServerConfiguration.getProxyUsername ();
     final String sProxyPassword = PDServerConfiguration.getProxyPassword ();
@@ -161,14 +161,9 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
   @Nullable
   @VisibleForTesting
   PDExtendedBusinessCard getBusinessCardPeppolSMP (@Nonnull final IParticipantIdentifier aParticipantID,
-                                                   @Nonnull final SMPClientReadOnly aSMPClient)
+                                                   @Nonnull final SMPClientReadOnly aSMPClient,
+                                                   @Nonnull final HttpClientSettings aHCS)
   {
-    // Create SMP client
-    final HttpHost aProxy = getHttpProxy ();
-    final Credentials aProxyCredentials = getHttpProxyCredentials ();
-    aSMPClient.setProxy (aProxy);
-    aSMPClient.setProxyCredentials (aProxyCredentials);
-
     LOGGER.info ("Querying BusinessCard for '" +
                  aParticipantID.getURIEncoded () +
                  "' from Peppol SMP '" +
@@ -189,20 +184,18 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
 
     // If the service group is present, try querying the business card
     final PDBusinessCard aBusinessCard;
-    try
+    try (final HttpClientManager aHCM = HttpClientManager.create (aHCS))
     {
       // Use the optional business card API
       final HttpGet aRequest = new HttpGet (aSMPClient.getSMPHostURI () +
                                             "businesscard/" +
                                             aParticipantID.getURIPercentEncoded ());
-      final HttpContext aContext = HttpClientHelper.createHttpContext (aProxy, aProxyCredentials);
-      aBusinessCard = PDMetaManager.getHttpClientMgr ()
-                                   .execute (aRequest, aContext, new PDSMPHttpResponseHandlerBusinessCard ());
+      aBusinessCard = aHCM.execute (aRequest, new PDSMPHttpResponseHandlerBusinessCard ());
     }
     catch (final IOException ex)
     {
       if ((ex instanceof HttpResponseException &&
-           ((HttpResponseException) ex).getStatusCode () == HttpServletResponse.SC_NOT_FOUND) ||
+           ((HttpResponseException) ex).getStatusCode () == CHttp.HTTP_NOT_FOUND) ||
           ex instanceof UnknownHostException)
       {
         LOGGER.warn ("No BusinessCard available for '" +
@@ -268,14 +261,9 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
   @Nullable
   @VisibleForTesting
   PDExtendedBusinessCard getBusinessCardBDXR1 (@Nonnull final IParticipantIdentifier aParticipantID,
-                                               @Nonnull final BDXRClientReadOnly aSMPClient)
+                                               @Nonnull final BDXRClientReadOnly aSMPClient,
+                                               @Nonnull final HttpClientSettings aHCS)
   {
-    // Create SMP client
-    final HttpHost aProxy = getHttpProxy ();
-    final Credentials aProxyCredentials = getHttpProxyCredentials ();
-    aSMPClient.setProxy (aProxy);
-    aSMPClient.setProxyCredentials (aProxyCredentials);
-
     LOGGER.info ("Querying BusinessCard for '" +
                  aParticipantID.getURIEncoded () +
                  "' from OASIS BDXR SMP v1 '" +
@@ -296,20 +284,18 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
 
     // If the service group is present, try querying the business card
     final PDBusinessCard aBusinessCard;
-    try
+    try (final HttpClientManager aHCM = HttpClientManager.create (aHCS))
     {
       // Use the optional business card API
       final HttpGet aRequest = new HttpGet (aSMPClient.getSMPHostURI () +
                                             "businesscard/" +
                                             aParticipantID.getURIPercentEncoded ());
-      final HttpContext aContext = HttpClientHelper.createHttpContext (aProxy, aProxyCredentials);
-      aBusinessCard = PDMetaManager.getHttpClientMgr ()
-                                   .execute (aRequest, aContext, new PDSMPHttpResponseHandlerBusinessCard ());
+      aBusinessCard = aHCM.execute (aRequest, new PDSMPHttpResponseHandlerBusinessCard ());
     }
     catch (final IOException ex)
     {
       if ((ex instanceof HttpResponseException &&
-           ((HttpResponseException) ex).getStatusCode () == HttpServletResponse.SC_NOT_FOUND) ||
+           ((HttpResponseException) ex).getStatusCode () == CHttp.HTTP_NOT_FOUND) ||
           ex instanceof UnknownHostException)
       {
         LOGGER.warn ("No BusinessCard available for '" +
@@ -375,14 +361,9 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
   @Nullable
   @VisibleForTesting
   PDExtendedBusinessCard getBusinessCardBDXR2 (@Nonnull final IParticipantIdentifier aParticipantID,
-                                               @Nonnull final BDXR2ClientReadOnly aSMPClient)
+                                               @Nonnull final BDXR2ClientReadOnly aSMPClient,
+                                               @Nonnull final HttpClientSettings aHCS)
   {
-    // Create SMP client
-    final HttpHost aProxy = getHttpProxy ();
-    final Credentials aProxyCredentials = getHttpProxyCredentials ();
-    aSMPClient.setProxy (aProxy);
-    aSMPClient.setProxyCredentials (aProxyCredentials);
-
     LOGGER.info ("Querying BusinessCard for '" +
                  aParticipantID.getURIEncoded () +
                  "' from OASIS BDXR SMP v2 '" +
@@ -403,7 +384,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
 
     // If the service group is present, try querying the business card
     final PDBusinessCard aBusinessCard;
-    try
+    try (final HttpClientManager aHCM = HttpClientManager.create (aHCS))
     {
       // Use the optional business card API
       // FIXME is the path "bdxr-smp-2" needed? Well, the PD is not yet
@@ -411,14 +392,12 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
       final HttpGet aRequest = new HttpGet (aSMPClient.getSMPHostURI () +
                                             "businesscard/" +
                                             aParticipantID.getURIPercentEncoded ());
-      final HttpContext aContext = HttpClientHelper.createHttpContext (aProxy, aProxyCredentials);
-      aBusinessCard = PDMetaManager.getHttpClientMgr ()
-                                   .execute (aRequest, aContext, new PDSMPHttpResponseHandlerBusinessCard ());
+      aBusinessCard = aHCM.execute (aRequest, new PDSMPHttpResponseHandlerBusinessCard ());
     }
     catch (final IOException ex)
     {
       if ((ex instanceof HttpResponseException &&
-           ((HttpResponseException) ex).getStatusCode () == HttpServletResponse.SC_NOT_FOUND) ||
+           ((HttpResponseException) ex).getStatusCode () == CHttp.HTTP_NOT_FOUND) ||
           ex instanceof UnknownHostException)
       {
         LOGGER.warn ("No BusinessCard available for '" +
@@ -457,7 +436,12 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
   @Nullable
   public PDExtendedBusinessCard getBusinessCard (@Nonnull final IParticipantIdentifier aParticipantID)
   {
+    final HttpHost aProxyHost = _getHttpProxy ();
+    final Credentials aProxyCredentials = _getHttpProxyCredentials ();
+
     PDExtendedBusinessCard aBC;
+    final HttpClientSettings aHCS = new HttpClientSettings ().setProxyHost (aProxyHost)
+                                                             .setProxyCredentials (aProxyCredentials);
 
     if (m_aSMPURI != null)
     {
@@ -467,19 +451,22 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
         case PEPPOL:
         {
           final SMPClientReadOnly aSMPClient = new SMPClientReadOnly (m_aSMPURI);
-          aBC = getBusinessCardPeppolSMP (aParticipantID, aSMPClient);
+          aSMPClient.httpClientSettings ().setProxyHost (aProxyHost).setProxyCredentials (aProxyCredentials);
+          aBC = getBusinessCardPeppolSMP (aParticipantID, aSMPClient, aHCS);
           break;
         }
         case OASIS_BDXR_V1:
         {
           final BDXRClientReadOnly aSMPClient = new BDXRClientReadOnly (m_aSMPURI);
-          aBC = getBusinessCardBDXR1 (aParticipantID, aSMPClient);
+          aSMPClient.httpClientSettings ().setProxyHost (aProxyHost).setProxyCredentials (aProxyCredentials);
+          aBC = getBusinessCardBDXR1 (aParticipantID, aSMPClient, aHCS);
           break;
         }
         case OASIS_BDXR_V2:
         {
           final BDXR2ClientReadOnly aSMPClient = new BDXR2ClientReadOnly (m_aSMPURI);
-          aBC = getBusinessCardBDXR2 (aParticipantID, aSMPClient);
+          aSMPClient.httpClientSettings ().setProxyHost (aProxyHost).setProxyCredentials (aProxyCredentials);
+          aBC = getBusinessCardBDXR2 (aParticipantID, aSMPClient, aHCS);
           break;
         }
         default:
@@ -500,7 +487,8 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
             try
             {
               final SMPClientReadOnly aSMPClient = new SMPClientReadOnly (m_aURLProvider, aParticipantID, aSML);
-              aBC = getBusinessCardPeppolSMP (aParticipantID, aSMPClient);
+              aSMPClient.httpClientSettings ().setProxyHost (aProxyHost).setProxyCredentials (aProxyCredentials);
+              aBC = getBusinessCardPeppolSMP (aParticipantID, aSMPClient, aHCS);
             }
             catch (final PeppolDNSResolutionException ex)
             {
@@ -513,7 +501,8 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
             try
             {
               final BDXRClientReadOnly aSMPClient = new BDXRClientReadOnly (m_aURLProvider, aParticipantID, aSML);
-              aBC = getBusinessCardBDXR1 (aParticipantID, aSMPClient);
+              aSMPClient.httpClientSettings ().setProxyHost (aProxyHost).setProxyCredentials (aProxyCredentials);
+              aBC = getBusinessCardBDXR1 (aParticipantID, aSMPClient, aHCS);
             }
             catch (final PeppolDNSResolutionException ex)
             {
@@ -526,7 +515,8 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
             try
             {
               final BDXR2ClientReadOnly aSMPClient = new BDXR2ClientReadOnly (m_aURLProvider, aParticipantID, aSML);
-              aBC = getBusinessCardBDXR2 (aParticipantID, aSMPClient);
+              aSMPClient.httpClientSettings ().setProxyHost (aProxyHost).setProxyCredentials (aProxyCredentials);
+              aBC = getBusinessCardBDXR2 (aParticipantID, aSMPClient, aHCS);
             }
             catch (final PeppolDNSResolutionException ex)
             {

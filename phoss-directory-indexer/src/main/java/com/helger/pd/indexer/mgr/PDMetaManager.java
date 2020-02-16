@@ -30,7 +30,6 @@ import com.helger.commons.debug.GlobalDebug;
 import com.helger.commons.exception.InitializationException;
 import com.helger.commons.io.stream.StreamHelper;
 import com.helger.commons.lang.ClassHelper;
-import com.helger.httpclient.HttpClientManager;
 import com.helger.pd.indexer.businesscard.IPDBusinessCardProvider;
 import com.helger.pd.indexer.lucene.PDLucene;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
@@ -58,7 +57,6 @@ public final class PDMetaManager extends AbstractGlobalSingleton
   private PDLucene m_aLucene;
   private PDStorageManager m_aStorageMgr;
   private PDIndexerManager m_aIndexerMgr;
-  private HttpClientManager m_aHttpClientMgr;
 
   @Deprecated
   @UsedViaReflection
@@ -73,7 +71,6 @@ public final class PDMetaManager extends AbstractGlobalSingleton
       m_aLucene = new PDLucene ();
       m_aStorageMgr = new PDStorageManager (m_aLucene);
       m_aIndexerMgr = new PDIndexerManager (m_aStorageMgr);
-      m_aHttpClientMgr = new HttpClientManager ();
 
       LOGGER.info (ClassHelper.getClassLocalName (this) + " was initialized");
     }
@@ -96,7 +93,6 @@ public final class PDMetaManager extends AbstractGlobalSingleton
     StreamHelper.close (m_aLucene);
     StreamHelper.close (m_aStorageMgr);
     StreamHelper.close (m_aIndexerMgr);
-    StreamHelper.close (m_aHttpClientMgr);
   }
 
   @Nonnull
@@ -157,12 +153,6 @@ public final class PDMetaManager extends AbstractGlobalSingleton
   public static PDIndexerManager getIndexerMgr ()
   {
     return getInstance ().m_aIndexerMgr;
-  }
-
-  @Nonnull
-  public static HttpClientManager getHttpClientMgr ()
-  {
-    return getInstance ().m_aHttpClientMgr;
   }
 
   @Nonnull

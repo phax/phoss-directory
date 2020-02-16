@@ -38,7 +38,6 @@ import com.helger.commons.annotation.OverrideOnDemand;
 import com.helger.commons.io.stream.StreamHelper;
 import com.helger.commons.state.ESuccess;
 import com.helger.commons.url.URLHelper;
-import com.helger.httpclient.HttpClientFactory;
 import com.helger.httpclient.HttpClientManager;
 import com.helger.peppolid.IParticipantIdentifier;
 
@@ -101,7 +100,7 @@ public class PDClient implements Closeable
     final String sSMPHost = aPDHost.toString ();
     m_sPDHostURI = sSMPHost.endsWith ("/") ? sSMPHost : sSMPHost + '/';
     m_sPDIndexerURI = m_sPDHostURI + PATH_INDEXER_10;
-    m_aHttpClientMgr = new HttpClientManager (new HttpClientFactory (new PDHttpClientSettings (m_sPDHostURI)));
+    m_aHttpClientMgr = HttpClientManager.create (new PDHttpClientSettings (m_sPDHostURI));
   }
 
   public void close ()
