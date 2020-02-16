@@ -2,7 +2,7 @@
 
 [![Join the chat at https://gitter.im/phax/peppol-directory](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/phax/peppol-directory?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Current release (on Maven central): **0.8.4**
+Current release (on Maven central): **0.8.5**
 
 The official Peppol Directory (PD; https://directory.peppol.eu) and TOOP Directory software (The Once-Only Project; www.toop.eu). It is split into the following sub-projects (all require Java 8 except where noted):
   * `phoss-directory-businesscard` - the common Business Card API
@@ -33,9 +33,9 @@ Additionally to the contained projects you *MAY* need the latest SNAPSHOT of [ph
 
 The PD client is a small Java library that uses Apache HttpClient to connect to an arbitrary phoss Directory Indexer to perform all the allowed operations (get, create/update, delete).
 The client has its own configuration file that is resolved from one of the following locations (whatever is found first):
-* An environment variable called `DIRECTORY_CLIENT_CONFIG` (since 0.8.4)
 * A path denoted by the content of the Java system property `peppol.pd.client.properties.path`
 * A path denoted by the content of the Java system property `pd.client.properties.path`
+* An environment variable called `DIRECTORY_CLIENT_CONFIG` (since 0.8.4)
 * A file with the filename `private-pd-client.properties` in the root of the classpath
 * A file with the filename `pd-client.properties` in the root of the classpath
 
@@ -96,7 +96,7 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
-* v0.8.5 - work in progress
+* v0.8.5 - 2020-02-16
     * Finalized PEPPOL -> Peppol change
     * Added registration date to the export data (see [issue #45](https://github.com/phax/phoss-directory/issues/45))
     * Updated to peppol-commons 8.x
@@ -111,7 +111,7 @@ The PD Publisher is the publicly accessible web site with listing and search fun
     * Enforcing the `PDClient` proxy configuration to be part of `PDHttpClientSettings`
     * Improved internal error resilience
     * Fixed a validation that broken the daily export because of invalid PD data
-    * Updated to ph-web 9.1.8
+    * Updated to ph-web 9.1.9
     * Changed the internal `PDClient` HTTP configuration API to use `HttpClientSettings` (backwards incompatible change) 
     * The `PDClient` now checks for the key alias in a case insensitive manner (improved resilience) 
 * v0.8.4 - 2020-01-24
