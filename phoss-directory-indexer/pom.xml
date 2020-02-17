@@ -150,7 +150,7 @@
             <Import-Package>!javax.annotation.*,*</Import-Package>
             <Require-Capability>osgi.extender; filter:="(osgi.extender=osgi.serviceloader.registrar)"</Require-Capability>
             <Provide-Capability>osgi.serviceloader; osgi.serviceloader=com.helger.xml.microdom.convert.IMicroTypeConverterRegistrarSPI</Provide-Capability>
-            <!-- The latter one has precedense -->
+            <!-- The latter one has precedence -->
             <Include-Resource>{maven-resources},phoss-directory-version.properties=target/classes/phoss-directory-version.properties</Include-Resource>
           </instructions>
         </configuration>
