@@ -20,6 +20,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Test class for class {@link CDirectoryVersion}
@@ -28,9 +30,14 @@ import org.junit.Test;
  */
 public final class CDirectoryVersionTest
 {
+  private static final Logger LOGGER = LoggerFactory.getLogger (CDirectoryVersionTest.class);
+
   @Test
   public void testBasic ()
   {
+    LOGGER.info ("CDirectoryVersion.BUILD_VERSION = '" + CDirectoryVersion.BUILD_VERSION + "'");
+    LOGGER.info ("CDirectoryVersion.BUILD_TIMESTAMP = '" + CDirectoryVersion.BUILD_TIMESTAMP + "'");
+
     assertNotEquals ("undefined", CDirectoryVersion.BUILD_VERSION);
     assertNotEquals ("undefined", CDirectoryVersion.BUILD_TIMESTAMP);
 
