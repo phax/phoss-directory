@@ -17,6 +17,7 @@
 package com.helger.pd.indexer.rest;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -34,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.commons.annotation.Nonempty;
+import com.helger.commons.codec.URLCodec;
 import com.helger.pd.indexer.clientcert.ClientCertificateValidationResult;
 import com.helger.pd.indexer.clientcert.ClientCertificateValidator;
 import com.helger.pd.indexer.index.EIndexerWorkItemType;
@@ -51,6 +53,7 @@ import com.helger.peppolid.factory.IIdentifierFactory;
 public class IndexerResource
 {
   private static final Logger LOGGER = LoggerFactory.getLogger (IndexerResource.class);
+  private static final URLCodec URL_CODEC = new URLCodec ();
 
   /**
    * Check if the current request contains a client certificate and whether it
@@ -91,7 +94,7 @@ public class IndexerResource
   {
     if (sParticipantID == null)
       return null;
-    return sParticipantID.trim ();
+    return URL_CODEC.getEncodedAsString (sParticipantID.trim (), StandardCharsets.UTF_8);
   }
 
   @PUT
