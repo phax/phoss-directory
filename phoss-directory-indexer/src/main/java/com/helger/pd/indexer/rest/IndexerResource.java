@@ -94,7 +94,7 @@ public class IndexerResource
   {
     if (sParticipantID == null)
       return null;
-    return URL_CODEC.getEncodedAsString (sParticipantID.trim (), StandardCharsets.UTF_8);
+    return URL_CODEC.getDecodedAsString (sParticipantID.trim (), StandardCharsets.UTF_8);
   }
 
   @PUT
