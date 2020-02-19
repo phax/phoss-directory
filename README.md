@@ -96,6 +96,8 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
+* v0.8.6 - 2020-02-19
+    * URL decoding participant identifiers on indexation
 * v0.8.5 - 2020-02-16
     * Finalized PEPPOL -> Peppol change
     * Added registration date to the export data (see [issue #45](https://github.com/phax/phoss-directory/issues/45))

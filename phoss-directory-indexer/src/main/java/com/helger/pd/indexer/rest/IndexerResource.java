@@ -92,7 +92,17 @@ public class IndexerResource
   {
     if (sParticipantID == null)
       return null;
-    return URLHelper.urlDecode (sParticipantID.trim ());
+
+    final String sTrimmed = sParticipantID.trim ();
+    try
+    {
+      return URLHelper.urlDecode (sTrimmed);
+    }
+    catch (final IllegalArgumentException ex)
+    {
+      // Happens on illegal encoding
+      return sTrimmed;
+    }
   }
 
   @PUT
