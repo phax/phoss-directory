@@ -113,7 +113,7 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
                                                   @Nonnull final BootstrapForm aForm,
                                                   @Nullable final IReIndexWorkItem aSelectedObject)
                         {
-                          aForm.addChild (question ("Are you sure to delete alls items?"));
+                          aForm.addChild (question ("Are you sure to delete all items?"));
                         }
 
                         @Override
