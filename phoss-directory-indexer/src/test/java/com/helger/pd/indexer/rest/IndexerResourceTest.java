@@ -19,6 +19,7 @@ package com.helger.pd.indexer.rest;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,6 +31,7 @@ import javax.annotation.Nonnull;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -168,8 +170,8 @@ public final class IndexerResourceTest
       final IParticipantIdentifier aPI = PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9915:test" +
                                                                                                                         aIndex.getAndIncrement ());
 
-      LOGGER.info ("PUT " + aPI.getURIEncoded ());
-      final String sPayload = aPI.getURIEncoded ();
+      final String sPayload = aPI.getURIPercentEncoded ();
+      LOGGER.info ("PUT " + sPayload);
       final String sResponseMsg = m_aTarget.path ("1.0").request ().put (Entity.text (sPayload), String.class);
       assertEquals ("", sResponseMsg);
     });
@@ -184,12 +186,28 @@ public final class IndexerResourceTest
       final IParticipantIdentifier aPI = PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9915:test" +
                                                                                                                         aIndex.getAndIncrement ());
 
-      LOGGER.info ("DELETE " + aPI.getURIEncoded ());
-      final String sResponseMsg = m_aTarget.path ("1.0").path (aPI.getURIEncoded ()).request ().delete (String.class);
+      final String sPI = aPI.getURIEncoded ();
+      LOGGER.info ("DELETE " + sPI);
+      final String sResponseMsg = m_aTarget.path ("1.0").path (sPI).request ().delete (String.class);
       assertEquals ("", sResponseMsg);
     });
 
     ThreadHelper.sleep (2000);
     assertFalse (PDMetaManager.getStorageMgr ().containsEntry (aPI_0, EQueryMode.NON_DELETED_ONLY));
+
+    // Test with invalid URL encoded ID
+    {
+      final String sPayload = aPI_0.getURIPercentEncoded () + "%%%abc";
+      LOGGER.info ("CREATE " + sPayload);
+      try
+      {
+        m_aTarget.path ("1.0").request ().put (Entity.text (sPayload), String.class);
+        fail ();
+      }
+      catch (final BadRequestException ex)
+      {
+        // Expected
+      }
+    }
   }
 }
