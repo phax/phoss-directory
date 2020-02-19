@@ -162,13 +162,13 @@ public final class IndexerResourceTest
   public void testCreateAndDeleteParticipant () throws IOException
   {
     final AtomicInteger aIndex = new AtomicInteger (0);
-    final IParticipantIdentifier aPI_0 = PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9915:test0");
+    final PeppolIdentifierFactory aIF = PeppolIdentifierFactory.INSTANCE;
 
+    // Create
     final int nCount = 4;
     CommonsTestHelper.testInParallel (nCount, () -> {
-      // Create
-      final IParticipantIdentifier aPI = PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9915:test" +
-                                                                                                                        aIndex.getAndIncrement ());
+      final IParticipantIdentifier aPI = aIF.createParticipantIdentifierWithDefaultScheme ("9915:test" +
+                                                                                           aIndex.getAndIncrement ());
 
       final String sPayload = aPI.getURIPercentEncoded ();
       LOGGER.info ("PUT " + sPayload);
@@ -176,15 +176,20 @@ public final class IndexerResourceTest
       assertEquals ("", sResponseMsg);
     });
 
+    LOGGER.info ("waiting");
     ThreadHelper.sleep (2000);
-    assertTrue (PDMetaManager.getStorageMgr ().containsEntry (aPI_0, EQueryMode.NON_DELETED_ONLY));
-    assertFalse (PDMetaManager.getStorageMgr ().containsEntry (aPI_0, EQueryMode.DELETED_ONLY));
+    for (int i = 0; i < nCount; ++i)
+    {
+      final IParticipantIdentifier aPI = aIF.createParticipantIdentifierWithDefaultScheme ("9915:test" + i);
+      assertTrue (PDMetaManager.getStorageMgr ().containsEntry (aPI, EQueryMode.NON_DELETED_ONLY));
+      assertFalse (PDMetaManager.getStorageMgr ().containsEntry (aPI, EQueryMode.DELETED_ONLY));
+    }
 
+    // Delete
     aIndex.set (0);
     CommonsTestHelper.testInParallel (nCount, () -> {
-      // Delete
-      final IParticipantIdentifier aPI = PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9915:test" +
-                                                                                                                        aIndex.getAndIncrement ());
+      final IParticipantIdentifier aPI = aIF.createParticipantIdentifierWithDefaultScheme ("9915:test" +
+                                                                                           aIndex.getAndIncrement ());
 
       final String sPI = aPI.getURIEncoded ();
       LOGGER.info ("DELETE " + sPI);
@@ -192,12 +197,18 @@ public final class IndexerResourceTest
       assertEquals ("", sResponseMsg);
     });
 
+    LOGGER.info ("waiting");
     ThreadHelper.sleep (2000);
-    assertFalse (PDMetaManager.getStorageMgr ().containsEntry (aPI_0, EQueryMode.NON_DELETED_ONLY));
+    for (int i = 0; i < nCount; ++i)
+    {
+      final IParticipantIdentifier aPI = aIF.createParticipantIdentifierWithDefaultScheme ("9915:test" + i);
+      assertFalse (PDMetaManager.getStorageMgr ().containsEntry (aPI, EQueryMode.NON_DELETED_ONLY));
+      assertFalse (PDMetaManager.getStorageMgr ().containsEntry (aPI, EQueryMode.DELETED_ONLY));
+    }
 
     // Test with invalid URL encoded ID
     {
-      final String sPayload = aPI_0.getURIPercentEncoded () + "%%%abc";
+      final String sPayload = "iso6523-actorid-upis%3a%3a9915%3atest0%%%abc";
       LOGGER.info ("CREATE " + sPayload);
       try
       {
