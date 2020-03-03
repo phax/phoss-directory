@@ -69,7 +69,7 @@
     <lucene.version>8.1.1</lucene.version>
     -->
     <jersey.version>2.30.1</jersey.version>
-    <log4j.version>2.13.0</log4j.version>
+    <log4j.version>2.13.1</log4j.version>
   </properties>
   
   <dependencyManagement>
@@ -117,7 +117,7 @@
       <dependency>
         <groupId>com.helger</groupId>
         <artifactId>peppol-commons-parent-pom</artifactId>
-        <version>8.0.1</version>
+        <version>8.0.2</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
