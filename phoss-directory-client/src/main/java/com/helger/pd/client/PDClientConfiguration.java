@@ -88,7 +88,7 @@ public final class PDClientConfiguration
       LOGGER.warn ("Failed to read Peppol Directory client properties from " + aCFB.getAllPaths ());
 
     // Remember globally
-    s_aRWLock.writeLocked ( () -> s_aConfigFile = aConfigFile);
+    s_aRWLock.writeLockedGet ( () -> s_aConfigFile = aConfigFile);
   }
 
   static

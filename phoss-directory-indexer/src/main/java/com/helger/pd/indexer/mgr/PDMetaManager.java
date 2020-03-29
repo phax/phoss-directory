@@ -108,7 +108,7 @@ public final class PDMetaManager extends AbstractGlobalSingleton
   @Nullable
   public static IPDBusinessCardProvider getBusinessCardProviderOrNull ()
   {
-    return s_aRWLock.readLocked ( () -> s_aBCProvider);
+    return s_aRWLock.readLockedGet ( () -> s_aBCProvider);
   }
 
   /**
@@ -134,7 +134,7 @@ public final class PDMetaManager extends AbstractGlobalSingleton
   public static void setBusinessCardProvider (@Nonnull final IPDBusinessCardProvider aBCProvider)
   {
     ValueEnforcer.notNull (aBCProvider, "BCProvider");
-    s_aRWLock.writeLocked ( () -> s_aBCProvider = aBCProvider);
+    s_aRWLock.writeLockedGet ( () -> s_aBCProvider = aBCProvider);
   }
 
   @Nonnull

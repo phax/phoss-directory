@@ -86,7 +86,7 @@ public final class ReIndexWorkItemList extends AbstractPhotonMapBasedWALDAO <IRe
     if (aWorkItem == null)
       return null;
 
-    return m_aRWLock.writeLocked ( () -> internalDeleteItem (aWorkItem.getID ()));
+    return m_aRWLock.writeLockedGet ( () -> internalDeleteItem (aWorkItem.getID ()));
   }
 
   @Nonnull
