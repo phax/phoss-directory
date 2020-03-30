@@ -34,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.commons.annotation.Nonempty;
+import com.helger.commons.codec.DecodeException;
 import com.helger.commons.url.URLHelper;
 import com.helger.pd.indexer.clientcert.ClientCertificateValidationResult;
 import com.helger.pd.indexer.clientcert.ClientCertificateValidator;
@@ -98,7 +99,7 @@ public class IndexerResource
     {
       return URLHelper.urlDecode (sTrimmed);
     }
-    catch (final IllegalArgumentException ex)
+    catch (final IllegalArgumentException | DecodeException ex)
     {
       // Happens on illegal encoding
       return sTrimmed;
