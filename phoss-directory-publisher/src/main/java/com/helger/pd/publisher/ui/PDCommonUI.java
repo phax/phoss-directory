@@ -19,16 +19,13 @@ package com.helger.pd.publisher.ui;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPublicKey;
-import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.Period;
 import java.util.Locale;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
-import com.helger.commons.CGlobal;
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.ICommonsList;
@@ -38,6 +35,7 @@ import com.helger.commons.locale.LocaleHelper;
 import com.helger.commons.locale.country.CountryCache;
 import com.helger.commons.locale.language.LanguageCache;
 import com.helger.commons.math.MathHelper;
+import com.helger.datetime.util.PDTDisplayHelper;
 import com.helger.html.css.DefaultCSSClassProvider;
 import com.helger.html.css.ICSSClassProvider;
 import com.helger.html.hc.IHCNode;
@@ -261,37 +259,6 @@ public final class PDCommonUI
     return aSB.append (" and ").append (aParts.getLast ()).toString ();
   }
 
-  // Based on PeriodFuncTest code
-  // TODO use PDTDisplayHelper in ph-datetime 9.3.10
-  @Nonnull
-  @Nonempty
-  private static String _getPeriodText (@Nonnull final LocalDateTime aNowLDT, @Nonnull final LocalDateTime aNotAfter)
-  {
-    final Period aPeriod = Period.between (aNowLDT.toLocalDate (), aNotAfter.toLocalDate ());
-    final Duration aDuration = Duration.between (aNowLDT.toLocalTime (), aNotAfter.toLocalTime ());
-
-    final int nYears = aPeriod.getYears ();
-    final int nMonth = aPeriod.getMonths ();
-    int nDays = aPeriod.getDays ();
-
-    long nTotalSecs = aDuration.getSeconds ();
-    if (nTotalSecs < 0)
-    {
-      if (nDays > 0 || nMonth > 0 || nYears > 0)
-      {
-        nTotalSecs += CGlobal.SECONDS_PER_DAY;
-        nDays--;
-      }
-    }
-
-    final long nHours = nTotalSecs / CGlobal.SECONDS_PER_HOUR;
-    nTotalSecs -= nHours * CGlobal.SECONDS_PER_HOUR;
-    final long nMinutes = nTotalSecs / CGlobal.SECONDS_PER_MINUTE;
-    nTotalSecs -= nMinutes * CGlobal.SECONDS_PER_MINUTE;
-
-    return _getPeriodString (nYears, nMonth, nDays, nHours, nMinutes, nTotalSecs);
-  }
-
   @Nonnull
   public static BootstrapTable createCertificateDetailsTable (@Nonnull final X509Certificate aX509Cert,
                                                               @Nonnull final LocalDateTime aNowLDT,
@@ -315,7 +282,8 @@ public final class PDCommonUI
                 .addCell (new HCTextNode (PDTToString.getAsString (aNotAfter, aDisplayLocale)),
                           aNowLDT.isAfter (aNotAfter) ? new HCStrong ().addChild (" !!!NO LONGER VALID!!!")
                                                       : new HCDiv ().addChild ("Valid for: " +
-                                                                               _getPeriodText (aNowLDT, aNotAfter)));
+                                                                               PDTDisplayHelper.getPeriodTextEN (aNowLDT,
+                                                                                                                 aNotAfter)));
 
     if (aPublicKey instanceof RSAPublicKey)
     {
