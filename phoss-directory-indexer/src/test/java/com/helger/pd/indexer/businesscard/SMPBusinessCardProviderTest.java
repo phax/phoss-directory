@@ -16,6 +16,7 @@
  */
 package com.helger.pd.indexer.businesscard;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import org.junit.Ignore;
@@ -57,6 +58,7 @@ public final class SMPBusinessCardProviderTest
                                                                                          SML_SUPPLIER);
     final PDExtendedBusinessCard aExtBI = aBI.getBusinessCard (PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9915:test"));
     assertNotNull (aExtBI);
+    assertEquals (1, aExtBI.getBusinessCard ().businessEntities ().size ());
     LOGGER.info (aExtBI.toString ());
   }
 

@@ -18,6 +18,7 @@ package com.helger.pd.indexer.businesscard;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -54,6 +55,6 @@ final class PDSMPHttpResponseHandlerBusinessCard extends AbstractSMPResponseHand
       return aBC;
 
     // Unsupported
-    throw new ClientProtocolException ("Malformed XML document returned from SMP server");
+    throw new ClientProtocolException ("Malformed XML document returned from SMP server:\n" + new String (aData, StandardCharsets.UTF_8));
   }
 }
