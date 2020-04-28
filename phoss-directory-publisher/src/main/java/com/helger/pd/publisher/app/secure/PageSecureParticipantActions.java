@@ -115,20 +115,17 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
       res.attachment ("directory-participant-list.xml");
     });
     s_aDownloadAllBCsXMLFull = addAjax ( (req, res) -> {
-      final IMicroDocument aDoc = ExportAllManager.queryAllContainedBusinessCardsAsXML (EQueryMode.NON_DELETED_ONLY,
-                                                                                        true);
+      final IMicroDocument aDoc = ExportAllManager.queryAllContainedBusinessCardsAsXML (EQueryMode.NON_DELETED_ONLY, true);
       res.xml (aDoc);
       res.attachment (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_FULL);
     });
     s_aDownloadAllBCsXMLNoDocTypes = addAjax ( (req, res) -> {
-      final IMicroDocument aDoc = ExportAllManager.queryAllContainedBusinessCardsAsXML (EQueryMode.NON_DELETED_ONLY,
-                                                                                        false);
+      final IMicroDocument aDoc = ExportAllManager.queryAllContainedBusinessCardsAsXML (EQueryMode.NON_DELETED_ONLY, false);
       res.xml (aDoc);
       res.attachment (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_NO_DOC_TYPES);
     });
     s_aDownloadAllBCsExcel = addAjax ( (req, res) -> {
-      final WorkbookCreationHelper aWBCH = ExportAllManager.queryAllContainedBusinessCardsAsExcel (EQueryMode.NON_DELETED_ONLY,
-                                                                                                   true);
+      final WorkbookCreationHelper aWBCH = ExportAllManager.queryAllContainedBusinessCardsAsExcel (EQueryMode.NON_DELETED_ONLY, true);
       try (NonBlockingByteArrayOutputStream aBAOS = new NonBlockingByteArrayOutputStream ())
       {
         aWBCH.writeTo (aBAOS);
@@ -153,6 +150,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
   @Nonnull
   private static ICommonsMap <IParticipantIdentifier, ICommonsSortedSet <String>> _getDuplicateSourceMap ()
   {
+    LOGGER.info ("_getDuplicateSourceMap () start");
     final ICommonsMap <IParticipantIdentifier, ICommonsSortedSet <String>> aMap = new CommonsHashMap <> ();
     final Query aQuery = EQueryMode.NON_DELETED_ONLY.getEffectiveQuery (new MatchAllDocsQuery ());
     try
@@ -174,12 +172,18 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
     final ICommonsMap <IParticipantIdentifier, ICommonsSortedSet <String>> ret = new CommonsHashMap <> ();
     for (final Map.Entry <IParticipantIdentifier, ICommonsSortedSet <String>> aEntry : aMap.entrySet ())
       if (aEntry.getValue ().size () > 1)
+      {
         ret.put (aEntry);
+        LOGGER.info ("  Potential duplicate in: " + aEntry.getKey ().getURIEncoded ());
+      }
+
+    LOGGER.info ("_getDuplicateSourceMap () done");
     return ret;
   }
 
   private void _showDuplicateIDs (@Nonnull final WebPageExecutionContext aWPEC)
   {
+    // This method can take a couple of minutes
     LOGGER.info ("Showing all duplicate participant identifiers");
     final Locale aDisplayLocale = aWPEC.getDisplayLocale ();
     final ICommonsMap <IParticipantIdentifier, ICommonsSortedSet <String>> aDupMap = _getDuplicateSourceMap ();
@@ -190,8 +194,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
       final ICommonsSortedSet <String> aSet = aEntry.getValue ();
       final IParticipantIdentifier aPI = aEntry.getKey ();
       final String sDesiredVersion = aPI.getURIEncoded ();
-      final HCDiv aDiv = div ("Found " + aSet.size () + " duplicate IDs for ").addChild (code (sDesiredVersion))
-                                                                              .addChild (":");
+      final HCDiv aDiv = div ("Found " + aSet.size () + " duplicate IDs for ").addChild (code (sDesiredVersion)).addChild (":");
       final HCOL aOL = aDiv.addAndReturnChild (new HCOL ());
       for (final String sVersion : aSet.getSorted (IComparator.getComparatorCollating (aDisplayLocale)))
       {
@@ -204,10 +207,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
     }
     if (aNL.hasChildren ())
     {
-      final String sMsg = "Found duplicate entries for " +
-                          aDupMap.size () +
-                          " " +
-                          (aDupMap.size () == 1 ? "participant" : "participant");
+      final String sMsg = "Found duplicate entries for " + aDupMap.size () + " " + (aDupMap.size () == 1 ? "participant" : "participant");
       LOGGER.info (sMsg);
       aNL.addChildAt (0, h2 (sMsg));
       aWPEC.postRedirectGetInternal (aNL);
@@ -312,8 +312,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
           aWPEC.postRedirectGetInternal (success ("The unforced synchronization was started successfully and is now running in the background."));
         else
           aWPEC.postRedirectGetInternal (warn ("The synchronization was not started because the last sync was at " +
-                                               PDTToString.getAsString (SyncAllBusinessCardsJob.getLastSync (),
-                                                                        aDisplayLocale)));
+                                               PDTToString.getAsString (SyncAllBusinessCardsJob.getLastSync (), aDisplayLocale)));
       }
       else
         if (aWPEC.hasAction (ACTION_SYNC_BCS_FORCED))
@@ -425,16 +424,14 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
                             PDTToString.getAsString (aStartDT, aDisplayLocale)));
     }
     aBody.addChild (new BootstrapButton ().addChild ("Update Business Card export cache (in background; takes too long)")
-                                          .setOnClick (aWPEC.getSelfHref ()
-                                                            .add (CPageParam.PARAM_ACTION, ACTION_UPDATE_EXPORTED_BCS))
+                                          .setOnClick (aWPEC.getSelfHref ().add (CPageParam.PARAM_ACTION, ACTION_UPDATE_EXPORTED_BCS))
                                           .setIcon (EDefaultIcon.INFO)
                                           .setDisabled (bIsRunning));
 
     aCard.createAndAddHeader ().addChild ("Data Synchronization");
     aBody = aCard.createAndAddBody ();
     aBody.addChild (new BootstrapButton ().addChild ("Synchronize all Business Cards (re-query from SMP - unforced)")
-                                          .setOnClick (aWPEC.getSelfHref ()
-                                                            .add (CPageParam.PARAM_ACTION, ACTION_SYNC_BCS_UNFORCED))
+                                          .setOnClick (aWPEC.getSelfHref ().add (CPageParam.PARAM_ACTION, ACTION_SYNC_BCS_UNFORCED))
                                           .setIcon (EDefaultIcon.REFRESH));
     aBody.addChild (new BootstrapButton (EBootstrapButtonType.DANGER).addChild ("Synchronize all Business Cards (re-query from SMP - forced)")
                                                                      .setOnClick (aWPEC.getSelfHref ()
@@ -451,8 +448,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
     else
     {
       aBody.addChild (new BootstrapButton ().addChild ("Show all duplicate entries")
-                                            .setOnClick (aWPEC.getSelfHref ()
-                                                              .add (CPageParam.PARAM_ACTION, ACTION_SHOW_DUPLICATES))
+                                            .setOnClick (aWPEC.getSelfHref ().add (CPageParam.PARAM_ACTION, ACTION_SHOW_DUPLICATES))
                                             .setIcon (EDefaultIcon.MAGNIFIER));
       aBody.addChild (new BootstrapButton (EBootstrapButtonType.DANGER).addChild ("Delete all duplicate entries")
                                                                        .setOnClick (aWPEC.getSelfHref ()
