@@ -46,6 +46,7 @@ import com.helger.html.hc.html.tabular.HCCol;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.CPDStorage;
+import com.helger.pd.indexer.storage.EQueryMode;
 import com.helger.pd.indexer.storage.PDQueryManager;
 import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
@@ -166,10 +167,8 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
       LOGGER.info ("Searching generically for '" + sQuery + "'");
 
     // Build Lucene query
-    Query aLuceneQuery = PDQueryManager.convertQueryStringToLuceneQuery (PDMetaManager.getLucene (),
-                                                                         CPDStorage.FIELD_ALL_FIELDS,
-                                                                         sQuery);
-    aLuceneQuery = PDQueryManager.andNotDeleted (aLuceneQuery);
+    Query aLuceneQuery = PDQueryManager.convertQueryStringToLuceneQuery (PDMetaManager.getLucene (), CPDStorage.FIELD_ALL_FIELDS, sQuery);
+    aLuceneQuery = EQueryMode.NON_DELETED_ONLY.getEffectiveQuery (aLuceneQuery);
     if (LOGGER.isDebugEnabled ())
       LOGGER.debug ("Created query for '" + sQuery + "' is <" + aLuceneQuery + ">");
 
@@ -201,8 +200,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     else
     {
       aNodeList.addChild (div (badgeSuccess ("Found " +
-                                             (aGroupedBEs.size () == 1 ? "1 entity"
-                                                                       : aGroupedBEs.size () + " entities") +
+                                             (aGroupedBEs.size () == 1 ? "1 entity" : aGroupedBEs.size () + " entities") +
                                              " matching '" +
                                              sQuery +
                                              "'")));
@@ -271,8 +269,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
           if (aStoredDoc.names ().isNotEmpty ())
           {
             // TODO add locale filter here
-            final ICommonsList <PDStoredMLName> aNames = PDCommonUI.getUIFilteredNames (aStoredDoc.names (),
-                                                                                        aDisplayLocale);
+            final ICommonsList <PDStoredMLName> aNames = PDCommonUI.getUIFilteredNames (aStoredDoc.names (), aDisplayLocale);
 
             IHCNode aNameCtrl;
             if (aNames.size () == 1)
@@ -284,9 +281,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
               aNameCtrl = aNameUL;
             }
 
-            aTable.addBodyRow ()
-                  .addCell ("Entity Name:")
-                  .addCell (span (aNameCtrl).addClass (CSS_CLASS_RESULT_DOC_NAME));
+            aTable.addBodyRow ().addCell ("Entity Name:").addCell (span (aNameCtrl).addClass (CSS_CLASS_RESULT_DOC_NAME));
           }
 
           if (aStoredDoc.hasGeoInfo ())
