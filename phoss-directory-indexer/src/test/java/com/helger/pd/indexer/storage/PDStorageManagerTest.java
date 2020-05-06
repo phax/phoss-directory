@@ -93,16 +93,14 @@ public final class PDStorageManagerTest
       aEntity.setAdditionalInfo ("Mock");
       aBI.businessEntities ().add (aEntity);
     }
-    return new PDExtendedBusinessCard (aBI,
-                                       new CommonsArrayList <> (EPredefinedDocumentTypeIdentifier.INVOICE_T010_BIS5A_V20));
+    return new PDExtendedBusinessCard (aBI, new CommonsArrayList <> (EPredefinedDocumentTypeIdentifier.INVOICE_EN16931_PEPPOL_V30));
   }
 
   @Test
   public void testGetAllDocumentsOfParticipant () throws IOException
   {
     final IParticipantIdentifier aParticipantID = PDMetaManager.getIdentifierFactory ()
-                                                               .createParticipantIdentifier ("myscheme-actorid-upis",
-                                                                                             "0088:test");
+                                                               .createParticipantIdentifier ("myscheme-actorid-upis", "0088:test");
     assertNotNull (aParticipantID);
 
     try (PDStorageManager aMgr = new PDStorageManager (new PDLucene ()))
@@ -178,8 +176,7 @@ public final class PDStorageManagerTest
   public void testGetAllDocumentsOfCountryCode () throws IOException
   {
     final IParticipantIdentifier aParticipantID = PDMetaManager.getIdentifierFactory ()
-                                                               .createParticipantIdentifier ("myscheme-actorid-upis",
-                                                                                             "0088:test");
+                                                               .createParticipantIdentifier ("myscheme-actorid-upis", "0088:test");
     assertNotNull (aParticipantID);
 
     try (PDStorageManager aMgr = new PDStorageManager (new PDLucene ()))

@@ -104,7 +104,7 @@ public final class LocalHost8080FuncTest
       aBI.businessEntities ().add (aEntity);
     }
     return new PDExtendedBusinessCard (aBI,
-                                       new CommonsArrayList <> (EPredefinedDocumentTypeIdentifier.INVOICE_T010_BIS5A_V20.getAsDocumentTypeIdentifier ()));
+                                       new CommonsArrayList <> (EPredefinedDocumentTypeIdentifier.INVOICE_EN16931_PEPPOL_V30.getAsDocumentTypeIdentifier ()));
   }
 
   @Before
@@ -126,9 +126,7 @@ public final class LocalHost8080FuncTest
       aKeyManagerFactory.init (aKeyStore, "peppol".toCharArray ());
 
       final SSLContext aSSLContext = SSLContext.getInstance ("TLS");
-      aSSLContext.init (aKeyManagerFactory.getKeyManagers (),
-                        new TrustManager [] { new TrustManagerTrustAll (false) },
-                        null);
+      aSSLContext.init (aKeyManagerFactory.getKeyManagers (), new TrustManager [] { new TrustManagerTrustAll (false) }, null);
       final Client aClient = ClientBuilder.newBuilder ()
                                           .sslContext (aSSLContext)
                                           .hostnameVerifier (new HostnameVerifierVerifyAll (false))
@@ -159,9 +157,7 @@ public final class LocalHost8080FuncTest
                                                                                                                         aIndex.getAndIncrement ());
 
       LOGGER.info ("PUT " + aPI.getURIEncoded ());
-      final String sResponseMsg = m_aTarget.path ("1.0")
-                                           .request ()
-                                           .put (Entity.text (aPI.getURIEncoded ()), String.class);
+      final String sResponseMsg = m_aTarget.path ("1.0").request ().put (Entity.text (aPI.getURIEncoded ()), String.class);
       assertEquals ("", sResponseMsg);
     });
 

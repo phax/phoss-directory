@@ -105,7 +105,7 @@ public final class IndexerResourceTest
       aBI.businessEntities ().add (aEntity);
     }
     return new PDExtendedBusinessCard (aBI,
-                                       new CommonsArrayList <> (EPredefinedDocumentTypeIdentifier.INVOICE_T010_BIS5A_V20.getAsDocumentTypeIdentifier ()));
+                                       new CommonsArrayList <> (EPredefinedDocumentTypeIdentifier.INVOICE_EN16931_PEPPOL_V30.getAsDocumentTypeIdentifier ()));
   }
 
   @Before
@@ -129,9 +129,7 @@ public final class IndexerResourceTest
       aKeyManagerFactory.init (aKeyStore, "peppol".toCharArray ());
 
       final SSLContext aSSLContext = SSLContext.getInstance ("TLS");
-      aSSLContext.init (aKeyManagerFactory.getKeyManagers (),
-                        new TrustManager [] { new TrustManagerTrustAll (false) },
-                        null);
+      aSSLContext.init (aKeyManagerFactory.getKeyManagers (), new TrustManager [] { new TrustManagerTrustAll (false) }, null);
       final Client aClient = ClientBuilder.newBuilder ()
                                           .sslContext (aSSLContext)
                                           .hostnameVerifier (new HostnameVerifierVerifyAll (false))
@@ -167,8 +165,7 @@ public final class IndexerResourceTest
     // Create
     final int nCount = 4;
     CommonsTestHelper.testInParallel (nCount, () -> {
-      final IParticipantIdentifier aPI = aIF.createParticipantIdentifierWithDefaultScheme ("9915:test" +
-                                                                                           aIndex.getAndIncrement ());
+      final IParticipantIdentifier aPI = aIF.createParticipantIdentifierWithDefaultScheme ("9915:test" + aIndex.getAndIncrement ());
 
       final String sPayload = aPI.getURIPercentEncoded ();
       LOGGER.info ("PUT " + sPayload);
@@ -188,8 +185,7 @@ public final class IndexerResourceTest
     // Delete
     aIndex.set (0);
     CommonsTestHelper.testInParallel (nCount, () -> {
-      final IParticipantIdentifier aPI = aIF.createParticipantIdentifierWithDefaultScheme ("9915:test" +
-                                                                                           aIndex.getAndIncrement ());
+      final IParticipantIdentifier aPI = aIF.createParticipantIdentifierWithDefaultScheme ("9915:test" + aIndex.getAndIncrement ());
 
       final String sPI = aPI.getURIEncoded ();
       LOGGER.info ("DELETE " + sPI);
