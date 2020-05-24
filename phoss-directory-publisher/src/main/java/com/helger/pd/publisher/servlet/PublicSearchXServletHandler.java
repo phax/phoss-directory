@@ -191,8 +191,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
       // Determine output format
       final ICommonsList <String> aParts = StringHelper.getExploded ('/', sPathInfo.substring (1));
       final String sFormat = aParts.getAtIndex (1);
-      final EPDOutputFormat eOutputFormat = EPDOutputFormat.getFromIDCaseInsensitiveOrDefault (sFormat,
-                                                                                               EPDOutputFormat.XML);
+      final EPDOutputFormat eOutputFormat = EPDOutputFormat.getFromIDCaseInsensitiveOrDefault (sFormat, EPDOutputFormat.XML);
       if (LOGGER.isDebugEnabled ())
         LOGGER.debug ("Using REST query API 1.0 with output format " +
                       eOutputFormat +
@@ -203,16 +202,14 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
                       "'");
 
       // Determine result offset and count
-      final int nResultPageIndex = aParams.getAsInt (PARAM_RESULT_PAGE_INDEX,
-                                                     aParams.getAsInt ("rpi", DEFAULT_RESULT_PAGE_INDEX));
+      final int nResultPageIndex = aParams.getAsInt (PARAM_RESULT_PAGE_INDEX, aParams.getAsInt ("rpi", DEFAULT_RESULT_PAGE_INDEX));
       if (nResultPageIndex < 0)
       {
         LOGGER.error ("ResultPageIndex " + nResultPageIndex + " is invalid. It must be >= 0.");
         aUnifiedResponse.setStatus (CHttp.HTTP_BAD_REQUEST);
         return;
       }
-      final int nResultPageCount = aParams.getAsInt (PARAM_RESULT_PAGE_COUNT,
-                                                     aParams.getAsInt ("rpc", DEFAULT_RESULT_PAGE_COUNT));
+      final int nResultPageCount = aParams.getAsInt (PARAM_RESULT_PAGE_COUNT, aParams.getAsInt ("rpc", DEFAULT_RESULT_PAGE_COUNT));
       if (nResultPageCount <= 0)
       {
         LOGGER.error ("ResultPageCount " + nResultPageCount + " is invalid. It must be > 0.");
@@ -223,11 +220,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
       final int nLastResultIndex = (nResultPageIndex + 1) * nResultPageCount - 1;
       if (nFirstResultIndex > MAX_RESULTS)
       {
-        LOGGER.error ("The first result index " +
-                      nFirstResultIndex +
-                      " is invalid. It must be <= " +
-                      MAX_RESULTS +
-                      ".");
+        LOGGER.error ("The first result index " + nFirstResultIndex + " is invalid. It must be <= " + MAX_RESULTS + ".");
         aUnifiedResponse.setStatus (CHttp.HTTP_BAD_REQUEST);
         return;
       }
@@ -397,7 +390,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
             final IJsonObject aItem = PDStoredBusinessEntity.getAsSearchResultJsonObject (aPerParticipant);
             aMatches.add (aItem);
           }
-          aDoc.add ("matches", aMatches);
+          aDoc.addJson ("matches", aMatches);
 
           aUnifiedResponse.disableCaching ();
           aUnifiedResponse.setMimeType (eOutputFormat.getMimeType ());

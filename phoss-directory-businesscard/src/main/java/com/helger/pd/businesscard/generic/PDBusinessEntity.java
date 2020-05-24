@@ -248,8 +248,7 @@ public class PDBusinessEntity implements Serializable, ICloneable <PDBusinessEnt
   }
 
   @Nonnull
-  public IMicroElement getAsMicroXML (@Nullable final String sNamespaceURI,
-                                      @Nonnull @Nonempty final String sElementName)
+  public IMicroElement getAsMicroXML (@Nullable final String sNamespaceURI, @Nonnull @Nonempty final String sElementName)
   {
     final IMicroElement ret = new MicroElement (sNamespaceURI, sElementName);
     for (final PDName aName : m_aNames)
@@ -274,16 +273,16 @@ public class PDBusinessEntity implements Serializable, ICloneable <PDBusinessEnt
   public IJsonObject getAsJson ()
   {
     final IJsonObject ret = new JsonObject ();
-    ret.add ("name", new JsonArray ().addAllMapped (m_aNames, PDName::getAsJson));
+    ret.addJson ("name", new JsonArray ().addAllMapped (m_aNames, PDName::getAsJson));
     ret.add ("countrycode", m_sCountryCode);
     if (hasGeoInfo ())
       ret.add ("geoinfo", m_sGeoInfo);
     if (m_aIDs.isNotEmpty ())
-      ret.add ("id", new JsonArray ().addAllMapped (m_aIDs, PDIdentifier::getAsJson));
+      ret.addJson ("id", new JsonArray ().addAllMapped (m_aIDs, PDIdentifier::getAsJson));
     if (m_aWebsiteURIs.isNotEmpty ())
-      ret.add ("website", new JsonArray ().addAll (m_aWebsiteURIs));
+      ret.addJson ("website", new JsonArray ().addAll (m_aWebsiteURIs));
     if (m_aContacts.isNotEmpty ())
-      ret.add ("contact", new JsonArray ().addAllMapped (m_aContacts, PDContact::getAsJson));
+      ret.addJson ("contact", new JsonArray ().addAllMapped (m_aContacts, PDContact::getAsJson));
     if (hasAdditionalInfo ())
       ret.add ("additionalinfo", m_sAdditionalInfo);
     if (hasRegistrationDate ())

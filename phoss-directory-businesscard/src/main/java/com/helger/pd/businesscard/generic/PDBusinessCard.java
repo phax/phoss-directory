@@ -110,8 +110,7 @@ public class PDBusinessCard implements Serializable, ICloneable <PDBusinessCard>
   }
 
   @Nonnull
-  public IMicroElement getAsMicroXML (@Nullable final String sNamespaceURI,
-                                      @Nonnull @Nonempty final String sElementName)
+  public IMicroElement getAsMicroXML (@Nullable final String sNamespaceURI, @Nonnull @Nonempty final String sElementName)
   {
     final IMicroElement ret = new MicroElement (sNamespaceURI, sElementName);
     ret.appendChild (m_aParticipantIdentifier.getAsMicroXML (sNamespaceURI, "participant"));
@@ -124,8 +123,8 @@ public class PDBusinessCard implements Serializable, ICloneable <PDBusinessCard>
   public IJsonObject getAsJson ()
   {
     final IJsonObject ret = new JsonObject ();
-    ret.add ("participant", m_aParticipantIdentifier.getAsJson ());
-    ret.add ("entity", new JsonArray ().addAllMapped (m_aEntities, PDBusinessEntity::getAsJson));
+    ret.addJson ("participant", m_aParticipantIdentifier.getAsJson ());
+    ret.addJson ("entity", new JsonArray ().addAllMapped (m_aEntities, PDBusinessEntity::getAsJson));
     return ret;
   }
 

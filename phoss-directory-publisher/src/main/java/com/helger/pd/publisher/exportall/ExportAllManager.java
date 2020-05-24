@@ -284,9 +284,7 @@ public final class ExportAllManager
       aWBCH.addCellStyle (ES_DATE);
       if (bIncludeDocTypes)
       {
-        aWBCH.addCell (StringHelper.getImplodedMapped ("\n",
-                                                       aEntity.documentTypeIDs (),
-                                                       IDocumentTypeIdentifier::getURIEncoded));
+        aWBCH.addCell (StringHelper.getImplodedMapped ("\n", aEntity.documentTypeIDs (), IDocumentTypeIdentifier::getURIEncoded));
         aWBCH.addCellStyle (ES_WRAP);
       }
     };
@@ -384,14 +382,10 @@ public final class ExportAllManager
 
     final Consumer <? super PDStoredBusinessEntity> aConsumer = aEntity -> {
       aCSVWriter.writeNext (aEntity.getParticipantID ().getURIEncoded (),
-                            StringHelper.getImplodedMapped ("\n",
-                                                            aEntity.names (),
-                                                            PDStoredMLName::getNameAndLanguageCode),
+                            StringHelper.getImplodedMapped ("\n", aEntity.names (), PDStoredMLName::getNameAndLanguageCode),
                             aEntity.getCountryCode (),
                             aEntity.getGeoInfo (),
-                            StringHelper.getImplodedMapped ("\n",
-                                                            aEntity.identifiers (),
-                                                            PDStoredIdentifier::getScheme),
+                            StringHelper.getImplodedMapped ("\n", aEntity.identifiers (), PDStoredIdentifier::getScheme),
                             StringHelper.getImplodedMapped ("\n", aEntity.identifiers (), PDStoredIdentifier::getValue),
                             StringHelper.getImploded ("\n", aEntity.websiteURIs ()),
                             StringHelper.getImplodedMapped ("\n", aEntity.contacts (), PDStoredContact::getType),
@@ -400,9 +394,7 @@ public final class ExportAllManager
                             StringHelper.getImplodedMapped ("\n", aEntity.contacts (), PDStoredContact::getEmail),
                             aEntity.getAdditionalInformation (),
                             aEntity.getRegistrationDate () == null ? "" : aEntity.getRegistrationDate ().toString (),
-                            StringHelper.getImplodedMapped ("\n",
-                                                            aEntity.documentTypeIDs (),
-                                                            IDocumentTypeIdentifier::getURIEncoded));
+                            StringHelper.getImplodedMapped ("\n", aEntity.documentTypeIDs (), IDocumentTypeIdentifier::getURIEncoded));
     };
     PDMetaManager.getStorageMgr ().searchAllDocuments (aQuery, -1, aConsumer);
     aCSVWriter.flush ();
@@ -572,7 +564,7 @@ public final class ExportAllManager
     final IJsonArray aArray = new JsonArray ();
     for (final IParticipantIdentifier aParticipantID : aSet)
       aArray.add (aParticipantID.getURIEncoded ());
-    aObj.add ("participants", aArray);
+    aObj.addJson ("participants", aArray);
 
     return aObj;
   }

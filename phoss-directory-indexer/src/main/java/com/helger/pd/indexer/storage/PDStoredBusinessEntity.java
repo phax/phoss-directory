@@ -272,9 +272,7 @@ public final class PDStoredBusinessEntity
     // Add all document type IDs
     for (final IDocumentTypeIdentifier aDocTypeID : aFirst.m_aDocumentTypeIDs)
     {
-      aMatch.appendElement ("docTypeID")
-            .setAttribute ("scheme", aDocTypeID.getScheme ())
-            .appendText (aDocTypeID.getValue ());
+      aMatch.appendElement ("docTypeID").setAttribute ("scheme", aDocTypeID.getScheme ()).appendText (aDocTypeID.getValue ());
     }
 
     // Add all entities
@@ -283,9 +281,7 @@ public final class PDStoredBusinessEntity
       final IMicroElement aEntity = aMatch.appendElement ("entity");
 
       for (final PDStoredMLName aName : aDoc.m_aNames)
-        aEntity.appendElement ("name")
-               .setAttribute ("language", aName.getLanguageCode ())
-               .appendText (aName.getName ());
+        aEntity.appendElement ("name").setAttribute ("language", aName.getLanguageCode ()).appendText (aName.getName ());
 
       aEntity.appendElement ("countryCode").appendText (aDoc.m_sCountryCode);
 
@@ -339,14 +335,14 @@ public final class PDStoredBusinessEntity
     final PDStoredBusinessEntity aFirst = aDocs.getFirst ();
 
     final IJsonObject ret = new JsonObject ();
-    ret.add ("participantID", _getIDAsJson (aFirst.m_aParticipantID.getScheme (), aFirst.m_aParticipantID.getValue ()));
+    ret.addJson ("participantID", _getIDAsJson (aFirst.m_aParticipantID.getScheme (), aFirst.m_aParticipantID.getValue ()));
 
     // Add the items retrieved from SMP as well
-    final JsonArray aDocTypes = new JsonArray ();
+    final IJsonArray aDocTypes = new JsonArray ();
     for (final IDocumentTypeIdentifier aDocTypeID : aFirst.m_aDocumentTypeIDs)
       aDocTypes.add (_getIDAsJson (aDocTypeID.getScheme (), aDocTypeID.getValue ()));
     if (aDocTypes.isNotEmpty ())
-      ret.add ("docTypes", aDocTypes);
+      ret.addJson ("docTypes", aDocTypes);
 
     final IJsonArray aEntities = new JsonArray ();
     for (final PDStoredBusinessEntity aDoc : aDocs)
@@ -354,37 +350,37 @@ public final class PDStoredBusinessEntity
       final IJsonObject aEntity = new JsonObject ();
 
       // Multilingual names
-      final JsonArray aMLNames = new JsonArray ();
+      final IJsonArray aMLNames = new JsonArray ();
       for (final PDStoredMLName aName : aDoc.m_aNames)
         aMLNames.add (_getMLNameAsJson (aName.getName (), aName.getLanguageCode ()));
       if (aMLNames.isNotEmpty ())
-        aEntity.add ("name", aMLNames);
+        aEntity.addJson ("name", aMLNames);
 
       aEntity.add ("countryCode", aDoc.m_sCountryCode);
 
       if (StringHelper.hasText (aDoc.m_sGeoInfo))
         aEntity.add ("geoInfo", aDoc.m_sGeoInfo);
 
-      final JsonArray aIDs = new JsonArray ();
+      final IJsonArray aIDs = new JsonArray ();
       for (final PDStoredIdentifier aID : aDoc.m_aIdentifiers)
         aIDs.add (_getIDAsJson (aID.getScheme (), aID.getValue ()));
       if (aIDs.isNotEmpty ())
-        aEntity.add ("identifiers", aIDs);
+        aEntity.addJson ("identifiers", aIDs);
 
-      final JsonArray aWebsites = new JsonArray ();
+      final IJsonArray aWebsites = new JsonArray ();
       for (final String sWebsite : aDoc.m_aWebsiteURIs)
         aWebsites.add (sWebsite);
       if (aWebsites.isNotEmpty ())
-        aEntity.add ("websites", aWebsites);
+        aEntity.addJson ("websites", aWebsites);
 
-      final JsonArray aContacts = new JsonArray ();
+      final IJsonArray aContacts = new JsonArray ();
       for (final PDStoredContact aContact : aDoc.m_aContacts)
         aContacts.add (new JsonObject ().addIfNotNull ("type", aContact.getType ())
                                         .addIfNotNull ("name", aContact.getName ())
                                         .addIfNotNull ("phone", aContact.getPhone ())
                                         .addIfNotNull ("email", aContact.getEmail ()));
       if (aContacts.isNotEmpty ())
-        aEntity.add ("contacts", aContacts);
+        aEntity.addJson ("contacts", aContacts);
 
       if (StringHelper.hasText (aDoc.m_sAdditionalInformation))
         aEntity.add ("additionalInfo", aDoc.m_sAdditionalInformation);
@@ -397,7 +393,7 @@ public final class PDStoredBusinessEntity
         aEntity.add ("deleted", true);
       aEntities.add (aEntity);
     }
-    ret.add ("entities", aEntities);
+    ret.addJson ("entities", aEntities);
     return ret;
   }
 
@@ -492,8 +488,7 @@ public final class PDStoredBusinessEntity
       if (aBCDescription.size () != aBCEmail.size ())
         throw new IllegalStateException ("Different number of business contact descriptions and emails");
       for (int i = 0; i < aBCDescription.size (); ++i)
-        ret.contacts ()
-           .add (new PDStoredContact (aBCDescription.get (i), aBCName.get (i), aBCPhone.get (i), aBCEmail.get (i)));
+        ret.contacts ().add (new PDStoredContact (aBCDescription.get (i), aBCName.get (i), aBCPhone.get (i), aBCEmail.get (i)));
     }
 
     {
