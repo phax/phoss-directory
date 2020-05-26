@@ -27,9 +27,9 @@ import com.helger.commons.collection.impl.ICommonsMap;
 import com.helger.photon.security.CSecurity;
 import com.helger.photon.security.login.LoggedInUserManager;
 import com.helger.photon.security.mgr.PhotonSecurityManager;
-import com.helger.photon.security.role.RoleManager;
-import com.helger.photon.security.user.UserManager;
-import com.helger.photon.security.usergroup.UserGroupManager;
+import com.helger.photon.security.role.IRoleManager;
+import com.helger.photon.security.user.IUserManager;
+import com.helger.photon.security.usergroup.IUserGroupManager;
 
 @Immutable
 public final class AppSecurity
@@ -83,9 +83,9 @@ public final class AppSecurity
 
   public static void init ()
   {
-    final UserManager aUserMgr = PhotonSecurityManager.getUserMgr ();
-    final UserGroupManager aUserGroupMgr = PhotonSecurityManager.getUserGroupMgr ();
-    final RoleManager aRoleMgr = PhotonSecurityManager.getRoleMgr ();
+    final IUserManager aUserMgr = PhotonSecurityManager.getUserMgr ();
+    final IUserGroupManager aUserGroupMgr = PhotonSecurityManager.getUserGroupMgr ();
+    final IRoleManager aRoleMgr = PhotonSecurityManager.getRoleMgr ();
 
     // Standard users
     if (!aUserMgr.containsWithID (USER_ADMINISTRATOR_ID))
@@ -105,17 +105,11 @@ public final class AppSecurity
 
     // Create all roles
     if (!aRoleMgr.containsWithID (ROLE_CONFIG_ID))
-      aRoleMgr.createPredefinedRole (ROLE_CONFIG_ID,
-                                     ROLE_CONFIG_NAME,
-                                     ROLE_CONFIG_DESCRIPTION,
-                                     ROLE_CONFIG_CUSTOMATTRS);
+      aRoleMgr.createPredefinedRole (ROLE_CONFIG_ID, ROLE_CONFIG_NAME, ROLE_CONFIG_DESCRIPTION, ROLE_CONFIG_CUSTOMATTRS);
     if (!aRoleMgr.containsWithID (ROLE_VIEW_ID))
       aRoleMgr.createPredefinedRole (ROLE_VIEW_ID, ROLE_VIEW_NAME, ROLE_VIEW_DESCRIPTION, ROLE_VIEW_CUSTOMATTRS);
     if (!aRoleMgr.containsWithID (ROLE_SG_OWNER_ID))
-      aRoleMgr.createPredefinedRole (ROLE_SG_OWNER_ID,
-                                     ROLE_SG_OWNER_NAME,
-                                     ROLE_SG_OWNER_DESCRIPTION,
-                                     ROLE_SG_OWNER_CUSTOMATTRS);
+      aRoleMgr.createPredefinedRole (ROLE_SG_OWNER_ID, ROLE_SG_OWNER_NAME, ROLE_SG_OWNER_DESCRIPTION, ROLE_SG_OWNER_CUSTOMATTRS);
 
     // User group Administrators
     if (!aUserGroupMgr.containsWithID (USERGROUP_ADMINISTRATORS_ID))
