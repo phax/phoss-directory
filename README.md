@@ -2,7 +2,7 @@
 
 [![Join the chat at https://gitter.im/phax/peppol-directory](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/phax/peppol-directory?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Current release (on Maven central): **0.8.6**
+Current release (on Maven central): **0.8.7**
 
 The official Peppol Directory (PD; https://directory.peppol.eu) and TOOP Directory software (The Once-Only Project; www.toop.eu). It is split into the following sub-projects (all require Java 8 except where noted):
   * `phoss-directory-businesscard` - the common Business Card API
@@ -96,8 +96,11 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
-* v0.8.7 - work in progress
+* v0.8.7 - 2020-05-27
     * Updated to ph-commons 9.4.4
+    * Updated to new Maven groupIds
+    * Improved logging
+    * Improved resilience on identifier handling for stored entries
 * v0.8.6 - 2020-02-19
     * URL decoding participant identifiers on indexation
     * Updated to ph-commons 9.4.0
