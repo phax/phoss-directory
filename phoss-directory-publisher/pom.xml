@@ -66,11 +66,11 @@
     </dependency>
     <dependency>
       <groupId>com.helger</groupId>
-      <artifactId>ph-oton-bootstrap4-stub</artifactId>
+      <artifactId>ph-poi</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.helger</groupId>
-      <artifactId>ph-poi</artifactId>
+      <groupId>com.helger.photon</groupId>
+      <artifactId>ph-oton-bootstrap4-stub</artifactId>
     </dependency>
 
     <dependency>
@@ -99,7 +99,7 @@
     </dependency>
 
     <dependency>
-      <groupId>com.helger</groupId>
+      <groupId>com.helger.photon</groupId>
       <artifactId>ph-oton-jetty</artifactId>
       <scope>test</scope>
     </dependency>

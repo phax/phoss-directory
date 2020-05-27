@@ -66,16 +66,16 @@
       <artifactId>ph-settings</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.helger</groupId>
+      <groupId>com.helger.web</groupId>
+      <artifactId>ph-httpclient</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.helger.peppol</groupId>
       <artifactId>peppol-id</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.helger</groupId>
+      <groupId>com.helger.peppol</groupId>
       <artifactId>peppol-commons</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.helger</groupId>
-      <artifactId>ph-httpclient</artifactId>
     </dependency>
     
     <dependency>
