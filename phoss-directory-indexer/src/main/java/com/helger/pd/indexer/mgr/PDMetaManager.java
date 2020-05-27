@@ -50,6 +50,7 @@ public final class PDMetaManager extends AbstractGlobalSingleton
   private static final Logger LOGGER = LoggerFactory.getLogger (PDMetaManager.class);
 
   private static final SimpleReadWriteLock s_aRWLock = new SimpleReadWriteLock ();
+  // Read only once on startup
   private static final IIdentifierFactory s_aIF = PDServerConfiguration.getIdentifierFactory ();
   @GuardedBy ("s_aRWLock")
   private static IPDBusinessCardProvider s_aBCProvider;
@@ -78,9 +79,7 @@ public final class PDMetaManager extends AbstractGlobalSingleton
     {
       if (GlobalDebug.isProductionMode ())
       {
-        new InternalErrorBuilder ().setThrowable (ex)
-                                   .addErrorMessage (ClassHelper.getClassLocalName (this) + " init failed")
-                                   .handle ();
+        new InternalErrorBuilder ().setThrowable (ex).addErrorMessage (ClassHelper.getClassLocalName (this) + " init failed").handle ();
       }
 
       throw new InitializationException ("Failed to init " + ClassHelper.getClassLocalName (this), ex);

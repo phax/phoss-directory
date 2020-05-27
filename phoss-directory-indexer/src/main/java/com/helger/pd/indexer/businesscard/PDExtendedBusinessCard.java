@@ -61,7 +61,11 @@ public class PDExtendedBusinessCard implements Serializable
     if (aDocumentTypeIDs != null)
       for (final IDocumentTypeIdentifier aDocTypeID : aDocumentTypeIDs)
         if (aDocTypeID != null)
+        {
+          // Just enforce the same type, but no need to use the
+          // IdentifierFactory
           m_aDocumentTypeIDs.add (new SimpleDocumentTypeIdentifier (aDocTypeID));
+        }
   }
 
   /**
@@ -98,8 +102,6 @@ public class PDExtendedBusinessCard implements Serializable
   @Override
   public String toString ()
   {
-    return new ToStringGenerator (this).append ("BusinessCard", m_aBusinessCard)
-                                       .append ("DocTypeIDs", m_aDocumentTypeIDs)
-                                       .getToString ();
+    return new ToStringGenerator (this).append ("BusinessCard", m_aBusinessCard).append ("DocTypeIDs", m_aDocumentTypeIDs).getToString ();
   }
 }

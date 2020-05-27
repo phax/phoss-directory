@@ -79,6 +79,8 @@ public final class IndexerWorkItem implements IIndexerWorkItem
     m_sID = sID;
     m_aCreationDT = aCreationDT;
     // Ensure all objects have the same type
+    // No need to use the IIdentifierFactory here, since the participant is
+    // already structured
     m_aParticipantID = new SimpleParticipantIdentifier (aParticpantID);
     m_eType = eType;
     m_sOwnerID = sOwnerID;

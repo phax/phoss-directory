@@ -21,10 +21,12 @@ import java.time.LocalDateTime;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.helger.commons.string.StringHelper;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.peppolid.IParticipantIdentifier;
-import com.helger.peppolid.factory.IIdentifierFactory;
 import com.helger.peppolid.factory.SimpleIdentifierFactory;
 import com.helger.xml.microdom.IMicroElement;
 import com.helger.xml.microdom.MicroElement;
@@ -37,6 +39,8 @@ import com.helger.xml.microdom.convert.IMicroTypeConverter;
  */
 public final class IndexerWorkItemMicroTypeConverter implements IMicroTypeConverter <IndexerWorkItem>
 {
+  private static final Logger LOGGER = LoggerFactory.getLogger (IndexerWorkItemMicroTypeConverter.class);
+
   private static final String ATTR_ID = "id";
   private static final String ATTR_CREATION_DATE_TIME = "creationdt";
   private static final String ATTR_PARTICIPANT_ID = "participantid";
@@ -62,17 +66,24 @@ public final class IndexerWorkItemMicroTypeConverter implements IMicroTypeConver
   @Nullable
   public IndexerWorkItem convertToNative (@Nonnull final IMicroElement aElement)
   {
-    // For read bogus entries - we need to stick with the simple one for now.
-    final IIdentifierFactory aIdentifierFactory = true ? SimpleIdentifierFactory.INSTANCE
-                                                       : PDMetaManager.getIdentifierFactory ();
 
     final String sID = aElement.getAttributeValue (ATTR_ID);
 
-    final LocalDateTime aCreationDT = aElement.getAttributeValueWithConversion (ATTR_CREATION_DATE_TIME,
-                                                                                LocalDateTime.class);
+    final LocalDateTime aCreationDT = aElement.getAttributeValueWithConversion (ATTR_CREATION_DATE_TIME, LocalDateTime.class);
 
     final String sParticipantID = StringHelper.trim (aElement.getAttributeValue (ATTR_PARTICIPANT_ID));
-    final IParticipantIdentifier aParticipantID = aIdentifierFactory.parseParticipantIdentifier (sParticipantID);
+    IParticipantIdentifier aParticipantID = PDMetaManager.getIdentifierFactory ().parseParticipantIdentifier (sParticipantID);
+    if (aParticipantID == null)
+    {
+      LOGGER.warn ("Failed to parse '" +
+                   sParticipantID +
+                   "' with the configured IdentifierFactory: " +
+                   PDMetaManager.getIdentifierFactory ().toString ());
+
+      // For read bogus entries - we need to stick with the simple one for now.
+      // TODO hard coded use of SimpleIdentifierFactory
+      aParticipantID = SimpleIdentifierFactory.INSTANCE.parseParticipantIdentifier (sParticipantID);
+    }
     if (aParticipantID == null)
       throw new IllegalStateException ("Failed to parse participant identifier '" + sParticipantID + "'");
 

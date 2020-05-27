@@ -33,7 +33,6 @@ import org.apache.lucene.search.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.collection.multimap.IMultiMapListBased;
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.collection.ArrayHelper;
 import com.helger.commons.collection.impl.CommonsArrayList;
@@ -328,7 +327,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
                                                                                                                                            1);
 
       // Group results by participant ID
-      final IMultiMapListBased <IParticipantIdentifier, PDStoredBusinessEntity> aGroupedDocs = PDStorageManager.getGroupedByParticipantID (aResultView);
+      final ICommonsMap <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> aGroupedDocs = PDStorageManager.getGroupedByParticipantID (aResultView);
       final ZonedDateTime aNow = PDTFactory.getCurrentZonedDateTimeUTC ();
 
       // build result

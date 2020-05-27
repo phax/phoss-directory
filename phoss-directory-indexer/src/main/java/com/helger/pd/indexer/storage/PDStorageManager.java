@@ -31,8 +31,6 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.FieldType;
-import org.apache.lucene.document.IntPoint;
-import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.Term;
@@ -48,7 +46,6 @@ import org.apache.lucene.search.TotalHitCountCollector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.collection.multimap.IMultiMapListBased;
 import com.helger.collection.multimap.MultiLinkedHashMapArrayListBased;
 import com.helger.commons.CGlobal;
 import com.helger.commons.ValueEnforcer;
@@ -58,8 +55,8 @@ import com.helger.commons.collection.CollectionHelper;
 import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.CommonsTreeMap;
 import com.helger.commons.collection.impl.ICommonsList;
+import com.helger.commons.collection.impl.ICommonsMap;
 import com.helger.commons.collection.impl.ICommonsSortedMap;
-import com.helger.commons.datetime.PDTFactory;
 import com.helger.commons.datetime.PDTWebDateHelper;
 import com.helger.commons.functional.IThrowingSupplier;
 import com.helger.commons.mutable.MutableInt;
@@ -175,6 +172,12 @@ public final class PDStorageManager implements IPDStorageManager
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
     ValueEnforcer.notNull (aExtBI, "ExtBI");
     ValueEnforcer.notNull (aMetaData, "MetaData");
+
+    LOGGER.info ("Trying to create or update entry with participant ID '" +
+                 aParticipantID.getURIEncoded () +
+                 "' and " +
+                 aExtBI.getBusinessCard ().businessEntities ().size () +
+                 " entities");
 
     return m_aLucene.writeLockedAtomic ( () -> {
       final ICommonsList <Document> aDocs = new CommonsArrayList <> ();
@@ -303,67 +306,8 @@ public final class PDStorageManager implements IPDStorageManager
       m_aLucene.updateDocuments (PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID), aDocs);
 
       LOGGER.info ("Added " + aDocs.size () + " Lucene documents");
-      AuditHelper.onAuditExecuteSuccess ("pd-indexer-create",
-                                         aParticipantID.getURIEncoded (),
-                                         Integer.valueOf (aDocs.size ()),
-                                         aMetaData);
+      AuditHelper.onAuditExecuteSuccess ("pd-indexer-create", aParticipantID.getURIEncoded (), Integer.valueOf (aDocs.size ()), aMetaData);
     });
-  }
-
-  @Nonnull
-  public ESuccess markEntryDeleted (@Nonnull final IParticipantIdentifier aParticipantID,
-                                    @Nullable final PDStoredMetaData aMetaData) throws IOException
-  {
-    ValueEnforcer.notNull (aParticipantID, "ParticipantID");
-
-    LOGGER.info ("Trying to mark entry with participant ID '" + aParticipantID.getURIEncoded () + "' as deleted");
-
-    final MutableInt aDeletedDocCount = new MutableInt (-1);
-    if (m_aLucene.writeLockedAtomic ( () -> {
-      final ICommonsList <Document> aDocuments = new CommonsArrayList <> ();
-      final Term aTerm = PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID);
-
-      // Get all documents to be marked as deleted
-      final IndexSearcher aSearcher = m_aLucene.getSearcher ();
-      if (aSearcher != null)
-      {
-        // Main searching
-        final Query aQuery = new TermQuery (aTerm);
-        _timedSearch ( () -> aSearcher.search (aQuery,
-                                               new AllDocumentsCollector (m_aLucene,
-                                                                          (aDoc, nDocID) -> aDocuments.add (aDoc))),
-                       aQuery);
-        if (LOGGER.isDebugEnabled ())
-          LOGGER.debug ("Found " + aDocuments.size () + " deletable docs using search query '" + aQuery + "'");
-      }
-
-      if (aDocuments.isNotEmpty ())
-      {
-        // Mark document as deleted
-        aDocuments.forEach (aDocument -> {
-          // Avoid adding things over and over
-          aDocument.removeFields (CPDStorage.FIELD_DELETED);
-          // Indexed but not stored
-          aDocument.add (new IntPoint (CPDStorage.FIELD_DELETED, 1));
-          // Stored but not indexed
-          aDocument.add (new StoredField (CPDStorage.FIELD_DELETED, PDTFactory.getCurrentLocalDateTime ().toString ()));
-        });
-
-        // Update the documents
-        m_aLucene.updateDocuments (aTerm, aDocuments);
-      }
-      aDeletedDocCount.set (aDocuments.size ());
-    }).isFailure ())
-    {
-      return ESuccess.FAILURE;
-    }
-
-    LOGGER.info ("Marked " + aDeletedDocCount.intValue () + " Lucene documents as deleted");
-    AuditHelper.onAuditExecuteSuccess ("pd-indexer-mark-deleted",
-                                       aParticipantID.getURIEncoded (),
-                                       Integer.valueOf (aDeletedDocCount.intValue ()),
-                                       aMetaData);
-    return ESuccess.SUCCESS;
   }
 
   @Nonnull
@@ -373,6 +317,7 @@ public final class PDStorageManager implements IPDStorageManager
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
 
     LOGGER.info ("Trying to delete entry with participant ID '" + aParticipantID.getURIEncoded () + "'");
+
     final Term aTerm = PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID);
     final int nCount = getCount (new TermQuery (aTerm));
     if (m_aLucene.writeLockedAtomic ( () -> {
@@ -384,10 +329,7 @@ public final class PDStorageManager implements IPDStorageManager
     }
 
     LOGGER.info ("Deleted " + nCount + " docs from the index using the term '" + aTerm + "'");
-    AuditHelper.onAuditExecuteSuccess ("pd-indexer-delete",
-                                       aParticipantID.getURIEncoded (),
-                                       Integer.valueOf (nCount),
-                                       aMetaData);
+    AuditHelper.onAuditExecuteSuccess ("pd-indexer-delete", aParticipantID.getURIEncoded (), Integer.valueOf (nCount), aMetaData);
     return ESuccess.SUCCESS;
   }
 
@@ -545,8 +487,7 @@ public final class PDStorageManager implements IPDStorageManager
    */
   @Nonnull
   @ReturnsMutableCopy
-  public ICommonsList <PDStoredBusinessEntity> getAllDocuments (@Nonnull final Query aQuery,
-                                                                @CheckForSigned final int nMaxResultCount)
+  public ICommonsList <PDStoredBusinessEntity> getAllDocuments (@Nonnull final Query aQuery, @CheckForSigned final int nMaxResultCount)
   {
     final ICommonsList <PDStoredBusinessEntity> aTargetList = new CommonsArrayList <> ();
     try
@@ -607,7 +548,7 @@ public final class PDStorageManager implements IPDStorageManager
    */
   @Nonnull
   @ReturnsMutableCopy
-  public static IMultiMapListBased <IParticipantIdentifier, PDStoredBusinessEntity> getGroupedByParticipantID (@Nonnull final Iterable <PDStoredBusinessEntity> aDocs)
+  public static ICommonsMap <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> getGroupedByParticipantID (@Nonnull final Iterable <PDStoredBusinessEntity> aDocs)
   {
     final MultiLinkedHashMapArrayListBased <IParticipantIdentifier, PDStoredBusinessEntity> ret = new MultiLinkedHashMapArrayListBased <> ();
     for (final PDStoredBusinessEntity aDoc : aDocs)

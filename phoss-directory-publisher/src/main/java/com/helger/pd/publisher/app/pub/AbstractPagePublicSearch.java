@@ -26,11 +26,11 @@ import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.collection.multimap.IMultiMapListBased;
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.ICommonsList;
+import com.helger.commons.collection.impl.ICommonsMap;
 import com.helger.commons.id.IHasID;
 import com.helger.commons.lang.EnumHelper;
 import com.helger.commons.string.StringHelper;
@@ -162,20 +162,15 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
     final HCNodeList aDetails = new HCNodeList ();
 
     // Search document matching participant ID
-    final ICommonsList <PDStoredBusinessEntity> aResultDocs = PDMetaManager.getStorageMgr ()
-                                                                           .getAllDocumentsOfParticipant (aParticipantID);
+    final ICommonsList <PDStoredBusinessEntity> aResultDocs = PDMetaManager.getStorageMgr ().getAllDocumentsOfParticipant (aParticipantID);
     // Group by participant ID
-    final IMultiMapListBased <IParticipantIdentifier, PDStoredBusinessEntity> aGroupedDocs = PDStorageManager.getGroupedByParticipantID (aResultDocs);
+    final ICommonsMap <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> aGroupedDocs = PDStorageManager.getGroupedByParticipantID (aResultDocs);
     if (aGroupedDocs.isEmpty ())
       LOGGER.error ("No stored document matches participant identifier '" + sParticipantID + "'");
     else
     {
       if (aGroupedDocs.size () > 1)
-        LOGGER.warn ("Found " +
-                     aGroupedDocs.size () +
-                     " entries for participant identifier '" +
-                     sParticipantID +
-                     "' - weird");
+        LOGGER.warn ("Found " + aGroupedDocs.size () + " entries for participant identifier '" + sParticipantID + "' - weird");
       // Get the first one
       final ICommonsList <PDStoredBusinessEntity> aStoredEntities = aGroupedDocs.getFirstValue ();
 
@@ -215,8 +210,7 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
           if (aStoredEntities.size () > 1)
             aCard.createAndAddHeader ().addChild ("Business information entity " + nIndex);
           final BootstrapViewForm aViewForm = PDCommonUI.showBusinessInfoDetails (aStoredEntity, aDisplayLocale);
-          aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Full Peppol participant ID")
-                                                           .setCtrl (code (sParticipantID)));
+          aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Full Peppol participant ID").setCtrl (code (sParticipantID)));
           aCard.createAndAddBody ().addChild (aViewForm);
           ++nIndex;
         }
@@ -251,10 +245,7 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
         if (aDocTypeOL == null)
           aDocTypeCtrl.addChild (warn ("This participant does not support any document types!"));
 
-        aTabBox.addTab ("doctypes",
-                        span ("Supported document types ").addChild (badgePrimary (aDocTypeIDs.size ())),
-                        aDocTypeCtrl,
-                        false);
+        aTabBox.addTab ("doctypes", span ("Supported document types ").addChild (badgePrimary (aDocTypeIDs.size ())), aDocTypeCtrl, false);
       }
       aDetails.addChild (aTabBox);
     }

@@ -190,14 +190,15 @@ public final class AppWebAppListener extends WebAppListenerBootstrap
   protected void initJobs ()
   {
     // In production: avoid creating too much load directly after startup
+    final boolean bDebug = GlobalDebug.isDebugMode ();
     m_aExportJobTrigger = GlobalQuartzScheduler.getInstance ()
                                                .scheduleJob (ExportAllDataJob.class.getName (),
                                                              JDK8TriggerBuilder.newTrigger ()
-                                                                               .startAt (GlobalDebug.isDebugMode () ? PDTFactory.getCurrentLocalDateTime ()
-                                                                                                                    : PDTFactory.getCurrentLocalDateTime ()
-                                                                                                                                .plusHours (1))
-                                                                               .withSchedule (GlobalDebug.isDebugMode () ? SimpleScheduleBuilder.repeatMinutelyForever (2)
-                                                                                                                         : SimpleScheduleBuilder.repeatHourlyForever (24)),
+                                                                               .startAt (bDebug ? PDTFactory.getCurrentLocalDateTime ()
+                                                                                                : PDTFactory.getCurrentLocalDateTime ()
+                                                                                                            .plusHours (1))
+                                                                               .withSchedule (bDebug ? SimpleScheduleBuilder.repeatMinutelyForever (2)
+                                                                                                     : SimpleScheduleBuilder.repeatHourlyForever (24)),
                                                              ExportAllDataJob.class,
                                                              null);
 

@@ -87,7 +87,7 @@ public final class PDStoredBusinessEntity
     return m_aParticipantID;
   }
 
-  public void setParticipantID (@Nonnull final IParticipantIdentifier aParticipantID)
+  void setParticipantID (@Nonnull final IParticipantIdentifier aParticipantID)
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
     m_aParticipantID = aParticipantID;
@@ -111,7 +111,7 @@ public final class PDStoredBusinessEntity
     return StringHelper.hasText (m_sCountryCode);
   }
 
-  public void setCountryCode (@Nullable final String sCountryCode)
+  void setCountryCode (@Nullable final String sCountryCode)
   {
     m_sCountryCode = sCountryCode;
   }
@@ -127,7 +127,7 @@ public final class PDStoredBusinessEntity
     return StringHelper.hasText (m_sGeoInfo);
   }
 
-  public void setGeoInfo (@Nullable final String sGeoInfo)
+  void setGeoInfo (@Nullable final String sGeoInfo)
   {
     m_sGeoInfo = sGeoInfo;
   }
@@ -164,7 +164,7 @@ public final class PDStoredBusinessEntity
     return StringHelper.hasText (m_sAdditionalInformation);
   }
 
-  public void setAdditionalInformation (@Nullable final String sAdditionalInformation)
+  void setAdditionalInformation (@Nullable final String sAdditionalInformation)
   {
     m_sAdditionalInformation = sAdditionalInformation;
   }
@@ -180,7 +180,7 @@ public final class PDStoredBusinessEntity
     return m_aRegistrationDate != null;
   }
 
-  public void setRegistrationDate (@Nullable final LocalDate aRegistrationDate)
+  void setRegistrationDate (@Nullable final LocalDate aRegistrationDate)
   {
     m_aRegistrationDate = aRegistrationDate;
   }
@@ -198,7 +198,7 @@ public final class PDStoredBusinessEntity
     return m_aMetaData;
   }
 
-  public void setMetaData (@Nonnull final PDStoredMetaData aMetaData)
+  void setMetaData (@Nonnull final PDStoredMetaData aMetaData)
   {
     ValueEnforcer.notNull (aMetaData, "MetaData");
     m_aMetaData = aMetaData;
@@ -209,7 +209,7 @@ public final class PDStoredBusinessEntity
     return m_bDeleted;
   }
 
-  public void setDeleted (final boolean bDeleted)
+  void setDeleted (final boolean bDeleted)
   {
     m_bDeleted = bDeleted;
   }
@@ -477,18 +477,18 @@ public final class PDStoredBusinessEntity
       ret.websiteURIs ().add (sWebSite);
 
     {
-      final ICommonsList <String> aBCDescription = PDField.CONTACT_TYPE.getDocValues (aDoc);
+      final ICommonsList <String> aBCTypes = PDField.CONTACT_TYPE.getDocValues (aDoc);
       final ICommonsList <String> aBCName = PDField.CONTACT_NAME.getDocValues (aDoc);
       final ICommonsList <String> aBCPhone = PDField.CONTACT_PHONE.getDocValues (aDoc);
       final ICommonsList <String> aBCEmail = PDField.CONTACT_EMAIL.getDocValues (aDoc);
-      if (aBCDescription.size () != aBCName.size ())
-        throw new IllegalStateException ("Different number of business contact descriptions and names");
-      if (aBCDescription.size () != aBCPhone.size ())
-        throw new IllegalStateException ("Different number of business contact descriptions and phones");
-      if (aBCDescription.size () != aBCEmail.size ())
-        throw new IllegalStateException ("Different number of business contact descriptions and emails");
-      for (int i = 0; i < aBCDescription.size (); ++i)
-        ret.contacts ().add (new PDStoredContact (aBCDescription.get (i), aBCName.get (i), aBCPhone.get (i), aBCEmail.get (i)));
+      if (aBCTypes.size () != aBCName.size ())
+        throw new IllegalStateException ("Different number of business contact types and names");
+      if (aBCTypes.size () != aBCPhone.size ())
+        throw new IllegalStateException ("Different number of business contact types and phones");
+      if (aBCTypes.size () != aBCEmail.size ())
+        throw new IllegalStateException ("Different number of business contact types and emails");
+      for (int i = 0; i < aBCTypes.size (); ++i)
+        ret.contacts ().add (new PDStoredContact (aBCTypes.get (i), aBCName.get (i), aBCPhone.get (i), aBCEmail.get (i)));
     }
 
     {

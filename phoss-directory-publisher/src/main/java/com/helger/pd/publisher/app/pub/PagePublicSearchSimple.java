@@ -27,9 +27,9 @@ import org.apache.lucene.search.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.collection.multimap.IMultiMapListBased;
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.collection.impl.ICommonsList;
+import com.helger.commons.collection.impl.ICommonsMap;
 import com.helger.commons.locale.country.CountryCache;
 import com.helger.commons.string.StringHelper;
 import com.helger.css.property.CCSSProperties;
@@ -190,7 +190,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
                    (nTotalBEs >= 0 ? " " + nTotalBEs + " total hits are available." : ""));
 
     // Group by participant ID
-    final IMultiMapListBased <IParticipantIdentifier, PDStoredBusinessEntity> aGroupedBEs = PDStorageManager.getGroupedByParticipantID (aResultBEs);
+    final ICommonsMap <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> aGroupedBEs = PDStorageManager.getGroupedByParticipantID (aResultBEs);
 
     // Display results
     if (aGroupedBEs.isEmpty ())
