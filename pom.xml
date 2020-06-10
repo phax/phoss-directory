@@ -64,7 +64,7 @@
   <properties>
     <!-- Don't change below 6.x - otherwise data maybe lost! -->
     <!-- Don't go beyond v7, otherwise the backwards compatibility is lost -->
-    <lucene.version>7.7.2</lucene.version>
+    <lucene.version>7.7.3</lucene.version>
     <!--  
     <lucene.version>8.1.1</lucene.version>
     -->
