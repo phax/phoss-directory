@@ -42,7 +42,9 @@ import com.helger.httpclient.HttpClientManager;
 import com.helger.peppolid.IParticipantIdentifier;
 
 /**
- * This class is used for calling the PD indexer REST interface.
+ * This class is used for calling the PD indexer REST interface. The only part
+ * that concerns the configuration file is in the {@link PDHttpClientSettings}
+ * used to customoze the HTTP connectivity.
  *
  * @author Philip Helger
  */
@@ -68,7 +70,7 @@ public class PDClient implements Closeable
   private final String m_sPDIndexerURI;
   private IPDClientExceptionCallback m_aExceptionHdl = _createDefaultExCb ();
 
-  // Important to use the PDHttpClientFactory
+  // Important to use the PDHttpClientSettings internally
   private HttpClientManager m_aHttpClientMgr;
 
   /**
@@ -199,8 +201,7 @@ public class PDClient implements Closeable
    */
   @Nonnull
   @OverrideOnDemand
-  protected <T> T executeRequest (@Nonnull final HttpRequestBase aRequest,
-                                  @Nonnull final ResponseHandler <T> aHandler) throws IOException
+  protected <T> T executeRequest (@Nonnull final HttpRequestBase aRequest, @Nonnull final ResponseHandler <T> aHandler) throws IOException
   {
     return m_aHttpClientMgr.execute (aRequest, aHandler);
   }
@@ -244,9 +245,7 @@ public class PDClient implements Closeable
     {
       if (executeRequest (aPut, new PDClientResponseHandler ()).isSuccess ())
       {
-        LOGGER.info ("Added service group '" +
-                     sParticipantID +
-                     "' to Peppol Directory index. May take some time until it shows up.");
+        LOGGER.info ("Added service group '" + sParticipantID + "' to Peppol Directory index. May take some time until it shows up.");
         return ESuccess.SUCCESS;
       }
     }
@@ -268,9 +267,7 @@ public class PDClient implements Closeable
       if (executeRequest (aDelete, new PDClientResponseHandler ()).isSuccess ())
       {
         final String sParticipantID = aParticipantID.getURIEncoded ();
-        LOGGER.info ("Removed service group '" +
-                     sParticipantID +
-                     "' from Peppol Directory index. May take some time until it is removed.");
+        LOGGER.info ("Removed service group '" + sParticipantID + "' from Peppol Directory index. May take some time until it is removed.");
         return ESuccess.SUCCESS;
       }
     }

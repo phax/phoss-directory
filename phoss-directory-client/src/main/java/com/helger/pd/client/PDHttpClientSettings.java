@@ -56,11 +56,12 @@ public class PDHttpClientSettings extends HttpClientSettings
   }
 
   /**
-   * Overwrite all settings that can appear in the configuration file.
+   * Overwrite all settings that can appear in the configuration file
+   * "pd-client.properties".
    *
    * @param sTargetURI
    *        The target URI to connect to. Makes a difference if this is "http"
-   *        or "https". MAy neither be <code>null</code> nor empty.
+   *        or "https". May neither be <code>null</code> nor empty.
    */
   public final void resetToConfiguration (@Nonnull @Nonempty final String sTargetURI)
   {
@@ -68,10 +69,8 @@ public class PDHttpClientSettings extends HttpClientSettings
     final boolean bUseHttps = EURLProtocol.HTTPS.isUsedInURL (sTargetURI);
 
     // Proxy host
-    final String sProxyHost = bUseHttps ? PDClientConfiguration.getHttpsProxyHost ()
-                                        : PDClientConfiguration.getHttpProxyHost ();
-    final int nProxyPort = bUseHttps ? PDClientConfiguration.getHttpsProxyPort ()
-                                     : PDClientConfiguration.getHttpProxyPort ();
+    final String sProxyHost = bUseHttps ? PDClientConfiguration.getHttpsProxyHost () : PDClientConfiguration.getHttpProxyHost ();
+    final int nProxyPort = bUseHttps ? PDClientConfiguration.getHttpsProxyPort () : PDClientConfiguration.getHttpProxyPort ();
     if (sProxyHost != null && nProxyPort > 0)
     {
       LOGGER.info ("PD client uses proxy host");
@@ -118,8 +117,7 @@ public class PDHttpClientSettings extends HttpClientSettings
           final LoadedKey <PrivateKeyEntry> aLoadedKey = PDClientConfiguration.loadPrivateKey (aLoadedKeyStore.getKeyStore ());
           if (aLoadedKey.isFailure ())
           {
-            LOGGER.error ("PD client failed to initialize key from keystore. Details: " +
-                          PeppolKeyStoreHelper.getLoadError (aLoadedKey));
+            LOGGER.error ("PD client failed to initialize key from keystore. Details: " + PeppolKeyStoreHelper.getLoadError (aLoadedKey));
           }
           else
             LOGGER.info ("PD client key successfully loaded");
@@ -138,9 +136,7 @@ public class PDHttpClientSettings extends HttpClientSettings
           final PrivateKeyStrategy aPKS = new PrivateKeyStrategyFromAliasCaseInsensitive (PDClientConfiguration.getKeyStoreKeyAlias ());
           final TrustStrategy aTS = new TrustStrategyTrustAll ();
           setSSLContext (SSLContexts.custom ()
-                                    .loadKeyMaterial (aLoadedKeyStore.getKeyStore (),
-                                                      PDClientConfiguration.getKeyStoreKeyPassword (),
-                                                      aPKS)
+                                    .loadKeyMaterial (aLoadedKeyStore.getKeyStore (), PDClientConfiguration.getKeyStoreKeyPassword (), aPKS)
                                     .loadTrustMaterial (aLoadedTrustStore.getKeyStore (), aTS)
                                     .build ());
           LOGGER.info ("PD client successfully set SSL context");
