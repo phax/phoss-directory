@@ -48,9 +48,7 @@ public final class ReIndexWorkItemMicroTypeConverter implements IMicroTypeConver
                                               @Nonnull final String sTagName)
   {
     final IMicroElement aElement = new MicroElement (sNamespaceURI, sTagName);
-    aElement.appendChild (MicroTypeConverter.convertToMicroElement (aValue.getWorkItem (),
-                                                                    sNamespaceURI,
-                                                                    ELEMENT_WORK_ITEM));
+    aElement.appendChild (MicroTypeConverter.convertToMicroElement (aValue.getWorkItem (), sNamespaceURI, ELEMENT_WORK_ITEM));
     aElement.setAttributeWithConversion (ATTR_MAX_RETRY_DT, aValue.getMaxRetryDT ());
     aElement.setAttribute (ATTR_RETRY_COUNT, aValue.getRetryCount ());
     aElement.setAttributeWithConversion (ATTR_PREVIOUS_RETRY_DT, aValue.getPreviousRetryDT ());
@@ -71,11 +69,9 @@ public final class ReIndexWorkItemMicroTypeConverter implements IMicroTypeConver
     if (nRetryCount < 0)
       throw new IllegalStateException ("Invalid retry count '" + sRetryCount + "'");
 
-    final LocalDateTime aPreviousRetryDT = aElement.getAttributeValueWithConversion (ATTR_PREVIOUS_RETRY_DT,
-                                                                                     LocalDateTime.class);
+    final LocalDateTime aPreviousRetryDT = aElement.getAttributeValueWithConversion (ATTR_PREVIOUS_RETRY_DT, LocalDateTime.class);
 
-    final LocalDateTime aNextRetryDT = aElement.getAttributeValueWithConversion (ATTR_NEXT_RETRY_DT,
-                                                                                 LocalDateTime.class);
+    final LocalDateTime aNextRetryDT = aElement.getAttributeValueWithConversion (ATTR_NEXT_RETRY_DT, LocalDateTime.class);
 
     return new ReIndexWorkItem (aWorkItem, aMaxRetryDT, nRetryCount, aPreviousRetryDT, aNextRetryDT);
   }

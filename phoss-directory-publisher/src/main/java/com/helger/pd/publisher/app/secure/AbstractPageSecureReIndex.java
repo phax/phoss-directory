@@ -71,9 +71,7 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
 
   private final boolean m_bDeadIndex;
 
-  public AbstractPageSecureReIndex (@Nonnull @Nonempty final String sID,
-                                    @Nonnull final String sName,
-                                    final boolean bDeadIndex)
+  public AbstractPageSecureReIndex (@Nonnull @Nonempty final String sID, @Nonnull final String sName, final boolean bDeadIndex)
   {
     super (sID, sName);
     m_bDeadIndex = bDeadIndex;
@@ -88,14 +86,11 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
       }
 
       @Override
-      protected void performAction (@Nonnull final WebPageExecutionContext aWPEC,
-                                    @Nonnull final IReIndexWorkItem aSelectedObject)
+      protected void performAction (@Nonnull final WebPageExecutionContext aWPEC, @Nonnull final IReIndexWorkItem aSelectedObject)
       {
         if (getReIndexWorkItemList ().deleteItem (aSelectedObject.getID ()).isChanged ())
         {
-          aWPEC.postRedirectGetInternal (success ("The item " +
-                                                  aSelectedObject.getDisplayName () +
-                                                  " was successfully deleted!"));
+          aWPEC.postRedirectGetInternal (success ("The item " + aSelectedObject.getDisplayName () + " was successfully deleted!"));
         }
         else
         {
@@ -117,8 +112,7 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
                         }
 
                         @Override
-                        protected void performAction (final WebPageExecutionContext aWPEC,
-                                                      final IReIndexWorkItem aSelectedObject)
+                        protected void performAction (final WebPageExecutionContext aWPEC, final IReIndexWorkItem aSelectedObject)
                         {
                           if (getReIndexWorkItemList ().deleteAllItems ().isChanged ())
                             aWPEC.postRedirectGetInternal (success ("Successfully deleted all items."));
@@ -127,35 +121,32 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
                         }
 
                       });
-    addCustomHandler (ACTION_REINDEX_NOW,
-                      new AbstractBootstrapWebPageActionHandler <IReIndexWorkItem, WebPageExecutionContext> (true)
-                      {
-                        @Nonnull
-                        public EShowList handleAction (@Nonnull final WebPageExecutionContext aWPEC,
-                                                       @Nonnull final IReIndexWorkItem aSelectedObject)
-                        {
-                          final IParticipantIdentifier aParticipantID = aSelectedObject.getWorkItem ()
-                                                                                       .getParticipantID ();
-                          if (PDMetaManager.getIndexerMgr ()
-                                           .queueWorkItem (aParticipantID,
-                                                           EIndexerWorkItemType.CREATE_UPDATE,
-                                                           "manually-triggered",
-                                                           PDIndexerManager.HOST_LOCALHOST)
-                                           .isChanged ())
-                          {
-                            aWPEC.postRedirectGetInternal (success ("The re-indexing of participant ID '" +
-                                                                    aParticipantID.getURIEncoded () +
-                                                                    "' was successfully triggered!"));
-                          }
-                          else
-                          {
-                            aWPEC.postRedirectGetInternal (warn ("Participant ID '" +
-                                                                 aParticipantID.getURIEncoded () +
-                                                                 "' is already in the indexing queue!"));
-                          }
-                          return EShowList.SHOW_LIST;
-                        }
-                      });
+    addCustomHandler (ACTION_REINDEX_NOW, new AbstractBootstrapWebPageActionHandler <IReIndexWorkItem, WebPageExecutionContext> (true)
+    {
+      @Nonnull
+      public EShowList handleAction (@Nonnull final WebPageExecutionContext aWPEC, @Nonnull final IReIndexWorkItem aSelectedObject)
+      {
+        final IParticipantIdentifier aParticipantID = aSelectedObject.getWorkItem ().getParticipantID ();
+        if (PDMetaManager.getIndexerMgr ()
+                         .queueWorkItem (aParticipantID,
+                                         EIndexerWorkItemType.CREATE_UPDATE,
+                                         "manually-triggered",
+                                         PDIndexerManager.HOST_LOCALHOST)
+                         .isChanged ())
+        {
+          aWPEC.postRedirectGetInternal (success ("The re-indexing of participant ID '" +
+                                                  aParticipantID.getURIEncoded () +
+                                                  "' was successfully triggered!"));
+        }
+        else
+        {
+          aWPEC.postRedirectGetInternal (warn ("Participant ID '" +
+                                               aParticipantID.getURIEncoded () +
+                                               "' is already in the indexing queue!"));
+        }
+        return EShowList.SHOW_LIST;
+      }
+    });
   }
 
   @Nonnull
@@ -180,8 +171,7 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
   }
 
   @Override
-  protected void showSelectedObject (@Nonnull final WebPageExecutionContext aWPEC,
-                                     @Nonnull final IReIndexWorkItem aSelectedObject)
+  protected void showSelectedObject (@Nonnull final WebPageExecutionContext aWPEC, @Nonnull final IReIndexWorkItem aSelectedObject)
   {
     final HCNodeList aNodeList = aWPEC.getNodeList ();
     final Locale aDisplayLocale = aWPEC.getDisplayLocale ();
@@ -192,10 +182,8 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
 
     final BootstrapViewForm aViewForm = aNodeList.addAndReturnChild (new BootstrapViewForm ());
     aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Creation datetime")
-                                                     .setCtrl (PDTToString.getAsString (aWorkItem.getCreationDateTime (),
-                                                                                        aDisplayLocale)));
-    aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Participant ID")
-                                                     .setCtrl (aParticipantID.getURIEncoded ()));
+                                                     .setCtrl (PDTToString.getAsString (aWorkItem.getCreationDateTime (), aDisplayLocale)));
+    aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Participant ID").setCtrl (aParticipantID.getURIEncoded ()));
 
     final String sBCSuffix = "/businesscard/" + aParticipantID.getURIPercentEncoded ();
     {
@@ -206,8 +194,7 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
           aURLs.addChild (div ("or"));
         try
         {
-          aURLs.addChild (div (HCA.createLinkedWebsite (aURLProvider.getSMPURIOfParticipant (aParticipantID, aSMLInfo)
-                                                                    .toString () +
+          aURLs.addChild (div (HCA.createLinkedWebsite (aURLProvider.getSMPURIOfParticipant (aParticipantID, aSMLInfo).toString () +
                                                         sBCSuffix)));
         }
         catch (final PeppolDNSResolutionException ex)
@@ -225,11 +212,9 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
       }
       aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Business Card URL").setCtrl (aURLs));
     }
-    aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Action type")
-                                                     .setCtrl (aWorkItem.getType ().getDisplayName ()));
+    aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Action type").setCtrl (aWorkItem.getType ().getDisplayName ()));
     aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Owner").setCtrl (aWorkItem.getOwnerID ()));
-    aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Requesting host")
-                                                     .setCtrl (aWorkItem.getRequestingHost ()));
+    aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Requesting host").setCtrl (aWorkItem.getRequestingHost ()));
     aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Retries so far")
                                                      .setCtrl (Integer.toString (aSelectedObject.getRetryCount ())));
     if (aSelectedObject.hasPreviousRetryDT ())
@@ -241,8 +226,7 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
                                                        .setCtrl (PDTToString.getAsString (aSelectedObject.getNextRetryDT (),
                                                                                           aDisplayLocale)));
     aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Last retry")
-                                                     .setCtrl (PDTToString.getAsString (aSelectedObject.getMaxRetryDT (),
-                                                                                        aDisplayLocale)));
+                                                     .setCtrl (PDTToString.getAsString (aSelectedObject.getMaxRetryDT (), aDisplayLocale)));
   }
 
   @Override
@@ -274,13 +258,10 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
     // Add toolbar
     {
       final BootstrapButtonToolbar aToolbar = aNodeList.addAndReturnChild (new BootstrapButtonToolbar (aWPEC));
-      aToolbar.addChild (new BootstrapButton ().addChild ("Refresh")
-                                               .setIcon (EDefaultIcon.REFRESH)
-                                               .setOnClick (aWPEC.getSelfHref ()));
+      aToolbar.addChild (new BootstrapButton ().addChild ("Refresh").setIcon (EDefaultIcon.REFRESH).setOnClick (aWPEC.getSelfHref ()));
       aToolbar.addChild (new BootstrapButton ().addChild ("Delete all entries")
                                                .setIcon (EDefaultIcon.DELETE)
-                                               .setOnClick (aWPEC.getSelfHref ()
-                                                                 .add (CPageParam.PARAM_ACTION, ACTION_DELETE_ALL)));
+                                               .setOnClick (aWPEC.getSelfHref ().add (CPageParam.PARAM_ACTION, ACTION_DELETE_ALL)));
       aToolbar.addChild (span ("Current server time: " +
                                PDTToString.getAsString (PDTFactory.getCurrentLocalTime (), aDisplayLocale))
                                                                                                            .addClass (PDCommonUI.CSS_CLASS_VERTICAL_PADDED_TEXT));
@@ -291,9 +272,7 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
                                         new DTCol ("Participant"),
                                         new DTCol ("Action"),
                                         new DTCol ("Retries").setDisplayType (EDTColType.INT, aDisplayLocale),
-                                        m_bDeadIndex ? null
-                                                     : new DTCol ("Next retry").setDisplayType (EDTColType.DATETIME,
-                                                                                                aDisplayLocale),
+                                        m_bDeadIndex ? null : new DTCol ("Next retry").setDisplayType (EDTColType.DATETIME, aDisplayLocale),
                                         new DTCol ("Last retry").setDisplayType (EDTColType.DATETIME, aDisplayLocale),
                                         new BootstrapDTColAction (aDisplayLocale)).setID (getID ());
 
@@ -303,8 +282,7 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
       final IIndexerWorkItem aWorkItem = aItem.getWorkItem ();
 
       final HCRow aRow = aTable.addBodyRow ();
-      aRow.addCell (new HCA (aViewLink).addChild (PDTToString.getAsString (aWorkItem.getCreationDateTime (),
-                                                                           aDisplayLocale)));
+      aRow.addCell (new HCA (aViewLink).addChild (PDTToString.getAsString (aWorkItem.getCreationDateTime (), aDisplayLocale)));
       aRow.addCell (aWorkItem.getParticipantID ().getURIEncoded ());
       aRow.addCell (aWorkItem.getType ().getDisplayName ());
       aRow.addCell (Integer.toString (aItem.getRetryCount ()));
@@ -317,8 +295,7 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
       {
         aActionCell.addChild (new HCA (aWPEC.getSelfHref ()
                                             .add (CPageParam.PARAM_ACTION, ACTION_REINDEX_NOW)
-                                            .add (CPageParam.PARAM_OBJECT, aItem.getID ()))
-                                                                                           .setTitle ("Re-index the entry now")
+                                            .add (CPageParam.PARAM_OBJECT, aItem.getID ())).setTitle ("Re-index the entry now")
                                                                                            .addChild (EDefaultIcon.NEXT.getAsNode ()));
         aActionCell.addChild (" ");
       }

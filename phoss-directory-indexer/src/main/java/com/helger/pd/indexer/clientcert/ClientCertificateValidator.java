@@ -153,11 +153,7 @@ public final class ClientCertificateValidator
       // Check if both root certificates could be loaded
       if (aCert == null)
       {
-        final String sMsg = "Failed to resolve alias '" +
-                            aTS.getAlias () +
-                            "' in trust store '" +
-                            aTS.getPath () +
-                            "'!";
+        final String sMsg = "Failed to resolve alias '" + aTS.getAlias () + "' in trust store '" + aTS.getPath () + "'!";
         LOGGER.error (sMsg);
         throw new InitializationException (sMsg);
       }
@@ -365,10 +361,7 @@ public final class ClientCertificateValidator
         if (s_aAllowedCertificateIssuers.contains (aIssuer))
         {
           if (LOGGER.isInfoEnabled ())
-            LOGGER.info (sLogPrefix +
-                         "  Using the following client certificate issuer for verification: '" +
-                         aIssuer +
-                         "'");
+            LOGGER.info (sLogPrefix + "  Using the following client certificate issuer for verification: '" + aIssuer + "'");
           aClientCertToVerify = aCert;
           break;
         }

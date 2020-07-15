@@ -41,8 +41,7 @@ import com.helger.photon.app.dao.AbstractPhotonMapBasedWALDAO;
  * @author Philip Helger
  */
 @ThreadSafe
-public final class ReIndexWorkItemList extends AbstractPhotonMapBasedWALDAO <IReIndexWorkItem, ReIndexWorkItem>
-                                       implements
+public final class ReIndexWorkItemList extends AbstractPhotonMapBasedWALDAO <IReIndexWorkItem, ReIndexWorkItem> implements
                                        IReIndexWorkItemList
 {
   private static final Logger LOGGER = LoggerFactory.getLogger (ReIndexWorkItemList.class);

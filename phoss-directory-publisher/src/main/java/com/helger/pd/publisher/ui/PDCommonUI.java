@@ -106,8 +106,7 @@ public final class PDCommonUI
                                                                   @Nonnull final Locale aDisplayLocale)
   {
     final String sDisplayLanguage = LocaleHelper.getValidLanguageCode (aDisplayLocale.getLanguage ());
-    ICommonsList <PDStoredMLName> ret = CommonsArrayList.createFiltered (aNames,
-                                                                         x -> x.hasLanguageCode (sDisplayLanguage));
+    ICommonsList <PDStoredMLName> ret = CommonsArrayList.createFiltered (aNames, x -> x.hasLanguageCode (sDisplayLanguage));
     if (ret.isEmpty ())
     {
       // Filter matched no entry - take all names
@@ -282,8 +281,7 @@ public final class PDCommonUI
                 .addCell (new HCTextNode (PDTToString.getAsString (aNotAfter, aDisplayLocale)),
                           aNowLDT.isAfter (aNotAfter) ? new HCStrong ().addChild (" !!!NO LONGER VALID!!!")
                                                       : new HCDiv ().addChild ("Valid for: " +
-                                                                               PDTDisplayHelper.getPeriodTextEN (aNowLDT,
-                                                                                                                 aNotAfter)));
+                                                                               PDTDisplayHelper.getPeriodTextEN (aNowLDT, aNotAfter)));
 
     if (aPublicKey instanceof RSAPublicKey)
     {

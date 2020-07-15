@@ -56,9 +56,7 @@ public class PDWorkerPool extends AbstractGlobalSingleton
   public PDWorkerPool (@Nonnegative final int nThreadPoolSize)
   {
     this (Executors.newFixedThreadPool (nThreadPoolSize,
-                                        new BasicThreadFactory.Builder ().setDaemon (true)
-                                                                         .setNamingPattern ("pd-worker-%d")
-                                                                         .build ()));
+                                        new BasicThreadFactory.Builder ().setDaemon (true).setNamingPattern ("pd-worker-%d").build ()));
   }
 
   public PDWorkerPool (@Nonnull final ExecutorService aES)

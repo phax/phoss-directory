@@ -184,10 +184,7 @@ public final class PDClientConfiguration
   @Nonnull
   public static LoadedKey <KeyStore.PrivateKeyEntry> loadPrivateKey (@Nonnull final KeyStore aKeyStore)
   {
-    return KeyStoreHelper.loadPrivateKey (aKeyStore,
-                                          getKeyStorePath (),
-                                          getKeyStoreKeyAlias (),
-                                          getKeyStoreKeyPassword ());
+    return KeyStoreHelper.loadPrivateKey (aKeyStore, getKeyStorePath (), getKeyStoreKeyAlias (), getKeyStoreKeyPassword ());
   }
 
   /**

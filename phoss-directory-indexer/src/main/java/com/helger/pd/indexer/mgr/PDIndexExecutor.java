@@ -67,10 +67,7 @@ final class PDIndexExecutor
                                           @Nonnull final Consumer <? super IIndexerWorkItem> aSuccessHandler,
                                           @Nonnull final Consumer <? super IIndexerWorkItem> aFailureHandler)
   {
-    LOGGER.info ("Execute work item " +
-                 aWorkItem.getLogText () +
-                 " - " +
-                 (nRetryCount > 0 ? "retry #" + nRetryCount : "initial try"));
+    LOGGER.info ("Execute work item " + aWorkItem.getLogText () + " - " + (nRetryCount > 0 ? "retry #" + nRetryCount : "initial try"));
 
     final IPDBusinessCardProvider aBCProvider = PDMetaManager.getBusinessCardProviderOrNull ();
     if (aBCProvider == null)

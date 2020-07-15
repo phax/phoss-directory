@@ -167,10 +167,7 @@ public class IndexerResource
 
     // Queue for handling
     if (PDMetaManager.getIndexerMgr ()
-                     .queueWorkItem (aPI,
-                                     EIndexerWorkItemType.DELETE,
-                                     aResult.getClientID (),
-                                     _getRequestingHost (aHttpServletRequest))
+                     .queueWorkItem (aPI, EIndexerWorkItemType.DELETE, aResult.getClientID (), _getRequestingHost (aHttpServletRequest))
                      .isUnchanged ())
     {
       if (LOGGER.isInfoEnabled ())

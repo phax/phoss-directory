@@ -63,9 +63,7 @@ public final class PageSecureAdminLuceneInformation extends AbstractAppWebPage
     {
       aTable.addBodyRow ()
             .addCell ("Directory information")
-            .addCell (HCExtHelper.nl2divList (ex.getClass ().getName () +
-                                              "\n" +
-                                              StackTraceHelper.getStackAsString (ex)));
+            .addCell (HCExtHelper.nl2divList (ex.getClass ().getName () + "\n" + StackTraceHelper.getStackAsString (ex)));
     }
     aNodeList.addChild (aTable);
   }

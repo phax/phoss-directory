@@ -46,9 +46,7 @@ public final class PageSecureListReIndex extends AbstractPageSecureReIndex
   {
     final HCNodeList aNodeList = aWPEC.getNodeList ();
     aNodeList.addChild (info ().addChild (div ("This page contains all entries where indexing failed initially but is re-tried."))
-                               .addChild (div ("Re-index happens every " +
-                                               PDServerConfiguration.getReIndexRetryMinutes () +
-                                               " minute(s)"))
+                               .addChild (div ("Re-index happens every " + PDServerConfiguration.getReIndexRetryMinutes () + " minute(s)"))
                                .addChild (div ("Re-indexing stops after " +
                                                PDServerConfiguration.getReIndexMaxRetryHours () +
                                                " hour(s)")));

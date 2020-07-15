@@ -109,8 +109,6 @@ public final class PDStoredMLName
   @Override
   public String toString ()
   {
-    return new ToStringGenerator (null).append ("Name", m_sName)
-                                       .appendIfNotNull ("LanguageCode", m_sLanguageCode)
-                                       .getToString ();
+    return new ToStringGenerator (null).append ("Name", m_sName).appendIfNotNull ("LanguageCode", m_sLanguageCode).getToString ();
   }
 }

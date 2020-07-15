@@ -173,8 +173,7 @@ public class PDContact implements Serializable, ICloneable <PDContact>
   }
 
   @Nonnull
-  public IMicroElement getAsMicroXML (@Nullable final String sNamespaceURI,
-                                      @Nonnull @Nonempty final String sElementName)
+  public IMicroElement getAsMicroXML (@Nullable final String sNamespaceURI, @Nonnull @Nonempty final String sElementName)
   {
     final IMicroElement ret = new MicroElement (sNamespaceURI, sElementName);
     ret.setAttribute ("email", m_sEmail);
@@ -213,11 +212,7 @@ public class PDContact implements Serializable, ICloneable <PDContact>
   @Override
   public int hashCode ()
   {
-    return new HashCodeGenerator (this).append (m_sType)
-                                       .append (m_sName)
-                                       .append (m_sPhoneNumber)
-                                       .append (m_sEmail)
-                                       .getHashCode ();
+    return new HashCodeGenerator (this).append (m_sType).append (m_sName).append (m_sPhoneNumber).append (m_sEmail).getHashCode ();
   }
 
   @Override

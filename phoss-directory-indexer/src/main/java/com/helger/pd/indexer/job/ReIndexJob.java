@@ -97,8 +97,7 @@ public class ReIndexJob extends AbstractScopeAwareJob
     return GlobalQuartzScheduler.getInstance ()
                                 .scheduleJob (ReIndexJob.class.getName (),
                                               JDK8TriggerBuilder.newTrigger ()
-                                                                .startAt (PDTFactory.getCurrentLocalDateTime ()
-                                                                                    .plusSeconds (5))
+                                                                .startAt (PDTFactory.getCurrentLocalDateTime ().plusSeconds (5))
                                                                 .withSchedule (aScheduleBuilder),
                                               ReIndexJob.class,
                                               aJobDataMap);

@@ -46,9 +46,8 @@ public final class ExportHelper
   @Nonnull
   private static IMicroElement _createMicroElement (@Nonnull final IDocumentTypeIdentifier aDocTypeID)
   {
-    final IMicroElement eDocTypeID = new MicroElement (XML_EXPORT_NS_URI,
-                                                       "doctypeid").setAttribute ("scheme", aDocTypeID.getScheme ())
-                                                                   .setAttribute ("value", aDocTypeID.getValue ());
+    final IMicroElement eDocTypeID = new MicroElement (XML_EXPORT_NS_URI, "doctypeid").setAttribute ("scheme", aDocTypeID.getScheme ())
+                                                                                      .setAttribute ("value", aDocTypeID.getValue ());
     final NiceNameEntry aNiceName = NiceNameHandler.getDocTypeNiceName (aDocTypeID.getURIEncoded ());
     if (aNiceName == null)
       eDocTypeID.setAttribute ("non-standard", true);

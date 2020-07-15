@@ -304,8 +304,7 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
    *         if there is a low-level IO error
    */
   @MustBeLocked (ELockType.WRITE)
-  public void updateDocument (@Nullable final Term aDelTerm,
-                              @Nonnull final Iterable <? extends IndexableField> aDoc) throws IOException
+  public void updateDocument (@Nullable final Term aDelTerm, @Nonnull final Iterable <? extends IndexableField> aDoc) throws IOException
   {
     final long nSeqNum = _getWriter ().updateDocument (aDelTerm, aDoc);
     if (LOGGER.isDebugEnabled ())

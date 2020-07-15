@@ -90,11 +90,7 @@ public abstract class AbstractPDField <NATIVE_TYPE, STORAGE_TYPE>
     ValueEnforcer.notNull (aValue, "Value");
     final STORAGE_TYPE sStorageValue = getConverterToStorage ().apply (aValue);
     if (sStorageValue == null)
-      throw new IllegalStateException ("The storage value of " +
-                                       aValue +
-                                       " for field " +
-                                       getFieldName () +
-                                       " should not be null!");
+      throw new IllegalStateException ("The storage value of " + aValue + " for field " + getFieldName () + " should not be null!");
     return sStorageValue;
   }
 
@@ -104,11 +100,7 @@ public abstract class AbstractPDField <NATIVE_TYPE, STORAGE_TYPE>
     ValueEnforcer.notNull (aValue, "Value");
     final NATIVE_TYPE aNativeValue = getConverterFromStorage ().apply (aValue);
     if (aNativeValue == null)
-      throw new IllegalStateException ("The native value of " +
-                                       aValue +
-                                       " for field " +
-                                       getFieldName () +
-                                       " should not be null!");
+      throw new IllegalStateException ("The native value of " + aValue + " for field " + getFieldName () + " should not be null!");
     return aNativeValue;
   }
 

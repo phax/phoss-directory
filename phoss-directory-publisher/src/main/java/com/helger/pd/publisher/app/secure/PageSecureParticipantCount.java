@@ -54,8 +54,7 @@ public final class PageSecureParticipantCount extends AbstractAppWebPage
       aNodeList.addChild (aToolbar);
     }
 
-    final int nNotDeletedCount = PDMetaManager.getStorageMgr ()
-                                              .getContainedParticipantCount (EQueryMode.NON_DELETED_ONLY);
+    final int nNotDeletedCount = PDMetaManager.getStorageMgr ().getContainedParticipantCount (EQueryMode.NON_DELETED_ONLY);
     aNodeList.addChild (h3 (nNotDeletedCount + " participants (entities) are contained"));
 
     final int nDeletedCount = PDMetaManager.getStorageMgr ().getContainedParticipantCount (EQueryMode.DELETED_ONLY);

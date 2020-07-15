@@ -70,9 +70,7 @@ public final class PageSecureIndexManually extends AbstractAppWebPage
         else
         {
           aNodeList.addChild (info ("The following SMLs are crawled for entries: " +
-                                    StringHelper.getImplodedMapped (", ",
-                                                                    aSMPBCProv.getAllSMLsToUse (),
-                                                                    ISMLInfo::getDisplayName)));
+                                    StringHelper.getImplodedMapped (", ", aSMPBCProv.getAllSMLsToUse (), ISMLInfo::getDisplayName)));
         }
       }
     }
@@ -97,15 +95,11 @@ public final class PageSecureIndexManually extends AbstractAppWebPage
                                          PDIndexerManager.HOST_LOCALHOST)
                          .isChanged ())
         {
-          aWPEC.postRedirectGetInternal (success ("The indexing of participant ID '" +
-                                                  sParticipantID +
-                                                  "' was successfully triggered!"));
+          aWPEC.postRedirectGetInternal (success ("The indexing of participant ID '" + sParticipantID + "' was successfully triggered!"));
         }
         else
         {
-          aWPEC.postRedirectGetInternal (warn ("Participant ID '" +
-                                               sParticipantID +
-                                               "' is already in the indexing queue!"));
+          aWPEC.postRedirectGetInternal (warn ("Participant ID '" + sParticipantID + "' is already in the indexing queue!"));
         }
       }
     }

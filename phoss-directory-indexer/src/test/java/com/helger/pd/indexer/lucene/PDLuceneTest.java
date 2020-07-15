@@ -77,9 +77,7 @@ public final class PDLuceneTest
     // The version info content should be searchable also be tokens,
     // this is why we use a TextField; as we use a reader, the content is
     // not stored!
-    doc.add (new TextField ("pom",
-                            SimpleFileIO.getFileAsString (new File ("pom.xml"), StandardCharsets.UTF_8),
-                            Field.Store.NO));
+    doc.add (new TextField ("pom", SimpleFileIO.getFileAsString (new File ("pom.xml"), StandardCharsets.UTF_8), Field.Store.NO));
 
     // Next
     doc.add (new StringField ("participantid", "iso6523-actorid-upis::9915:testluc", Field.Store.YES));

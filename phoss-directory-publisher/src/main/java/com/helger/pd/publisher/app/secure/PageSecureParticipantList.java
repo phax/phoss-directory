@@ -90,13 +90,9 @@ public final class PageSecureParticipantList extends AbstractAppWebPage
           // ignore
         }
         if (bSuccess)
-          aNodeList.addChild (info ("The participant '" +
-                                    aParticipantID.getURIEncoded () +
-                                    "' was scheduled for deletion"));
+          aNodeList.addChild (info ("The participant '" + aParticipantID.getURIEncoded () + "' was scheduled for deletion"));
         else
-          aNodeList.addChild (error ("Error scheduling participant '" +
-                                     aParticipantID.getURIEncoded () +
-                                     "' for deletion"));
+          aNodeList.addChild (error ("Error scheduling participant '" + aParticipantID.getURIEncoded () + "' for deletion"));
       }
     }
 
@@ -140,8 +136,7 @@ public final class PageSecureParticipantList extends AbstractAppWebPage
       aRow.addCell (Integer.toString (aEntry.getValue ().intValue ()));
 
       final IHCCell <?> aActionCell = aRow.addCell ();
-      final ISimpleURL aShowDetails = aWPEC.getLinkToMenuItem (CApplicationID.APP_ID_PUBLIC,
-                                                               CMenuPublic.MENU_SEARCH_SIMPLE)
+      final ISimpleURL aShowDetails = aWPEC.getLinkToMenuItem (CApplicationID.APP_ID_PUBLIC, CMenuPublic.MENU_SEARCH_SIMPLE)
                                            .add (PagePublicSearchSimple.FIELD_QUERY, sParticipantID)
                                            .add (CPageParam.PARAM_ACTION, CPageParam.ACTION_VIEW)
                                            .add (PagePublicSearchSimple.FIELD_PARTICIPANT_ID, sParticipantID);

@@ -34,9 +34,7 @@ public enum EPDStringFieldTokenize
   {
     @Override
     @Nonnull
-    public Field createField (@Nonnull final String sFieldName,
-                              @Nonnull final String sFieldValue,
-                              @Nonnull final Store eStore)
+    public Field createField (@Nonnull final String sFieldName, @Nonnull final String sFieldValue, @Nonnull final Store eStore)
     {
       return new TextField (sFieldName, sFieldValue, eStore);
     }
@@ -45,16 +43,12 @@ public enum EPDStringFieldTokenize
   {
     @Override
     @Nonnull
-    public Field createField (@Nonnull final String sFieldName,
-                              @Nonnull final String sFieldValue,
-                              @Nonnull final Store eStore)
+    public Field createField (@Nonnull final String sFieldName, @Nonnull final String sFieldValue, @Nonnull final Store eStore)
     {
       return new StringField (sFieldName, sFieldValue, eStore);
     }
   };
 
   @Nonnull
-  public abstract Field createField (@Nonnull String sFieldName,
-                                     @Nonnull String sFieldValue,
-                                     @Nonnull Field.Store eStore);
+  public abstract Field createField (@Nonnull String sFieldName, @Nonnull String sFieldValue, @Nonnull Field.Store eStore);
 }

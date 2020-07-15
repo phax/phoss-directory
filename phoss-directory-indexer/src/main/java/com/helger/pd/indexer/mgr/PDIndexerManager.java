@@ -219,9 +219,7 @@ public final class PDIndexerManager implements Closeable
     {
       if (!m_aUniqueItems.add (aWorkItem))
       {
-        LOGGER.info ("Ignoring work item " +
-                     aWorkItem.getLogText () +
-                     " because it is already in the queue/re-index list!");
+        LOGGER.info ("Ignoring work item " + aWorkItem.getLogText () + " because it is already in the queue/re-index list!");
         return EChange.UNCHANGED;
       }
     }

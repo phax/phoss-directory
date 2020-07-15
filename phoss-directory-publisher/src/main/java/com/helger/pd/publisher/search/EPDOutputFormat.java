@@ -93,8 +93,7 @@ public enum EPDOutputFormat implements IHasID <String>, IHasDisplayName
   }
 
   @Nullable
-  public static EPDOutputFormat getFromIDCaseInsensitiveOrDefault (@Nullable final String sID,
-                                                                   @Nullable final EPDOutputFormat eDefault)
+  public static EPDOutputFormat getFromIDCaseInsensitiveOrDefault (@Nullable final String sID, @Nullable final EPDOutputFormat eDefault)
   {
     return EnumHelper.getFromIDCaseInsensitiveOrDefault (EPDOutputFormat.class, sID, eDefault);
   }

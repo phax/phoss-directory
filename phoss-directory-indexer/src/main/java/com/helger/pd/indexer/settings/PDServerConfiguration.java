@@ -275,8 +275,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
       final String sPrefix = "truststore." + nIndex;
 
       final String sType = getConfigFile ().getAsString (sPrefix + ".type");
-      final EKeyStoreType eType = EKeyStoreType.getFromIDCaseInsensitiveOrDefault (sType,
-                                                                                   PeppolKeyStoreHelper.TRUSTSTORE_TYPE);
+      final EKeyStoreType eType = EKeyStoreType.getFromIDCaseInsensitiveOrDefault (sType, PeppolKeyStoreHelper.TRUSTSTORE_TYPE);
       final String sPath = getConfigFile ().getAsString (sPrefix + ".path");
       final String sPassword = getConfigFile ().getAsString (sPrefix + ".password");
       final String sAlias = getConfigFile ().getAsString (sPrefix + ".alias");

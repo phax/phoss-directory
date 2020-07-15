@@ -83,19 +83,13 @@ public final class SearchMatcher
         return StringHelper.hasText (sReferenceValue);
       case STRING_CONTAINS:
         // Different semantics than StringHelper.contains for empty values!
-        return StringHelper.hasText (sReferenceValue) &&
-               StringHelper.hasText (sSearchValue) &&
-               sReferenceValue.contains (sSearchValue);
+        return StringHelper.hasText (sReferenceValue) && StringHelper.hasText (sSearchValue) && sReferenceValue.contains (sSearchValue);
       case STRING_STARTS_WITH:
         // Different semantics than StringHelper.startsWith for empty values!
-        return StringHelper.hasText (sReferenceValue) &&
-               StringHelper.hasText (sSearchValue) &&
-               sReferenceValue.startsWith (sSearchValue);
+        return StringHelper.hasText (sReferenceValue) && StringHelper.hasText (sSearchValue) && sReferenceValue.startsWith (sSearchValue);
       case STRING_ENDS_WITH:
         // Different semantics than StringHelper.endsWith for empty values!
-        return StringHelper.hasText (sReferenceValue) &&
-               StringHelper.hasText (sSearchValue) &&
-               sReferenceValue.endsWith (sSearchValue);
+        return StringHelper.hasText (sReferenceValue) && StringHelper.hasText (sSearchValue) && sReferenceValue.endsWith (sSearchValue);
       case STRING_REGEX:
         return StringHelper.hasText (sReferenceValue) &&
                StringHelper.hasText (sSearchValue) &&
@@ -114,20 +108,15 @@ public final class SearchMatcher
       case EQ:
         return EqualsHelper.equals (aReferenceValue, TypeConverter.convert (aSearchValue, BigInteger.class));
       case NE:
-        return !EqualsHelper.equals (aReferenceValue,
-                                     TypeConverter.convert (aSearchValue, BigInteger.class));
+        return !EqualsHelper.equals (aReferenceValue, TypeConverter.convert (aSearchValue, BigInteger.class));
       case LT:
-        return CompareHelper.compare (TypeConverter.convert (aSearchValue, BigInteger.class),
-                                      aReferenceValue) < 0;
+        return CompareHelper.compare (TypeConverter.convert (aSearchValue, BigInteger.class), aReferenceValue) < 0;
       case LE:
-        return CompareHelper.compare (TypeConverter.convert (aSearchValue, BigInteger.class),
-                                      aReferenceValue) <= 0;
+        return CompareHelper.compare (TypeConverter.convert (aSearchValue, BigInteger.class), aReferenceValue) <= 0;
       case GT:
-        return CompareHelper.compare (TypeConverter.convert (aSearchValue, BigInteger.class),
-                                      aReferenceValue) > 0;
+        return CompareHelper.compare (TypeConverter.convert (aSearchValue, BigInteger.class), aReferenceValue) > 0;
       case GE:
-        return CompareHelper.compare (TypeConverter.convert (aSearchValue, BigInteger.class),
-                                      aReferenceValue) >= 0;
+        return CompareHelper.compare (TypeConverter.convert (aSearchValue, BigInteger.class), aReferenceValue) >= 0;
       case EMPTY:
         return aReferenceValue == null;
       case NOT_EMPTY:
@@ -158,20 +147,15 @@ public final class SearchMatcher
       case EQ:
         return EqualsHelper.equals (aReferenceValue, TypeConverter.convert (aSearchValue, BigDecimal.class));
       case NE:
-        return !EqualsHelper.equals (aReferenceValue,
-                                     TypeConverter.convert (aSearchValue, BigDecimal.class));
+        return !EqualsHelper.equals (aReferenceValue, TypeConverter.convert (aSearchValue, BigDecimal.class));
       case LT:
-        return CompareHelper.compare (TypeConverter.convert (aSearchValue, BigDecimal.class),
-                                      aReferenceValue) < 0;
+        return CompareHelper.compare (TypeConverter.convert (aSearchValue, BigDecimal.class), aReferenceValue) < 0;
       case LE:
-        return CompareHelper.compare (TypeConverter.convert (aSearchValue, BigDecimal.class),
-                                      aReferenceValue) <= 0;
+        return CompareHelper.compare (TypeConverter.convert (aSearchValue, BigDecimal.class), aReferenceValue) <= 0;
       case GT:
-        return CompareHelper.compare (TypeConverter.convert (aSearchValue, BigDecimal.class),
-                                      aReferenceValue) > 0;
+        return CompareHelper.compare (TypeConverter.convert (aSearchValue, BigDecimal.class), aReferenceValue) > 0;
       case GE:
-        return CompareHelper.compare (TypeConverter.convert (aSearchValue, BigDecimal.class),
-                                      aReferenceValue) >= 0;
+        return CompareHelper.compare (TypeConverter.convert (aSearchValue, BigDecimal.class), aReferenceValue) >= 0;
       case EMPTY:
         return aReferenceValue == null;
       case NOT_EMPTY:
@@ -200,17 +184,13 @@ public final class SearchMatcher
       case NE:
         return !EqualsHelper.equals (aReferenceValue, aSearchValue);
       case LT:
-        return CompareHelper.compare (TypeConverter.convert (aSearchValue, LocalDate.class),
-                                      aReferenceValue) < 0;
+        return CompareHelper.compare (TypeConverter.convert (aSearchValue, LocalDate.class), aReferenceValue) < 0;
       case LE:
-        return CompareHelper.compare (TypeConverter.convert (aSearchValue, LocalDate.class),
-                                      aReferenceValue) <= 0;
+        return CompareHelper.compare (TypeConverter.convert (aSearchValue, LocalDate.class), aReferenceValue) <= 0;
       case GT:
-        return CompareHelper.compare (TypeConverter.convert (aSearchValue, LocalDate.class),
-                                      aReferenceValue) > 0;
+        return CompareHelper.compare (TypeConverter.convert (aSearchValue, LocalDate.class), aReferenceValue) > 0;
       case GE:
-        return CompareHelper.compare (TypeConverter.convert (aSearchValue, LocalDate.class),
-                                      aReferenceValue) >= 0;
+        return CompareHelper.compare (TypeConverter.convert (aSearchValue, LocalDate.class), aReferenceValue) >= 0;
       case EMPTY:
         return aReferenceValue == null;
       case NOT_EMPTY:
@@ -222,12 +202,9 @@ public final class SearchMatcher
       case DATE_DAY:
         return aReferenceValue != null && aReferenceValue.getDayOfMonth () == TypeConverter.convertToInt (aSearchValue);
       case DATE_YEAR_MONTH:
-        return aReferenceValue != null &&
-               YearMonth.from (aReferenceValue)
-                        .equals (TypeConverter.convert (aSearchValue, YearMonth.class));
+        return aReferenceValue != null && YearMonth.from (aReferenceValue).equals (TypeConverter.convert (aSearchValue, YearMonth.class));
       case DATE_MONTH_DAY:
-        return aReferenceValue != null &&
-               MonthDay.from (aReferenceValue).equals (TypeConverter.convert (aSearchValue, MonthDay.class));
+        return aReferenceValue != null && MonthDay.from (aReferenceValue).equals (TypeConverter.convert (aSearchValue, MonthDay.class));
       default:
         throw new IllegalArgumentException ("Unsupported LocalDate search operator " + eOperator);
     }
@@ -244,17 +221,13 @@ public final class SearchMatcher
       case NE:
         return !EqualsHelper.equals (aReferenceValue, aSearchValue);
       case LT:
-        return CompareHelper.compare (TypeConverter.convert (aSearchValue, LocalTime.class),
-                                      aReferenceValue) < 0;
+        return CompareHelper.compare (TypeConverter.convert (aSearchValue, LocalTime.class), aReferenceValue) < 0;
       case LE:
-        return CompareHelper.compare (TypeConverter.convert (aSearchValue, LocalTime.class),
-                                      aReferenceValue) <= 0;
+        return CompareHelper.compare (TypeConverter.convert (aSearchValue, LocalTime.class), aReferenceValue) <= 0;
       case GT:
-        return CompareHelper.compare (TypeConverter.convert (aSearchValue, LocalTime.class),
-                                      aReferenceValue) > 0;
+        return CompareHelper.compare (TypeConverter.convert (aSearchValue, LocalTime.class), aReferenceValue) > 0;
       case GE:
-        return CompareHelper.compare (TypeConverter.convert (aSearchValue, LocalTime.class),
-                                      aReferenceValue) >= 0;
+        return CompareHelper.compare (TypeConverter.convert (aSearchValue, LocalTime.class), aReferenceValue) >= 0;
       case EMPTY:
         return aReferenceValue == null;
       case NOT_EMPTY:
@@ -312,21 +285,13 @@ public final class SearchMatcher
                                 eOperator,
                                 unify (TypeConverter.convert (aSearchValue, String.class)));
         case INT:
-          return matchesInt (TypeConverter.convert (aReferenceValue, BigInteger.class),
-                             eOperator,
-                             aSearchValue);
+          return matchesInt (TypeConverter.convert (aReferenceValue, BigInteger.class), eOperator, aSearchValue);
         case DOUBLE:
-          return matchesDouble (TypeConverter.convert (aReferenceValue, BigDecimal.class),
-                                eOperator,
-                                aSearchValue);
+          return matchesDouble (TypeConverter.convert (aReferenceValue, BigDecimal.class), eOperator, aSearchValue);
         case DATE:
-          return matchesDate (TypeConverter.convert (aReferenceValue, LocalDate.class),
-                              eOperator,
-                              aSearchValue);
+          return matchesDate (TypeConverter.convert (aReferenceValue, LocalDate.class), eOperator, aSearchValue);
         case TIME:
-          return matchesTime (TypeConverter.convert (aReferenceValue, LocalTime.class),
-                              eOperator,
-                              aSearchValue);
+          return matchesTime (TypeConverter.convert (aReferenceValue, LocalTime.class), eOperator, aSearchValue);
         case BOOLEAN:
           return matchesBoolean (TypeConverter.convert (aReferenceValue, Boolean.class),
                                  eOperator,

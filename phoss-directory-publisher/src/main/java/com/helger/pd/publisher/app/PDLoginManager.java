@@ -40,8 +40,7 @@ public final class PDLoginManager extends BootstrapLoginManager
   }
 
   @Override
-  protected IHTMLProvider createLoginScreen (final boolean bLoginError,
-                                             @Nonnull final ICredentialValidationResult aLoginResult)
+  protected IHTMLProvider createLoginScreen (final boolean bLoginError, @Nonnull final ICredentialValidationResult aLoginResult)
   {
     return new BootstrapLoginHTMLProvider (bLoginError, aLoginResult, getPageTitle ())
     {

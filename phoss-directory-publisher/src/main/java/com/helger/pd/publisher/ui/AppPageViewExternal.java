@@ -39,9 +39,7 @@ public class AppPageViewExternal extends BasePageViewExternal <WebPageExecutionC
     MicroVisitor.visit (aCont, aCleanser);
   }
 
-  public AppPageViewExternal (@Nonnull @Nonempty final String sID,
-                              @Nonnull final String sName,
-                              @Nonnull final IReadableResource aResource)
+  public AppPageViewExternal (@Nonnull @Nonempty final String sID, @Nonnull final String sName, @Nonnull final IReadableResource aResource)
   {
     // Special content cleaner
     super (sID, sName, aResource, AppPageViewExternal::_cleanCode);

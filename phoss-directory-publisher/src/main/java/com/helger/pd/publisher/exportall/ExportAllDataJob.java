@@ -85,9 +85,7 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
         }
         finally
         {
-          LOGGER.info ("Finished exporting business cards as XML (full) after " +
-                       aSW.stopAndGetMillis () +
-                       " milliseconds");
+          LOGGER.info ("Finished exporting business cards as XML (full) after " + aSW.stopAndGetMillis () + " milliseconds");
         }
 
         aSW.restart ();
@@ -98,9 +96,7 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
         }
         finally
         {
-          LOGGER.info ("Finished exporting business cards as XML (no doc types) after " +
-                       aSW.stopAndGetMillis () +
-                       " milliseconds");
+          LOGGER.info ("Finished exporting business cards as XML (no doc types) after " + aSW.stopAndGetMillis () + " milliseconds");
         }
 
         if (CPDPublisher.EXPORT_BUSINESS_CARDS_EXCEL)
@@ -113,9 +109,7 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
           }
           finally
           {
-            LOGGER.info ("Finished exporting business cards as Excel after " +
-                         aSW.stopAndGetMillis () +
-                         " milliseconds");
+            LOGGER.info ("Finished exporting business cards as Excel after " + aSW.stopAndGetMillis () + " milliseconds");
           }
         }
 

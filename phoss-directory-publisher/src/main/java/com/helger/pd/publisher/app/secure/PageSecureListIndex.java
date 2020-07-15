@@ -56,9 +56,7 @@ public final class PageSecureListIndex extends AbstractAppWebPage
     // Add toolbar
     {
       final BootstrapButtonToolbar aToolbar = aNodeList.addAndReturnChild (new BootstrapButtonToolbar (aWPEC));
-      aToolbar.addChild (new BootstrapButton ().addChild ("Refresh")
-                                               .setIcon (EDefaultIcon.REFRESH)
-                                               .setOnClick (aWPEC.getSelfHref ()));
+      aToolbar.addChild (new BootstrapButton ().addChild ("Refresh").setIcon (EDefaultIcon.REFRESH).setOnClick (aWPEC.getSelfHref ()));
       aToolbar.addChild (span ("Current server time: " +
                                PDTToString.getAsString (PDTFactory.getCurrentLocalTime (), aDisplayLocale))
                                                                                                            .addClass (PDCommonUI.CSS_CLASS_VERTICAL_PADDED_TEXT));
@@ -74,8 +72,7 @@ public final class PageSecureListIndex extends AbstractAppWebPage
     {
       aNodeList.addChild (info ("The Index Queue contains " + nLength + " entries"));
 
-      final BootstrapTable aTable = new BootstrapTable (new DTCol ("Queue date time").setDisplayType (EDTColType.DATETIME,
-                                                                                                      aDisplayLocale)
+      final BootstrapTable aTable = new BootstrapTable (new DTCol ("Queue date time").setDisplayType (EDTColType.DATETIME, aDisplayLocale)
                                                                                      .setInitialSorting (ESortOrder.DESCENDING),
                                                         new DTCol ("Participant ID"),
                                                         new DTCol ("Action"),

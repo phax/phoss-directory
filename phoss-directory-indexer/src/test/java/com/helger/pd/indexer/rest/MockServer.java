@@ -85,8 +85,7 @@ final class MockServer
   private static WebappContext _createContext (final String sURI)
   {
     final ICommonsMap <String, String> aInitParams = new CommonsHashMap <> ();
-    aInitParams.put ("jersey.config.server.provider.packages",
-                     com.helger.pd.indexer.rest.IndexerResource.class.getPackage ().getName ());
+    aInitParams.put ("jersey.config.server.provider.packages", com.helger.pd.indexer.rest.IndexerResource.class.getPackage ().getName ());
     return _createContext (URI.create (sURI), ServletContainer.class, null, aInitParams, null);
   }
 

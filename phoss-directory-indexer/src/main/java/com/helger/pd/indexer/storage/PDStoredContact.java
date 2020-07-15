@@ -97,11 +97,7 @@ public final class PDStoredContact
   @Override
   public int hashCode ()
   {
-    return new HashCodeGenerator (this).append (m_sType)
-                                       .append (m_sName)
-                                       .append (m_sPhone)
-                                       .append (m_sEmail)
-                                       .getHashCode ();
+    return new HashCodeGenerator (this).append (m_sType).append (m_sName).append (m_sPhone).append (m_sEmail).getHashCode ();
   }
 
   @Override

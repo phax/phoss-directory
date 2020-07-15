@@ -108,8 +108,7 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
     });
   }
 
-  private static void _addNavbarLoginLogout (@Nonnull final LayoutExecutionContext aLEC,
-                                             @Nonnull final BootstrapNavbar aNavbar)
+  private static void _addNavbarLoginLogout (@Nonnull final LayoutExecutionContext aLEC, @Nonnull final BootstrapNavbar aNavbar)
   {
     final IRequestWebScopeWithoutResponse aRequestScope = aLEC.getRequestScope ();
     final Locale aDisplayLocale = aLEC.getDisplayLocale ();
@@ -118,18 +117,10 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
     {
       final BootstrapNavbarNav aNav = aNavbar.addAndReturnNav ();
       final BootstrapDropdownMenu aDropDown = new BootstrapDropdownMenu ();
-      aDropDown.createAndAddItem ()
-               .addChild ("Introduction")
-               .setHref (aLEC.getLinkToMenuItem (CMenuPublic.MENU_DOCS_INTRODUCTION));
-      aDropDown.createAndAddItem ()
-               .addChild ("How to use it")
-               .setHref (aLEC.getLinkToMenuItem (CMenuPublic.MENU_DOCS_HOW_TO));
-      aDropDown.createAndAddItem ()
-               .addChild ("REST API")
-               .setHref (aLEC.getLinkToMenuItem (CMenuPublic.MENU_DOCS_REST_API));
-      aDropDown.createAndAddItem ()
-               .addChild ("Export data")
-               .setHref (aLEC.getLinkToMenuItem (CMenuPublic.MENU_DOCS_EXPORT_ALL));
+      aDropDown.createAndAddItem ().addChild ("Introduction").setHref (aLEC.getLinkToMenuItem (CMenuPublic.MENU_DOCS_INTRODUCTION));
+      aDropDown.createAndAddItem ().addChild ("How to use it").setHref (aLEC.getLinkToMenuItem (CMenuPublic.MENU_DOCS_HOW_TO));
+      aDropDown.createAndAddItem ().addChild ("REST API").setHref (aLEC.getLinkToMenuItem (CMenuPublic.MENU_DOCS_REST_API));
+      aDropDown.createAndAddItem ().addChild ("Export data").setHref (aLEC.getLinkToMenuItem (CMenuPublic.MENU_DOCS_EXPORT_ALL));
       aDropDown.createAndAddItem ()
                .addChild ("Specification v1.1 (PDF)")
                .setHref (LinkHelper.getURLWithContext ("/files/PEPPOL-EDN-Directory-1.1-2018-07-17.pdf"));
@@ -143,9 +134,7 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
     {
       final BootstrapNavbarNav aNav = aNavbar.addAndReturnNav ();
       final BootstrapDropdownMenu aDropDown = new BootstrapDropdownMenu ();
-      aDropDown.createAndAddItem ()
-               .addChild ("Contact us")
-               .setHref (aLEC.getLinkToMenuItem (CMenuPublic.MENU_SUPPORT_CONTACT_US));
+      aDropDown.createAndAddItem ().addChild ("Contact us").setHref (aLEC.getLinkToMenuItem (CMenuPublic.MENU_SUPPORT_CONTACT_US));
       aDropDown.createAndAddItem ()
                .addChild ("Compliant SMP implementations")
                .setHref (aLEC.getLinkToMenuItem (CMenuPublic.MENU_SUPPORT_SMP_IMPLEMENTATIONS));
@@ -195,8 +184,7 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
         final BootstrapNavbarNav aNav = aToggleable.addAndReturnNav ();
         final BootstrapDropdownMenu aDropDown = new BootstrapDropdownMenu ();
         {
-          final HCDiv aDiv = new HCDiv ().addClass (CBootstrapCSS.P_2)
-                                         .addStyle (CCSSProperties.MIN_WIDTH.newValue ("400px"));
+          final HCDiv aDiv = new HCDiv ().addClass (CBootstrapCSS.P_2).addStyle (CCSSProperties.MIN_WIDTH.newValue ("400px"));
           aDiv.addChild (AppCommonUI.createViewLoginForm (aLEC, null));
           aDropDown.addChild (aDiv);
         }
@@ -216,8 +204,7 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
     if (aImg != null)
       aNavbar.addBrand (aImg, aLinkToStartPage);
 
-    aNavbar.addBrand (new HCSpan ().addClass (AppCommonUI.CSS_CLASS_LOGO1)
-                                   .addChild (CPDPublisher.getApplicationTitle ()),
+    aNavbar.addBrand (new HCSpan ().addClass (AppCommonUI.CSS_CLASS_LOGO1).addChild (CPDPublisher.getApplicationTitle ()),
                       aLinkToStartPage);
 
     _addNavbarLoginLogout (aLEC, aNavbar);
@@ -229,8 +216,7 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
   {
     // Main menu
     final IMenuTree aMenuTree = aLEC.getMenuTree ();
-    final MenuItemDeterminatorCallback aCallback = new MenuItemDeterminatorCallback (aMenuTree,
-                                                                                     aLEC.getSelectedMenuItemID ())
+    final MenuItemDeterminatorCallback aCallback = new MenuItemDeterminatorCallback (aMenuTree, aLEC.getSelectedMenuItemID ())
     {
       @Override
       protected boolean isMenuItemValidToBeDisplayed (@Nonnull final IMenuObject aMenuObj)
@@ -288,8 +274,7 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
                                                        " (" +
                                                        sHttpStatusMessage +
                                                        ")" +
-                                                       (StringHelper.hasText (sHttpRequestURI) ? " for request URI " +
-                                                                                                 sHttpRequestURI
+                                                       (StringHelper.hasText (sHttpRequestURI) ? " for request URI " + sHttpRequestURI
                                                                                                : "")));
     }
     else
@@ -410,8 +395,7 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
   }
 
   @Override
-  protected void fillBody (@Nonnull final ISimpleWebExecutionContext aSWEC,
-                           @Nonnull final HCHtml aHtml) throws ForcedRedirectException
+  protected void fillBody (@Nonnull final ISimpleWebExecutionContext aSWEC, @Nonnull final HCHtml aHtml) throws ForcedRedirectException
   {
     final IRequestWebScopeWithoutResponse aRequestScope = aSWEC.getRequestScope ();
     final Locale aDisplayLocale = aSWEC.getDisplayLocale ();

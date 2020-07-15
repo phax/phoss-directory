@@ -56,9 +56,7 @@ public final class PagePublicSearchExtended extends AbstractPagePublicSearch
         ret.addChild (new HCCountrySelect (new RequestField (PREFIX_SPECIAL + sFieldName), aDisplayLocale));
         break;
       case REGISTRATION_DATE:
-        ret.addChild (BootstrapDateTimePicker.create (PREFIX_SPECIAL + sFieldName,
-                                                      aDisplayLocale,
-                                                      EBootstrap4DateTimePickerMode.DATE));
+        ret.addChild (BootstrapDateTimePicker.create (PREFIX_SPECIAL + sFieldName, aDisplayLocale, EBootstrap4DateTimePickerMode.DATE));
         break;
     }
     // Default to String
@@ -78,8 +76,7 @@ public final class PagePublicSearchExtended extends AbstractPagePublicSearch
     // Add all search fields
     for (final EPDSearchField eField : EPDSearchField.values ())
     {
-      final HCSearchOperatorSelect aSelect = new HCSearchOperatorSelect (new RequestField (PREFIX_OPERATOR +
-                                                                                           eField.getFieldName (),
+      final HCSearchOperatorSelect aSelect = new HCSearchOperatorSelect (new RequestField (PREFIX_OPERATOR + eField.getFieldName (),
                                                                                            ESearchOperator.EQ.getID ()),
                                                                          eField.getDataType (),
                                                                          aDisplayLocale);
@@ -87,8 +84,7 @@ public final class PagePublicSearchExtended extends AbstractPagePublicSearch
       final BootstrapRow aRow = new BootstrapRow ();
       aRow.createColumn (2).addChild (aSelect);
       aRow.createColumn (10).addChild (aCtrl);
-      aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel (eField.getDisplayText (aDisplayLocale))
-                                                       .setCtrl (aRow));
+      aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel (eField.getDisplayText (aDisplayLocale)).setCtrl (aRow));
     }
     aNodeList.addChild (aViewForm);
   }

@@ -38,8 +38,7 @@ public final class PDServerConfigurationTest
     // Check if all items are unique
     assertEquals (2, new CommonsHashSet <> (aList).size ());
     assertEquals ("CN=PEPPOL SERVICE METADATA PUBLISHER CA - G2,O=OpenPEPPOL AISBL,C=BE", aList.get (0));
-    assertEquals ("CN=PEPPOL SERVICE METADATA PUBLISHER TEST CA - G2,OU=FOR TEST ONLY,O=OpenPEPPOL AISBL,C=BE",
-                  aList.get (1));
+    assertEquals ("CN=PEPPOL SERVICE METADATA PUBLISHER TEST CA - G2,OU=FOR TEST ONLY,O=OpenPEPPOL AISBL,C=BE", aList.get (1));
   }
 
   @Test

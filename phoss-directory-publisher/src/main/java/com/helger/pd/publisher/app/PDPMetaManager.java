@@ -80,9 +80,7 @@ public final class PDPMetaManager extends AbstractGlobalSingleton
     {
       if (GlobalDebug.isProductionMode ())
       {
-        new InternalErrorBuilder ().setThrowable (ex)
-                                   .addErrorMessage (ClassHelper.getClassLocalName (this) + " init failed")
-                                   .handle ();
+        new InternalErrorBuilder ().setThrowable (ex).addErrorMessage (ClassHelper.getClassLocalName (this) + " init failed").handle ();
       }
 
       throw new InitializationException ("Failed to init " + ClassHelper.getClassLocalName (this), ex);

@@ -41,7 +41,5 @@ public interface IPDClientExceptionCallback extends ICallback
    * @param aException
    *        The exception that occurred. May not be <code>null</code>.
    */
-  void onException (@Nonnull IParticipantIdentifier aParticipantID,
-                    @Nonnull String sContext,
-                    @Nonnull Throwable aException);
+  void onException (@Nonnull IParticipantIdentifier aParticipantID, @Nonnull String sContext, @Nonnull Throwable aException);
 }

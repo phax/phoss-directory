@@ -89,9 +89,7 @@ public final class PageSecureIndexImport extends AbstractAppWebPage
         else
         {
           aNodeList.addChild (info ("The following SMLs are crawled for entries: " +
-                                    StringHelper.getImplodedMapped (", ",
-                                                                    aSMPBCProv.getAllSMLsToUse (),
-                                                                    ISMLInfo::getDisplayName)));
+                                    StringHelper.getImplodedMapped (", ", aSMPBCProv.getAllSMLsToUse (), ISMLInfo::getDisplayName)));
         }
       }
     }
@@ -126,8 +124,7 @@ public final class PageSecureIndexImport extends AbstractAppWebPage
             {
               final String sScheme = aAttributes.getValue ("scheme");
               final String sValue = aAttributes.getValue ("value");
-              final IParticipantIdentifier aParticipantID = aIdentifierFactory.createParticipantIdentifier (sScheme,
-                                                                                                            sValue);
+              final IParticipantIdentifier aParticipantID = aIdentifierFactory.createParticipantIdentifier (sScheme, sValue);
               if (aParticipantID != null)
               {
                 if (PDMetaManager.getIndexerMgr ()
@@ -192,8 +189,7 @@ public final class PageSecureIndexImport extends AbstractAppWebPage
       }
     }
 
-    final BootstrapForm aForm = aNodeList.addAndReturnChild (getUIHandler ().createFormFileUploadSelf (aWPEC,
-                                                                                                       bIsFormSubmitted));
+    final BootstrapForm aForm = aNodeList.addAndReturnChild (getUIHandler ().createFormFileUploadSelf (aWPEC, bIsFormSubmitted));
     aForm.addFormGroup (new BootstrapFormGroup ().setLabelMandatory ("Import file")
                                                  .setCtrl (new BootstrapFileUpload (FIELD_FILE, aDisplayLocale))
                                                  .setHelpText ("Select a file that was created from a full XML export to index of all them manually.")

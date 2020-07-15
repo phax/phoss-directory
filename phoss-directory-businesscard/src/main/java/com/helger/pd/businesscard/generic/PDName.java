@@ -59,8 +59,7 @@ public class PDName implements Serializable
   public PDName (@Nonnull @Nonempty final String sName, @Nullable final String sLanguageCode)
   {
     ValueEnforcer.notEmpty (sName, "Name");
-    ValueEnforcer.isTrue (isValidLanguageCode (sLanguageCode),
-                          () -> "'" + sLanguageCode + "' is invalid language code");
+    ValueEnforcer.isTrue (isValidLanguageCode (sLanguageCode), () -> "'" + sLanguageCode + "' is invalid language code");
     m_sName = sName;
     m_sLanguageCode = LocaleHelper.getValidLanguageCode (sLanguageCode);
   }
@@ -90,8 +89,7 @@ public class PDName implements Serializable
   }
 
   @Nonnull
-  public IMicroElement getAsMicroXML (@Nullable final String sNamespaceURI,
-                                      @Nonnull @Nonempty final String sElementName)
+  public IMicroElement getAsMicroXML (@Nullable final String sNamespaceURI, @Nonnull @Nonempty final String sElementName)
   {
     final IMicroElement ret = new MicroElement (sNamespaceURI, sElementName);
     ret.setAttribute ("name", m_sName);
@@ -130,8 +128,6 @@ public class PDName implements Serializable
   @Override
   public String toString ()
   {
-    return new ToStringGenerator (null).append ("Name", m_sName)
-                                       .appendIfNotNull ("LanguageCode", m_sLanguageCode)
-                                       .getToString ();
+    return new ToStringGenerator (null).append ("Name", m_sName).appendIfNotNull ("LanguageCode", m_sLanguageCode).getToString ();
   }
 }
