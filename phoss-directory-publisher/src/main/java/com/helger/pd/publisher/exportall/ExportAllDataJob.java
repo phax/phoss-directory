@@ -30,7 +30,7 @@ import com.helger.commons.datetime.PDTFactory;
 import com.helger.commons.timing.StopWatch;
 import com.helger.pd.indexer.storage.EQueryMode;
 import com.helger.pd.publisher.CPDPublisher;
-import com.helger.pd.publisher.app.PDWorkerPool;
+import com.helger.photon.app.PhotonWorkerPool;
 import com.helger.quartz.DisallowConcurrentExecution;
 import com.helger.quartz.IJobExecutionContext;
 import com.helger.quartz.JobDataMap;
@@ -65,7 +65,7 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
   public static void exportAllBusinessCardsInBackground ()
   {
     // Start in background
-    PDWorkerPool.getInstance ().run (ExportAllDataJob::exportAllBusinessCards);
+    PhotonWorkerPool.getInstance ().runThrowing ("ExportAllBusinessCards", ExportAllDataJob::exportAllBusinessCards);
   }
 
   public static void exportAllBusinessCards () throws IOException
