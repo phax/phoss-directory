@@ -61,7 +61,7 @@ import com.helger.photon.uicore.page.EWebPageFormAction;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 import com.helger.photon.uictrls.datatables.column.DTCol;
 import com.helger.photon.uictrls.datatables.column.EDTColType;
-import com.helger.smpclient.url.IPeppolURLProvider;
+import com.helger.smpclient.url.ISMPURLProvider;
 import com.helger.smpclient.url.PeppolDNSResolutionException;
 
 public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <IReIndexWorkItem>
@@ -175,7 +175,7 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
   {
     final HCNodeList aNodeList = aWPEC.getNodeList ();
     final Locale aDisplayLocale = aWPEC.getDisplayLocale ();
-    final IPeppolURLProvider aURLProvider = PDServerConfiguration.getURLProvider ();
+    final ISMPURLProvider aURLProvider = PDServerConfiguration.getURLProvider ();
 
     final IIndexerWorkItem aWorkItem = aSelectedObject.getWorkItem ();
     final IParticipantIdentifier aParticipantID = aWorkItem.getParticipantID ();

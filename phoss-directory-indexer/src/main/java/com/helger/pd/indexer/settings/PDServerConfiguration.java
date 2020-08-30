@@ -47,7 +47,7 @@ import com.helger.settings.ISettings;
 import com.helger.settings.exchange.configfile.ConfigFile;
 import com.helger.settings.exchange.configfile.ConfigFileBuilder;
 import com.helger.smpclient.url.BDXLURLProvider;
-import com.helger.smpclient.url.IPeppolURLProvider;
+import com.helger.smpclient.url.ISMPURLProvider;
 import com.helger.smpclient.url.PeppolURLProvider;
 
 /**
@@ -383,7 +383,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
    *         configured, this does not matter.
    */
   @Nonnull
-  public static IPeppolURLProvider getURLProvider ()
+  public static ISMPURLProvider getURLProvider ()
   {
     final String sSMLURLProvider = getConfigFile ().getAsString ("sml.urlprovider");
     if ("esens".equalsIgnoreCase (sSMLURLProvider) || "bdxl".equalsIgnoreCase (sSMLURLProvider))

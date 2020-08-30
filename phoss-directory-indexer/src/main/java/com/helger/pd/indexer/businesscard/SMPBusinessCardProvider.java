@@ -52,7 +52,7 @@ import com.helger.smpclient.bdxr2.BDXR2ClientReadOnly;
 import com.helger.smpclient.exception.SMPClientException;
 import com.helger.smpclient.httpclient.AbstractGenericSMPClient;
 import com.helger.smpclient.peppol.SMPClientReadOnly;
-import com.helger.smpclient.url.IPeppolURLProvider;
+import com.helger.smpclient.url.ISMPURLProvider;
 import com.helger.smpclient.url.PeppolDNSResolutionException;
 
 /**
@@ -69,7 +69,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
 
   private final ESMPAPIType m_eSMPMode;
   private final URI m_aSMPURI;
-  private final IPeppolURLProvider m_aURLProvider;
+  private final ISMPURLProvider m_aURLProvider;
   private final ISupplier <? extends ICommonsList <? extends ISMLInfo>> m_aSMLInfoProvider;
 
   /**
@@ -89,7 +89,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
    */
   protected SMPBusinessCardProvider (@Nonnull final ESMPAPIType eSMPMode,
                                      @Nullable final URI aSMPURI,
-                                     @Nullable final IPeppolURLProvider aURLProvider,
+                                     @Nullable final ISMPURLProvider aURLProvider,
                                      @Nullable final ISupplier <? extends ICommonsList <? extends ISMLInfo>> aSMLInfoProvider)
   {
     ValueEnforcer.notNull (eSMPMode, "SMPMode");
@@ -465,7 +465,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
 
   @Nonnull
   public static SMPBusinessCardProvider createWithSMLAutoDetect (@Nonnull final ESMPAPIType eSMPMode,
-                                                                 @Nonnull final IPeppolURLProvider aURLProvider,
+                                                                 @Nonnull final ISMPURLProvider aURLProvider,
                                                                  @Nullable final ISupplier <? extends ICommonsList <? extends ISMLInfo>> aSMLInfoProvider)
   {
     ValueEnforcer.notNull (eSMPMode, "SMPMode");

@@ -96,9 +96,10 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
-* v0.8.8 - work in progress
+* v0.8.8 - 2020-08-30
     * Updated to ph-commons 9.4.7
     * Updated to ph-oton 8.2.6
+    * Updated to peppol-commons 8.1.7
     * Using Java 8 date and time classes for JAXB created classes
 * v0.8.7 - 2020-05-27
     * Updated to ph-commons 9.4.4
