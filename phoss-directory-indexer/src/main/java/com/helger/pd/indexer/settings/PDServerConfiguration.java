@@ -17,6 +17,7 @@
 package com.helger.pd.indexer.settings;
 
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 
 import javax.annotation.CheckForSigned;
 import javax.annotation.Nonnegative;
@@ -32,8 +33,17 @@ import com.helger.commons.annotation.UsedViaReflection;
 import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.debug.GlobalDebug;
+import com.helger.commons.exception.InitializationException;
+import com.helger.commons.io.resource.IReadableResource;
+import com.helger.commons.io.resourceprovider.ReadableResourceProviderChain;
 import com.helger.commons.string.StringHelper;
+import com.helger.commons.system.SystemProperties;
 import com.helger.commons.url.URLHelper;
+import com.helger.config.Config;
+import com.helger.config.ConfigFactory;
+import com.helger.config.IConfig;
+import com.helger.config.source.MultiConfigurationValueProvider;
+import com.helger.config.source.res.ConfigurationSourceProperties;
 import com.helger.peppol.sml.ESMPAPIType;
 import com.helger.peppol.utils.PeppolKeyStoreHelper;
 import com.helger.peppolid.factory.BDXR1IdentifierFactory;
@@ -43,9 +53,6 @@ import com.helger.peppolid.factory.PeppolIdentifierFactory;
 import com.helger.peppolid.factory.SimpleIdentifierFactory;
 import com.helger.scope.singleton.AbstractGlobalSingleton;
 import com.helger.security.keystore.EKeyStoreType;
-import com.helger.settings.ISettings;
-import com.helger.settings.exchange.configfile.ConfigFile;
-import com.helger.settings.exchange.configfile.ConfigFileBuilder;
 import com.helger.smpclient.url.BDXLURLProvider;
 import com.helger.smpclient.url.ISMPURLProvider;
 import com.helger.smpclient.url.PeppolURLProvider;
@@ -69,22 +76,58 @@ import com.helger.smpclient.url.PeppolURLProvider;
 public final class PDServerConfiguration extends AbstractGlobalSingleton
 {
   private static final Logger LOGGER = LoggerFactory.getLogger (PDServerConfiguration.class);
-  private static final ConfigFile s_aConfigFile;
 
   static
   {
-    final ConfigFileBuilder aCFB = new ConfigFileBuilder ().addPathFromSystemProperty ("peppol.directory.server.properties.path")
-                                                           .addPathFromSystemProperty ("directory.server.properties.path")
-                                                           .addPathFromEnvVar ("DIRECTORY_SERVER_CONFIG")
-                                                           .addPath ("private-pd.properties")
-                                                           .addPath ("pd.properties");
-
-    s_aConfigFile = aCFB.build ();
-    if (s_aConfigFile.isRead ())
-      LOGGER.info ("Read Peppol Directory server properties from " + s_aConfigFile.getReadResource ().getPath ());
-    else
-      LOGGER.warn ("Failed to read Peppol Directory server properties from " + aCFB.getAllPaths ());
+    // Since 8.2.0
+    if (StringHelper.hasText (SystemProperties.getPropertyValueOrNull ("peppol.directory.server.properties.path")))
+      throw new InitializationException ("The system property 'peppol.directory.server.properties.path' is no longer supported." +
+                                         " See https://github.com/phax/ph-commons#ph-config for alternatives." +
+                                         " Consider using the system property 'config.file' instead.");
+    if (StringHelper.hasText (SystemProperties.getPropertyValueOrNull ("directory.server.properties.path")))
+      throw new InitializationException ("The system property 'directory.server.properties.path' is no longer supported." +
+                                         " See https://github.com/phax/ph-commons#ph-config for alternatives." +
+                                         " Consider using the system property 'config.file' instead.");
+    if (StringHelper.hasText (System.getenv ().get ("DIRECTORY_SERVER_CONFIG")))
+      throw new InitializationException ("The environment variable 'DIRECTORY_SERVER_CONFIG' is no longer supported." +
+                                         " See https://github.com/phax/ph-commons#ph-config for alternatives." +
+                                         " Consider using the environment variable 'CONFIG_FILE' instead.");
   }
+
+  /**
+   * @return The configuration value provider for phase4 that contains backward
+   *         compatibility support.
+   */
+  @Nonnull
+  public static MultiConfigurationValueProvider createSMPClientValueProvider ()
+  {
+    // Start with default setup
+    final MultiConfigurationValueProvider ret = ConfigFactory.createDefaultValueProvider ();
+
+    final ReadableResourceProviderChain aResourceProvider = ConfigFactory.createDefaultResourceProviderChain ();
+
+    IReadableResource aRes;
+    final int nBasePrio = ConfigFactory.APPLICATION_PROPERTIES_PRIORITY;
+
+    // Lower priority than the standard files
+    aRes = aResourceProvider.getReadableResourceIf ("private-pd.properties", IReadableResource::exists);
+    if (aRes != null)
+    {
+      LOGGER.warn ("The support for the properties file 'private-pd.properties' is deprecated. Place the properties in 'application.properties' instead.");
+      ret.addConfigurationSource (new ConfigurationSourceProperties (aRes, StandardCharsets.UTF_8), nBasePrio - 1);
+    }
+
+    aRes = aResourceProvider.getReadableResourceIf ("pd.properties", IReadableResource::exists);
+    if (aRes != null)
+    {
+      LOGGER.warn ("The support for the properties file 'pd.properties' is deprecated. Place the properties in 'application.properties' instead.");
+      ret.addConfigurationSource (new ConfigurationSourceProperties (aRes, StandardCharsets.UTF_8), nBasePrio - 2);
+    }
+
+    return ret;
+  }
+
+  private static final IConfig DEFAULT_INSTANCE = Config.create (createSMPClientValueProvider ());
 
   @Deprecated
   @UsedViaReflection
@@ -96,19 +139,9 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
    *         <code>null</code>.
    */
   @Nonnull
-  public static ConfigFile getConfigFile ()
+  public static IConfig getConfig ()
   {
-    return s_aConfigFile;
-  }
-
-  /**
-   * @return The underlying settings object. Use it to query non-standard
-   *         settings. Never <code>null</code>.
-   */
-  @Nonnull
-  public static ISettings getSettingsObject ()
-  {
-    return getConfigFile ().getSettings ();
+    return DEFAULT_INSTANCE;
   }
 
   /**
@@ -120,7 +153,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   @Nullable
   public static String getGlobalDebug ()
   {
-    return getConfigFile ().getAsString ("global.debug");
+    return getConfig ().getAsString ("global.debug");
   }
 
   /**
@@ -132,7 +165,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   @Nullable
   public static String getGlobalProduction ()
   {
-    return getConfigFile ().getAsString ("global.production");
+    return getConfig ().getAsString ("global.production");
   }
 
   /**
@@ -143,7 +176,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   @Nullable
   public static String getDataPath ()
   {
-    return getConfigFile ().getAsString ("webapp.datapath");
+    return getConfig ().getAsString ("webapp.datapath");
   }
 
   /**
@@ -156,7 +189,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
    */
   public static boolean isCheckFileAccess ()
   {
-    return getConfigFile ().getAsBoolean ("webapp.checkfileaccess", false);
+    return getConfig ().getAsBoolean ("webapp.checkfileaccess", false);
   }
 
   /**
@@ -168,7 +201,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
    */
   public static boolean isTestVersion ()
   {
-    return getConfigFile ().getAsBoolean ("webapp.testversion", GlobalDebug.isDebugMode ());
+    return getConfig ().getAsBoolean ("webapp.testversion", GlobalDebug.isDebugMode ());
   }
 
   /**
@@ -178,44 +211,44 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
    */
   public static boolean isForceRoot ()
   {
-    return getConfigFile ().getAsBoolean ("webapp.forceroot", false);
+    return getConfig ().getAsBoolean ("webapp.forceroot", false);
   }
 
   @Nonnull
   @Nonempty
   public static String getAppName ()
   {
-    return getConfigFile ().getAsString ("webapp.appname", "Peppol Directory");
+    return getConfig ().getAsString ("webapp.appname", "Peppol Directory");
   }
 
   @Nullable
   public static String getAppLogoImagePath ()
   {
-    return getConfigFile ().getAsString ("webapp.applogo.image.path");
+    return getConfig ().getAsString ("webapp.applogo.image.path");
   }
 
   @Nullable
   public static String getVendorName ()
   {
-    return getConfigFile ().getAsString ("webapp.vendor.name", "OpenPEPPOL AISBL");
+    return getConfig ().getAsString ("webapp.vendor.name", "OpenPEPPOL AISBL");
   }
 
   @Nullable
   public static String getVendorURL ()
   {
-    return getConfigFile ().getAsString ("webapp.vendor.url", "http://peppol.eu");
+    return getConfig ().getAsString ("webapp.vendor.url", "http://peppol.eu");
   }
 
   @Nullable
   public static String getLogoImageURL ()
   {
-    return getConfigFile ().getAsString ("webapp.logo.image.path");
+    return getConfig ().getAsString ("webapp.logo.image.path");
   }
 
   @Nullable
   public static String getSearchUIMode ()
   {
-    return getConfigFile ().getAsString ("webapp.search.ui");
+    return getConfig ().getAsString ("webapp.search.ui");
   }
 
   /**
@@ -227,7 +260,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
    */
   public static boolean isClientCertificateValidationActive ()
   {
-    return getConfigFile ().getAsBoolean ("indexer.clientcert.validation", true);
+    return getConfig ().getAsBoolean ("indexer.clientcert.validation", true);
   }
 
   /**
@@ -245,7 +278,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
     int nIndex = 1;
     while (true)
     {
-      final String sValue = getConfigFile ().getAsString ("clientcert.issuer." + nIndex);
+      final String sValue = getConfig ().getAsString ("clientcert.issuer." + nIndex);
       if (StringHelper.hasNoText (sValue))
         break;
 
@@ -274,11 +307,11 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
     {
       final String sPrefix = "truststore." + nIndex;
 
-      final String sType = getConfigFile ().getAsString (sPrefix + ".type");
+      final String sType = getConfig ().getAsString (sPrefix + ".type");
       final EKeyStoreType eType = EKeyStoreType.getFromIDCaseInsensitiveOrDefault (sType, PeppolKeyStoreHelper.TRUSTSTORE_TYPE);
-      final String sPath = getConfigFile ().getAsString (sPrefix + ".path");
-      final String sPassword = getConfigFile ().getAsString (sPrefix + ".password");
-      final String sAlias = getConfigFile ().getAsString (sPrefix + ".alias");
+      final String sPath = getConfig ().getAsString (sPrefix + ".path");
+      final String sPassword = getConfig ().getAsString (sPrefix + ".password");
+      final String sAlias = getConfig ().getAsString (sPrefix + ".alias");
 
       if (StringHelper.hasNoText (sPath) || StringHelper.hasNoText (sPassword) || StringHelper.hasNoText (sAlias))
         break;
@@ -299,7 +332,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   @Nonnegative
   public static int getReIndexMaxRetryHours ()
   {
-    final int ret = getConfigFile ().getAsInt ("reindex.maxretryhours", 24);
+    final int ret = getConfig ().getAsInt ("reindex.maxretryhours", 24);
     if (ret < 0)
       throw new IllegalStateException ("The reindex.maxretryhours property must be >= 0!");
     return ret;
@@ -314,7 +347,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   @Nonnegative
   public static int getReIndexRetryMinutes ()
   {
-    final int ret = getConfigFile ().getAsInt ("reindex.retryminutes", 5);
+    final int ret = getConfig ().getAsInt ("reindex.retryminutes", 5);
     if (ret <= 0)
       throw new IllegalStateException ("The reindex.retryminutes property must be > 0!");
     return ret;
@@ -329,7 +362,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   @Nullable
   public static String getProxyHost ()
   {
-    return getConfigFile ().getAsString ("http.proxyHost");
+    return getConfig ().getAsString ("http.proxyHost");
   }
 
   /**
@@ -340,7 +373,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
    */
   public static int getProxyPort ()
   {
-    return getConfigFile ().getAsInt ("http.proxyPort", 0);
+    return getConfig ().getAsInt ("http.proxyPort", 0);
   }
 
   /**
@@ -351,7 +384,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   @Nullable
   public static String getProxyUsername ()
   {
-    return getConfigFile ().getAsString ("http.proxyUsername");
+    return getConfig ().getAsString ("http.proxyUsername");
   }
 
   /**
@@ -362,7 +395,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   @Nullable
   public static String getProxyPassword ()
   {
-    return getConfigFile ().getAsString ("http.proxyPassword");
+    return getConfig ().getAsString ("http.proxyPassword");
   }
 
   /**
@@ -374,7 +407,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   @Nullable
   public static URI getFixedSMPURI ()
   {
-    final String sSMPURI = getConfigFile ().getAsString ("smp.uri");
+    final String sSMPURI = getConfig ().getAsString ("smp.uri");
     return URLHelper.getAsURI (sSMPURI);
   }
 
@@ -385,7 +418,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   @Nonnull
   public static ISMPURLProvider getURLProvider ()
   {
-    final String sSMLURLProvider = getConfigFile ().getAsString ("sml.urlprovider");
+    final String sSMLURLProvider = getConfig ().getAsString ("sml.urlprovider");
     if ("esens".equalsIgnoreCase (sSMLURLProvider) || "bdxl".equalsIgnoreCase (sSMLURLProvider))
       return BDXLURLProvider.INSTANCE;
 
@@ -396,7 +429,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   @Nonnull
   public static ESMPAPIType getSMPMode ()
   {
-    final String sSMPMode = getConfigFile ().getAsString ("smp.mode");
+    final String sSMPMode = getConfig ().getAsString ("smp.mode");
     if ("oasis-bdxr-v1".equalsIgnoreCase (sSMPMode))
       return ESMPAPIType.OASIS_BDXR_V1;
     if ("oasis-bdxr-v2".equalsIgnoreCase (sSMPMode))
@@ -409,7 +442,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   @Nonnull
   public static IIdentifierFactory getIdentifierFactory ()
   {
-    final String sSMPMode = getConfigFile ().getAsString ("identifier.type");
+    final String sSMPMode = getConfig ().getAsString ("identifier.type");
     if ("oasis-bdxr-v1".equalsIgnoreCase (sSMPMode))
       return BDXR1IdentifierFactory.INSTANCE;
     if ("oasis-bdxr-v2".equalsIgnoreCase (sSMPMode))
@@ -424,6 +457,6 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   @CheckForSigned
   public static long getRESTAPIMaxRequestsPerSecond ()
   {
-    return getConfigFile ().getAsLong ("rest.limit.requestspersecond", -1);
+    return getConfig ().getAsLong ("rest.limit.requestspersecond", -1);
   }
 }

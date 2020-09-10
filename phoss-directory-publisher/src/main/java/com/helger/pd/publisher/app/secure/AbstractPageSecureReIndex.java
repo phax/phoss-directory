@@ -62,7 +62,7 @@ import com.helger.photon.uicore.page.WebPageExecutionContext;
 import com.helger.photon.uictrls.datatables.column.DTCol;
 import com.helger.photon.uictrls.datatables.column.EDTColType;
 import com.helger.smpclient.url.ISMPURLProvider;
-import com.helger.smpclient.url.PeppolDNSResolutionException;
+import com.helger.smpclient.url.SMPDNSResolutionException;
 
 public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <IReIndexWorkItem>
 {
@@ -197,7 +197,7 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
           aURLs.addChild (div (HCA.createLinkedWebsite (aURLProvider.getSMPURIOfParticipant (aParticipantID, aSMLInfo).toString () +
                                                         sBCSuffix)));
         }
-        catch (final PeppolDNSResolutionException ex)
+        catch (final SMPDNSResolutionException ex)
         {
           // Non existing participant!
           aURLs.addChild (div (aParticipantID.getURIPercentEncoded () +

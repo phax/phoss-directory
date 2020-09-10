@@ -53,7 +53,7 @@ import com.helger.smpclient.exception.SMPClientException;
 import com.helger.smpclient.httpclient.AbstractGenericSMPClient;
 import com.helger.smpclient.peppol.SMPClientReadOnly;
 import com.helger.smpclient.url.ISMPURLProvider;
-import com.helger.smpclient.url.PeppolDNSResolutionException;
+import com.helger.smpclient.url.SMPDNSResolutionException;
 
 /**
  * The SMP based {@link IPDBusinessCardProvider} implementation. An SMP lookup
@@ -408,7 +408,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
               _configureSMPClient (aSMPClient);
               aBC = getBusinessCardPeppolSMP (aParticipantID, aSMPClient, aHCS);
             }
-            catch (final PeppolDNSResolutionException ex)
+            catch (final SMPDNSResolutionException ex)
             {
               // Happens if a non-existing URL is queried
             }
@@ -422,7 +422,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
               _configureSMPClient (aSMPClient);
               aBC = getBusinessCardBDXR1 (aParticipantID, aSMPClient, aHCS);
             }
-            catch (final PeppolDNSResolutionException ex)
+            catch (final SMPDNSResolutionException ex)
             {
               // Happens if a non-existing URL is queried
             }
@@ -436,7 +436,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
               _configureSMPClient (aSMPClient);
               aBC = getBusinessCardBDXR2 (aParticipantID, aSMPClient, aHCS);
             }
-            catch (final PeppolDNSResolutionException ex)
+            catch (final SMPDNSResolutionException ex)
             {
               // Happens if a non-existing URL is queried
             }

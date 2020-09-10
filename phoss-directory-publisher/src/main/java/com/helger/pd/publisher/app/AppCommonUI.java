@@ -85,21 +85,21 @@ public final class AppCommonUI
 
   static
   {
-    final String sFavIcon16x16 = PDServerConfiguration.getConfigFile ().getAsString ("webapp.favicon.png.16x16");
+    final String sFavIcon16x16 = PDServerConfiguration.getConfig ().getAsString ("webapp.favicon.png.16x16");
     if (StringHelper.hasText (sFavIcon16x16))
       DEFAULT_FAV_ICONS.add (new HCLink ().setRel (EHCLinkType.ICON)
                                           .setType (CMimeType.IMAGE_PNG)
                                           .setSizes ("16x16")
                                           .setHref (new SimpleURL (sFavIcon16x16)));
 
-    final String sFavIcon32x32 = PDServerConfiguration.getConfigFile ().getAsString ("webapp.favicon.png.32x32");
+    final String sFavIcon32x32 = PDServerConfiguration.getConfig ().getAsString ("webapp.favicon.png.32x32");
     if (StringHelper.hasText (sFavIcon32x32))
       DEFAULT_FAV_ICONS.add (new HCLink ().setRel (EHCLinkType.ICON)
                                           .setType (CMimeType.IMAGE_PNG)
                                           .setSizes ("32x32")
                                           .setHref (new SimpleURL (sFavIcon32x32)));
 
-    final String sFavIcon96x96 = PDServerConfiguration.getConfigFile ().getAsString ("webapp.favicon.png.96x96");
+    final String sFavIcon96x96 = PDServerConfiguration.getConfig ().getAsString ("webapp.favicon.png.96x96");
     if (StringHelper.hasText (sFavIcon96x96))
       DEFAULT_FAV_ICONS.add (new HCLink ().setRel (EHCLinkType.ICON)
                                           .setType (CMimeType.IMAGE_PNG)

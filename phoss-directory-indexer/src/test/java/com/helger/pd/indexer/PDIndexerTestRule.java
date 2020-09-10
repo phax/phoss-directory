@@ -27,7 +27,6 @@ import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.photon.app.io.WebIOIntIDFactory;
 import com.helger.photon.app.mock.PhotonAppWebTestRule;
 import com.helger.scope.mock.ScopeTestRule;
-import com.helger.smpclient.config.SMPClientConfiguration;
 
 /**
  * Special Peppol Directory test rule with the correct data path from the
@@ -54,7 +53,5 @@ public class PDIndexerTestRule extends PhotonAppWebTestRule
     super.before ();
     FileOperationManager.INSTANCE.deleteDirRecursiveIfExisting (PDLucene.getLuceneIndexDir ());
     GlobalIDFactory.setPersistentIntIDFactory (new WebIOIntIDFactory ("pd-ids.dat"));
-    // Ensure the network system properties are assigned
-    SMPClientConfiguration.getConfigFile ().applyAllNetworkSystemProperties ();
   }
 }

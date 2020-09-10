@@ -93,7 +93,7 @@ public final class NiceNameHandler
     // Doc types
     {
       IReadableResource aDocTypeIDRes = null;
-      final String sPath = PDServerConfiguration.getConfigFile ().getAsString ("webapp.nicename.doctypes.path");
+      final String sPath = PDServerConfiguration.getConfig ().getAsString ("webapp.nicename.doctypes.path");
       if (StringHelper.hasText (sPath))
       {
         aDocTypeIDRes = new FileSystemResource (sPath);
@@ -117,7 +117,7 @@ public final class NiceNameHandler
     // Processes
     {
       IReadableResource aProcessIDRes = null;
-      final String sPath = PDServerConfiguration.getConfigFile ().getAsString ("webapp.nicename.processes.path");
+      final String sPath = PDServerConfiguration.getConfig ().getAsString ("webapp.nicename.processes.path");
       if (StringHelper.hasText (sPath))
       {
         aProcessIDRes = new FileSystemResource (sPath);

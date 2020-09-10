@@ -20,7 +20,6 @@ import javax.annotation.concurrent.Immutable;
 
 import com.helger.httpclient.HttpDebugger;
 import com.helger.photon.jetty.JettyStarter;
-import com.helger.smpclient.config.SMPClientConfiguration;
 
 /**
  * Run as a standalone web application in Jetty on port 8080.<br>
@@ -33,7 +32,6 @@ public final class RunInJettyPD
 {
   public static void main (final String [] args) throws Exception
   {
-    SMPClientConfiguration.getConfigFile ().applyAllNetworkSystemProperties ();
     HttpDebugger.setEnabled (false);
     new JettyStarter (RunInJettyPD.class).setSessionCookieName ("PDSESSION").run ();
   }
