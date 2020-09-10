@@ -16,57 +16,97 @@
  */
 package com.helger.pd.client;
 
+import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.commons.concurrent.SimpleReadWriteLock;
+import com.helger.commons.exception.InitializationException;
+import com.helger.commons.io.resource.IReadableResource;
+import com.helger.commons.io.resourceprovider.ReadableResourceProviderChain;
+import com.helger.commons.string.StringHelper;
+import com.helger.commons.system.SystemProperties;
+import com.helger.config.Config;
+import com.helger.config.ConfigFactory;
+import com.helger.config.IConfig;
+import com.helger.config.source.MultiConfigurationValueProvider;
+import com.helger.config.source.res.ConfigurationSourceProperties;
 import com.helger.security.keystore.EKeyStoreType;
 import com.helger.security.keystore.KeyStoreHelper;
 import com.helger.security.keystore.LoadedKey;
 import com.helger.security.keystore.LoadedKeyStore;
-import com.helger.settings.exchange.configfile.ConfigFile;
-import com.helger.settings.exchange.configfile.ConfigFileBuilder;
 
 /**
  * This class manages the configuration properties of the Peppol Directory
- * client. The order of the properties file resolving is as follows:
- * <ol>
- * <li>Check for the value of the system property
- * <code>peppol.pd.client.properties.path</code></li>
- * <li>Check for the value of the system property
- * <code>pd.client.properties.path</code></li>
- * <li>The filename <code>private-pd-client.properties</code> in the root of the
- * classpath</li>
- * <li>The filename <code>pd-client.properties</code> in the root of the
- * classpath</li>
- * </ol>
+ * client using the global {@link IConfig} interface.
  *
  * @author Philip Helger
  */
 @ThreadSafe
 public final class PDClientConfiguration
 {
-  public static final String SYSTEM_PROPERTY_PRIMARY = "peppol.pd.client.properties.path";
-  public static final String SYSTEM_PROPERTY_SECONDARY = "pd.client.properties.path";
-  public static final String PROPERTY_FILE_PRIMARY = "private-pd-client.properties";
-  public static final String PROPERTY_FILE_SECONDARY = "pd-client.properties";
+  private static final Logger LOGGER = LoggerFactory.getLogger (PDClientConfiguration.class);
+
+  static
+  {
+    // Since 0.9.0
+    if (StringHelper.hasText (SystemProperties.getPropertyValueOrNull ("peppol.pd.client.properties.path")))
+      throw new InitializationException ("The system property 'peppol.pd.client.properties.path' is no longer supported." +
+                                         " See https://github.com/phax/ph-commons#ph-config for alternatives." +
+                                         " Consider using the system property 'config.file' instead.");
+    if (StringHelper.hasText (SystemProperties.getPropertyValueOrNull ("pd.client.properties.path")))
+      throw new InitializationException ("The system property 'pd.client.properties.path' is no longer supported." +
+                                         " See https://github.com/phax/ph-commons#ph-config for alternatives." +
+                                         " Consider using the system property 'config.file' instead.");
+    if (StringHelper.hasText (System.getenv ().get ("DIRECTORY_CLIENT_CONFIG")))
+      throw new InitializationException ("The environment variable 'DIRECTORY_CLIENT_CONFIG' is no longer supported." +
+                                         " See https://github.com/phax/ph-commons#ph-config for alternatives." +
+                                         " Consider using the environment variable 'CONFIG_FILE' instead.");
+  }
+
+  /**
+   * @return The configuration value provider for phase4 that contains backward
+   *         compatibility support.
+   */
+  @Nonnull
+  public static MultiConfigurationValueProvider createSMPClientValueProvider ()
+  {
+    // Start with default setup
+    final MultiConfigurationValueProvider ret = ConfigFactory.createDefaultValueProvider ();
+
+    final ReadableResourceProviderChain aResourceProvider = ConfigFactory.createDefaultResourceProviderChain ();
+
+    IReadableResource aRes;
+    final int nBasePrio = ConfigFactory.APPLICATION_PROPERTIES_PRIORITY;
+
+    // Lower priority than the standard files
+    aRes = aResourceProvider.getReadableResourceIf ("private-pd-client.properties", IReadableResource::exists);
+    if (aRes != null)
+    {
+      LOGGER.warn ("The support for the properties file 'private-pd-client.properties' is deprecated. Place the properties in 'application.properties' instead.");
+      ret.addConfigurationSource (new ConfigurationSourceProperties (aRes, StandardCharsets.UTF_8), nBasePrio - 1);
+    }
+
+    aRes = aResourceProvider.getReadableResourceIf ("pd-client.properties", IReadableResource::exists);
+    if (aRes != null)
+    {
+      LOGGER.warn ("The support for the properties file 'pd-client.properties' is deprecated. Place the properties in 'application.properties' instead.");
+      ret.addConfigurationSource (new ConfigurationSourceProperties (aRes, StandardCharsets.UTF_8), nBasePrio - 2);
+    }
+
+    return ret;
+  }
 
   public static final EKeyStoreType DEFAULT_TRUSTSTORE_TYPE = EKeyStoreType.JKS;
   public static final int DEFAULT_CONNECTION_TIMEOUT_MS = 5_000;
   public static final int DEFAULT_REQUEST_TIMEOUT_MS = 10_000;
 
-  private static final Logger LOGGER = LoggerFactory.getLogger (PDClientConfiguration.class);
-
-  private static final SimpleReadWriteLock s_aRWLock = new SimpleReadWriteLock ();
-  @GuardedBy ("s_aRWLock")
-  private static ConfigFile s_aConfigFile;
+  private static final IConfig CONFIG = Config.create (createSMPClientValueProvider ());
 
   /**
    * Reload the Directory configuration from the source again.
@@ -75,25 +115,10 @@ public final class PDClientConfiguration
    */
   public static void reloadConfiguration ()
   {
-    final ConfigFileBuilder aCFB = new ConfigFileBuilder ().addPathFromSystemProperty (SYSTEM_PROPERTY_PRIMARY)
-                                                           .addPathFromSystemProperty (SYSTEM_PROPERTY_SECONDARY)
-                                                           .addPathFromEnvVar ("DIRECTORY_CLIENT_CONFIG")
-                                                           .addPath (PROPERTY_FILE_PRIMARY)
-                                                           .addPath (PROPERTY_FILE_SECONDARY);
-
-    final ConfigFile aConfigFile = aCFB.build ();
-    if (aConfigFile.isRead ())
-      LOGGER.info ("Read Peppol Directory client properties from " + aConfigFile.getReadResource ().getPath ());
+    if (CONFIG.reloadAllResourceBasedConfigurationValues ().isSuccess ())
+      LOGGER.info ("Successfully re-read the resource based configuration sources");
     else
-      LOGGER.warn ("Failed to read Peppol Directory client properties from " + aCFB.getAllPaths ());
-
-    // Remember globally
-    s_aRWLock.writeLockedGet ( () -> s_aConfigFile = aConfigFile);
-  }
-
-  static
-  {
-    reloadConfiguration ();
+      LOGGER.warn ("Failed to reload at least one of the resource based configuration sources");
   }
 
   private PDClientConfiguration ()
@@ -103,17 +128,9 @@ public final class PDClientConfiguration
    * @return The global config file for the SMP client.
    */
   @Nonnull
-  public static ConfigFile getConfigFile ()
+  public static IConfig getConfigFile ()
   {
-    s_aRWLock.readLock ().lock ();
-    try
-    {
-      return s_aConfigFile;
-    }
-    finally
-    {
-      s_aRWLock.readLock ().unlock ();
-    }
+    return CONFIG;
   }
 
   /**

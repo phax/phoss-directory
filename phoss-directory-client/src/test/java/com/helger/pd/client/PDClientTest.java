@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.commons.exception.InitializationException;
-import com.helger.commons.io.resource.ClassPathResource;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.factory.PeppolIdentifierFactory;
 
@@ -69,32 +68,6 @@ public final class PDClientTest
     catch (final InitializationException ex)
     {
       LOGGER.error ("Failed to invoke PDClient", ex);
-    }
-  }
-
-  @Test
-  @Ignore ("Test manually only!")
-  public void testProductionServer ()
-  {
-    System.setProperty (PDClientConfiguration.SYSTEM_PROPERTY_PRIMARY,
-                        ClassPathResource.getAsFile ("private-pd-client-prod.properties").getAbsolutePath ());
-
-    final IParticipantIdentifier aPI = PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9915:b");
-    try (final PDClient aClient = new PDClient ("https://directory.peppol.eu"))
-    {
-      if (aClient.deleteServiceGroupFromIndex (aPI).isSuccess ())
-      {
-        aClient.isServiceGroupRegistered (aPI);
-        aClient.addServiceGroupToIndex (aPI);
-      }
-    }
-    catch (final InitializationException ex)
-    {
-      LOGGER.error ("Failed to invoke PDClient", ex);
-    }
-    finally
-    {
-      System.clearProperty (PDClientConfiguration.SYSTEM_PROPERTY_PRIMARY);
     }
   }
 }

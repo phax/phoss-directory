@@ -79,7 +79,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
 
   static
   {
-    // Since 8.2.0
+    // Since 0.9.0
     if (StringHelper.hasText (SystemProperties.getPropertyValueOrNull ("peppol.directory.server.properties.path")))
       throw new InitializationException ("The system property 'peppol.directory.server.properties.path' is no longer supported." +
                                          " See https://github.com/phax/ph-commons#ph-config for alternatives." +
