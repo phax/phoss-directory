@@ -42,6 +42,7 @@ public final class PD3BusinessCardMarshallerTest
     assertNotNull (aBC);
     assertNotNull (PD3APIHelper.createBusinessCard (aBC));
     assertNotNull (PD3APIHelper.createBusinessCard (aBC).getAsMicroXML ("urn:test", "bc"));
+    assertNotNull (PD3APIHelper.createBusinessCard (aBC).getAsJson ());
     assertNotNull (PDBusinessCardHelper.parseBusinessCard (aBytes, null));
   }
 

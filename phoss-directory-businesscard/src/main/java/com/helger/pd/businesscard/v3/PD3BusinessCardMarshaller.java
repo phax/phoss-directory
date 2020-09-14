@@ -53,6 +53,6 @@ public class PD3BusinessCardMarshaller extends GenericJAXBMarshaller <PD3Busines
    */
   public PD3BusinessCardMarshaller ()
   {
-    super (PD3BusinessCardType.class, BUSINESS_CARD_XSDS, x -> new ObjectFactory ().createBusinessCard (x));
+    super (PD3BusinessCardType.class, BUSINESS_CARD_XSDS, new ObjectFactory ()::createBusinessCard);
   }
 }
