@@ -24,9 +24,6 @@ import com.helger.commons.datetime.PDTFactory;
 import com.helger.commons.debug.GlobalDebug;
 import com.helger.commons.io.resource.ClassPathResource;
 import com.helger.commons.vendor.VendorInfo;
-import com.helger.config.source.res.ConfigurationSourceJson;
-import com.helger.config.source.res.ConfigurationSourceProperties;
-import com.helger.config.source.res.IConfigurationSourceResource;
 import com.helger.html.meta.MetaElement;
 import com.helger.pd.indexer.clientcert.ClientCertificateValidator;
 import com.helger.pd.indexer.mgr.PDMetaManager;
@@ -119,25 +116,7 @@ public final class AppWebAppListener extends WebAppListenerBootstrap
     final ConfigurationFileManager aCfgMgr = ConfigurationFileManager.getInstance ();
     aCfgMgr.registerConfigurationFile (new ConfigurationFile (new ClassPathResource ("log4j2.xml")).setDescription ("log4j configuration file")
                                                                                                    .setSyntaxHighlightLanguage (EConfigurationFileSyntax.XML));
-    PDServerConfiguration.getConfig ().forEachConfigurationValueProvider ( (cvp, prio) -> {
-      if (cvp instanceof IConfigurationSourceResource)
-      {
-        final IConfigurationSourceResource aCVP = (IConfigurationSourceResource) cvp;
-
-        // Find syntax
-        final EConfigurationFileSyntax eSHL;
-        if (aCVP instanceof ConfigurationSourceJson)
-          eSHL = EConfigurationFileSyntax.JSON;
-        else
-          if (aCVP instanceof ConfigurationSourceProperties)
-            eSHL = EConfigurationFileSyntax.PROPERTIES;
-          else
-            eSHL = EConfigurationFileSyntax.NONE;
-
-        // Register
-        aCfgMgr.registerConfigurationFile (new ConfigurationFile (aCVP.getResource ()).setSyntaxHighlightLanguage (eSHL));
-      }
-    });
+    aCfgMgr.registerAll (PDServerConfiguration.getConfig ());
 
     // Job scheduling etc
     if (GlobalDebug.isDebugMode ())
