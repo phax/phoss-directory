@@ -104,7 +104,8 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
-* v0.9.0 - work in progress
+* v0.9.0 - 2020-09-16
+    * Updated to ph-commons 9.4.8
     * Changed the way how the configuration system works
 * v0.8.8 - 2020-08-30
     * Updated to ph-commons 9.4.7
