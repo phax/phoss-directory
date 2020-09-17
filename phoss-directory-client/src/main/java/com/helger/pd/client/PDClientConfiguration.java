@@ -128,7 +128,7 @@ public final class PDClientConfiguration
    * @return The global config file for the SMP client.
    */
   @Nonnull
-  public static IConfig getConfigFile ()
+  public static IConfig getConfig ()
   {
     return CONFIG;
   }
@@ -140,7 +140,7 @@ public final class PDClientConfiguration
   @Nonnull
   public static EKeyStoreType getKeyStoreType ()
   {
-    final String sType = getConfigFile ().getAsString ("keystore.type");
+    final String sType = getConfig ().getAsString ("keystore.type");
     return EKeyStoreType.getFromIDCaseInsensitiveOrDefault (sType, EKeyStoreType.JKS);
   }
 
@@ -151,7 +151,7 @@ public final class PDClientConfiguration
   @Nullable
   public static String getKeyStorePath ()
   {
-    return getConfigFile ().getAsString ("keystore.path");
+    return getConfig ().getAsString ("keystore.path");
   }
 
   /**
@@ -161,7 +161,7 @@ public final class PDClientConfiguration
   @Nullable
   public static String getKeyStorePassword ()
   {
-    return getConfigFile ().getAsString ("keystore.password");
+    return getConfig ().getAsString ("keystore.password");
   }
 
   /**
@@ -180,7 +180,7 @@ public final class PDClientConfiguration
   @Nullable
   public static String getKeyStoreKeyAlias ()
   {
-    return getConfigFile ().getAsString ("keystore.key.alias");
+    return getConfig ().getAsString ("keystore.key.alias");
   }
 
   /**
@@ -190,7 +190,7 @@ public final class PDClientConfiguration
   @Nullable
   public static char [] getKeyStoreKeyPassword ()
   {
-    return getConfigFile ().getAsCharArray ("keystore.key.password");
+    return getConfig ().getAsCharArray ("keystore.key.password");
   }
 
   /**
@@ -212,7 +212,7 @@ public final class PDClientConfiguration
   @Nonnull
   public static EKeyStoreType getTrustStoreType ()
   {
-    final String sType = getConfigFile ().getAsString ("truststore.type");
+    final String sType = getConfig ().getAsString ("truststore.type");
     return EKeyStoreType.getFromIDCaseInsensitiveOrDefault (sType, DEFAULT_TRUSTSTORE_TYPE);
   }
 
@@ -225,7 +225,7 @@ public final class PDClientConfiguration
   @Nullable
   public static String getTrustStorePath ()
   {
-    return getConfigFile ().getAsString ("truststore.path");
+    return getConfig ().getAsString ("truststore.path");
   }
 
   /**
@@ -237,7 +237,7 @@ public final class PDClientConfiguration
   @Nullable
   public static String getTrustStorePassword ()
   {
-    return getConfigFile ().getAsString ("truststore.password");
+    return getConfig ().getAsString ("truststore.password");
   }
 
   /**
@@ -260,7 +260,7 @@ public final class PDClientConfiguration
    */
   public static boolean isHttpsHostnameVerificationDisabled ()
   {
-    return getConfigFile ().getAsBoolean ("https.hostname-verification.disabled", true);
+    return getConfig ().getAsBoolean ("https.hostname-verification.disabled", true);
   }
 
   /**
@@ -271,7 +271,7 @@ public final class PDClientConfiguration
   @Nullable
   public static String getHttpProxyHost ()
   {
-    return getConfigFile ().getAsString ("http.proxyHost");
+    return getConfig ().getAsString ("http.proxyHost");
   }
 
   /**
@@ -280,7 +280,7 @@ public final class PDClientConfiguration
    */
   public static int getHttpProxyPort ()
   {
-    return getConfigFile ().getAsInt ("http.proxyPort", 0);
+    return getConfig ().getAsInt ("http.proxyPort", 0);
   }
 
   /**
@@ -291,7 +291,7 @@ public final class PDClientConfiguration
   @Nullable
   public static String getHttpsProxyHost ()
   {
-    return getConfigFile ().getAsString ("https.proxyHost");
+    return getConfig ().getAsString ("https.proxyHost");
   }
 
   /**
@@ -300,7 +300,7 @@ public final class PDClientConfiguration
    */
   public static int getHttpsProxyPort ()
   {
-    return getConfigFile ().getAsInt ("https.proxyPort", 0);
+    return getConfig ().getAsInt ("https.proxyPort", 0);
   }
 
   /**
@@ -311,7 +311,7 @@ public final class PDClientConfiguration
   @Nullable
   public static String getProxyUsername ()
   {
-    return getConfigFile ().getAsString ("proxy.username");
+    return getConfig ().getAsString ("proxy.username");
   }
 
   /**
@@ -322,7 +322,7 @@ public final class PDClientConfiguration
   @Nullable
   public static String getProxyPassword ()
   {
-    return getConfigFile ().getAsString ("proxy.password");
+    return getConfig ().getAsString ("proxy.password");
   }
 
   /**
@@ -332,7 +332,7 @@ public final class PDClientConfiguration
    */
   public static int getConnectTimeoutMS ()
   {
-    return getConfigFile ().getAsInt ("connect.timeout.ms", DEFAULT_CONNECTION_TIMEOUT_MS);
+    return getConfig ().getAsInt ("connect.timeout.ms", DEFAULT_CONNECTION_TIMEOUT_MS);
   }
 
   /**
@@ -342,6 +342,6 @@ public final class PDClientConfiguration
    */
   public static int getRequestTimeoutMS ()
   {
-    return getConfigFile ().getAsInt ("request.timeout.ms", DEFAULT_REQUEST_TIMEOUT_MS);
+    return getConfig ().getAsInt ("request.timeout.ms", DEFAULT_REQUEST_TIMEOUT_MS);
   }
 }
