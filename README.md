@@ -104,6 +104,8 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
+* v0.9.1 - 2020-09-18
+    * Updated to Jakarta JAXB 2.3.3
 * v0.9.0 - 2020-09-16
     * Updated to ph-commons 9.4.8
     * Changed the way how the configuration system works
