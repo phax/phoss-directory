@@ -459,4 +459,9 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   {
     return getConfig ().getAsLong ("rest.limit.requestspersecond", -1);
   }
+
+  public static boolean isSyncAllBusinessCards ()
+  {
+    return getConfig ().getAsBoolean ("sync.businesscards", false);
+  }
 }

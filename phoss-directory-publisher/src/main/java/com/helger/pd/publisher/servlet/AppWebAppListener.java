@@ -195,7 +195,7 @@ public final class AppWebAppListener extends WebAppListenerBootstrap
                                                              ExportAllDataJob.class,
                                                              null);
 
-    if (GlobalDebug.isProductionMode ())
+    if (PDServerConfiguration.isSyncAllBusinessCards ())
     {
       // Schedule the sync job every hour - it keeps track of the last sync
       // internally
