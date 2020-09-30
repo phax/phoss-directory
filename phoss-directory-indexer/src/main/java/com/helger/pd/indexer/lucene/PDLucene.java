@@ -153,6 +153,7 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
         }
         StreamHelper.close (m_aIndexWriter);
         StreamHelper.close (m_aDir);
+        StreamHelper.close (m_aAnalyzer);
         LOGGER.info ("Closed Lucene reader/writer/directory");
       }
       finally
