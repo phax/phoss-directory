@@ -178,7 +178,7 @@ public final class PDQueryManager
     if (LOGGER.isDebugEnabled ())
       LOGGER.debug ("Split query string: '" + sQueryString + "' for field '" + sFieldName + "' ==> " + aParts);
 
-    Query aQuery;
+    final Query aQuery;
     if (aParts.size () == 1)
     {
       // Single term - simple query
