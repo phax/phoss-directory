@@ -104,6 +104,8 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
+* v0.9.3 - work in proress
+    * Updated to Jersey 2.32
 * v0.9.2 - 2020-09-24
     * Increased customizability
 * v0.9.1 - 2020-09-18
