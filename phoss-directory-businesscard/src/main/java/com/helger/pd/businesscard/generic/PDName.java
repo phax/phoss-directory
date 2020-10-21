@@ -65,7 +65,7 @@ public class PDName implements Serializable
   }
 
   /**
-   * @return The name. May be <code>null</code>.
+   * @return The name. May neither be <code>null</code> nor empty.
    */
   @Nonnull
   @Nonempty

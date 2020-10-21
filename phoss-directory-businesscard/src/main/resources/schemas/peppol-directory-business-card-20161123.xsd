@@ -25,20 +25,23 @@
   <xs:annotation>
     <xs:documentation>
        This is the XML schema for the Peppol Directory
-         business card to be stored in a PEPPOL SMP.
+         business card to be stored in a Peppol SMP.
        
        Author:
-         Philip Helger, Bundesrechenzentrum GmbH
+         Philip Helger
        
        Contributors:
          Martin Forsberg
 
        History: 
+         2020-10-15, Philip Helger
+           Changed casing of PEPPOL to Peppol
+           Enforcing the Business Entity "Name" to be non-empty
          2016-11-23, Philip Helger
            Removed AdditionalInformation, Contact and WebsiteURL
          2016-01-12, Philip Helger, Martin Forsberg
            Adopted names to be similar to UBL and SMP
-           Added the PEPPOL participant identifier
+           Added the Peppol participant identifier
          2015-11-05, Philip Helger
            Added optional registration date
          2015-11-03, Philip Helger
@@ -50,6 +53,12 @@
            initial version
     </xs:documentation>
   </xs:annotation>
+  
+  <xs:simpleType name="NonEmptyString">
+    <xs:restriction base="xs:string">
+      <xs:minLength value="1" />
+    </xs:restriction>
+  </xs:simpleType>
 
   <xs:simpleType name="CountryCodeType">
     <xs:annotation>
@@ -66,7 +75,7 @@
   <xs:complexType name="IdentifierType">
     <xs:annotation>
       <xs:documentation>
-        This type resembles the structure of a single (PEPPOL and non-PEPPOL) identifier.
+        This type resembles the structure of a single (Peppol and non-Peppol) identifier.
       </xs:documentation>
     </xs:annotation>
     <xs:simpleContent>
@@ -80,7 +89,7 @@
           <xs:annotation>
             <xs:documentation>
               The scheme of this identifier.
-              For PEPPOL this will be "iso6523-actorid-upis" for non-PEPPOL identifiers
+              For Peppol this will be "iso6523-actorid-upis" for non-Peppol identifiers
               this can be any human interpretable text
             </xs:documentation>
           </xs:annotation>
@@ -96,7 +105,7 @@
       </xs:documentation>
     </xs:annotation>
     <xs:sequence>
-      <xs:element name="Name" type="xs:string" minOccurs="1" maxOccurs="1">
+      <xs:element name="Name" type="NonEmptyString" minOccurs="1" maxOccurs="1">
         <xs:annotation>
           <xs:documentation>
             The name of the business entity.
@@ -130,7 +139,7 @@
     <xs:attribute name="registrationDate" type="xs:date" use="optional">
       <xs:annotation>
         <xs:documentation>
-          The optional date when the participant was registered for PEPPOL.
+          The optional date when the participant was registered for Peppol.
         </xs:documentation>
       </xs:annotation>
     </xs:attribute>
@@ -139,14 +148,14 @@
   <xs:complexType name="BusinessCardType">
     <xs:annotation>
       <xs:appinfo>
-        This type is used to represent a single PEPPOL Directory business card.
+        This type is used to represent a single Peppol Directory business card.
       </xs:appinfo>
     </xs:annotation>
     <xs:sequence>
       <xs:element name="ParticipantIdentifier" type="IdentifierType" minOccurs="1" maxOccurs="1">
         <xs:annotation>
           <xs:documentation>
-            The PEPPOL participant identifier (service group) to which this business information belongs.
+            The Peppol participant identifier (service group) to which this business information belongs.
           </xs:documentation>
         </xs:annotation>
       </xs:element>
@@ -157,7 +166,7 @@
             bodies) that can be reached via the ServiceGroup.
             The reason to allow 0 occurrences is to explicitly indicate that an SMP is capable of
             handling business cards but does not want to provide specific information for this
-            PEPPOL participant.
+            Peppol participant.
           </xs:documentation>
         </xs:annotation>
       </xs:element>
@@ -167,7 +176,7 @@
   <xs:element name="BusinessCard" type="BusinessCardType">
     <xs:annotation>
       <xs:documentation>
-        This is the root element for a single PEPPOL Directory business card.
+        This is the root element for a single Peppol Directory business card.
       </xs:documentation>
     </xs:annotation>
   </xs:element>
