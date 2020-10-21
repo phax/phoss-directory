@@ -2,7 +2,7 @@
 
 [![Join the chat at https://gitter.im/phax/peppol-directory](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/phax/peppol-directory?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Current release (on Maven central): **0.8.7**
+Current release (on Maven central): **0.9.2**
 
 The official Peppol Directory (PD; https://directory.peppol.eu) and TOOP Directory software (The Once-Only Project; www.toop.eu). It is split into the following sub-projects (all require Java 8 except where noted):
   * `phoss-directory-businesscard` - the common Business Card API
@@ -43,7 +43,8 @@ The file `pd-client.properties` is also evaluated for backwards-compatibility re
 
 See https://github.com/phax/ph-commons#ph-config for the new resolution logic.
 
-** Configuration file resolution (prior to 0.9.0)**
+**Configuration file resolution (prior to 0.9.0)**
+
 The client has its own configuration file that is resolved from one of the following locations (whatever is found first):
 * A path denoted by the content of the Java system property `peppol.pd.client.properties.path`
 * A path denoted by the content of the Java system property `pd.client.properties.path`
