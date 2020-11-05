@@ -50,6 +50,15 @@ public class PDHttpClientSettings extends HttpClientSettings
 {
   private static final Logger LOGGER = LoggerFactory.getLogger (PDHttpClientSettings.class);
 
+  /**
+   * Constructor.
+   *
+   * @param sTargetURI
+   *        The target URI of the Directory use. May neither be
+   *        <code>null</code> nor empty.
+   * @throws IllegalStateException
+   *         If the "https" protocol is used, and the SSL setup is incomplete.
+   */
   public PDHttpClientSettings (@Nonnull @Nonempty final String sTargetURI)
   {
     resetToConfiguration (sTargetURI);

@@ -80,6 +80,8 @@ public class PDClient implements Closeable
    *        The address of the Peppol Directory Server including the application
    *        server context path but without the REST interface. May be http or
    *        https. Example: https://directory.peppol.eu/
+   * @throws IllegalStateException
+   *         If the "https" protocol is used, and the SSL setup is incomplete.
    */
   public PDClient (@Nonnull final String sPDHost)
   {
@@ -93,6 +95,8 @@ public class PDClient implements Closeable
    *        The address of the Peppol Directory Server including the application
    *        server context path but without the REST interface. May be http or
    *        https. Example: https://directory.peppol.eu/
+   * @throws IllegalStateException
+   *         If the "https" protocol is used, and the SSL setup is incomplete.
    */
   public PDClient (@Nonnull final URI aPDHost)
   {
