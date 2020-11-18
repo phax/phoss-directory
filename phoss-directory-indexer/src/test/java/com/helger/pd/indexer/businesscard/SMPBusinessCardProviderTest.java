@@ -64,12 +64,12 @@ public final class SMPBusinessCardProviderTest
 
   @Test
   @Ignore ("Dont hammer server :)")
-  public void test9905LeckmaPeppol ()
+  public void testFetchRemote ()
   {
     final SMPBusinessCardProvider aBI = SMPBusinessCardProvider.createWithSMLAutoDetect (PDServerConfiguration.getSMPMode (),
                                                                                          PDServerConfiguration.getURLProvider (),
                                                                                          SML_SUPPLIER);
-    final PDExtendedBusinessCard aExtBI = aBI.getBusinessCard (PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9905:leckma-peppol"));
+    final PDExtendedBusinessCard aExtBI = aBI.getBusinessCard (PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("0192:816572452"));
     assertNotNull (aExtBI);
     LOGGER.info (aExtBI.toString ());
   }
