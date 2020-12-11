@@ -17,7 +17,6 @@
 package com.helger.pd.publisher.servlet;
 
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -51,13 +50,13 @@ import com.helger.json.JsonArray;
 import com.helger.json.JsonObject;
 import com.helger.json.serialize.JsonWriterSettings;
 import com.helger.pd.indexer.mgr.PDMetaManager;
-import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.pd.indexer.storage.PDQueryManager;
 import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
 import com.helger.pd.publisher.app.AppCommonUI;
 import com.helger.pd.publisher.search.EPDOutputFormat;
 import com.helger.pd.publisher.search.EPDSearchField;
+import com.helger.pd.publisher.search.SearchRateLimit;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.servlet.response.UnifiedResponse;
 import com.helger.web.scope.IRequestParamContainer;
@@ -72,10 +71,6 @@ import com.helger.xml.serialize.write.EXMLSerializeIndent;
 import com.helger.xml.serialize.write.XMLWriterSettings;
 import com.helger.xml.transform.TransformSourceFactory;
 import com.helger.xservlet.handler.simple.IXServletSimpleHandler;
-
-import es.moki.ratelimitj.core.limiter.request.RequestLimitRule;
-import es.moki.ratelimitj.core.limiter.request.RequestRateLimiter;
-import es.moki.ratelimitj.inmemory.request.InMemorySlidingWindowRequestRateLimiter;
 
 /**
  * The REST search servlet. Handles only GET requests.
@@ -137,33 +132,16 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
     }
   }
 
-  private final RequestRateLimiter m_aRequestRateLimiter;
-
   public PublicSearchXServletHandler ()
-  {
-    final long nRequestsPerSec = PDServerConfiguration.getRESTAPIMaxRequestsPerSecond ();
-    if (nRequestsPerSec > 0)
-    {
-      // 2 request per second, per key
-      // Note: duration must be > 1 second
-      m_aRequestRateLimiter = new InMemorySlidingWindowRequestRateLimiter (RequestLimitRule.of (Duration.ofSeconds (2),
-                                                                                                nRequestsPerSec * 2));
-      LOGGER.info ("Installed REST search rate limiter with a maximum of " + nRequestsPerSec + " requests per second");
-    }
-    else
-    {
-      m_aRequestRateLimiter = null;
-      LOGGER.info ("REST search API runs without limit");
-    }
-  }
+  {}
 
   public void handleRequest (@Nonnull final IRequestWebScopeWithoutResponse aRequestScope,
                              @Nonnull final UnifiedResponse aUnifiedResponse) throws Exception
   {
-    if (m_aRequestRateLimiter != null)
+    if (SearchRateLimit.INSTANCE.rateLimiter () != null)
     {
       final String sRateLimitKey = "ip:" + aRequestScope.getRemoteAddr ();
-      final boolean bOverLimit = m_aRequestRateLimiter.overLimitWhenIncremented (sRateLimitKey);
+      final boolean bOverLimit = SearchRateLimit.INSTANCE.rateLimiter ().overLimitWhenIncremented (sRateLimitKey);
       if (bOverLimit)
       {
         // Too Many Requests

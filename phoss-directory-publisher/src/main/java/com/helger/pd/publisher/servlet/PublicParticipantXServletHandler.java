@@ -23,12 +23,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.commons.collection.impl.ICommonsList;
+import com.helger.commons.http.CHttp;
 import com.helger.commons.string.StringHelper;
 import com.helger.commons.url.SimpleURL;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.publisher.app.AppCommonUI;
 import com.helger.pd.publisher.app.pub.CMenuPublic;
 import com.helger.pd.publisher.app.pub.PagePublicSearchSimple;
+import com.helger.pd.publisher.search.SearchRateLimit;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.factory.PeppolIdentifierFactory;
 import com.helger.photon.core.requestparam.RequestParameterManager;
@@ -49,6 +51,21 @@ public final class PublicParticipantXServletHandler implements IXServletSimpleHa
   public void handleRequest (@Nonnull final IRequestWebScopeWithoutResponse aRequestScope,
                              @Nonnull final UnifiedResponse aUnifiedResponse) throws Exception
   {
+    if (SearchRateLimit.INSTANCE.rateLimiter () != null)
+    {
+      final String sRateLimitKey = "ip:" + aRequestScope.getRemoteAddr ();
+      final boolean bOverLimit = SearchRateLimit.INSTANCE.rateLimiter ().overLimitWhenIncremented (sRateLimitKey);
+      if (bOverLimit)
+      {
+        // Too Many Requests
+        if (LOGGER.isDebugEnabled ())
+          LOGGER.debug ("Rate limit exceeded for " + sRateLimitKey);
+
+        aUnifiedResponse.setStatus (CHttp.HTTP_TOO_MANY_REQUESTS);
+        return;
+      }
+    }
+
     // http://127.0.0.1:8080/participant -> null
     // http://127.0.0.1:8080/participant/ -> "/"
     // http://127.0.0.1:8080/participant/x -> "/x"
