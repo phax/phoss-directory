@@ -137,7 +137,8 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
     // Avoid double closing
     if (!m_aClosing.getAndSet (true))
     {
-      m_aRWLock.writeLock ().lock ();
+      if (false)
+        m_aRWLock.writeLock ().lock ();
       try
       {
         // Start closing
@@ -158,7 +159,8 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
       }
       finally
       {
-        m_aRWLock.writeLock ().unlock ();
+        if (false)
+          m_aRWLock.writeLock ().unlock ();
       }
     }
   }
@@ -381,7 +383,8 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
   @Nonnull
   public ESuccess writeLockedAtomic (@Nonnull final IThrowingRunnable <IOException> aRunnable) throws IOException
   {
-    m_aRWLock.writeLock ().lock ();
+    if (false)
+      m_aRWLock.writeLock ().lock ();
     try
     {
       if (isClosing ())
@@ -393,7 +396,8 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
     }
     finally
     {
-      m_aRWLock.writeLock ().unlock ();
+      if (false)
+        m_aRWLock.writeLock ().unlock ();
     }
     return ESuccess.SUCCESS;
   }
@@ -415,7 +419,8 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
   @Nullable
   public <T> T readLockedAtomic (@Nonnull final IThrowingSupplier <T, IOException> aRunnable) throws IOException
   {
-    m_aRWLock.readLock ().lock ();
+    if (false)
+      m_aRWLock.readLock ().lock ();
     try
     {
       if (isClosing ())
@@ -425,7 +430,8 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
     }
     finally
     {
-      m_aRWLock.readLock ().unlock ();
+      if (false)
+        m_aRWLock.readLock ().unlock ();
     }
     return null;
   }
