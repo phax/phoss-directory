@@ -31,8 +31,9 @@ import es.moki.ratelimitj.inmemory.request.InMemorySlidingWindowRequestRateLimit
 
 public final class SearchRateLimit
 {
-  public static final SearchRateLimit INSTANCE = new SearchRateLimit ();
+  // Before the Instance, because it is used in the constructor
   private static final Logger LOGGER = LoggerFactory.getLogger (SearchRateLimit.class);
+  public static final SearchRateLimit INSTANCE = new SearchRateLimit ();
 
   private final RequestRateLimiter m_aRequestRateLimiter;
 
