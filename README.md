@@ -105,8 +105,11 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
-* v0.9.3 - work in proress
+* v0.9.3 - 2021-02-01
+    * Updated to ph-commons 9.5.4
+    * Updated to ph-dns 9.5.2
     * Updated to Jersey 2.32
+    * Reduced lock contention
 * v0.9.2 - 2020-09-24
     * Increased customizability
 * v0.9.1 - 2020-09-18
