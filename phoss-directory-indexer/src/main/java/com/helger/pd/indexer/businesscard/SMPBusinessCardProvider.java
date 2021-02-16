@@ -169,7 +169,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
                  "'");
 
     // First query the service group
-    com.helger.smpclient.peppol.jaxb.ServiceGroupType aServiceGroup;
+    com.helger.xsds.peppol.smp1.ServiceGroupType aServiceGroup;
     try
     {
       aServiceGroup = aSMPClient.getServiceGroupOrNull (aParticipantID);
