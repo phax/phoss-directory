@@ -2,7 +2,7 @@
 
 [![Join the chat at https://gitter.im/phax/peppol-directory](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/phax/peppol-directory?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Current release (on Maven central): **0.9.2**
+Current release (on Maven central): **0.9.4**
 
 The official Peppol Directory (PD; https://directory.peppol.eu) and TOOP Directory software (The Once-Only Project; www.toop.eu). It is split into the following sub-projects (all require Java 8 except where noted):
   * `phoss-directory-businesscard` - the common Business Card API
@@ -26,7 +26,7 @@ The official Peppol Directory (PD; https://directory.peppol.eu) and TOOP Directo
 
 # Building requirements
 
-To build the PD software you need at least Java 1.8 and Apache Maven 3.x. Configuration for usage with Eclipse Neon and Oxygen is contained in the repository.
+To build the PD software you need at least Java 1.8 and Apache Maven 3.x.
 
 Additionally to the contained projects you *MAY* need the latest SNAPSHOT of [ph-oton](https://github.com/phax/ph-oton) as part of your build environment.
 
