@@ -107,6 +107,7 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 * v0.9.5 - work in progress
     * Updated to peppol-commons 8.4.0
+    * Improved web UI customizability
 * v0.9.4 - 2021-02-01
     * Fixed initialization order issue
 * v0.9.3 - 2021-02-01

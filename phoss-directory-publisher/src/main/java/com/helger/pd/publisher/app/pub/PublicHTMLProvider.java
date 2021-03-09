@@ -22,7 +22,6 @@ import javax.annotation.Nonnull;
 
 import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.ICommonsList;
-import com.helger.commons.debug.GlobalDebug;
 import com.helger.commons.string.StringHelper;
 import com.helger.commons.url.ISimpleURL;
 import com.helger.commons.url.SimpleURL;
@@ -317,8 +316,11 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
       aDiv.addChild (new HCP ().addChild (CPDPublisher.getApplication () + " - an ")
                                .addChild (new HCA (new SimpleURL (VENDOR_URL)).addChild (VENDOR_NAME))
                                .addChild (" service"));
-      aDiv.addChild (new HCP ().addChild ("Follow us on Twitter: ")
-                               .addChild (new HCA (new SimpleURL ("https://twitter.com/PEPPOLDirectory")).addChild ("@PEPPOLDirectory")));
+      if (PDServerConfiguration.getConfig ().getAsBoolean ("webapp.showtwitter", true))
+      {
+        aDiv.addChild (new HCP ().addChild ("Follow us on Twitter: ")
+                                 .addChild (new HCA (new SimpleURL ("https://twitter.com/PEPPOLDirectory")).addChild ("@PEPPOLDirectory")));
+      }
       final HCP aP = new HCP ().addChild ("Download data [");
       aP.addChild (new HCA (LinkHelper.getURLWithContext (aRequestScope,
                                                           ExportServlet.SERVLET_DEFAULT_PATH +
@@ -383,11 +385,10 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
       ret.addChild (aDiv);
     }
 
-    if (GlobalDebug.isProductionMode ())
-    {
-      final String sAccountID = PDServerConfiguration.isTestVersion () ? "UA-55419519-3" : "UA-55419519-2";
+    // Google Analytics?
+    final String sAccountID = PDServerConfiguration.getConfig ().getAsString ("webapp.google.analytics.account");
+    if (StringHelper.hasText (sAccountID))
       ret.addChild (new HCUniversalAnalytics (sAccountID, false, false, false, false));
-    }
 
     ret.addChild (HCCookieConsent.createBottomDefault ("#000", "#0f0", "#0f0", null));
 
