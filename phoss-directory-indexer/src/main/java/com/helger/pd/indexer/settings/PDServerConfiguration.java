@@ -224,6 +224,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   @Nullable
   public static String getAppLogoImagePath ()
   {
+    // Will be ignored if not present
     return getConfig ().getAsString ("webapp.applogo.image.path");
   }
 
