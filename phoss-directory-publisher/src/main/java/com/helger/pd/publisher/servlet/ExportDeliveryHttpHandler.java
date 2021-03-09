@@ -18,6 +18,7 @@ package com.helger.pd.publisher.servlet;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.function.Consumer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
@@ -26,6 +27,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.helger.commons.collection.impl.CommonsHashMap;
+import com.helger.commons.collection.impl.ICommonsMap;
 import com.helger.commons.io.file.FilenameHelper;
 import com.helger.commons.mime.CMimeType;
 import com.helger.commons.state.EContinue;
@@ -47,6 +50,98 @@ public class ExportDeliveryHttpHandler extends AbstractObjectDeliveryHttpHandler
   public static final String SPECIAL_PARTICIPANTS_CSV = "/participants-csv";
   private static final Logger LOGGER = LoggerFactory.getLogger (ExportDeliveryHttpHandler.class);
 
+  private static ICommonsMap <String, Consumer <UnifiedResponse>> HANDLERS = new CommonsHashMap <> ();
+  static
+  {
+    // BusinessCards
+    HANDLERS.put (SPECIAL_BUSINESS_CARDS_XML_FULL, aUnifiedResponse -> {
+      aUnifiedResponse.disableCaching ();
+      ExportAllManager.streamFileBusinessCardXMLFullTo (aUnifiedResponse);
+      aUnifiedResponse.setMimeType (CMimeType.APPLICATION_XML);
+      aUnifiedResponse.setContentDispositionFilename (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_FULL);
+    });
+    HANDLERS.put (SPECIAL_BUSINESS_CARDS_XML_NO_DOC_TYPES, aUnifiedResponse -> {
+      aUnifiedResponse.disableCaching ();
+      ExportAllManager.streamFileBusinessCardXMLNoDocTypesTo (aUnifiedResponse);
+      aUnifiedResponse.setMimeType (CMimeType.APPLICATION_XML);
+      aUnifiedResponse.setContentDispositionFilename (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_NO_DOC_TYPES);
+    });
+    HANDLERS.put (SPECIAL_BUSINESS_CARDS_EXCEL, aUnifiedResponse -> {
+      if (CPDPublisher.EXPORT_BUSINESS_CARDS_EXCEL)
+      {
+        aUnifiedResponse.disableCaching ();
+        ExportAllManager.streamFileBusinessCardExcelTo (aUnifiedResponse);
+        aUnifiedResponse.setMimeType (EExcelVersion.XLSX.getMimeType ());
+        aUnifiedResponse.setContentDispositionFilename (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XLSX);
+      }
+      else
+      {
+        aUnifiedResponse.disableCaching ();
+        aUnifiedResponse.setStatus (HttpServletResponse.SC_NOT_FOUND);
+      }
+    });
+    HANDLERS.put (SPECIAL_BUSINESS_CARDS_CSV, aUnifiedResponse -> {
+      if (CPDPublisher.EXPORT_BUSINESS_CARDS_CSV)
+      {
+        aUnifiedResponse.disableCaching ();
+        ExportAllManager.streamFileBusinessCardCSVTo (aUnifiedResponse);
+        aUnifiedResponse.setMimeType (CMimeType.TEXT_CSV);
+        aUnifiedResponse.setCharset (StandardCharsets.UTF_8);
+        aUnifiedResponse.setContentDispositionFilename (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_CSV);
+      }
+      else
+      {
+        aUnifiedResponse.disableCaching ();
+        aUnifiedResponse.setStatus (HttpServletResponse.SC_NOT_FOUND);
+      }
+    });
+
+    // Participants
+    HANDLERS.put (SPECIAL_PARTICIPANTS_XML, aUnifiedResponse -> {
+      if (CPDPublisher.EXPORT_PARTICIPANTS_XML)
+      {
+        aUnifiedResponse.disableCaching ();
+        ExportAllManager.streamFileParticipantXMLTo (aUnifiedResponse);
+        aUnifiedResponse.setMimeType (CMimeType.APPLICATION_XML);
+        aUnifiedResponse.setContentDispositionFilename (ExportAllManager.EXTERNAL_EXPORT_ALL_PARTICIPANTS_XML);
+      }
+      else
+      {
+        aUnifiedResponse.disableCaching ();
+        aUnifiedResponse.setStatus (HttpServletResponse.SC_NOT_FOUND);
+      }
+    });
+    HANDLERS.put (SPECIAL_PARTICIPANTS_JSON, aUnifiedResponse -> {
+      if (CPDPublisher.EXPORT_PARTICIPANTS_JSON)
+      {
+        aUnifiedResponse.disableCaching ();
+        ExportAllManager.streamFileParticipantJSONTo (aUnifiedResponse);
+        aUnifiedResponse.setMimeType (CMimeType.APPLICATION_JSON);
+        aUnifiedResponse.setContentDispositionFilename (ExportAllManager.EXTERNAL_EXPORT_ALL_PARTICIPANTS_JSON);
+      }
+      else
+      {
+        aUnifiedResponse.disableCaching ();
+        aUnifiedResponse.setStatus (HttpServletResponse.SC_NOT_FOUND);
+      }
+    });
+    HANDLERS.put (SPECIAL_PARTICIPANTS_CSV, aUnifiedResponse -> {
+      if (CPDPublisher.EXPORT_PARTICIPANTS_CSV)
+      {
+        aUnifiedResponse.disableCaching ();
+        ExportAllManager.streamFileParticipantCSVTo (aUnifiedResponse);
+        aUnifiedResponse.setMimeType (CMimeType.TEXT_CSV);
+        aUnifiedResponse.setCharset (StandardCharsets.UTF_8);
+        aUnifiedResponse.setContentDispositionFilename (ExportAllManager.EXTERNAL_EXPORT_ALL_PARTICIPANTS_CSV);
+      }
+      else
+      {
+        aUnifiedResponse.disableCaching ();
+        aUnifiedResponse.setStatus (HttpServletResponse.SC_NOT_FOUND);
+      }
+    });
+  }
+
   @Nonnull
   private static String _getBundleIDFromFilename (@Nonnull final String sFilename)
   {
@@ -64,13 +159,7 @@ public class ExportDeliveryHttpHandler extends AbstractObjectDeliveryHttpHandler
 
     // Allow only valid filenames
     final String sFilename = aRequestScope.attrs ().getAsString (REQUEST_ATTR_OBJECT_DELIVERY_FILENAME);
-    if (!sFilename.equals (SPECIAL_BUSINESS_CARDS_XML_FULL) &&
-        !sFilename.equals (SPECIAL_BUSINESS_CARDS_XML_NO_DOC_TYPES) &&
-        !sFilename.equals (SPECIAL_BUSINESS_CARDS_EXCEL) &&
-        !sFilename.equals (SPECIAL_BUSINESS_CARDS_CSV) &&
-        !sFilename.equals (SPECIAL_PARTICIPANTS_XML) &&
-        !sFilename.equals (SPECIAL_PARTICIPANTS_JSON) &&
-        !sFilename.equals (SPECIAL_PARTICIPANTS_CSV))
+    if (!HANDLERS.containsKey (sFilename))
     {
       LOGGER.warn ("Cannot special stream the resource '" + sFilename + "'");
       aUnifiedResponse.setStatus (HttpServletResponse.SC_NOT_FOUND);
@@ -84,106 +173,14 @@ public class ExportDeliveryHttpHandler extends AbstractObjectDeliveryHttpHandler
                                     @Nonnull final UnifiedResponse aUnifiedResponse,
                                     @Nonnull final String sFilename) throws IOException
   {
-    if (sFilename.equals (SPECIAL_BUSINESS_CARDS_XML_FULL))
+    final Consumer <UnifiedResponse> aHandler = HANDLERS.get (sFilename);
+    if (aHandler != null)
     {
-      aUnifiedResponse.disableCaching ();
-      ExportAllManager.streamFileBusinessCardXMLFullTo (aUnifiedResponse);
-      aUnifiedResponse.setMimeType (CMimeType.APPLICATION_XML);
-      aUnifiedResponse.setContentDispositionFilename (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_FULL);
+      aHandler.accept (aUnifiedResponse);
     }
     else
-      if (sFilename.equals (SPECIAL_BUSINESS_CARDS_XML_NO_DOC_TYPES))
-      {
-        aUnifiedResponse.disableCaching ();
-        ExportAllManager.streamFileBusinessCardXMLNoDocTypesTo (aUnifiedResponse);
-        aUnifiedResponse.setMimeType (CMimeType.APPLICATION_XML);
-        aUnifiedResponse.setContentDispositionFilename (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_NO_DOC_TYPES);
-      }
-      else
-        if (sFilename.equals (SPECIAL_BUSINESS_CARDS_EXCEL))
-        {
-          if (CPDPublisher.EXPORT_BUSINESS_CARDS_EXCEL)
-          {
-            aUnifiedResponse.disableCaching ();
-            ExportAllManager.streamFileBusinessCardExcelTo (aUnifiedResponse);
-            aUnifiedResponse.setMimeType (EExcelVersion.XLSX.getMimeType ());
-            aUnifiedResponse.setContentDispositionFilename (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XLSX);
-          }
-          else
-          {
-            aUnifiedResponse.disableCaching ();
-            aUnifiedResponse.setStatus (HttpServletResponse.SC_NOT_FOUND);
-          }
-        }
-        else
-          if (sFilename.equals (SPECIAL_BUSINESS_CARDS_CSV))
-          {
-            if (CPDPublisher.EXPORT_BUSINESS_CARDS_CSV)
-            {
-              aUnifiedResponse.disableCaching ();
-              ExportAllManager.streamFileBusinessCardCSVTo (aUnifiedResponse);
-              aUnifiedResponse.setMimeType (CMimeType.TEXT_CSV);
-              aUnifiedResponse.setCharset (StandardCharsets.UTF_8);
-              aUnifiedResponse.setContentDispositionFilename (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_CSV);
-            }
-            else
-            {
-              aUnifiedResponse.disableCaching ();
-              aUnifiedResponse.setStatus (HttpServletResponse.SC_NOT_FOUND);
-            }
-          }
-          else
-            if (sFilename.equals (SPECIAL_PARTICIPANTS_XML))
-            {
-              if (CPDPublisher.EXPORT_PARTICIPANTS_XML)
-              {
-                aUnifiedResponse.disableCaching ();
-                ExportAllManager.streamFileParticipantXMLTo (aUnifiedResponse);
-                aUnifiedResponse.setMimeType (CMimeType.APPLICATION_XML);
-                aUnifiedResponse.setContentDispositionFilename (ExportAllManager.EXTERNAL_EXPORT_ALL_PARTICIPANTS_XML);
-              }
-              else
-              {
-                aUnifiedResponse.disableCaching ();
-                aUnifiedResponse.setStatus (HttpServletResponse.SC_NOT_FOUND);
-              }
-            }
-            else
-              if (sFilename.equals (SPECIAL_PARTICIPANTS_JSON))
-              {
-                if (CPDPublisher.EXPORT_PARTICIPANTS_JSON)
-                {
-                  aUnifiedResponse.disableCaching ();
-                  ExportAllManager.streamFileParticipantJSONTo (aUnifiedResponse);
-                  aUnifiedResponse.setMimeType (CMimeType.APPLICATION_JSON);
-                  aUnifiedResponse.setContentDispositionFilename (ExportAllManager.EXTERNAL_EXPORT_ALL_PARTICIPANTS_JSON);
-                }
-                else
-                {
-                  aUnifiedResponse.disableCaching ();
-                  aUnifiedResponse.setStatus (HttpServletResponse.SC_NOT_FOUND);
-                }
-              }
-              else
-                if (sFilename.equals (SPECIAL_PARTICIPANTS_CSV))
-                {
-                  if (CPDPublisher.EXPORT_PARTICIPANTS_CSV)
-                  {
-                    aUnifiedResponse.disableCaching ();
-                    ExportAllManager.streamFileParticipantCSVTo (aUnifiedResponse);
-                    aUnifiedResponse.setMimeType (CMimeType.TEXT_CSV);
-                    aUnifiedResponse.setCharset (StandardCharsets.UTF_8);
-                    aUnifiedResponse.setContentDispositionFilename (ExportAllManager.EXTERNAL_EXPORT_ALL_PARTICIPANTS_CSV);
-                  }
-                  else
-                  {
-                    aUnifiedResponse.disableCaching ();
-                    aUnifiedResponse.setStatus (HttpServletResponse.SC_NOT_FOUND);
-                  }
-                }
-                else
-                {
-                  throw new IllegalStateException ("Unexpected filename '" + sFilename + "'");
-                }
+    {
+      throw new IllegalStateException ("Unexpected filename '" + sFilename + "' - programming error");
+    }
   }
 }
