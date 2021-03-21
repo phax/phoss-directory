@@ -17,6 +17,7 @@
 package com.helger.pd.indexer.storage.field;
 
 import java.util.BitSet;
+import java.util.function.Function;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -27,7 +28,6 @@ import org.apache.lucene.index.Term;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.functional.IFunction;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.peppolid.IDocumentTypeIdentifier;
 import com.helger.peppolid.IParticipantIdentifier;
@@ -44,8 +44,8 @@ public class PDStringField <NATIVE_TYPE> extends AbstractPDField <NATIVE_TYPE, S
   private final EPDStringFieldTokenize m_eTokenize;
 
   public PDStringField (@Nonnull @Nonempty final String sFieldName,
-                        @Nonnull final IFunction <? super NATIVE_TYPE, ? extends String> aConverterToStorage,
-                        @Nonnull final IFunction <? super String, ? extends NATIVE_TYPE> aConverterFromStorage,
+                        @Nonnull final Function <? super NATIVE_TYPE, ? extends String> aConverterToStorage,
+                        @Nonnull final Function <? super String, ? extends NATIVE_TYPE> aConverterFromStorage,
                         @Nonnull final Field.Store eStore,
                         @Nonnull final EPDStringFieldTokenize eTokenize)
   {

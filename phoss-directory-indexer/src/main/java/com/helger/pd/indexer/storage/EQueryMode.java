@@ -16,15 +16,15 @@
  */
 package com.helger.pd.indexer.storage;
 
+import java.util.function.Function;
+
 import javax.annotation.Nonnull;
 
 import org.apache.lucene.search.Query;
 
-import com.helger.commons.functional.IFunction;
-
 /**
  * Query mode.
- * 
+ *
  * @author Philip Helger
  */
 public enum EQueryMode
@@ -33,9 +33,9 @@ public enum EQueryMode
   NON_DELETED_ONLY (q -> PDQueryManager.andNotDeleted (q)),
   DELETED_ONLY (q -> PDQueryManager.andDeleted (q));
 
-  private final IFunction <Query, Query> m_aQueryModifier;
+  private final Function <Query, Query> m_aQueryModifier;
 
-  private EQueryMode (@Nonnull final IFunction <Query, Query> aQueryModifier)
+  EQueryMode (@Nonnull final Function <Query, Query> aQueryModifier)
   {
     m_aQueryModifier = aQueryModifier;
   }

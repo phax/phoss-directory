@@ -18,6 +18,7 @@ package com.helger.pd.publisher.search;
 
 import java.time.LocalDate;
 import java.util.Locale;
+import java.util.function.Function;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -25,7 +26,6 @@ import javax.annotation.Nullable;
 import org.apache.lucene.search.Query;
 
 import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.functional.IFunction;
 import com.helger.commons.id.IHasID;
 import com.helger.commons.lang.EnumHelper;
 import com.helger.commons.text.display.IHasDisplayText;
@@ -48,7 +48,9 @@ public enum EPDSearchField implements IHasID <String>, IHasDisplayText
            EPDSearchFieldName.GENERIC,
            ESearchDataType.STRING_CS,
            Object.class,
-           sQuery -> PDQueryManager.convertQueryStringToLuceneQuery (PDMetaManager.getLucene (), CPDStorage.FIELD_ALL_FIELDS, sQuery)),
+           sQuery -> PDQueryManager.convertQueryStringToLuceneQuery (PDMetaManager.getLucene (),
+                                                                     CPDStorage.FIELD_ALL_FIELDS,
+                                                                     sQuery)),
   PARTICIPANT_ID ("participant",
                   EPDSearchFieldName.PARTICIPANT_ID,
                   ESearchDataType.STRING_CS,
@@ -93,7 +95,8 @@ public enum EPDSearchField implements IHasID <String>, IHasDisplayText
                           EPDSearchFieldName.ADDITIONAL_INFORMATION,
                           ESearchDataType.STRING_CI,
                           String.class,
-                          sQuery -> PDQueryManager.getAdditionalInformationLuceneQuery (PDMetaManager.getLucene (), sQuery)),
+                          sQuery -> PDQueryManager.getAdditionalInformationLuceneQuery (PDMetaManager.getLucene (),
+                                                                                        sQuery)),
   REGISTRATION_DATE ("regdate",
                      EPDSearchFieldName.REGISTRATION_DATE,
                      ESearchDataType.DATE,
@@ -109,13 +112,13 @@ public enum EPDSearchField implements IHasID <String>, IHasDisplayText
   private final ESearchDataType m_eDataType;
   private final EPDSearchFieldName m_eDisplayText;
   private final Class <?> m_aNativeType;
-  private final IFunction <String, Query> m_aQueryProvider;
+  private final Function <String, Query> m_aQueryProvider;
 
-  private EPDSearchField (@Nonnull @Nonempty final String sID,
-                          @Nonnull final EPDSearchFieldName eDisplayText,
-                          @Nonnull final ESearchDataType eDataType,
-                          @Nonnull final Class <?> aNativeType,
-                          @Nonnull final IFunction <String, Query> aQueryProvider)
+  EPDSearchField (@Nonnull @Nonempty final String sID,
+                  @Nonnull final EPDSearchFieldName eDisplayText,
+                  @Nonnull final ESearchDataType eDataType,
+                  @Nonnull final Class <?> aNativeType,
+                  @Nonnull final Function <String, Query> aQueryProvider)
   {
     m_sID = sID;
     m_eDataType = eDataType;

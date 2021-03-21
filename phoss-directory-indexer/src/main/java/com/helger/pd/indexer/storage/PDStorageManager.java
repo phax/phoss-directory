@@ -46,13 +46,13 @@ import org.apache.lucene.search.TotalHitCountCollector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.collection.multimap.MultiLinkedHashMapArrayListBased;
 import com.helger.commons.CGlobal;
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.ReturnsMutableCopy;
 import com.helger.commons.callback.IThrowingRunnable;
 import com.helger.commons.collection.CollectionHelper;
 import com.helger.commons.collection.impl.CommonsArrayList;
+import com.helger.commons.collection.impl.CommonsLinkedHashMap;
 import com.helger.commons.collection.impl.CommonsTreeMap;
 import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.collection.impl.ICommonsMap;
@@ -306,7 +306,10 @@ public final class PDStorageManager implements IPDStorageManager
       m_aLucene.updateDocuments (PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID), aDocs);
 
       LOGGER.info ("Added " + aDocs.size () + " Lucene documents");
-      AuditHelper.onAuditExecuteSuccess ("pd-indexer-create", aParticipantID.getURIEncoded (), Integer.valueOf (aDocs.size ()), aMetaData);
+      AuditHelper.onAuditExecuteSuccess ("pd-indexer-create",
+                                         aParticipantID.getURIEncoded (),
+                                         Integer.valueOf (aDocs.size ()),
+                                         aMetaData);
     });
   }
 
@@ -329,7 +332,10 @@ public final class PDStorageManager implements IPDStorageManager
     }
 
     LOGGER.info ("Deleted " + nCount + " docs from the index using the term '" + aTerm + "'");
-    AuditHelper.onAuditExecuteSuccess ("pd-indexer-delete", aParticipantID.getURIEncoded (), Integer.valueOf (nCount), aMetaData);
+    AuditHelper.onAuditExecuteSuccess ("pd-indexer-delete",
+                                       aParticipantID.getURIEncoded (),
+                                       Integer.valueOf (nCount),
+                                       aMetaData);
     return ESuccess.SUCCESS;
   }
 
@@ -487,7 +493,8 @@ public final class PDStorageManager implements IPDStorageManager
    */
   @Nonnull
   @ReturnsMutableCopy
-  public ICommonsList <PDStoredBusinessEntity> getAllDocuments (@Nonnull final Query aQuery, @CheckForSigned final int nMaxResultCount)
+  public ICommonsList <PDStoredBusinessEntity> getAllDocuments (@Nonnull final Query aQuery,
+                                                                @CheckForSigned final int nMaxResultCount)
   {
     final ICommonsList <PDStoredBusinessEntity> aTargetList = new CommonsArrayList <> ();
     try
@@ -550,9 +557,9 @@ public final class PDStorageManager implements IPDStorageManager
   @ReturnsMutableCopy
   public static ICommonsMap <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> getGroupedByParticipantID (@Nonnull final Iterable <PDStoredBusinessEntity> aDocs)
   {
-    final MultiLinkedHashMapArrayListBased <IParticipantIdentifier, PDStoredBusinessEntity> ret = new MultiLinkedHashMapArrayListBased <> ();
+    final ICommonsMap <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> ret = new CommonsLinkedHashMap <> ();
     for (final PDStoredBusinessEntity aDoc : aDocs)
-      ret.putSingle (aDoc.getParticipantID (), aDoc);
+      ret.computeIfAbsent (aDoc.getParticipantID (), k -> new CommonsArrayList <> ()).add (aDoc);
     return ret;
   }
 }

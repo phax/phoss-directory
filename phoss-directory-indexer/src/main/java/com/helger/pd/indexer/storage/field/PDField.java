@@ -26,7 +26,7 @@ import com.helger.peppolid.IParticipantIdentifier;
 
 /**
  * This class contains all the PD Lucene fields
- * 
+ *
  * @author Philip Helger
  */
 public final class PDField
@@ -40,7 +40,9 @@ public final class PDField
   public static final PDStringField <String> REGISTRATION_DATE = PDStringField.createString ("registrationdate",
                                                                                              Field.Store.YES,
                                                                                              EPDStringFieldTokenize.NO_TOKENIZE);
-  public static final PDStringField <String> NAME = PDStringField.createString ("name", Field.Store.YES, EPDStringFieldTokenize.TOKENIZE);
+  public static final PDStringField <String> NAME = PDStringField.createString ("name",
+                                                                                Field.Store.YES,
+                                                                                EPDStringFieldTokenize.TOKENIZE);
   public static final PDStringField <String> ML_NAME = PDStringField.createString ("ml-name",
                                                                                    Field.Store.YES,
                                                                                    EPDStringFieldTokenize.TOKENIZE);

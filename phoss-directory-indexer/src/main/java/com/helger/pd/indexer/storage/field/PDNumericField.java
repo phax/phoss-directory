@@ -16,6 +16,8 @@
  */
 package com.helger.pd.indexer.storage.field;
 
+import java.util.function.Function;
+
 import javax.annotation.Nonnull;
 
 import org.apache.lucene.document.Field;
@@ -23,7 +25,6 @@ import org.apache.lucene.document.StoredField;
 import org.apache.lucene.index.IndexableField;
 
 import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.functional.IFunction;
 
 /**
  * A Lucene field that can be mapped to a {@link Number} and back.
@@ -35,8 +36,8 @@ import com.helger.commons.functional.IFunction;
 public class PDNumericField <NATIVE_TYPE> extends AbstractPDField <NATIVE_TYPE, Number>
 {
   public PDNumericField (@Nonnull @Nonempty final String sFieldName,
-                         @Nonnull final IFunction <? super NATIVE_TYPE, ? extends Number> aConverterToStorage,
-                         @Nonnull final IFunction <? super Number, ? extends NATIVE_TYPE> aConverterFromStorage,
+                         @Nonnull final Function <? super NATIVE_TYPE, ? extends Number> aConverterToStorage,
+                         @Nonnull final Function <? super Number, ? extends NATIVE_TYPE> aConverterFromStorage,
                          @Nonnull final Field.Store eStore)
   {
     super (sFieldName, aConverterToStorage, aConverterFromStorage, eStore);

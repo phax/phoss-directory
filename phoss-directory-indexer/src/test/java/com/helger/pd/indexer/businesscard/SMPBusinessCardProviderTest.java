@@ -19,6 +19,8 @@ package com.helger.pd.indexer.businesscard;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.util.function.Supplier;
+
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,7 +30,6 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.ICommonsList;
-import com.helger.commons.functional.ISupplier;
 import com.helger.commons.url.URLHelper;
 import com.helger.httpclient.HttpClientSettings;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
@@ -45,7 +46,7 @@ import com.helger.smpclient.peppol.SMPClientReadOnly;
 public final class SMPBusinessCardProviderTest
 {
   private static final Logger LOGGER = LoggerFactory.getLogger (SMPBusinessCardProviderTest.class);
-  private static final ISupplier <ICommonsList <ESML>> SML_SUPPLIER = () -> new CommonsArrayList <> (ESML.values ());
+  private static final Supplier <ICommonsList <ESML>> SML_SUPPLIER = () -> new CommonsArrayList <> (ESML.values ());
 
   @Rule
   public final TestRule m_aRule = new PhotonAppWebTestRule ();

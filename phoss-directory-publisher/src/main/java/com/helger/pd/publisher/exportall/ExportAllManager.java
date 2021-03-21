@@ -32,8 +32,11 @@ import org.apache.lucene.search.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.collection.multimap.MultiLinkedHashMapArrayListBased;
+import com.helger.commons.collection.impl.CommonsArrayList;
+import com.helger.commons.collection.impl.CommonsLinkedHashMap;
 import com.helger.commons.collection.impl.CommonsTreeSet;
+import com.helger.commons.collection.impl.ICommonsList;
+import com.helger.commons.collection.impl.ICommonsOrderedMap;
 import com.helger.commons.collection.impl.ICommonsSortedSet;
 import com.helger.commons.concurrent.SimpleReadWriteLock;
 import com.helger.commons.csv.CSVWriter;
@@ -102,8 +105,12 @@ public final class ExportAllManager
                                                                     final boolean bIncludeDocTypes) throws IOException
   {
     // Query all and group by participant ID
-    final MultiLinkedHashMapArrayListBased <IParticipantIdentifier, PDStoredBusinessEntity> aMap = new MultiLinkedHashMapArrayListBased <> ();
-    PDMetaManager.getStorageMgr ().searchAllDocuments (aQuery, -1, x -> aMap.putSingle (x.getParticipantID (), x));
+    final ICommonsOrderedMap <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> aMap = new CommonsLinkedHashMap <> ();
+    PDMetaManager.getStorageMgr ()
+                 .searchAllDocuments (aQuery,
+                                      -1,
+                                      x -> aMap.computeIfAbsent (x.getParticipantID (), k -> new CommonsArrayList <> ())
+                                               .add (x));
 
     return ExportHelper.getAsXML (aMap, bIncludeDocTypes);
   }
@@ -284,7 +291,9 @@ public final class ExportAllManager
       aWBCH.addCellStyle (ES_DATE);
       if (bIncludeDocTypes)
       {
-        aWBCH.addCell (StringHelper.getImplodedMapped ("\n", aEntity.documentTypeIDs (), IDocumentTypeIdentifier::getURIEncoded));
+        aWBCH.addCell (StringHelper.getImplodedMapped ("\n",
+                                                       aEntity.documentTypeIDs (),
+                                                       IDocumentTypeIdentifier::getURIEncoded));
         aWBCH.addCellStyle (ES_WRAP);
       }
     };
@@ -382,10 +391,14 @@ public final class ExportAllManager
 
     final Consumer <? super PDStoredBusinessEntity> aConsumer = aEntity -> {
       aCSVWriter.writeNext (aEntity.getParticipantID ().getURIEncoded (),
-                            StringHelper.getImplodedMapped ("\n", aEntity.names (), PDStoredMLName::getNameAndLanguageCode),
+                            StringHelper.getImplodedMapped ("\n",
+                                                            aEntity.names (),
+                                                            PDStoredMLName::getNameAndLanguageCode),
                             aEntity.getCountryCode (),
                             aEntity.getGeoInfo (),
-                            StringHelper.getImplodedMapped ("\n", aEntity.identifiers (), PDStoredIdentifier::getScheme),
+                            StringHelper.getImplodedMapped ("\n",
+                                                            aEntity.identifiers (),
+                                                            PDStoredIdentifier::getScheme),
                             StringHelper.getImplodedMapped ("\n", aEntity.identifiers (), PDStoredIdentifier::getValue),
                             StringHelper.getImploded ("\n", aEntity.websiteURIs ()),
                             StringHelper.getImplodedMapped ("\n", aEntity.contacts (), PDStoredContact::getType),
@@ -394,7 +407,9 @@ public final class ExportAllManager
                             StringHelper.getImplodedMapped ("\n", aEntity.contacts (), PDStoredContact::getEmail),
                             aEntity.getAdditionalInformation (),
                             aEntity.getRegistrationDate () == null ? "" : aEntity.getRegistrationDate ().toString (),
-                            StringHelper.getImplodedMapped ("\n", aEntity.documentTypeIDs (), IDocumentTypeIdentifier::getURIEncoded));
+                            StringHelper.getImplodedMapped ("\n",
+                                                            aEntity.documentTypeIDs (),
+                                                            IDocumentTypeIdentifier::getURIEncoded));
     };
     PDMetaManager.getStorageMgr ().searchAllDocuments (aQuery, -1, aConsumer);
     aCSVWriter.flush ();

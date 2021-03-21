@@ -46,9 +46,9 @@ public final class IndexerWorkItemQueue
 {
   private final LinkedBlockingQueue <Object> m_aQueue;
   private final ConcurrentCollectorSingle <IIndexerWorkItem> m_aImmediateCollector;
-  private final ThreadFactory m_aThreadFactory = new BasicThreadFactory.Builder ().setNamingPattern ("pd-indexer-%d")
-                                                                                  .setDaemon (false)
-                                                                                  .setPriority (Thread.NORM_PRIORITY)
+  private final ThreadFactory m_aThreadFactory = new BasicThreadFactory.Builder ().namingPattern ("pd-indexer-%d")
+                                                                                  .daemon (false)
+                                                                                  .priority (Thread.NORM_PRIORITY)
                                                                                   .build ();
 
   private final ExecutorService m_aSenderThreadPool = new ThreadPoolExecutor (1,

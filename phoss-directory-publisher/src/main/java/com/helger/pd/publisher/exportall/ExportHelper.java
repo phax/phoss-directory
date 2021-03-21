@@ -20,8 +20,8 @@ import java.util.Map;
 
 import javax.annotation.Nonnull;
 
-import com.helger.collection.multimap.MultiLinkedHashMapArrayListBased;
 import com.helger.commons.collection.impl.ICommonsList;
+import com.helger.commons.collection.impl.ICommonsOrderedMap;
 import com.helger.commons.datetime.PDTFactory;
 import com.helger.commons.datetime.PDTWebDateHelper;
 import com.helger.pd.businesscard.generic.PDBusinessCard;
@@ -46,8 +46,9 @@ public final class ExportHelper
   @Nonnull
   private static IMicroElement _createMicroElement (@Nonnull final IDocumentTypeIdentifier aDocTypeID)
   {
-    final IMicroElement eDocTypeID = new MicroElement (XML_EXPORT_NS_URI, "doctypeid").setAttribute ("scheme", aDocTypeID.getScheme ())
-                                                                                      .setAttribute ("value", aDocTypeID.getValue ());
+    final IMicroElement eDocTypeID = new MicroElement (XML_EXPORT_NS_URI,
+                                                       "doctypeid").setAttribute ("scheme", aDocTypeID.getScheme ())
+                                                                   .setAttribute ("value", aDocTypeID.getValue ());
     final NiceNameEntry aNiceName = NiceNameHandler.getDocTypeNiceName (aDocTypeID.getURIEncoded ());
     if (aNiceName == null)
       eDocTypeID.setAttribute ("non-standard", true);
@@ -60,7 +61,7 @@ public final class ExportHelper
   }
 
   @Nonnull
-  public static IMicroDocument getAsXML (@Nonnull final MultiLinkedHashMapArrayListBased <IParticipantIdentifier, PDStoredBusinessEntity> aMap,
+  public static IMicroDocument getAsXML (@Nonnull final ICommonsOrderedMap <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> aMap,
                                          final boolean bIncludeDocTypes)
   {
     // XML root
