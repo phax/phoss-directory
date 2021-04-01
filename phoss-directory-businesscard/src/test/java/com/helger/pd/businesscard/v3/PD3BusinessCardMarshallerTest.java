@@ -56,5 +56,6 @@ public final class PD3BusinessCardMarshallerTest
     _testBC ("src/test/resources/example/v3/business-card-example-spec.xml");
     _testBC ("src/test/resources/example/v3/business-card-test1.xml");
     _testBC ("src/test/resources/example/v3/business-card-test2.xml");
+    _testBC ("src/test/resources/example/v3/bc1.xml");
   }
 }

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BusinessCard xmlns="http://www.peppol.eu/schema/pd/businesscard/20180621/">
+    <ParticipantIdentifier scheme="999">9901:310-6689-799</ParticipantIdentifier>
+    <BusinessEntity>
+        <Name language="en">__C2_SERVICE_PROVIDER_NAME</Name>
+        <CountryCode>GR</CountryCode>
+        <Identifier scheme="iso6523-actorid-upis">12345678912</Identifier>
+    </BusinessEntity>
+</BusinessCard>
