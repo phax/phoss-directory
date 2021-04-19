@@ -49,16 +49,15 @@ import com.helger.pd.publisher.servlet.ExportDeliveryHttpHandler;
 import com.helger.pd.publisher.servlet.ExportServlet;
 import com.helger.photon.app.url.LinkHelper;
 import com.helger.photon.bootstrap4.CBootstrapCSS;
-import com.helger.photon.bootstrap4.alert.BootstrapErrorBox;
 import com.helger.photon.bootstrap4.button.BootstrapButton;
 import com.helger.photon.bootstrap4.dropdown.BootstrapDropdownMenu;
-import com.helger.photon.bootstrap4.ext.BootstrapSystemMessage;
 import com.helger.photon.bootstrap4.layout.BootstrapContainer;
 import com.helger.photon.bootstrap4.navbar.BootstrapNavbar;
 import com.helger.photon.bootstrap4.navbar.BootstrapNavbarNav;
 import com.helger.photon.bootstrap4.navbar.BootstrapNavbarToggleable;
 import com.helger.photon.bootstrap4.uictrls.ext.BootstrapMenuItemRenderer;
 import com.helger.photon.bootstrap4.uictrls.ext.BootstrapMenuItemRendererHorz;
+import com.helger.photon.bootstrap4.uictrls.ext.BootstrapPageRenderer;
 import com.helger.photon.core.EPhotonCoreText;
 import com.helger.photon.core.appid.CApplicationID;
 import com.helger.photon.core.appid.PhotonGlobalState;
@@ -80,11 +79,8 @@ import com.helger.photon.security.user.IUser;
 import com.helger.photon.security.util.SecurityHelper;
 import com.helger.photon.uicore.html.HCCookieConsent;
 import com.helger.photon.uicore.html.google.HCUniversalAnalytics;
-import com.helger.photon.uicore.page.IWebPage;
-import com.helger.photon.uicore.page.WebPageExecutionContext;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 import com.helger.xservlet.forcedredirect.ForcedRedirectException;
-import com.helger.xservlet.forcedredirect.ForcedRedirectManager;
 
 /**
  * Main class for creating HTML output
@@ -232,68 +228,6 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
     return aMenu;
   }
 
-  @SuppressWarnings ("unchecked")
-  @Nonnull
-  public static IHCNode getPageContent (@Nonnull final LayoutExecutionContext aLEC)
-  {
-    final IRequestWebScopeWithoutResponse aRequestScope = aLEC.getRequestScope ();
-
-    // Get the requested menu item
-    final IMenuItemPage aSelectedMenuItem = aLEC.getSelectedMenuItem ();
-
-    // Resolve the page of the selected menu item (if found)
-    IWebPage <WebPageExecutionContext> aDisplayPage;
-    if (aSelectedMenuItem.matchesDisplayFilter ())
-    {
-      // Only if we have display rights!
-      aDisplayPage = (IWebPage <WebPageExecutionContext>) aSelectedMenuItem.getPage ();
-    }
-    else
-    {
-      // No rights -> goto start page
-      aDisplayPage = (IWebPage <WebPageExecutionContext>) aLEC.getMenuTree ().getDefaultMenuItem ().getPage ();
-    }
-
-    final WebPageExecutionContext aWPEC = new WebPageExecutionContext (aLEC, aDisplayPage);
-
-    // Build page content: header + content
-    final HCNodeList ret = new HCNodeList ();
-
-    // First add the system message
-    ret.addChild (BootstrapSystemMessage.createDefault ());
-
-    // Handle 404 case here (see error404.jsp)
-    if ("true".equals (aRequestScope.params ().getAsString ("httpError")))
-    {
-      final String sHttpStatusCode = aRequestScope.params ().getAsString ("httpStatusCode");
-      final String sHttpStatusMessage = aRequestScope.params ().getAsString ("httpStatusMessage");
-      final String sHttpRequestURI = aRequestScope.params ().getAsString ("httpRequestUri");
-      ret.addChild (new BootstrapErrorBox ().addChild ("HTTP error " +
-                                                       sHttpStatusCode +
-                                                       " (" +
-                                                       sHttpStatusMessage +
-                                                       ")" +
-                                                       (StringHelper.hasText (sHttpRequestURI) ? " for request URI " + sHttpRequestURI
-                                                                                               : "")));
-    }
-    else
-    {
-      // Add the forced redirect content here
-      if (aWPEC.params ().containsKey (ForcedRedirectManager.REQUEST_PARAMETER_PRG_ACTIVE))
-        ret.addChild ((IHCNode) ForcedRedirectManager.getLastForcedRedirectContent (aDisplayPage.getID ()));
-    }
-
-    // Add page header
-    ret.addChild (aDisplayPage.getHeaderNode (aWPEC));
-
-    // Main fill page content
-    aDisplayPage.getContent (aWPEC);
-
-    // Add page content to result
-    ret.addChild (aWPEC.getNodeList ());
-    return ret;
-  }
-
   @Nonnull
   public static IHCNode getContent (@Nonnull final LayoutExecutionContext aLEC)
   {
@@ -307,7 +241,7 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
     final BootstrapContainer aOuterContainer = ret.addAndReturnChild (new BootstrapContainer ().setFluid (false));
 
     // Content - no menu
-    aOuterContainer.addChild (getPageContent (aLEC));
+    aOuterContainer.addChild (BootstrapPageRenderer.getPageContent (aLEC));
 
     // Footer
     {

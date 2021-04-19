@@ -35,7 +35,6 @@ import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.CDirectoryVersion;
 import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.app.AppCommonUI;
-import com.helger.pd.publisher.app.pub.PublicHTMLProvider;
 import com.helger.photon.app.url.LinkHelper;
 import com.helger.photon.bootstrap4.CBootstrapCSS;
 import com.helger.photon.bootstrap4.breadcrumb.BootstrapBreadcrumb;
@@ -45,6 +44,7 @@ import com.helger.photon.bootstrap4.layout.BootstrapContainer;
 import com.helger.photon.bootstrap4.navbar.BootstrapNavbar;
 import com.helger.photon.bootstrap4.navbar.BootstrapNavbarToggleable;
 import com.helger.photon.bootstrap4.uictrls.ext.BootstrapMenuItemRenderer;
+import com.helger.photon.bootstrap4.uictrls.ext.BootstrapPageRenderer;
 import com.helger.photon.core.EPhotonCoreText;
 import com.helger.photon.core.appid.RequestSettings;
 import com.helger.photon.core.execcontext.ISimpleWebExecutionContext;
@@ -145,7 +145,7 @@ public class SecureHTMLProvider extends AbstractSWECHTMLProvider
       aCol1.addChild (new HCDiv ().setID (CLayout.LAYOUT_AREAID_SPECIAL));
 
       // content - determine is exactly same as for view
-      aCol2.addChild (PublicHTMLProvider.getPageContent (aLEC));
+      aCol2.addChild (BootstrapPageRenderer.getPageContent (aLEC));
     }
 
     return ret;
