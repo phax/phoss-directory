@@ -85,6 +85,10 @@
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-web</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.sun.xml.bind</groupId>
+      <artifactId>jaxb-impl</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>es.moki.ratelimitj</groupId>
