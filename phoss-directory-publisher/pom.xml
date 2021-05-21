@@ -93,7 +93,6 @@
     <dependency>
       <groupId>es.moki.ratelimitj</groupId>
       <artifactId>ratelimitj-inmemory</artifactId>
-      <version>0.6.0</version>
     </dependency>
     
     <dependency>
