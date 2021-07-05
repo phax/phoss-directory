@@ -55,7 +55,7 @@ import com.helger.schedule.quartz.GlobalQuartzScheduler;
 import com.helger.schedule.quartz.listener.LoggingJobListener;
 import com.helger.schedule.quartz.trigger.JDK8TriggerBuilder;
 import com.helger.servlet.ServletContextPathHolder;
-import com.helger.xservlet.requesttrack.RequestTracker;
+import com.helger.xservlet.requesttrack.RequestTrackerSettings;
 
 /**
  * This listener is invoked during the servlet initialization. This is basically
@@ -113,8 +113,8 @@ public final class AppWebAppListener extends WebAppListenerBootstrap
 
     // By disabling these settings, less audits are created hence less calls are
     // blocking
-    RequestTracker.getInstance ().getRequestTrackingMgr ().setLongRunningCheckEnabled (false);
-    RequestTracker.getInstance ().getRequestTrackingMgr ().setParallelRunningRequestCheckEnabled (false);
+    RequestTrackerSettings.setLongRunningRequestsCheckEnabled (false);
+    RequestTrackerSettings.setParallelRunningRequestsCheckEnabled (false);
 
     RequestParameterManager.getInstance ().setParameterHandler (new RequestParameterHandlerURLPathNamed ());
     AppInternalErrorHandler.doSetup ();
