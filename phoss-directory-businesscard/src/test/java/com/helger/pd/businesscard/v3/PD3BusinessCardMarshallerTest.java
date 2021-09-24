@@ -19,6 +19,7 @@ package com.helger.pd.businesscard.v3;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
+import java.nio.charset.Charset;
 
 import javax.annotation.Nonnull;
 
@@ -43,7 +44,7 @@ public final class PD3BusinessCardMarshallerTest
     assertNotNull (PD3APIHelper.createBusinessCard (aBC));
     assertNotNull (PD3APIHelper.createBusinessCard (aBC).getAsMicroXML ("urn:test", "bc"));
     assertNotNull (PD3APIHelper.createBusinessCard (aBC).getAsJson ());
-    assertNotNull (PDBusinessCardHelper.parseBusinessCard (aBytes, null));
+    assertNotNull (PDBusinessCardHelper.parseBusinessCard (aBytes, (Charset) null));
   }
 
   @Test
