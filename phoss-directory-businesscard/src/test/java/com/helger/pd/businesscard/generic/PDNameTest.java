@@ -26,6 +26,7 @@ import static org.junit.Assert.fail;
 import org.junit.Test;
 
 import com.helger.commons.mock.CommonsTestHelper;
+import com.helger.json.IJsonObject;
 
 /**
  * Test class for class {@link PDName}.
@@ -108,5 +109,24 @@ public final class PDNameTest
     {
       // expected
     }
+  }
+
+  @Test
+  public void testJson ()
+  {
+    PDName aName = new PDName ("ACME", "en");
+    IJsonObject aJson = aName.getAsJson ();
+    assertNotNull (aJson);
+    PDName aName2 = PDName.of (aJson);
+    assertNotNull (aName2);
+    CommonsTestHelper.testDefaultImplementationWithEqualContentObject (aName2, aName);
+
+    // No language
+    aName = new PDName ("ACME");
+    aJson = aName.getAsJson ();
+    assertNotNull (aJson);
+    aName2 = PDName.of (aJson);
+    assertNotNull (aName2);
+    CommonsTestHelper.testDefaultImplementationWithEqualContentObject (aName2, aName);
   }
 }

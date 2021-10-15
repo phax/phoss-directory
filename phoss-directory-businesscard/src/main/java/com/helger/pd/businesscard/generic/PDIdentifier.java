@@ -20,12 +20,15 @@ import java.io.Serializable;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.NotThreadSafe;
 
 import com.helger.commons.annotation.Nonempty;
+import com.helger.commons.annotation.ReturnsMutableCopy;
 import com.helger.commons.equals.EqualsHelper;
 import com.helger.commons.hashcode.HashCodeGenerator;
+import com.helger.commons.lang.ICloneable;
 import com.helger.commons.string.ToStringGenerator;
+import com.helger.json.IHasJson;
 import com.helger.json.IJsonObject;
 import com.helger.json.JsonObject;
 import com.helger.xml.microdom.IMicroElement;
@@ -36,34 +39,87 @@ import com.helger.xml.microdom.MicroElement;
  *
  * @author Philip Helger
  */
-@Immutable
-public class PDIdentifier implements Serializable
+@NotThreadSafe
+public class PDIdentifier implements IHasJson, Serializable, ICloneable <PDIdentifier>
 {
-  private final String m_sScheme;
-  private final String m_sValue;
+  private String m_sScheme;
+  private String m_sValue;
+
+  public PDIdentifier ()
+  {}
 
   public PDIdentifier (@Nullable final String sScheme, @Nullable final String sValue)
   {
-    m_sScheme = sScheme;
-    m_sValue = sValue;
+    setScheme (sScheme);
+    setValue (sValue);
   }
 
   /**
    * @return The identifier scheme. May be <code>null</code>.
    */
   @Nullable
-  public String getScheme ()
+  public final String getScheme ()
   {
     return m_sScheme;
+  }
+
+  /**
+   * Set the identifier scheme.
+   *
+   * @param sScheme
+   *        The scheme. May be <code>null</code>.
+   * @return this for chaining
+   */
+  @Nonnull
+  public final PDIdentifier setScheme (@Nullable final String sScheme)
+  {
+    m_sScheme = sScheme;
+    return this;
   }
 
   /**
    * @return The identifier value. May be <code>null</code>.
    */
   @Nullable
-  public String getValue ()
+  public final String getValue ()
   {
     return m_sValue;
+  }
+
+  /**
+   * Set the identifier value.
+   *
+   * @param sValue
+   *        The value. May be <code>null</code>.
+   * @return this for chaining
+   */
+  @Nonnull
+  public final PDIdentifier setValue (@Nullable final String sValue)
+  {
+    m_sValue = sValue;
+    return this;
+  }
+
+  /**
+   * This method clones all values from <code>this</code> to the passed object.
+   * All data in the parameter object is overwritten!
+   *
+   * @param ret
+   *        The target object to clone to. May not be <code>null</code>.
+   */
+  public void cloneTo (@Nonnull final PDIdentifier ret)
+  {
+    ret.m_sScheme = m_sScheme;
+    ret.m_sValue = m_sValue;
+  }
+
+  @Nonnull
+  @ReturnsMutableCopy
+  public PDIdentifier getClone ()
+  {
+    final PDIdentifier ret = new PDIdentifier ();
+    cloneTo (ret);
+    return ret;
   }
 
   @Nonnull
@@ -76,12 +132,18 @@ public class PDIdentifier implements Serializable
   }
 
   @Nonnull
-  public IJsonObject getAsJson ()
+  public static IJsonObject getAsJson (@Nullable final String sScheme, @Nullable final String sValue)
   {
     final IJsonObject ret = new JsonObject ();
-    ret.add ("scheme", m_sScheme);
-    ret.add ("value", m_sValue);
+    ret.add ("scheme", sScheme);
+    ret.add ("value", sValue);
     return ret;
+  }
+
+  @Nonnull
+  public IJsonObject getAsJson ()
+  {
+    return getAsJson (m_sScheme, m_sValue);
   }
 
   @Override
@@ -106,5 +168,11 @@ public class PDIdentifier implements Serializable
   public String toString ()
   {
     return new ToStringGenerator (this).append ("Scheme", m_sScheme).append ("Value", m_sValue).getToString ();
+  }
+
+  @Nullable
+  public static PDIdentifier of (@Nullable final IJsonObject aJson)
+  {
+    return aJson == null ? null : new PDIdentifier (aJson.getAsString ("scheme"), aJson.getAsString ("value"));
   }
 }

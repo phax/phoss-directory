@@ -28,6 +28,7 @@ import com.helger.commons.equals.EqualsHelper;
 import com.helger.commons.hashcode.HashCodeGenerator;
 import com.helger.commons.lang.ICloneable;
 import com.helger.commons.string.ToStringGenerator;
+import com.helger.json.IHasJson;
 import com.helger.json.IJsonObject;
 import com.helger.json.JsonObject;
 import com.helger.xml.microdom.IMicroElement;
@@ -39,7 +40,7 @@ import com.helger.xml.microdom.MicroElement;
  * @author Philip Helger
  */
 @NotThreadSafe
-public class PDContact implements Serializable, ICloneable <PDContact>
+public class PDContact implements IHasJson, Serializable, ICloneable <PDContact>
 {
   private String m_sType;
   private String m_sName;
@@ -63,10 +64,10 @@ public class PDContact implements Serializable, ICloneable <PDContact>
   /**
    * Gets the value of the type property.
    *
-   * @return possible object is {@link String }
+   * @return The contact type. Maybe <code>null</code>.
    */
   @Nullable
-  public String getType ()
+  public final String getType ()
   {
     return m_sType;
   }
@@ -75,20 +76,23 @@ public class PDContact implements Serializable, ICloneable <PDContact>
    * Sets the value of the type property.
    *
    * @param sType
-   *        allowed object is {@link String }
+   *        The contact type. Maybe <code>null</code>.
+   * @return this for chaining
    */
-  public final void setType (@Nullable final String sType)
+  @Nonnull
+  public final PDContact setType (@Nullable final String sType)
   {
     m_sType = sType;
+    return this;
   }
 
   /**
    * Gets the value of the name property.
    *
-   * @return possible object is {@link String }
+   * @return The contact name. Maybe <code>null</code>.
    */
   @Nullable
-  public String getName ()
+  public final String getName ()
   {
     return m_sName;
   }
@@ -97,20 +101,23 @@ public class PDContact implements Serializable, ICloneable <PDContact>
    * Sets the value of the name property.
    *
    * @param sName
-   *        allowed object is {@link String }
+   *        The contact name. Maybe <code>null</code>.
+   * @return this for chaining
    */
-  public final void setName (@Nullable final String sName)
+  @Nonnull
+  public final PDContact setName (@Nullable final String sName)
   {
     m_sName = sName;
+    return this;
   }
 
   /**
    * Gets the value of the phoneNumber property.
    *
-   * @return possible object is {@link String }
+   * @return The contact phone number. Maybe <code>null</code>.
    */
   @Nullable
-  public String getPhoneNumber ()
+  public final String getPhoneNumber ()
   {
     return m_sPhoneNumber;
   }
@@ -119,20 +126,23 @@ public class PDContact implements Serializable, ICloneable <PDContact>
    * Sets the value of the phoneNumber property.
    *
    * @param sPhoneNumber
-   *        allowed object is {@link String }
+   *        The contact phone number. Maybe <code>null</code>.
+   * @return this for chaining
    */
-  public final void setPhoneNumber (@Nullable final String sPhoneNumber)
+  @Nonnull
+  public final PDContact setPhoneNumber (@Nullable final String sPhoneNumber)
   {
     m_sPhoneNumber = sPhoneNumber;
+    return this;
   }
 
   /**
    * Gets the value of the email property.
    *
-   * @return possible object is {@link String }
+   * @return The contact email address. May be <code>null</code>.
    */
   @Nullable
-  public String getEmail ()
+  public final String getEmail ()
   {
     return m_sEmail;
   }
@@ -141,11 +151,14 @@ public class PDContact implements Serializable, ICloneable <PDContact>
    * Sets the value of the email property.
    *
    * @param sEmail
-   *        allowed object is {@link String }
+   *        The contact email address to use. May be <code>null</code>.
+   * @return this for chaining
    */
-  public final void setEmail (@Nullable final String sEmail)
+  @Nonnull
+  public final PDContact setEmail (@Nullable final String sEmail)
   {
     m_sEmail = sEmail;
+    return this;
   }
 
   /**
@@ -157,10 +170,10 @@ public class PDContact implements Serializable, ICloneable <PDContact>
    */
   public void cloneTo (@Nonnull final PDContact ret)
   {
-    ret.m_sEmail = m_sEmail;
+    ret.m_sType = m_sType;
     ret.m_sName = m_sName;
     ret.m_sPhoneNumber = m_sPhoneNumber;
-    ret.m_sType = m_sType;
+    ret.m_sEmail = m_sEmail;
   }
 
   @Nonnull
@@ -176,10 +189,10 @@ public class PDContact implements Serializable, ICloneable <PDContact>
   public IMicroElement getAsMicroXML (@Nullable final String sNamespaceURI, @Nonnull @Nonempty final String sElementName)
   {
     final IMicroElement ret = new MicroElement (sNamespaceURI, sElementName);
-    ret.setAttribute ("email", m_sEmail);
+    ret.setAttribute ("type", m_sType);
     ret.setAttribute ("name", m_sName);
     ret.setAttribute ("phonenumber", m_sPhoneNumber);
-    ret.setAttribute ("type", m_sType);
+    ret.setAttribute ("email", m_sEmail);
     return ret;
   }
 
@@ -187,10 +200,10 @@ public class PDContact implements Serializable, ICloneable <PDContact>
   public IJsonObject getAsJson ()
   {
     final IJsonObject ret = new JsonObject ();
-    ret.add ("email", m_sEmail);
+    ret.add ("type", m_sType);
     ret.add ("name", m_sName);
     ret.add ("phonenumber", m_sPhoneNumber);
-    ret.add ("type", m_sType);
+    ret.add ("email", m_sEmail);
     return ret;
   }
 
@@ -223,5 +236,15 @@ public class PDContact implements Serializable, ICloneable <PDContact>
                                        .append ("phoneNumber", m_sPhoneNumber)
                                        .append ("email", m_sEmail)
                                        .getToString ();
+  }
+
+  @Nullable
+  public static PDContact of (@Nullable final IJsonObject aJson)
+  {
+    return aJson == null ? null
+                         : new PDContact (aJson.getAsString ("type"),
+                                          aJson.getAsString ("name"),
+                                          aJson.getAsString ("phonenumber"),
+                                          aJson.getAsString ("email"));
   }
 }

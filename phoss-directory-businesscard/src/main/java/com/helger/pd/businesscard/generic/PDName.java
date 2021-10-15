@@ -20,16 +20,19 @@ import java.io.Serializable;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.NotThreadSafe;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
+import com.helger.commons.annotation.ReturnsMutableCopy;
 import com.helger.commons.equals.EqualsHelper;
 import com.helger.commons.hashcode.HashCodeGenerator;
+import com.helger.commons.lang.ICloneable;
 import com.helger.commons.locale.LocaleHelper;
 import com.helger.commons.locale.language.LanguageCache;
 import com.helger.commons.string.StringHelper;
 import com.helger.commons.string.ToStringGenerator;
+import com.helger.json.IHasJson;
 import com.helger.json.IJsonObject;
 import com.helger.json.JsonObject;
 import com.helger.xml.microdom.IMicroElement;
@@ -40,16 +43,19 @@ import com.helger.xml.microdom.MicroElement;
  *
  * @author Philip Helger
  */
-@Immutable
-public class PDName implements Serializable
+@NotThreadSafe
+public class PDName implements IHasJson, Serializable, ICloneable <PDName>
 {
-  private final String m_sName;
-  private final String m_sLanguageCode;
+  private String m_sName;
+  private String m_sLanguageCode;
 
   public static boolean isValidLanguageCode (@Nullable final String s)
   {
     return s == null || (s.length () == 2 && LanguageCache.getInstance ().containsLanguage (s));
   }
+
+  public PDName ()
+  {}
 
   public PDName (@Nonnull @Nonempty final String sName)
   {
@@ -58,9 +64,8 @@ public class PDName implements Serializable
 
   public PDName (@Nonnull @Nonempty final String sName, @Nullable final String sLanguageCode)
   {
-    ValueEnforcer.notEmpty (sName, "Name");
+    setName (sName);
     ValueEnforcer.isTrue (isValidLanguageCode (sLanguageCode), () -> "'" + sLanguageCode + "' is invalid language code");
-    m_sName = sName;
     m_sLanguageCode = LocaleHelper.getValidLanguageCode (sLanguageCode);
   }
 
@@ -69,23 +74,78 @@ public class PDName implements Serializable
    */
   @Nonnull
   @Nonempty
-  public String getName ()
+  public final String getName ()
   {
     return m_sName;
+  }
+
+  /**
+   * Set the name itself.
+   *
+   * @param sName
+   *        The name to use. May neither be <code>null</code> nor empty.
+   * @return this for chaining
+   */
+  @Nonnull
+  public final PDName setName (@Nonnull @Nonempty final String sName)
+  {
+    ValueEnforcer.notEmpty (sName, "Name");
+    m_sName = sName;
+    return this;
   }
 
   /**
    * @return The language code. May be <code>null</code>.
    */
   @Nullable
-  public String getLanguageCode ()
+  public final String getLanguageCode ()
   {
     return m_sLanguageCode;
   }
 
-  public boolean hasNoLanguageCode ()
+  public final boolean hasNoLanguageCode ()
   {
     return StringHelper.hasNoText (m_sLanguageCode);
+  }
+
+  /**
+   * Set the language code to use.
+   *
+   * @param sLanguageCode
+   *        The language code to use. May be <code>null</code>. If
+   *        non-<code>null</code> it must be syntactically a valid lanaguage
+   *        code.
+   * @return this for chaining
+   * @see #isValidLanguageCode(String)
+   */
+  @Nonnull
+  public final PDName setLanguageCode (@Nullable final String sLanguageCode)
+  {
+    ValueEnforcer.isTrue (isValidLanguageCode (sLanguageCode), () -> "'" + sLanguageCode + "' is invalid language code");
+    m_sLanguageCode = LocaleHelper.getValidLanguageCode (sLanguageCode);
+    return this;
+  }
+
+  /**
+   * This method clones all values from <code>this</code> to the passed object.
+   * All data in the parameter object is overwritten!
+   *
+   * @param ret
+   *        The target object to clone to. May not be <code>null</code>.
+   */
+  public void cloneTo (@Nonnull final PDName ret)
+  {
+    ret.m_sName = m_sName;
+    ret.m_sLanguageCode = m_sLanguageCode;
+  }
+
+  @Nonnull
+  @ReturnsMutableCopy
+  public PDName getClone ()
+  {
+    final PDName ret = new PDName ();
+    cloneTo (ret);
+    return ret;
   }
 
   @Nonnull
@@ -129,5 +189,11 @@ public class PDName implements Serializable
   public String toString ()
   {
     return new ToStringGenerator (null).append ("Name", m_sName).appendIfNotNull ("LanguageCode", m_sLanguageCode).getToString ();
+  }
+
+  @Nullable
+  public static PDName of (@Nullable final IJsonObject aJson)
+  {
+    return aJson == null ? null : new PDName (aJson.getAsString ("name"), aJson.getAsString ("language"));
   }
 }

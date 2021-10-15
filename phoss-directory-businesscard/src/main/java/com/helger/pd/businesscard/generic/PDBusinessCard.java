@@ -17,6 +17,7 @@
 package com.helger.pd.businesscard.generic;
 
 import java.io.Serializable;
+import java.util.function.Predicate;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -31,6 +32,8 @@ import com.helger.commons.equals.EqualsHelper;
 import com.helger.commons.hashcode.HashCodeGenerator;
 import com.helger.commons.lang.ICloneable;
 import com.helger.commons.string.ToStringGenerator;
+import com.helger.json.IHasJson;
+import com.helger.json.IJson;
 import com.helger.json.IJsonObject;
 import com.helger.json.JsonArray;
 import com.helger.json.JsonObject;
@@ -43,13 +46,19 @@ import com.helger.xml.microdom.MicroElement;
  * @author Philip Helger
  */
 @NotThreadSafe
-public class PDBusinessCard implements Serializable, ICloneable <PDBusinessCard>
+public class PDBusinessCard implements IHasJson, Serializable, ICloneable <PDBusinessCard>
 {
   private PDIdentifier m_aParticipantIdentifier;
-  private ICommonsList <PDBusinessEntity> m_aEntities = new CommonsArrayList <> ();
+  private final ICommonsList <PDBusinessEntity> m_aBusinessEntities = new CommonsArrayList <> ();
 
   public PDBusinessCard ()
   {}
+
+  public PDBusinessCard (@Nullable final PDIdentifier aParticipantIdentifier, @Nullable final ICommonsList <PDBusinessEntity> aEntities)
+  {
+    setParticipantIdentifier (aParticipantIdentifier);
+    businessEntities ().setAll (aEntities);
+  }
 
   /**
    * Gets the value of the participantIdentifier property.
@@ -57,7 +66,7 @@ public class PDBusinessCard implements Serializable, ICloneable <PDBusinessCard>
    * @return possible object is {@link PDIdentifier }
    */
   @Nullable
-  public PDIdentifier getParticipantIdentifier ()
+  public final PDIdentifier getParticipantIdentifier ()
   {
     return m_aParticipantIdentifier;
   }
@@ -70,7 +79,7 @@ public class PDBusinessCard implements Serializable, ICloneable <PDBusinessCard>
    * @return this for chaining
    */
   @Nonnull
-  public PDBusinessCard setParticipantIdentifier (@Nullable final PDIdentifier aParticipantIdentifier)
+  public final PDBusinessCard setParticipantIdentifier (@Nullable final PDIdentifier aParticipantIdentifier)
   {
     m_aParticipantIdentifier = aParticipantIdentifier;
     return this;
@@ -81,9 +90,9 @@ public class PDBusinessCard implements Serializable, ICloneable <PDBusinessCard>
    */
   @Nonnull
   @ReturnsMutableObject
-  public ICommonsList <PDBusinessEntity> businessEntities ()
+  public final ICommonsList <PDBusinessEntity> businessEntities ()
   {
-    return m_aEntities;
+    return m_aBusinessEntities;
   }
 
   /**
@@ -96,7 +105,7 @@ public class PDBusinessCard implements Serializable, ICloneable <PDBusinessCard>
   public void cloneTo (@Nonnull final PDBusinessCard ret)
   {
     ret.m_aParticipantIdentifier = m_aParticipantIdentifier;
-    ret.m_aEntities = new CommonsArrayList <> (m_aEntities, PDBusinessEntity::getClone);
+    ret.m_aBusinessEntities.setAllMapped (m_aBusinessEntities, PDBusinessEntity::getClone);
   }
 
   @Override
@@ -114,7 +123,7 @@ public class PDBusinessCard implements Serializable, ICloneable <PDBusinessCard>
   {
     final IMicroElement ret = new MicroElement (sNamespaceURI, sElementName);
     ret.appendChild (m_aParticipantIdentifier.getAsMicroXML (sNamespaceURI, "participant"));
-    for (final PDBusinessEntity aEntity : m_aEntities)
+    for (final PDBusinessEntity aEntity : m_aBusinessEntities)
       ret.appendChild (aEntity.getAsMicroXML (sNamespaceURI, "entity"));
     return ret;
   }
@@ -124,7 +133,7 @@ public class PDBusinessCard implements Serializable, ICloneable <PDBusinessCard>
   {
     final IJsonObject ret = new JsonObject ();
     ret.addJson ("participant", m_aParticipantIdentifier.getAsJson ());
-    ret.addJson ("entity", new JsonArray ().addAllMapped (m_aEntities, PDBusinessEntity::getAsJson));
+    ret.addJson ("entity", new JsonArray ().addAllMapped (m_aBusinessEntities, PDBusinessEntity::getAsJson));
     return ret;
   }
 
@@ -138,20 +147,30 @@ public class PDBusinessCard implements Serializable, ICloneable <PDBusinessCard>
 
     final PDBusinessCard rhs = ((PDBusinessCard) o);
     return EqualsHelper.equals (m_aParticipantIdentifier, rhs.m_aParticipantIdentifier) &&
-           EqualsHelper.equals (m_aEntities, rhs.m_aEntities);
+           EqualsHelper.equals (m_aBusinessEntities, rhs.m_aBusinessEntities);
   }
 
   @Override
   public int hashCode ()
   {
-    return new HashCodeGenerator (this).append (m_aParticipantIdentifier).append (m_aEntities).getHashCode ();
+    return new HashCodeGenerator (this).append (m_aParticipantIdentifier).append (m_aBusinessEntities).getHashCode ();
   }
 
   @Override
   public String toString ()
   {
     return new ToStringGenerator (this).append ("ParticipantIdentifier", m_aParticipantIdentifier)
-                                       .append ("Entities", m_aEntities)
+                                       .append ("Entities", m_aBusinessEntities)
                                        .getToString ();
+  }
+
+  @Nonnull
+  public static PDBusinessCard of (@Nonnull final IJsonObject aJson)
+  {
+    final PDIdentifier aParticipantID = PDIdentifier.of (aJson.getAsObject ("participant"));
+    final ICommonsList <PDBusinessEntity> aBusinessEntities = CommonsArrayList.createFiltered (aJson.getAsArray ("entity"),
+                                                                                               (Predicate <IJson>) IJson::isObject,
+                                                                                               x -> PDBusinessEntity.of (x.getAsObject ()));
+    return new PDBusinessCard (aParticipantID, aBusinessEntities);
   }
 }

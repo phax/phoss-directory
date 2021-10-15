@@ -18,6 +18,7 @@ package com.helger.pd.businesscard.generic;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.function.Predicate;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -34,6 +35,8 @@ import com.helger.commons.hashcode.HashCodeGenerator;
 import com.helger.commons.lang.ICloneable;
 import com.helger.commons.string.StringHelper;
 import com.helger.commons.string.ToStringGenerator;
+import com.helger.json.IHasJson;
+import com.helger.json.IJson;
 import com.helger.json.IJsonObject;
 import com.helger.json.JsonArray;
 import com.helger.json.JsonObject;
@@ -46,7 +49,7 @@ import com.helger.xml.microdom.MicroElement;
  * @author Philip Helger
  */
 @NotThreadSafe
-public class PDBusinessEntity implements Serializable, ICloneable <PDBusinessEntity>
+public class PDBusinessEntity implements IHasJson, Serializable, ICloneable <PDBusinessEntity>
 {
   private final ICommonsList <PDName> m_aNames = new CommonsArrayList <> ();
   private String m_sCountryCode;
@@ -108,10 +111,13 @@ public class PDBusinessEntity implements Serializable, ICloneable <PDBusinessEnt
    *
    * @param sCountryCode
    *        The country code to use. Should not be <code>null</code>.
+   * @return this for chaining
    */
-  public final void setCountryCode (@Nullable final String sCountryCode)
+  @Nonnull
+  public final PDBusinessEntity setCountryCode (@Nullable final String sCountryCode)
   {
     m_sCountryCode = sCountryCode;
+    return this;
   }
 
   /**
@@ -131,10 +137,13 @@ public class PDBusinessEntity implements Serializable, ICloneable <PDBusinessEnt
   /**
    * @param sGeoInfo
    *        Geographical information. May be <code>null</code>.
+   * @return this for chaining
    */
-  public final void setGeoInfo (@Nullable final String sGeoInfo)
+  @Nonnull
+  public final PDBusinessEntity setGeoInfo (@Nullable final String sGeoInfo)
   {
     m_sGeoInfo = sGeoInfo;
+    return this;
   }
 
   /**
@@ -187,10 +196,13 @@ public class PDBusinessEntity implements Serializable, ICloneable <PDBusinessEnt
    * @param sAdditionalInfo
    *        Additional information to be used (free text). May be
    *        <code>null</code>.
+   * @return this for chaining
    */
-  public final void setAdditionalInfo (@Nullable final String sAdditionalInfo)
+  @Nonnull
+  public final PDBusinessEntity setAdditionalInfo (@Nullable final String sAdditionalInfo)
   {
     m_sAdditionalInfo = sAdditionalInfo;
+    return this;
   }
 
   /**
@@ -212,10 +224,13 @@ public class PDBusinessEntity implements Serializable, ICloneable <PDBusinessEnt
    *
    * @param aRegDate
    *        The registration date. May be <code>null</code>.
+   * @return this for chaining
    */
-  public final void setRegistrationDate (@Nullable final LocalDate aRegDate)
+  @Nonnull
+  public final PDBusinessEntity setRegistrationDate (@Nullable final LocalDate aRegDate)
   {
     m_aRegistrationDate = aRegDate;
+    return this;
   }
 
   /**
@@ -227,14 +242,13 @@ public class PDBusinessEntity implements Serializable, ICloneable <PDBusinessEnt
    */
   public void cloneTo (@Nonnull final PDBusinessEntity ret)
   {
-    ret.m_aNames.setAll (m_aNames);
+    ret.m_aNames.setAllMapped (m_aNames, PDName::getClone);
     ret.m_sCountryCode = m_sCountryCode;
     ret.m_sGeoInfo = m_sGeoInfo;
-    ret.m_aIDs.setAll (m_aIDs);
+    ret.m_aIDs.setAllMapped (m_aIDs, PDIdentifier::getClone);
     ret.m_aWebsiteURIs.setAll (m_aWebsiteURIs);
     ret.m_aContacts.setAllMapped (m_aContacts, PDContact::getClone);
     ret.m_sAdditionalInfo = m_sAdditionalInfo;
-    // Identifier are immutable
     ret.m_aRegistrationDate = m_aRegistrationDate;
   }
 
@@ -335,5 +349,33 @@ public class PDBusinessEntity implements Serializable, ICloneable <PDBusinessEnt
                                        .append ("additionalInformation", m_sAdditionalInfo)
                                        .append ("registrationDate", m_aRegistrationDate)
                                        .getToString ();
+  }
+
+  @Nullable
+  public static PDBusinessEntity of (@Nullable final IJsonObject aJson)
+  {
+    if (aJson == null)
+      return null;
+
+    final ICommonsList <PDName> aNames = CommonsArrayList.createFiltered (aJson.getAsArray ("name"),
+                                                                          (Predicate <IJson>) IJson::isObject,
+                                                                          x -> PDName.of (x.getAsObject ()));
+    final ICommonsList <PDIdentifier> aIDs = CommonsArrayList.createFiltered (aJson.getAsArray ("id"),
+                                                                              (Predicate <IJson>) IJson::isObject,
+                                                                              x -> PDIdentifier.of (x.getAsObject ()));
+    final ICommonsList <String> aWebsiteURIs = CommonsArrayList.createFiltered (aJson.getAsArray ("website"),
+                                                                                (Predicate <IJson>) IJson::isValue,
+                                                                                x -> x.getAsValue ().getAsString ());
+    final ICommonsList <PDContact> aContacts = CommonsArrayList.createFiltered (aJson.getAsArray ("contact"),
+                                                                                (Predicate <IJson>) IJson::isObject,
+                                                                                x -> PDContact.of (x.getAsObject ()));
+    return new PDBusinessEntity (aNames,
+                                 aJson.getAsString ("countrycode"),
+                                 aJson.getAsString ("geoinfo"),
+                                 aIDs,
+                                 aWebsiteURIs,
+                                 aContacts,
+                                 aJson.getAsString ("additionalinfo"),
+                                 PDTWebDateHelper.getLocalDateFromXSD (aJson.getAsString ("regdate")));
   }
 }

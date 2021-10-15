@@ -29,7 +29,12 @@ import com.helger.commons.annotation.ReturnsMutableObject;
 import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.string.ToStringGenerator;
+import com.helger.json.IHasJson;
+import com.helger.json.IJsonObject;
+import com.helger.json.JsonArray;
+import com.helger.json.JsonObject;
 import com.helger.pd.businesscard.generic.PDBusinessCard;
+import com.helger.pd.businesscard.generic.PDIdentifier;
 import com.helger.peppolid.IDocumentTypeIdentifier;
 import com.helger.peppolid.simple.doctype.SimpleDocumentTypeIdentifier;
 
@@ -41,7 +46,7 @@ import com.helger.peppolid.simple.doctype.SimpleDocumentTypeIdentifier;
  * @author Philip Helger
  */
 @Immutable
-public class PDExtendedBusinessCard implements Serializable
+public class PDExtendedBusinessCard implements IHasJson, Serializable
 {
   private final PDBusinessCard m_aBusinessCard;
   private final ICommonsList <IDocumentTypeIdentifier> m_aDocumentTypeIDs = new CommonsArrayList <> ();
@@ -97,6 +102,16 @@ public class PDExtendedBusinessCard implements Serializable
   public int getDocumentTypeCount ()
   {
     return m_aDocumentTypeIDs.size ();
+  }
+
+  @Nonnull
+  public IJsonObject getAsJson ()
+  {
+    final IJsonObject ret = new JsonObject ();
+    ret.addJson ("businesscard", m_aBusinessCard.getAsJson ());
+    ret.addJson ("doctypes",
+                 new JsonArray ().addAllMapped (m_aDocumentTypeIDs, x -> PDIdentifier.getAsJson (x.getScheme (), x.getValue ())));
+    return ret;
   }
 
   @Override
