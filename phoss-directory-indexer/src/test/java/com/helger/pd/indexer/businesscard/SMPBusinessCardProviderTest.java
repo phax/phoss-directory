@@ -32,6 +32,7 @@ import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.url.URLHelper;
 import com.helger.httpclient.HttpClientSettings;
+import com.helger.json.IJsonObject;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.peppol.sml.ESML;
 import com.helger.peppolid.factory.PeppolIdentifierFactory;
@@ -61,6 +62,12 @@ public final class SMPBusinessCardProviderTest
     assertNotNull (aExtBI);
     assertEquals (1, aExtBI.getBusinessCard ().businessEntities ().size ());
     LOGGER.info (aExtBI.toString ());
+
+    // Test to JSON and back
+    final IJsonObject aJson1 = aExtBI.getAsJson ();
+    final PDExtendedBusinessCard aExtBC2 = PDExtendedBusinessCard.of (aJson1);
+    assertNotNull (aExtBC2);
+    assertEquals (aJson1, aExtBC2.getAsJson ());
   }
 
   @Test

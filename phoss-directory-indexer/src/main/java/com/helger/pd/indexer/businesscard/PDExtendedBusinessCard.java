@@ -17,6 +17,7 @@
 package com.helger.pd.indexer.businesscard;
 
 import java.io.Serializable;
+import java.util.function.Predicate;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -30,6 +31,7 @@ import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.string.ToStringGenerator;
 import com.helger.json.IHasJson;
+import com.helger.json.IJson;
 import com.helger.json.IJsonObject;
 import com.helger.json.JsonArray;
 import com.helger.json.JsonObject;
@@ -118,5 +120,18 @@ public class PDExtendedBusinessCard implements IHasJson, Serializable
   public String toString ()
   {
     return new ToStringGenerator (this).append ("BusinessCard", m_aBusinessCard).append ("DocTypeIDs", m_aDocumentTypeIDs).getToString ();
+  }
+
+  @Nonnull
+  public static PDExtendedBusinessCard of (@Nonnull final IJsonObject aJson)
+  {
+    final PDBusinessCard aBC = PDBusinessCard.of (aJson.getAsObject ("businesscard"));
+    final ICommonsList <IDocumentTypeIdentifier> aDocTypes = CommonsArrayList.createFiltered (aJson.getAsArray ("doctypes"),
+                                                                                              (Predicate <IJson>) IJson::isObject,
+                                                                                              x -> new SimpleDocumentTypeIdentifier (x.getAsObject ()
+                                                                                                                                      .getAsString ("scheme"),
+                                                                                                                                     x.getAsObject ()
+                                                                                                                                      .getAsString ("value")));
+    return new PDExtendedBusinessCard (aBC, aDocTypes);
   }
 }
