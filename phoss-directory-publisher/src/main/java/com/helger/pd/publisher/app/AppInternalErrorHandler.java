@@ -36,7 +36,7 @@ import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 public final class AppInternalErrorHandler extends AbstractErrorCallback
 {
   @Override
-  protected void onError (@Nonnull final Throwable t,
+  protected void onError (@Nullable final Throwable t,
                           @Nullable final IRequestWebScopeWithoutResponse aRequestScope,
                           @Nonnull @Nonempty final String sErrorCode,
                           @Nullable final Map <String, String> aCustomAttrs)
