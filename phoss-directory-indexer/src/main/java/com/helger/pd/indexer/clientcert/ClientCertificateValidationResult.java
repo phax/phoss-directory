@@ -50,6 +50,7 @@ public final class ClientCertificateValidationResult implements ISuccessIndicato
     return m_bSuccess;
   }
 
+  @Override
   public boolean isFailure ()
   {
     return !m_bSuccess;

@@ -334,11 +334,11 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
   public void updateDocuments (@Nullable final Term aDelTerm,
                                @Nonnull final Iterable <? extends Iterable <? extends IndexableField>> aDocs) throws IOException
   {
-    long nSeqNum;
+    final long nSeqNum;
     if (false)
     {
       // Delete and than add
-      nSeqNum = _getWriter ().deleteDocuments (aDelTerm);
+      _getWriter ().deleteDocuments (aDelTerm);
       nSeqNum = _getWriter ().updateDocuments (null, aDocs);
     }
     else

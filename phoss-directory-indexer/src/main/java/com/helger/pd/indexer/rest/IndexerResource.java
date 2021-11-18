@@ -71,11 +71,11 @@ public class IndexerResource
     {
       return ClientCertificateValidator.verifyClientCertificate (aHttpServletRequest, sLogPrefix);
     }
-    catch (final Throwable t)
+    catch (final Exception ex)
     {
       // Use Throwable to track "class load error" issue
       if (LOGGER.isWarnEnabled ())
-        LOGGER.warn (sLogPrefix + "Error validating client certificate", t);
+        LOGGER.warn (sLogPrefix + "Error validating client certificate", ex);
     }
     return ClientCertificateValidationResult.createFailure ();
   }

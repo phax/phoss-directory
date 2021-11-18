@@ -65,9 +65,7 @@ import com.helger.smpclient.url.SMPDNSResolutionException;
 public class SMPBusinessCardProvider implements IPDBusinessCardProvider
 {
   private static final Logger LOGGER = LoggerFactory.getLogger (SMPBusinessCardProvider.class);
-  private static final Consumer <String> UNHANDLED_HREF_HANDLER = x -> LOGGER.error ("Failed to get document type from href '" +
-                                                                                     x +
-                                                                                     "'");
+  private static final Consumer <String> UNHANDLED_HREF_HANDLER = x -> LOGGER.error ("Failed to get document type from href '" + x + "'");
 
   private final ESMPAPIType m_eSMPMode;
   private final URI m_aSMPURI;
@@ -187,15 +185,12 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
     try (final HttpClientManager aHCM = HttpClientManager.create (aHCS))
     {
       // Use the optional business card API
-      final HttpGet aRequest = new HttpGet (aSMPClient.getSMPHostURI () +
-                                            "businesscard/" +
-                                            aParticipantID.getURIPercentEncoded ());
+      final HttpGet aRequest = new HttpGet (aSMPClient.getSMPHostURI () + "businesscard/" + aParticipantID.getURIPercentEncoded ());
       aBusinessCard = aHCM.execute (aRequest, new PDSMPHttpResponseHandlerBusinessCard ());
     }
     catch (final IOException ex)
     {
-      if ((ex instanceof HttpResponseException &&
-           ((HttpResponseException) ex).getStatusCode () == CHttp.HTTP_NOT_FOUND) ||
+      if ((ex instanceof HttpResponseException && ((HttpResponseException) ex).getStatusCode () == CHttp.HTTP_NOT_FOUND) ||
           ex instanceof UnknownHostException)
       {
         LOGGER.warn ("No BusinessCard available for '" +
@@ -254,15 +249,12 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
     try (final HttpClientManager aHCM = HttpClientManager.create (aHCS))
     {
       // Use the optional business card API
-      final HttpGet aRequest = new HttpGet (aSMPClient.getSMPHostURI () +
-                                            "businesscard/" +
-                                            aParticipantID.getURIPercentEncoded ());
+      final HttpGet aRequest = new HttpGet (aSMPClient.getSMPHostURI () + "businesscard/" + aParticipantID.getURIPercentEncoded ());
       aBusinessCard = aHCM.execute (aRequest, new PDSMPHttpResponseHandlerBusinessCard ());
     }
     catch (final IOException ex)
     {
-      if ((ex instanceof HttpResponseException &&
-           ((HttpResponseException) ex).getStatusCode () == CHttp.HTTP_NOT_FOUND) ||
+      if ((ex instanceof HttpResponseException && ((HttpResponseException) ex).getStatusCode () == CHttp.HTTP_NOT_FOUND) ||
           ex instanceof UnknownHostException)
       {
         LOGGER.warn ("No BusinessCard available for '" +
@@ -320,17 +312,14 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
     try (final HttpClientManager aHCM = HttpClientManager.create (aHCS))
     {
       // Use the optional business card API
-      // FIXME is the path "bdxr-smp-2" needed? Well, the PD is not yet
+      // TODO is the path "bdxr-smp-2" needed? Well, the PD is not yet
       // specified for this SMP type....
-      final HttpGet aRequest = new HttpGet (aSMPClient.getSMPHostURI () +
-                                            "businesscard/" +
-                                            aParticipantID.getURIPercentEncoded ());
+      final HttpGet aRequest = new HttpGet (aSMPClient.getSMPHostURI () + "businesscard/" + aParticipantID.getURIPercentEncoded ());
       aBusinessCard = aHCM.execute (aRequest, new PDSMPHttpResponseHandlerBusinessCard ());
     }
     catch (final IOException ex)
     {
-      if ((ex instanceof HttpResponseException &&
-           ((HttpResponseException) ex).getStatusCode () == CHttp.HTTP_NOT_FOUND) ||
+      if ((ex instanceof HttpResponseException && ((HttpResponseException) ex).getStatusCode () == CHttp.HTTP_NOT_FOUND) ||
           ex instanceof UnknownHostException)
       {
         LOGGER.warn ("No BusinessCard available for '" +
@@ -486,8 +475,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
   }
 
   @Nonnull
-  public static SMPBusinessCardProvider createForFixedSMP (@Nonnull final ESMPAPIType eSMPMode,
-                                                           @Nonnull final URI aSMPURI)
+  public static SMPBusinessCardProvider createForFixedSMP (@Nonnull final ESMPAPIType eSMPMode, @Nonnull final URI aSMPURI)
   {
     ValueEnforcer.notNull (eSMPMode, "SMPMode");
     ValueEnforcer.notNull (aSMPURI, "SMP URI");

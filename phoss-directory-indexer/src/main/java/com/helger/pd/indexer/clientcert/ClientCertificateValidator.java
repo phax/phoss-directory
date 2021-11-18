@@ -143,11 +143,11 @@ public final class ClientCertificateValidator
         final KeyStore aKS = KeyStoreHelper.loadKeyStoreDirect (aTS.getType (), aTS.getPath (), aTS.getPassword ());
         aCert = (X509Certificate) aKS.getCertificate (aTS.getAlias ());
       }
-      catch (final Throwable t)
+      catch (final Exception ex)
       {
         final String sMsg = "Failed to read trust store from '" + aTS.getPath () + "'";
         LOGGER.error (sMsg);
-        throw new InitializationException (sMsg, t);
+        throw new InitializationException (sMsg, ex);
       }
 
       // Check if both root certificates could be loaded

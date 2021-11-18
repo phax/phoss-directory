@@ -80,13 +80,13 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
       @Override
       protected void showQuery (@Nonnull final WebPageExecutionContext aWPEC,
                                 @Nonnull final BootstrapForm aForm,
-                                @Nonnull final IReIndexWorkItem aSelectedObject)
+                                @Nullable final IReIndexWorkItem aSelectedObject)
       {
         aForm.addChild (question ("Are you sure to delete the item " + aSelectedObject.getDisplayName () + "?"));
       }
 
       @Override
-      protected void performAction (@Nonnull final WebPageExecutionContext aWPEC, @Nonnull final IReIndexWorkItem aSelectedObject)
+      protected void performAction (@Nonnull final WebPageExecutionContext aWPEC, @Nullable final IReIndexWorkItem aSelectedObject)
       {
         if (getReIndexWorkItemList ().deleteItem (aSelectedObject.getID ()).isChanged ())
         {

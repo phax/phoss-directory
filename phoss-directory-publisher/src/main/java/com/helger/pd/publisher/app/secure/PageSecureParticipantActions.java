@@ -89,15 +89,15 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
   private static final String ACTION_SHOW_DUPLICATES = "show-duplicates";
   private static final String ACTION_DELETE_DUPLICATES = "delete-duplicates";
 
-  private static final AjaxFunctionDeclaration s_aDownloadAllIDsXML;
-  private static final AjaxFunctionDeclaration s_aDownloadAllBCsXMLFull;
-  private static final AjaxFunctionDeclaration s_aDownloadAllBCsXMLNoDocTypes;
-  private static final AjaxFunctionDeclaration s_aDownloadAllBCsExcel;
-  private static final AjaxFunctionDeclaration s_aDownloadAllBCsCSV;
+  private static final AjaxFunctionDeclaration AJAX_DOWNLOAD_ALL_IDS_XML;
+  private static final AjaxFunctionDeclaration AJAX_DOWNLOAD_ALL_BCS_XML_FULL;
+  private static final AjaxFunctionDeclaration AJAX_DOWNLOAD_ALL_BCS_XML_NO_DOCTYPES;
+  private static final AjaxFunctionDeclaration AJAX_DOWNLOAD_ALL_BCS_EXCEL;
+  private static final AjaxFunctionDeclaration AJAX_DOWNLOAD_ALL_BCS_CSV;
 
   static
   {
-    s_aDownloadAllIDsXML = addAjax ( (req, res) -> {
+    AJAX_DOWNLOAD_ALL_IDS_XML = addAjax ( (req, res) -> {
       final IMicroDocument aDoc = new MicroDocument ();
       final IMicroElement aRoot = aDoc.appendElement ("root");
       final Set <IParticipantIdentifier> aAllIDs = PDMetaManager.getStorageMgr ()
@@ -114,25 +114,25 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
       res.xml (aDoc);
       res.attachment ("directory-participant-list.xml");
     });
-    s_aDownloadAllBCsXMLFull = addAjax ( (req, res) -> {
+    AJAX_DOWNLOAD_ALL_BCS_XML_FULL = addAjax ( (req, res) -> {
       final IMicroDocument aDoc = ExportAllManager.queryAllContainedBusinessCardsAsXML (EQueryMode.NON_DELETED_ONLY, true);
       res.xml (aDoc);
       res.attachment (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_FULL);
     });
-    s_aDownloadAllBCsXMLNoDocTypes = addAjax ( (req, res) -> {
+    AJAX_DOWNLOAD_ALL_BCS_XML_NO_DOCTYPES = addAjax ( (req, res) -> {
       final IMicroDocument aDoc = ExportAllManager.queryAllContainedBusinessCardsAsXML (EQueryMode.NON_DELETED_ONLY, false);
       res.xml (aDoc);
       res.attachment (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_NO_DOC_TYPES);
     });
-    s_aDownloadAllBCsExcel = addAjax ( (req, res) -> {
-      final WorkbookCreationHelper aWBCH = ExportAllManager.queryAllContainedBusinessCardsAsExcel (EQueryMode.NON_DELETED_ONLY, true);
-      try (NonBlockingByteArrayOutputStream aBAOS = new NonBlockingByteArrayOutputStream ())
+    AJAX_DOWNLOAD_ALL_BCS_EXCEL = addAjax ( (req, res) -> {
+      try (final WorkbookCreationHelper aWBCH = ExportAllManager.queryAllContainedBusinessCardsAsExcel (EQueryMode.NON_DELETED_ONLY, true);
+           final NonBlockingByteArrayOutputStream aBAOS = new NonBlockingByteArrayOutputStream ())
       {
         aWBCH.writeTo (aBAOS);
         res.binary (aBAOS, EExcelVersion.XLSX.getMimeType (), ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XLSX);
       }
     });
-    s_aDownloadAllBCsCSV = addAjax ( (req, res) -> {
+    AJAX_DOWNLOAD_ALL_BCS_CSV = addAjax ( (req, res) -> {
       try (final NonBlockingByteArrayOutputStream aBAOS = new NonBlockingByteArrayOutputStream ();
            final CSVWriter aCSVWriter = new CSVWriter (StreamHelper.createWriter (aBAOS, StandardCharsets.ISO_8859_1)))
       {
@@ -207,7 +207,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
     }
     if (aNL.hasChildren ())
     {
-      final String sMsg = "Found duplicate entries for " + aDupMap.size () + " " + (aDupMap.size () == 1 ? "participant" : "participant");
+      final String sMsg = "Found duplicate entries for " + aDupMap.size () + " " + (aDupMap.size () == 1 ? "participant" : "participants");
       LOGGER.info (sMsg);
       aNL.addChildAt (0, h2 (sMsg));
       aWPEC.postRedirectGetInternal (aNL);
@@ -346,19 +346,19 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
          .addClasses (CBootstrapCSS.BG_DANGER, CBootstrapCSS.TEXT_WHITE);
     BootstrapCardBody aBody = aCard.createAndAddBody ();
     aBody.addChild (new BootstrapButton (EBootstrapButtonType.DANGER).addChild ("Download all IDs (XML, live)")
-                                                                     .setOnClick (s_aDownloadAllIDsXML.getInvocationURL (aRequestScope))
+                                                                     .setOnClick (AJAX_DOWNLOAD_ALL_IDS_XML.getInvocationURL (aRequestScope))
                                                                      .setIcon (EDefaultIcon.SAVE_ALL));
     aBody.addChild (new BootstrapButton (EBootstrapButtonType.DANGER).addChild ("Download all Business Cards (XML, full, live) (may take long)")
-                                                                     .setOnClick (s_aDownloadAllBCsXMLFull.getInvocationURL (aRequestScope))
+                                                                     .setOnClick (AJAX_DOWNLOAD_ALL_BCS_XML_FULL.getInvocationURL (aRequestScope))
                                                                      .setIcon (EDefaultIcon.SAVE_ALL));
     aBody.addChild (new BootstrapButton (EBootstrapButtonType.DANGER).addChild ("Download all Business Cards (XML, no document types, live) (may take long)")
-                                                                     .setOnClick (s_aDownloadAllBCsXMLNoDocTypes.getInvocationURL (aRequestScope))
+                                                                     .setOnClick (AJAX_DOWNLOAD_ALL_BCS_XML_NO_DOCTYPES.getInvocationURL (aRequestScope))
                                                                      .setIcon (EDefaultIcon.SAVE_ALL));
     aBody.addChild (new BootstrapButton (EBootstrapButtonType.DANGER).addChild ("Download all Business Cards (Excel, live) (may take long)")
-                                                                     .setOnClick (s_aDownloadAllBCsExcel.getInvocationURL (aRequestScope))
+                                                                     .setOnClick (AJAX_DOWNLOAD_ALL_BCS_EXCEL.getInvocationURL (aRequestScope))
                                                                      .setIcon (EDefaultIcon.SAVE_ALL));
     aBody.addChild (new BootstrapButton (EBootstrapButtonType.DANGER).addChild ("Download all Business Cards (CSV, live) (may take long)")
-                                                                     .setOnClick (s_aDownloadAllBCsCSV.getInvocationURL (aRequestScope))
+                                                                     .setOnClick (AJAX_DOWNLOAD_ALL_BCS_CSV.getInvocationURL (aRequestScope))
                                                                      .setIcon (EDefaultIcon.SAVE_ALL));
 
     aCard.createAndAddHeader ().addChild ("Cached data downloads");

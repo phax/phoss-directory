@@ -95,7 +95,7 @@ public final class ExportAllManager
   // Rest
   private static final Logger LOGGER = LoggerFactory.getLogger (ExportAllManager.class);
 
-  private static final SimpleReadWriteLock s_aRWLock = new SimpleReadWriteLock ();
+  private static final SimpleReadWriteLock RW_LOCK = new SimpleReadWriteLock ();
 
   private ExportAllManager ()
   {}
@@ -109,8 +109,7 @@ public final class ExportAllManager
     PDMetaManager.getStorageMgr ()
                  .searchAllDocuments (aQuery,
                                       -1,
-                                      x -> aMap.computeIfAbsent (x.getParticipantID (), k -> new CommonsArrayList <> ())
-                                               .add (x));
+                                      x -> aMap.computeIfAbsent (x.getParticipantID (), k -> new CommonsArrayList <> ()).add (x));
 
     return ExportHelper.getAsXML (aMap, bIncludeDocTypes);
   }
@@ -136,7 +135,7 @@ public final class ExportAllManager
     final File f = _getInternalFileBusinessCardXMLFull ();
 
     // Do it in a write lock!
-    s_aRWLock.writeLock ().lock ();
+    RW_LOCK.writeLock ().lock ();
     try
     {
       if (MicroWriter.writeToFile (aDoc, f).isFailure ())
@@ -149,7 +148,7 @@ public final class ExportAllManager
     }
     finally
     {
-      s_aRWLock.writeLock ().unlock ();
+      RW_LOCK.writeLock ().unlock ();
     }
     return ESuccess.SUCCESS;
   }
@@ -163,7 +162,7 @@ public final class ExportAllManager
   public static void streamFileBusinessCardXMLFullTo (@Nonnull final UnifiedResponse aUR)
   {
     // Do it in a read lock!
-    s_aRWLock.readLock ().lock ();
+    RW_LOCK.readLock ().lock ();
     try
     {
       final File f = _getInternalFileBusinessCardXMLFull ();
@@ -175,7 +174,7 @@ public final class ExportAllManager
     }
     finally
     {
-      s_aRWLock.readLock ().unlock ();
+      RW_LOCK.readLock ().unlock ();
     }
   }
 
@@ -192,7 +191,7 @@ public final class ExportAllManager
     final File f = _getInternalFileBusinessCardXMLNoDocTypes ();
 
     // Do it in a write lock!
-    s_aRWLock.writeLock ().lock ();
+    RW_LOCK.writeLock ().lock ();
     try
     {
       if (MicroWriter.writeToFile (aDoc, f).isFailure ())
@@ -205,7 +204,7 @@ public final class ExportAllManager
     }
     finally
     {
-      s_aRWLock.writeLock ().unlock ();
+      RW_LOCK.writeLock ().unlock ();
     }
     return ESuccess.SUCCESS;
   }
@@ -219,7 +218,7 @@ public final class ExportAllManager
   public static void streamFileBusinessCardXMLNoDocTypesTo (@Nonnull final UnifiedResponse aUR)
   {
     // Do it in a read lock!
-    s_aRWLock.readLock ().lock ();
+    RW_LOCK.readLock ().lock ();
     try
     {
       final File f = _getInternalFileBusinessCardXMLNoDocTypes ();
@@ -231,7 +230,7 @@ public final class ExportAllManager
     }
     finally
     {
-      s_aRWLock.readLock ().unlock ();
+      RW_LOCK.readLock ().unlock ();
     }
   }
 
@@ -244,6 +243,7 @@ public final class ExportAllManager
     final ExcelStyle ES_DATE = new ExcelStyle ().setDataFormat ("yyyy-mm-dd");
     final ExcelStyle ES_WRAP = new ExcelStyle ().setWrapText (true);
 
+    @WillNotClose
     final WorkbookCreationHelper aWBCH = new WorkbookCreationHelper (EExcelVersion.XLSX);
     aWBCH.createNewSheet ();
     aWBCH.addRow ();
@@ -291,9 +291,7 @@ public final class ExportAllManager
       aWBCH.addCellStyle (ES_DATE);
       if (bIncludeDocTypes)
       {
-        aWBCH.addCell (StringHelper.getImplodedMapped ("\n",
-                                                       aEntity.documentTypeIDs (),
-                                                       IDocumentTypeIdentifier::getURIEncoded));
+        aWBCH.addCell (StringHelper.getImplodedMapped ("\n", aEntity.documentTypeIDs (), IDocumentTypeIdentifier::getURIEncoded));
         aWBCH.addCellStyle (ES_WRAP);
       }
     };
@@ -314,24 +312,26 @@ public final class ExportAllManager
   @Nonnull
   static ESuccess writeFileBusinessCardExcel (@Nonnull final EQueryMode eQueryMode) throws IOException
   {
-    final WorkbookCreationHelper aWBCH = queryAllContainedBusinessCardsAsExcel (eQueryMode, true);
-    final File f = _getInternalFileBusinessCardExcel ();
+    try (final WorkbookCreationHelper aWBCH = queryAllContainedBusinessCardsAsExcel (eQueryMode, true))
+    {
+      final File f = _getInternalFileBusinessCardExcel ();
 
-    // Do it in a write lock!
-    s_aRWLock.writeLock ().lock ();
-    try
-    {
-      if (aWBCH.writeTo (f).isFailure ())
+      // Do it in a write lock!
+      RW_LOCK.writeLock ().lock ();
+      try
       {
-        if (LOGGER.isErrorEnabled ())
-          LOGGER.error ("Failed to export all BCs as XLSX to " + f.getAbsolutePath ());
-        return ESuccess.FAILURE;
+        if (aWBCH.writeTo (f).isFailure ())
+        {
+          if (LOGGER.isErrorEnabled ())
+            LOGGER.error ("Failed to export all BCs as XLSX to " + f.getAbsolutePath ());
+          return ESuccess.FAILURE;
+        }
+        LOGGER.info ("Successfully exported all BCs as XLSX to " + f.getAbsolutePath ());
       }
-      LOGGER.info ("Successfully exported all BCs as XLSX to " + f.getAbsolutePath ());
-    }
-    finally
-    {
-      s_aRWLock.writeLock ().unlock ();
+      finally
+      {
+        RW_LOCK.writeLock ().unlock ();
+      }
     }
 
     return ESuccess.SUCCESS;
@@ -346,7 +346,7 @@ public final class ExportAllManager
   public static void streamFileBusinessCardExcelTo (@Nonnull final UnifiedResponse aUR)
   {
     // Do it in a read lock!
-    s_aRWLock.readLock ().lock ();
+    RW_LOCK.readLock ().lock ();
     try
     {
       final File f = _getInternalFileBusinessCardExcel ();
@@ -358,7 +358,7 @@ public final class ExportAllManager
     }
     finally
     {
-      s_aRWLock.readLock ().unlock ();
+      RW_LOCK.readLock ().unlock ();
     }
   }
 
@@ -391,14 +391,10 @@ public final class ExportAllManager
 
     final Consumer <? super PDStoredBusinessEntity> aConsumer = aEntity -> {
       aCSVWriter.writeNext (aEntity.getParticipantID ().getURIEncoded (),
-                            StringHelper.getImplodedMapped ("\n",
-                                                            aEntity.names (),
-                                                            PDStoredMLName::getNameAndLanguageCode),
+                            StringHelper.getImplodedMapped ("\n", aEntity.names (), PDStoredMLName::getNameAndLanguageCode),
                             aEntity.getCountryCode (),
                             aEntity.getGeoInfo (),
-                            StringHelper.getImplodedMapped ("\n",
-                                                            aEntity.identifiers (),
-                                                            PDStoredIdentifier::getScheme),
+                            StringHelper.getImplodedMapped ("\n", aEntity.identifiers (), PDStoredIdentifier::getScheme),
                             StringHelper.getImplodedMapped ("\n", aEntity.identifiers (), PDStoredIdentifier::getValue),
                             StringHelper.getImploded ("\n", aEntity.websiteURIs ()),
                             StringHelper.getImplodedMapped ("\n", aEntity.contacts (), PDStoredContact::getType),
@@ -407,9 +403,7 @@ public final class ExportAllManager
                             StringHelper.getImplodedMapped ("\n", aEntity.contacts (), PDStoredContact::getEmail),
                             aEntity.getAdditionalInformation (),
                             aEntity.getRegistrationDate () == null ? "" : aEntity.getRegistrationDate ().toString (),
-                            StringHelper.getImplodedMapped ("\n",
-                                                            aEntity.documentTypeIDs (),
-                                                            IDocumentTypeIdentifier::getURIEncoded));
+                            StringHelper.getImplodedMapped ("\n", aEntity.documentTypeIDs (), IDocumentTypeIdentifier::getURIEncoded));
     };
     PDMetaManager.getStorageMgr ().searchAllDocuments (aQuery, -1, aConsumer);
     aCSVWriter.flush ();
@@ -427,7 +421,7 @@ public final class ExportAllManager
     final File f = _getInternalFileBusinessCardCSV ();
 
     // Do it in a write lock!
-    s_aRWLock.writeLock ().lock ();
+    RW_LOCK.writeLock ().lock ();
     try (final CSVWriter aCSVWriter = new CSVWriter (FileHelper.getBufferedWriter (f, StandardCharsets.ISO_8859_1)))
     {
       queryAllContainedBusinessCardsAsCSV (eQueryMode, aCSVWriter);
@@ -439,7 +433,7 @@ public final class ExportAllManager
     }
     finally
     {
-      s_aRWLock.writeLock ().unlock ();
+      RW_LOCK.writeLock ().unlock ();
     }
 
     return ESuccess.SUCCESS;
@@ -454,7 +448,7 @@ public final class ExportAllManager
   public static void streamFileBusinessCardCSVTo (@Nonnull final UnifiedResponse aUR)
   {
     // Do it in a read lock!
-    s_aRWLock.readLock ().lock ();
+    RW_LOCK.readLock ().lock ();
     try
     {
       final File f = _getInternalFileBusinessCardCSV ();
@@ -466,7 +460,7 @@ public final class ExportAllManager
     }
     finally
     {
-      s_aRWLock.readLock ().unlock ();
+      RW_LOCK.readLock ().unlock ();
     }
   }
 
@@ -511,7 +505,7 @@ public final class ExportAllManager
     final File f = _getInternalFileParticipantXML ();
 
     // Do it in a write lock!
-    s_aRWLock.writeLock ().lock ();
+    RW_LOCK.writeLock ().lock ();
     try
     {
       if (MicroWriter.writeToFile (aDoc, f).isFailure ())
@@ -524,7 +518,7 @@ public final class ExportAllManager
     }
     finally
     {
-      s_aRWLock.writeLock ().unlock ();
+      RW_LOCK.writeLock ().unlock ();
     }
     return ESuccess.SUCCESS;
   }
@@ -538,7 +532,7 @@ public final class ExportAllManager
   public static void streamFileParticipantXMLTo (@Nonnull final UnifiedResponse aUR)
   {
     // Do it in a read lock!
-    s_aRWLock.readLock ().lock ();
+    RW_LOCK.readLock ().lock ();
     try
     {
       final File f = _getInternalFileParticipantXML ();
@@ -550,7 +544,7 @@ public final class ExportAllManager
     }
     finally
     {
-      s_aRWLock.readLock ().unlock ();
+      RW_LOCK.readLock ().unlock ();
     }
   }
 
@@ -591,7 +585,7 @@ public final class ExportAllManager
     final File f = _getInternalFileParticipantJSON ();
 
     // Do it in a write lock!
-    s_aRWLock.writeLock ().lock ();
+    RW_LOCK.writeLock ().lock ();
     try (final Writer aWriter = FileHelper.getBufferedWriter (f, StandardCharsets.UTF_8))
     {
       new JsonWriter ().writeToWriterAndClose (aObj, aWriter);
@@ -603,7 +597,7 @@ public final class ExportAllManager
     }
     finally
     {
-      s_aRWLock.writeLock ().unlock ();
+      RW_LOCK.writeLock ().unlock ();
     }
     return ESuccess.SUCCESS;
   }
@@ -617,7 +611,7 @@ public final class ExportAllManager
   public static void streamFileParticipantJSONTo (@Nonnull final UnifiedResponse aUR)
   {
     // Do it in a read lock!
-    s_aRWLock.readLock ().lock ();
+    RW_LOCK.readLock ().lock ();
     try
     {
       final File f = _getInternalFileParticipantJSON ();
@@ -629,7 +623,7 @@ public final class ExportAllManager
     }
     finally
     {
-      s_aRWLock.readLock ().unlock ();
+      RW_LOCK.readLock ().unlock ();
     }
   }
 
@@ -661,7 +655,7 @@ public final class ExportAllManager
     final File f = _getInternalFileParticipantCSV ();
 
     // Do it in a write lock!
-    s_aRWLock.writeLock ().lock ();
+    RW_LOCK.writeLock ().lock ();
     try (final CSVWriter aCSVWriter = new CSVWriter (FileHelper.getBufferedWriter (f, StandardCharsets.ISO_8859_1)))
     {
       queryAllContainedParticipantsAsCSV (eQueryMode, aCSVWriter);
@@ -673,7 +667,7 @@ public final class ExportAllManager
     }
     finally
     {
-      s_aRWLock.writeLock ().unlock ();
+      RW_LOCK.writeLock ().unlock ();
     }
     return ESuccess.SUCCESS;
   }
@@ -687,7 +681,7 @@ public final class ExportAllManager
   public static void streamFileParticipantCSVTo (@Nonnull final UnifiedResponse aUR)
   {
     // Do it in a read lock!
-    s_aRWLock.readLock ().lock ();
+    RW_LOCK.readLock ().lock ();
     try
     {
       final File f = _getInternalFileParticipantCSV ();
@@ -699,7 +693,7 @@ public final class ExportAllManager
     }
     finally
     {
-      s_aRWLock.readLock ().unlock ();
+      RW_LOCK.readLock ().unlock ();
     }
   }
 }

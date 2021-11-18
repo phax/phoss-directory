@@ -229,9 +229,9 @@ public class PDClient implements Closeable
     {
       return executeRequest (aGet, new PDClientResponseHandler ()).isSuccess ();
     }
-    catch (final Throwable t)
+    catch (final Exception ex)
     {
-      m_aExceptionHdl.onException (aParticipantID, "isServiceGroupRegistered", t);
+      m_aExceptionHdl.onException (aParticipantID, "isServiceGroupRegistered", ex);
     }
     return false;
   }
@@ -253,9 +253,9 @@ public class PDClient implements Closeable
         return ESuccess.SUCCESS;
       }
     }
-    catch (final Throwable t)
+    catch (final Exception ex)
     {
-      m_aExceptionHdl.onException (aParticipantID, "addServiceGroupToIndex", t);
+      m_aExceptionHdl.onException (aParticipantID, "addServiceGroupToIndex", ex);
     }
     return ESuccess.FAILURE;
   }
@@ -275,9 +275,9 @@ public class PDClient implements Closeable
         return ESuccess.SUCCESS;
       }
     }
-    catch (final Throwable t)
+    catch (final Exception ex)
     {
-      m_aExceptionHdl.onException (aParticipantID, "deleteServiceGroupFromIndex", t);
+      m_aExceptionHdl.onException (aParticipantID, "deleteServiceGroupFromIndex", ex);
     }
     return ESuccess.FAILURE;
   }

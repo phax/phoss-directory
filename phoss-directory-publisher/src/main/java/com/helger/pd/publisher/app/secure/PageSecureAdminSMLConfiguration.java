@@ -72,13 +72,13 @@ public class PageSecureAdminSMLConfiguration extends AbstractAppWebPageForm <ISM
       @Override
       protected void showQuery (@Nonnull final WebPageExecutionContext aWPEC,
                                 @Nonnull final BootstrapForm aForm,
-                                @Nonnull final ISMLInfo aSelectedObject)
+                                @Nullable final ISMLInfo aSelectedObject)
       {
         aForm.addChild (question ("Are you sure you want to delete the SML configuration '" + aSelectedObject.getDisplayName () + "'?"));
       }
 
       @Override
-      protected void performAction (@Nonnull final WebPageExecutionContext aWPEC, @Nonnull final ISMLInfo aSelectedObject)
+      protected void performAction (@Nonnull final WebPageExecutionContext aWPEC, @Nullable final ISMLInfo aSelectedObject)
       {
         final ISMLInfoManager aSMLInfoMgr = PDPMetaManager.getSMLInfoMgr ();
         if (aSMLInfoMgr.removeSMLInfo (aSelectedObject.getID ()).isChanged ())
