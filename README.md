@@ -105,6 +105,8 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
+* v0.9.7 - 2021-12-10
+    * Updated to Log4J 2.15.0 because of https://www.lunasec.io/docs/blog/log4j-zero-day/
 * v0.9.6 - 2021-11-02
     * Improved support for JSON API in Business Card
 * v0.9.5 - 2021-03-22
