@@ -17,7 +17,7 @@
 
 FROM tomcat:9-jdk11
 
-ARG VERSION="0.9.7"
+ARG VERSION="0.9.8"
 ARG WAR_NAME=phoss-directory-publisher-${VERSION}.war
 
 WORKDIR $CATALINA_HOME/webapps
