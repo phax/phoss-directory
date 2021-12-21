@@ -25,7 +25,7 @@
     <version>1.11.4</version>
   </parent>
   <artifactId>phoss-directory-parent-pom</artifactId>
-  <version>0.9.9-SNAPSHOT</version>
+  <version>0.9.9</version>
   <packaging>pom</packaging>
   <name>peppol-directory-parent-pom</name>
   <description>Base POM to build the phoss Directory projects</description>
@@ -44,7 +44,7 @@
     <connection>scm:git:git@github.com:phax/phoss-directory.git</connection>
     <developerConnection>scm:git:git@github.com:phax/phoss-directory.git</developerConnection>
     <url>http://github.com/phax/phoss-directory</url>
-    <tag>HEAD</tag>
+    <tag>phoss-directory-parent-pom-0.9.9</tag>
   </scm>
 
   <organization>
