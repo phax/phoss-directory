@@ -1,6 +1,6 @@
 # phoss-directory
 
-[![javadoc](https://javadoc.io/badge2/com.helger/phoss-directory-parent-pom/javadoc.svg)](https://javadoc.io/doc/com.helger/phoss-directory-parent-pom)
+[![javadoc](https://javadoc.io/badge2/com.helger/phoss-directory-indexer/javadoc.svg)](https://javadoc.io/doc/com.helger/phoss-directory-indexer)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.helger/phoss-directory-parent-pom/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.helger/phoss-directory-parent-pom) 
 
 The official Peppol Directory (PD; https://directory.peppol.eu) and TOOP Directory software (The Once-Only Project; www.toop.eu). It is split into the following sub-projects (all require Java 8 except where noted):
