@@ -1,8 +1,6 @@
 # phoss-directory
 
-[![Join the chat at https://gitter.im/phax/peppol-directory](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/phax/peppol-directory?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
-Current release (on Maven central): **0.9.7**
+Current release (on Maven central): **0.9.9**
 
 The official Peppol Directory (PD; https://directory.peppol.eu) and TOOP Directory software (The Once-Only Project; www.toop.eu). It is split into the following sub-projects (all require Java 8 except where noted):
   * `phoss-directory-businesscard` - the common Business Card API
@@ -105,6 +103,8 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
+* v0.9.9 - 2021-12-21
+    * Updated to Log4J 2.17.0 because of CVE-2021-45105 - see https://logging.apache.org/log4j/2.x/security.html
 * v0.9.8 - 2021-12-14
     * Updated to Log4J 2.16.0 because of CVE-2021-45046 - see https://www.lunasec.io/docs/blog/log4j-zero-day/
 * v0.9.7 - 2021-12-10

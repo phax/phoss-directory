@@ -18,7 +18,7 @@
 
 
 
-version=0.9.4
+version=0.9.9
 docker build --build-arg VERSION=$version -t phelger/phoss-directory-publisher:$version .
 docker tag phelger/phoss-directory-publisher:$version phelger/phoss-directory-publisher:latest
 docker push phelger/phoss-directory-publisher:latest
