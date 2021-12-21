@@ -1,6 +1,7 @@
 # phoss-directory
 
-Current release (on Maven central): **0.9.9**
+[![javadoc](https://javadoc.io/badge2/com.helger/phoss-directory-parent-pom/javadoc.svg)](https://javadoc.io/doc/com.helger/phoss-directory-parent-pom)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.helger/phoss-directory-parent-pom/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.helger/phoss-directory-parent-pom) 
 
 The official Peppol Directory (PD; https://directory.peppol.eu) and TOOP Directory software (The Once-Only Project; www.toop.eu). It is split into the following sub-projects (all require Java 8 except where noted):
   * `phoss-directory-businesscard` - the common Business Card API
