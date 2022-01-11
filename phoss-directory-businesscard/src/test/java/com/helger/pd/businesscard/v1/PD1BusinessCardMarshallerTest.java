@@ -51,7 +51,7 @@ public final class PD1BusinessCardMarshallerTest
   public void testBasic ()
   {
     _testBC ("src/test/resources/example/v1/business-card-test1.xml");
-    _testBC ("src/test/resources/example/v1/business-card-example-spec.xml");
+    _testBC ("src/test/resources/example/v1/business-card-example-spec-v1.xml");
     _testBC ("src/test/resources/example/v1/bc-9915-leckma.xml");
     _testBC ("src/test/resources/example/v1/bc-0088-5033466000005.xml");
   }

@@ -51,7 +51,7 @@ public final class PD2BusinessCardMarshallerTest
   public void testBasic ()
   {
     _testBC ("src/test/resources/example/v2/business-card-test1.xml");
-    _testBC ("src/test/resources/example/v2/business-card-example-spec.xml");
+    _testBC ("src/test/resources/example/v2/business-card-example-spec-v2.xml");
     _testBC ("src/test/resources/example/v2/bc-9915-leckma.xml");
     _testBC ("src/test/resources/example/v2/bc-0088-5033466000005.xml");
     _testBC ("src/test/resources/example/v2/nemhandel.xml");
