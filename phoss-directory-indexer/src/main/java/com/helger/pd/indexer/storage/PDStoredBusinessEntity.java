@@ -76,7 +76,6 @@ public final class PDStoredBusinessEntity
   private final ICommonsList <IDocumentTypeIdentifier> m_aDocumentTypeIDs = new CommonsArrayList <> ();
   // Status information from PD
   private PDStoredMetaData m_aMetaData;
-  private boolean m_bDeleted;
 
   protected PDStoredBusinessEntity ()
   {}
@@ -204,16 +203,6 @@ public final class PDStoredBusinessEntity
     m_aMetaData = aMetaData;
   }
 
-  public boolean isDeleted ()
-  {
-    return m_bDeleted;
-  }
-
-  void setDeleted (final boolean bDeleted)
-  {
-    m_bDeleted = bDeleted;
-  }
-
   /**
    * @return Parts of this {@link PDStoredBusinessEntity} as a
    *         {@link PDBusinessEntity}.
@@ -305,11 +294,6 @@ public final class PDStoredBusinessEntity
         aEntity.appendElement ("additionalInfo").appendText (aDoc.m_sAdditionalInformation);
       if (aDoc.m_aRegistrationDate != null)
         aEntity.appendElement ("regDate").appendText (PDTWebDateHelper.getAsStringXSD (aDoc.m_aRegistrationDate));
-
-      // Usually only non-deleted elements are returned, so don't give an
-      // indicator to the outside
-      if (aDoc.m_bDeleted)
-        aEntity.setAttribute ("deleted", true);
     }
 
     return aMatch;
@@ -387,10 +371,6 @@ public final class PDStoredBusinessEntity
       if (aDoc.m_aRegistrationDate != null)
         aEntity.add ("regDate", PDTWebDateHelper.getAsStringXSD (aDoc.m_aRegistrationDate));
 
-      // Usually only non-deleted elements are returned, so don't give an
-      // indicator to the outside
-      if (aDoc.m_bDeleted)
-        aEntity.add ("deleted", true);
       aEntities.add (aEntity);
     }
     ret.addJson ("entities", aEntities);
@@ -411,7 +391,6 @@ public final class PDStoredBusinessEntity
                                        .append ("Contacts", m_aContacts)
                                        .append ("AdditionalInformation", m_sAdditionalInformation)
                                        .append ("MetaData", m_aMetaData)
-                                       .append ("Deleted", m_bDeleted)
                                        .getToString ();
   }
 
@@ -498,7 +477,6 @@ public final class PDStoredBusinessEntity
       ret.setMetaData (aMetaData);
     }
     ret.setAdditionalInformation (PDField.ADDITIONAL_INFO.getDocValue (aDoc));
-    ret.setDeleted (aDoc.getField (CPDStorage.FIELD_DELETED) != null);
     return ret;
   }
 }

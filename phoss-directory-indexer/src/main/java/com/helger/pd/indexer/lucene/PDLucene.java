@@ -41,6 +41,7 @@ import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.slf4j.Logger;
@@ -366,6 +367,26 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
   public void deleteDocuments (final Term... aTerms) throws IOException
   {
     final long nSeqNum = _getWriter ().deleteDocuments (aTerms);
+    if (LOGGER.isDebugEnabled ())
+      LOGGER.debug ("Last seq# after deleteDocuments is " + nSeqNum);
+    m_aWriterChanges.incrementAndGet ();
+  }
+
+  /**
+   * Deletes the document(s) containing any of the queries. All given deletes
+   * are applied and flushed atomically at the same time.
+   *
+   * @param aQueries
+   *        array of queries to identify the documents to be deleted
+   * @throws CorruptIndexException
+   *         if the index is corrupt
+   * @throws IOException
+   *         if there is a low-level IO error
+   */
+  @MustBeLocked (ELockType.WRITE)
+  public void deleteDocuments (final Query... aQueries) throws IOException
+  {
+    final long nSeqNum = _getWriter ().deleteDocuments (aQueries);
     if (LOGGER.isDebugEnabled ())
       LOGGER.debug ("Last seq# after deleteDocuments is " + nSeqNum);
     m_aWriterChanges.incrementAndGet ();

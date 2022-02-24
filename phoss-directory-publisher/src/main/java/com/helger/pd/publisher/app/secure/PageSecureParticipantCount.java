@@ -31,13 +31,25 @@ import com.helger.pd.indexer.lucene.AllDocumentsCollector;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.EQueryMode;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
+import com.helger.photon.ajax.decl.AjaxFunctionDeclaration;
 import com.helger.photon.bootstrap4.buttongroup.BootstrapButtonToolbar;
 import com.helger.photon.bootstrap4.table.BootstrapTable;
 import com.helger.photon.uicore.icon.EDefaultIcon;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
+import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 
 public final class PageSecureParticipantCount extends AbstractAppWebPage
 {
+  private static final AjaxFunctionDeclaration AJAX_DELETE_DELETED;
+
+  static
+  {
+    AJAX_DELETE_DELETED = addAjax ( (aRequestScope, aAjaxResponse) -> {
+      PDMetaManager.getStorageMgr ().deleteAllEntriesMarkedAsDeleted ();
+      aAjaxResponse.createNoContent ();
+    });
+  }
+
   public PageSecureParticipantCount (@Nonnull @Nonempty final String sID)
   {
     super (sID, "Participant count");
@@ -46,11 +58,13 @@ public final class PageSecureParticipantCount extends AbstractAppWebPage
   @Override
   protected void fillContent (@Nonnull final WebPageExecutionContext aWPEC)
   {
+    final IRequestWebScopeWithoutResponse aRequestScope = aWPEC.getRequestScope ();
     final HCNodeList aNodeList = aWPEC.getNodeList ();
 
     {
       final BootstrapButtonToolbar aToolbar = new BootstrapButtonToolbar (aWPEC);
       aToolbar.addButton ("Refresh", aWPEC.getSelfHref (), EDefaultIcon.MAGNIFIER);
+      aToolbar.addButton ("Delete deleted", AJAX_DELETE_DELETED.getInvocationURL (aRequestScope), EDefaultIcon.DELETE);
       aNodeList.addChild (aToolbar);
     }
 

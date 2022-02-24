@@ -162,9 +162,8 @@ public final class LocalHost8080FuncTest
     });
 
     ThreadHelper.sleep (2000);
-    assertTrue (PDMetaManager.getStorageMgr ().containsEntry (aPI_0, EQueryMode.NON_DELETED_ONLY));
-    assertTrue (PDMetaManager.getStorageMgr ()
-                             .getCount (EQueryMode.NON_DELETED_ONLY.getEffectiveQuery (new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aPI_0)))) > 0);
+    assertTrue (PDMetaManager.getStorageMgr ().containsEntry (aPI_0, EQueryMode.ALL));
+    assertTrue (PDMetaManager.getStorageMgr ().getCount (new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aPI_0))) > 0);
 
     aIndex.set (0);
     CommonsTestHelper.testInParallel (nCount, () -> {

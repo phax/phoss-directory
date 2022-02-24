@@ -178,8 +178,7 @@ public final class IndexerResourceTest
     for (int i = 0; i < nCount; ++i)
     {
       final IParticipantIdentifier aPI = aIF.createParticipantIdentifierWithDefaultScheme ("9915:test" + i);
-      assertTrue (PDMetaManager.getStorageMgr ().containsEntry (aPI, EQueryMode.NON_DELETED_ONLY));
-      assertFalse (PDMetaManager.getStorageMgr ().containsEntry (aPI, EQueryMode.DELETED_ONLY));
+      assertTrue (PDMetaManager.getStorageMgr ().containsEntry (aPI, EQueryMode.ALL));
     }
 
     // Delete
@@ -198,8 +197,7 @@ public final class IndexerResourceTest
     for (int i = 0; i < nCount; ++i)
     {
       final IParticipantIdentifier aPI = aIF.createParticipantIdentifierWithDefaultScheme ("9915:test" + i);
-      assertFalse (PDMetaManager.getStorageMgr ().containsEntry (aPI, EQueryMode.NON_DELETED_ONLY));
-      assertFalse (PDMetaManager.getStorageMgr ().containsEntry (aPI, EQueryMode.DELETED_ONLY));
+      assertFalse (PDMetaManager.getStorageMgr ().containsEntry (aPI, EQueryMode.ALL));
     }
 
     // Test with invalid URL encoded ID

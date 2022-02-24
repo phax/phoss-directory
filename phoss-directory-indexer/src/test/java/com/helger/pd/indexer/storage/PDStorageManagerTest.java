@@ -17,7 +17,6 @@
 package com.helger.pd.indexer.storage;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
@@ -140,7 +139,6 @@ public final class PDStorageManagerTest
         assertEquals ("12345", aDoc1.contacts ().get (0).getPhone ());
 
         assertEquals ("This is a mock entry for testing purposes only", aDoc1.getAdditionalInformation ());
-        assertFalse (aDoc1.isDeleted ());
 
         // Test entity 2
         final PDStoredBusinessEntity aDoc2 = aDocs.get (1);
@@ -162,7 +160,6 @@ public final class PDStorageManagerTest
         assertEquals (0, aDoc2.contacts ().size ());
 
         assertEquals ("Mock", aDoc2.getAdditionalInformation ());
-        assertFalse (aDoc2.isDeleted ());
       }
       finally
       {

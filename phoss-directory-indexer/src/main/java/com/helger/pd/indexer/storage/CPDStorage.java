@@ -27,6 +27,7 @@ import javax.annotation.concurrent.Immutable;
 public final class CPDStorage
 {
   public static final String FIELD_ALL_FIELDS = "allfields";
+  @Deprecated
   public static final String FIELD_DELETED = "deleted";
 
   private CPDStorage ()
