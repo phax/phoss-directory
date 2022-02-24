@@ -104,6 +104,8 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
+* v0.9.10 - 2022-02-24
+    * Prepare for internal cleanup to get rid of the legacy "deleted" flag
 * v0.9.9 - 2021-12-21
     * Updated to Log4J 2.17.0 because of CVE-2021-45105 - see https://logging.apache.org/log4j/2.x/security.html
 * v0.9.8 - 2021-12-14
