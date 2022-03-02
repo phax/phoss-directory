@@ -22,7 +22,7 @@
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
          version="3.0">
   <display-name>phoss-directory</display-name>
-  <description>phoss Directory for PEPPOL and TOOP</description>
+  <description>phoss Directory for Peppol, TOOP and DE4A</description>
   
   <session-config>
     <session-timeout>60</session-timeout>

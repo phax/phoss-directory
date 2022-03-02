@@ -117,8 +117,8 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
       aDropDown.createAndAddItem ().addChild ("REST API").setHref (aLEC.getLinkToMenuItem (CMenuPublic.MENU_DOCS_REST_API));
       aDropDown.createAndAddItem ().addChild ("Export data").setHref (aLEC.getLinkToMenuItem (CMenuPublic.MENU_DOCS_EXPORT_ALL));
       aDropDown.createAndAddItem ()
-               .addChild ("Specification v1.1 (PDF)")
-               .setHref (LinkHelper.getURLWithContext ("/files/PEPPOL-EDN-Directory-1.1-2018-07-17.pdf"));
+               .addChild ("Specification v1.1.1 (PDF)")
+               .setHref (LinkHelper.getURLWithContext ("/files/PEPPOL-EDN-Directory-1.1.1-2020-10-15.pdf"));
       aDropDown.createAndAddItem ()
                .addChild ("Guide for SMP providers (PDF)")
                .setHref (LinkHelper.getURLWithContext ("/files/OpenPEPPOL Directory for SMP providers 2016-12-05.pdf"));
@@ -130,9 +130,6 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
       final BootstrapNavbarNav aNav = aNavbar.addAndReturnNav ();
       final BootstrapDropdownMenu aDropDown = new BootstrapDropdownMenu ();
       aDropDown.createAndAddItem ().addChild ("Contact us").setHref (aLEC.getLinkToMenuItem (CMenuPublic.MENU_SUPPORT_CONTACT_US));
-      aDropDown.createAndAddItem ()
-               .addChild ("Compliant SMP implementations")
-               .setHref (aLEC.getLinkToMenuItem (CMenuPublic.MENU_SUPPORT_SMP_IMPLEMENTATIONS));
       aDropDown.createAndAddItem ()
                .addChild ("Issue tracker (external)")
                .setHref (new SimpleURL ("https://github.com/phax/phoss-directory/issues"))

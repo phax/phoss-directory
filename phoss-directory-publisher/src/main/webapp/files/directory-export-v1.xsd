@@ -24,7 +24,7 @@
            attributeFormDefault="unqualified">
   <xs:annotation>
     <xs:documentation>
-      XML Schema for the PEPPOL Directory export data.
+      XML Schema for the Peppol Directory export data.
       Version 1.0
       Last update: 2018-10-29
       Author: Philip Helger

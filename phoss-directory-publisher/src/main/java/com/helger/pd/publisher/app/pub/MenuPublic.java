@@ -50,9 +50,6 @@ public final class MenuPublic
                                                        "Export data",
                                                        new ClassPathResource ("viewpages/en/docs_export_all.xml")));
     aMenuTree.createRootItem (new PagePublicContact (CMenuPublic.MENU_SUPPORT_CONTACT_US));
-    aMenuTree.createRootItem (new AppPageViewExternal (CMenuPublic.MENU_SUPPORT_SMP_IMPLEMENTATIONS,
-                                                       "Compliant SMP Implementations",
-                                                       new ClassPathResource ("viewpages/en/support_smp_implementations.xml")));
     aMenuTree.createRootItem (new AppPageViewExternal (CMenuPublic.MENU_ABOUT,
                                                        "About " + CPDPublisher.getApplication (),
                                                        new ClassPathResource ("viewpages/en/about.xml")));
