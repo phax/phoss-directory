@@ -78,12 +78,13 @@ public class PDHttpClientSettings extends HttpClientSettings
     final boolean bUseHttps = EURLProtocol.HTTPS.isUsedInURL (sTargetURI);
 
     // Proxy host
-    final String sProxyHost = bUseHttps ? PDClientConfiguration.getHttpsProxyHost () : PDClientConfiguration.getHttpProxyHost ();
-    final int nProxyPort = bUseHttps ? PDClientConfiguration.getHttpsProxyPort () : PDClientConfiguration.getHttpProxyPort ();
+    final String sProxyHost = PDClientConfiguration.getHttpProxyHost ();
+    final int nProxyPort = PDClientConfiguration.getHttpProxyPort ();
     if (sProxyHost != null && nProxyPort > 0)
     {
-      LOGGER.info ("PD client uses proxy host");
-      setProxyHost (new HttpHost (sProxyHost, nProxyPort));
+      final HttpHost aProxyHost = new HttpHost (sProxyHost, nProxyPort);
+      LOGGER.info ("PD client uses proxy host " + aProxyHost);
+      setProxyHost (aProxyHost);
     }
     else
       setProxyHost (null);

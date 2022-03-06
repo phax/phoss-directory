@@ -55,39 +55,41 @@ If no configuration file is found a warning is emitted and you cannot invoke any
 
 **Configuration properties**
 
+Note: the configuration properties were heavily renamed in v0.10.0. Previous old names are shown in brackets.
+
 The following options are supported in the `pd-client.properties` file:
-  * **keystore.type** (since v0.6.0) - the type of the keystore. Can be `JKS` or `PKCS12` (case insensitive). Defaults to `JKS`.
-  * **keystore.path** - the path to the keystore where the SMP certificate is contained
-  * **keystore.password** - the password to open the key store
-  * **keystore.key.alias** - the alias in the key store that denotes the SMP key 
-  * **keystore.key.password** - the password to open the key in the key store
-  * **truststore.type** (since v0.6.0) - the type of the keystore. Can be `JKS` or `PKCS12` (case insensitive). Defaults to `JKS`.
-  * **truststore.path** (since v0.5.1) - the path to the trust store, where the public certificates of the phoss Directory servers are contained. Defaults to `truststore/pd-client.truststore.jks`
-  * **truststore.password** (since v0.5.1) - the password to open the truststore store. Defaults to `peppol`
-  * **http.proxyHost** - the HTTP proxy host for `http` connections only. No default. 
-  * **http.proxyPort** - the HTTP proxy port for `http` connections only. No default. 
-  * **https.proxyHost** - the HTTP proxy host for `https` connections only. No default. 
-  * **https.proxyPort** - the HTTP proxy port for `https` connections only. No default. 
-  * **https.hostname-verification.disabled** (since v0.5.1) - a boolean value to indicate if https hostname verification should be disabled (`true`) or enabled (`false`). The default value is `true`. 
-  * **proxy.username** (since v0.6.0) - the proxy username if http or https proxy is enabled. No default. 
-  * **proxy.password** (since v0.6.0) - the proxy password if http or https proxy is enabled. No default.
-  * **connect.timeout.ms** (since v0.6.0) - the connection timeout in milliseconds to connect to the server. The default value is `5000` (5 seconds). A value of `0` means indefinite. A value of `-1` means using the system default.
-  * **request.timeout.ms** (since v0.6.0) - the request/read/socket timeout in milliseconds to read from the server. The default value is `10000` (10 seconds). A value of `0` means indefinite. A value of `-1` means using the system default.
+* **`pdclient.keystore.type`** (old: **`keystore.type`**) (since v0.6.0) - the type of the keystore. Can be `JKS` or `PKCS12` (case insensitive). Defaults to `JKS`.
+* **`pdclient.keystore.path`** (old: **`keystore.path`**) - the path to the keystore where the SMP certificate is contained
+* **`pdclient.keystore.password`** (old: **`keystore.password`**) - the password to open the key store
+* **`pdclient.keystore.key.alias`** (old: **`keystore.key.alias`**) - the alias in the key store that denotes the SMP key 
+* **`pdclient.keystore.key.password`** (old: **`keystore.key.password`**) - the password to open the key in the key store
+* **`pdclient.truststore.type`** (old: **`truststore.type`**) (since v0.6.0) - the type of the keystore. Can be `JKS` or `PKCS12` (case insensitive). Defaults to `JKS`.
+* **`pdclient.truststore.path`** (old: **`truststore.path`**) (since v0.5.1) - the path to the trust store, where the public certificates of the phoss Directory servers are contained. Defaults to `truststore/pd-client.truststore.jks`
+* **`pdclient.truststore.password`** (old: **`truststore.password`**) (since v0.5.1) - the password to open the truststore store. Defaults to `peppol`
+* **`http.proxy.host`** (old: **`http.proxyHost`**) - the HTTP proxy host for HTTP connections only. No default.
+* **`http.proxy.port`** (old: **`http.proxyPort`**) - the HTTP proxy port for `http` connections only. No default.
+* Removed in 0.10.0: ~**`https.proxyHost`** - the HTTP proxy host for `https` connections only. No default.~
+* Removed in 0.10.0: ~**`https.proxyPort`** - the HTTP proxy port for `https` connections only. No default.~
+* **`http.proxy.username`** (old: **`proxy.username`**) (since v0.6.0) - the proxy username if http or https proxy is enabled. No default. 
+* **`http.proxy.password`** (old: **`proxy.password`**) (since v0.6.0) - the proxy password if http or https proxy is enabled. No default.
+* **`http.connect.timeout.ms`** (old: **`connect.timeout.ms`**) (since v0.6.0) - the connection timeout in milliseconds to connect to the server. The default value is `5000` (5 seconds). A value of `0` means indefinite. A value of `-1` means using the system default.
+* **`http.request.timeout.ms`** (old: **`request.timeout.ms`**) (since v0.6.0) - the request/read/socket timeout in milliseconds to read from the server. The default value is `10000` (10 seconds). A value of `0` means indefinite. A value of `-1` means using the system default.
+* **`https.hostname-verification.disabled`** (since v0.5.1) - a boolean value to indicate if https hostname verification should be disabled (`true`) or enabled (`false`). The default value is `true`.
 
 Example PD client configuration file:
 
 ```ini
 # Key store with SMP key (required)
-keystore.type         = jks
-keystore.path         = smp.pilot.jks
-keystore.password     = password
-keystore.key.alias    = smp.pilot
-keystore.key.password = password
+pdclient.keystore.type         = jks
+pdclient.keystore.path         = smp.pilot.jks
+pdclient.keystore.password     = password
+pdclient.keystore.key.alias    = smp.pilot
+pdclient.keystore.key.password = password
 
 # Default trust store (optional)
-truststore.type     = jks
-truststore.path     = truststore/pd-client.truststore.jks
-truststore.password = peppol
+pdclient.truststore.type     = jks
+pdclient.truststore.path     = truststore/pd-client.truststore.jks
+pdclient.truststore.password = peppol
 
 # TLS settings
 https.hostname-verification.disabled = false
@@ -104,12 +106,13 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
-* v0.9.11 - 2022-03-06
+* v0.10.0 - 2022-03-06
     * Only the SP owning a Participant can delete it. That implies, that upon certificate change the simple deletion will not work. It is recommended to first index the participant, so that the new certificate is used, and than delete it with the new certificate.
     * Added an Admin page to manually delete a participant without an owner check
     * Showing metadata information on participant details, if the admin user is logged in
     * Removed the "SMP implementations" page
     * Added a possibility to hide or customize the "Contact us" page
+    * Changed the PD Client configuration properties, to start with `pdclient.` and align the HTTP properties with SMP client
 * v0.9.10 - 2022-02-24
     * Prepare for internal cleanup to get rid of the legacy "deleted" flag
 * v0.9.9 - 2021-12-21

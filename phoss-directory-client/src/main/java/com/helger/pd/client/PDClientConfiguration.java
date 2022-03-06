@@ -21,11 +21,15 @@ import java.security.KeyStore;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.helger.commons.ValueEnforcer;
+import com.helger.commons.concurrent.SimpleReadWriteLock;
+import com.helger.commons.equals.EqualsHelper;
 import com.helger.commons.exception.InitializationException;
 import com.helger.commons.io.resource.IReadableResource;
 import com.helger.commons.io.resourceprovider.ReadableResourceProviderChain;
@@ -36,6 +40,7 @@ import com.helger.config.ConfigFactory;
 import com.helger.config.IConfig;
 import com.helger.config.source.MultiConfigurationValueProvider;
 import com.helger.config.source.res.ConfigurationSourceProperties;
+import com.helger.httpclient.HttpClientSettings;
 import com.helger.security.keystore.EKeyStoreType;
 import com.helger.security.keystore.KeyStoreHelper;
 import com.helger.security.keystore.LoadedKey;
@@ -74,7 +79,7 @@ public final class PDClientConfiguration
    *         compatibility support.
    */
   @Nonnull
-  public static MultiConfigurationValueProvider createSMPClientValueProvider ()
+  public static MultiConfigurationValueProvider createPDClientValueProvider ()
   {
     // Start with default setup
     final MultiConfigurationValueProvider ret = ConfigFactory.createDefaultValueProvider ();
@@ -103,10 +108,60 @@ public final class PDClientConfiguration
   }
 
   public static final EKeyStoreType DEFAULT_TRUSTSTORE_TYPE = EKeyStoreType.JKS;
-  public static final int DEFAULT_CONNECTION_TIMEOUT_MS = 5_000;
-  public static final int DEFAULT_REQUEST_TIMEOUT_MS = 10_000;
 
-  private static final IConfig CONFIG = Config.create (createSMPClientValueProvider ());
+  private static final IConfig DEFAULT_CONFIG = Config.create (createPDClientValueProvider ());
+  private static final SimpleReadWriteLock RW_LOCK = new SimpleReadWriteLock ();
+  @GuardedBy ("RW_LOCK")
+  private static IConfig s_aConfig = DEFAULT_CONFIG;
+
+  private PDClientConfiguration ()
+  {}
+
+  /**
+   * @return The current global configuration. Never <code>null</code>.
+   */
+  @Nonnull
+  public static IConfig getConfig ()
+  {
+    // Inline for performance
+    RW_LOCK.readLock ().lock ();
+    try
+    {
+      return s_aConfig;
+    }
+    finally
+    {
+      RW_LOCK.readLock ().unlock ();
+    }
+  }
+
+  /**
+   * Overwrite the global configuration. This is only needed for testing.
+   *
+   * @param aNewConfig
+   *        The configuration to use globally. May not be <code>null</code>.
+   * @return The old value of {@link IConfig}. Never <code>null</code>.
+   */
+  @Nonnull
+  public static IConfig setConfig (@Nonnull final IConfig aNewConfig)
+  {
+    ValueEnforcer.notNull (aNewConfig, "NewConfig");
+    final IConfig ret;
+    RW_LOCK.writeLock ().lock ();
+    try
+    {
+      ret = s_aConfig;
+      s_aConfig = aNewConfig;
+    }
+    finally
+    {
+      RW_LOCK.writeLock ().unlock ();
+    }
+
+    if (!EqualsHelper.identityEqual (ret, aNewConfig))
+      LOGGER.info ("The SMPClient configuration provider was changed to " + aNewConfig);
+    return ret;
+  }
 
   /**
    * Reload the Directory configuration from the source again.
@@ -115,22 +170,63 @@ public final class PDClientConfiguration
    */
   public static void reloadConfiguration ()
   {
-    if (CONFIG.reloadAllResourceBasedConfigurationValues ().isSuccess ())
+    if (getConfig ().reloadAllResourceBasedConfigurationValues ().isSuccess ())
       LOGGER.info ("Successfully re-read the resource based configuration sources");
     else
       LOGGER.warn ("Failed to reload at least one of the resource based configuration sources");
   }
 
-  private PDClientConfiguration ()
-  {}
-
-  /**
-   * @return The global config file for the SMP client.
-   */
-  @Nonnull
-  public static IConfig getConfig ()
+  private static void _logRenamedConfig (@Nonnull final String sOld, @Nonnull final String sNew)
   {
-    return CONFIG;
+    LOGGER.warn ("Please rename the configuration property '" +
+                 sOld +
+                 "' to '" +
+                 sNew +
+                 "'. Support for the old property name will be removed in v9.0.");
+  }
+
+  @Nullable
+  private static String _getAsStringOrFallback (@Nonnull final String sPrimary, @Nonnull final String... aOldOnes)
+  {
+    String ret = getConfig ().getAsString (sPrimary);
+    if (StringHelper.hasNoText (ret))
+    {
+      // Try the old names
+      for (final String sOld : aOldOnes)
+      {
+        ret = getConfig ().getAsString (sOld);
+        if (StringHelper.hasText (ret))
+        {
+          // Notify on old name usage
+          _logRenamedConfig (sOld, sPrimary);
+          break;
+        }
+      }
+    }
+    return ret;
+  }
+
+  private static int _getAsIntOrFallback (@Nonnull final String sPrimary,
+                                          final int nBogus,
+                                          final int nDefault,
+                                          @Nonnull final String... aOldOnes)
+  {
+    int ret = getConfig ().getAsInt (sPrimary, nBogus);
+    if (ret == nBogus)
+    {
+      // Try the old names
+      for (final String sOld : aOldOnes)
+      {
+        ret = getConfig ().getAsInt (sOld, nBogus);
+        if (ret != nBogus)
+        {
+          // Notify on old name usage
+          _logRenamedConfig (sOld, sPrimary);
+          break;
+        }
+      }
+    }
+    return ret == nBogus ? nDefault : ret;
   }
 
   /**
@@ -140,7 +236,7 @@ public final class PDClientConfiguration
   @Nonnull
   public static EKeyStoreType getKeyStoreType ()
   {
-    final String sType = getConfig ().getAsString ("keystore.type");
+    final String sType = _getAsStringOrFallback ("pdclient.keystore.type", "keystore.type");
     return EKeyStoreType.getFromIDCaseInsensitiveOrDefault (sType, EKeyStoreType.JKS);
   }
 
@@ -151,7 +247,7 @@ public final class PDClientConfiguration
   @Nullable
   public static String getKeyStorePath ()
   {
-    return getConfig ().getAsString ("keystore.path");
+    return _getAsStringOrFallback ("pdclient.keystore.path", "keystore.path");
   }
 
   /**
@@ -161,7 +257,7 @@ public final class PDClientConfiguration
   @Nullable
   public static String getKeyStorePassword ()
   {
-    return getConfig ().getAsString ("keystore.password");
+    return _getAsStringOrFallback ("pdclient.keystore.password", "keystore.password");
   }
 
   /**
@@ -180,7 +276,7 @@ public final class PDClientConfiguration
   @Nullable
   public static String getKeyStoreKeyAlias ()
   {
-    return getConfig ().getAsString ("keystore.key.alias");
+    return _getAsStringOrFallback ("pdclient.keystore.key.alias", "keystore.key.alias");
   }
 
   /**
@@ -190,7 +286,8 @@ public final class PDClientConfiguration
   @Nullable
   public static char [] getKeyStoreKeyPassword ()
   {
-    return getConfig ().getAsCharArray ("keystore.key.password");
+    final String ret = _getAsStringOrFallback ("pdclient.keystore.key.password", "keystore.key.password");
+    return ret == null ? null : ret.toCharArray ();
   }
 
   /**
@@ -212,7 +309,7 @@ public final class PDClientConfiguration
   @Nonnull
   public static EKeyStoreType getTrustStoreType ()
   {
-    final String sType = getConfig ().getAsString ("truststore.type");
+    final String sType = _getAsStringOrFallback ("pdclient.truststore.type", "truststore.type");
     return EKeyStoreType.getFromIDCaseInsensitiveOrDefault (sType, DEFAULT_TRUSTSTORE_TYPE);
   }
 
@@ -225,7 +322,7 @@ public final class PDClientConfiguration
   @Nullable
   public static String getTrustStorePath ()
   {
-    return getConfig ().getAsString ("truststore.path");
+    return _getAsStringOrFallback ("pdclient.truststore.path", "truststore.path");
   }
 
   /**
@@ -237,7 +334,7 @@ public final class PDClientConfiguration
   @Nullable
   public static String getTrustStorePassword ()
   {
-    return getConfig ().getAsString ("truststore.password");
+    return _getAsStringOrFallback ("pdclient.truststore.password", "truststore.password");
   }
 
   /**
@@ -247,6 +344,66 @@ public final class PDClientConfiguration
   public static LoadedKeyStore loadTrustStore ()
   {
     return KeyStoreHelper.loadKeyStore (getTrustStoreType (), getTrustStorePath (), getTrustStorePassword ());
+  }
+
+  /**
+   * @return The proxy host to be used for "http" calls. May be
+   *         <code>null</code>.
+   */
+  @Nullable
+  public static String getHttpProxyHost ()
+  {
+    return _getAsStringOrFallback ("http.proxy.host", "http.proxyHost");
+  }
+
+  /**
+   * @return The proxy port to be used for "http" calls. Defaults to 0.
+   */
+  public static int getHttpProxyPort ()
+  {
+    return _getAsIntOrFallback ("http.proxy.port", -1, 0, "http.proxyPort");
+  }
+
+  /**
+   * @return The username for proxy calls. Valid for https and https proxy. May
+   *         be <code>null</code>.
+   * @since 0.6.0
+   */
+  @Nullable
+  public static String getProxyUsername ()
+  {
+    return _getAsStringOrFallback ("http.proxy.username", "proxy.username");
+  }
+
+  /**
+   * @return The password for proxy calls. Valid for https and https proxy. May
+   *         be <code>null</code>.
+   * @since 0.6.0
+   */
+  @Nullable
+  public static String getProxyPassword ()
+  {
+    return _getAsStringOrFallback ("http.proxy.password", "proxy.password");
+  }
+
+  /**
+   * @return Connection timeout in milliseconds. Defaults to 5000 (=5 seconds).
+   *         0 means "indefinite", -1 means "system default".
+   * @since 0.6.0
+   */
+  public static int getConnectTimeoutMS ()
+  {
+    return _getAsIntOrFallback ("http.connect.timeout.ms", -1, HttpClientSettings.DEFAULT_CONNECTION_TIMEOUT_MS, "connect.timeout.ms");
+  }
+
+  /**
+   * @return Request/read/socket timeout in milliseconds. Defaults to 10000 (=10
+   *         seconds). 0 means "indefinite", -1 means "system default".
+   * @since 0.6.0
+   */
+  public static int getRequestTimeoutMS ()
+  {
+    return _getAsIntOrFallback ("http.request.timeout.ms", -1, HttpClientSettings.DEFAULT_SOCKET_TIMEOUT_MS, "request.timeout.ms");
   }
 
   /**
@@ -261,87 +418,5 @@ public final class PDClientConfiguration
   public static boolean isHttpsHostnameVerificationDisabled ()
   {
     return getConfig ().getAsBoolean ("https.hostname-verification.disabled", true);
-  }
-
-  /**
-   * @return The proxy host to be used for "http" calls. May be
-   *         <code>null</code>.
-   * @see #getHttpsProxyHost()
-   */
-  @Nullable
-  public static String getHttpProxyHost ()
-  {
-    return getConfig ().getAsString ("http.proxyHost");
-  }
-
-  /**
-   * @return The proxy port to be used for "http" calls. Defaults to 0.
-   * @see #getHttpsProxyPort()
-   */
-  public static int getHttpProxyPort ()
-  {
-    return getConfig ().getAsInt ("http.proxyPort", 0);
-  }
-
-  /**
-   * @return The proxy host to be used for "https" calls. May be
-   *         <code>null</code>.
-   * @see #getHttpProxyHost()
-   */
-  @Nullable
-  public static String getHttpsProxyHost ()
-  {
-    return getConfig ().getAsString ("https.proxyHost");
-  }
-
-  /**
-   * @return The proxy port to be used for "https" calls. Defaults to 0.
-   * @see #getHttpProxyPort()
-   */
-  public static int getHttpsProxyPort ()
-  {
-    return getConfig ().getAsInt ("https.proxyPort", 0);
-  }
-
-  /**
-   * @return The username for proxy calls. Valid for https and https proxy. May
-   *         be <code>null</code>.
-   * @since 0.6.0
-   */
-  @Nullable
-  public static String getProxyUsername ()
-  {
-    return getConfig ().getAsString ("proxy.username");
-  }
-
-  /**
-   * @return The password for proxy calls. Valid for https and https proxy. May
-   *         be <code>null</code>.
-   * @since 0.6.0
-   */
-  @Nullable
-  public static String getProxyPassword ()
-  {
-    return getConfig ().getAsString ("proxy.password");
-  }
-
-  /**
-   * @return Connection timeout in milliseconds. Defaults to 5000 (=5 seconds).
-   *         0 means "indefinite", -1 means "system default".
-   * @since 0.6.0
-   */
-  public static int getConnectTimeoutMS ()
-  {
-    return getConfig ().getAsInt ("connect.timeout.ms", DEFAULT_CONNECTION_TIMEOUT_MS);
-  }
-
-  /**
-   * @return Request/read/socket timeout in milliseconds. Defaults to 10000 (=10
-   *         seconds). 0 means "indefinite", -1 means "system default".
-   * @since 0.6.0
-   */
-  public static int getRequestTimeoutMS ()
-  {
-    return getConfig ().getAsInt ("request.timeout.ms", DEFAULT_REQUEST_TIMEOUT_MS);
   }
 }
