@@ -218,13 +218,13 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
           if (GlobalDebug.isDebugMode ())
           {
             aViewForm.addChild (new HCHR ());
-            aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("[Debug] Creation DT:")
+            aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("[Debug] Creation DT")
                                                              .setCtrl (PDTToString.getAsString (aStoredEntity.getMetaData ()
                                                                                                              .getCreationDT (),
                                                                                                 aDisplayLocale)));
-            aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("[Debug] Owner ID:")
+            aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("[Debug] Owner ID")
                                                              .setCtrl (code (aStoredEntity.getMetaData ().getOwnerID ())));
-            aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("[Debug] Requesting Host:")
+            aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("[Debug] Requesting Host")
                                                              .setCtrl (code (aStoredEntity.getMetaData ().getRequestingHost ())));
           }
 
