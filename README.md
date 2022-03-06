@@ -33,7 +33,7 @@ Additionally to the contained projects you *MAY* need the latest SNAPSHOT of [ph
 
 The PD client is a small Java library that uses Apache HttpClient to connect to an arbitrary phoss Directory Indexer to perform all the allowed operations (get, create/update, delete).
 
-**Configuration resolution**
+## Client Configuration resolution
 
 Note: this is new in v0.9.0.
 
@@ -42,18 +42,7 @@ The file `pd-client.properties` is also evaluated for backwards-compatibility re
 
 See https://github.com/phax/ph-commons#ph-config for the new resolution logic.
 
-**Configuration file resolution (prior to 0.9.0)**
-
-The client has its own configuration file that is resolved from one of the following locations (whatever is found first):
-* A path denoted by the content of the Java system property `peppol.pd.client.properties.path`
-* A path denoted by the content of the Java system property `pd.client.properties.path`
-* An environment variable called `DIRECTORY_CLIENT_CONFIG` (since 0.8.4)
-* A file with the filename `private-pd-client.properties` in the root of the classpath
-* A file with the filename `pd-client.properties` in the root of the classpath
-
-If no configuration file is found a warning is emitted and you cannot invoke any operations because the certificate configuration is missing.
-
-**Configuration properties**
+## Client Configuration properties
 
 Note: the configuration properties were heavily renamed in v0.10.0. Previous old names are shown in brackets.
 
