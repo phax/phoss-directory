@@ -312,23 +312,29 @@ public final class PDStorageManager implements IPDStorageManager
     });
   }
 
-  @Nonnull
-  public ESuccess deleteEntry (@Nonnull final IParticipantIdentifier aParticipantID,
-                               @Nullable final PDStoredMetaData aMetaData) throws IOException
+  @CheckForSigned
+  public int deleteEntry (@Nonnull final IParticipantIdentifier aParticipantID,
+                          @Nullable final PDStoredMetaData aMetaData,
+                          final boolean bVerifyOwner) throws IOException
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
 
     LOGGER.info ("Trying to delete entry with participant ID '" +
                  aParticipantID.getURIEncoded () +
-                 "' with owner ID '" +
-                 aMetaData.getOwnerID () +
-                 "'");
+                 "'" +
+                 (bVerifyOwner && aMetaData != null ? " with owner ID '" + aMetaData.getOwnerID () + "'" : ""));
 
-    final Query aDeleteQuery = new BooleanQuery.Builder ().add (new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID)),
-                                                                Occur.MUST)
-                                                          .add (new TermQuery (PDField.METADATA_OWNERID.getExactMatchTerm (aMetaData.getOwnerID ())),
-                                                                Occur.MUST)
-                                                          .build ();
+    final Query aParticipantQuery = new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID));
+    final Query aDeleteQuery;
+    if (bVerifyOwner && aMetaData != null)
+    {
+      aDeleteQuery = new BooleanQuery.Builder ().add (aParticipantQuery, Occur.MUST)
+                                                .add (new TermQuery (PDField.METADATA_OWNERID.getExactMatchTerm (aMetaData.getOwnerID ())),
+                                                      Occur.MUST)
+                                                .build ();
+    }
+    else
+      aDeleteQuery = aParticipantQuery;
 
     final int nCount = getCount (aDeleteQuery);
     if (m_aLucene.writeLockedAtomic ( () -> {
@@ -337,16 +343,20 @@ public final class PDStorageManager implements IPDStorageManager
     }).isFailure ())
     {
       LOGGER.error ("Failed to delete docs from the index using the query '" + aDeleteQuery + "'");
-      return ESuccess.FAILURE;
+      return -1;
     }
 
     LOGGER.info ("Deleted " + nCount + " docs from the index using the query '" + aDeleteQuery + "'");
-    AuditHelper.onAuditExecuteSuccess ("pd-indexer-delete", aParticipantID.getURIEncoded (), Integer.valueOf (nCount), aMetaData);
-    return ESuccess.SUCCESS;
+    AuditHelper.onAuditExecuteSuccess ("pd-indexer-delete",
+                                       aParticipantID.getURIEncoded (),
+                                       Integer.valueOf (nCount),
+                                       aMetaData,
+                                       Boolean.toString (bVerifyOwner));
+    return nCount;
   }
 
-  @Nonnull
-  public ESuccess deleteAllEntriesMarkedAsDeleted () throws IOException
+  @CheckForSigned
+  public int deleteAllEntriesMarkedAsDeleted () throws IOException
   {
     LOGGER.info ("Trying to delete all entries marked as deleted");
 
@@ -359,12 +369,12 @@ public final class PDStorageManager implements IPDStorageManager
     }).isFailure ())
     {
       LOGGER.error ("Failed to delete docs from the index using the query '" + aDeleteQuery + "'");
-      return ESuccess.FAILURE;
+      return -1;
     }
 
     LOGGER.info ("Deleted " + nCount + " docs from the index using the query '" + aDeleteQuery + "'");
     AuditHelper.onAuditExecuteSuccess ("pd-indexer-delete-deleted", Integer.valueOf (nCount));
-    return ESuccess.SUCCESS;
+    return nCount;
   }
 
   /**

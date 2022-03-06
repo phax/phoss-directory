@@ -16,19 +16,16 @@
  */
 package com.helger.pd.publisher.app.secure;
 
+import java.io.IOException;
+
 import javax.annotation.Nonnull;
 
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.string.StringHelper;
 import com.helger.html.hc.html.forms.HCEdit;
 import com.helger.html.hc.impl.HCNodeList;
-import com.helger.pd.indexer.businesscard.IPDBusinessCardProvider;
-import com.helger.pd.indexer.businesscard.SMPBusinessCardProvider;
-import com.helger.pd.indexer.index.EIndexerWorkItemType;
-import com.helger.pd.indexer.mgr.PDIndexerManager;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
-import com.helger.peppol.sml.ISMLInfo;
 import com.helger.peppolid.CIdentifier;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.factory.IIdentifierFactory;
@@ -42,13 +39,13 @@ import com.helger.photon.uicore.css.CPageParam;
 import com.helger.photon.uicore.icon.EDefaultIcon;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 
-public final class PageSecureIndexManually extends AbstractAppWebPage
+public final class PageSecureDeleteManually extends AbstractAppWebPage
 {
   public static final String FIELD_PARTICIPANT_ID = "participantid";
 
-  public PageSecureIndexManually (@Nonnull @Nonempty final String sID)
+  public PageSecureDeleteManually (@Nonnull @Nonempty final String sID)
   {
-    super (sID, "Manually index participant");
+    super (sID, "Manually delete participant");
   }
 
   @Override
@@ -57,23 +54,6 @@ public final class PageSecureIndexManually extends AbstractAppWebPage
     final HCNodeList aNodeList = aWPEC.getNodeList ();
     final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
     final FormErrorList aFormErrors = new FormErrorList ();
-
-    {
-      final IPDBusinessCardProvider aBCProv = PDMetaManager.getBusinessCardProvider ();
-      if (aBCProv instanceof SMPBusinessCardProvider)
-      {
-        final SMPBusinessCardProvider aSMPBCProv = (SMPBusinessCardProvider) aBCProv;
-        if (aSMPBCProv.isFixedSMP ())
-        {
-          aNodeList.addChild (info ("Fixed SMP URI " + aSMPBCProv.getFixedSMPURI () + " is used."));
-        }
-        else
-        {
-          aNodeList.addChild (info ("The following SMLs are crawled for entries: " +
-                                    StringHelper.getImplodedMapped (", ", aSMPBCProv.getAllSMLsToUse (), ISMLInfo::getDisplayName)));
-        }
-      }
-    }
 
     if (aWPEC.hasAction (CPageParam.ACTION_PERFORM))
     {
@@ -88,19 +68,24 @@ public final class PageSecureIndexManually extends AbstractAppWebPage
 
       if (aFormErrors.isEmpty ())
       {
-        if (PDMetaManager.getIndexerMgr ()
-                         .queueWorkItem (aParticipantID,
-                                         EIndexerWorkItemType.CREATE_UPDATE,
-                                         "manually-triggered",
-                                         PDIndexerManager.HOST_LOCALHOST)
-                         .isChanged ())
+        int nDeleted = 0;
+        try
         {
-          aWPEC.postRedirectGetInternal (success ("The indexing of participant ID '" + sParticipantID + "' was successfully triggered!"));
+          nDeleted = PDMetaManager.getStorageMgr ().deleteEntry (aParticipantID, null, false);
         }
+        catch (final IOException ex)
+        {
+          // ignore
+          nDeleted = -1;
+        }
+        if (nDeleted > 0)
+          aWPEC.postRedirectGetInternal (success ("The participant ID '" +
+                                                  aParticipantID.getURIEncoded () +
+                                                  "' was deleted (" +
+                                                  nDeleted +
+                                                  " rows)"));
         else
-        {
-          aWPEC.postRedirectGetInternal (warn ("Participant ID '" + sParticipantID + "' is already in the indexing queue!"));
-        }
+          aWPEC.postRedirectGetInternal (error ("Error deleting participant ID '" + aParticipantID.getURIEncoded () + "'"));
       }
     }
 
@@ -109,7 +94,7 @@ public final class PageSecureIndexManually extends AbstractAppWebPage
                                                  .setCtrl (new HCEdit (new RequestField (FIELD_PARTICIPANT_ID,
                                                                                          PeppolIdentifierHelper.DEFAULT_PARTICIPANT_SCHEME +
                                                                                                                CIdentifier.URL_SCHEME_VALUE_SEPARATOR)))
-                                                 .setHelpText (span ().addChild ("Enter the fully qualified Peppol participant ID (including the scheme) you want to index.\nExample identifier layout: ")
+                                                 .setHelpText (span ().addChild ("Enter the fully qualified Peppol participant ID (including the scheme) you want to delete.\nExample identifier layout: ")
                                                                       .addChild (code (aIdentifierFactory.createParticipantIdentifier (PeppolIdentifierHelper.DEFAULT_PARTICIPANT_SCHEME,
                                                                                                                                        "9999:test")
                                                                                                          .getURIEncoded ())))
@@ -117,6 +102,6 @@ public final class PageSecureIndexManually extends AbstractAppWebPage
 
     final BootstrapButtonToolbar aToolbar = aForm.addAndReturnChild (new BootstrapButtonToolbar (aWPEC));
     aToolbar.addHiddenField (CPageParam.PARAM_ACTION, CPageParam.ACTION_PERFORM);
-    aToolbar.addSubmitButton ("Add to queue", EDefaultIcon.YES);
+    aToolbar.addSubmitButton ("Delete from index", EDefaultIcon.DELETE);
   }
 }

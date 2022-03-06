@@ -19,6 +19,7 @@ package com.helger.pd.indexer.mgr;
 import java.io.Closeable;
 import java.io.IOException;
 
+import javax.annotation.CheckForSigned;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -62,11 +63,15 @@ public interface IPDStorageManager extends Closeable
    * @param aMetaData
    *        The entry metadata. Basically only for logging purposes. May be
    *        <code>null</code>.
-   * @return {@link ESuccess#SUCCESS} upon success, {@link ESuccess#FAILURE} on
-   *         error.
+   * @param bVerifyOwner
+   *        <code>true</code> if the owner should be considered,
+   *        <code>false</code> if not.
+   * @return The number of deleted entries, or -1 in case of failure
    * @throws IOException
    *         in case of IO error
    */
-  @Nonnull
-  ESuccess deleteEntry (@Nonnull IParticipantIdentifier aParticipantID, @Nullable PDStoredMetaData aMetaData) throws IOException;
+  @CheckForSigned
+  int deleteEntry (@Nonnull IParticipantIdentifier aParticipantID,
+                   @Nullable PDStoredMetaData aMetaData,
+                   boolean bVerifyOwner) throws IOException;
 }

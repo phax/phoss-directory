@@ -102,7 +102,7 @@ public final class PDStorageManagerTest
                                                                .createParticipantIdentifier ("myscheme-actorid-upis", "0088:test");
     assertNotNull (aParticipantID);
 
-    try (PDStorageManager aMgr = new PDStorageManager (new PDLucene ()))
+    try (final PDStorageManager aMgr = new PDStorageManager (new PDLucene ()))
     {
       final PDStoredMetaData aMetaData = _createMockMetaData ();
       aMgr.createOrUpdateEntry (aParticipantID, _createMockBI (aParticipantID), aMetaData);
@@ -164,7 +164,7 @@ public final class PDStorageManagerTest
       finally
       {
         // Finally delete the entry again
-        aMgr.deleteEntry (aParticipantID, aMetaData);
+        aMgr.deleteEntry (aParticipantID, aMetaData, true);
       }
     }
   }
@@ -176,7 +176,7 @@ public final class PDStorageManagerTest
                                                                .createParticipantIdentifier ("myscheme-actorid-upis", "0088:test");
     assertNotNull (aParticipantID);
 
-    try (PDStorageManager aMgr = new PDStorageManager (new PDLucene ()))
+    try (final PDStorageManager aMgr = new PDStorageManager (new PDLucene ()))
     {
       final PDStoredMetaData aMetaData = _createMockMetaData ();
       aMgr.createOrUpdateEntry (aParticipantID, _createMockBI (aParticipantID), aMetaData);
@@ -199,7 +199,7 @@ public final class PDStorageManagerTest
       finally
       {
         // Finally delete the entry again
-        aMgr.deleteEntry (aParticipantID, aMetaData);
+        aMgr.deleteEntry (aParticipantID, aMetaData, true);
       }
     }
   }

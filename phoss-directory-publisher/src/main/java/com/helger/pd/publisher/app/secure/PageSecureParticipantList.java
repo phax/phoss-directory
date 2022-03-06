@@ -83,16 +83,16 @@ public final class PageSecureParticipantList extends AbstractAppWebPage
         boolean bSuccess = false;
         try
         {
-          bSuccess = PDMetaManager.getStorageMgr ().deleteEntry (aParticipantID, null).isSuccess ();
+          bSuccess = PDMetaManager.getStorageMgr ().deleteEntry (aParticipantID, null, false) > 0;
         }
         catch (final IOException ex)
         {
           // ignore
         }
         if (bSuccess)
-          aNodeList.addChild (info ("The participant '" + aParticipantID.getURIEncoded () + "' was scheduled for deletion"));
+          aNodeList.addChild (info ("The participant ID '" + aParticipantID.getURIEncoded () + "' was deleted"));
         else
-          aNodeList.addChild (error ("Error scheduling participant '" + aParticipantID.getURIEncoded () + "' for deletion"));
+          aNodeList.addChild (error ("Error deleting participant ID '" + aParticipantID.getURIEncoded () + "'"));
       }
     }
 
