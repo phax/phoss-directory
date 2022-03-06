@@ -359,7 +359,10 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
       if (aParticipantID != null)
       {
         // Show participant details
-        final HCNodeList aDetails = createParticipantDetails (aDisplayLocale, sParticipantID, aParticipantID);
+        final HCNodeList aDetails = createParticipantDetails (aDisplayLocale,
+                                                              sParticipantID,
+                                                              aParticipantID,
+                                                              aWPEC.isLoggedInUserAdministrator ());
         if (aDetails.hasChildren ())
         {
           // Show small query box

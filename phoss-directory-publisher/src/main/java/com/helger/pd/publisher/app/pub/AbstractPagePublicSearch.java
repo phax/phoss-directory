@@ -160,7 +160,8 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
   @Nonnull
   protected HCNodeList createParticipantDetails (@Nonnull final Locale aDisplayLocale,
                                                  @Nonnull final String sParticipantID,
-                                                 @Nonnull final IParticipantIdentifier aParticipantID)
+                                                 @Nonnull final IParticipantIdentifier aParticipantID,
+                                                 final boolean bIsLoggedInUserAdministrator)
   {
     final HCNodeList aDetails = new HCNodeList ();
 
@@ -215,7 +216,7 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
           final BootstrapViewForm aViewForm = PDCommonUI.showBusinessInfoDetails (aStoredEntity, aDisplayLocale);
           aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Full Peppol participant ID").setCtrl (code (sParticipantID)));
 
-          if (GlobalDebug.isDebugMode ())
+          if (GlobalDebug.isDebugMode () || bIsLoggedInUserAdministrator)
           {
             aViewForm.addChild (new HCHR ());
             aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("[Debug] Creation DT")
