@@ -31,12 +31,15 @@ import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.collection.impl.ICommonsMap;
+import com.helger.commons.datetime.PDTToString;
+import com.helger.commons.debug.GlobalDebug;
 import com.helger.commons.id.IHasID;
 import com.helger.commons.lang.EnumHelper;
 import com.helger.commons.string.StringHelper;
 import com.helger.html.css.DefaultCSSClassProvider;
 import com.helger.html.css.ICSSClassProvider;
 import com.helger.html.hc.IHCNode;
+import com.helger.html.hc.html.grouping.HCHR;
 import com.helger.html.hc.html.grouping.HCLI;
 import com.helger.html.hc.html.grouping.HCOL;
 import com.helger.html.hc.html.sections.HCH1;
@@ -211,6 +214,20 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
             aCard.createAndAddHeader ().addChild ("Business information entity " + nIndex);
           final BootstrapViewForm aViewForm = PDCommonUI.showBusinessInfoDetails (aStoredEntity, aDisplayLocale);
           aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Full Peppol participant ID").setCtrl (code (sParticipantID)));
+
+          if (GlobalDebug.isDebugMode ())
+          {
+            aViewForm.addChild (new HCHR ());
+            aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("[Debug] Creation DT:")
+                                                             .setCtrl (PDTToString.getAsString (aStoredEntity.getMetaData ()
+                                                                                                             .getCreationDT (),
+                                                                                                aDisplayLocale)));
+            aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("[Debug] Owner ID:")
+                                                             .setCtrl (code (aStoredEntity.getMetaData ().getOwnerID ())));
+            aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("[Debug] Requesting Host:")
+                                                             .setCtrl (code (aStoredEntity.getMetaData ().getRequestingHost ())));
+          }
+
           aCard.createAndAddBody ().addChild (aViewForm);
           ++nIndex;
         }
