@@ -112,7 +112,8 @@ The PD Publisher is the publicly accessible web site with listing and search fun
     * Showing metadata information on participant details, if the admin user is logged in
     * Removed the "SMP implementations" page
     * Added a possibility to hide or customize the "Contact us" page
-    * Changed the PD Client configuration properties, to start with `pdclient.` and align the HTTP properties with SMP client
+    * Changed the PD Client configuration properties, to start with `pdclient.` and align the HTTP properties with SMP client configuration
+    * Fixed the default search background image URL
 * v0.9.10 - 2022-02-24
     * Prepare for internal cleanup to get rid of the legacy "deleted" flag
 * v0.9.9 - 2021-12-21
