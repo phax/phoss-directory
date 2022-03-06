@@ -21,6 +21,7 @@ import javax.annotation.concurrent.Immutable;
 
 import com.helger.commons.debug.GlobalDebug;
 import com.helger.commons.io.resource.ClassPathResource;
+import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.ui.AppPageViewExternal;
 import com.helger.photon.core.menu.IMenuTree;
@@ -49,7 +50,10 @@ public final class MenuPublic
     aMenuTree.createRootItem (new AppPageViewExternal (CMenuPublic.MENU_DOCS_EXPORT_ALL,
                                                        "Export data",
                                                        new ClassPathResource ("viewpages/en/docs_export_all.xml")));
-    aMenuTree.createRootItem (new PagePublicContact (CMenuPublic.MENU_SUPPORT_CONTACT_US));
+    if (PDServerConfiguration.isWebAppShowContactPage ())
+    {
+      aMenuTree.createRootItem (new PagePublicContact (CMenuPublic.MENU_SUPPORT_CONTACT_US));
+    }
     aMenuTree.createRootItem (new AppPageViewExternal (CMenuPublic.MENU_ABOUT,
                                                        "About " + CPDPublisher.getApplication (),
                                                        new ClassPathResource ("viewpages/en/about.xml")));

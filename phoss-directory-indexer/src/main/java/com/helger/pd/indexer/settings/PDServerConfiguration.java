@@ -17,6 +17,7 @@
 package com.helger.pd.indexer.settings;
 
 import java.net.URI;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
 import javax.annotation.CheckForSigned;
@@ -250,6 +251,25 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   public static String getSearchUIMode ()
   {
     return getConfig ().getAsString ("webapp.search.ui");
+  }
+
+  public static boolean isWebAppShowContactPage ()
+  {
+    // true for backwards compatibility
+    return getConfig ().getAsBoolean ("webapp.contact.show", true);
+  }
+
+  @Nullable
+  public static URL getWebAppContactExternalURL ()
+  {
+    final String sURL = getConfig ().getAsString ("webapp.contact.external.url");
+    return StringHelper.hasText (sURL) ? URLHelper.getAsURL (sURL, false) : null;
+  }
+
+  @Nullable
+  public static String getWebAppContactTitle (@Nullable final String sDefaultTitle)
+  {
+    return getConfig ().getAsString ("webapp.contact.title", sDefaultTitle);
   }
 
   /**

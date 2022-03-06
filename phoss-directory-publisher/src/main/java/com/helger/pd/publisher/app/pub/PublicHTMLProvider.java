@@ -16,6 +16,7 @@
  */
 package com.helger.pd.publisher.app.pub;
 
+import java.net.URL;
 import java.util.Locale;
 
 import javax.annotation.Nonnull;
@@ -129,7 +130,15 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
     {
       final BootstrapNavbarNav aNav = aNavbar.addAndReturnNav ();
       final BootstrapDropdownMenu aDropDown = new BootstrapDropdownMenu ();
-      aDropDown.createAndAddItem ().addChild ("Contact us").setHref (aLEC.getLinkToMenuItem (CMenuPublic.MENU_SUPPORT_CONTACT_US));
+      if (PDServerConfiguration.isWebAppShowContactPage ())
+      {
+        final String sTitle = PDServerConfiguration.getWebAppContactTitle ("Contact us");
+        final URL aExternalURL = PDServerConfiguration.getWebAppContactExternalURL ();
+        if (aExternalURL != null)
+          aDropDown.createAndAddItem ().addChild (sTitle).setHref (new SimpleURL (aExternalURL));
+        else
+          aDropDown.createAndAddItem ().addChild (sTitle).setHref (aLEC.getLinkToMenuItem (CMenuPublic.MENU_SUPPORT_CONTACT_US));
+      }
       aDropDown.createAndAddItem ()
                .addChild ("Issue tracker (external)")
                .setHref (new SimpleURL ("https://github.com/phax/phoss-directory/issues"))
