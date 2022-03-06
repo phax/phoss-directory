@@ -34,7 +34,8 @@ import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.IntPoint;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexOptions;
-import org.apache.lucene.index.Term;
+import org.apache.lucene.search.BooleanClause.Occur;
+import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Collector;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.MatchAllDocsQuery;
@@ -317,20 +318,29 @@ public final class PDStorageManager implements IPDStorageManager
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
 
-    LOGGER.info ("Trying to delete entry with participant ID '" + aParticipantID.getURIEncoded () + "'");
+    LOGGER.info ("Trying to delete entry with participant ID '" +
+                 aParticipantID.getURIEncoded () +
+                 "' with owner ID '" +
+                 aMetaData.getOwnerID () +
+                 "'");
 
-    final Term aTerm = PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID);
-    final int nCount = getCount (new TermQuery (aTerm));
+    final Query aDeleteQuery = new BooleanQuery.Builder ().add (new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID)),
+                                                                Occur.MUST)
+                                                          .add (new TermQuery (PDField.METADATA_OWNERID.getExactMatchTerm (aMetaData.getOwnerID ())),
+                                                                Occur.MUST)
+                                                          .build ();
+
+    final int nCount = getCount (aDeleteQuery);
     if (m_aLucene.writeLockedAtomic ( () -> {
       // Delete
-      m_aLucene.deleteDocuments (aTerm);
+      m_aLucene.deleteDocuments (aDeleteQuery);
     }).isFailure ())
     {
-      LOGGER.error ("Failed to delete docs from the index using the term '" + aTerm + "'");
+      LOGGER.error ("Failed to delete docs from the index using the query '" + aDeleteQuery + "'");
       return ESuccess.FAILURE;
     }
 
-    LOGGER.info ("Deleted " + nCount + " docs from the index using the term '" + aTerm + "'");
+    LOGGER.info ("Deleted " + nCount + " docs from the index using the query '" + aDeleteQuery + "'");
     AuditHelper.onAuditExecuteSuccess ("pd-indexer-delete", aParticipantID.getURIEncoded (), Integer.valueOf (nCount), aMetaData);
     return ESuccess.SUCCESS;
   }
@@ -340,18 +350,19 @@ public final class PDStorageManager implements IPDStorageManager
   {
     LOGGER.info ("Trying to delete all entries marked as deleted");
 
-    final Query aQuery = IntPoint.newExactQuery (CPDStorage.FIELD_DELETED, 1);
-    final int nCount = getCount (aQuery);
+    final Query aDeleteQuery = IntPoint.newExactQuery (CPDStorage.FIELD_DELETED, 1);
+
+    final int nCount = getCount (aDeleteQuery);
     if (m_aLucene.writeLockedAtomic ( () -> {
       // Delete
-      m_aLucene.deleteDocuments (aQuery);
+      m_aLucene.deleteDocuments (aDeleteQuery);
     }).isFailure ())
     {
-      LOGGER.error ("Failed to delete docs from the index using the query '" + aQuery + "'");
+      LOGGER.error ("Failed to delete docs from the index using the query '" + aDeleteQuery + "'");
       return ESuccess.FAILURE;
     }
 
-    LOGGER.info ("Deleted " + nCount + " docs from the index using the query '" + aQuery + "'");
+    LOGGER.info ("Deleted " + nCount + " docs from the index using the query '" + aDeleteQuery + "'");
     AuditHelper.onAuditExecuteSuccess ("pd-indexer-delete-deleted", Integer.valueOf (nCount));
     return ESuccess.SUCCESS;
   }
