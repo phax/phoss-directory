@@ -437,7 +437,15 @@ public final class PDStoredBusinessEntity
         if (aMLNames.size () != aMLLanguages.size ())
           throw new IllegalStateException ("Different number of ML names and languages");
         for (int i = 0; i < aMLNames.size (); ++i)
-          ret.names ().add (new PDStoredMLName (aMLNames.get (i), aMLLanguages.get (i)));
+        {
+          String sLang = aMLLanguages.get (i);
+          if ("".equals (sLang))
+          {
+            // Work around internal error
+            sLang = null;
+          }
+          ret.names ().add (new PDStoredMLName (aMLNames.get (i), sLang));
+        }
       }
     }
 
