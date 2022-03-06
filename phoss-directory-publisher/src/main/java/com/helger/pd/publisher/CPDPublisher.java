@@ -42,7 +42,7 @@ public final class CPDPublisher
   // APP Name - like "Peppol Directory"
   private static final String APPLICATION_TITLE = PDServerConfiguration.getAppName ();
 
-  private static ISimpleURL s_aLogoImageURL = new SimpleURL ("/imgs/peppol.png");
+  private static ISimpleURL s_aLogoImageURL = new SimpleURL ("/imgs/peppol/peppol.png");
 
   private CPDPublisher ()
   {}

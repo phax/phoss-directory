@@ -86,11 +86,11 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
 
   private static final Logger LOGGER = LoggerFactory.getLogger (PagePublicSearchSimple.class);
   private static final String PEPPOL_DEFAULT_SCHEME = PeppolIdentifierFactory.INSTANCE.getDefaultParticipantIdentifierScheme ();
-  private static final AjaxFunctionDeclaration s_aExportLast;
+  private static final AjaxFunctionDeclaration AJAX_EXPORT_LAST;
 
   static
   {
-    s_aExportLast = addAjax ("export", (aRequestScope, aAjaxResponse) -> {
+    AJAX_EXPORT_LAST = addAjax ("export", (aRequestScope, aAjaxResponse) -> {
       final Query aLastQuery = PDSessionSingleton.getInstance ().getLastQuery ();
       if (aLastQuery == null)
         aAjaxResponse.createNotFound ();
@@ -132,7 +132,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
 
     {
       final String sHelpText = "Enter the name, address, ID or any other keyword of the entity you are looking for.";
-      if (s_eUIMode.isUseHelptext ())
+      if (UI_MODE.isUseHelptext ())
         aBigQueryBox.addChild (div (sHelpText).addClass (CSS_CLASS_BIG_QUERY_HELPTEXT));
       else
         aQueryEdit.setPlaceholder (sHelpText);
@@ -141,7 +141,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     {
       final BootstrapButton aButton = new BootstrapSubmitButton ().addChild ("Search " + CPDPublisher.getApplication ())
                                                                   .setIcon (EDefaultIcon.MAGNIFIER);
-      if (s_eUIMode.isUseGreenButton ())
+      if (UI_MODE.isUseGreenButton ())
         aButton.setButtonType (EBootstrapButtonType.SUCCESS);
       aBigQueryBox.addChild (new HCDiv ().addClass (CSS_CLASS_BIG_QUERY_BUTTONS).addChild (aButton));
     }
@@ -315,7 +315,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
       }
       aNodeList.addChild (aOL);
 
-      aNodeList.addChild (div (new BootstrapButton ().setOnClick (s_aExportLast.getInvocationURL (aRequestScope))
+      aNodeList.addChild (div (new BootstrapButton ().setOnClick (AJAX_EXPORT_LAST.getInvocationURL (aRequestScope))
                                                      .addChild ("Download results as XML")
                                                      .setIcon (EDefaultIcon.SAVE_ALL)));
     }

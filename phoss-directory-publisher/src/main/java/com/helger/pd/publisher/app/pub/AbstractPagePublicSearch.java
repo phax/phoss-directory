@@ -69,7 +69,8 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
   protected static enum EUIMode implements IHasID <String>
   {
     DEFAULT ("default"),
-    TOOP ("toop");
+    TOOP ("toop"),
+    DE4A ("de4a");
 
     private final String m_sID;
 
@@ -119,12 +120,12 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
   protected static final ICSSClassProvider CSS_CLASS_RESULT_DOC_SDBUTTON = DefaultCSSClassProvider.create ("result-doc-sdbutton");
   protected static final ICSSClassProvider CSS_CLASS_RESULT_PANEL = DefaultCSSClassProvider.create ("result-panel");
 
-  protected static final EUIMode s_eUIMode;
+  protected static final EUIMode UI_MODE;
 
   static
   {
     // Determined by configuration file!
-    s_eUIMode = EUIMode.getFromIDOrDefault (PDServerConfiguration.getSearchUIMode ());
+    UI_MODE = EUIMode.getFromIDOrDefault (PDServerConfiguration.getSearchUIMode ());
   }
 
   public AbstractPagePublicSearch (@Nonnull @Nonempty final String sID, @Nonnull final String sName)
