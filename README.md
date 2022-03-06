@@ -4,11 +4,11 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.helger/phoss-directory-parent-pom/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.helger/phoss-directory-parent-pom) 
 
 The official Peppol Directory (PD; https://directory.peppol.eu) and TOOP Directory software (The Once-Only Project; www.toop.eu). It is split into the following sub-projects (all require Java 8 except where noted):
-  * `phoss-directory-businesscard` - the common Business Card API
-  * `phoss-directory-indexer` - the PD indexer part
-  * `phoss-directory-publisher` - the PD publisher web application
-  * `phoss-directory-client` - a client library to be added to SMP servers to force indexing in the PD
-  * `phoss-directory-searchapi` - a client library for easier use of the Directory search REST API (since v0.7.2)
+* `phoss-directory-businesscard` - the common Business Card API
+* `phoss-directory-indexer` - the PD indexer part
+* `phoss-directory-publisher` - the PD publisher web application
+* `phoss-directory-client` - a client library to be added to SMP servers to force indexing in the PD
+* `phoss-directory-searchapi` - a client library for easier use of the Directory search REST API (since v0.7.2)
   
 * Production version is available at https://directory.peppol.eu (for PEPPOL)
   * It can only handle participants registered at the SML
