@@ -102,6 +102,22 @@ The PD Publisher is the publicly accessible web site with listing and search fun
     * Removed the "SMP implementations" page
     * Added a possibility to hide or customize the "Contact us" page
     * Changed the PD Client configuration properties, to start with `pdclient.` and align the HTTP properties with SMP client configuration
+        * `keystore.type` is now `pdclient.keystore.type`
+        * `keystore.path` is now `pdclient.keystore.path`
+        * `keystore.password` is now `pdclient.keystore.password`
+        * `keystore.key.alias` is now `pdclient.keystore.key.alias`
+        * `keystore.key.password` is now `pdclient.keystore.key.password`
+        * `truststore.type` is now `pdclient.truststore.type`
+        * `truststore.path` is now `pdclient.truststore.path`
+        * `truststore.password` is now `pdclient.truststore.password`
+        * `http.proxyHost` is now `http.proxy.host`
+        * `http.proxyPort` is now `http.proxy.port`
+        * `proxy.username` is now `http.proxy.username`
+        * `proxy.password` is now `http.proxy.password`
+        * `connect.timeout.ms` is now `http.connect.timeout.ms`
+        * `request.timeout.ms` is now `http.request.timeout.ms`
+        * `https.proxyHost` is no longer supported
+        * `https.proxyPort` is no longer supported
     * Fixed the default search background image URL
 * v0.9.10 - 2022-02-24
     * Prepare for internal cleanup to get rid of the legacy "deleted" flag
