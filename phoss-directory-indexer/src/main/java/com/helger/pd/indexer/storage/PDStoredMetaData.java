@@ -19,10 +19,12 @@ package com.helger.pd.indexer.storage;
 import java.time.LocalDateTime;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
+import com.helger.commons.regex.RegExHelper;
 import com.helger.commons.string.ToStringGenerator;
 
 /**
@@ -63,13 +65,27 @@ public final class PDStoredMetaData
 
   /**
    * @return The ID of the client (based on the provided certificate) that
-   *         requested this action. Never <code>null</code>.
+   *         requested this action. Never <code>null</code>. E.g.
+   *         <code>CN=PSG000155,O=SGNIC,C=SG:47186c3e6d05cffbd340f3f51e2425cc</code>
    */
   @Nonnull
   @Nonempty
   public String getOwnerID ()
   {
     return m_sOwnerID;
+  }
+
+  @Nullable
+  public static String getOwnerIDSeatNumber (@Nonnull @Nonempty final String sOwnerID)
+  {
+    final String [] aMatches = RegExHelper.getAllMatchingGroupValues ("CN=P[A-Z]{2}([^,]+),.*", sOwnerID);
+    return aMatches == null || aMatches.length != 1 ? null : aMatches[0];
+  }
+
+  @Nullable
+  public String getOwnerIDSeatNumber ()
+  {
+    return getOwnerIDSeatNumber (m_sOwnerID);
   }
 
   /**

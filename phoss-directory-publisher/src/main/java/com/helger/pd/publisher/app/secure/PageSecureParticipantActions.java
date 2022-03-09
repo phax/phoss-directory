@@ -34,15 +34,19 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.collection.impl.CommonsHashMap;
+import com.helger.commons.collection.impl.CommonsHashSet;
 import com.helger.commons.collection.impl.CommonsTreeSet;
 import com.helger.commons.collection.impl.ICommonsMap;
+import com.helger.commons.collection.impl.ICommonsSet;
 import com.helger.commons.collection.impl.ICommonsSortedSet;
 import com.helger.commons.compare.IComparator;
 import com.helger.commons.csv.CSVWriter;
 import com.helger.commons.datetime.PDTToString;
+import com.helger.commons.datetime.PDTWebDateHelper;
 import com.helger.commons.io.stream.NonBlockingByteArrayOutputStream;
 import com.helger.commons.io.stream.StreamHelper;
 import com.helger.commons.mime.CMimeType;
+import com.helger.commons.mutable.MutableInt;
 import com.helger.html.hc.html.grouping.HCDiv;
 import com.helger.html.hc.html.grouping.HCOL;
 import com.helger.html.hc.html.grouping.IHCLI;
@@ -51,6 +55,7 @@ import com.helger.pd.indexer.index.EIndexerWorkItemType;
 import com.helger.pd.indexer.mgr.PDIndexerManager;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.EQueryMode;
+import com.helger.pd.indexer.storage.PDStoredMetaData;
 import com.helger.pd.indexer.storage.field.PDField;
 import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.exportall.ExportAllDataJob;
@@ -90,6 +95,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
   private static final String ACTION_DELETE_DUPLICATES = "delete-duplicates";
 
   private static final AjaxFunctionDeclaration AJAX_DOWNLOAD_ALL_IDS_XML;
+  private static final AjaxFunctionDeclaration AJAX_DOWNLOAD_ALL_IDS_AND_METADATA_XML;
   private static final AjaxFunctionDeclaration AJAX_DOWNLOAD_ALL_BCS_XML_FULL;
   private static final AjaxFunctionDeclaration AJAX_DOWNLOAD_ALL_BCS_XML_NO_DOCTYPES;
   private static final AjaxFunctionDeclaration AJAX_DOWNLOAD_ALL_BCS_EXCEL;
@@ -98,6 +104,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
   static
   {
     AJAX_DOWNLOAD_ALL_IDS_XML = addAjax ( (req, res) -> {
+      LOGGER.info ("Starting AJAX_DOWNLOAD_ALL_IDS_XML");
       final IMicroDocument aDoc = new MicroDocument ();
       final IMicroElement aRoot = aDoc.appendElement ("root");
       final Set <IParticipantIdentifier> aAllIDs = PDMetaManager.getStorageMgr ()
@@ -113,32 +120,71 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
       }
       res.xml (aDoc);
       res.attachment ("directory-participant-list.xml");
+      LOGGER.info ("Finished AJAX_DOWNLOAD_ALL_IDS_XML");
+    });
+    AJAX_DOWNLOAD_ALL_IDS_AND_METADATA_XML = addAjax ( (req, res) -> {
+      LOGGER.info ("Starting AJAX_DOWNLOAD_ALL_IDS_AND_METADATA_XML");
+      final IMicroDocument aDoc = new MicroDocument ();
+      final IMicroElement aRoot = aDoc.appendElement ("root");
+      final MutableInt aCount = new MutableInt (0);
+      final ICommonsSet <IParticipantIdentifier> aUniquePIDs = new CommonsHashSet <> ();
+      PDMetaManager.getStorageMgr ().searchAll (EQueryMode.NON_DELETED_ONLY.getEffectiveQuery (new MatchAllDocsQuery ()), -1, doc -> {
+        final int n = aCount.inc ();
+        if ((n % 1000) == 0)
+          LOGGER.info ("Exporting #" + n);
+
+        final IParticipantIdentifier aPID = PDField.PARTICIPANT_ID.getDocValue (doc);
+        if (aUniquePIDs.add (aPID))
+        {
+          final IMicroElement eP = aRoot.appendElement ("participant")
+                                        .setAttribute ("scheme", aPID.getScheme ())
+                                        .setAttribute ("value", aPID.getValue ());
+
+          final String sOwnerID = PDField.METADATA_OWNERID.getDocValue (doc);
+          eP.appendElement ("metadata")
+            .setAttribute ("creationDT", PDTWebDateHelper.getAsStringXSD (PDField.METADATA_CREATIONDT.getDocValue (doc)))
+            .setAttribute ("ownerID", sOwnerID)
+            .setAttribute ("ownerSeatNum", PDStoredMetaData.getOwnerIDSeatNumber (sOwnerID))
+            .setAttribute ("requestingHost", PDField.METADATA_REQUESTING_HOST.getDocValue (doc));
+        }
+      });
+      res.xml (aDoc);
+      res.attachment ("directory-participant-list-with-metadata.xml");
+      LOGGER.info ("Finished AJAX_DOWNLOAD_ALL_IDS_AND_METADATA_XML");
     });
     AJAX_DOWNLOAD_ALL_BCS_XML_FULL = addAjax ( (req, res) -> {
+      LOGGER.info ("Starting AJAX_DOWNLOAD_ALL_BCS_XML_FULL");
       final IMicroDocument aDoc = ExportAllManager.queryAllContainedBusinessCardsAsXML (EQueryMode.NON_DELETED_ONLY, true);
       res.xml (aDoc);
       res.attachment (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_FULL);
+      LOGGER.info ("Finished AJAX_DOWNLOAD_ALL_BCS_XML_FULL");
     });
     AJAX_DOWNLOAD_ALL_BCS_XML_NO_DOCTYPES = addAjax ( (req, res) -> {
+      LOGGER.info ("Starting AJAX_DOWNLOAD_ALL_BCS_XML_NO_DOCTYPES");
       final IMicroDocument aDoc = ExportAllManager.queryAllContainedBusinessCardsAsXML (EQueryMode.NON_DELETED_ONLY, false);
       res.xml (aDoc);
       res.attachment (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_NO_DOC_TYPES);
+      LOGGER.info ("Finished AJAX_DOWNLOAD_ALL_BCS_XML_NO_DOCTYPES");
     });
     AJAX_DOWNLOAD_ALL_BCS_EXCEL = addAjax ( (req, res) -> {
+      LOGGER.info ("Starting AJAX_DOWNLOAD_ALL_BCS_EXCEL");
       try (final WorkbookCreationHelper aWBCH = ExportAllManager.queryAllContainedBusinessCardsAsExcel (EQueryMode.NON_DELETED_ONLY, true);
            final NonBlockingByteArrayOutputStream aBAOS = new NonBlockingByteArrayOutputStream ())
       {
         aWBCH.writeTo (aBAOS);
         res.binary (aBAOS, EExcelVersion.XLSX.getMimeType (), ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XLSX);
       }
+      LOGGER.info ("Finished AJAX_DOWNLOAD_ALL_BCS_EXCEL");
     });
     AJAX_DOWNLOAD_ALL_BCS_CSV = addAjax ( (req, res) -> {
+      LOGGER.info ("Starting AJAX_DOWNLOAD_ALL_BCS_CSV");
       try (final NonBlockingByteArrayOutputStream aBAOS = new NonBlockingByteArrayOutputStream ();
            final CSVWriter aCSVWriter = new CSVWriter (StreamHelper.createWriter (aBAOS, StandardCharsets.ISO_8859_1)))
       {
         ExportAllManager.queryAllContainedBusinessCardsAsCSV (EQueryMode.NON_DELETED_ONLY, aCSVWriter);
         res.binary (aBAOS, CMimeType.TEXT_CSV, ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_CSV);
       }
+      LOGGER.info ("Finished AJAX_DOWNLOAD_ALL_BCS_CSV");
     });
   }
 
@@ -347,6 +393,9 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
     BootstrapCardBody aBody = aCard.createAndAddBody ();
     aBody.addChild (new BootstrapButton (EBootstrapButtonType.DANGER).addChild ("Download all IDs (XML, live)")
                                                                      .setOnClick (AJAX_DOWNLOAD_ALL_IDS_XML.getInvocationURL (aRequestScope))
+                                                                     .setIcon (EDefaultIcon.SAVE_ALL));
+    aBody.addChild (new BootstrapButton (EBootstrapButtonType.DANGER).addChild ("Download all IDs and Metadata (XML, live)")
+                                                                     .setOnClick (AJAX_DOWNLOAD_ALL_IDS_AND_METADATA_XML.getInvocationURL (aRequestScope))
                                                                      .setIcon (EDefaultIcon.SAVE_ALL));
     aBody.addChild (new BootstrapButton (EBootstrapButtonType.DANGER).addChild ("Download all Business Cards (XML, full, live) (may take long)")
                                                                      .setOnClick (AJAX_DOWNLOAD_ALL_BCS_XML_FULL.getInvocationURL (aRequestScope))
