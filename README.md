@@ -95,6 +95,8 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
+* v0.10.1 - 2022-03-09
+    * Added export of participant IDs with metadata
 * v0.10.0 - 2022-03-06
     * Only the SP owning a Participant can delete it. That implies, that upon certificate change the simple deletion will not work. It is recommended to first index the participant, so that the new certificate is used, and than delete it with the new certificate.
     * Added an Admin page to manually delete a participant without an owner check
