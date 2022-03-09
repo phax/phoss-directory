@@ -171,7 +171,7 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
     // Group by participant ID
     final ICommonsMap <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> aGroupedDocs = PDStorageManager.getGroupedByParticipantID (aResultDocs);
     if (aGroupedDocs.isEmpty ())
-      LOGGER.error ("No stored document matches participant identifier '" + sParticipantID + "'");
+      LOGGER.error ("No stored document matches participant identifier '" + sParticipantID + "' - cannot show details");
     else
     {
       if (aGroupedDocs.size () > 1)

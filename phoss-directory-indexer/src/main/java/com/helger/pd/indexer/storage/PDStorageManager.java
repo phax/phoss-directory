@@ -79,6 +79,7 @@ import com.helger.pd.indexer.mgr.IPDStorageManager;
 import com.helger.pd.indexer.storage.field.PDField;
 import com.helger.peppolid.IDocumentTypeIdentifier;
 import com.helger.peppolid.IParticipantIdentifier;
+import com.helger.peppolid.simple.participant.SimpleParticipantIdentifier;
 import com.helger.photon.audit.AuditHelper;
 
 /**
@@ -324,7 +325,26 @@ public final class PDStorageManager implements IPDStorageManager
                  "'" +
                  (bVerifyOwner && aMetaData != null ? " with owner ID '" + aMetaData.getOwnerID () + "'" : ""));
 
-    final Query aParticipantQuery = new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID));
+    Query aParticipantQuery = new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID));
+    if (getCount (aParticipantQuery) == 0)
+    {
+      // Hack e.g. for 9925:everbinding
+      final String sOrigValue = aParticipantID.getValue ();
+      final String sUpperCaseValue = sOrigValue.toUpperCase (Locale.ROOT);
+      if (!sUpperCaseValue.equals (sOrigValue))
+      {
+        // Something changed - try again
+        // Force case sensitivity
+        final IParticipantIdentifier aNewPID = new SimpleParticipantIdentifier (aParticipantID.getScheme (), sUpperCaseValue);
+        final Query aOtherQuery = new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aNewPID));
+        if (getCount (aOtherQuery) > 0)
+        {
+          LOGGER.info ("Found something with '" + sUpperCaseValue + "' instead of '" + sOrigValue + "'");
+          aParticipantQuery = aOtherQuery;
+        }
+      }
+    }
+
     final Query aDeleteQuery;
     if (bVerifyOwner && aMetaData != null)
     {
@@ -549,7 +569,26 @@ public final class PDStorageManager implements IPDStorageManager
   public ICommonsList <PDStoredBusinessEntity> getAllDocumentsOfParticipant (@Nonnull final IParticipantIdentifier aParticipantID)
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
-    return getAllDocuments (new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID)), -1);
+    ICommonsList <PDStoredBusinessEntity> ret = getAllDocuments (new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID)),
+                                                                 -1);
+    if (ret.isEmpty ())
+    {
+      // Hack e.g. for 9925:everbinding
+      final String sOrigValue = aParticipantID.getValue ();
+      final String sUpperCaseValue = sOrigValue.toUpperCase (Locale.ROOT);
+      if (!sUpperCaseValue.equals (sOrigValue))
+      {
+        // Something changed - try again
+        // Force case sensitivity
+        final IParticipantIdentifier aNewPID = new SimpleParticipantIdentifier (aParticipantID.getScheme (), sUpperCaseValue);
+        ret = getAllDocuments (new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aNewPID)), -1);
+        if (ret.isNotEmpty ())
+        {
+          LOGGER.info ("Found something with '" + sUpperCaseValue + "' instead of '" + sOrigValue + "'");
+        }
+      }
+    }
+    return ret;
   }
 
   @Nonnull

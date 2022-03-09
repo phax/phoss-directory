@@ -255,7 +255,16 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
     final IndexReader aReader = getReader ();
     if (aReader == null)
       return null;
-    return aReader.document (nDocID);
+    try
+    {
+      return aReader.document (nDocID);
+    }
+    catch (final IllegalArgumentException ex)
+    {
+      // Happens in the wild
+      LOGGER.error ("Failed to retrieve document with ID " + nDocID + ": " + ex.getMessage ());
+      return null;
+    }
   }
 
   /**
