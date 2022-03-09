@@ -287,6 +287,8 @@ public final class ClientCertificateValidator
         aParts.put (aRdn.getType (), aRdn);
 
       // Re-order - least important item comes first (=reverse order)!
+      // As LdapName reverses names in toString, the final result will be
+      // CN=...,O=...,C=...
       final String sSubjectName = new LdapName (new CommonsArrayList <> (aParts.get ("C"),
                                                                          aParts.get ("O"),
                                                                          aParts.get ("CN"))).toString ();
