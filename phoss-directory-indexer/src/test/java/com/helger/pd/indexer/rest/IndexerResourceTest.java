@@ -59,7 +59,6 @@ import com.helger.pd.indexer.PDIndexerTestRule;
 import com.helger.pd.indexer.businesscard.PDExtendedBusinessCard;
 import com.helger.pd.indexer.clientcert.ClientCertificateValidator;
 import com.helger.pd.indexer.mgr.PDMetaManager;
-import com.helger.pd.indexer.storage.EQueryMode;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.factory.PeppolIdentifierFactory;
 import com.helger.peppolid.peppol.PeppolIdentifierHelper;
@@ -178,7 +177,7 @@ public final class IndexerResourceTest
     for (int i = 0; i < nCount; ++i)
     {
       final IParticipantIdentifier aPI = aIF.createParticipantIdentifierWithDefaultScheme ("9915:test" + i);
-      assertTrue (PDMetaManager.getStorageMgr ().containsEntry (aPI, EQueryMode.ALL));
+      assertTrue (PDMetaManager.getStorageMgr ().containsEntry (aPI));
     }
 
     // Delete
@@ -197,7 +196,7 @@ public final class IndexerResourceTest
     for (int i = 0; i < nCount; ++i)
     {
       final IParticipantIdentifier aPI = aIF.createParticipantIdentifierWithDefaultScheme ("9915:test" + i);
-      assertFalse (PDMetaManager.getStorageMgr ().containsEntry (aPI, EQueryMode.ALL));
+      assertFalse (PDMetaManager.getStorageMgr ().containsEntry (aPI));
     }
 
     // Test with invalid URL encoded ID

@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.commons.datetime.PDTFactory;
 import com.helger.commons.timing.StopWatch;
-import com.helger.pd.indexer.storage.EQueryMode;
 import com.helger.pd.publisher.CPDPublisher;
 import com.helger.photon.app.PhotonWorkerPool;
 import com.helger.quartz.DisallowConcurrentExecution;
@@ -81,7 +80,7 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
         LOGGER.info ("Start exporting business cards as XML (full)");
         try
         {
-          ExportAllManager.writeFileBusinessCardXMLFull (EQueryMode.NON_DELETED_ONLY);
+          ExportAllManager.writeFileBusinessCardXMLFull ();
         }
         finally
         {
@@ -92,7 +91,7 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
         LOGGER.info ("Start exporting business cards as XML (no doc types)");
         try
         {
-          ExportAllManager.writeFileBusinessCardXMLNoDocTypes (EQueryMode.NON_DELETED_ONLY);
+          ExportAllManager.writeFileBusinessCardXMLNoDocTypes ();
         }
         finally
         {
@@ -105,7 +104,7 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
           LOGGER.info ("Start exporting business cards as Excel");
           try
           {
-            ExportAllManager.writeFileBusinessCardExcel (EQueryMode.NON_DELETED_ONLY);
+            ExportAllManager.writeFileBusinessCardExcel ();
           }
           finally
           {
@@ -119,7 +118,7 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
           LOGGER.info ("Start exporting business cards as CSV");
           try
           {
-            ExportAllManager.writeFileBusinessCardCSV (EQueryMode.NON_DELETED_ONLY);
+            ExportAllManager.writeFileBusinessCardCSV ();
           }
           finally
           {
@@ -133,7 +132,7 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
           LOGGER.info ("Start exporting participants as XML");
           try
           {
-            ExportAllManager.writeFileParticipantXML (EQueryMode.NON_DELETED_ONLY);
+            ExportAllManager.writeFileParticipantXML ();
           }
           finally
           {
@@ -147,7 +146,7 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
           LOGGER.info ("Start exporting participants as JSON");
           try
           {
-            ExportAllManager.writeFileParticipantJSON (EQueryMode.NON_DELETED_ONLY);
+            ExportAllManager.writeFileParticipantJSON ();
           }
           finally
           {
@@ -161,7 +160,7 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
           LOGGER.info ("Start exporting participants as CSV");
           try
           {
-            ExportAllManager.writeFileParticipantCSV (EQueryMode.NON_DELETED_ONLY);
+            ExportAllManager.writeFileParticipantCSV ();
           }
           finally
           {

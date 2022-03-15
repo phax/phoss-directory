@@ -31,7 +31,6 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.FieldType;
-import org.apache.lucene.document.IntPoint;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.search.BooleanClause.Occur;
@@ -144,8 +143,7 @@ public final class PDStorageManager implements IPDStorageManager
     }
   }
 
-  public boolean containsEntry (@Nullable final IParticipantIdentifier aParticipantID,
-                                @Nonnull final EQueryMode eQueryMode) throws IOException
+  public boolean containsEntry (@Nullable final IParticipantIdentifier aParticipantID) throws IOException
   {
     if (aParticipantID == null)
       return false;
@@ -155,7 +153,7 @@ public final class PDStorageManager implements IPDStorageManager
       if (aSearcher != null)
       {
         // Search only documents that do not have the deleted field
-        final Query aQuery = eQueryMode.getEffectiveQuery (new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID)));
+        final Query aQuery = new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID));
         final TopDocs aTopDocs = _timedSearch ( () -> aSearcher.search (aQuery, 1), aQuery);
         // Lucene 8
         // if (aTopDocs.totalHits.value > 0)
@@ -375,28 +373,6 @@ public final class PDStorageManager implements IPDStorageManager
     return nCount;
   }
 
-  @CheckForSigned
-  public int deleteAllEntriesMarkedAsDeleted () throws IOException
-  {
-    LOGGER.info ("Trying to delete all entries marked as deleted");
-
-    final Query aDeleteQuery = IntPoint.newExactQuery (CPDStorage.FIELD_DELETED, 1);
-
-    final int nCount = getCount (aDeleteQuery);
-    if (m_aLucene.writeLockedAtomic ( () -> {
-      // Delete
-      m_aLucene.deleteDocuments (aDeleteQuery);
-    }).isFailure ())
-    {
-      LOGGER.error ("Failed to delete docs from the index using the query '" + aDeleteQuery + "'");
-      return -1;
-    }
-
-    LOGGER.info ("Deleted " + nCount + " docs from the index using the query '" + aDeleteQuery + "'");
-    AuditHelper.onAuditExecuteSuccess ("pd-indexer-delete-deleted", Integer.valueOf (nCount));
-    return nCount;
-  }
-
   /**
    * Search all documents matching the passed query and pass the result on to
    * the provided {@link Consumer}.
@@ -593,11 +569,11 @@ public final class PDStorageManager implements IPDStorageManager
 
   @Nonnull
   @ReturnsMutableCopy
-  public ICommonsSortedMap <IParticipantIdentifier, MutableInt> getAllContainedParticipantIDs (@Nonnull final EQueryMode eQueryMode)
+  public ICommonsSortedMap <IParticipantIdentifier, MutableInt> getAllContainedParticipantIDs ()
   {
     // Map from ID to entity count
     final ICommonsSortedMap <IParticipantIdentifier, MutableInt> aTargetSet = new CommonsTreeMap <> ();
-    final Query aQuery = eQueryMode.getEffectiveQuery (new MatchAllDocsQuery ());
+    final Query aQuery = new MatchAllDocsQuery ();
     try
     {
       final ObjIntConsumer <Document> aConsumer = (aDoc, nDocID) -> {
@@ -615,10 +591,9 @@ public final class PDStorageManager implements IPDStorageManager
   }
 
   @CheckForSigned
-  public int getContainedParticipantCount (@Nonnull final EQueryMode eQueryMode)
+  public int getContainedParticipantCount ()
   {
-    final Query aQuery = eQueryMode.getEffectiveQuery (new MatchAllDocsQuery ());
-    return getCount (aQuery);
+    return getCount (new MatchAllDocsQuery ());
   }
 
   /**

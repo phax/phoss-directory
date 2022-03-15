@@ -57,7 +57,6 @@ import com.helger.pd.indexer.PDIndexerTestRule;
 import com.helger.pd.indexer.businesscard.PDExtendedBusinessCard;
 import com.helger.pd.indexer.clientcert.ClientCertificateValidator;
 import com.helger.pd.indexer.mgr.PDMetaManager;
-import com.helger.pd.indexer.storage.EQueryMode;
 import com.helger.pd.indexer.storage.field.PDField;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.factory.PeppolIdentifierFactory;
@@ -162,7 +161,7 @@ public final class LocalHost8080FuncTest
     });
 
     ThreadHelper.sleep (2000);
-    assertTrue (PDMetaManager.getStorageMgr ().containsEntry (aPI_0, EQueryMode.ALL));
+    assertTrue (PDMetaManager.getStorageMgr ().containsEntry (aPI_0));
     assertTrue (PDMetaManager.getStorageMgr ().getCount (new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aPI_0))) > 0);
 
     aIndex.set (0);
@@ -177,11 +176,8 @@ public final class LocalHost8080FuncTest
     });
 
     ThreadHelper.sleep (2000);
-    assertFalse (PDMetaManager.getStorageMgr ().containsEntry (aPI_0, EQueryMode.NON_DELETED_ONLY));
-    assertEquals (0,
-                  PDMetaManager.getStorageMgr ()
-                               .getCount (EQueryMode.NON_DELETED_ONLY.getEffectiveQuery (new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aPI_0)))));
-    assertTrue (PDMetaManager.getStorageMgr ()
-                             .getCount (EQueryMode.DELETED_ONLY.getEffectiveQuery (new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aPI_0)))) > 0);
+    assertFalse (PDMetaManager.getStorageMgr ().containsEntry (aPI_0));
+    assertEquals (0, PDMetaManager.getStorageMgr ().getCount (new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aPI_0))));
+    assertTrue (PDMetaManager.getStorageMgr ().getCount (new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aPI_0))) > 0);
   }
 }

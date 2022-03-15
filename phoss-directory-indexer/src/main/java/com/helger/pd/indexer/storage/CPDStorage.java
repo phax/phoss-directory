@@ -16,6 +16,7 @@
  */
 package com.helger.pd.indexer.storage;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -27,8 +28,6 @@ import javax.annotation.concurrent.Immutable;
 public final class CPDStorage
 {
   public static final String FIELD_ALL_FIELDS = "allfields";
-  @Deprecated
-  public static final String FIELD_DELETED = "deleted";
 
   public static final String OWNER_MANUALLY_TRIGGERED = "manually-triggered";
   public static final String OWNER_IMPORT_TRIGGERED = "import-triggered";
@@ -37,4 +36,12 @@ public final class CPDStorage
 
   private CPDStorage ()
   {}
+
+  public static boolean isSpecialOwnerID (@Nullable final String s)
+  {
+    return OWNER_MANUALLY_TRIGGERED.equals (s) ||
+           OWNER_IMPORT_TRIGGERED.equals (s) ||
+           OWNER_DUPLICATE_ELIMINATION.equals (s) ||
+           OWNER_SYNC_JOB.equals (s);
+  }
 }

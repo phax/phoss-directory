@@ -29,27 +29,14 @@ import com.helger.html.hc.html.grouping.HCHR;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.lucene.AllDocumentsCollector;
 import com.helger.pd.indexer.mgr.PDMetaManager;
-import com.helger.pd.indexer.storage.EQueryMode;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
-import com.helger.photon.ajax.decl.AjaxFunctionDeclaration;
 import com.helger.photon.bootstrap4.buttongroup.BootstrapButtonToolbar;
 import com.helger.photon.bootstrap4.table.BootstrapTable;
 import com.helger.photon.uicore.icon.EDefaultIcon;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
-import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 
 public final class PageSecureParticipantCount extends AbstractAppWebPage
 {
-  private static final AjaxFunctionDeclaration AJAX_DELETE_DELETED;
-
-  static
-  {
-    AJAX_DELETE_DELETED = addAjax ( (aRequestScope, aAjaxResponse) -> {
-      PDMetaManager.getStorageMgr ().deleteAllEntriesMarkedAsDeleted ();
-      aAjaxResponse.createNoContent ();
-    });
-  }
-
   public PageSecureParticipantCount (@Nonnull @Nonempty final String sID)
   {
     super (sID, "Participant count");
@@ -58,21 +45,16 @@ public final class PageSecureParticipantCount extends AbstractAppWebPage
   @Override
   protected void fillContent (@Nonnull final WebPageExecutionContext aWPEC)
   {
-    final IRequestWebScopeWithoutResponse aRequestScope = aWPEC.getRequestScope ();
     final HCNodeList aNodeList = aWPEC.getNodeList ();
 
     {
       final BootstrapButtonToolbar aToolbar = new BootstrapButtonToolbar (aWPEC);
       aToolbar.addButton ("Refresh", aWPEC.getSelfHref (), EDefaultIcon.MAGNIFIER);
-      aToolbar.addButton ("Delete deleted", AJAX_DELETE_DELETED.getInvocationURL (aRequestScope), EDefaultIcon.DELETE);
       aNodeList.addChild (aToolbar);
     }
 
-    final int nNotDeletedCount = PDMetaManager.getStorageMgr ().getContainedParticipantCount (EQueryMode.NON_DELETED_ONLY);
+    final int nNotDeletedCount = PDMetaManager.getStorageMgr ().getContainedParticipantCount ();
     aNodeList.addChild (h3 (nNotDeletedCount + " participants (entities) are contained"));
-
-    final int nDeletedCount = PDMetaManager.getStorageMgr ().getContainedParticipantCount (EQueryMode.DELETED_ONLY);
-    aNodeList.addChild (h3 (nDeletedCount + " deleted participants (entities) are contained"));
 
     final int nReIndexCount = PDMetaManager.getIndexerMgr ().getReIndexList ().getItemCount ();
     aNodeList.addChild (h3 (nReIndexCount + " re-index items are contained"));

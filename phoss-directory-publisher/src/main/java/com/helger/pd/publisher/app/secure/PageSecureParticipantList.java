@@ -36,7 +36,6 @@ import com.helger.html.hc.html.tabular.IHCCell;
 import com.helger.html.hc.html.textlevel.HCA;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.mgr.PDMetaManager;
-import com.helger.pd.indexer.storage.EQueryMode;
 import com.helger.pd.publisher.app.pub.CMenuPublic;
 import com.helger.pd.publisher.app.pub.PagePublicSearchSimple;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
@@ -96,8 +95,7 @@ public final class PageSecureParticipantList extends AbstractAppWebPage
       }
     }
 
-    final ICommonsSortedMap <IParticipantIdentifier, MutableInt> aAllIDs = PDMetaManager.getStorageMgr ()
-                                                                                        .getAllContainedParticipantIDs (EQueryMode.NON_DELETED_ONLY);
+    final ICommonsSortedMap <IParticipantIdentifier, MutableInt> aAllIDs = PDMetaManager.getStorageMgr ().getAllContainedParticipantIDs ();
     aNodeList.addChild (h3 (aAllIDs.size () + " participants (=Business Cards) are contained"));
 
     int nMaxEntries;

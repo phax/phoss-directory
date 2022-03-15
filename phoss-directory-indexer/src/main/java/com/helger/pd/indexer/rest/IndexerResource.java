@@ -40,7 +40,6 @@ import com.helger.pd.indexer.clientcert.ClientCertificateValidationResult;
 import com.helger.pd.indexer.clientcert.ClientCertificateValidator;
 import com.helger.pd.indexer.index.EIndexerWorkItemType;
 import com.helger.pd.indexer.mgr.PDMetaManager;
-import com.helger.pd.indexer.storage.EQueryMode;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.factory.IIdentifierFactory;
 
@@ -206,7 +205,7 @@ public class IndexerResource
         LOGGER.error (sLogPrefix + "Failed to parse participant identifier '" + sRealParticipantID + "'");
 
     // Queue for handling
-    if (!PDMetaManager.getStorageMgr ().containsEntry (aPI, EQueryMode.NON_DELETED_ONLY))
+    if (!PDMetaManager.getStorageMgr ().containsEntry (aPI))
       return Response.status (Response.Status.NOT_FOUND).build ();
 
     // And done

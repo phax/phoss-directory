@@ -50,7 +50,6 @@ import com.helger.json.JsonArray;
 import com.helger.json.JsonObject;
 import com.helger.json.serialize.JsonWriterSettings;
 import com.helger.pd.indexer.mgr.PDMetaManager;
-import com.helger.pd.indexer.storage.PDQueryManager;
 import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
 import com.helger.pd.publisher.app.AppCommonUI;
@@ -105,7 +104,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
     private final String m_sVersion;
     private final String m_sPathPrefix;
 
-    private ESearchVersion (@Nonnull @Nonempty final String sVersion)
+    ESearchVersion (@Nonnull @Nonempty final String sVersion)
     {
       m_sVersion = sVersion;
       m_sPathPrefix = "/" + sVersion;
@@ -261,7 +260,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
       }
 
       // Build final query term
-      Query aLuceneQuery;
+      final Query aLuceneQuery;
       if (aQueries.size () == 1)
       {
         aLuceneQuery = aQueries.getFirst ();
@@ -274,9 +273,6 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
           aBuilder.add (aQuery, Occur.MUST);
         aLuceneQuery = aBuilder.build ();
       }
-
-      // Only-non deleted
-      aLuceneQuery = PDQueryManager.andNotDeleted (aLuceneQuery);
 
       // How many results to deliver at most
       final int nMaxResults = nLastResultIndex + 1;

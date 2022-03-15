@@ -53,7 +53,6 @@ import com.helger.json.JsonArray;
 import com.helger.json.JsonObject;
 import com.helger.json.serialize.JsonWriter;
 import com.helger.pd.indexer.mgr.PDMetaManager;
-import com.helger.pd.indexer.storage.EQueryMode;
 import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
 import com.helger.pd.indexer.storage.PDStoredContact;
 import com.helger.pd.indexer.storage.PDStoredIdentifier;
@@ -115,10 +114,9 @@ public final class ExportAllManager
   }
 
   @Nonnull
-  public static IMicroDocument queryAllContainedBusinessCardsAsXML (@Nonnull final EQueryMode eQueryMode,
-                                                                    final boolean bIncludeDocTypes) throws IOException
+  public static IMicroDocument queryAllContainedBusinessCardsAsXML (final boolean bIncludeDocTypes) throws IOException
   {
-    final Query aQuery = eQueryMode.getEffectiveQuery (new MatchAllDocsQuery ());
+    final Query aQuery = new MatchAllDocsQuery ();
     return queryAllContainedBusinessCardsAsXML (aQuery, bIncludeDocTypes);
   }
 
@@ -129,9 +127,9 @@ public final class ExportAllManager
   }
 
   @Nonnull
-  static ESuccess writeFileBusinessCardXMLFull (@Nonnull final EQueryMode eQueryMode) throws IOException
+  static ESuccess writeFileBusinessCardXMLFull () throws IOException
   {
-    final IMicroDocument aDoc = queryAllContainedBusinessCardsAsXML (eQueryMode, true);
+    final IMicroDocument aDoc = queryAllContainedBusinessCardsAsXML (true);
     final File f = _getInternalFileBusinessCardXMLFull ();
 
     // Do it in a write lock!
@@ -185,9 +183,9 @@ public final class ExportAllManager
   }
 
   @Nonnull
-  static ESuccess writeFileBusinessCardXMLNoDocTypes (@Nonnull final EQueryMode eQueryMode) throws IOException
+  static ESuccess writeFileBusinessCardXMLNoDocTypes () throws IOException
   {
-    final IMicroDocument aDoc = queryAllContainedBusinessCardsAsXML (eQueryMode, false);
+    final IMicroDocument aDoc = queryAllContainedBusinessCardsAsXML (false);
     final File f = _getInternalFileBusinessCardXMLNoDocTypes ();
 
     // Do it in a write lock!
@@ -235,10 +233,9 @@ public final class ExportAllManager
   }
 
   @Nonnull
-  public static WorkbookCreationHelper queryAllContainedBusinessCardsAsExcel (@Nonnull final EQueryMode eQueryMode,
-                                                                              final boolean bIncludeDocTypes) throws IOException
+  public static WorkbookCreationHelper queryAllContainedBusinessCardsAsExcel (final boolean bIncludeDocTypes) throws IOException
   {
-    final Query aQuery = eQueryMode.getEffectiveQuery (new MatchAllDocsQuery ());
+    final Query aQuery = new MatchAllDocsQuery ();
 
     final ExcelStyle ES_DATE = new ExcelStyle ().setDataFormat ("yyyy-mm-dd");
     final ExcelStyle ES_WRAP = new ExcelStyle ().setWrapText (true);
@@ -310,9 +307,9 @@ public final class ExportAllManager
   }
 
   @Nonnull
-  static ESuccess writeFileBusinessCardExcel (@Nonnull final EQueryMode eQueryMode) throws IOException
+  static ESuccess writeFileBusinessCardExcel () throws IOException
   {
-    try (final WorkbookCreationHelper aWBCH = queryAllContainedBusinessCardsAsExcel (eQueryMode, true))
+    try (final WorkbookCreationHelper aWBCH = queryAllContainedBusinessCardsAsExcel (true))
     {
       final File f = _getInternalFileBusinessCardExcel ();
 
@@ -367,12 +364,11 @@ public final class ExportAllManager
     aCSVWriter.setSeparatorChar (';');
   }
 
-  public static void queryAllContainedBusinessCardsAsCSV (@Nonnull final EQueryMode eQueryMode,
-                                                          @Nonnull @WillNotClose final CSVWriter aCSVWriter) throws IOException
+  public static void queryAllContainedBusinessCardsAsCSV (@Nonnull @WillNotClose final CSVWriter aCSVWriter) throws IOException
   {
     _unify (aCSVWriter);
 
-    final Query aQuery = eQueryMode.getEffectiveQuery (new MatchAllDocsQuery ());
+    final Query aQuery = new MatchAllDocsQuery ();
 
     aCSVWriter.writeNext ("Participant ID",
                           "Names (per-row)",
@@ -416,7 +412,7 @@ public final class ExportAllManager
   }
 
   @Nonnull
-  static ESuccess writeFileBusinessCardCSV (@Nonnull final EQueryMode eQueryMode)
+  static ESuccess writeFileBusinessCardCSV ()
   {
     final File f = _getInternalFileBusinessCardCSV ();
 
@@ -424,7 +420,7 @@ public final class ExportAllManager
     RW_LOCK.writeLock ().lock ();
     try (final CSVWriter aCSVWriter = new CSVWriter (FileHelper.getBufferedWriter (f, StandardCharsets.ISO_8859_1)))
     {
-      queryAllContainedBusinessCardsAsCSV (eQueryMode, aCSVWriter);
+      queryAllContainedBusinessCardsAsCSV (aCSVWriter);
       LOGGER.info ("Successfully exported all BCs as CSV to " + f.getAbsolutePath ());
     }
     catch (final IOException ex)
@@ -471,9 +467,9 @@ public final class ExportAllManager
   }
 
   @Nonnull
-  public static IMicroDocument queryAllContainedParticipantsAsXML (@Nonnull final EQueryMode eQueryMode) throws IOException
+  public static IMicroDocument queryAllContainedParticipantsAsXML () throws IOException
   {
-    final Query aQuery = eQueryMode.getEffectiveQuery (new MatchAllDocsQuery ());
+    final Query aQuery = new MatchAllDocsQuery ();
 
     // Query all and group by participant ID
     final ICommonsSortedSet <IParticipantIdentifier> aSet = new CommonsTreeSet <> (Comparator.comparing (IParticipantIdentifier::getURIEncoded));
@@ -499,9 +495,9 @@ public final class ExportAllManager
   }
 
   @Nonnull
-  static ESuccess writeFileParticipantXML (@Nonnull final EQueryMode eQueryMode) throws IOException
+  static ESuccess writeFileParticipantXML () throws IOException
   {
-    final IMicroDocument aDoc = queryAllContainedParticipantsAsXML (eQueryMode);
+    final IMicroDocument aDoc = queryAllContainedParticipantsAsXML ();
     final File f = _getInternalFileParticipantXML ();
 
     // Do it in a write lock!
@@ -555,9 +551,9 @@ public final class ExportAllManager
   }
 
   @Nonnull
-  public static IJsonObject queryAllContainedParticipantsAsJSON (@Nonnull final EQueryMode eQueryMode) throws IOException
+  public static IJsonObject queryAllContainedParticipantsAsJSON () throws IOException
   {
-    final Query aQuery = eQueryMode.getEffectiveQuery (new MatchAllDocsQuery ());
+    final Query aQuery = new MatchAllDocsQuery ();
 
     // Query all and group by participant ID
     final ICommonsSortedSet <IParticipantIdentifier> aSet = new CommonsTreeSet <> (Comparator.comparing (IParticipantIdentifier::getURIEncoded));
@@ -579,9 +575,9 @@ public final class ExportAllManager
   }
 
   @Nonnull
-  static ESuccess writeFileParticipantJSON (@Nonnull final EQueryMode eQueryMode) throws IOException
+  static ESuccess writeFileParticipantJSON () throws IOException
   {
-    final IJsonObject aObj = queryAllContainedParticipantsAsJSON (eQueryMode);
+    final IJsonObject aObj = queryAllContainedParticipantsAsJSON ();
     final File f = _getInternalFileParticipantJSON ();
 
     // Do it in a write lock!
@@ -633,12 +629,11 @@ public final class ExportAllManager
     return WebFileIO.getDataIO ().getFile (INTERNAL_EXPORT_ALL_PARTICIPANTS_CSV);
   }
 
-  public static void queryAllContainedParticipantsAsCSV (@Nonnull final EQueryMode eQueryMode,
-                                                         @Nonnull @WillNotClose final CSVWriter aCSVWriter) throws IOException
+  public static void queryAllContainedParticipantsAsCSV (@Nonnull @WillNotClose final CSVWriter aCSVWriter) throws IOException
   {
     _unify (aCSVWriter);
 
-    final Query aQuery = eQueryMode.getEffectiveQuery (new MatchAllDocsQuery ());
+    final Query aQuery = new MatchAllDocsQuery ();
 
     aCSVWriter.writeNext ("Participant ID");
 
@@ -650,7 +645,7 @@ public final class ExportAllManager
   }
 
   @Nonnull
-  static ESuccess writeFileParticipantCSV (@Nonnull final EQueryMode eQueryMode)
+  static ESuccess writeFileParticipantCSV ()
   {
     final File f = _getInternalFileParticipantCSV ();
 
@@ -658,7 +653,7 @@ public final class ExportAllManager
     RW_LOCK.writeLock ().lock ();
     try (final CSVWriter aCSVWriter = new CSVWriter (FileHelper.getBufferedWriter (f, StandardCharsets.ISO_8859_1)))
     {
-      queryAllContainedParticipantsAsCSV (eQueryMode, aCSVWriter);
+      queryAllContainedParticipantsAsCSV (aCSVWriter);
       LOGGER.info ("Successfully wrote all Participants as CSV to " + f.getAbsolutePath ());
     }
     catch (final IOException ex)

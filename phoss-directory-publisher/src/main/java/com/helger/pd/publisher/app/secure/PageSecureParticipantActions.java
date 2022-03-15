@@ -55,7 +55,6 @@ import com.helger.pd.indexer.index.EIndexerWorkItemType;
 import com.helger.pd.indexer.mgr.PDIndexerManager;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.CPDStorage;
-import com.helger.pd.indexer.storage.EQueryMode;
 import com.helger.pd.indexer.storage.PDStoredMetaData;
 import com.helger.pd.indexer.storage.field.PDField;
 import com.helger.pd.publisher.CPDPublisher;
@@ -108,9 +107,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
       LOGGER.info ("Starting AJAX_DOWNLOAD_ALL_IDS_XML");
       final IMicroDocument aDoc = new MicroDocument ();
       final IMicroElement aRoot = aDoc.appendElement ("root");
-      final Set <IParticipantIdentifier> aAllIDs = PDMetaManager.getStorageMgr ()
-                                                                .getAllContainedParticipantIDs (EQueryMode.NON_DELETED_ONLY)
-                                                                .keySet ();
+      final Set <IParticipantIdentifier> aAllIDs = PDMetaManager.getStorageMgr ().getAllContainedParticipantIDs ().keySet ();
       for (final IParticipantIdentifier aParticipantID : aAllIDs)
       {
         // Use the same layout as for the "full export", so that it can be used
@@ -129,7 +126,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
       final IMicroElement aRoot = aDoc.appendElement ("root");
       final MutableInt aCount = new MutableInt (0);
       final ICommonsSet <IParticipantIdentifier> aUniquePIDs = new CommonsHashSet <> ();
-      PDMetaManager.getStorageMgr ().searchAll (EQueryMode.NON_DELETED_ONLY.getEffectiveQuery (new MatchAllDocsQuery ()), -1, doc -> {
+      PDMetaManager.getStorageMgr ().searchAll (new MatchAllDocsQuery (), -1, doc -> {
         final int n = aCount.inc ();
         if ((n % 1000) == 0)
           LOGGER.info ("Exporting #" + n);
@@ -155,21 +152,21 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
     });
     AJAX_DOWNLOAD_ALL_BCS_XML_FULL = addAjax ( (req, res) -> {
       LOGGER.info ("Starting AJAX_DOWNLOAD_ALL_BCS_XML_FULL");
-      final IMicroDocument aDoc = ExportAllManager.queryAllContainedBusinessCardsAsXML (EQueryMode.NON_DELETED_ONLY, true);
+      final IMicroDocument aDoc = ExportAllManager.queryAllContainedBusinessCardsAsXML (true);
       res.xml (aDoc);
       res.attachment (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_FULL);
       LOGGER.info ("Finished AJAX_DOWNLOAD_ALL_BCS_XML_FULL");
     });
     AJAX_DOWNLOAD_ALL_BCS_XML_NO_DOCTYPES = addAjax ( (req, res) -> {
       LOGGER.info ("Starting AJAX_DOWNLOAD_ALL_BCS_XML_NO_DOCTYPES");
-      final IMicroDocument aDoc = ExportAllManager.queryAllContainedBusinessCardsAsXML (EQueryMode.NON_DELETED_ONLY, false);
+      final IMicroDocument aDoc = ExportAllManager.queryAllContainedBusinessCardsAsXML (false);
       res.xml (aDoc);
       res.attachment (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_NO_DOC_TYPES);
       LOGGER.info ("Finished AJAX_DOWNLOAD_ALL_BCS_XML_NO_DOCTYPES");
     });
     AJAX_DOWNLOAD_ALL_BCS_EXCEL = addAjax ( (req, res) -> {
       LOGGER.info ("Starting AJAX_DOWNLOAD_ALL_BCS_EXCEL");
-      try (final WorkbookCreationHelper aWBCH = ExportAllManager.queryAllContainedBusinessCardsAsExcel (EQueryMode.NON_DELETED_ONLY, true);
+      try (final WorkbookCreationHelper aWBCH = ExportAllManager.queryAllContainedBusinessCardsAsExcel (true);
            final NonBlockingByteArrayOutputStream aBAOS = new NonBlockingByteArrayOutputStream ())
       {
         aWBCH.writeTo (aBAOS);
@@ -182,7 +179,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
       try (final NonBlockingByteArrayOutputStream aBAOS = new NonBlockingByteArrayOutputStream ();
            final CSVWriter aCSVWriter = new CSVWriter (StreamHelper.createWriter (aBAOS, StandardCharsets.ISO_8859_1)))
       {
-        ExportAllManager.queryAllContainedBusinessCardsAsCSV (EQueryMode.NON_DELETED_ONLY, aCSVWriter);
+        ExportAllManager.queryAllContainedBusinessCardsAsCSV (aCSVWriter);
         res.binary (aBAOS, CMimeType.TEXT_CSV, ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_CSV);
       }
       LOGGER.info ("Finished AJAX_DOWNLOAD_ALL_BCS_CSV");
@@ -199,7 +196,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
   {
     LOGGER.info ("_getDuplicateSourceMap () start");
     final ICommonsMap <IParticipantIdentifier, ICommonsSortedSet <String>> aMap = new CommonsHashMap <> ();
-    final Query aQuery = EQueryMode.NON_DELETED_ONLY.getEffectiveQuery (new MatchAllDocsQuery ());
+    final Query aQuery = new MatchAllDocsQuery ();
     try
     {
       final Consumer <Document> aConsumer = aDoc -> {
