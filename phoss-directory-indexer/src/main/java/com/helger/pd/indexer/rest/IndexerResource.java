@@ -34,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.commons.annotation.Nonempty;
+import com.helger.commons.equals.EqualsHelper;
 import com.helger.commons.url.URLHelper;
 import com.helger.pd.indexer.clientcert.ClientCertificateValidationResult;
 import com.helger.pd.indexer.clientcert.ClientCertificateValidator;
@@ -84,7 +85,11 @@ public class IndexerResource
   @Nonempty
   private static String _getRequestingHost (@Nonnull final HttpServletRequest aHttpServletRequest)
   {
-    return aHttpServletRequest.getRemoteAddr () + "/" + aHttpServletRequest.getRemoteHost ();
+    final String sRemoteAddr = aHttpServletRequest.getRemoteAddr ();
+    final String sRemoteHost = aHttpServletRequest.getRemoteHost ();
+    if (EqualsHelper.equals (sRemoteAddr, sRemoteHost))
+      return sRemoteAddr;
+    return sRemoteAddr + '/' + sRemoteHost;
   }
 
   @Nullable

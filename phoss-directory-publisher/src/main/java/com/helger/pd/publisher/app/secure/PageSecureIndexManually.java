@@ -27,6 +27,7 @@ import com.helger.pd.indexer.businesscard.SMPBusinessCardProvider;
 import com.helger.pd.indexer.index.EIndexerWorkItemType;
 import com.helger.pd.indexer.mgr.PDIndexerManager;
 import com.helger.pd.indexer.mgr.PDMetaManager;
+import com.helger.pd.indexer.storage.CPDStorage;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.peppol.sml.ISMLInfo;
 import com.helger.peppolid.CIdentifier;
@@ -91,7 +92,7 @@ public final class PageSecureIndexManually extends AbstractAppWebPage
         if (PDMetaManager.getIndexerMgr ()
                          .queueWorkItem (aParticipantID,
                                          EIndexerWorkItemType.CREATE_UPDATE,
-                                         "manually-triggered",
+                                         CPDStorage.OWNER_MANUALLY_TRIGGERED,
                                          PDIndexerManager.HOST_LOCALHOST)
                          .isChanged ())
         {

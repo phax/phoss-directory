@@ -35,6 +35,7 @@ import com.helger.commons.state.EChange;
 import com.helger.pd.indexer.index.EIndexerWorkItemType;
 import com.helger.pd.indexer.mgr.PDIndexerManager;
 import com.helger.pd.indexer.mgr.PDMetaManager;
+import com.helger.pd.indexer.storage.CPDStorage;
 import com.helger.pd.indexer.storage.EQueryMode;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.photon.app.io.WebFileIO;
@@ -98,7 +99,7 @@ public final class SyncAllBusinessCardsJob extends AbstractScopeAwareJob
                                                            .keySet ();
     for (final IParticipantIdentifier aParticipantID : aAll)
     {
-      aIndexerMgr.queueWorkItem (aParticipantID, EIndexerWorkItemType.SYNC, "sync-job", PDIndexerManager.HOST_LOCALHOST);
+      aIndexerMgr.queueWorkItem (aParticipantID, EIndexerWorkItemType.SYNC, CPDStorage.OWNER_SYNC_JOB, PDIndexerManager.HOST_LOCALHOST);
     }
     LOGGER.info ("Finished synchronizing of " + aAll.size () + " business cards");
     AuditHelper.onAuditExecuteSuccess ("sync-bc-started", Integer.valueOf (aAll.size ()), aNow, Boolean.valueOf (bForceSync));

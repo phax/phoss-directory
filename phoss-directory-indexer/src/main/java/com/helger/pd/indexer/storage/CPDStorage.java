@@ -30,6 +30,11 @@ public final class CPDStorage
   @Deprecated
   public static final String FIELD_DELETED = "deleted";
 
+  public static final String OWNER_MANUALLY_TRIGGERED = "manually-triggered";
+  public static final String OWNER_IMPORT_TRIGGERED = "import-triggered";
+  public static final String OWNER_DUPLICATE_ELIMINATION = "duplicate-elimination";
+  public static final String OWNER_SYNC_JOB = "sync-job";
+
   private CPDStorage ()
   {}
 }

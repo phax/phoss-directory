@@ -38,6 +38,7 @@ import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.reindex.IReIndexWorkItem;
 import com.helger.pd.indexer.reindex.IReIndexWorkItemList;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
+import com.helger.pd.indexer.storage.CPDStorage;
 import com.helger.pd.publisher.app.PDPMetaManager;
 import com.helger.pd.publisher.ui.AbstractAppWebPageForm;
 import com.helger.pd.publisher.ui.PDCommonUI;
@@ -130,7 +131,7 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
         if (PDMetaManager.getIndexerMgr ()
                          .queueWorkItem (aParticipantID,
                                          EIndexerWorkItemType.CREATE_UPDATE,
-                                         "manually-triggered",
+                                         CPDStorage.OWNER_MANUALLY_TRIGGERED,
                                          PDIndexerManager.HOST_LOCALHOST)
                          .isChanged ())
         {

@@ -54,6 +54,7 @@ import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.index.EIndexerWorkItemType;
 import com.helger.pd.indexer.mgr.PDIndexerManager;
 import com.helger.pd.indexer.mgr.PDMetaManager;
+import com.helger.pd.indexer.storage.CPDStorage;
 import com.helger.pd.indexer.storage.EQueryMode;
 import com.helger.pd.indexer.storage.PDStoredMetaData;
 import com.helger.pd.indexer.storage.field.PDField;
@@ -306,7 +307,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
         aOL.addItem (s);
         aIndexerMgr.queueWorkItem (aIF.parseParticipantIdentifier (s),
                                    EIndexerWorkItemType.DELETE,
-                                   "duplicate-elimination",
+                                   CPDStorage.OWNER_DUPLICATE_ELIMINATION,
                                    PDIndexerManager.HOST_LOCALHOST);
       }
 
@@ -321,7 +322,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
           aOL.addItem (s);
           aIndexerMgr.queueWorkItem (aIF.parseParticipantIdentifier (s),
                                      EIndexerWorkItemType.CREATE_UPDATE,
-                                     "duplicate-elimination",
+                                     CPDStorage.OWNER_DUPLICATE_ELIMINATION,
                                      PDIndexerManager.HOST_LOCALHOST);
         }
       }
