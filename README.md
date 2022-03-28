@@ -95,6 +95,9 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
+* v0.10.2 - 2022-03-28
+    * Removed the code for the handling of objects marked as deleted
+    * Improved the owner check upon deletion
 * v0.10.1 - 2022-03-09
     * Added export of participant IDs with metadata
 * v0.10.0 - 2022-03-06

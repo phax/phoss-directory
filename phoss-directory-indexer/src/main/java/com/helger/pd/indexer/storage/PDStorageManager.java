@@ -307,7 +307,10 @@ public final class PDStorageManager implements IPDStorageManager
       m_aLucene.updateDocuments (PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID), aDocs);
 
       LOGGER.info ("Added " + aDocs.size () + " Lucene documents");
-      AuditHelper.onAuditExecuteSuccess ("pd-indexer-create", aParticipantID.getURIEncoded (), Integer.valueOf (aDocs.size ()), aMetaData);
+      AuditHelper.onAuditExecuteSuccess ("pd-indexer-create",
+                                         aParticipantID.getURIEncoded (),
+                                         Integer.valueOf (aDocs.size ()),
+                                         aMetaData);
     });
   }
 
@@ -333,7 +336,8 @@ public final class PDStorageManager implements IPDStorageManager
       {
         // Something changed - try again
         // Force case sensitivity
-        final IParticipantIdentifier aNewPID = new SimpleParticipantIdentifier (aParticipantID.getScheme (), sUpperCaseValue);
+        final IParticipantIdentifier aNewPID = new SimpleParticipantIdentifier (aParticipantID.getScheme (),
+                                                                                sUpperCaseValue);
         final Query aOtherQuery = new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aNewPID));
         if (getCount (aOtherQuery) > 0)
         {
@@ -346,9 +350,21 @@ public final class PDStorageManager implements IPDStorageManager
     final Query aDeleteQuery;
     if (bVerifyOwner && aMetaData != null)
     {
+      // Special handling for predefined owners
+      final BooleanQuery.Builder aBuilderOr = new BooleanQuery.Builder ();
+      aBuilderOr.add (new TermQuery (PDField.METADATA_OWNERID.getExactMatchTerm (aMetaData.getOwnerID ())),
+                      Occur.SHOULD);
+      aBuilderOr.add (new TermQuery (PDField.METADATA_OWNERID.getExactMatchTerm (CPDStorage.OWNER_DUPLICATE_ELIMINATION)),
+                      Occur.SHOULD);
+      aBuilderOr.add (new TermQuery (PDField.METADATA_OWNERID.getExactMatchTerm (CPDStorage.OWNER_IMPORT_TRIGGERED)),
+                      Occur.SHOULD);
+      aBuilderOr.add (new TermQuery (PDField.METADATA_OWNERID.getExactMatchTerm (CPDStorage.OWNER_MANUALLY_TRIGGERED)),
+                      Occur.SHOULD);
+      aBuilderOr.add (new TermQuery (PDField.METADATA_OWNERID.getExactMatchTerm (CPDStorage.OWNER_SYNC_JOB)),
+                      Occur.SHOULD);
+
       aDeleteQuery = new BooleanQuery.Builder ().add (aParticipantQuery, Occur.MUST)
-                                                .add (new TermQuery (PDField.METADATA_OWNERID.getExactMatchTerm (aMetaData.getOwnerID ())),
-                                                      Occur.MUST)
+                                                .add (aBuilderOr.build (), Occur.MUST)
                                                 .build ();
     }
     else
@@ -527,7 +543,8 @@ public final class PDStorageManager implements IPDStorageManager
    */
   @Nonnull
   @ReturnsMutableCopy
-  public ICommonsList <PDStoredBusinessEntity> getAllDocuments (@Nonnull final Query aQuery, @CheckForSigned final int nMaxResultCount)
+  public ICommonsList <PDStoredBusinessEntity> getAllDocuments (@Nonnull final Query aQuery,
+                                                                @CheckForSigned final int nMaxResultCount)
   {
     final ICommonsList <PDStoredBusinessEntity> aTargetList = new CommonsArrayList <> ();
     try
@@ -556,7 +573,8 @@ public final class PDStorageManager implements IPDStorageManager
       {
         // Something changed - try again
         // Force case sensitivity
-        final IParticipantIdentifier aNewPID = new SimpleParticipantIdentifier (aParticipantID.getScheme (), sUpperCaseValue);
+        final IParticipantIdentifier aNewPID = new SimpleParticipantIdentifier (aParticipantID.getScheme (),
+                                                                                sUpperCaseValue);
         ret = getAllDocuments (new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aNewPID)), -1);
         if (ret.isNotEmpty ())
         {
