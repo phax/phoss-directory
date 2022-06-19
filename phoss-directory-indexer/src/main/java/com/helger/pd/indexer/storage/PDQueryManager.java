@@ -184,12 +184,12 @@ public final class PDQueryManager
     final IParticipantIdentifier aPI = aIdentifierFactory.parseParticipantIdentifier (_lowerCase (sQueryString));
     if (aPI == null)
     {
-      LOGGER.warn ("Failed to convert '" + sQueryString + "' to participant ID!");
+      if (LOGGER.isWarnEnabled ())
+        LOGGER.warn ("Failed to convert '" + sQueryString + "' to participant ID!");
       return null;
     }
 
-    final Query aQuery = new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aPI));
-    return aQuery;
+    return new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aPI));
   }
 
   @Nullable
@@ -201,18 +201,19 @@ public final class PDQueryManager
 
     if (sQueryString.length () < 3)
     {
-      LOGGER.warn ("Name query string '" + sQueryString + "' is too short!");
+      if (LOGGER.isWarnEnabled ())
+        LOGGER.warn ("Name query string '" + sQueryString + "' is too short!");
       return null;
     }
 
-    if (true)
-    {
-      // Split into pieces
-      return convertQueryStringToLuceneQuery (aAnalyzerProvider, PDField.NAME.getFieldName (), sQueryString);
-    }
+    // Query both fields in parallel
+    final Query q1 = convertQueryStringToLuceneQuery (aAnalyzerProvider, PDField.NAME.getFieldName (), sQueryString);
+    final Query q2 = convertQueryStringToLuceneQuery (aAnalyzerProvider, PDField.ML_NAME.getFieldName (), sQueryString);
 
-    final Query aQuery = new WildcardQuery (PDField.NAME.getContainsTerm (_lowerCase (sQueryString)));
-    return aQuery;
+    final BooleanQuery.Builder aBuilder = new BooleanQuery.Builder ();
+    aBuilder.add (q1, Occur.FILTER);
+    aBuilder.add (q2, Occur.FILTER);
+    return aBuilder.build ();
   }
 
   @Nullable
@@ -221,8 +222,7 @@ public final class PDQueryManager
     ValueEnforcer.notEmpty (sQueryString, "QueryString");
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
 
-    final Query aQuery = new TermQuery (PDField.COUNTRY_CODE.getExactMatchTerm (_upperCase (sQueryString)));
-    return aQuery;
+    return new TermQuery (PDField.COUNTRY_CODE.getExactMatchTerm (_upperCase (sQueryString)));
   }
 
   @Nullable
@@ -234,18 +234,13 @@ public final class PDQueryManager
 
     if (sQueryString.length () < 3)
     {
-      LOGGER.warn ("GeoInfo query string '" + sQueryString + "' is too short!");
+      if (LOGGER.isWarnEnabled ())
+        LOGGER.warn ("GeoInfo query string '" + sQueryString + "' is too short!");
       return null;
     }
 
-    if (true)
-    {
-      // Split into pieces
-      return convertQueryStringToLuceneQuery (aAnalyzerProvider, PDField.GEO_INFO.getFieldName (), sQueryString);
-    }
-
-    final Query aQuery = new WildcardQuery (PDField.GEO_INFO.getContainsTerm (_lowerCase (sQueryString)));
-    return aQuery;
+    // Split into pieces
+    return convertQueryStringToLuceneQuery (aAnalyzerProvider, PDField.GEO_INFO.getFieldName (), sQueryString);
   }
 
   @Nullable
@@ -254,8 +249,7 @@ public final class PDQueryManager
     ValueEnforcer.notEmpty (sQueryString, "QueryString");
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
 
-    final Query aQuery = new TermQuery (PDField.IDENTIFIER_SCHEME.getExactMatchTerm (_lowerCase (sQueryString)));
-    return aQuery;
+    return new TermQuery (PDField.IDENTIFIER_SCHEME.getExactMatchTerm (_lowerCase (sQueryString)));
   }
 
   @Nullable
@@ -264,8 +258,7 @@ public final class PDQueryManager
     ValueEnforcer.notEmpty (sQueryString, "QueryString");
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
 
-    final Query aQuery = new TermQuery (PDField.IDENTIFIER_VALUE.getExactMatchTerm (_lowerCase (sQueryString)));
-    return aQuery;
+    return new TermQuery (PDField.IDENTIFIER_VALUE.getExactMatchTerm (_lowerCase (sQueryString)));
   }
 
   @Nullable
@@ -276,12 +269,12 @@ public final class PDQueryManager
 
     if (sQueryString.length () < 3)
     {
-      LOGGER.warn ("Website query string '" + sQueryString + "' is too short!");
+      if (LOGGER.isWarnEnabled ())
+        LOGGER.warn ("Website query string '" + sQueryString + "' is too short!");
       return null;
     }
 
-    final Query aQuery = new WildcardQuery (PDField.WEBSITE_URI.getContainsTerm (_lowerCase (sQueryString)));
-    return aQuery;
+    return new WildcardQuery (PDField.WEBSITE_URI.getContainsTerm (_lowerCase (sQueryString)));
   }
 
   @Nullable
@@ -292,7 +285,8 @@ public final class PDQueryManager
 
     if (sQueryString.length () < 3)
     {
-      LOGGER.warn ("Contact query string '" + sQueryString + "' is too short!");
+      if (LOGGER.isWarnEnabled ())
+        LOGGER.warn ("Contact query string '" + sQueryString + "' is too short!");
       return null;
     }
 
@@ -300,12 +294,11 @@ public final class PDQueryManager
     final Query aQuery2 = new WildcardQuery (PDField.CONTACT_NAME.getContainsTerm (_lowerCase (sQueryString)));
     final Query aQuery3 = new WildcardQuery (PDField.CONTACT_PHONE.getContainsTerm (_lowerCase (sQueryString)));
     final Query aQuery4 = new WildcardQuery (PDField.CONTACT_EMAIL.getContainsTerm (_lowerCase (sQueryString)));
-    final Query aQuery = new BooleanQuery.Builder ().add (aQuery1, Occur.SHOULD)
-                                                    .add (aQuery2, Occur.SHOULD)
-                                                    .add (aQuery3, Occur.SHOULD)
-                                                    .add (aQuery4, Occur.SHOULD)
-                                                    .build ();
-    return aQuery;
+    return new BooleanQuery.Builder ().add (aQuery1, Occur.SHOULD)
+                                      .add (aQuery2, Occur.SHOULD)
+                                      .add (aQuery3, Occur.SHOULD)
+                                      .add (aQuery4, Occur.SHOULD)
+                                      .build ();
   }
 
   @Nullable
@@ -317,18 +310,13 @@ public final class PDQueryManager
 
     if (sQueryString.length () < 3)
     {
-      LOGGER.warn ("AdditionalInformation query string '" + sQueryString + "' is too short!");
+      if (LOGGER.isWarnEnabled ())
+        LOGGER.warn ("AdditionalInformation query string '" + sQueryString + "' is too short!");
       return null;
     }
 
-    if (true)
-    {
-      // Split into pieces
-      return convertQueryStringToLuceneQuery (aAnalyzerProvider, PDField.ADDITIONAL_INFO.getFieldName (), sQueryString);
-    }
-
-    final Query aQuery = new WildcardQuery (PDField.ADDITIONAL_INFO.getContainsTerm (_lowerCase (sQueryString)));
-    return aQuery;
+    // Split into pieces
+    return convertQueryStringToLuceneQuery (aAnalyzerProvider, PDField.ADDITIONAL_INFO.getFieldName (), sQueryString);
   }
 
   @Nullable
@@ -340,12 +328,12 @@ public final class PDQueryManager
     final LocalDate aLD = PDTWebDateHelper.getLocalDateFromXSD (sQueryString);
     if (aLD == null)
     {
-      LOGGER.warn ("Registration date '" + sQueryString + "' is invalid!");
+      if (LOGGER.isWarnEnabled ())
+        LOGGER.warn ("Registration date '" + sQueryString + "' is invalid!");
       return null;
     }
 
-    final Query aQuery = new TermQuery (PDField.REGISTRATION_DATE.getExactMatchTerm (sQueryString));
-    return aQuery;
+    return new TermQuery (PDField.REGISTRATION_DATE.getExactMatchTerm (sQueryString));
   }
 
   @Nullable
@@ -359,11 +347,11 @@ public final class PDQueryManager
     final IDocumentTypeIdentifier aDTI = aIdentifierFactory.parseDocumentTypeIdentifier (sQueryString);
     if (aDTI == null)
     {
-      LOGGER.warn ("Failed to convert '" + sQueryString + "' to document type ID!");
+      if (LOGGER.isWarnEnabled ())
+        LOGGER.warn ("Failed to convert '" + sQueryString + "' to document type ID!");
       return null;
     }
 
-    final Query aQuery = new TermQuery (PDField.DOCTYPE_ID.getExactMatchTerm (aDTI));
-    return aQuery;
+    return new TermQuery (PDField.DOCTYPE_ID.getExactMatchTerm (aDTI));
   }
 }

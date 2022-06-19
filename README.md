@@ -95,6 +95,8 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
+* v0.10.3 - work in progress
+    * Fixed an error in the REST API with the "name" parameter when multilingual names are used
 * v0.10.2 - 2022-03-28
     * Removed the code for the handling of objects marked as deleted
     * Improved the owner check upon deletion

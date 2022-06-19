@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.collection.ArrayHelper;
 import com.helger.commons.collection.impl.CommonsArrayList;
-import com.helger.commons.collection.impl.CommonsHashMap;
+import com.helger.commons.collection.impl.CommonsEnumMap;
 import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.collection.impl.ICommonsMap;
 import com.helger.commons.datetime.PDTFactory;
@@ -167,7 +167,8 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
       // Determine output format
       final ICommonsList <String> aParts = StringHelper.getExploded ('/', sPathInfo.substring (1));
       final String sFormat = aParts.getAtIndex (1);
-      final EPDOutputFormat eOutputFormat = EPDOutputFormat.getFromIDCaseInsensitiveOrDefault (sFormat, EPDOutputFormat.XML);
+      final EPDOutputFormat eOutputFormat = EPDOutputFormat.getFromIDCaseInsensitiveOrDefault (sFormat,
+                                                                                               EPDOutputFormat.XML);
       if (LOGGER.isDebugEnabled ())
         LOGGER.debug ("Using REST query API 1.0 with output format " +
                       eOutputFormat +
@@ -178,17 +179,21 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
                       "'");
 
       // Determine result offset and count
-      final int nResultPageIndex = aParams.getAsInt (PARAM_RESULT_PAGE_INDEX, aParams.getAsInt ("rpi", DEFAULT_RESULT_PAGE_INDEX));
+      final int nResultPageIndex = aParams.getAsInt (PARAM_RESULT_PAGE_INDEX,
+                                                     aParams.getAsInt ("rpi", DEFAULT_RESULT_PAGE_INDEX));
       if (nResultPageIndex < 0)
       {
-        LOGGER.error ("ResultPageIndex " + nResultPageIndex + " is invalid. It must be >= 0.");
+        if (LOGGER.isErrorEnabled ())
+          LOGGER.error ("ResultPageIndex " + nResultPageIndex + " is invalid. It must be >= 0.");
         aUnifiedResponse.setStatus (CHttp.HTTP_BAD_REQUEST);
         return;
       }
-      final int nResultPageCount = aParams.getAsInt (PARAM_RESULT_PAGE_COUNT, aParams.getAsInt ("rpc", DEFAULT_RESULT_PAGE_COUNT));
+      final int nResultPageCount = aParams.getAsInt (PARAM_RESULT_PAGE_COUNT,
+                                                     aParams.getAsInt ("rpc", DEFAULT_RESULT_PAGE_COUNT));
       if (nResultPageCount <= 0)
       {
-        LOGGER.error ("ResultPageCount " + nResultPageCount + " is invalid. It must be > 0.");
+        if (LOGGER.isErrorEnabled ())
+          LOGGER.error ("ResultPageCount " + nResultPageCount + " is invalid. It must be > 0.");
         aUnifiedResponse.setStatus (CHttp.HTTP_BAD_REQUEST);
         return;
       }
@@ -196,13 +201,23 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
       final int nLastResultIndex = (nResultPageIndex + 1) * nResultPageCount - 1;
       if (nFirstResultIndex > MAX_RESULTS)
       {
-        LOGGER.error ("The first result index " + nFirstResultIndex + " is invalid. It must be <= " + MAX_RESULTS + ".");
+        if (LOGGER.isErrorEnabled ())
+          LOGGER.error ("The first result index " +
+                        nFirstResultIndex +
+                        " is invalid. It must be <= " +
+                        MAX_RESULTS +
+                        ".");
         aUnifiedResponse.setStatus (CHttp.HTTP_BAD_REQUEST);
         return;
       }
       if (nLastResultIndex > MAX_RESULTS)
       {
-        LOGGER.error ("The last result index " + nLastResultIndex + " is invalid. It must be <= " + MAX_RESULTS + ".");
+        if (LOGGER.isErrorEnabled ())
+          LOGGER.error ("The last result index " +
+                        nLastResultIndex +
+                        " is invalid. It must be <= " +
+                        MAX_RESULTS +
+                        ".");
         aUnifiedResponse.setStatus (CHttp.HTTP_BAD_REQUEST);
         return;
       }
@@ -212,7 +227,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
 
       // Determine query terms
       final StringBuilder aSBQueryString = new StringBuilder ();
-      final ICommonsMap <EPDSearchField, ICommonsList <String>> aQueryValues = new CommonsHashMap <> ();
+      final ICommonsMap <EPDSearchField, ICommonsList <String>> aQueryValues = new CommonsEnumMap <> (EPDSearchField.class);
       for (final EPDSearchField eSF : EPDSearchField.values ())
       {
         final String sFieldName = eSF.getFieldName ();
@@ -232,7 +247,8 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
       }
       if (aQueryValues.isEmpty ())
       {
-        LOGGER.error ("No valid query term provided!");
+        if (LOGGER.isErrorEnabled ())
+          LOGGER.error ("No valid query term provided!");
         aUnifiedResponse.setStatus (CHttp.HTTP_BAD_REQUEST);
         return;
       }
@@ -249,12 +265,16 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
           if (aQuery != null)
             aQueries.add (aQuery);
           else
-            LOGGER.error ("Failed to create query '" + sQuery + "' of field " + eField + " - ignoring term!");
+          {
+            if (LOGGER.isErrorEnabled ())
+              LOGGER.error ("Failed to create query '" + sQuery + "' of field " + eField + " - ignoring term!");
+          }
         }
       }
       if (aQueries.isEmpty ())
       {
-        LOGGER.error ("No valid queries could be created!");
+        if (LOGGER.isErrorEnabled ())
+          LOGGER.error ("No valid queries could be created!");
         aUnifiedResponse.setStatus (CHttp.HTTP_BAD_REQUEST);
         return;
       }
