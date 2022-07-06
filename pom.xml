@@ -65,7 +65,7 @@
     <!-- Don't go beyond v7, otherwise the backwards compatibility is lost -->
     <lucene.version>7.7.3</lucene.version>
     <jersey.version>2.35</jersey.version>
-    <log4j.version>2.17.2</log4j.version>
+    <log4j.version>2.18.0</log4j.version>
   </properties>
   
   <dependencyManagement>
