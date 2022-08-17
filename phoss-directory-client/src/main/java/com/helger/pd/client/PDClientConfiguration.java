@@ -427,7 +427,7 @@ public final class PDClientConfiguration
     final long nMillis = _getAsLongOrFallback ("http.connect.timeout.ms", -1, -1, "connect.timeout.ms");
     if (nMillis >= 0)
       return Timeout.ofMilliseconds (nMillis);
-    return HttpClientSettings.DEFAULT_CONNECTION_TIMEOUT;
+    return HttpClientSettings.DEFAULT_CONNECT_TIMEOUT;
   }
 
   /**
@@ -445,7 +445,7 @@ public final class PDClientConfiguration
                                                "request.timeout.ms");
     if (nMillis >= 0)
       return Timeout.ofMilliseconds (nMillis);
-    return HttpClientSettings.DEFAULT_SOCKET_TIMEOUT;
+    return HttpClientSettings.DEFAULT_RESPONSE_TIMEOUT;
   }
 
   /**

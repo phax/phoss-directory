@@ -83,7 +83,8 @@ public class PDHttpClientSettings extends HttpClientSettings
     if (sProxyHost != null && nProxyPort > 0)
     {
       final HttpHost aProxyHost = new HttpHost (sProxyHost, nProxyPort);
-      LOGGER.info ("PD client uses proxy host " + aProxyHost);
+      if (LOGGER.isInfoEnabled ())
+        LOGGER.info ("PD client uses proxy host " + aProxyHost);
       setProxyHost (aProxyHost);
     }
     else
@@ -162,7 +163,7 @@ public class PDHttpClientSettings extends HttpClientSettings
     }
 
     // Timeouts
-    setConnectionTimeout (PDClientConfiguration.getConnectTimeout ());
+    setConnectTimeout (PDClientConfiguration.getConnectTimeout ());
     setResponseTimeout (PDClientConfiguration.getResponseTimeout ());
   }
 }
