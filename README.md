@@ -62,7 +62,7 @@ The following options are supported in the `pd-client.properties` file:
 * **`http.proxy.username`** (old: **`proxy.username`**) (since v0.6.0) - the proxy username if http or https proxy is enabled. No default. 
 * **`http.proxy.password`** (old: **`proxy.password`**) (since v0.6.0) - the proxy password if http or https proxy is enabled. No default.
 * **`http.connect.timeout.ms`** (old: **`connect.timeout.ms`**) (since v0.6.0) - the connection timeout in milliseconds to connect to the server. The default value is `5000` (5 seconds). A value of `0` means indefinite. A value of `-1` means using the system default.
-* **`http.request.timeout.ms`** (old: **`request.timeout.ms`**) (since v0.6.0) - the request/read/socket timeout in milliseconds to read from the server. The default value is `10000` (10 seconds). A value of `0` means indefinite. A value of `-1` means using the system default.
+* **`http.response.timeout.ms`** (old: **`http.request.timeout.ms`** or **`request.timeout.ms`**) (since v0.10.3) - the response/request/read timeout in milliseconds to read from the server. The default value is `10000` (10 seconds). A value of `0` means indefinite. A value of `-1` means using the system default.
 * **`https.hostname-verification.disabled`** (since v0.5.1) - a boolean value to indicate if https hostname verification should be disabled (`true`) or enabled (`false`). The default value is `true`.
 
 Example PD client configuration file:
@@ -95,9 +95,9 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
-* v0.10.3 - work in progress
-    * Updated to ph-web 9.7.1
+* v0.10.3 - 2022-08-17
     * Updated to Apache Http Client v5.x
+    * Updated to ph-web 9.7.1
     * Fixed an error in the REST API with the "name" parameter when multilingual names are used
 * v0.10.2 - 2022-03-28
     * Removed the code for the handling of objects marked as deleted
