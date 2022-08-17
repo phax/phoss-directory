@@ -16,6 +16,8 @@
  */
 package com.helger.pd.publisher.app;
 
+import java.time.Duration;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -37,10 +39,12 @@ public final class PDLoginManager extends BootstrapLoginManager
   {
     super (CPDPublisher.getApplicationTitle () + " Administration - Login");
     setRequiredRoleIDs (AppSecurity.REQUIRED_ROLE_IDS_CONFIG);
+    setFailedLoginWaitingTime (Duration.ofSeconds (1));
   }
 
   @Override
-  protected IHTMLProvider createLoginScreen (final boolean bLoginError, @Nonnull final ICredentialValidationResult aLoginResult)
+  protected IHTMLProvider createLoginScreen (final boolean bLoginError,
+                                             @Nonnull final ICredentialValidationResult aLoginResult)
   {
     return new BootstrapLoginHTMLProvider (bLoginError, aLoginResult, getPageTitle ())
     {

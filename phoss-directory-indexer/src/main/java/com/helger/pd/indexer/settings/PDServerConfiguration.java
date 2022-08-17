@@ -414,9 +414,9 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
    * @return The optional proxy password to use. Maybe <code>null</code>.
    */
   @Nullable
-  public static String getProxyPassword ()
+  public static char[] getProxyPassword ()
   {
-    return getConfig ().getAsString ("http.proxyPassword");
+    return getConfig ().getAsCharArray ("http.proxyPassword");
   }
 
   /**

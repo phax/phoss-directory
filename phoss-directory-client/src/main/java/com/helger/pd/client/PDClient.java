@@ -24,12 +24,12 @@ import java.nio.charset.StandardCharsets;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.entity.StringEntity;
+import org.apache.hc.client5.http.classic.methods.HttpDelete;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPut;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
+import org.apache.hc.core5.http.io.HttpClientResponseHandler;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +44,7 @@ import com.helger.peppolid.IParticipantIdentifier;
 /**
  * This class is used for calling the PD indexer REST interface. The only part
  * that concerns the configuration file is in the {@link PDHttpClientSettings}
- * used to customoze the HTTP connectivity.
+ * used to customize the HTTP connectivity.
  *
  * @author Philip Helger
  */
@@ -59,7 +59,10 @@ public class PDClient implements Closeable
   @Nonnull
   private static IPDClientExceptionCallback _createDefaultExCb ()
   {
-    return (p, m, t) -> LOGGER.error ("Internal error in " + m + " for " + p.getURIEncoded (), t);
+    return (p, m, t) -> {
+      if (LOGGER.isErrorEnabled ())
+        LOGGER.error ("Internal error in " + m + " for " + p.getURIEncoded (), t);
+    };
   }
 
   /**
@@ -131,8 +134,8 @@ public class PDClient implements Closeable
   /**
    * Set the exception handler to be used. It is invoked for every HTTP request
    * that is performed and which throws an exception. The most common exception
-   * type is an {@link org.apache.http.client.HttpResponseException} indicating
-   * that something went wrong with an HTTP request.
+   * type is an {@link org.apache.hc.client5.http.HttpResponseException}
+   * indicating that something went wrong with an HTTP request.
    *
    * @param aExceptionHdl
    *        The exception callback to be invoked. May not be <code>null</code>.
@@ -205,7 +208,8 @@ public class PDClient implements Closeable
    */
   @Nonnull
   @OverrideOnDemand
-  protected <T> T executeRequest (@Nonnull final HttpRequestBase aRequest, @Nonnull final ResponseHandler <T> aHandler) throws IOException
+  protected <T> T executeRequest (@Nonnull final HttpUriRequest aRequest,
+                                  @Nonnull final HttpClientResponseHandler <T> aHandler) throws IOException
   {
     return m_aHttpClientMgr.execute (aRequest, aHandler);
   }
@@ -249,7 +253,10 @@ public class PDClient implements Closeable
     {
       if (executeRequest (aPut, new PDClientResponseHandler ()).isSuccess ())
       {
-        LOGGER.info ("Added service group '" + sParticipantID + "' to Peppol Directory index. May take some time until it shows up.");
+        if (LOGGER.isInfoEnabled ())
+          LOGGER.info ("Added service group '" +
+                       sParticipantID +
+                       "' to Peppol Directory index. May take some time until it shows up.");
         return ESuccess.SUCCESS;
       }
     }
@@ -271,7 +278,10 @@ public class PDClient implements Closeable
       if (executeRequest (aDelete, new PDClientResponseHandler ()).isSuccess ())
       {
         final String sParticipantID = aParticipantID.getURIEncoded ();
-        LOGGER.info ("Removed service group '" + sParticipantID + "' from Peppol Directory index. May take some time until it is removed.");
+        if (LOGGER.isInfoEnabled ())
+          LOGGER.info ("Removed service group '" +
+                       sParticipantID +
+                       "' from Peppol Directory index. May take some time until it is removed.");
         return ESuccess.SUCCESS;
       }
     }

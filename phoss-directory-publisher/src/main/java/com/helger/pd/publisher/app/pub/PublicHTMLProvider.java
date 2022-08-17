@@ -79,7 +79,7 @@ import com.helger.photon.security.login.LoggedInUserManager;
 import com.helger.photon.security.user.IUser;
 import com.helger.photon.security.util.SecurityHelper;
 import com.helger.photon.uicore.html.HCCookieConsent;
-import com.helger.photon.uicore.html.google.HCUniversalAnalytics;
+import com.helger.photon.uicore.html.google.HCGoogleAnalyticsV4;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 import com.helger.xservlet.forcedredirect.ForcedRedirectException;
 
@@ -104,7 +104,8 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
     });
   }
 
-  private static void _addNavbarLoginLogout (@Nonnull final LayoutExecutionContext aLEC, @Nonnull final BootstrapNavbar aNavbar)
+  private static void _addNavbarLoginLogout (@Nonnull final LayoutExecutionContext aLEC,
+                                             @Nonnull final BootstrapNavbar aNavbar)
   {
     final IRequestWebScopeWithoutResponse aRequestScope = aLEC.getRequestScope ();
     final Locale aDisplayLocale = aLEC.getDisplayLocale ();
@@ -113,10 +114,18 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
     {
       final BootstrapNavbarNav aNav = aNavbar.addAndReturnNav ();
       final BootstrapDropdownMenu aDropDown = new BootstrapDropdownMenu ();
-      aDropDown.createAndAddItem ().addChild ("Introduction").setHref (aLEC.getLinkToMenuItem (CMenuPublic.MENU_DOCS_INTRODUCTION));
-      aDropDown.createAndAddItem ().addChild ("How to use it").setHref (aLEC.getLinkToMenuItem (CMenuPublic.MENU_DOCS_HOW_TO));
-      aDropDown.createAndAddItem ().addChild ("REST API").setHref (aLEC.getLinkToMenuItem (CMenuPublic.MENU_DOCS_REST_API));
-      aDropDown.createAndAddItem ().addChild ("Export data").setHref (aLEC.getLinkToMenuItem (CMenuPublic.MENU_DOCS_EXPORT_ALL));
+      aDropDown.createAndAddItem ()
+               .addChild ("Introduction")
+               .setHref (aLEC.getLinkToMenuItem (CMenuPublic.MENU_DOCS_INTRODUCTION));
+      aDropDown.createAndAddItem ()
+               .addChild ("How to use it")
+               .setHref (aLEC.getLinkToMenuItem (CMenuPublic.MENU_DOCS_HOW_TO));
+      aDropDown.createAndAddItem ()
+               .addChild ("REST API")
+               .setHref (aLEC.getLinkToMenuItem (CMenuPublic.MENU_DOCS_REST_API));
+      aDropDown.createAndAddItem ()
+               .addChild ("Export data")
+               .setHref (aLEC.getLinkToMenuItem (CMenuPublic.MENU_DOCS_EXPORT_ALL));
       aDropDown.createAndAddItem ()
                .addChild ("Specification v1.1.1 (PDF)")
                .setHref (LinkHelper.getURLWithContext ("/files/PEPPOL-EDN-Directory-1.1.1-2020-10-15.pdf"));
@@ -137,7 +146,9 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
         if (aExternalURL != null)
           aDropDown.createAndAddItem ().addChild (sTitle).setHref (new SimpleURL (aExternalURL));
         else
-          aDropDown.createAndAddItem ().addChild (sTitle).setHref (aLEC.getLinkToMenuItem (CMenuPublic.MENU_SUPPORT_CONTACT_US));
+          aDropDown.createAndAddItem ()
+                   .addChild (sTitle)
+                   .setHref (aLEC.getLinkToMenuItem (CMenuPublic.MENU_SUPPORT_CONTACT_US));
       }
       aDropDown.createAndAddItem ()
                .addChild ("Issue tracker (external)")
@@ -185,7 +196,8 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
         final BootstrapNavbarNav aNav = aToggleable.addAndReturnNav ();
         final BootstrapDropdownMenu aDropDown = new BootstrapDropdownMenu ();
         {
-          final HCDiv aDiv = new HCDiv ().addClass (CBootstrapCSS.P_2).addStyle (CCSSProperties.MIN_WIDTH.newValue ("400px"));
+          final HCDiv aDiv = new HCDiv ().addClass (CBootstrapCSS.P_2)
+                                         .addStyle (CCSSProperties.MIN_WIDTH.newValue ("400px"));
           aDiv.addChild (AppCommonUI.createViewLoginForm (aLEC, null));
           aDropDown.addChild (aDiv);
         }
@@ -205,7 +217,8 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
     if (aImg != null)
       aNavbar.addBrand (aImg, aLinkToStartPage);
 
-    aNavbar.addBrand (new HCSpan ().addClass (AppCommonUI.CSS_CLASS_LOGO1).addChild (CPDPublisher.getApplicationTitle ()),
+    aNavbar.addBrand (new HCSpan ().addClass (AppCommonUI.CSS_CLASS_LOGO1)
+                                   .addChild (CPDPublisher.getApplicationTitle ()),
                       aLinkToStartPage);
 
     _addNavbarLoginLogout (aLEC, aNavbar);
@@ -217,7 +230,8 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
   {
     // Main menu
     final IMenuTree aMenuTree = aLEC.getMenuTree ();
-    final MenuItemDeterminatorCallback aCallback = new MenuItemDeterminatorCallback (aMenuTree, aLEC.getSelectedMenuItemID ())
+    final MenuItemDeterminatorCallback aCallback = new MenuItemDeterminatorCallback (aMenuTree,
+                                                                                     aLEC.getSelectedMenuItemID ())
     {
       @Override
       protected boolean isMenuItemValidToBeDisplayed (@Nonnull final IMenuObject aMenuObj)
@@ -326,9 +340,9 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
     }
 
     // Google Analytics?
-    final String sAccountID = PDServerConfiguration.getConfig ().getAsString ("webapp.google.analytics.account");
-    if (StringHelper.hasText (sAccountID))
-      ret.addChild (new HCUniversalAnalytics (sAccountID, false, false, false, false));
+    final String sV4AccountID = PDServerConfiguration.getConfig ().getAsString ("webapp.google.analytics.v4.account");
+    if (StringHelper.hasText (sV4AccountID))
+      ret.addChild (new HCGoogleAnalyticsV4 (sV4AccountID));
 
     ret.addChild (HCCookieConsent.createBottomDefault ("#000", "#0f0", "#0f0", null));
 
@@ -336,7 +350,8 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
   }
 
   @Override
-  protected void fillBody (@Nonnull final ISimpleWebExecutionContext aSWEC, @Nonnull final HCHtml aHtml) throws ForcedRedirectException
+  protected void fillBody (@Nonnull final ISimpleWebExecutionContext aSWEC,
+                           @Nonnull final HCHtml aHtml) throws ForcedRedirectException
   {
     final IRequestWebScopeWithoutResponse aRequestScope = aSWEC.getRequestScope ();
     final Locale aDisplayLocale = aSWEC.getDisplayLocale ();

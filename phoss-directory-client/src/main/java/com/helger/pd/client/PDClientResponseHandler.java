@@ -23,38 +23,36 @@ import java.nio.charset.StandardCharsets;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.StatusLine;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpResponseException;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.entity.ContentType;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.ClientProtocolException;
+import org.apache.hc.client5.http.HttpResponseException;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 
 import com.helger.commons.state.ESuccess;
+import com.helger.httpclient.HttpClientHelper;
 
 /**
  * Special response handler for PD client
  *
  * @author Philip Helger
  */
-public class PDClientResponseHandler implements ResponseHandler <ESuccess>
+public class PDClientResponseHandler implements HttpClientResponseHandler <ESuccess>
 {
   public PDClientResponseHandler ()
   {}
 
   @Nullable
-  public ESuccess handleResponse (@Nonnull final HttpResponse aHttpResponse) throws ClientProtocolException, IOException
+  public ESuccess handleResponse (@Nonnull final ClassicHttpResponse aHttpResponse) throws ClientProtocolException,
+                                                                                    IOException
   {
-    final StatusLine aStatusLine = aHttpResponse.getStatusLine ();
-
     // Check result
-    if (aStatusLine.getStatusCode () >= 200 && aStatusLine.getStatusCode () < 300)
+    if (aHttpResponse.getCode () >= 200 && aHttpResponse.getCode () < 300)
       return ESuccess.SUCCESS;
 
     // Not found
-    if (aStatusLine.getStatusCode () == 404)
+    if (aHttpResponse.getCode () == 404)
       return ESuccess.FAILURE;
 
     // Unexpected
@@ -62,21 +60,19 @@ public class PDClientResponseHandler implements ResponseHandler <ESuccess>
     String sContent = null;
     if (aEntity != null)
     {
-      ContentType aContentType = ContentType.get (aEntity);
-      if (aContentType == null)
-        aContentType = ContentType.DEFAULT_TEXT;
+      final ContentType aContentType = HttpClientHelper.getContentTypeOrDefault (aEntity, ContentType.DEFAULT_TEXT);
 
       // Default to UTF-8 internally
       Charset aCharset = aContentType.getCharset ();
       if (aCharset == null)
         aCharset = StandardCharsets.UTF_8;
 
-      sContent = EntityUtils.toString (aEntity, aCharset);
+      sContent = HttpClientHelper.entityToString (aEntity, aCharset);
     }
 
-    String sMessage = aStatusLine.getReasonPhrase () + " [" + aStatusLine.getStatusCode () + "]";
+    String sMessage = aHttpResponse.getReasonPhrase () + " [" + aHttpResponse.getCode () + "]";
     if (sContent != null)
       sMessage += "\nResponse content: " + sContent;
-    throw new HttpResponseException (aStatusLine.getStatusCode (), sMessage);
+    throw new HttpResponseException (aHttpResponse.getCode (), sMessage);
   }
 }

@@ -24,6 +24,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+import org.apache.hc.core5.util.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -159,7 +160,8 @@ public final class PDClientConfiguration
     }
 
     if (!EqualsHelper.identityEqual (ret, aNewConfig))
-      LOGGER.info ("The SMPClient configuration provider was changed to " + aNewConfig);
+      if (LOGGER.isInfoEnabled ())
+        LOGGER.info ("The SMPClient configuration provider was changed to " + aNewConfig);
     return ret;
   }
 
@@ -178,11 +180,12 @@ public final class PDClientConfiguration
 
   private static void _logRenamedConfig (@Nonnull final String sOld, @Nonnull final String sNew)
   {
-    LOGGER.warn ("Please rename the configuration property '" +
-                 sOld +
-                 "' to '" +
-                 sNew +
-                 "'. Support for the old property name will be removed in v9.0.");
+    if (LOGGER.isWarnEnabled ())
+      LOGGER.warn ("Please rename the configuration property '" +
+                   sOld +
+                   "' to '" +
+                   sNew +
+                   "'. Support for the old property name will be removed in v9.0.");
   }
 
   @Nullable
@@ -218,6 +221,29 @@ public final class PDClientConfiguration
       for (final String sOld : aOldOnes)
       {
         ret = getConfig ().getAsInt (sOld, nBogus);
+        if (ret != nBogus)
+        {
+          // Notify on old name usage
+          _logRenamedConfig (sOld, sPrimary);
+          break;
+        }
+      }
+    }
+    return ret == nBogus ? nDefault : ret;
+  }
+
+  private static long _getAsLongOrFallback (@Nonnull final String sPrimary,
+                                            final long nBogus,
+                                            final long nDefault,
+                                            @Nonnull final String... aOldOnes)
+  {
+    long ret = getConfig ().getAsLong (sPrimary, nBogus);
+    if (ret == nBogus)
+    {
+      // Try the old names
+      for (final String sOld : aOldOnes)
+      {
+        ret = getConfig ().getAsLong (sOld, nBogus);
         if (ret != nBogus)
         {
           // Notify on old name usage
@@ -298,7 +324,10 @@ public final class PDClientConfiguration
   @Nonnull
   public static LoadedKey <KeyStore.PrivateKeyEntry> loadPrivateKey (@Nonnull final KeyStore aKeyStore)
   {
-    return KeyStoreHelper.loadPrivateKey (aKeyStore, getKeyStorePath (), getKeyStoreKeyAlias (), getKeyStoreKeyPassword ());
+    return KeyStoreHelper.loadPrivateKey (aKeyStore,
+                                          getKeyStorePath (),
+                                          getKeyStoreKeyAlias (),
+                                          getKeyStoreKeyPassword ());
   }
 
   /**
@@ -381,9 +410,10 @@ public final class PDClientConfiguration
    * @since 0.6.0
    */
   @Nullable
-  public static String getProxyPassword ()
+  public static char [] getProxyPassword ()
   {
-    return _getAsStringOrFallback ("http.proxy.password", "proxy.password");
+    final String ret = _getAsStringOrFallback ("http.proxy.password", "proxy.password");
+    return ret == null ? null : ret.toCharArray ();
   }
 
   /**
@@ -391,9 +421,13 @@ public final class PDClientConfiguration
    *         0 means "indefinite", -1 means "system default".
    * @since 0.6.0
    */
-  public static int getConnectTimeoutMS ()
+  @Nonnull
+  public static Timeout getConnectTimeout ()
   {
-    return _getAsIntOrFallback ("http.connect.timeout.ms", -1, HttpClientSettings.DEFAULT_CONNECTION_TIMEOUT_MS, "connect.timeout.ms");
+    final long nMillis = _getAsLongOrFallback ("http.connect.timeout.ms", -1, -1, "connect.timeout.ms");
+    if (nMillis >= 0)
+      return Timeout.ofMilliseconds (nMillis);
+    return HttpClientSettings.DEFAULT_CONNECTION_TIMEOUT;
   }
 
   /**
@@ -401,9 +435,17 @@ public final class PDClientConfiguration
    *         seconds). 0 means "indefinite", -1 means "system default".
    * @since 0.6.0
    */
-  public static int getRequestTimeoutMS ()
+  @Nonnull
+  public static Timeout getResponseTimeout ()
   {
-    return _getAsIntOrFallback ("http.request.timeout.ms", -1, HttpClientSettings.DEFAULT_SOCKET_TIMEOUT_MS, "request.timeout.ms");
+    final long nMillis = _getAsLongOrFallback ("http.response.timeout.ms",
+                                               -1,
+                                               -1,
+                                               "http.request.timeout.ms",
+                                               "request.timeout.ms");
+    if (nMillis >= 0)
+      return Timeout.ofMilliseconds (nMillis);
+    return HttpClientSettings.DEFAULT_SOCKET_TIMEOUT;
   }
 
   /**

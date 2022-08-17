@@ -21,11 +21,11 @@ import java.security.KeyStore.PrivateKeyEntry;
 
 import javax.annotation.Nonnull;
 
-import org.apache.http.HttpHost;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.ssl.PrivateKeyStrategy;
-import org.apache.http.ssl.SSLContexts;
-import org.apache.http.ssl.TrustStrategy;
+import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.ssl.PrivateKeyStrategy;
+import org.apache.hc.core5.ssl.SSLContexts;
+import org.apache.hc.core5.ssl.TrustStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -127,7 +127,8 @@ public class PDHttpClientSettings extends HttpClientSettings
           final LoadedKey <PrivateKeyEntry> aLoadedKey = PDClientConfiguration.loadPrivateKey (aLoadedKeyStore.getKeyStore ());
           if (aLoadedKey.isFailure ())
           {
-            LOGGER.error ("PD client failed to initialize key from keystore. Details: " + PeppolKeyStoreHelper.getLoadError (aLoadedKey));
+            LOGGER.error ("PD client failed to initialize key from keystore. Details: " +
+                          PeppolKeyStoreHelper.getLoadError (aLoadedKey));
           }
           else
             LOGGER.info ("PD client key successfully loaded");
@@ -146,7 +147,9 @@ public class PDHttpClientSettings extends HttpClientSettings
           final PrivateKeyStrategy aPKS = new PrivateKeyStrategyFromAliasCaseInsensitive (PDClientConfiguration.getKeyStoreKeyAlias ());
           final TrustStrategy aTS = new TrustStrategyTrustAll ();
           setSSLContext (SSLContexts.custom ()
-                                    .loadKeyMaterial (aLoadedKeyStore.getKeyStore (), PDClientConfiguration.getKeyStoreKeyPassword (), aPKS)
+                                    .loadKeyMaterial (aLoadedKeyStore.getKeyStore (),
+                                                      PDClientConfiguration.getKeyStoreKeyPassword (),
+                                                      aPKS)
                                     .loadTrustMaterial (aLoadedTrustStore.getKeyStore (), aTS)
                                     .build ());
           LOGGER.info ("PD client successfully set SSL context");
@@ -159,7 +162,7 @@ public class PDHttpClientSettings extends HttpClientSettings
     }
 
     // Timeouts
-    setConnectionTimeoutMS (PDClientConfiguration.getConnectTimeoutMS ());
-    setSocketTimeoutMS (PDClientConfiguration.getRequestTimeoutMS ());
+    setConnectionTimeout (PDClientConfiguration.getConnectTimeout ());
+    setResponseTimeout (PDClientConfiguration.getResponseTimeout ());
   }
 }

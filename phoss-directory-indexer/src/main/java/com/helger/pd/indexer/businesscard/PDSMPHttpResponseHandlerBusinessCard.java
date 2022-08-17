@@ -23,11 +23,12 @@ import java.nio.charset.StandardCharsets;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.entity.ContentType;
+import org.apache.hc.client5.http.ClientProtocolException;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpEntity;
 
 import com.helger.commons.io.stream.StreamHelper;
+import com.helger.httpclient.HttpClientHelper;
 import com.helger.pd.businesscard.generic.PDBusinessCard;
 import com.helger.pd.businesscard.helper.PDBusinessCardHelper;
 import com.helger.smpclient.httpclient.AbstractSMPResponseHandler;
@@ -44,7 +45,7 @@ final class PDSMPHttpResponseHandlerBusinessCard extends AbstractSMPResponseHand
   public PDBusinessCard handleEntity (@Nonnull final HttpEntity aEntity) throws IOException
   {
     // Read the payload and remember it!
-    final ContentType aContentType = ContentType.getOrDefault (aEntity);
+    final ContentType aContentType = HttpClientHelper.getContentTypeOrDefault (aEntity);
     final Charset aCharset = aContentType.getCharset ();
     final byte [] aData = StreamHelper.getAllBytes (aEntity.getContent ());
     if (aData == null)
@@ -55,6 +56,7 @@ final class PDSMPHttpResponseHandlerBusinessCard extends AbstractSMPResponseHand
       return aBC;
 
     // Unsupported
-    throw new ClientProtocolException ("Malformed XML document returned from SMP server:\n" + new String (aData, StandardCharsets.UTF_8));
+    throw new ClientProtocolException ("Malformed XML document returned from SMP server:\n" +
+                                       new String (aData, StandardCharsets.UTF_8));
   }
 }
