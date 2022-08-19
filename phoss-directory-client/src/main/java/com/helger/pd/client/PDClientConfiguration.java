@@ -185,7 +185,7 @@ public final class PDClientConfiguration
                    sOld +
                    "' to '" +
                    sNew +
-                   "'. Support for the old property name will be removed in v9.0.");
+                   "'. Support for the old property name will be removed in the next major release.");
   }
 
   @Nullable
