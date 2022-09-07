@@ -89,6 +89,9 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
    * @param aURLProvider
    *        The URL provider to be used. Must be non-<code>null</code> if SML is
    *        to be used.
+   * @param aSMLInfoProvider
+   *        The supplier for all {@link ISMLInfo} objects to be tried (may be
+   *        more then one)
    */
   protected SMPBusinessCardProvider (@Nonnull final ESMPAPIType eSMPMode,
                                      @Nullable final URI aSMPURI,
@@ -189,15 +192,12 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
     try (final HttpClientManager aHCM = HttpClientManager.create (aHCS))
     {
       // Use the optional business card API
-      final HttpGet aRequest = new HttpGet (aSMPClient.getSMPHostURI () +
-                                            "businesscard/" +
-                                            aParticipantID.getURIPercentEncoded ());
+      final HttpGet aRequest = new HttpGet (aSMPClient.getSMPHostURI () + "businesscard/" + aParticipantID.getURIPercentEncoded ());
       aBusinessCard = aHCM.execute (aRequest, new PDSMPHttpResponseHandlerBusinessCard ());
     }
     catch (final IOException ex)
     {
-      if ((ex instanceof HttpResponseException &&
-           ((HttpResponseException) ex).getStatusCode () == CHttp.HTTP_NOT_FOUND) ||
+      if ((ex instanceof HttpResponseException && ((HttpResponseException) ex).getStatusCode () == CHttp.HTTP_NOT_FOUND) ||
           ex instanceof UnknownHostException)
       {
         LOGGER.warn ("No BusinessCard available for '" +
@@ -256,15 +256,12 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
     try (final HttpClientManager aHCM = HttpClientManager.create (aHCS))
     {
       // Use the optional business card API
-      final HttpGet aRequest = new HttpGet (aSMPClient.getSMPHostURI () +
-                                            "businesscard/" +
-                                            aParticipantID.getURIPercentEncoded ());
+      final HttpGet aRequest = new HttpGet (aSMPClient.getSMPHostURI () + "businesscard/" + aParticipantID.getURIPercentEncoded ());
       aBusinessCard = aHCM.execute (aRequest, new PDSMPHttpResponseHandlerBusinessCard ());
     }
     catch (final IOException ex)
     {
-      if ((ex instanceof HttpResponseException &&
-           ((HttpResponseException) ex).getStatusCode () == CHttp.HTTP_NOT_FOUND) ||
+      if ((ex instanceof HttpResponseException && ((HttpResponseException) ex).getStatusCode () == CHttp.HTTP_NOT_FOUND) ||
           ex instanceof UnknownHostException)
       {
         LOGGER.warn ("No BusinessCard available for '" +
@@ -324,15 +321,12 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
       // Use the optional business card API
       // TODO is the path "bdxr-smp-2" needed? Well, the PD is not yet
       // specified for this SMP type....
-      final HttpGet aRequest = new HttpGet (aSMPClient.getSMPHostURI () +
-                                            "businesscard/" +
-                                            aParticipantID.getURIPercentEncoded ());
+      final HttpGet aRequest = new HttpGet (aSMPClient.getSMPHostURI () + "businesscard/" + aParticipantID.getURIPercentEncoded ());
       aBusinessCard = aHCM.execute (aRequest, new PDSMPHttpResponseHandlerBusinessCard ());
     }
     catch (final IOException ex)
     {
-      if ((ex instanceof HttpResponseException &&
-           ((HttpResponseException) ex).getStatusCode () == CHttp.HTTP_NOT_FOUND) ||
+      if ((ex instanceof HttpResponseException && ((HttpResponseException) ex).getStatusCode () == CHttp.HTTP_NOT_FOUND) ||
           ex instanceof UnknownHostException)
       {
         LOGGER.warn ("No BusinessCard available for '" +
@@ -488,8 +482,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
   }
 
   @Nonnull
-  public static SMPBusinessCardProvider createForFixedSMP (@Nonnull final ESMPAPIType eSMPMode,
-                                                           @Nonnull final URI aSMPURI)
+  public static SMPBusinessCardProvider createForFixedSMP (@Nonnull final ESMPAPIType eSMPMode, @Nonnull final URI aSMPURI)
   {
     ValueEnforcer.notNull (eSMPMode, "SMPMode");
     ValueEnforcer.notNull (aSMPURI, "SMP URI");
