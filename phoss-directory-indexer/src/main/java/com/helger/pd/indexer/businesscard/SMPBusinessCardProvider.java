@@ -19,6 +19,7 @@ package com.helger.pd.indexer.businesscard;
 import java.io.IOException;
 import java.net.URI;
 import java.net.UnknownHostException;
+import java.security.GeneralSecurityException;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -38,7 +39,6 @@ import com.helger.commons.annotation.VisibleForTesting;
 import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.http.CHttp;
 import com.helger.httpclient.HttpClientManager;
-import com.helger.httpclient.HttpClientSettings;
 import com.helger.pd.businesscard.generic.PDBusinessCard;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
@@ -165,8 +165,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
   @Nullable
   @VisibleForTesting
   PDExtendedBusinessCard getBusinessCardPeppolSMP (@Nonnull final IParticipantIdentifier aParticipantID,
-                                                   @Nonnull final SMPClientReadOnly aSMPClient,
-                                                   @Nonnull final HttpClientSettings aHCS)
+                                                   @Nonnull final SMPClientReadOnly aSMPClient)
   {
     if (LOGGER.isInfoEnabled ())
       LOGGER.info ("Querying BusinessCard for '" +
@@ -176,7 +175,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
                    "'");
 
     // First query the service group
-    com.helger.xsds.peppol.smp1.ServiceGroupType aServiceGroup;
+    final com.helger.xsds.peppol.smp1.ServiceGroupType aServiceGroup;
     try
     {
       aServiceGroup = aSMPClient.getServiceGroupOrNull (aParticipantID);
@@ -189,7 +188,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
 
     // If the service group is present, try querying the business card
     final PDBusinessCard aBusinessCard;
-    try (final HttpClientManager aHCM = HttpClientManager.create (aHCS))
+    try (final HttpClientManager aHCM = HttpClientManager.create (aSMPClient.httpClientSettings ()))
     {
       // Use the optional business card API
       final HttpGet aRequest = new HttpGet (aSMPClient.getSMPHostURI () + "businesscard/" + aParticipantID.getURIPercentEncoded ());
@@ -230,8 +229,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
   @Nullable
   @VisibleForTesting
   PDExtendedBusinessCard getBusinessCardBDXR1 (@Nonnull final IParticipantIdentifier aParticipantID,
-                                               @Nonnull final BDXRClientReadOnly aSMPClient,
-                                               @Nonnull final HttpClientSettings aHCS)
+                                               @Nonnull final BDXRClientReadOnly aSMPClient)
   {
     LOGGER.info ("Querying BusinessCard for '" +
                  aParticipantID.getURIEncoded () +
@@ -240,7 +238,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
                  "'");
 
     // First query the service group
-    com.helger.xsds.bdxr.smp1.ServiceGroupType aServiceGroup;
+    final com.helger.xsds.bdxr.smp1.ServiceGroupType aServiceGroup;
     try
     {
       aServiceGroup = aSMPClient.getServiceGroupOrNull (aParticipantID);
@@ -253,7 +251,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
 
     // If the service group is present, try querying the business card
     final PDBusinessCard aBusinessCard;
-    try (final HttpClientManager aHCM = HttpClientManager.create (aHCS))
+    try (final HttpClientManager aHCM = HttpClientManager.create (aSMPClient.httpClientSettings ()))
     {
       // Use the optional business card API
       final HttpGet aRequest = new HttpGet (aSMPClient.getSMPHostURI () + "businesscard/" + aParticipantID.getURIPercentEncoded ());
@@ -293,8 +291,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
   @Nullable
   @VisibleForTesting
   PDExtendedBusinessCard getBusinessCardBDXR2 (@Nonnull final IParticipantIdentifier aParticipantID,
-                                               @Nonnull final BDXR2ClientReadOnly aSMPClient,
-                                               @Nonnull final HttpClientSettings aHCS)
+                                               @Nonnull final BDXR2ClientReadOnly aSMPClient)
   {
     LOGGER.info ("Querying BusinessCard for '" +
                  aParticipantID.getURIEncoded () +
@@ -303,7 +300,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
                  "'");
 
     // First query the service group
-    com.helger.xsds.bdxr.smp2.ServiceGroupType aServiceGroup;
+    final com.helger.xsds.bdxr.smp2.ServiceGroupType aServiceGroup;
     try
     {
       aServiceGroup = aSMPClient.getServiceGroupOrNull (aParticipantID);
@@ -316,7 +313,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
 
     // If the service group is present, try querying the business card
     final PDBusinessCard aBusinessCard;
-    try (final HttpClientManager aHCM = HttpClientManager.create (aHCS))
+    try (final HttpClientManager aHCM = HttpClientManager.create (aSMPClient.httpClientSettings ()))
     {
       // Use the optional business card API
       // TODO is the path "bdxr-smp-2" needed? Well, the PD is not yet
@@ -357,6 +354,18 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
   private void _configureSMPClient (@Nonnull final AbstractGenericSMPClient <?> aSMPClient)
   {
     aSMPClient.httpClientSettings ().setProxyHost (_getHttpProxy ()).setProxyCredentials (_getHttpProxyCredentials ());
+    if (PDServerConfiguration.isSMPTLSTrustAll ())
+      try
+      {
+        aSMPClient.httpClientSettings ().setSSLContextTrustAll ();
+        aSMPClient.httpClientSettings ().setHostnameVerifierVerifyAll ();
+        LOGGER.warn ("Trusting all TLS configurations - not recommended for production");
+      }
+      catch (final GeneralSecurityException ex)
+      {
+        throw new IllegalStateException ("Failed to set SSL Context or Hostname verifier", ex);
+      }
+
     // Eat all we can get
     aSMPClient.setXMLSchemaValidation (false);
   }
@@ -364,8 +373,6 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
   @Nullable
   public PDExtendedBusinessCard getBusinessCard (@Nonnull final IParticipantIdentifier aParticipantID)
   {
-    final HttpClientSettings aHCS = new HttpClientSettings ().setProxyHost (_getHttpProxy ())
-                                                             .setProxyCredentials (_getHttpProxyCredentials ());
     PDExtendedBusinessCard aBC;
 
     if (m_aSMPURI != null)
@@ -377,21 +384,21 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
         {
           final SMPClientReadOnly aSMPClient = new SMPClientReadOnly (m_aSMPURI);
           _configureSMPClient (aSMPClient);
-          aBC = getBusinessCardPeppolSMP (aParticipantID, aSMPClient, aHCS);
+          aBC = getBusinessCardPeppolSMP (aParticipantID, aSMPClient);
           break;
         }
         case OASIS_BDXR_V1:
         {
           final BDXRClientReadOnly aSMPClient = new BDXRClientReadOnly (m_aSMPURI);
           _configureSMPClient (aSMPClient);
-          aBC = getBusinessCardBDXR1 (aParticipantID, aSMPClient, aHCS);
+          aBC = getBusinessCardBDXR1 (aParticipantID, aSMPClient);
           break;
         }
         case OASIS_BDXR_V2:
         {
           final BDXR2ClientReadOnly aSMPClient = new BDXR2ClientReadOnly (m_aSMPURI);
           _configureSMPClient (aSMPClient);
-          aBC = getBusinessCardBDXR2 (aParticipantID, aSMPClient, aHCS);
+          aBC = getBusinessCardBDXR2 (aParticipantID, aSMPClient);
           break;
         }
         default:
@@ -413,7 +420,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
             {
               final SMPClientReadOnly aSMPClient = new SMPClientReadOnly (m_aURLProvider, aParticipantID, aSML);
               _configureSMPClient (aSMPClient);
-              aBC = getBusinessCardPeppolSMP (aParticipantID, aSMPClient, aHCS);
+              aBC = getBusinessCardPeppolSMP (aParticipantID, aSMPClient);
             }
             catch (final SMPDNSResolutionException ex)
             {
@@ -427,7 +434,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
             {
               final BDXRClientReadOnly aSMPClient = new BDXRClientReadOnly (m_aURLProvider, aParticipantID, aSML);
               _configureSMPClient (aSMPClient);
-              aBC = getBusinessCardBDXR1 (aParticipantID, aSMPClient, aHCS);
+              aBC = getBusinessCardBDXR1 (aParticipantID, aSMPClient);
             }
             catch (final SMPDNSResolutionException ex)
             {
@@ -441,7 +448,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
             {
               final BDXR2ClientReadOnly aSMPClient = new BDXR2ClientReadOnly (m_aURLProvider, aParticipantID, aSML);
               _configureSMPClient (aSMPClient);
-              aBC = getBusinessCardBDXR2 (aParticipantID, aSMPClient, aHCS);
+              aBC = getBusinessCardBDXR2 (aParticipantID, aSMPClient);
             }
             catch (final SMPDNSResolutionException ex)
             {

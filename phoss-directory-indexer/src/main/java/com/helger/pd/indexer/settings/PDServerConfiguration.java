@@ -414,7 +414,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
    * @return The optional proxy password to use. Maybe <code>null</code>.
    */
   @Nullable
-  public static char[] getProxyPassword ()
+  public static char [] getProxyPassword ()
   {
     return getConfig ().getAsCharArray ("http.proxyPassword");
   }
@@ -458,6 +458,11 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
 
     // Default is Peppol
     return ESMPAPIType.PEPPOL;
+  }
+
+  public static boolean isSMPTLSTrustAll ()
+  {
+    return getConfig ().getAsBoolean ("smp.tls.trust-all", false);
   }
 
   @Nonnull

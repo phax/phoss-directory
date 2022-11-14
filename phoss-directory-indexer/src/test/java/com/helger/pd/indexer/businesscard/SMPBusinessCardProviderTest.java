@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
 import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.url.URLHelper;
-import com.helger.httpclient.HttpClientSettings;
 import com.helger.json.IJsonObject;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.peppol.sml.ESML;
@@ -90,8 +89,7 @@ public final class SMPBusinessCardProviderTest
                                                                                          PDServerConfiguration.getURLProvider (),
                                                                                          SML_SUPPLIER);
     final PDExtendedBusinessCard aExtBI = aBI.getBusinessCardPeppolSMP (PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9999:ghx"),
-                                                                        new SMPClientReadOnly (URLHelper.getAsURI ("http://localhost:90")),
-                                                                        new HttpClientSettings ());
+                                                                        new SMPClientReadOnly (URLHelper.getAsURI ("http://localhost:90")));
     assertNotNull (aExtBI);
     LOGGER.info (aExtBI.toString ());
   }
@@ -104,8 +102,7 @@ public final class SMPBusinessCardProviderTest
                                                                                          PDServerConfiguration.getURLProvider (),
                                                                                          SML_SUPPLIER);
     final PDExtendedBusinessCard aExtBI = aBI.getBusinessCardPeppolSMP (PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9956:0471349823"),
-                                                                        new SMPClientReadOnly (URLHelper.getAsURI ("https://int.babelway.net/smp/")),
-                                                                        new HttpClientSettings ());
+                                                                        new SMPClientReadOnly (URLHelper.getAsURI ("https://int.babelway.net/smp/")));
     assertNotNull (aExtBI);
     LOGGER.info (aExtBI.toString ());
   }
