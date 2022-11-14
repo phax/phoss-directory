@@ -36,9 +36,10 @@ import com.helger.commons.io.resource.IReadableResource;
 import com.helger.commons.io.resourceprovider.ReadableResourceProviderChain;
 import com.helger.commons.string.StringHelper;
 import com.helger.commons.system.SystemProperties;
-import com.helger.config.Config;
 import com.helger.config.ConfigFactory;
 import com.helger.config.IConfig;
+import com.helger.config.fallback.ConfigWithFallback;
+import com.helger.config.fallback.IConfigWithFallback;
 import com.helger.config.source.MultiConfigurationValueProvider;
 import com.helger.config.source.res.ConfigurationSourceProperties;
 import com.helger.httpclient.HttpClientSettings;
@@ -110,10 +111,10 @@ public final class PDClientConfiguration
 
   public static final EKeyStoreType DEFAULT_TRUSTSTORE_TYPE = EKeyStoreType.JKS;
 
-  private static final IConfig DEFAULT_CONFIG = Config.create (createPDClientValueProvider ());
+  private static final IConfigWithFallback DEFAULT_CONFIG = new ConfigWithFallback (createPDClientValueProvider ());
   private static final SimpleReadWriteLock RW_LOCK = new SimpleReadWriteLock ();
   @GuardedBy ("RW_LOCK")
-  private static IConfig s_aConfig = DEFAULT_CONFIG;
+  private static IConfigWithFallback s_aConfig = DEFAULT_CONFIG;
 
   private PDClientConfiguration ()
   {}
@@ -122,7 +123,7 @@ public final class PDClientConfiguration
    * @return The current global configuration. Never <code>null</code>.
    */
   @Nonnull
-  public static IConfig getConfig ()
+  public static IConfigWithFallback getConfig ()
   {
     // Inline for performance
     RW_LOCK.readLock ().lock ();
@@ -144,10 +145,10 @@ public final class PDClientConfiguration
    * @return The old value of {@link IConfig}. Never <code>null</code>.
    */
   @Nonnull
-  public static IConfig setConfig (@Nonnull final IConfig aNewConfig)
+  public static IConfigWithFallback setConfig (@Nonnull final IConfigWithFallback aNewConfig)
   {
     ValueEnforcer.notNull (aNewConfig, "NewConfig");
-    final IConfig ret;
+    final IConfigWithFallback ret;
     RW_LOCK.writeLock ().lock ();
     try
     {
@@ -178,83 +179,6 @@ public final class PDClientConfiguration
       LOGGER.warn ("Failed to reload at least one of the resource based configuration sources");
   }
 
-  private static void _logRenamedConfig (@Nonnull final String sOld, @Nonnull final String sNew)
-  {
-    if (LOGGER.isWarnEnabled ())
-      LOGGER.warn ("Please rename the configuration property '" +
-                   sOld +
-                   "' to '" +
-                   sNew +
-                   "'. Support for the old property name will be removed in the next major release.");
-  }
-
-  @Nullable
-  private static String _getAsStringOrFallback (@Nonnull final String sPrimary, @Nonnull final String... aOldOnes)
-  {
-    String ret = getConfig ().getAsString (sPrimary);
-    if (StringHelper.hasNoText (ret))
-    {
-      // Try the old names
-      for (final String sOld : aOldOnes)
-      {
-        ret = getConfig ().getAsString (sOld);
-        if (StringHelper.hasText (ret))
-        {
-          // Notify on old name usage
-          _logRenamedConfig (sOld, sPrimary);
-          break;
-        }
-      }
-    }
-    return ret;
-  }
-
-  private static int _getAsIntOrFallback (@Nonnull final String sPrimary,
-                                          final int nBogus,
-                                          final int nDefault,
-                                          @Nonnull final String... aOldOnes)
-  {
-    int ret = getConfig ().getAsInt (sPrimary, nBogus);
-    if (ret == nBogus)
-    {
-      // Try the old names
-      for (final String sOld : aOldOnes)
-      {
-        ret = getConfig ().getAsInt (sOld, nBogus);
-        if (ret != nBogus)
-        {
-          // Notify on old name usage
-          _logRenamedConfig (sOld, sPrimary);
-          break;
-        }
-      }
-    }
-    return ret == nBogus ? nDefault : ret;
-  }
-
-  private static long _getAsLongOrFallback (@Nonnull final String sPrimary,
-                                            final long nBogus,
-                                            final long nDefault,
-                                            @Nonnull final String... aOldOnes)
-  {
-    long ret = getConfig ().getAsLong (sPrimary, nBogus);
-    if (ret == nBogus)
-    {
-      // Try the old names
-      for (final String sOld : aOldOnes)
-      {
-        ret = getConfig ().getAsLong (sOld, nBogus);
-        if (ret != nBogus)
-        {
-          // Notify on old name usage
-          _logRenamedConfig (sOld, sPrimary);
-          break;
-        }
-      }
-    }
-    return ret == nBogus ? nDefault : ret;
-  }
-
   /**
    * @return The type to the keystore. This is usually JKS. Property
    *         <code>keystore.type</code>.
@@ -262,7 +186,7 @@ public final class PDClientConfiguration
   @Nonnull
   public static EKeyStoreType getKeyStoreType ()
   {
-    final String sType = _getAsStringOrFallback ("pdclient.keystore.type", "keystore.type");
+    final String sType = getConfig ().getAsStringOrFallback ("pdclient.keystore.type", "keystore.type");
     return EKeyStoreType.getFromIDCaseInsensitiveOrDefault (sType, EKeyStoreType.JKS);
   }
 
@@ -273,7 +197,7 @@ public final class PDClientConfiguration
   @Nullable
   public static String getKeyStorePath ()
   {
-    return _getAsStringOrFallback ("pdclient.keystore.path", "keystore.path");
+    return getConfig ().getAsStringOrFallback ("pdclient.keystore.path", "keystore.path");
   }
 
   /**
@@ -283,7 +207,7 @@ public final class PDClientConfiguration
   @Nullable
   public static String getKeyStorePassword ()
   {
-    return _getAsStringOrFallback ("pdclient.keystore.password", "keystore.password");
+    return getConfig ().getAsStringOrFallback ("pdclient.keystore.password", "keystore.password");
   }
 
   /**
@@ -302,7 +226,7 @@ public final class PDClientConfiguration
   @Nullable
   public static String getKeyStoreKeyAlias ()
   {
-    return _getAsStringOrFallback ("pdclient.keystore.key.alias", "keystore.key.alias");
+    return getConfig ().getAsStringOrFallback ("pdclient.keystore.key.alias", "keystore.key.alias");
   }
 
   /**
@@ -312,7 +236,7 @@ public final class PDClientConfiguration
   @Nullable
   public static char [] getKeyStoreKeyPassword ()
   {
-    final String ret = _getAsStringOrFallback ("pdclient.keystore.key.password", "keystore.key.password");
+    final String ret = getConfig ().getAsStringOrFallback ("pdclient.keystore.key.password", "keystore.key.password");
     return ret == null ? null : ret.toCharArray ();
   }
 
@@ -338,7 +262,7 @@ public final class PDClientConfiguration
   @Nonnull
   public static EKeyStoreType getTrustStoreType ()
   {
-    final String sType = _getAsStringOrFallback ("pdclient.truststore.type", "truststore.type");
+    final String sType = getConfig ().getAsStringOrFallback ("pdclient.truststore.type", "truststore.type");
     return EKeyStoreType.getFromIDCaseInsensitiveOrDefault (sType, DEFAULT_TRUSTSTORE_TYPE);
   }
 
@@ -351,7 +275,7 @@ public final class PDClientConfiguration
   @Nullable
   public static String getTrustStorePath ()
   {
-    return _getAsStringOrFallback ("pdclient.truststore.path", "truststore.path");
+    return getConfig ().getAsStringOrFallback ("pdclient.truststore.path", "truststore.path");
   }
 
   /**
@@ -363,7 +287,7 @@ public final class PDClientConfiguration
   @Nullable
   public static String getTrustStorePassword ()
   {
-    return _getAsStringOrFallback ("pdclient.truststore.password", "truststore.password");
+    return getConfig ().getAsStringOrFallback ("pdclient.truststore.password", "truststore.password");
   }
 
   /**
@@ -382,7 +306,7 @@ public final class PDClientConfiguration
   @Nullable
   public static String getHttpProxyHost ()
   {
-    return _getAsStringOrFallback ("http.proxy.host", "http.proxyHost");
+    return getConfig ().getAsStringOrFallback ("http.proxy.host", "http.proxyHost");
   }
 
   /**
@@ -390,7 +314,7 @@ public final class PDClientConfiguration
    */
   public static int getHttpProxyPort ()
   {
-    return _getAsIntOrFallback ("http.proxy.port", -1, 0, "http.proxyPort");
+    return getConfig ().getAsIntOrFallback ("http.proxy.port", -1, 0, "http.proxyPort");
   }
 
   /**
@@ -401,7 +325,7 @@ public final class PDClientConfiguration
   @Nullable
   public static String getProxyUsername ()
   {
-    return _getAsStringOrFallback ("http.proxy.username", "proxy.username");
+    return getConfig ().getAsStringOrFallback ("http.proxy.username", "proxy.username");
   }
 
   /**
@@ -412,7 +336,7 @@ public final class PDClientConfiguration
   @Nullable
   public static char [] getProxyPassword ()
   {
-    final String ret = _getAsStringOrFallback ("http.proxy.password", "proxy.password");
+    final String ret = getConfig ().getAsStringOrFallback ("http.proxy.password", "proxy.password");
     return ret == null ? null : ret.toCharArray ();
   }
 
@@ -424,7 +348,7 @@ public final class PDClientConfiguration
   @Nonnull
   public static Timeout getConnectTimeout ()
   {
-    final long nMillis = _getAsLongOrFallback ("http.connect.timeout.ms", -1, -1, "connect.timeout.ms");
+    final long nMillis = getConfig ().getAsLongOrFallback ("http.connect.timeout.ms", -1, -1, "connect.timeout.ms");
     if (nMillis >= 0)
       return Timeout.ofMilliseconds (nMillis);
     return HttpClientSettings.DEFAULT_CONNECT_TIMEOUT;
@@ -438,11 +362,11 @@ public final class PDClientConfiguration
   @Nonnull
   public static Timeout getResponseTimeout ()
   {
-    final long nMillis = _getAsLongOrFallback ("http.response.timeout.ms",
-                                               -1,
-                                               -1,
-                                               "http.request.timeout.ms",
-                                               "request.timeout.ms");
+    final long nMillis = getConfig ().getAsLongOrFallback ("http.response.timeout.ms",
+                                                           -1,
+                                                           -1,
+                                                           "http.request.timeout.ms",
+                                                           "request.timeout.ms");
     if (nMillis >= 0)
       return Timeout.ofMilliseconds (nMillis);
     return HttpClientSettings.DEFAULT_RESPONSE_TIMEOUT;
