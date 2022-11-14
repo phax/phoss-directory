@@ -3,23 +3,30 @@
 [![javadoc](https://javadoc.io/badge2/com.helger/phoss-directory-indexer/javadoc.svg)](https://javadoc.io/doc/com.helger/phoss-directory-indexer)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.helger/phoss-directory-parent-pom/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.helger/phoss-directory-parent-pom) 
 
-The official Peppol Directory (PD; https://directory.peppol.eu) and TOOP Directory software (The Once-Only Project; www.toop.eu). It is split into the following sub-projects (all require Java 8 except where noted):
+The official Peppol Directory (PD; https://directory.peppol.eu), 
+  TOOP Directory software (The Once-Only Project; www.toop.eu) and 
+  DE4A Directory software (Digital Europe 4 All; www.de4a.eu).
+  
+It is split into the following sub-projects (all require Java 8 or newer):
 * `phoss-directory-businesscard` - the common Business Card API
 * `phoss-directory-indexer` - the PD indexer part
 * `phoss-directory-publisher` - the PD publisher web application
 * `phoss-directory-client` - a client library to be added to SMP servers to force indexing in the PD
 * `phoss-directory-searchapi` - a client library for easier use of the Directory search REST API (since v0.7.2)
   
-* Production version is available at https://directory.peppol.eu (for PEPPOL)
-  * It can only handle participants registered at the SML
-  * For the indexing REST API, a client certificate (SMP production) is needed 
+* Production version is available at https://directory.peppol.eu (for Peppol)
+    * It can only handle participants registered at the SML
+    * For the indexing REST API, a client certificate (SMP production) is needed 
 * Test version is available at https://test-directory.peppol.eu
-  * It can only handle participants registered at the SMK
-  * For the indexing REST API, a client certificate (SMP test) is needed 
+    * It can only handle participants registered at the SMK
+    * For the indexing REST API, a client certificate (SMP test) is needed 
 * A TOOP version is available at http://directory.acc.exchange.toop.eu/
-  * It can only handle participants registered at the SMK at a specific DNS zone
-  * For the indexing REST API, no client certificate is needed
-  
+    * It can only handle participants registered at the SMK at a specific DNS zone
+    * For the indexing REST API, no client certificate is needed
+* A DE4A version is available at https://de4a.simplegob.com/directory/
+    * It can only handle participants registered at the SML at a specific DNS zone
+    * For the indexing REST API, no client certificate is needed
+
 * A Java library to be used in SMPs to communicate with the PD is available
 * [phoss SMP Server](https://github.com/phax/phoss-smp) supports starting with version 4.1.2 the graphical editing of Business Card incl. the necessary `/businesscard` API.
 
