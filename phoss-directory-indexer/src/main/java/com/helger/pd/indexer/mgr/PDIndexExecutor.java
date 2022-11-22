@@ -73,6 +73,7 @@ final class PDIndexExecutor
     if (aBCProvider == null)
     {
       // Maybe null upon shutdown - in that case ignore it and don't reindex
+      LOGGER.error ("No BusinessCard Provider is present.");
       return ESuccess.FAILURE;
     }
 
@@ -80,7 +81,7 @@ final class PDIndexExecutor
     {
       final IParticipantIdentifier aParticipantID = aWorkItem.getParticipantID ();
 
-      ESuccess eSuccess;
+      final ESuccess eSuccess;
       switch (aWorkItem.getType ())
       {
         case CREATE_UPDATE:
