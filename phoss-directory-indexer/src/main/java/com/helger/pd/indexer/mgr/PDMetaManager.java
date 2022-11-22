@@ -49,9 +49,9 @@ public final class PDMetaManager extends AbstractGlobalSingleton
 {
   private static final Logger LOGGER = LoggerFactory.getLogger (PDMetaManager.class);
 
-  private static final SimpleReadWriteLock s_aRWLock = new SimpleReadWriteLock ();
+  private static final SimpleReadWriteLock RW_LOCK = new SimpleReadWriteLock ();
   // Read only once on startup
-  private static final IIdentifierFactory s_aIF = PDServerConfiguration.getIdentifierFactory ();
+  private static final IIdentifierFactory IF = PDServerConfiguration.getIdentifierFactory ();
   @GuardedBy ("s_aRWLock")
   private static IPDBusinessCardProvider s_aBCProvider;
 
@@ -107,7 +107,7 @@ public final class PDMetaManager extends AbstractGlobalSingleton
   @Nullable
   public static IPDBusinessCardProvider getBusinessCardProviderOrNull ()
   {
-    return s_aRWLock.readLockedGet ( () -> s_aBCProvider);
+    return RW_LOCK.readLockedGet ( () -> s_aBCProvider);
   }
 
   /**
@@ -133,7 +133,7 @@ public final class PDMetaManager extends AbstractGlobalSingleton
   public static void setBusinessCardProvider (@Nonnull final IPDBusinessCardProvider aBCProvider)
   {
     ValueEnforcer.notNull (aBCProvider, "BCProvider");
-    s_aRWLock.writeLockedGet ( () -> s_aBCProvider = aBCProvider);
+    RW_LOCK.writeLockedGet ( () -> s_aBCProvider = aBCProvider);
   }
 
   @Nonnull
@@ -157,6 +157,6 @@ public final class PDMetaManager extends AbstractGlobalSingleton
   @Nonnull
   public static IIdentifierFactory getIdentifierFactory ()
   {
-    return s_aIF;
+    return IF;
   }
 }
