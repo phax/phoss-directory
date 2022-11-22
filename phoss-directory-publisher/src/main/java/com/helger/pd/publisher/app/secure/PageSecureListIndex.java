@@ -62,7 +62,7 @@ public final class PageSecureListIndex extends AbstractAppWebPage
                                                                                                            .addClass (PDCommonUI.CSS_CLASS_VERTICAL_PADDED_TEXT));
     }
 
-    final LinkedBlockingQueue <Object> aQueue = PDMetaManager.getIndexerMgr ().getIndexerWorkQueue ().getQueue ();
+    final LinkedBlockingQueue <Object> aQueue = PDMetaManager.getIndexerMgr ().getIndexerWorkQueue ().internalGetQueue ();
     final int nLength = aQueue.size ();
     if (nLength == 0)
     {

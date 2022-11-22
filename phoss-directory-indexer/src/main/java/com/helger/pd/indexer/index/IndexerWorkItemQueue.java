@@ -105,7 +105,7 @@ public final class IndexerWorkItemQueue
    */
   @Nonnull
   @ReturnsMutableObject
-  public LinkedBlockingQueue <Object> getQueue ()
+  public LinkedBlockingQueue <Object> internalGetQueue ()
   {
     return m_aQueue;
   }
