@@ -441,6 +441,8 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
       aBC = null;
       for (final ISMLInfo aSML : aSMLs)
       {
+        LOGGER.info ("Now trying with SML " + aSML);
+
         // Create SMP client and query SMP
         switch (m_eSMPMode)
         {
@@ -455,6 +457,12 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
             catch (final SMPDNSResolutionException ex)
             {
               // Happens if a non-existing URL is queried
+              LOGGER.error ("Failed to resolve SMP DNS entry: " + ex.getMessage ());
+            }
+            catch (final Exception ex)
+            {
+              // Catch-all to be on the safe side
+              LOGGER.error ("Failed to query SMP", ex);
             }
             break;
           }
@@ -469,6 +477,12 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
             catch (final SMPDNSResolutionException ex)
             {
               // Happens if a non-existing URL is queried
+              LOGGER.error ("Failed to resolve SMP DNS entry: " + ex.getMessage ());
+            }
+            catch (final Exception ex)
+            {
+              // Catch-all to be on the safe side
+              LOGGER.error ("Failed to query SMP", ex);
             }
             break;
           }
@@ -483,6 +497,12 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
             catch (final SMPDNSResolutionException ex)
             {
               // Happens if a non-existing URL is queried
+              LOGGER.error ("Failed to resolve SMP DNS entry: " + ex.getMessage ());
+            }
+            catch (final Exception ex)
+            {
+              // Catch-all to be on the safe side
+              LOGGER.error ("Failed to query SMP", ex);
             }
             break;
           }
