@@ -97,7 +97,7 @@ public final class PDIndexerManager implements Closeable
 
   private void _onIndexSuccess (@Nonnull final IIndexerWorkItem aWorkItem)
   {
-    m_aRWLock.writeLockedBoolean ( () -> m_aUniqueItems.remove (aWorkItem));
+    m_aRWLock.writeLocked ( () -> m_aUniqueItems.remove (aWorkItem));
   }
 
   private void _onIndexFailure (@Nonnull final IIndexerWorkItem aWorkItem)
@@ -219,7 +219,9 @@ public final class PDIndexerManager implements Closeable
     {
       if (!m_aUniqueItems.add (aWorkItem))
       {
-        LOGGER.info ("Ignoring work item " + aWorkItem.getLogText () + " because it is already in the queue/re-index list!");
+        LOGGER.info ("Ignoring work item " +
+                     aWorkItem.getLogText () +
+                     " because it is already in the queue/re-index list!");
         return EChange.UNCHANGED;
       }
     }
@@ -281,7 +283,7 @@ public final class PDIndexerManager implements Closeable
       for (final IReIndexWorkItem aItem : aExpiredItems)
       {
         // remove them from the overall list but move to dead item list
-        m_aRWLock.writeLockedBoolean ( () -> m_aUniqueItems.remove (aItem.getWorkItem ()));
+        m_aRWLock.writeLocked ( () -> m_aUniqueItems.remove (aItem.getWorkItem ()));
 
         // move all to the dead item list
         m_aDeadList.addItem ((ReIndexWorkItem) aItem);
