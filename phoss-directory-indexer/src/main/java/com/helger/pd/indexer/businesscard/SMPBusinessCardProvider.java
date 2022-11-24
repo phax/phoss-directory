@@ -363,7 +363,8 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
 
   private void _configureSMPClient (@Nonnull final AbstractGenericSMPClient <?> aSMPClient)
   {
-    LOGGER.info ("No configuring the the SMP client");
+    if (LOGGER.isDebugEnabled ())
+      LOGGER.debug ("No configuring the the SMP client");
 
     aSMPClient.httpClientSettings ().setProxyHost (_getHttpProxy ()).setProxyCredentials (_getHttpProxyCredentials ());
     if (PDServerConfiguration.isSMPTLSTrustAll ())
@@ -443,7 +444,8 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
       aBC = null;
       for (final ISMLInfo aSML : aSMLs)
       {
-        LOGGER.info ("Now trying with SML " + aSML);
+        if (LOGGER.isDebugEnabled ())
+          LOGGER.debug ("Now trying with SML " + aSML);
 
         // Create SMP client and query SMP
         switch (m_eSMPMode)
@@ -472,10 +474,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
           {
             try
             {
-              LOGGER.info ("Now trying to resolve participant ID via " + m_aURLProvider);
-              final URI aSMPUrl = m_aURLProvider.getSMPURIOfParticipant (aParticipantID, aSML);
-              LOGGER.info ("Resolved SMP URL to " + aSMPUrl);
-              final BDXRClientReadOnly aSMPClient = new BDXRClientReadOnly (aSMPUrl);
+              final BDXRClientReadOnly aSMPClient = new BDXRClientReadOnly (m_aURLProvider, aParticipantID, aSML);
               _configureSMPClient (aSMPClient);
               aBC = getBusinessCardBDXR1 (aParticipantID, aSMPClient);
             }
