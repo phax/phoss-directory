@@ -67,84 +67,96 @@ final class PDIndexExecutor
                                           @Nonnull final Consumer <? super IIndexerWorkItem> aSuccessHandler,
                                           @Nonnull final Consumer <? super IIndexerWorkItem> aFailureHandler)
   {
-    LOGGER.info ("Execute work item " + aWorkItem.getLogText () + " - " + (nRetryCount > 0 ? "retry #" + nRetryCount : "initial try"));
+    LOGGER.info ("Execute work item " +
+                 aWorkItem.getLogText () +
+                 " - " +
+                 (nRetryCount > 0 ? "retry #" + nRetryCount : "initial try"));
 
     final IPDBusinessCardProvider aBCProvider = PDMetaManager.getBusinessCardProviderOrNull ();
     if (aBCProvider == null)
     {
       // Maybe null upon shutdown - in that case ignore it and don't reindex
       LOGGER.error ("No BusinessCard Provider is present.");
-      return ESuccess.FAILURE;
     }
-
-    try
+    else
     {
-      final IParticipantIdentifier aParticipantID = aWorkItem.getParticipantID ();
-
-      final ESuccess eSuccess;
-      switch (aWorkItem.getType ())
+      try
       {
-        case CREATE_UPDATE:
-        {
-          // Get BI from participant (e.g. from SMP)
-          final PDExtendedBusinessCard aBI = aBCProvider.getBusinessCard (aParticipantID);
-          if (aBI == null)
-          {
-            // No/invalid extension present - no need to try again
-            eSuccess = ESuccess.FAILURE;
-          }
-          else
-          {
-            // Got data - put in storage
-            eSuccess = aStorageMgr.createOrUpdateEntry (aParticipantID, aBI, aWorkItem.getAsMetaData ());
-          }
-          break;
-        }
-        case DELETE:
-        {
-          // Really delete it
-          eSuccess = ESuccess.valueOf (aStorageMgr.deleteEntry (aParticipantID, aWorkItem.getAsMetaData (), true) >= 0);
-          break;
-        }
-        case SYNC:
-        {
-          // Get BI from participant (e.g. from SMP)
-          final PDExtendedBusinessCard aBI = aBCProvider.getBusinessCard (aParticipantID);
-          if (aBI == null)
-          {
-            // No/invalid extension present - delete from index
-            eSuccess = ESuccess.valueOf (aStorageMgr.deleteEntry (aParticipantID, aWorkItem.getAsMetaData (), true) >= 0);
-          }
-          else
-          {
-            // Got data - put in storage
-            eSuccess = aStorageMgr.createOrUpdateEntry (aParticipantID, aBI, aWorkItem.getAsMetaData ());
-          }
-          break;
-        }
-        default:
-          throw new IllegalStateException ("Unsupported work item type: " + aWorkItem);
-      }
+        final IParticipantIdentifier aParticipantID = aWorkItem.getParticipantID ();
 
-      if (eSuccess.isSuccess ())
+        final ESuccess eSuccess;
+        switch (aWorkItem.getType ())
+        {
+          case CREATE_UPDATE:
+          {
+            // Get BI from participant (e.g. from SMP)
+            final PDExtendedBusinessCard aBI = aBCProvider.getBusinessCard (aParticipantID);
+            if (aBI == null)
+            {
+              // No/invalid extension present - no need to try again
+              eSuccess = ESuccess.FAILURE;
+            }
+            else
+            {
+              // Got data - put in storage
+              eSuccess = aStorageMgr.createOrUpdateEntry (aParticipantID, aBI, aWorkItem.getAsMetaData ());
+            }
+            break;
+          }
+          case DELETE:
+          {
+            // Really delete it
+            eSuccess = ESuccess.valueOf (aStorageMgr.deleteEntry (aParticipantID,
+                                                                  aWorkItem.getAsMetaData (),
+                                                                  true) >= 0);
+            break;
+          }
+          case SYNC:
+          {
+            // Get BI from participant (e.g. from SMP)
+            final PDExtendedBusinessCard aBI = aBCProvider.getBusinessCard (aParticipantID);
+            if (aBI == null)
+            {
+              // No/invalid extension present - delete from index
+              eSuccess = ESuccess.valueOf (aStorageMgr.deleteEntry (aParticipantID,
+                                                                    aWorkItem.getAsMetaData (),
+                                                                    true) >= 0);
+            }
+            else
+            {
+              // Got data - put in storage
+              eSuccess = aStorageMgr.createOrUpdateEntry (aParticipantID, aBI, aWorkItem.getAsMetaData ());
+            }
+            break;
+          }
+          default:
+            throw new IllegalStateException ("Unsupported work item type: " + aWorkItem);
+        }
+
+        if (eSuccess.isSuccess ())
+        {
+          // Item handled - remove from overall list
+          aSuccessHandler.accept (aWorkItem);
+
+          LOGGER.info ("Successfully finished executing work item " + aWorkItem.getLogText ());
+
+          // And we're done
+          return ESuccess.SUCCESS;
+        }
+
+        // else error storing data
+      }
+      catch (final Exception ex)
       {
-        // Item handled - remove from overall list
-        aSuccessHandler.accept (aWorkItem);
-
-        // And we're done
-        return ESuccess.SUCCESS;
+        LOGGER.error ("Error in executing work item " + aWorkItem.getLogText (), ex);
+        // Fall through
       }
-
-      // else error storing data
-    }
-    catch (final Exception ex)
-    {
-      LOGGER.error ("Error in executing work item " + aWorkItem.getLogText (), ex);
-      // Fall through
     }
 
     // Invoke failure handler
     aFailureHandler.accept (aWorkItem);
+
+    LOGGER.warn ("Failure processing executing work item " + aWorkItem.getLogText ());
 
     return ESuccess.FAILURE;
   }
