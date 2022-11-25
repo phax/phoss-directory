@@ -102,6 +102,9 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
+* v0.10.5 - 2022-11-25
+    * Improved logging of indexation
+    * SMP client configuration became more resilient
 * v0.10.4 - 2022-11-14
     * Added new configuration parameter `smp.tls.trust-all` to disable the TLS certificate checks for the SMP client
 * v0.10.3 - 2022-08-17
