@@ -364,7 +364,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
   private void _configureSMPClient (@Nonnull final AbstractGenericSMPClient <?> aSMPClient)
   {
     if (LOGGER.isDebugEnabled ())
-      LOGGER.debug ("No configuring the the SMP client");
+      LOGGER.debug ("Now configuring the the SMP client");
 
     aSMPClient.httpClientSettings ().setProxyHost (_getHttpProxy ()).setProxyCredentials (_getHttpProxyCredentials ());
     if (PDServerConfiguration.isSMPTLSTrustAll ())
