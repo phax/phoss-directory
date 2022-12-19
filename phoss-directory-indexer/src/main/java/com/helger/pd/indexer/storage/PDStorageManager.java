@@ -156,8 +156,9 @@ public final class PDStorageManager implements IPDStorageManager
         final Query aQuery = new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID));
         final TopDocs aTopDocs = _timedSearch ( () -> aSearcher.search (aQuery, 1), aQuery);
         // Lucene 8
-        // if (aTopDocs.totalHits.value > 0)
-        if (aTopDocs.totalHits > 0)
+        if (aTopDocs.totalHits.value > 0)
+          // Lucene 7
+          // if (aTopDocs.totalHits > 0)
           return Boolean.TRUE;
       }
       return Boolean.FALSE;
@@ -307,7 +308,10 @@ public final class PDStorageManager implements IPDStorageManager
       m_aLucene.updateDocuments (PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID), aDocs);
 
       LOGGER.info ("Added " + aDocs.size () + " Lucene documents");
-      AuditHelper.onAuditExecuteSuccess ("pd-indexer-create", aParticipantID.getURIEncoded (), Integer.valueOf (aDocs.size ()), aMetaData);
+      AuditHelper.onAuditExecuteSuccess ("pd-indexer-create",
+                                         aParticipantID.getURIEncoded (),
+                                         Integer.valueOf (aDocs.size ()),
+                                         aMetaData);
     });
   }
 
@@ -333,7 +337,8 @@ public final class PDStorageManager implements IPDStorageManager
       {
         // Something changed - try again
         // Force case sensitivity
-        final IParticipantIdentifier aNewPID = new SimpleParticipantIdentifier (aParticipantID.getScheme (), sUpperCaseValue);
+        final IParticipantIdentifier aNewPID = new SimpleParticipantIdentifier (aParticipantID.getScheme (),
+                                                                                sUpperCaseValue);
         final Query aOtherQuery = new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aNewPID));
         if (getCount (aOtherQuery) > 0)
         {
@@ -350,13 +355,20 @@ public final class PDStorageManager implements IPDStorageManager
       final BooleanQuery.Builder aBuilderOr = new BooleanQuery.Builder ();
 
       // TODO the equals-check on deleteion is to strict for Peppol
-      aBuilderOr.add (new TermQuery (PDField.METADATA_OWNERID.getExactMatchTerm (aMetaData.getOwnerID ())), Occur.SHOULD);
-      aBuilderOr.add (new TermQuery (PDField.METADATA_OWNERID.getExactMatchTerm (CPDStorage.OWNER_DUPLICATE_ELIMINATION)), Occur.SHOULD);
-      aBuilderOr.add (new TermQuery (PDField.METADATA_OWNERID.getExactMatchTerm (CPDStorage.OWNER_IMPORT_TRIGGERED)), Occur.SHOULD);
-      aBuilderOr.add (new TermQuery (PDField.METADATA_OWNERID.getExactMatchTerm (CPDStorage.OWNER_MANUALLY_TRIGGERED)), Occur.SHOULD);
-      aBuilderOr.add (new TermQuery (PDField.METADATA_OWNERID.getExactMatchTerm (CPDStorage.OWNER_SYNC_JOB)), Occur.SHOULD);
+      aBuilderOr.add (new TermQuery (PDField.METADATA_OWNERID.getExactMatchTerm (aMetaData.getOwnerID ())),
+                      Occur.SHOULD);
+      aBuilderOr.add (new TermQuery (PDField.METADATA_OWNERID.getExactMatchTerm (CPDStorage.OWNER_DUPLICATE_ELIMINATION)),
+                      Occur.SHOULD);
+      aBuilderOr.add (new TermQuery (PDField.METADATA_OWNERID.getExactMatchTerm (CPDStorage.OWNER_IMPORT_TRIGGERED)),
+                      Occur.SHOULD);
+      aBuilderOr.add (new TermQuery (PDField.METADATA_OWNERID.getExactMatchTerm (CPDStorage.OWNER_MANUALLY_TRIGGERED)),
+                      Occur.SHOULD);
+      aBuilderOr.add (new TermQuery (PDField.METADATA_OWNERID.getExactMatchTerm (CPDStorage.OWNER_SYNC_JOB)),
+                      Occur.SHOULD);
 
-      aDeleteQuery = new BooleanQuery.Builder ().add (aParticipantQuery, Occur.MUST).add (aBuilderOr.build (), Occur.MUST).build ();
+      aDeleteQuery = new BooleanQuery.Builder ().add (aParticipantQuery, Occur.MUST)
+                                                .add (aBuilderOr.build (), Occur.MUST)
+                                                .build ();
     }
     else
       aDeleteQuery = aParticipantQuery;
@@ -480,9 +492,10 @@ public final class PDStorageManager implements IPDStorageManager
     {
       // Search top docs only
       // Lucene 8
+      final TopScoreDocCollector aCollector = TopScoreDocCollector.create (nMaxResultCount, Integer.MAX_VALUE);
+      // Lucene 7
       // final TopScoreDocCollector aCollector = TopScoreDocCollector.create
-      // (nMaxResultCount, Integer.MAX_VALUE);
-      final TopScoreDocCollector aCollector = TopScoreDocCollector.create (nMaxResultCount);
+      // (nMaxResultCount);
       searchAtomic (aQuery, aCollector);
       for (final ScoreDoc aScoreDoc : aCollector.topDocs ().scoreDocs)
       {
@@ -534,7 +547,8 @@ public final class PDStorageManager implements IPDStorageManager
    */
   @Nonnull
   @ReturnsMutableCopy
-  public ICommonsList <PDStoredBusinessEntity> getAllDocuments (@Nonnull final Query aQuery, @CheckForSigned final int nMaxResultCount)
+  public ICommonsList <PDStoredBusinessEntity> getAllDocuments (@Nonnull final Query aQuery,
+                                                                @CheckForSigned final int nMaxResultCount)
   {
     final ICommonsList <PDStoredBusinessEntity> aTargetList = new CommonsArrayList <> ();
     try
@@ -563,7 +577,8 @@ public final class PDStorageManager implements IPDStorageManager
       {
         // Something changed - try again
         // Force case sensitivity
-        final IParticipantIdentifier aNewPID = new SimpleParticipantIdentifier (aParticipantID.getScheme (), sUpperCaseValue);
+        final IParticipantIdentifier aNewPID = new SimpleParticipantIdentifier (aParticipantID.getScheme (),
+                                                                                sUpperCaseValue);
         ret = getAllDocuments (new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aNewPID)), -1);
         if (ret.isNotEmpty ())
         {

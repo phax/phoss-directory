@@ -77,7 +77,9 @@ public final class PDLuceneTest
     // The version info content should be searchable also be tokens,
     // this is why we use a TextField; as we use a reader, the content is
     // not stored!
-    doc.add (new TextField ("pom", SimpleFileIO.getFileAsString (new File ("pom.xml"), StandardCharsets.UTF_8), Field.Store.NO));
+    doc.add (new TextField ("pom",
+                            SimpleFileIO.getFileAsString (new File ("pom.xml"), StandardCharsets.UTF_8),
+                            Field.Store.NO));
 
     // Next
     doc.add (new StringField ("participantid", "iso6523-actorid-upis::9915:testluc", Field.Store.YES));
@@ -138,8 +140,9 @@ public final class PDLuceneTest
         return null;
 
       // Lucene 8
-      // final long numTotalHits = results.totalHits.value;
-      final long numTotalHits = results.totalHits;
+      final long numTotalHits = results.totalHits.value;
+      // Lucene 7
+      // final long numTotalHits = results.totalHits;
       assertEquals (1, numTotalHits);
 
       /*

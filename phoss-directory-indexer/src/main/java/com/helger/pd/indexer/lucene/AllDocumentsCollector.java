@@ -24,6 +24,7 @@ import javax.annotation.Nonnull;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.search.Collector;
+import org.apache.lucene.search.ScoreMode;
 import org.apache.lucene.search.SimpleCollector;
 
 import com.helger.commons.ValueEnforcer;
@@ -81,11 +82,11 @@ public class AllDocumentsCollector extends SimpleCollector
   }
 
   // Lucene 8
-  // @Override
-  // public ScoreMode scoreMode ()
-  // {
-  // return ScoreMode.COMPLETE_NO_SCORES;
-  // }
+  @Override
+  public ScoreMode scoreMode ()
+  {
+    return ScoreMode.COMPLETE_NO_SCORES;
+  }
 
   @Override
   public String toString ()
