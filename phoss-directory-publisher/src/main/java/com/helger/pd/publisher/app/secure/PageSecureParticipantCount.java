@@ -56,6 +56,9 @@ public final class PageSecureParticipantCount extends AbstractAppWebPage
     final int nNotDeletedCount = PDMetaManager.getStorageMgr ().getContainedParticipantCount ();
     aNodeList.addChild (h3 (nNotDeletedCount + " participants (entities) are contained"));
 
+    final int nIndexCount = PDMetaManager.getIndexerMgr ().getIndexerWorkQueue ().internalGetQueue ().size ();
+    aNodeList.addChild (h3 (nIndexCount + " index items are contained"));
+
     final int nReIndexCount = PDMetaManager.getIndexerMgr ().getReIndexList ().getItemCount ();
     aNodeList.addChild (h3 (nReIndexCount + " re-index items are contained"));
 
