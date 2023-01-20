@@ -102,6 +102,8 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
+* v0.11.1 - work in progress
+    * Updated the known names to eDEC Code List v8.3
 * v0.11.0 - 2022-12-19
     * Updated to Lucene 8.x
 * v0.10.5 - 2022-11-25
