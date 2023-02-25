@@ -17,7 +17,6 @@
 package com.helger.pd.publisher.servlet;
 
 import javax.annotation.Nonnull;
-import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +37,8 @@ import com.helger.photon.uicore.css.CPageParam;
 import com.helger.servlet.response.UnifiedResponse;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 import com.helger.xservlet.handler.simple.IXServletSimpleHandler;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * The participant quick lookup servlet (issue #30). Handles only GET requests.
@@ -94,7 +95,8 @@ public final class PublicParticipantXServletHandler implements IXServletSimpleHa
       {
         // Still failure - try Peppol default scheme
         aPI = PDMetaManager.getIdentifierFactory ()
-                           .createParticipantIdentifier (PeppolIdentifierFactory.INSTANCE.getDefaultParticipantIdentifierScheme (), sID);
+                           .createParticipantIdentifier (PeppolIdentifierFactory.INSTANCE.getDefaultParticipantIdentifierScheme (),
+                                                         sID);
       }
     }
 
@@ -112,7 +114,8 @@ public final class PublicParticipantXServletHandler implements IXServletSimpleHa
                                                                          CMenuPublic.MENU_SEARCH_SIMPLE)
                                                      .add (CPageParam.PARAM_ACTION, CPageParam.ACTION_VIEW)
                                                      .add (PagePublicSearchSimple.FIELD_QUERY, aPI.getURIEncoded ())
-                                                     .add (PagePublicSearchSimple.FIELD_PARTICIPANT_ID, aPI.getURIEncoded ());
+                                                     .add (PagePublicSearchSimple.FIELD_PARTICIPANT_ID,
+                                                           aPI.getURIEncoded ());
     aUnifiedResponse.setRedirect (aTarget);
   }
 }

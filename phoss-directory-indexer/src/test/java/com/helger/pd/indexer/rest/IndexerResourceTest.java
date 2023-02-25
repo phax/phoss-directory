@@ -31,11 +31,6 @@ import javax.annotation.Nonnull;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
 
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.junit.After;
@@ -65,6 +60,12 @@ import com.helger.peppolid.peppol.PeppolIdentifierHelper;
 import com.helger.peppolid.peppol.doctype.EPredefinedDocumentTypeIdentifier;
 import com.helger.security.keystore.EKeyStoreType;
 import com.helger.security.keystore.KeyStoreHelper;
+
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
 
 /**
  * Test class for class {@link IndexerResource}.
@@ -128,7 +129,9 @@ public final class IndexerResourceTest
       aKeyManagerFactory.init (aKeyStore, "peppol".toCharArray ());
 
       final SSLContext aSSLContext = SSLContext.getInstance ("TLS");
-      aSSLContext.init (aKeyManagerFactory.getKeyManagers (), new TrustManager [] { new TrustManagerTrustAll (false) }, null);
+      aSSLContext.init (aKeyManagerFactory.getKeyManagers (),
+                        new TrustManager [] { new TrustManagerTrustAll (false) },
+                        null);
       final Client aClient = ClientBuilder.newBuilder ()
                                           .sslContext (aSSLContext)
                                           .hostnameVerifier (new HostnameVerifierVerifyAll (false))
@@ -164,7 +167,8 @@ public final class IndexerResourceTest
     // Create
     final int nCount = 4;
     CommonsTestHelper.testInParallel (nCount, () -> {
-      final IParticipantIdentifier aPI = aIF.createParticipantIdentifierWithDefaultScheme ("9915:test" + aIndex.getAndIncrement ());
+      final IParticipantIdentifier aPI = aIF.createParticipantIdentifierWithDefaultScheme ("9915:test" +
+                                                                                           aIndex.getAndIncrement ());
 
       final String sPayload = aPI.getURIPercentEncoded ();
       LOGGER.info ("PUT " + sPayload);
@@ -183,7 +187,8 @@ public final class IndexerResourceTest
     // Delete
     aIndex.set (0);
     CommonsTestHelper.testInParallel (nCount, () -> {
-      final IParticipantIdentifier aPI = aIF.createParticipantIdentifierWithDefaultScheme ("9915:test" + aIndex.getAndIncrement ());
+      final IParticipantIdentifier aPI = aIF.createParticipantIdentifierWithDefaultScheme ("9915:test" +
+                                                                                           aIndex.getAndIncrement ());
 
       final String sPI = aPI.getURIEncoded ();
       LOGGER.info ("DELETE " + sPI);

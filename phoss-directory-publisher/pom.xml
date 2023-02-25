@@ -22,7 +22,7 @@
   <parent>
     <groupId>com.helger</groupId>
     <artifactId>phoss-directory-parent-pom</artifactId>
-    <version>0.11.1-SNAPSHOT</version>
+    <version>0.12.0-SNAPSHOT</version>
   </parent>
   <artifactId>phoss-directory-publisher</artifactId>
   <packaging>war</packaging>
@@ -96,8 +96,8 @@
     </dependency>
     
     <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
       <scope>provided</scope>
     </dependency>
 
@@ -160,9 +160,9 @@
       </plugin>
       <!--  
       <plugin>
-        <groupId>org.jvnet.jaxb2.maven2</groupId>
-        <artifactId>maven-jaxb2-plugin</artifactId>
-        <version>0.14.0</version>
+        <groupId>${jaxb-plugin.group}</groupId>
+        <artifactId>${jaxb-plugin.artifact}</artifactId>
+        <version>${jaxb-plugin.version}</version>
         <executions>
           <execution>
             <goals>

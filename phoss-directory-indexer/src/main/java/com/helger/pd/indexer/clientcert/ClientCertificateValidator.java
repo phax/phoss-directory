@@ -29,7 +29,6 @@ import javax.annotation.concurrent.ThreadSafe;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 import javax.security.auth.x500.X500Principal;
-import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +47,8 @@ import com.helger.commons.exception.InitializationException;
 import com.helger.pd.indexer.settings.PDConfiguredTrustStore;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.security.keystore.KeyStoreHelper;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Extract provided certificates from HTTPS requests. These are the client
@@ -153,7 +154,11 @@ public final class ClientCertificateValidator
       // Check if both root certificates could be loaded
       if (aCert == null)
       {
-        final String sMsg = "Failed to resolve alias '" + aTS.getAlias () + "' in trust store '" + aTS.getPath () + "'!";
+        final String sMsg = "Failed to resolve alias '" +
+                            aTS.getAlias () +
+                            "' in trust store '" +
+                            aTS.getPath () +
+                            "'!";
         LOGGER.error (sMsg);
         throw new InitializationException (sMsg);
       }
@@ -363,7 +368,10 @@ public final class ClientCertificateValidator
         if (ALLOWED_CERTIFICATE_ISSUERS.contains (aIssuer))
         {
           if (LOGGER.isInfoEnabled ())
-            LOGGER.info (sLogPrefix + "  Using the following client certificate issuer for verification: '" + aIssuer + "'");
+            LOGGER.info (sLogPrefix +
+                         "  Using the following client certificate issuer for verification: '" +
+                         aIssuer +
+                         "'");
           aClientCertToVerify = aCert;
           break;
         }

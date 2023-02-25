@@ -17,7 +17,6 @@
 package com.helger.pd.indexer.job;
 
 import javax.annotation.Nonnull;
-import javax.servlet.ServletContext;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.OverrideOnDemand;
@@ -38,6 +37,8 @@ import com.helger.servlet.mock.MockHttpServletRequest;
 import com.helger.servlet.mock.OfflineHttpServletRequest;
 import com.helger.web.scope.mgr.WebScopeManager;
 import com.helger.web.scope.util.AbstractScopeAwareJob;
+
+import jakarta.servlet.ServletContext;
 
 /**
  * A Quartz job that is scheduled to re-index existing entries that failed to
@@ -97,7 +98,8 @@ public class ReIndexJob extends AbstractScopeAwareJob
     return GlobalQuartzScheduler.getInstance ()
                                 .scheduleJob (ReIndexJob.class.getName (),
                                               JDK8TriggerBuilder.newTrigger ()
-                                                                .startAt (PDTFactory.getCurrentLocalDateTime ().plusSeconds (5))
+                                                                .startAt (PDTFactory.getCurrentLocalDateTime ()
+                                                                                    .plusSeconds (5))
                                                                 .withSchedule (aScheduleBuilder),
                                               ReIndexJob.class,
                                               aJobDataMap);

@@ -20,7 +20,6 @@ import java.net.URI;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
-import javax.servlet.Servlet;
 
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.servlet.ServletRegistration;
@@ -37,6 +36,8 @@ import com.helger.commons.collection.impl.ICommonsMap;
 import com.helger.commons.io.resource.ClassPathResource;
 import com.helger.commons.io.stream.StreamHelper;
 import com.helger.peppol.utils.PeppolKeyStoreHelper;
+
+import jakarta.servlet.Servlet;
 
 /**
  * Main class.
@@ -85,7 +86,8 @@ final class MockServer
   private static WebappContext _createContext (final String sURI)
   {
     final ICommonsMap <String, String> aInitParams = new CommonsHashMap <> ();
-    aInitParams.put ("jersey.config.server.provider.packages", com.helger.pd.indexer.rest.IndexerResource.class.getPackage ().getName ());
+    aInitParams.put ("jersey.config.server.provider.packages",
+                     com.helger.pd.indexer.rest.IndexerResource.class.getPackage ().getName ());
     return _createContext (URI.create (sURI), ServletContainer.class, null, aInitParams, null);
   }
 

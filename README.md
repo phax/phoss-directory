@@ -102,7 +102,11 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
-* v0.11.1 - work in progress
+* v0.12.0 - 2023-02-25
+    * Using Java 11 as the baseline
+    * Using **Servlet API 5.0.0** as the baseline: **JakartaEE 9, Java 11+, Apache Tomcat v10.0.x, Jetty 11.x**
+    * Updated to Jersey 3.1.1
+    * Updated to ph-commons 11
     * Updated the known names to eDEC Code List v8.3
 * v0.11.0 - 2022-12-19
     * Updated to Lucene 8.x

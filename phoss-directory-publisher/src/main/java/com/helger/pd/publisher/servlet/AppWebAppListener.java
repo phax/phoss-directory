@@ -17,7 +17,6 @@
 package com.helger.pd.publisher.servlet;
 
 import javax.annotation.Nonnull;
-import javax.servlet.ServletContext;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.datetime.PDTFactory;
@@ -56,6 +55,8 @@ import com.helger.schedule.quartz.listener.LoggingJobListener;
 import com.helger.schedule.quartz.trigger.JDK8TriggerBuilder;
 import com.helger.servlet.ServletContextPathHolder;
 import com.helger.xservlet.requesttrack.RequestTrackerSettings;
+
+import jakarta.servlet.ServletContext;
 
 /**
  * This listener is invoked during the servlet initialization. This is basically

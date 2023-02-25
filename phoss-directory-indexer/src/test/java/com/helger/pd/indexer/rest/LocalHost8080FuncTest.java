@@ -30,10 +30,6 @@ import javax.annotation.Nonnull;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
 
 import org.apache.lucene.search.TermQuery;
 import org.junit.Before;
@@ -64,6 +60,11 @@ import com.helger.peppolid.peppol.PeppolIdentifierHelper;
 import com.helger.peppolid.peppol.doctype.EPredefinedDocumentTypeIdentifier;
 import com.helger.security.keystore.EKeyStoreType;
 import com.helger.security.keystore.KeyStoreHelper;
+
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
 
 /**
  * Test class for class {@link IndexerResource}.
@@ -125,7 +126,9 @@ public final class LocalHost8080FuncTest
       aKeyManagerFactory.init (aKeyStore, "peppol".toCharArray ());
 
       final SSLContext aSSLContext = SSLContext.getInstance ("TLS");
-      aSSLContext.init (aKeyManagerFactory.getKeyManagers (), new TrustManager [] { new TrustManagerTrustAll (false) }, null);
+      aSSLContext.init (aKeyManagerFactory.getKeyManagers (),
+                        new TrustManager [] { new TrustManagerTrustAll (false) },
+                        null);
       final Client aClient = ClientBuilder.newBuilder ()
                                           .sslContext (aSSLContext)
                                           .hostnameVerifier (new HostnameVerifierVerifyAll (false))
@@ -156,13 +159,16 @@ public final class LocalHost8080FuncTest
                                                                                                                         aIndex.getAndIncrement ());
 
       LOGGER.info ("PUT " + aPI.getURIEncoded ());
-      final String sResponseMsg = m_aTarget.path ("1.0").request ().put (Entity.text (aPI.getURIEncoded ()), String.class);
+      final String sResponseMsg = m_aTarget.path ("1.0")
+                                           .request ()
+                                           .put (Entity.text (aPI.getURIEncoded ()), String.class);
       assertEquals ("", sResponseMsg);
     });
 
     ThreadHelper.sleep (2000);
     assertTrue (PDMetaManager.getStorageMgr ().containsEntry (aPI_0));
-    assertTrue (PDMetaManager.getStorageMgr ().getCount (new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aPI_0))) > 0);
+    assertTrue (PDMetaManager.getStorageMgr ()
+                             .getCount (new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aPI_0))) > 0);
 
     aIndex.set (0);
     CommonsTestHelper.testInParallel (nCount, () -> {
@@ -177,7 +183,10 @@ public final class LocalHost8080FuncTest
 
     ThreadHelper.sleep (2000);
     assertFalse (PDMetaManager.getStorageMgr ().containsEntry (aPI_0));
-    assertEquals (0, PDMetaManager.getStorageMgr ().getCount (new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aPI_0))));
-    assertTrue (PDMetaManager.getStorageMgr ().getCount (new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aPI_0))) > 0);
+    assertEquals (0,
+                  PDMetaManager.getStorageMgr ()
+                               .getCount (new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aPI_0))));
+    assertTrue (PDMetaManager.getStorageMgr ()
+                             .getCount (new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aPI_0))) > 0);
   }
 }
