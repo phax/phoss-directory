@@ -27,6 +27,7 @@ import com.helger.commons.string.StringHelper;
 import com.helger.html.hc.html.forms.HCEdit;
 import com.helger.html.hc.html.forms.HCHiddenField;
 import com.helger.html.hc.impl.HCNodeList;
+import com.helger.httpclient.HttpClientSettings;
 import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.photon.bootstrap4.button.BootstrapButton;
@@ -91,7 +92,10 @@ public final class PagePublicContact extends AbstractAppWebPage
         if (!CaptchaSessionSingleton.getInstance ().isChecked ())
         {
           // Check only if no other errors occurred
-          if (ReCaptchaServerSideValidator.check ("6LfZFS0UAAAAAONDJHyDnuUUvMB_oNmJxz9Utxza", sReCaptcha).isFailure ())
+          if (ReCaptchaServerSideValidator.check ("6LfZFS0UAAAAAONDJHyDnuUUvMB_oNmJxz9Utxza",
+                                                  sReCaptcha,
+                                                  new HttpClientSettings ())
+                                          .isFailure ())
             aFormErrors.addFieldError (FIELD_CAPTCHA, "Please confirm you are not a robot!");
           else
             CaptchaSessionSingleton.getInstance ().setChecked ();
