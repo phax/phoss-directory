@@ -99,6 +99,8 @@
     <dependency>
       <groupId>jakarta.servlet</groupId>
       <artifactId>jakarta.servlet-api</artifactId>
+      <!-- New version required for testing -->
+      <version>6.0.0</version><!--$NO-MVN-MAN-VER$-->
       <scope>provided</scope>
     </dependency>
     
