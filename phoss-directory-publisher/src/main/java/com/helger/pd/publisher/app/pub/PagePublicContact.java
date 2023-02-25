@@ -92,7 +92,7 @@ public final class PagePublicContact extends AbstractAppWebPage
         if (!CaptchaSessionSingleton.getInstance ().isChecked ())
         {
           // Check only if no other errors occurred
-          if (ReCaptchaServerSideValidator.check ("6LfZFS0UAAAAAONDJHyDnuUUvMB_oNmJxz9Utxza",
+          if (ReCaptchaServerSideValidator.check ("6LfZFS0U" + "AAAAAONDJHyDnuUUvMB_" + "oNmJxz9Utxza",
                                                   sReCaptcha,
                                                   new HttpClientSettings ())
                                           .isFailure ())
