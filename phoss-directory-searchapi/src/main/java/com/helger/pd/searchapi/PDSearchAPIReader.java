@@ -28,11 +28,14 @@ import com.helger.pd.searchapi.v1.ResultListType;
  * @author Philip Helger
  * @param <JAXBTYPE>
  *        The BDE implementation class to be read
+ * @deprecated Use {@link PDResultListMarshaller} instead
  */
 @NotThreadSafe
+@Deprecated (forRemoval = true, since = "0.12.1")
 public class PDSearchAPIReader <JAXBTYPE> extends JAXBReaderBuilder <JAXBTYPE, PDSearchAPIReader <JAXBTYPE>>
 {
-  public PDSearchAPIReader (@Nonnull final EPDSearchAPIDocumentType eDocType, @Nonnull final Class <JAXBTYPE> aImplClass)
+  public PDSearchAPIReader (@Nonnull final EPDSearchAPIDocumentType eDocType,
+                            @Nonnull final Class <JAXBTYPE> aImplClass)
   {
     super (eDocType, aImplClass);
   }

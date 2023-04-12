@@ -102,6 +102,8 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
+* v0.12.1 - work in progress
+    * Introducing class `PDResultListMarshaller` in favour of `PDSearchAPI(Reader|Validator|Writer)`
 * v0.12.0 - 2023-02-25
     * Using Java 11 as the baseline
     * Using **Servlet API 5.0.0** as the baseline: **JakartaEE 9, Java 11+, Apache Tomcat v10.0.x, Jetty 11.x**

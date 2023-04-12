@@ -16,37 +16,23 @@
  */
 package com.helger.pd.searchapi;
 
-import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 
-import com.helger.jaxb.builder.JAXBValidationBuilder;
+import com.helger.jaxb.GenericJAXBMarshaller;
+import com.helger.pd.searchapi.v1.ObjectFactory;
 import com.helger.pd.searchapi.v1.ResultListType;
 
 /**
- * A validator builder for BDE documents.
+ * A JAXB marshaller for PD Search result list documents.
  *
  * @author Philip Helger
- * @param <JAXBTYPE>
- *        The BDE implementation class to be validated
- * @deprecated Use {@link PDResultListMarshaller} instead
+ * @since 0.12.1
  */
 @NotThreadSafe
-@Deprecated (forRemoval = true, since = "0.12.1")
-public class PDSearchAPIValidator <JAXBTYPE> extends JAXBValidationBuilder <JAXBTYPE, PDSearchAPIValidator <JAXBTYPE>>
+public class PDResultListMarshaller extends GenericJAXBMarshaller <ResultListType>
 {
-  public PDSearchAPIValidator (@Nonnull final EPDSearchAPIDocumentType eDocType)
+  public PDResultListMarshaller ()
   {
-    super (eDocType);
-  }
-
-  /**
-   * Create a validator builder for ResultListType.
-   *
-   * @return The builder and never <code>null</code>
-   */
-  @Nonnull
-  public static PDSearchAPIValidator <ResultListType> resultListV1 ()
-  {
-    return new PDSearchAPIValidator <> (EPDSearchAPIDocumentType.RESULT_LIST_V1);
+    super (ResultListType.class, CPDSearchAPI.RESULT_LIST_V1_XSDS, new ObjectFactory ()::createResultlist);
   }
 }

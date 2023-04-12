@@ -29,8 +29,10 @@ import com.helger.xml.namespace.MapBasedNamespaceContext;
  * @author Philip Helger
  * @param <JAXBTYPE>
  *        The BDE implementation class to be written
+ * @deprecated Use {@link PDResultListMarshaller} instead
  */
 @NotThreadSafe
+@Deprecated (forRemoval = true, since = "0.12.1")
 public class PDSearchAPIWriter <JAXBTYPE> extends JAXBWriterBuilder <JAXBTYPE, PDSearchAPIWriter <JAXBTYPE>>
 {
   public PDSearchAPIWriter (@Nonnull final EPDSearchAPIDocumentType eDocType)
