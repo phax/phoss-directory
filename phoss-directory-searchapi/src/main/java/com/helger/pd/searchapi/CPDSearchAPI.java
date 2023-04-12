@@ -53,7 +53,7 @@ public final class CPDSearchAPI
                                                                                                                      _getCL ())).getAsUnmodifiable ();
 
   @PresentForCodeCoverage
-  private static final CPDSearchAPI s_aInstance = new CPDSearchAPI ();
+  private static final CPDSearchAPI INSTANCE = new CPDSearchAPI ();
 
   private CPDSearchAPI ()
   {}

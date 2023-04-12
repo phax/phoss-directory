@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resultlist version="1.0" total-result-count="1" used-result-count="1" result-page-index="0" result-page-count="20" first-result-index="0" last-result-index="0" query-terms="participant=iso6523-actorid-upis::9915:b" creation-dt="2023-04-12T10:15:16.654Z">
+  <match>
+    <participantID scheme="iso6523-actorid-upis">9915:b</participantID>
+    <docTypeID scheme="busdox-docid-qns">urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0::2.1</docTypeID>
+    <docTypeID scheme="busdox-docid-qns">urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2::CreditNote##urn:www.cenbii.eu:transaction:biitrns014:ver2.0:extended:urn:www.peppol.eu:bis:peppol5a:ver2.0:extended:urn:www.erechnung.gv.at:ver1.0::2.1</docTypeID>
+    <docTypeID scheme="busdox-docid-qns">urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:www.cenbii.eu:transaction:biitrns010:ver2.0:extended:urn:www.peppol.eu:bis:peppol5a:ver2.0:extended:urn:www.erechnung.gv.at:ver1.0::2.1</docTypeID>
+    <docTypeID scheme="busdox-docid-qns">urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2::CreditNote##urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0::2.1</docTypeID>
+    <docTypeID scheme="busdox-docid-qns">urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:www.cenbii.eu:transaction:biitrns010:ver2.0:extended:urn:www.peppol.eu:bis:peppol4a:ver2.0:extended:urn:www.erechnung.gv.at:ver1.0::2.1</docTypeID>
+    <entity>
+      <name>Austrian Government</name>
+      <countryCode>AT</countryCode>
+      <website>https://www.erechnung.gv.at</website>
+      <contact type="Support" name="e-Rechnung support" phone="" email="support-erb@brz.gv.at" />
+      <additionalInfo>This is the production endpoint for the whole Austrian Government.&#xD;
+Governmental departments are all ministries and their subordinated departments, the Parliament, the office of the federal president (Präsidentschaftskanzlei), the higher administrative court (Verwaltungsgerichtshof), the constitutional court (Verfassungsgerichtshof), the Austrian ombudsman board (Volksanwaltschaft) and the court of audit (Rechnungshof).</additionalInfo>
+      <regDate>2010-01-01</regDate>
+    </entity>
+  </match>
+</resultlist>
