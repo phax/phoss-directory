@@ -142,7 +142,7 @@
           <dependency>
             <groupId>com.helger</groupId>
             <artifactId>ph-jaxb-plugin</artifactId>
-            <version>4.0.0</version>
+            <version>4.0.2</version>
           </dependency>
         </dependencies>
       </plugin>
