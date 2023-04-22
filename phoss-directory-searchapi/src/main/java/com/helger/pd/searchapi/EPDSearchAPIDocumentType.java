@@ -36,15 +36,16 @@ import com.helger.pd.searchapi.v1.ResultListType;
  *
  * @author Philip Helger
  */
+@Deprecated (forRemoval = true, since = "0.12.1")
 public enum EPDSearchAPIDocumentType implements IJAXBDocumentType
 {
   RESULT_LIST_V1 (ResultListType.class, CPDSearchAPI.RESULT_LIST_V1_XSDS, x -> "resultlist");
 
   private final JAXBDocumentType m_aDocType;
 
-  private EPDSearchAPIDocumentType (@Nonnull final Class <?> aClass,
-                                    @Nonnull final List <ClassPathResource> aXSDs,
-                                    @Nullable final Function <? super String, ? extends String> aTypeToElementNameMapper)
+  EPDSearchAPIDocumentType (@Nonnull final Class <?> aClass,
+                            @Nonnull final List <ClassPathResource> aXSDs,
+                            @Nullable final Function <? super String, ? extends String> aTypeToElementNameMapper)
   {
     m_aDocType = new JAXBDocumentType (aClass, aXSDs, aTypeToElementNameMapper);
   }
