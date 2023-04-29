@@ -59,10 +59,7 @@ public class PDClient implements Closeable
   @Nonnull
   private static IPDClientExceptionCallback _createDefaultExCb ()
   {
-    return (p, m, t) -> {
-      if (LOGGER.isErrorEnabled ())
-        LOGGER.error ("Internal error in " + m + " for " + p.getURIEncoded (), t);
-    };
+    return (p, m, t) -> { LOGGER.error ("Internal error in " + m + " for " + p.getURIEncoded (), t); };
   }
 
   /**
@@ -253,10 +250,9 @@ public class PDClient implements Closeable
     {
       if (executeRequest (aPut, new PDClientResponseHandler ()).isSuccess ())
       {
-        if (LOGGER.isInfoEnabled ())
-          LOGGER.info ("Added service group '" +
-                       sParticipantID +
-                       "' to Peppol Directory index. May take some time until it shows up.");
+        LOGGER.info ("Added service group '" +
+                     sParticipantID +
+                     "' to Peppol Directory index. May take some time until it shows up.");
         return ESuccess.SUCCESS;
       }
     }
@@ -278,10 +274,9 @@ public class PDClient implements Closeable
       if (executeRequest (aDelete, new PDClientResponseHandler ()).isSuccess ())
       {
         final String sParticipantID = aParticipantID.getURIEncoded ();
-        if (LOGGER.isInfoEnabled ())
-          LOGGER.info ("Removed service group '" +
-                       sParticipantID +
-                       "' from Peppol Directory index. May take some time until it is removed.");
+        LOGGER.info ("Removed service group '" +
+                     sParticipantID +
+                     "' from Peppol Directory index. May take some time until it is removed.");
         return ESuccess.SUCCESS;
       }
     }

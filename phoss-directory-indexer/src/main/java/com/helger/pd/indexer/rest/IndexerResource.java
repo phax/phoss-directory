@@ -75,8 +75,7 @@ public class IndexerResource
     catch (final Exception ex)
     {
       // Use Throwable to track "class load error" issue
-      if (LOGGER.isWarnEnabled ())
-        LOGGER.warn (sLogPrefix + "Error validating client certificate", ex);
+      LOGGER.warn (sLogPrefix + "Error validating client certificate", ex);
     }
     return ClientCertificateValidationResult.createFailure ();
   }
@@ -113,19 +112,16 @@ public class IndexerResource
 
     final String sRealParticipantID = _unifyPID (sParticipantID);
 
-    if (LOGGER.isInfoEnabled ())
-      LOGGER.info (sLogPrefix + "'" + sRealParticipantID + "'");
+    LOGGER.info (sLogPrefix + "'" + sRealParticipantID + "'");
 
     // Parse identifier
     final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
     final IParticipantIdentifier aPI = aIdentifierFactory.parseParticipantIdentifier (sRealParticipantID);
     if (aPI == null)
     {
-      if (LOGGER.isErrorEnabled ())
-        LOGGER.error (sLogPrefix + "Failed to parse participant identifier '" + sRealParticipantID + "'");
+      LOGGER.error (sLogPrefix + "Failed to parse participant identifier '" + sRealParticipantID + "'");
       return Response.status (Status.BAD_REQUEST).build ();
     }
-
     // Queue for handling
     if (PDMetaManager.getIndexerMgr ()
                      .queueWorkItem (aPI,
@@ -134,10 +130,8 @@ public class IndexerResource
                                      _getRequestingHost (aHttpServletRequest))
                      .isUnchanged ())
     {
-      if (LOGGER.isInfoEnabled ())
-        LOGGER.info (sLogPrefix + "Ignoring duplicate CREATE/UPDATE request for '" + aPI.getURIEncoded () + "'");
+      LOGGER.info (sLogPrefix + "Ignoring duplicate CREATE/UPDATE request for '" + aPI.getURIEncoded () + "'");
     }
-
     // And done
     return Response.noContent ().build ();
   }
@@ -154,19 +148,16 @@ public class IndexerResource
 
     final String sRealParticipantID = _unifyPID (sParticipantID);
 
-    if (LOGGER.isInfoEnabled ())
-      LOGGER.info (sLogPrefix + "'" + sRealParticipantID + "'");
+    LOGGER.info (sLogPrefix + "'" + sRealParticipantID + "'");
 
     // Parse identifier
     final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
     final IParticipantIdentifier aPI = aIdentifierFactory.parseParticipantIdentifier (sRealParticipantID);
     if (aPI == null)
     {
-      if (LOGGER.isErrorEnabled ())
-        LOGGER.error (sLogPrefix + "Failed to parse participant identifier '" + sRealParticipantID + "'");
+      LOGGER.error (sLogPrefix + "Failed to parse participant identifier '" + sRealParticipantID + "'");
       return Response.status (Status.BAD_REQUEST).build ();
     }
-
     // Don't check for existence of the PI as it might be in the queue for
     // creation
 
@@ -178,10 +169,8 @@ public class IndexerResource
                                      _getRequestingHost (aHttpServletRequest))
                      .isUnchanged ())
     {
-      if (LOGGER.isInfoEnabled ())
-        LOGGER.info (sLogPrefix + "Ignoring duplicate DELETE request for '" + aPI.getURIEncoded () + "'");
+      LOGGER.info (sLogPrefix + "Ignoring duplicate DELETE request for '" + aPI.getURIEncoded () + "'");
     }
-
     // And done
     return Response.noContent ().build ();
   }
@@ -198,15 +187,13 @@ public class IndexerResource
 
     final String sRealParticipantID = _unifyPID (sParticipantID);
 
-    if (LOGGER.isInfoEnabled ())
-      LOGGER.info (sLogPrefix + "'" + sRealParticipantID + "'");
+    LOGGER.info (sLogPrefix + "'" + sRealParticipantID + "'");
 
     // Parse identifier
     final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
     final IParticipantIdentifier aPI = aIdentifierFactory.parseParticipantIdentifier (sRealParticipantID);
     if (aPI == null)
-      if (LOGGER.isErrorEnabled ())
-        LOGGER.error (sLogPrefix + "Failed to parse participant identifier '" + sRealParticipantID + "'");
+      LOGGER.error (sLogPrefix + "Failed to parse participant identifier '" + sRealParticipantID + "'");
 
     // Queue for handling
     if (!PDMetaManager.getStorageMgr ().containsEntry (aPI))

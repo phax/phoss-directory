@@ -60,10 +60,10 @@ public final class NiceNameHandler
 
   @Nonnull
   @ReturnsMutableCopy
-  public static ICommonsOrderedMap <String, NiceNameEntry> readEntries (@Nonnull final IReadableResource aRes, final boolean bReadProcIDs)
+  public static ICommonsOrderedMap <String, NiceNameEntry> readEntries (@Nonnull final IReadableResource aRes,
+                                                                        final boolean bReadProcIDs)
   {
-    if (LOGGER.isInfoEnabled ())
-      LOGGER.info ("Trying to read nice name entries from " + aRes.getPath ());
+    LOGGER.info ("Trying to read nice name entries from " + aRes.getPath ());
 
     final ICommonsOrderedMap <String, NiceNameEntry> ret = new CommonsLinkedHashMap <> ();
     final IMicroDocument aDoc = MicroReader.readMicroXML (aRes);
@@ -79,7 +79,8 @@ public final class NiceNameHandler
         {
           aProcIDs = new CommonsArrayList <> ();
           for (final IMicroElement eItem : eChild.getAllChildElements ("procid"))
-            aProcIDs.add (new SimpleProcessIdentifier (eItem.getAttributeValue ("scheme"), eItem.getAttributeValue ("value")));
+            aProcIDs.add (new SimpleProcessIdentifier (eItem.getAttributeValue ("scheme"),
+                                                       eItem.getAttributeValue ("value")));
         }
 
         ret.put (sID, new NiceNameEntry (sName, bDeprecated, aProcIDs));

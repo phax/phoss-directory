@@ -108,7 +108,8 @@ public final class ExportAllManager
     PDMetaManager.getStorageMgr ()
                  .searchAllDocuments (aQuery,
                                       -1,
-                                      x -> aMap.computeIfAbsent (x.getParticipantID (), k -> new CommonsArrayList <> ()).add (x));
+                                      x -> aMap.computeIfAbsent (x.getParticipantID (), k -> new CommonsArrayList <> ())
+                                               .add (x));
 
     return ExportHelper.getAsXML (aMap, bIncludeDocTypes);
   }
@@ -138,8 +139,7 @@ public final class ExportAllManager
     {
       if (MicroWriter.writeToFile (aDoc, f).isFailure ())
       {
-        if (LOGGER.isErrorEnabled ())
-          LOGGER.error ("Failed to export all BCs as XML (full) to " + f.getAbsolutePath ());
+        LOGGER.error ("Failed to export all BCs as XML (full) to " + f.getAbsolutePath ());
         return ESuccess.FAILURE;
       }
       LOGGER.info ("Successfully wrote all BCs as XML (full) to " + f.getAbsolutePath ());
@@ -194,8 +194,7 @@ public final class ExportAllManager
     {
       if (MicroWriter.writeToFile (aDoc, f).isFailure ())
       {
-        if (LOGGER.isErrorEnabled ())
-          LOGGER.error ("Failed to export all BCs as XML (no doctypes) to " + f.getAbsolutePath ());
+        LOGGER.error ("Failed to export all BCs as XML (no doctypes) to " + f.getAbsolutePath ());
         return ESuccess.FAILURE;
       }
       LOGGER.info ("Successfully wrote all BCs as XML (no doctypes) to " + f.getAbsolutePath ());
@@ -288,7 +287,9 @@ public final class ExportAllManager
       aWBCH.addCellStyle (ES_DATE);
       if (bIncludeDocTypes)
       {
-        aWBCH.addCell (StringHelper.getImplodedMapped ("\n", aEntity.documentTypeIDs (), IDocumentTypeIdentifier::getURIEncoded));
+        aWBCH.addCell (StringHelper.getImplodedMapped ("\n",
+                                                       aEntity.documentTypeIDs (),
+                                                       IDocumentTypeIdentifier::getURIEncoded));
         aWBCH.addCellStyle (ES_WRAP);
       }
     };
@@ -319,8 +320,7 @@ public final class ExportAllManager
       {
         if (aWBCH.writeTo (f).isFailure ())
         {
-          if (LOGGER.isErrorEnabled ())
-            LOGGER.error ("Failed to export all BCs as XLSX to " + f.getAbsolutePath ());
+          LOGGER.error ("Failed to export all BCs as XLSX to " + f.getAbsolutePath ());
           return ESuccess.FAILURE;
         }
         LOGGER.info ("Successfully exported all BCs as XLSX to " + f.getAbsolutePath ());
@@ -330,7 +330,6 @@ public final class ExportAllManager
         RW_LOCK.writeLock ().unlock ();
       }
     }
-
     return ESuccess.SUCCESS;
   }
 
@@ -387,10 +386,14 @@ public final class ExportAllManager
 
     final Consumer <? super PDStoredBusinessEntity> aConsumer = aEntity -> {
       aCSVWriter.writeNext (aEntity.getParticipantID ().getURIEncoded (),
-                            StringHelper.getImplodedMapped ("\n", aEntity.names (), PDStoredMLName::getNameAndLanguageCode),
+                            StringHelper.getImplodedMapped ("\n",
+                                                            aEntity.names (),
+                                                            PDStoredMLName::getNameAndLanguageCode),
                             aEntity.getCountryCode (),
                             aEntity.getGeoInfo (),
-                            StringHelper.getImplodedMapped ("\n", aEntity.identifiers (), PDStoredIdentifier::getScheme),
+                            StringHelper.getImplodedMapped ("\n",
+                                                            aEntity.identifiers (),
+                                                            PDStoredIdentifier::getScheme),
                             StringHelper.getImplodedMapped ("\n", aEntity.identifiers (), PDStoredIdentifier::getValue),
                             StringHelper.getImploded ("\n", aEntity.websiteURIs ()),
                             StringHelper.getImplodedMapped ("\n", aEntity.contacts (), PDStoredContact::getType),
@@ -399,7 +402,9 @@ public final class ExportAllManager
                             StringHelper.getImplodedMapped ("\n", aEntity.contacts (), PDStoredContact::getEmail),
                             aEntity.getAdditionalInformation (),
                             aEntity.getRegistrationDate () == null ? "" : aEntity.getRegistrationDate ().toString (),
-                            StringHelper.getImplodedMapped ("\n", aEntity.documentTypeIDs (), IDocumentTypeIdentifier::getURIEncoded));
+                            StringHelper.getImplodedMapped ("\n",
+                                                            aEntity.documentTypeIDs (),
+                                                            IDocumentTypeIdentifier::getURIEncoded));
     };
     PDMetaManager.getStorageMgr ().searchAllDocuments (aQuery, -1, aConsumer);
     aCSVWriter.flush ();
@@ -431,7 +436,6 @@ public final class ExportAllManager
     {
       RW_LOCK.writeLock ().unlock ();
     }
-
     return ESuccess.SUCCESS;
   }
 
@@ -490,7 +494,6 @@ public final class ExportAllManager
            .setAttribute ("scheme", aParticipantID.getScheme ())
            .setAttribute ("value", aParticipantID.getValue ());
     }
-
     return aDoc;
   }
 
@@ -506,8 +509,7 @@ public final class ExportAllManager
     {
       if (MicroWriter.writeToFile (aDoc, f).isFailure ())
       {
-        if (LOGGER.isErrorEnabled ())
-          LOGGER.error ("Failed to export all Participants as XML to " + f.getAbsolutePath ());
+        LOGGER.error ("Failed to export all Participants as XML to " + f.getAbsolutePath ());
         return ESuccess.FAILURE;
       }
       LOGGER.info ("Successfully wrote all Participants as XML to " + f.getAbsolutePath ());

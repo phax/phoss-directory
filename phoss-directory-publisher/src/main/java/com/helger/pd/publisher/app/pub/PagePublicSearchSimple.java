@@ -162,8 +162,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     final PDStorageManager aStorageMgr = PDMetaManager.getStorageMgr ();
 
     // Search all documents
-    if (LOGGER.isInfoEnabled ())
-      LOGGER.info ("Searching generically for '" + sQuery + "'");
+    LOGGER.info ("Searching generically for '" + sQuery + "'");
 
     // Build Lucene query
     final Query aLuceneQuery = PDQueryManager.convertQueryStringToLuceneQuery (PDMetaManager.getLucene (),
@@ -179,15 +178,14 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     // Also get the total hit count for UI display. May be < 0 in case of
     // error
     final int nTotalBEs = aStorageMgr.getCount (aLuceneQuery);
-    if (LOGGER.isInfoEnabled ())
-      LOGGER.info ("  Result for <" +
-                   aLuceneQuery +
-                   "> (max=" +
-                   nMaxResults +
-                   ") " +
-                   (aResultBEs.size () == 1 ? "is 1 document" : "are " + aResultBEs.size () + " documents") +
-                   "." +
-                   (nTotalBEs >= 0 ? " " + nTotalBEs + " total hits are available." : ""));
+    LOGGER.info ("  Result for <" +
+                 aLuceneQuery +
+                 "> (max=" +
+                 nMaxResults +
+                 ") " +
+                 (aResultBEs.size () == 1 ? "is 1 document" : "are " + aResultBEs.size () + " documents") +
+                 "." +
+                 (nTotalBEs >= 0 ? " " + nTotalBEs + " total hits are available." : ""));
 
     // Group by participant ID
     final ICommonsMap <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> aGroupedBEs = PDStorageManager.getGroupedByParticipantID (aResultBEs);
@@ -200,7 +198,8 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     else
     {
       aNodeList.addChild (div (badgeSuccess ("Found " +
-                                             (aGroupedBEs.size () == 1 ? "1 entity" : aGroupedBEs.size () + " entities") +
+                                             (aGroupedBEs.size () == 1 ? "1 entity"
+                                                                       : aGroupedBEs.size () + " entities") +
                                              " matching '" +
                                              sQuery +
                                              "'")));
@@ -269,7 +268,8 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
           if (aStoredDoc.names ().isNotEmpty ())
           {
             // TODO add locale filter here
-            final ICommonsList <PDStoredMLName> aNames = PDCommonUI.getUIFilteredNames (aStoredDoc.names (), aDisplayLocale);
+            final ICommonsList <PDStoredMLName> aNames = PDCommonUI.getUIFilteredNames (aStoredDoc.names (),
+                                                                                        aDisplayLocale);
 
             IHCNode aNameCtrl;
             if (aNames.size () == 1)
@@ -281,7 +281,9 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
               aNameCtrl = aNameUL;
             }
 
-            aTable.addBodyRow ().addCell ("Entity Name:").addCell (span (aNameCtrl).addClass (CSS_CLASS_RESULT_DOC_NAME));
+            aTable.addBodyRow ()
+                  .addCell ("Entity Name:")
+                  .addCell (span (aNameCtrl).addClass (CSS_CLASS_RESULT_DOC_NAME));
           }
 
           if (aStoredDoc.hasGeoInfo ())

@@ -111,7 +111,6 @@ public final class ClientCertificateValidator
     // Throws a runtime exception on syntax error anyway :)
     for (final String sIssuerToSearch : aIssuersToSearch)
       ALLOWED_CERTIFICATE_ISSUERS.add (new X500Principal (sIssuerToSearch));
-
     if (ALLOWED_CERTIFICATE_ISSUERS.isEmpty ())
     {
       final String sMsg = "The configuration file is missing an entry for the client certificate issuer.";
@@ -150,7 +149,6 @@ public final class ClientCertificateValidator
         LOGGER.error (sMsg);
         throw new InitializationException (sMsg, ex);
       }
-
       // Check if both root certificates could be loaded
       if (aCert == null)
       {
@@ -173,7 +171,6 @@ public final class ClientCertificateValidator
                    "; root certficate issuer=" +
                    aCert.getIssuerX500Principal ().getName ());
     }
-
     if (ALLOWED_ROOT_CERTS.isEmpty ())
     {
       final String sMsg = "Server configuration contains no trusted root certificate configuration.";
@@ -253,7 +250,6 @@ public final class ClientCertificateValidator
     {
       return ex.getMessage ();
     }
-
     // Check timely validity (at a certain date/time or simply now)
     try
     {
@@ -266,7 +262,6 @@ public final class ClientCertificateValidator
     {
       return ex.getMessage ();
     }
-
     // Check passed revocation lists
     if (aCRLs != null)
       for (final CRL aCRL : aCRLs)
@@ -327,16 +322,13 @@ public final class ClientCertificateValidator
         LOGGER.debug (sLogPrefix + "Client certificate is considered valid because the 'allow all' for tests is set!");
       return ClientCertificateValidationResult.createSuccess (INSECURE_DEBUG_CLIENT);
     }
-
     // This is how to get client certificate from request
     final Object aValue = aHttpRequest.getAttribute ("javax.servlet.request.X509Certificate");
     if (aValue == null)
     {
-      if (LOGGER.isWarnEnabled ())
-        LOGGER.warn (sLogPrefix + "No client certificates present in the request");
+      LOGGER.warn (sLogPrefix + "No client certificates present in the request");
       return ClientCertificateValidationResult.createFailure ();
     }
-
     // type check
     if (!(aValue instanceof X509Certificate []))
       throw new IllegalStateException ("Request value is not of type X509Certificate[] but of " + aValue.getClass ());
@@ -346,11 +338,9 @@ public final class ClientCertificateValidator
     if (ArrayHelper.isEmpty (aRequestCerts))
     {
       // Empty array
-      if (LOGGER.isWarnEnabled ())
-        LOGGER.warn (sLogPrefix + "No client certificates passed for validation");
+      LOGGER.warn (sLogPrefix + "No client certificates passed for validation");
       return ClientCertificateValidationResult.createFailure ();
     }
-
     // OK, we have a non-empty, type checked Certificate array
 
     // TODO: determine CRLs
@@ -367,11 +357,10 @@ public final class ClientCertificateValidator
         final X500Principal aIssuer = aCert.getIssuerX500Principal ();
         if (ALLOWED_CERTIFICATE_ISSUERS.contains (aIssuer))
         {
-          if (LOGGER.isInfoEnabled ())
-            LOGGER.info (sLogPrefix +
-                         "  Using the following client certificate issuer for verification: '" +
-                         aIssuer +
-                         "'");
+          LOGGER.info (sLogPrefix +
+                       "  Using the following client certificate issuer for verification: '" +
+                       aIssuer +
+                       "'");
           aClientCertToVerify = aCert;
           break;
         }
@@ -385,7 +374,6 @@ public final class ClientCertificateValidator
                                          Arrays.toString (aRequestCerts));
       }
     }
-
     final String sClientID = getClientUniqueID (aClientCertToVerify);
 
     // This is the main verification process against the Peppol SMP root
@@ -395,14 +383,11 @@ public final class ClientCertificateValidator
       final String sVerifyErrorMsg = _verifyCertificate (aClientCertToVerify, aRootCert, aCRLs, aVerificationDate);
       if (sVerifyErrorMsg == null)
       {
-        if (LOGGER.isInfoEnabled ())
-          LOGGER.info (sLogPrefix + "  Passed client certificate is valid");
+        LOGGER.info (sLogPrefix + "  Passed client certificate is valid");
         return ClientCertificateValidationResult.createSuccess (sClientID);
       }
     }
-
-    if (LOGGER.isWarnEnabled ())
-      LOGGER.warn ("Client certificate is invalid: " + sClientID);
+    LOGGER.warn ("Client certificate is invalid: " + sClientID);
     return ClientCertificateValidationResult.createFailure ();
   }
 }

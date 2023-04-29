@@ -151,7 +151,6 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
         return;
       }
     }
-
     final IRequestParamContainer aParams = aRequestScope.params ();
 
     // http://127.0.0.1:8080/search -> null
@@ -183,8 +182,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
                                                      aParams.getAsInt ("rpi", DEFAULT_RESULT_PAGE_INDEX));
       if (nResultPageIndex < 0)
       {
-        if (LOGGER.isErrorEnabled ())
-          LOGGER.error ("ResultPageIndex " + nResultPageIndex + " is invalid. It must be >= 0.");
+        LOGGER.error ("ResultPageIndex " + nResultPageIndex + " is invalid. It must be >= 0.");
         aUnifiedResponse.setStatus (CHttp.HTTP_BAD_REQUEST);
         return;
       }
@@ -192,8 +190,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
                                                      aParams.getAsInt ("rpc", DEFAULT_RESULT_PAGE_COUNT));
       if (nResultPageCount <= 0)
       {
-        if (LOGGER.isErrorEnabled ())
-          LOGGER.error ("ResultPageCount " + nResultPageCount + " is invalid. It must be > 0.");
+        LOGGER.error ("ResultPageCount " + nResultPageCount + " is invalid. It must be > 0.");
         aUnifiedResponse.setStatus (CHttp.HTTP_BAD_REQUEST);
         return;
       }
@@ -201,27 +198,20 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
       final int nLastResultIndex = (nResultPageIndex + 1) * nResultPageCount - 1;
       if (nFirstResultIndex > MAX_RESULTS)
       {
-        if (LOGGER.isErrorEnabled ())
-          LOGGER.error ("The first result index " +
-                        nFirstResultIndex +
-                        " is invalid. It must be <= " +
-                        MAX_RESULTS +
-                        ".");
+        LOGGER.error ("The first result index " +
+                      nFirstResultIndex +
+                      " is invalid. It must be <= " +
+                      MAX_RESULTS +
+                      ".");
         aUnifiedResponse.setStatus (CHttp.HTTP_BAD_REQUEST);
         return;
       }
       if (nLastResultIndex > MAX_RESULTS)
       {
-        if (LOGGER.isErrorEnabled ())
-          LOGGER.error ("The last result index " +
-                        nLastResultIndex +
-                        " is invalid. It must be <= " +
-                        MAX_RESULTS +
-                        ".");
+        LOGGER.error ("The last result index " + nLastResultIndex + " is invalid. It must be <= " + MAX_RESULTS + ".");
         aUnifiedResponse.setStatus (CHttp.HTTP_BAD_REQUEST);
         return;
       }
-
       // Format output?
       final boolean bBeautify = aParams.getAsBoolean (PARAM_BEAUTIFY, false);
 
@@ -247,8 +237,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
       }
       if (aQueryValues.isEmpty ())
       {
-        if (LOGGER.isErrorEnabled ())
-          LOGGER.error ("No valid query term provided!");
+        LOGGER.error ("No valid query term provided!");
         aUnifiedResponse.setStatus (CHttp.HTTP_BAD_REQUEST);
         return;
       }
@@ -266,19 +255,16 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
             aQueries.add (aQuery);
           else
           {
-            if (LOGGER.isErrorEnabled ())
-              LOGGER.error ("Failed to create query '" + sQuery + "' of field " + eField + " - ignoring term!");
+            LOGGER.error ("Failed to create query '" + sQuery + "' of field " + eField + " - ignoring term!");
           }
         }
       }
       if (aQueries.isEmpty ())
       {
-        if (LOGGER.isErrorEnabled ())
-          LOGGER.error ("No valid queries could be created!");
+        LOGGER.error ("No valid queries could be created!");
         aUnifiedResponse.setStatus (CHttp.HTTP_BAD_REQUEST);
         return;
       }
-
       // Build final query term
       final Query aLuceneQuery;
       if (aQueries.size () == 1)
@@ -293,7 +279,6 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
           aBuilder.add (aQuery, Occur.MUST);
         aLuceneQuery = aBuilder.build ();
       }
-
       // How many results to deliver at most
       final int nMaxResults = nLastResultIndex + 1;
 
@@ -315,7 +300,8 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
 
       // Filter by index/count
       final int nEffectiveLastIndex = Math.min (nLastResultIndex, aResultDocs.size () - 1);
-      final List <PDStoredBusinessEntity> aResultView = nFirstResultIndex >= aResultDocs.size () ? Collections.emptyList ()
+      final List <PDStoredBusinessEntity> aResultView = nFirstResultIndex >= aResultDocs.size () ? Collections
+                                                                                                              .emptyList ()
                                                                                                  : aResultDocs.subList (nFirstResultIndex,
                                                                                                                         nEffectiveLastIndex +
                                                                                                                                            1);
@@ -348,7 +334,6 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
             final IMicroElement eItem = PDStoredBusinessEntity.getAsSearchResultMicroElement (aPerParticipant);
             eRoot.appendChild (eItem);
           }
-
           if (false)
           {
             // Demo validation
@@ -358,7 +343,6 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
             for (final IError aError : aErrHdl.getErrorList ())
               LOGGER.error (aError.getAsString (AppCommonUI.DEFAULT_LOCALE));
           }
-
           aUnifiedResponse.disableCaching ();
           aUnifiedResponse.setMimeType (eOutputFormat.getMimeType ());
           aUnifiedResponse.setContent (MicroWriter.getNodeAsBytes (aDoc, aXWS));
@@ -392,7 +376,6 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
         default:
           throw new IllegalStateException ("Unsupported output format: " + eOutputFormat);
       }
-
     }
     else
     {
