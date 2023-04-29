@@ -55,7 +55,6 @@ import com.helger.photon.uicore.icon.EDefaultIcon;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 import com.helger.web.fileupload.FileItemResource;
 import com.helger.web.fileupload.IFileItem;
-import com.helger.xml.EXMLParserFeature;
 import com.helger.xml.sax.CollectingSAXErrorHandler;
 import com.helger.xml.serialize.read.SAXReader;
 import com.helger.xml.serialize.read.SAXReaderSettings;
@@ -90,11 +89,12 @@ public final class PageSecureIndexImport extends AbstractAppWebPage
         else
         {
           aNodeList.addChild (info ("The following SMLs are crawled for entries: " +
-                                    StringHelper.getImplodedMapped (", ", aSMPBCProv.getAllSMLsToUse (), ISMLInfo::getDisplayName)));
+                                    StringHelper.getImplodedMapped (", ",
+                                                                    aSMPBCProv.getAllSMLsToUse (),
+                                                                    ISMLInfo::getDisplayName)));
         }
       }
     }
-
     final boolean bIsFormSubmitted = aWPEC.hasAction (CPageParam.ACTION_PERFORM);
     if (bIsFormSubmitted)
     {
@@ -106,7 +106,6 @@ public final class PageSecureIndexImport extends AbstractAppWebPage
       {
         final HCNodeList aResultNL = new HCNodeList ();
         final SAXReaderSettings aSettings = new SAXReaderSettings ();
-        aSettings.setFeatureValues (EXMLParserFeature.AVOID_DOS_SETTINGS);
 
         final CollectingSAXErrorHandler aErrorHandler = new CollectingSAXErrorHandler ();
         aSettings.setErrorHandler (aErrorHandler);
@@ -125,7 +124,8 @@ public final class PageSecureIndexImport extends AbstractAppWebPage
             {
               final String sScheme = aAttributes.getValue ("scheme");
               final String sValue = aAttributes.getValue ("value");
-              final IParticipantIdentifier aParticipantID = aIdentifierFactory.createParticipantIdentifier (sScheme, sValue);
+              final IParticipantIdentifier aParticipantID = aIdentifierFactory.createParticipantIdentifier (sScheme,
+                                                                                                            sValue);
               if (aParticipantID != null)
               {
                 if (PDMetaManager.getIndexerMgr ()
@@ -174,7 +174,6 @@ public final class PageSecureIndexImport extends AbstractAppWebPage
             aUL.addItem (aPI.getURIEncoded ());
           aResultNL.addChild (warn (div ("The following identifiers could not be queued (because they are already in the queue):")).addChild (aUL));
         }
-
         if (eSuccess.isFailure ())
         {
           final HCUL aUL = new HCUL ();
@@ -189,8 +188,8 @@ public final class PageSecureIndexImport extends AbstractAppWebPage
         aWPEC.postRedirectGetInternal (aResultNL);
       }
     }
-
-    final BootstrapForm aForm = aNodeList.addAndReturnChild (getUIHandler ().createFormFileUploadSelf (aWPEC, bIsFormSubmitted));
+    final BootstrapForm aForm = aNodeList.addAndReturnChild (getUIHandler ().createFormFileUploadSelf (aWPEC,
+                                                                                                       bIsFormSubmitted));
     aForm.addFormGroup (new BootstrapFormGroup ().setLabelMandatory ("Import file")
                                                  .setCtrl (new BootstrapFileUpload (FIELD_FILE, aDisplayLocale))
                                                  .setHelpText ("Select a file that was created from a full XML export to index of all them manually.")
