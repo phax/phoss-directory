@@ -55,7 +55,7 @@ public final class IndexerWorkItemQueue
                                                                               2,
                                                                               60L,
                                                                               TimeUnit.SECONDS,
-                                                                              new SynchronousQueue <Runnable> (),
+                                                                              new SynchronousQueue <> (),
                                                                               m_aThreadFactory);
 
   /**
