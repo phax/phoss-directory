@@ -43,6 +43,7 @@ public class ExportDeliveryHttpHandler extends AbstractObjectDeliveryHttpHandler
 {
   public static final String SPECIAL_BUSINESS_CARDS_XML_FULL = "/businesscards";
   public static final String SPECIAL_BUSINESS_CARDS_XML_NO_DOC_TYPES = "/businesscards-xml-no-doc-types";
+  public static final String SPECIAL_BUSINESS_CARDS_JSON = "/businesscards-json";
   public static final String SPECIAL_BUSINESS_CARDS_EXCEL = "/businesscards-excel";
   public static final String SPECIAL_BUSINESS_CARDS_CSV = "/businesscards-csv";
   public static final String SPECIAL_PARTICIPANTS_XML = "/participants-xml";
@@ -65,6 +66,20 @@ public class ExportDeliveryHttpHandler extends AbstractObjectDeliveryHttpHandler
       ExportAllManager.streamFileBusinessCardXMLNoDocTypesTo (aUnifiedResponse);
       aUnifiedResponse.setMimeType (CMimeType.APPLICATION_XML);
       aUnifiedResponse.setContentDispositionFilename (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_NO_DOC_TYPES);
+    });
+    HANDLERS.put (SPECIAL_BUSINESS_CARDS_JSON, aUnifiedResponse -> {
+      if (CPDPublisher.EXPORT_BUSINESS_CARDS_JSON)
+      {
+        aUnifiedResponse.disableCaching ();
+        ExportAllManager.streamFileBusinessCardJSONTo (aUnifiedResponse);
+        aUnifiedResponse.setMimeType (CMimeType.APPLICATION_JSON);
+        aUnifiedResponse.setContentDispositionFilename (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_JSON);
+      }
+      else
+      {
+        aUnifiedResponse.disableCaching ();
+        aUnifiedResponse.setStatus (HttpServletResponse.SC_NOT_FOUND);
+      }
     });
     HANDLERS.put (SPECIAL_BUSINESS_CARDS_EXCEL, aUnifiedResponse -> {
       if (CPDPublisher.EXPORT_BUSINESS_CARDS_EXCEL)

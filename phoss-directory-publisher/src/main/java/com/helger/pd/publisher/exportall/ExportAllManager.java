@@ -76,6 +76,7 @@ public final class ExportAllManager
   // Filenames for download
   public static final String EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_FULL = "directory-export-business-cards.xml";
   public static final String EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_NO_DOC_TYPES = "directory-export-business-cards-no-doc-types.xml";
+  public static final String EXTERNAL_EXPORT_ALL_BUSINESSCARDS_JSON = "directory-export-business-cards.json";
   public static final String EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XLSX = "directory-export-business-cards.xlsx";
   public static final String EXTERNAL_EXPORT_ALL_BUSINESSCARDS_CSV = "directory-export-business-cards.csv";
   public static final String EXTERNAL_EXPORT_ALL_PARTICIPANTS_XML = "directory-export-participants.xml";
@@ -85,6 +86,7 @@ public final class ExportAllManager
   // Internal filenames
   private static final String INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_FULL = "export-all-businesscards.xml";
   private static final String INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_NO_DOC_TYPES = "export-all-businesscards-no-doc-types.xml";
+  private static final String INTERNAL_EXPORT_ALL_BUSINESSCARDS_JSON = "export-all-businesscards.json";
   private static final String INTERNAL_EXPORT_ALL_BUSINESSCARDS_XLSX = "export-all-businesscards.xlsx";
   private static final String INTERNAL_EXPORT_ALL_BUSINESSCARDS_CSV = "export-all-businesscards.csv";
   private static final String INTERNAL_EXPORT_ALL_PARTICIPANTS_XML = "export-all-participants.xml";
@@ -220,6 +222,77 @@ public final class ExportAllManager
     try
     {
       final File f = _getInternalFileBusinessCardXMLNoDocTypes ();
+      // setContent(IReadableResource) is lazy
+      aUR.setContent (new FileSystemResource (f));
+      final long nFileLen = f.length ();
+      if (nFileLen > 0)
+        aUR.setCustomResponseHeader (CHttpHeader.CONTENT_LENGTH, Long.toString (nFileLen));
+    }
+    finally
+    {
+      RW_LOCK.readLock ().unlock ();
+    }
+  }
+
+  @Nonnull
+  private static File _getInternalFileBusinessCardJSON ()
+  {
+    return WebFileIO.getDataIO ().getFile (INTERNAL_EXPORT_ALL_BUSINESSCARDS_JSON);
+  }
+
+  @Nonnull
+  public static IJsonObject queryAllContainedBusinessCardsAsJSON (final boolean bIncludeDocTypes) throws IOException
+  {
+    final Query aQuery = new MatchAllDocsQuery ();
+
+    // Query all and group by participant ID
+    final ICommonsOrderedMap <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> aMap = new CommonsLinkedHashMap <> ();
+    PDMetaManager.getStorageMgr ()
+                 .searchAllDocuments (aQuery,
+                                      -1,
+                                      x -> aMap.computeIfAbsent (x.getParticipantID (), k -> new CommonsArrayList <> ())
+                                               .add (x));
+
+    return ExportHelper.getAsJSON (aMap, bIncludeDocTypes);
+  }
+
+  @Nonnull
+  static ESuccess writeFileBusinessCardJSON () throws IOException
+  {
+    final IJsonObject aObj = queryAllContainedBusinessCardsAsJSON (true);
+    final File f = _getInternalFileBusinessCardJSON ();
+
+    // Do it in a write lock!
+    RW_LOCK.writeLock ().lock ();
+    try (final Writer aWriter = FileHelper.getBufferedWriter (f, StandardCharsets.UTF_8))
+    {
+      new JsonWriter ().writeToWriterAndClose (aObj, aWriter);
+      LOGGER.info ("Successfully wrote all BusinessCards as JSON to " + f.getAbsolutePath ());
+    }
+    catch (final IOException ex)
+    {
+      LOGGER.error ("Failed to export all BusinessCards as JSON to " + f.getAbsolutePath (), ex);
+    }
+    finally
+    {
+      RW_LOCK.writeLock ().unlock ();
+    }
+    return ESuccess.SUCCESS;
+  }
+
+  /**
+   * Stream the stored JSON file to the provided HTTP response
+   *
+   * @param aUR
+   *        The response to stream to. May not be <code>null</code>.
+   */
+  public static void streamFileBusinessCardJSONTo (@Nonnull final UnifiedResponse aUR)
+  {
+    // Do it in a read lock!
+    RW_LOCK.readLock ().lock ();
+    try
+    {
+      final File f = _getInternalFileBusinessCardJSON ();
       // setContent(IReadableResource) is lazy
       aUR.setContent (new FileSystemResource (f));
       final long nFileLen = f.length ();

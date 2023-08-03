@@ -84,7 +84,9 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
         }
         finally
         {
-          LOGGER.info ("Finished exporting business cards as XML (full) after " + aSW.stopAndGetMillis () + " milliseconds");
+          LOGGER.info ("Finished exporting business cards as XML (full) after " +
+                       aSW.stopAndGetMillis () +
+                       " milliseconds");
         }
 
         aSW.restart ();
@@ -95,7 +97,25 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
         }
         finally
         {
-          LOGGER.info ("Finished exporting business cards as XML (no doc types) after " + aSW.stopAndGetMillis () + " milliseconds");
+          LOGGER.info ("Finished exporting business cards as XML (no doc types) after " +
+                       aSW.stopAndGetMillis () +
+                       " milliseconds");
+        }
+
+        if (CPDPublisher.EXPORT_BUSINESS_CARDS_JSON)
+        {
+          aSW.restart ();
+          LOGGER.info ("Start exporting business cards as JSON");
+          try
+          {
+            ExportAllManager.writeFileBusinessCardJSON ();
+          }
+          finally
+          {
+            LOGGER.info ("Finished exporting business cards as JSON after " +
+                         aSW.stopAndGetMillis () +
+                         " milliseconds");
+          }
         }
 
         if (CPDPublisher.EXPORT_BUSINESS_CARDS_EXCEL)
@@ -108,7 +128,9 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
           }
           finally
           {
-            LOGGER.info ("Finished exporting business cards as Excel after " + aSW.stopAndGetMillis () + " milliseconds");
+            LOGGER.info ("Finished exporting business cards as Excel after " +
+                         aSW.stopAndGetMillis () +
+                         " milliseconds");
           }
         }
 
@@ -181,8 +203,8 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
   }
 
   @Override
-  protected void onExecute (@Nonnull final JobDataMap aJobDataMap,
-                            @Nonnull final IJobExecutionContext aContext) throws JobExecutionException
+  protected void onExecute (@Nonnull final JobDataMap aJobDataMap, @Nonnull final IJobExecutionContext aContext)
+                                                                                                                 throws JobExecutionException
   {
     try
     {
