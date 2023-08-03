@@ -66,15 +66,15 @@ import com.helger.photon.bootstrap4.utils.BootstrapPageHeader;
 
 public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
 {
-  protected static enum EUIMode implements IHasID <String>
+  protected enum EUIMode implements IHasID <String>
   {
-    DEFAULT ("default"),
+    PEPPOL ("peppol"),
     TOOP ("toop"),
     DE4A ("de4a");
 
     private final String m_sID;
 
-    private EUIMode (@Nonnull @Nonempty final String sID)
+    EUIMode (@Nonnull @Nonempty final String sID)
     {
       m_sID = sID;
     }
@@ -88,18 +88,23 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
 
     public boolean isUseGreenButton ()
     {
-      return this == DEFAULT;
+      return this == PEPPOL;
     }
 
     public boolean isUseHelptext ()
     {
-      return this == DEFAULT;
+      return this == PEPPOL;
+    }
+
+    public boolean isShowPrivacyPolicy ()
+    {
+      return this == PEPPOL;
     }
 
     @Nonnull
     public static EUIMode getFromIDOrDefault (@Nullable final String sID)
     {
-      return EnumHelper.getFromIDOrDefault (EUIMode.class, sID, EUIMode.DEFAULT);
+      return EnumHelper.getFromIDOrDefault (EUIMode.class, sID, EUIMode.PEPPOL);
     }
   }
 
@@ -167,7 +172,8 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
     final HCNodeList aDetails = new HCNodeList ();
 
     // Search document matching participant ID
-    final ICommonsList <PDStoredBusinessEntity> aResultDocs = PDMetaManager.getStorageMgr ().getAllDocumentsOfParticipant (aParticipantID);
+    final ICommonsList <PDStoredBusinessEntity> aResultDocs = PDMetaManager.getStorageMgr ()
+                                                                           .getAllDocumentsOfParticipant (aParticipantID);
     // Group by participant ID
     final ICommonsMap <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> aGroupedDocs = PDStorageManager.getGroupedByParticipantID (aResultDocs);
     if (aGroupedDocs.isEmpty ())
@@ -175,7 +181,11 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
     else
     {
       if (aGroupedDocs.size () > 1)
-        LOGGER.warn ("Found " + aGroupedDocs.size () + " entries for participant identifier '" + sParticipantID + "' - weird");
+        LOGGER.warn ("Found " +
+                     aGroupedDocs.size () +
+                     " entries for participant identifier '" +
+                     sParticipantID +
+                     "' - weird");
       // Get the first one
       final ICommonsList <PDStoredBusinessEntity> aStoredEntities = aGroupedDocs.getFirstValue ();
 
@@ -215,7 +225,8 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
           if (aStoredEntities.size () > 1)
             aCard.createAndAddHeader ().addChild ("Business information entity " + nIndex);
           final BootstrapViewForm aViewForm = PDCommonUI.showBusinessInfoDetails (aStoredEntity, aDisplayLocale);
-          aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Full Peppol participant ID").setCtrl (code (sParticipantID)));
+          aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Full Peppol participant ID")
+                                                           .setCtrl (code (sParticipantID)));
 
           if (GlobalDebug.isDebugMode () || bIsLoggedInUserAdministrator)
           {
@@ -225,9 +236,11 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
                                                                                                              .getCreationDT (),
                                                                                                 aDisplayLocale)));
             aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("[Debug] Owner ID")
-                                                             .setCtrl (code (aStoredEntity.getMetaData ().getOwnerID ())));
+                                                             .setCtrl (code (aStoredEntity.getMetaData ()
+                                                                                          .getOwnerID ())));
             aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("[Debug] Requesting Host")
-                                                             .setCtrl (code (aStoredEntity.getMetaData ().getRequestingHost ())));
+                                                             .setCtrl (code (aStoredEntity.getMetaData ()
+                                                                                          .getRequestingHost ())));
           }
 
           aCard.createAndAddBody ().addChild (aViewForm);
@@ -264,7 +277,10 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
         if (aDocTypeOL == null)
           aDocTypeCtrl.addChild (warn ("This participant does not support any document types!"));
 
-        aTabBox.addTab ("doctypes", span ("Supported document types ").addChild (badgePrimary (aDocTypeIDs.size ())), aDocTypeCtrl, false);
+        aTabBox.addTab ("doctypes",
+                        span ("Supported document types ").addChild (badgePrimary (aDocTypeIDs.size ())),
+                        aDocTypeCtrl,
+                        false);
       }
       aDetails.addChild (aTabBox);
     }

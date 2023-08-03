@@ -32,9 +32,11 @@ import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.collection.impl.ICommonsMap;
 import com.helger.commons.locale.country.CountryCache;
 import com.helger.commons.string.StringHelper;
+import com.helger.commons.url.SimpleURL;
 import com.helger.css.property.CCSSProperties;
 import com.helger.css.utils.CSSURLHelper;
 import com.helger.html.hc.IHCNode;
+import com.helger.html.hc.ext.HCA_MailTo;
 import com.helger.html.hc.ext.HCExtHelper;
 import com.helger.html.hc.html.forms.EHCFormMethod;
 import com.helger.html.hc.html.forms.HCEdit;
@@ -67,6 +69,7 @@ import com.helger.photon.bootstrap4.button.BootstrapSubmitButton;
 import com.helger.photon.bootstrap4.button.EBootstrapButtonSize;
 import com.helger.photon.bootstrap4.button.EBootstrapButtonType;
 import com.helger.photon.bootstrap4.grid.BootstrapRow;
+import com.helger.photon.bootstrap4.nav.BootstrapTabBox;
 import com.helger.photon.bootstrap4.table.BootstrapTable;
 import com.helger.photon.core.form.RequestField;
 import com.helger.photon.uicore.css.CPageParam;
@@ -122,7 +125,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
   }
 
   @Nonnull
-  private BootstrapRow _createInitialSearchForm (final WebPageExecutionContext aWPEC)
+  private BootstrapRow _createInitialSearchForm (@Nonnull final WebPageExecutionContext aWPEC)
   {
     final HCForm aBigQueryBox = new HCForm ().setAction (aWPEC.getSelfHref ()).setMethod (EHCFormMethod.GET);
 
@@ -198,8 +201,8 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     else
     {
       aNodeList.addChild (div (badgeSuccess ("Found " +
-                                             (aGroupedBEs.size () == 1 ? "1 entity"
-                                                                       : aGroupedBEs.size () + " entities") +
+                                             (aGroupedBEs.size () == 1 ? "1 entity" : aGroupedBEs.size () +
+                                                                                      " entities") +
                                              " matching '" +
                                              sQuery +
                                              "'")));
@@ -258,11 +261,12 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
                   .addCell ("Country:")
                   .addCell (new HCNodeList ().addChild (PDCommonUI.getFlagNode (sCountryCode))
                                              .addChild (" ")
-                                             .addChild (span (aCountry != null ? aCountry.getDisplayCountry (aDisplayLocale) +
+                                             .addChild (span (aCountry != null ? aCountry.getDisplayCountry (
+                                                                                                             aDisplayLocale) +
                                                                                  " (" +
                                                                                  sCountryCode +
-                                                                                 ")"
-                                                                               : sCountryCode).addClass (CSS_CLASS_RESULT_DOC_COUNTRY_CODE)));
+                                                                                 ")" : sCountryCode).addClass (
+                                                                                                               CSS_CLASS_RESULT_DOC_COUNTRY_CODE)));
           }
 
           if (aStoredDoc.names ().isNotEmpty ())
@@ -336,7 +340,6 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
                                     .addStyle (CCSSProperties.BACKGROUND_IMAGE.newValue (CSSURLHelper.getAsCSSURL (CPDPublisher.getLogoImageURL (),
                                                                                                                    true)));
     aLogoContainer.addChild (aLogo);
-    aNodeList.addChild (aLogoContainer);
 
     final String sQuery = aWPEC.params ().getAsStringTrimmed (FIELD_QUERY);
     final String sParticipantID = aWPEC.params ().getAsStringTrimmed (FIELD_PARTICIPANT_ID);
@@ -396,6 +399,39 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
         // Show big query box
         aLogo.addChild (_createInitialSearchForm (aWPEC));
       }
+
+      if (UI_MODE.isShowPrivacyPolicy ())
+      {
+        final BootstrapTabBox aTabBox = new BootstrapTabBox ();
+        aTabBox.addTab ("search", "Search", aLogoContainer);
+        aTabBox.addTab ("privacy",
+                        "Privacy Statement",
+                        new HCNodeList ().addChild (strong ("Privacy Policy for the OpenPeppol Directory"))
+                                         .addChild (div ().addChild ("This OpenPeppol Directory, and the related services under which data in the Directory are made available to certain third parties, are operated and provided jointly by OpenPeppol AISBL and the Service Providers of the Peppol Network (the ‘Operators’)." +
+                                                                     " Data in the OpenPeppol Directory can occasionally, and at a limited scale, contain data that would qualify as personal data under European data protection law." +
+                                                                     " Specifically, categories of personal data can include identity information and contact information of persons that act on behalf of end users of the Peppol Network, as communicated to the Operators by the Service Providers." +
+                                                                     " When this is the case, the Operators act as the joint data controllers in the sense of European data protection law, and the Directory is provided on the basis of the legitimate interest of the Operators in ensuring the proper functioning of the Peppol Network, as requested by the end users."))
+                                         .addChild (div ().addChild ("Any personal data in the Directory may only be used insofar as this is necessary to ensure the correct, effective and secure operation of the Peppol Network." +
+                                                                     " Under this policy, the Operators only permit access to personal data in the Directory by persons who are contractually authorised by at least one of the Operators to use the Peppol Network." +
+                                                                     " These are the only permitted recipients of personal data under this policy." +
+                                                                     " Personal data in the Directory will be retained as long as the persons concerned remain registered as persons acting on behalf of end users of the Peppol Network."))
+                                         .addChild (div ().addChild ("In case of any questions in relation to the Directory, or to exercise their rights to access, correct or delete their personal data, or to restrict or object to future processing, data subjects may contact the Operators via ")
+                                                          .addChild (HCA_MailTo.createLinkedEmail ("info@peppol.eu"))
+                                                          .addChild ("." +
+                                                                     " If the provided answer is not satisfactory, data subjects may choose to lodge a complaint with ")
+                                                          .addChild (a (new SimpleURL ("https://edpb.europa.eu/about-edpb/about-edpb/members_en")).addChild ("their local data protection authority."))));
+        aNodeList.addChild (div (aTabBox).addClass (CBootstrapCSS.MY_3));
+      }
+      else
+      {
+        // No tab box needed
+        aNodeList.addChild (aLogoContainer);
+      }
+    }
+    else
+    {
+      // Show results only
+      aNodeList.addChild (aLogoContainer);
     }
   }
 }
