@@ -100,7 +100,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
    *         compatibility support.
    */
   @Nonnull
-  public static MultiConfigurationValueProvider createSMPClientValueProvider ()
+  public static MultiConfigurationValueProvider createConfigValueProvider ()
   {
     // Start with default setup
     final MultiConfigurationValueProvider ret = ConfigFactory.createDefaultValueProvider ();
@@ -128,7 +128,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
     return ret;
   }
 
-  private static final IConfig DEFAULT_INSTANCE = Config.create (createSMPClientValueProvider ());
+  private static final IConfig DEFAULT_INSTANCE = Config.create (createConfigValueProvider ());
 
   @Deprecated
   @UsedViaReflection
