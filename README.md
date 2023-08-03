@@ -93,7 +93,13 @@ https.hostname-verification.disabled = false
 
 # PD Indexer
 
-The PD Indexer is a REST component that is responsible for taking indexing requests from SMPs and processes them in a queue (PEPPOL SMP client certificate required). Only the PEPPOL participant identifiers are taken and the PD Indexer is responsible for querying the respective SMP data directly. Therefore the respective SMP must have the appropriate `Extension` element of the service group filled with the business information metadata as required by PD. Please see the [PD specification](https://github.com/OpenPEPPOL/documentation/blob/master/TransportInfrastructure/PEPPOL-EDN-Directory-1.1-2018-07-17.pdf) for a detailed description of the required data format as well as for the REST interface.
+The PD Indexer is a REST component that is responsible for taking indexing requests from SMPs and processes them in a queue 
+(Peppol SMP client certificate required). 
+Only the Peppol participant identifiers are taken and the PD Indexer is responsible for querying the respective SMP data directly. 
+Therefore the respective SMP must have the appropriate `Extension` element of the service group filled with the business 
+  information metadata as required by PD.
+Please see the [PD specification](https://docs.peppol.eu/edelivery/directory/PEPPOL-EDN-Directory-1.1.1-2020-10-15.pdf) 
+  for a detailed description of the required data format as well as for the REST interface.
 
 
 # PD Publisher
@@ -104,6 +110,7 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 * v0.12.1 - work in progress
     * Introducing class `PDResultListMarshaller` in favour of `PDSearchAPI(Reader|Validator|Writer)`
+    * Added a BusinessCard JSON export
 * v0.12.0 - 2023-02-25
     * Using Java 11 as the baseline
     * Using **Servlet API 5.0.0** as the baseline: **JakartaEE 9, Java 11+, Apache Tomcat v10.0.x, Jetty 11.x**

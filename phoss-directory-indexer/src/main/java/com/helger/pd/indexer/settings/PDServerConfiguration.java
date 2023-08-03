@@ -232,13 +232,13 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   @Nullable
   public static String getVendorName ()
   {
-    return getConfig ().getAsString ("webapp.vendor.name", "OpenPEPPOL AISBL");
+    return getConfig ().getAsString ("webapp.vendor.name", "OpenPeppol AISBL");
   }
 
   @Nullable
   public static String getVendorURL ()
   {
-    return getConfig ().getAsString ("webapp.vendor.url", "http://peppol.eu");
+    return getConfig ().getAsString ("webapp.vendor.url", "https://peppol.org");
   }
 
   @Nullable
@@ -329,7 +329,8 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
       final String sPrefix = "truststore." + nIndex;
 
       final String sType = getConfig ().getAsString (sPrefix + ".type");
-      final EKeyStoreType eType = EKeyStoreType.getFromIDCaseInsensitiveOrDefault (sType, PeppolKeyStoreHelper.TRUSTSTORE_TYPE);
+      final EKeyStoreType eType = EKeyStoreType.getFromIDCaseInsensitiveOrDefault (sType,
+                                                                                   PeppolKeyStoreHelper.TRUSTSTORE_TYPE);
       final String sPath = getConfig ().getAsString (sPrefix + ".path");
       final String sPassword = getConfig ().getAsString (sPrefix + ".password");
       final String sAlias = getConfig ().getAsString (sPrefix + ".alias");
