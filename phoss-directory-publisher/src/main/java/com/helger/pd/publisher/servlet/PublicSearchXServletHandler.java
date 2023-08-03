@@ -21,6 +21,7 @@ import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -43,6 +44,7 @@ import com.helger.commons.datetime.PDTWebDateHelper;
 import com.helger.commons.error.IError;
 import com.helger.commons.http.CHttp;
 import com.helger.commons.io.resource.ClassPathResource;
+import com.helger.commons.mime.CMimeType;
 import com.helger.commons.string.StringHelper;
 import com.helger.json.IJsonArray;
 import com.helger.json.IJsonObject;
@@ -137,6 +139,10 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
   public void handleRequest (@Nonnull final IRequestWebScopeWithoutResponse aRequestScope,
                              @Nonnull final UnifiedResponse aUnifiedResponse) throws Exception
   {
+    final BiConsumer <UnifiedResponse, String> applyError = (ur, msg) -> ur.setContentAndCharset (msg,
+                                                                                                  StandardCharsets.UTF_8)
+                                                                           .setMimeType (CMimeType.TEXT_PLAIN);
+
     if (SearchRateLimit.INSTANCE.rateLimiter () != null)
     {
       final String sRateLimitKey = "ip:" + aRequestScope.getRemoteAddr ();
@@ -148,6 +154,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
           LOGGER.debug ("REST search rate limit exceeded for " + sRateLimitKey);
 
         aUnifiedResponse.setStatus (CHttp.HTTP_TOO_MANY_REQUESTS);
+        applyError.accept (aUnifiedResponse, "REST search rate limit exceeded");
         return;
       }
     }
@@ -183,42 +190,46 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
                                                      aParams.getAsInt ("rpi", DEFAULT_RESULT_PAGE_INDEX));
       if (nResultPageIndex < 0)
       {
-        if (LOGGER.isErrorEnabled ())
-          LOGGER.error ("ResultPageIndex " + nResultPageIndex + " is invalid. It must be >= 0.");
+        final String sErrorMsg = "ResultPageIndex " + nResultPageIndex + " is invalid. It must be >= 0.";
+        LOGGER.error (sErrorMsg);
         aUnifiedResponse.setStatus (CHttp.HTTP_BAD_REQUEST);
+        applyError.accept (aUnifiedResponse, sErrorMsg);
         return;
       }
       final int nResultPageCount = aParams.getAsInt (PARAM_RESULT_PAGE_COUNT,
                                                      aParams.getAsInt ("rpc", DEFAULT_RESULT_PAGE_COUNT));
       if (nResultPageCount <= 0)
       {
-        if (LOGGER.isErrorEnabled ())
-          LOGGER.error ("ResultPageCount " + nResultPageCount + " is invalid. It must be > 0.");
+        final String sErrorMsg = "ResultPageCount " + nResultPageCount + " is invalid. It must be > 0.";
+        LOGGER.error (sErrorMsg);
         aUnifiedResponse.setStatus (CHttp.HTTP_BAD_REQUEST);
+        applyError.accept (aUnifiedResponse, sErrorMsg);
         return;
       }
       final int nFirstResultIndex = nResultPageIndex * nResultPageCount;
       final int nLastResultIndex = (nResultPageIndex + 1) * nResultPageCount - 1;
       if (nFirstResultIndex > MAX_RESULTS)
       {
-        if (LOGGER.isErrorEnabled ())
-          LOGGER.error ("The first result index " +
-                        nFirstResultIndex +
-                        " is invalid. It must be <= " +
-                        MAX_RESULTS +
-                        ".");
+        final String sErrorMsg = "The first result index " +
+                                 nFirstResultIndex +
+                                 " is invalid. It must be <= " +
+                                 MAX_RESULTS +
+                                 ".";
+        LOGGER.error (sErrorMsg);
         aUnifiedResponse.setStatus (CHttp.HTTP_BAD_REQUEST);
+        applyError.accept (aUnifiedResponse, sErrorMsg);
         return;
       }
       if (nLastResultIndex > MAX_RESULTS)
       {
-        if (LOGGER.isErrorEnabled ())
-          LOGGER.error ("The last result index " +
-                        nLastResultIndex +
-                        " is invalid. It must be <= " +
-                        MAX_RESULTS +
-                        ".");
+        final String sErrorMsg = "The last result index " +
+                                 nLastResultIndex +
+                                 " is invalid. It must be <= " +
+                                 MAX_RESULTS +
+                                 ".";
+        LOGGER.error (sErrorMsg);
         aUnifiedResponse.setStatus (CHttp.HTTP_BAD_REQUEST);
+        applyError.accept (aUnifiedResponse, sErrorMsg);
         return;
       }
 
@@ -247,9 +258,10 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
       }
       if (aQueryValues.isEmpty ())
       {
-        if (LOGGER.isErrorEnabled ())
-          LOGGER.error ("No valid query term provided!");
+        final String sErrorMsg = "No valid query term provided!";
+        LOGGER.error (sErrorMsg);
         aUnifiedResponse.setStatus (CHttp.HTTP_BAD_REQUEST);
+        applyError.accept (aUnifiedResponse, sErrorMsg);
         return;
       }
       if (LOGGER.isDebugEnabled ())
@@ -273,9 +285,10 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
       }
       if (aQueries.isEmpty ())
       {
-        if (LOGGER.isErrorEnabled ())
-          LOGGER.error ("No valid queries could be created!");
+        final String sErrorMsg = "No valid queries could be created!";
+        LOGGER.error (sErrorMsg);
         aUnifiedResponse.setStatus (CHttp.HTTP_BAD_REQUEST);
+        applyError.accept (aUnifiedResponse, sErrorMsg);
         return;
       }
 
@@ -315,7 +328,8 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
 
       // Filter by index/count
       final int nEffectiveLastIndex = Math.min (nLastResultIndex, aResultDocs.size () - 1);
-      final List <PDStoredBusinessEntity> aResultView = nFirstResultIndex >= aResultDocs.size () ? Collections.emptyList ()
+      final List <PDStoredBusinessEntity> aResultView = nFirstResultIndex >= aResultDocs.size () ? Collections
+                                                                                                              .emptyList ()
                                                                                                  : aResultDocs.subList (nFirstResultIndex,
                                                                                                                         nEffectiveLastIndex +
                                                                                                                                            1);
@@ -353,6 +367,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
           {
             // Demo validation
             final CollectingSAXErrorHandler aErrHdl = new CollectingSAXErrorHandler ();
+            // Will not work anymore - moved to searchapi submodule
             final Validator v = new XMLSchemaCache (aErrHdl).getValidator (new ClassPathResource ("/schema/directory-search-result-list-v1.xsd"));
             v.validate (TransformSourceFactory.create (MicroWriter.getNodeAsBytes (aDoc, aXWS)));
             for (final IError aError : aErrHdl.getErrorList ())
@@ -390,14 +405,17 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
           aUnifiedResponse.setContentAndCharset (aDoc.getAsJsonString (aJWS), StandardCharsets.UTF_8);
           break;
         default:
+          // Happens only on programming error
           throw new IllegalStateException ("Unsupported output format: " + eOutputFormat);
       }
 
     }
     else
     {
-      LOGGER.error ("Unsupported version provided (" + sPathInfo + ")");
+      final String sErrorMsg = "Unsupported search version API provided (" + sPathInfo + ")";
+      LOGGER.error (sErrorMsg);
       aUnifiedResponse.setStatus (CHttp.HTTP_NOT_FOUND);
+      applyError.accept (aUnifiedResponse, sErrorMsg);
     }
   }
 }
