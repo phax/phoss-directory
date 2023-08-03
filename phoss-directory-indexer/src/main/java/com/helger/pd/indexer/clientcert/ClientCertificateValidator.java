@@ -221,8 +221,7 @@ public final class ClientCertificateValidator
    * @param aCert
    *        The certificate to validate. May not be <code>null</code>.
    * @param aTrustedRootCert
-   *        The trusted root certificate. E.g. the OpenPEPPOL SMP root
-   *        certificate.
+   *        The trusted root certificate. E.g. the Peppol SMP root certificate.
    * @param aCRLs
    *        A non-<code>null</code> list with revocation lists to handle
    * @param aDT

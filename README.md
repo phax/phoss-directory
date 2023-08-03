@@ -93,7 +93,13 @@ https.hostname-verification.disabled = false
 
 # PD Indexer
 
-The PD Indexer is a REST component that is responsible for taking indexing requests from SMPs and processes them in a queue (PEPPOL SMP client certificate required). Only the PEPPOL participant identifiers are taken and the PD Indexer is responsible for querying the respective SMP data directly. Therefore the respective SMP must have the appropriate `Extension` element of the service group filled with the business information metadata as required by PD. Please see the [PD specification](https://github.com/OpenPEPPOL/documentation/blob/master/TransportInfrastructure/PEPPOL-EDN-Directory-1.1-2018-07-17.pdf) for a detailed description of the required data format as well as for the REST interface.
+The PD Indexer is a REST component that is responsible for taking indexing requests from SMPs and processes them in a queue 
+(Peppol SMP client certificate required). 
+Only the Peppol participant identifiers are taken and the PD Indexer is responsible for querying the respective SMP data directly. 
+Therefore the respective SMP must have the appropriate `Extension` element of the service group filled with the business 
+  information metadata as required by PD.
+Please see the [PD specification](https://docs.peppol.eu/edelivery/directory/PEPPOL-EDN-Directory-1.1.1-2020-10-15.pdf) 
+  for a detailed description of the required data format as well as for the REST interface.
 
 
 # PD Publisher
