@@ -97,7 +97,7 @@ public final class AppWebAppListener extends WebAppListenerBootstrap
   {
     // Internal stuff:
     VendorInfo.setVendorName ("Philip Helger");
-    VendorInfo.setVendorURL ("http://www.helger.com");
+    VendorInfo.setVendorURL ("https://www.helger.com");
     VendorInfo.setVendorEmail ("pd@helger.com");
     VendorInfo.setVendorLocation ("Vienna, Austria");
     VendorInfo.setInceptionYear (2015);
