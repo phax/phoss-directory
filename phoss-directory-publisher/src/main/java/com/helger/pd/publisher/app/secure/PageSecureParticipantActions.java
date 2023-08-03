@@ -51,6 +51,7 @@ import com.helger.html.hc.html.grouping.HCDiv;
 import com.helger.html.hc.html.grouping.HCOL;
 import com.helger.html.hc.html.grouping.IHCLI;
 import com.helger.html.hc.impl.HCNodeList;
+import com.helger.json.IJsonObject;
 import com.helger.pd.indexer.index.EIndexerWorkItemType;
 import com.helger.pd.indexer.mgr.PDIndexerManager;
 import com.helger.pd.indexer.mgr.PDMetaManager;
@@ -98,6 +99,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
   private static final AjaxFunctionDeclaration AJAX_DOWNLOAD_ALL_IDS_AND_METADATA_XML;
   private static final AjaxFunctionDeclaration AJAX_DOWNLOAD_ALL_BCS_XML_FULL;
   private static final AjaxFunctionDeclaration AJAX_DOWNLOAD_ALL_BCS_XML_NO_DOCTYPES;
+  private static final AjaxFunctionDeclaration AJAX_DOWNLOAD_ALL_BCS_JSON;
   private static final AjaxFunctionDeclaration AJAX_DOWNLOAD_ALL_BCS_EXCEL;
   private static final AjaxFunctionDeclaration AJAX_DOWNLOAD_ALL_BCS_CSV;
 
@@ -107,7 +109,9 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
       LOGGER.info ("Starting AJAX_DOWNLOAD_ALL_IDS_XML");
       final IMicroDocument aDoc = new MicroDocument ();
       final IMicroElement aRoot = aDoc.appendElement ("root");
-      final Set <IParticipantIdentifier> aAllIDs = PDMetaManager.getStorageMgr ().getAllContainedParticipantIDs ().keySet ();
+      final Set <IParticipantIdentifier> aAllIDs = PDMetaManager.getStorageMgr ()
+                                                                .getAllContainedParticipantIDs ()
+                                                                .keySet ();
       for (final IParticipantIdentifier aParticipantID : aAllIDs)
       {
         // Use the same layout as for the "full export", so that it can be used
@@ -140,7 +144,8 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
 
           final String sOwnerID = PDField.METADATA_OWNERID.getDocValue (doc);
           eP.appendElement ("metadata")
-            .setAttribute ("creationDT", PDTWebDateHelper.getAsStringXSD (PDField.METADATA_CREATIONDT.getDocValue (doc)))
+            .setAttribute ("creationDT",
+                           PDTWebDateHelper.getAsStringXSD (PDField.METADATA_CREATIONDT.getDocValue (doc)))
             .setAttribute ("ownerID", sOwnerID)
             .setAttribute ("ownerSeatNum", PDStoredMetaData.getOwnerIDSeatNumber (sOwnerID))
             .setAttribute ("requestingHost", PDField.METADATA_REQUESTING_HOST.getDocValue (doc));
@@ -163,6 +168,13 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
       res.xml (aDoc);
       res.attachment (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_NO_DOC_TYPES);
       LOGGER.info ("Finished AJAX_DOWNLOAD_ALL_BCS_XML_NO_DOCTYPES");
+    });
+    AJAX_DOWNLOAD_ALL_BCS_JSON = addAjax ( (req, res) -> {
+      LOGGER.info ("Starting AJAX_DOWNLOAD_ALL_BCS_JSON");
+      final IJsonObject aObj = ExportAllManager.queryAllContainedBusinessCardsAsJSON (true);
+      res.json (aObj);
+      res.attachment (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_JSON);
+      LOGGER.info ("Finished AJAX_DOWNLOAD_ALL_BCS_JSON");
     });
     AJAX_DOWNLOAD_ALL_BCS_EXCEL = addAjax ( (req, res) -> {
       LOGGER.info ("Starting AJAX_DOWNLOAD_ALL_BCS_EXCEL");
@@ -238,7 +250,8 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
       final ICommonsSortedSet <String> aSet = aEntry.getValue ();
       final IParticipantIdentifier aPI = aEntry.getKey ();
       final String sDesiredVersion = aPI.getURIEncoded ();
-      final HCDiv aDiv = div ("Found " + aSet.size () + " duplicate IDs for ").addChild (code (sDesiredVersion)).addChild (":");
+      final HCDiv aDiv = div ("Found " + aSet.size () + " duplicate IDs for ").addChild (code (sDesiredVersion))
+                                                                              .addChild (":");
       final HCOL aOL = aDiv.addAndReturnChild (new HCOL ());
       for (final String sVersion : aSet.getSorted (IComparator.getComparatorCollating (aDisplayLocale)))
       {
@@ -251,7 +264,10 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
     }
     if (aNL.hasChildren ())
     {
-      final String sMsg = "Found duplicate entries for " + aDupMap.size () + " " + (aDupMap.size () == 1 ? "participant" : "participants");
+      final String sMsg = "Found duplicate entries for " +
+                          aDupMap.size () +
+                          " " +
+                          (aDupMap.size () == 1 ? "participant" : "participants");
       LOGGER.info (sMsg);
       aNL.addChildAt (0, h2 (sMsg));
       aWPEC.postRedirectGetInternal (aNL);
@@ -356,7 +372,8 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
           aWPEC.postRedirectGetInternal (success ("The unforced synchronization was started successfully and is now running in the background."));
         else
           aWPEC.postRedirectGetInternal (warn ("The synchronization was not started because the last sync was at " +
-                                               PDTToString.getAsString (SyncAllBusinessCardsJob.getLastSync (), aDisplayLocale)));
+                                               PDTToString.getAsString (SyncAllBusinessCardsJob.getLastSync (),
+                                                                        aDisplayLocale)));
       }
       else
         if (aWPEC.hasAction (ACTION_SYNC_BCS_FORCED))
@@ -401,6 +418,9 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
     aBody.addChild (new BootstrapButton (EBootstrapButtonType.DANGER).addChild ("Download all Business Cards (XML, no document types, live) (may take long)")
                                                                      .setOnClick (AJAX_DOWNLOAD_ALL_BCS_XML_NO_DOCTYPES.getInvocationURL (aRequestScope))
                                                                      .setIcon (EDefaultIcon.SAVE_ALL));
+    aBody.addChild (new BootstrapButton (EBootstrapButtonType.DANGER).addChild ("Download all Business Cards (JSON, live) (may take long)")
+                                                                     .setOnClick (AJAX_DOWNLOAD_ALL_BCS_JSON.getInvocationURL (aRequestScope))
+                                                                     .setIcon (EDefaultIcon.SAVE_ALL));
     aBody.addChild (new BootstrapButton (EBootstrapButtonType.DANGER).addChild ("Download all Business Cards (Excel, live) (may take long)")
                                                                      .setOnClick (AJAX_DOWNLOAD_ALL_BCS_EXCEL.getInvocationURL (aRequestScope))
                                                                      .setIcon (EDefaultIcon.SAVE_ALL));
@@ -420,6 +440,14 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
                                                                                      ExportServlet.SERVLET_DEFAULT_PATH +
                                                                                                     ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_XML_NO_DOC_TYPES))
                                           .setIcon (EDefaultIcon.SAVE_ALL));
+    if (CPDPublisher.EXPORT_BUSINESS_CARDS_JSON)
+    {
+      aBody.addChild (new BootstrapButton ().addChild ("Download all Business Cards (JSON, cached)")
+                                            .setOnClick (LinkHelper.getURLWithContext (aRequestScope,
+                                                                                       ExportServlet.SERVLET_DEFAULT_PATH +
+                                                                                                      ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_JSON))
+                                            .setIcon (EDefaultIcon.SAVE_ALL));
+    }
     if (CPDPublisher.EXPORT_BUSINESS_CARDS_EXCEL)
     {
       aBody.addChild (new BootstrapButton ().addChild ("Download all Business Cards (Excel, cached)")
@@ -471,14 +499,16 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
                             PDTToString.getAsString (aStartDT, aDisplayLocale)));
     }
     aBody.addChild (new BootstrapButton ().addChild ("Update Business Card export cache (in background; takes too long)")
-                                          .setOnClick (aWPEC.getSelfHref ().add (CPageParam.PARAM_ACTION, ACTION_UPDATE_EXPORTED_BCS))
+                                          .setOnClick (aWPEC.getSelfHref ()
+                                                            .add (CPageParam.PARAM_ACTION, ACTION_UPDATE_EXPORTED_BCS))
                                           .setIcon (EDefaultIcon.INFO)
                                           .setDisabled (bIsRunning));
 
     aCard.createAndAddHeader ().addChild ("Data Synchronization");
     aBody = aCard.createAndAddBody ();
     aBody.addChild (new BootstrapButton ().addChild ("Synchronize all Business Cards (re-query from SMP - unforced)")
-                                          .setOnClick (aWPEC.getSelfHref ().add (CPageParam.PARAM_ACTION, ACTION_SYNC_BCS_UNFORCED))
+                                          .setOnClick (aWPEC.getSelfHref ()
+                                                            .add (CPageParam.PARAM_ACTION, ACTION_SYNC_BCS_UNFORCED))
                                           .setIcon (EDefaultIcon.REFRESH));
     aBody.addChild (new BootstrapButton (EBootstrapButtonType.DANGER).addChild ("Synchronize all Business Cards (re-query from SMP - forced)")
                                                                      .setOnClick (aWPEC.getSelfHref ()
@@ -495,7 +525,8 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
     else
     {
       aBody.addChild (new BootstrapButton ().addChild ("Show all duplicate entries")
-                                            .setOnClick (aWPEC.getSelfHref ().add (CPageParam.PARAM_ACTION, ACTION_SHOW_DUPLICATES))
+                                            .setOnClick (aWPEC.getSelfHref ()
+                                                              .add (CPageParam.PARAM_ACTION, ACTION_SHOW_DUPLICATES))
                                             .setIcon (EDefaultIcon.MAGNIFIER));
       aBody.addChild (new BootstrapButton (EBootstrapButtonType.DANGER).addChild ("Delete all duplicate entries")
                                                                        .setOnClick (aWPEC.getSelfHref ()

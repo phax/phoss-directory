@@ -277,6 +277,13 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
         .addChild (new HCA (LinkHelper.getURLWithContext (aRequestScope,
                                                           ExportServlet.SERVLET_DEFAULT_PATH +
                                                                          ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_XML_NO_DOC_TYPES)).addChild ("BusinessCards w/o doctypes XML"));
+      if (CPDPublisher.EXPORT_BUSINESS_CARDS_JSON)
+      {
+        aP.addChild (" | ")
+          .addChild (new HCA (LinkHelper.getURLWithContext (aRequestScope,
+                                                            ExportServlet.SERVLET_DEFAULT_PATH +
+                                                                           ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_JSON)).addChild ("BusinessCards JSON"));
+      }
       if (CPDPublisher.EXPORT_BUSINESS_CARDS_EXCEL)
       {
         aP.addChild (" | ")
