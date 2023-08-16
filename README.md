@@ -108,7 +108,7 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
-* v0.12.1 - work in progress
+* v0.12.1 - 2023-08-16
     * Introducing class `PDResultListMarshaller` in favour of `PDSearchAPI(Reader|Validator|Writer)`
     * Added a BusinessCard JSON export
 * v0.12.0 - 2023-02-25
