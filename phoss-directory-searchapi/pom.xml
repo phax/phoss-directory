@@ -22,7 +22,7 @@
   <parent>
     <groupId>com.helger</groupId>
     <artifactId>phoss-directory-parent-pom</artifactId>
-    <version>0.12.1-SNAPSHOT</version>
+    <version>0.12.1</version>
   </parent>
   <artifactId>phoss-directory-searchapi</artifactId>
   <packaging>bundle</packaging>
