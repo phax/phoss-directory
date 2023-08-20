@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 import com.helger.commons.datetime.PDTFactory;
 import com.helger.commons.timing.StopWatch;
 import com.helger.pd.publisher.CPDPublisher;
-import com.helger.photon.app.PhotonWorkerPool;
+import com.helger.photon.io.PhotonWorkerPool;
 import com.helger.quartz.DisallowConcurrentExecution;
 import com.helger.quartz.IJobExecutionContext;
 import com.helger.quartz.JobDataMap;

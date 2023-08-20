@@ -50,7 +50,7 @@ import com.helger.pd.indexer.reindex.IReIndexWorkItemList;
 import com.helger.pd.indexer.reindex.ReIndexWorkItem;
 import com.helger.pd.indexer.reindex.ReIndexWorkItemList;
 import com.helger.peppolid.IParticipantIdentifier;
-import com.helger.photon.app.io.WebFileIO;
+import com.helger.photon.io.WebFileIO;
 import com.helger.quartz.SimpleScheduleBuilder;
 import com.helger.quartz.TriggerKey;
 import com.helger.schedule.quartz.GlobalQuartzScheduler;

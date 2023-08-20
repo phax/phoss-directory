@@ -24,8 +24,8 @@ import com.helger.commons.id.factory.GlobalIDFactory;
 import com.helger.commons.io.file.FileOperationManager;
 import com.helger.pd.indexer.lucene.PDLucene;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
-import com.helger.photon.app.io.WebIOIntIDFactory;
 import com.helger.photon.app.mock.PhotonAppWebTestRule;
+import com.helger.photon.io.WebIOIntIDFactory;
 import com.helger.scope.mock.ScopeTestRule;
 
 /**

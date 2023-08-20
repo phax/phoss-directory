@@ -60,7 +60,7 @@ import com.helger.pd.indexer.storage.PDStoredMLName;
 import com.helger.pd.indexer.storage.field.PDField;
 import com.helger.peppolid.IDocumentTypeIdentifier;
 import com.helger.peppolid.IParticipantIdentifier;
-import com.helger.photon.app.io.WebFileIO;
+import com.helger.photon.io.WebFileIO;
 import com.helger.poi.excel.EExcelVersion;
 import com.helger.poi.excel.WorkbookCreationHelper;
 import com.helger.poi.excel.style.ExcelStyle;

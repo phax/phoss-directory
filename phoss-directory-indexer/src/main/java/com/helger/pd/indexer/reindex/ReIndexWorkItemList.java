@@ -31,7 +31,7 @@ import com.helger.commons.annotation.ReturnsMutableCopy;
 import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.dao.DAOException;
-import com.helger.photon.app.dao.AbstractPhotonMapBasedWALDAO;
+import com.helger.photon.io.dao.AbstractPhotonMapBasedWALDAO;
 
 /**
  * This is the list with {@link IReIndexWorkItem} objects. It is solely used in
