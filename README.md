@@ -108,8 +108,9 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
-* v0.12.2 - work in progress
+* v0.12.2 - 2023-08-24
     * Updated to ph-oton 9.2.0
+    * Updated code lists to v8.6
 * v0.12.1 - 2023-08-16
     * Introducing class `PDResultListMarshaller` in favour of `PDSearchAPI(Reader|Validator|Writer)`
     * Added a BusinessCard JSON export
