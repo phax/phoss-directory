@@ -322,7 +322,7 @@ public final class ClientCertificateValidator
       return ClientCertificateValidationResult.createSuccess (INSECURE_DEBUG_CLIENT);
     }
     // This is how to get client certificate from request
-    final Object aValue = aHttpRequest.getAttribute ("javax.servlet.request.X509Certificate");
+    final Object aValue = aHttpRequest.getAttribute ("jakarta.servlet.request.X509Certificate");
     if (aValue == null)
     {
       LOGGER.warn (sLogPrefix + "No client certificates present in the request");
