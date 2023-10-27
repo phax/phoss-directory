@@ -20,12 +20,14 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+import com.helger.commons.string.StringHelper;
 import com.helger.html.hc.IHCNode;
+import com.helger.html.hc.html.AbstractHCElementWithChildren;
 import com.helger.html.hc.html.textlevel.HCCode;
 import com.helger.html.hc.html.textlevel.HCSmall;
+import com.helger.html.hc.html.textlevel.HCSpan;
 import com.helger.html.hc.html.textlevel.HCWBR;
 import com.helger.html.hc.impl.HCNodeList;
-import com.helger.html.hc.impl.HCTextNode;
 import com.helger.peppolid.IDocumentTypeIdentifier;
 import com.helger.peppolid.IProcessIdentifier;
 import com.helger.photon.bootstrap4.badge.BootstrapBadge;
@@ -61,51 +63,75 @@ public final class NiceNameUI
   @Nonnull
   private static IHCNode _createFormattedID (@Nonnull final String sID,
                                              @Nullable final String sName,
-                                             @Nullable final EBootstrapBadgeType eType,
+                                             @Nullable final EBootstrapBadgeType eNameBadgeType,
                                              final boolean bIsDeprecated,
+                                             @Nullable final String sSpecialLabel,
+                                             @Nullable final EBootstrapBadgeType eSpecialLabelBadgeType,
                                              final boolean bInDetails)
   {
     if (sName == null)
     {
       // No nice name present
+      final AbstractHCElementWithChildren <?> ret = bInDetails ? new HCCode () : new HCSpan ();
+      ret.addChild (sID);
       if (bInDetails)
-        return new HCCode ().addChild (sID);
-      return new HCTextNode (sID);
+        ret.addChild (" ").addChild (new BootstrapBadge (EBootstrapBadgeType.WARNING).addChild ("Unknown ID"));
+      return ret;
     }
 
     final HCNodeList ret = new HCNodeList ();
-    ret.addChild (new BootstrapBadge (eType).addChild (sName));
+    final BootstrapBadge aNameBadge = ret.addAndReturnChild (new BootstrapBadge (eNameBadgeType).addChild (sName));
     if (bIsDeprecated)
     {
-      ret.addChild (" ").addChild (new BootstrapBadge (EBootstrapBadgeType.WARNING).addChild ("Identifier is deprecated"));
+      ret.addChild (" ")
+         .addChild (new BootstrapBadge (EBootstrapBadgeType.WARNING).addChild ("Identifier is deprecated"));
+    }
+    if (StringHelper.hasText (sSpecialLabel))
+    {
+      ret.addChild (" ").addChild (new BootstrapBadge (eSpecialLabelBadgeType).addChild (sSpecialLabel));
     }
     if (bInDetails)
     {
+      // Print ID in smaller font
       ret.addChild (new HCSmall ().addChild (" (").addChild (new HCCode ().addChild (sID)).addChild (")"));
+    }
+    else
+    {
+      // Add ID as mouse over
+      aNameBadge.setTitle (sID);
     }
     return ret;
   }
 
   @Nonnull
-  private static IHCNode _createID (@Nonnull final String sID, @Nullable final NiceNameEntry aNiceName, final boolean bInDetails)
+  private static IHCNode _createID (@Nonnull final String sID,
+                                    @Nullable final NiceNameEntry aNiceName,
+                                    final boolean bInDetails)
   {
     if (aNiceName == null)
-      return _createFormattedID (sID, null, null, false, bInDetails);
-    return _createFormattedID (sID, aNiceName.getName (), EBootstrapBadgeType.SUCCESS, aNiceName.isDeprecated (), bInDetails);
+      return _createFormattedID (sID, null, null, false, null, null, bInDetails);
+    return _createFormattedID (sID,
+                               aNiceName.getName (),
+                               EBootstrapBadgeType.SUCCESS,
+                               aNiceName.isDeprecated (),
+                               aNiceName.getSpecialLabel (),
+                               EBootstrapBadgeType.INFO,
+                               bInDetails);
   }
 
   @Nonnull
-  public static IHCNode getDocumentTypeID (@Nonnull final IDocumentTypeIdentifier aDocTypeID)
+  public static IHCNode getDocumentTypeID (@Nonnull final IDocumentTypeIdentifier aDocTypeID, final boolean bInDetails)
   {
     final String sURI = aDocTypeID.getURIEncoded ();
-    return _createID (sURI, NiceNameHandler.getDocTypeNiceName (sURI), true);
+    return _createID (sURI, NiceNameHandler.getDocTypeNiceName (sURI), bInDetails);
   }
 
   @Nonnull
-  public static IHCNode getProcessID (@Nonnull final IDocumentTypeIdentifier aDocTypeID, @Nonnull final IProcessIdentifier aProcessID)
+  public static IHCNode getProcessID (@Nonnull final IDocumentTypeIdentifier aDocTypeID,
+                                      @Nonnull final IProcessIdentifier aProcessID,
+                                      final boolean bInDetails)
   {
     final String sURI = aProcessID.getURIEncoded ();
-    final boolean bInDetails = true;
 
     // Check direct match first
     NiceNameEntry aNN = NiceNameHandler.getProcessNiceName (sURI);
@@ -116,9 +142,21 @@ public final class NiceNameUI
     if (aNN != null)
     {
       if (aNN.containsProcessID (aProcessID))
-        return _createFormattedID (sURI, "Matching Process Identifier", EBootstrapBadgeType.SUCCESS, false, bInDetails);
-      return _createFormattedID (sURI, "Unexpected Process Identifier", EBootstrapBadgeType.WARNING, false, bInDetails);
+        return _createFormattedID (sURI,
+                                   "Matching Process Identifier",
+                                   EBootstrapBadgeType.SUCCESS,
+                                   false,
+                                   null,
+                                   null,
+                                   bInDetails);
+      return _createFormattedID (sURI,
+                                 "Unexpected Process Identifier",
+                                 EBootstrapBadgeType.WARNING,
+                                 false,
+                                 null,
+                                 null,
+                                 bInDetails);
     }
-    return _createFormattedID (sURI, null, null, false, bInDetails);
+    return _createFormattedID (sURI, null, null, false, null, null, bInDetails);
   }
 }

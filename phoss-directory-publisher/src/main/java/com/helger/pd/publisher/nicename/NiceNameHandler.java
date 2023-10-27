@@ -36,6 +36,10 @@ import com.helger.commons.string.StringHelper;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.peppolid.IDocumentTypeIdentifier;
 import com.helger.peppolid.IProcessIdentifier;
+import com.helger.peppolid.factory.SimpleIdentifierFactory;
+import com.helger.peppolid.peppol.PeppolIdentifierHelper;
+import com.helger.peppolid.peppol.doctype.IPeppolDocumentTypeIdentifierParts;
+import com.helger.peppolid.peppol.doctype.PeppolDocumentTypeIdentifierParts;
 import com.helger.peppolid.simple.process.SimpleProcessIdentifier;
 import com.helger.xml.microdom.IMicroDocument;
 import com.helger.xml.microdom.IMicroElement;
@@ -43,12 +47,15 @@ import com.helger.xml.microdom.serialize.MicroReader;
 
 public final class NiceNameHandler
 {
+  private static final String PREFIX_WILDCARD = PeppolIdentifierHelper.DOCUMENT_TYPE_SCHEME_PEPPOL_DOCTYPE_WILDCARD +
+                                                "::";
   private static final Logger LOGGER = LoggerFactory.getLogger (NiceNameHandler.class);
-  private static final SimpleReadWriteLock RWLOCK = new SimpleReadWriteLock ();
-  @GuardedBy ("RWLOCK")
-  private static ICommonsOrderedMap <String, NiceNameEntry> DOCTYPE_IDS = new CommonsLinkedHashMap <> ();
-  @GuardedBy ("RWLOCK")
-  private static ICommonsOrderedMap <String, NiceNameEntry> PROCESS_IDS = new CommonsLinkedHashMap <> ();
+  
+  private static final SimpleReadWriteLock RW_LOCK = new SimpleReadWriteLock ();
+  @GuardedBy ("RW_LOCK")
+  private static final ICommonsOrderedMap <String, NiceNameEntry> DOCTYPE_IDS = new CommonsLinkedHashMap <> ();
+  @GuardedBy ("RW_LOCK")
+  private static final ICommonsOrderedMap <String, NiceNameEntry> PROCESS_IDS = new CommonsLinkedHashMap <> ();
 
   static
   {
@@ -63,7 +70,7 @@ public final class NiceNameHandler
   public static ICommonsOrderedMap <String, NiceNameEntry> readEntries (@Nonnull final IReadableResource aRes,
                                                                         final boolean bReadProcIDs)
   {
-    LOGGER.info ("Trying to read nice name entries from " + aRes.getPath ());
+    LOGGER.info ("Trying to read nice name entries from '" + aRes.getPath () + "'");
 
     final ICommonsOrderedMap <String, NiceNameEntry> ret = new CommonsLinkedHashMap <> ();
     final IMicroDocument aDoc = MicroReader.readMicroXML (aRes);
@@ -71,7 +78,7 @@ public final class NiceNameHandler
     {
       for (final IMicroElement eChild : aDoc.getDocumentElement ().getAllChildElements ("item"))
       {
-        final String sID = eChild.getAttributeValue ("id");
+        String sID = eChild.getAttributeValue ("id");
         final String sName = eChild.getAttributeValue ("name");
         final boolean bDeprecated = eChild.getAttributeValueAsBool ("deprecated", false);
         ICommonsList <IProcessIdentifier> aProcIDs = null;
@@ -83,7 +90,30 @@ public final class NiceNameHandler
                                                        eItem.getAttributeValue ("value")));
         }
 
-        ret.put (sID, new NiceNameEntry (sName, bDeprecated, aProcIDs));
+        String sSpecialLabel = null;
+        if (sID.startsWith (PREFIX_WILDCARD))
+        {
+          // When loading wildcards, a special handling is needed
+          // Because the identifiers in the codelist are without "*" we need to
+          // add the "*" here, because the SMP entries need the "*" to be
+          // correct
+          sSpecialLabel = "Wildcard";
+
+          final IDocumentTypeIdentifier aDT = SimpleIdentifierFactory.INSTANCE.parseDocumentTypeIdentifier (sID);
+          final IPeppolDocumentTypeIdentifierParts aParts = PeppolDocumentTypeIdentifierParts.extractFromIdentifier (aDT);
+          if (aParts != null)
+          {
+            // Add the "*" to the Customization ID for the SMP
+            final PeppolDocumentTypeIdentifierParts aStarParts = new PeppolDocumentTypeIdentifierParts (aParts.getRootNS (),
+                                                                                                        aParts.getLocalName (),
+                                                                                                        aParts.getCustomizationID () +
+                                                                                                                                "*",
+                                                                                                        aParts.getVersion ());
+            sID = PREFIX_WILDCARD + aStarParts.getAsDocumentTypeIdentifierValue ();
+          }
+        }
+
+        ret.put (sID, new NiceNameEntry (sName, bDeprecated, sSpecialLabel, aProcIDs));
       }
     }
     return ret;
@@ -111,7 +141,7 @@ public final class NiceNameHandler
         aDocTypeIDRes = new ClassPathResource ("codelists/directory/doctypeid-mapping.xml");
 
       final ICommonsOrderedMap <String, NiceNameEntry> aDocTypeIDs = readEntries (aDocTypeIDRes, true);
-      RWLOCK.writeLockedGet ( () -> DOCTYPE_IDS = aDocTypeIDs);
+      RW_LOCK.writeLocked ( () -> DOCTYPE_IDS.setAll (aDocTypeIDs));
       LOGGER.info ("Loaded " + aDocTypeIDs.size () + " document type nice name entries");
     }
 
@@ -134,7 +164,7 @@ public final class NiceNameHandler
       if (aProcessIDRes == null)
         aProcessIDRes = new ClassPathResource ("codelists/directory/processid-mapping.xml");
       final ICommonsOrderedMap <String, NiceNameEntry> aProcessIDs = readEntries (aProcessIDRes, false);
-      RWLOCK.writeLockedGet ( () -> PROCESS_IDS = aProcessIDs);
+      RW_LOCK.writeLocked ( () -> PROCESS_IDS.setAll (aProcessIDs));
       LOGGER.info ("Loaded " + aProcessIDs.size () + " process nice name entries");
     }
   }
@@ -150,14 +180,14 @@ public final class NiceNameHandler
   {
     if (StringHelper.hasNoText (sID))
       return null;
-    RWLOCK.readLock ().lock ();
+    RW_LOCK.readLock ().lock ();
     try
     {
       return DOCTYPE_IDS.get (sID);
     }
     finally
     {
-      RWLOCK.readLock ().unlock ();
+      RW_LOCK.readLock ().unlock ();
     }
   }
 
@@ -172,14 +202,14 @@ public final class NiceNameHandler
   {
     if (StringHelper.hasNoText (sID))
       return null;
-    RWLOCK.readLock ().lock ();
+    RW_LOCK.readLock ().lock ();
     try
     {
       return PROCESS_IDS.get (sID);
     }
     finally
     {
-      RWLOCK.readLock ().unlock ();
+      RW_LOCK.readLock ().unlock ();
     }
   }
 }
