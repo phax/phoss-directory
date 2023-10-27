@@ -56,7 +56,7 @@ final class PDSMPHttpResponseHandlerBusinessCard extends AbstractSMPResponseHand
       return aBC;
 
     // Unsupported
-    throw new ClientProtocolException ("Malformed XML document returned from SMP server:\n" +
+    throw new ClientProtocolException ("Malformed XML document returned from SMP server (no supported BusinessCard format):\n" +
                                        new String (aData, StandardCharsets.UTF_8));
   }
 }
