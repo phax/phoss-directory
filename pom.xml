@@ -65,11 +65,11 @@
     <!-- Don't go beyond v7, otherwise the backwards compatibility is lost -->
     <lucene.version>8.11.2</lucene.version>
     <jersey.version>3.1.3</jersey.version>
-    <log4j.version>2.20.0</log4j.version>
+    <log4j.version>2.21.1</log4j.version>
     <jaxb-plugin.group>com.helger.maven</jaxb-plugin.group>
     <jaxb-plugin.artifact>jaxb40-maven-plugin</jaxb-plugin.artifact>
     <jaxb-plugin.version>0.16.1</jaxb-plugin.version>
-    <ph-jaxb-plugin.version>4.0.2</ph-jaxb-plugin.version>
+    <ph-jaxb-plugin.version>4.0.3</ph-jaxb-plugin.version>
   </properties>
   
   <dependencyManagement>
@@ -110,7 +110,7 @@
       <dependency>
         <groupId>com.helger.photon</groupId>
         <artifactId>ph-oton-parent-pom</artifactId>
-        <version>9.2.0</version>
+        <version>9.2.1</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
