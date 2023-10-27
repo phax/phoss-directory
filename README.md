@@ -108,6 +108,9 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
+* v0.12.3 - 2023-10-27
+    * Fixed the name of the attribute for the client certificate retrieval (`jakarta.`)
+    * Added special handling for Peppol Wildcard identifiers on the UI
 * v0.12.2 - 2023-08-24
     * Updated to ph-oton 9.2.0
     * Updated code lists to v8.6
