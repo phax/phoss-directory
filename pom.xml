@@ -41,8 +41,8 @@
   </licenses>
   
   <scm>
-    <connection>scm:git:git@github.com:phax/phoss-directory.git</connection>
-    <developerConnection>scm:git:git@github.com:phax/phoss-directory.git</developerConnection>
+    <connection>scm:git:https://github.com/phax/phoss-directory.git</connection>
+    <developerConnection>scm:git:https://github.com/phax/phoss-directory.git</developerConnection>
     <url>http://github.com/phax/phoss-directory</url>
     <tag>v0.11.x</tag>
   </scm>
