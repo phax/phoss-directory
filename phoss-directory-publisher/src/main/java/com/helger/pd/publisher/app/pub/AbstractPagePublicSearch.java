@@ -271,7 +271,7 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
             aDocTypeOL = aDocTypeCtrl.addAndReturnChild (new HCOL ());
 
           final HCLI aLI = aDocTypeOL.addItem ();
-          aLI.addChild (NiceNameUI.getDocumentTypeID (aDocTypeID));
+          aLI.addChild (NiceNameUI.getDocumentTypeID (aDocTypeID, true));
         }
 
         if (aDocTypeOL == null)
