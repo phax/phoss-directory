@@ -18,7 +18,6 @@ package com.helger.pd.businesscard.helper;
 
 import java.nio.charset.Charset;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -190,7 +189,14 @@ public final class PDBusinessCardHelper
   {
     ValueEnforcer.notNull (aNode, "Node");
 
-    return parseBusinessCard (aNode, m -> { m.readExceptionCallbacks ().removeAll (); });
+    return parseBusinessCard (aNode, (m, ver) -> {
+      if (ver != EBusinessCardVersion.LATEST)
+      {
+        // Silent mode for all versions but the latest
+        m.readExceptionCallbacks ().removeAll ();
+        m.setValidationEventHandler (new DoNothingValidationEventHandler ());
+      }
+    });
   }
 
   /**
@@ -207,7 +213,7 @@ public final class PDBusinessCardHelper
    */
   @Nullable
   public static PDBusinessCard parseBusinessCard (@Nonnull final Node aNode,
-                                                  @Nullable final Consumer <? super GenericJAXBMarshaller <?>> aMarshallerCustomizer)
+                                                  @Nullable final BiConsumer <? super GenericJAXBMarshaller <?>, EBusinessCardVersion> aMarshallerCustomizer)
   {
     ValueEnforcer.notNull (aNode, "Node");
 
@@ -215,7 +221,7 @@ public final class PDBusinessCardHelper
       // Read version 1
       final PD1BusinessCardMarshaller aMarshaller1 = new PD1BusinessCardMarshaller ();
       if (aMarshallerCustomizer != null)
-        aMarshallerCustomizer.accept (aMarshaller1);
+        aMarshallerCustomizer.accept (aMarshaller1, EBusinessCardVersion.V1);
       final PD1BusinessCardType aBC1 = aMarshaller1.read (aNode);
       if (aBC1 != null)
         try
@@ -226,6 +232,7 @@ public final class PDBusinessCardHelper
         {
           // If the BC does not adhere to the XSD
           // Happens if e.g. name is null
+          LOGGER.error ("Found a BusinessCard V1, but couldn't parse it", ex);
           return null;
         }
     }
@@ -234,7 +241,7 @@ public final class PDBusinessCardHelper
       // Read as version 2
       final PD2BusinessCardMarshaller aMarshaller2 = new PD2BusinessCardMarshaller ();
       if (aMarshallerCustomizer != null)
-        aMarshallerCustomizer.accept (aMarshaller2);
+        aMarshallerCustomizer.accept (aMarshaller2, EBusinessCardVersion.V2);
       final PD2BusinessCardType aBC2 = aMarshaller2.read (aNode);
       if (aBC2 != null)
         try
@@ -245,6 +252,7 @@ public final class PDBusinessCardHelper
         {
           // If the BC does not adhere to the XSD
           // Happens if e.g. name is null
+          LOGGER.error ("Found a BusinessCard V2, but couldn't parse it", ex);
           return null;
         }
     }
@@ -253,7 +261,7 @@ public final class PDBusinessCardHelper
       // Read as version 3
       final PD3BusinessCardMarshaller aMarshaller3 = new PD3BusinessCardMarshaller ();
       if (aMarshallerCustomizer != null)
-        aMarshallerCustomizer.accept (aMarshaller3);
+        aMarshallerCustomizer.accept (aMarshaller3, EBusinessCardVersion.V3);
       final PD3BusinessCardType aBC3 = aMarshaller3.read (aNode);
       if (aBC3 != null)
         try
@@ -264,9 +272,12 @@ public final class PDBusinessCardHelper
         {
           // If the BC does not adhere to the XSD
           // Happens if e.g. name is null
+          LOGGER.error ("Found a BusinessCard V3, but couldn't parse it", ex);
           return null;
         }
     }
+
+    LOGGER.error ("Found BusinessCard data, but was not able to parse it to a known version");
 
     // Unsupported version
     return null;
