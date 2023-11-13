@@ -67,8 +67,8 @@
       <artifactId>ph-oton-security</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.helger</groupId>
-      <artifactId>phoss-directory-businesscard</artifactId>
+      <groupId>com.helger.peppol</groupId>
+      <artifactId>peppol-directory-businesscard</artifactId>
     </dependency>
     <dependency>
       <groupId>com.helger.peppol</groupId>

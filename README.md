@@ -7,12 +7,14 @@ The official Peppol Directory (PD; https://directory.peppol.eu),
   TOOP Directory software (The Once-Only Project; www.toop.eu) and 
   DE4A Directory software (Digital Europe 4 All; www.de4a.eu).
   
-It is split into the following sub-projects (all require Java 8 or newer):
-* `phoss-directory-businesscard` - the common Business Card API
+It is split into the following sub-projects (all require Java 11 or newer):
 * `phoss-directory-indexer` - the PD indexer part
 * `phoss-directory-publisher` - the PD publisher web application
 * `phoss-directory-client` - a client library to be added to SMP servers to force indexing in the PD
 * `phoss-directory-searchapi` - a client library for easier use of the Directory search REST API (since v0.7.2)
+
+Previous modules:
+* `phoss-directory-businesscard` - the common Business Card API - until v0.12.3; then moved to com.helger.peppol:peppol-directory-businesscard in https://github.com/phax/peppol-commons 
   
 * Production version is available at https://directory.peppol.eu (for Peppol)
     * It can only handle participants registered at the SML
@@ -108,6 +110,8 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
+* v0.13.0 - work in progress
+    * Removed submodule `phoss-directory-businesscard` and using `peppol-directory-businesscard` from https://github.com/phax/peppol-commons instead
 * v0.12.3 - 2023-10-27
     * Fixed the name of the attribute for the client certificate retrieval (`jakarta.`)
     * Added special handling for Peppol Wildcard identifiers on the UI

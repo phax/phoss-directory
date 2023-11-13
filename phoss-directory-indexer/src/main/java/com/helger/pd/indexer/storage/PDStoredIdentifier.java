@@ -23,7 +23,7 @@ import com.helger.commons.ValueEnforcer;
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.hashcode.HashCodeGenerator;
 import com.helger.commons.string.ToStringGenerator;
-import com.helger.pd.businesscard.generic.PDIdentifier;
+import com.helger.peppol.businesscard.generic.PDIdentifier;
 
 /**
  * This class represents a single identifier as stored by Lucene consisting of a

@@ -29,8 +29,8 @@ import org.apache.hc.core5.http.HttpEntity;
 
 import com.helger.commons.io.stream.StreamHelper;
 import com.helger.httpclient.HttpClientHelper;
-import com.helger.pd.businesscard.generic.PDBusinessCard;
-import com.helger.pd.businesscard.helper.PDBusinessCardHelper;
+import com.helger.peppol.businesscard.generic.PDBusinessCard;
+import com.helger.peppol.businesscard.helper.PDBusinessCardHelper;
 import com.helger.smpclient.httpclient.AbstractSMPResponseHandler;
 
 /**

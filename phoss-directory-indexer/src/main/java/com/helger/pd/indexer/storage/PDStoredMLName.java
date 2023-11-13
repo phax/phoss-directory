@@ -26,7 +26,7 @@ import com.helger.commons.equals.EqualsHelper;
 import com.helger.commons.hashcode.HashCodeGenerator;
 import com.helger.commons.string.StringHelper;
 import com.helger.commons.string.ToStringGenerator;
-import com.helger.pd.businesscard.generic.PDName;
+import com.helger.peppol.businesscard.generic.PDName;
 
 /**
  * This class represents a single multilingual name as stored by Lucene

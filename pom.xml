@@ -117,9 +117,15 @@
       <dependency>
         <groupId>com.helger.peppol</groupId>
         <artifactId>peppol-commons-parent-pom</artifactId>
-        <version>9.0.8</version>
+        <version>9.1.0</version>
         <type>pom</type>
         <scope>import</scope>
+      </dependency>
+      <!--error in 9.1.0 parent pom -->
+      <dependency>
+        <groupId>com.helger.peppol</groupId>
+        <artifactId>peppol-directory-businesscard</artifactId>
+        <version>9.1.0</version>
       </dependency>
 
       <dependency>
@@ -188,11 +194,6 @@
   
       <dependency>
         <groupId>com.helger</groupId>
-        <artifactId>phoss-directory-businesscard</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.helger</groupId>
         <artifactId>phoss-directory-indexer</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -223,7 +224,6 @@
   </dependencies>
   
   <modules>
-    <module>phoss-directory-businesscard</module>
     <module>phoss-directory-indexer</module>
     <module>phoss-directory-publisher</module>
     <module>phoss-directory-client</module>

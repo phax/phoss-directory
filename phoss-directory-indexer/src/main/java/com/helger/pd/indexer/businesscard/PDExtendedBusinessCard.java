@@ -35,8 +35,8 @@ import com.helger.json.IJson;
 import com.helger.json.IJsonObject;
 import com.helger.json.JsonArray;
 import com.helger.json.JsonObject;
-import com.helger.pd.businesscard.generic.PDBusinessCard;
-import com.helger.pd.businesscard.generic.PDIdentifier;
+import com.helger.peppol.businesscard.generic.PDBusinessCard;
+import com.helger.peppol.businesscard.generic.PDIdentifier;
 import com.helger.peppolid.IDocumentTypeIdentifier;
 import com.helger.peppolid.simple.doctype.SimpleDocumentTypeIdentifier;
 

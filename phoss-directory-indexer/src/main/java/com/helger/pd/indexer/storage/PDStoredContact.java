@@ -23,7 +23,7 @@ import javax.annotation.concurrent.Immutable;
 import com.helger.commons.equals.EqualsHelper;
 import com.helger.commons.hashcode.HashCodeGenerator;
 import com.helger.commons.string.ToStringGenerator;
-import com.helger.pd.businesscard.generic.PDContact;
+import com.helger.peppol.businesscard.generic.PDContact;
 
 /**
  * This class represents a single business contact as stored by Lucene
