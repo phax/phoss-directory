@@ -110,7 +110,7 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
-* v0.13.0 - work in progress
+* v0.13.0 - 2023-11-13
     * Removed submodule `phoss-directory-businesscard` and using `peppol-directory-businesscard` from https://github.com/phax/peppol-commons instead
 * v0.12.3 - 2023-10-27
     * Fixed the name of the attribute for the client certificate retrieval (`jakarta.`)
