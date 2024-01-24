@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (C) 2015-2023 Philip Helger (www.helger.com)
+    Copyright (C) 2015-2024 Philip Helger (www.helger.com)
     philip[at]helger[dot]com
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -65,7 +65,7 @@
     <!-- Don't go beyond v7, otherwise the backwards compatibility is lost -->
     <lucene.version>8.11.2</lucene.version>
     <jersey.version>3.1.4</jersey.version>
-    <log4j.version>2.22.0</log4j.version>
+    <log4j.version>2.22.1</log4j.version>
     <jaxb-plugin.group>com.helger.maven</jaxb-plugin.group>
     <jaxb-plugin.artifact>jaxb40-maven-plugin</jaxb-plugin.artifact>
     <jaxb-plugin.version>0.16.1</jaxb-plugin.version>
