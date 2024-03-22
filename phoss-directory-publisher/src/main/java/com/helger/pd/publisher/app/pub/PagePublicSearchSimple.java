@@ -334,13 +334,6 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     final Locale aDisplayLocale = aWPEC.getDisplayLocale ();
     final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
 
-    final HCDiv aLogoContainer = new HCDiv ().addClass (CSS_CLASS_BIG_QUERY_IMAGE_CONTAINER);
-    aLogoContainer.addClass (CBootstrapCSS.MY_2);
-    final HCDiv aLogo = new HCDiv ().addClass (CSS_CLASS_BIG_QUERY_IMAGE)
-                                    .addStyle (CCSSProperties.BACKGROUND_IMAGE.newValue (CSSURLHelper.getAsCSSURL (CPDPublisher.getLogoImageURL (),
-                                                                                                                   true)));
-    aLogoContainer.addChild (aLogo);
-
     final String sQuery = aWPEC.params ().getAsStringTrimmed (FIELD_QUERY);
     final String sParticipantID = aWPEC.params ().getAsStringTrimmed (FIELD_PARTICIPANT_ID);
     int nMaxResults = aWPEC.params ().getAsInt (PARAM_MAX, DEFAULT_MAX);
@@ -356,6 +349,39 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
         nMaxResults = MAX_MAX;
       }
     boolean bShowQuery = true;
+
+    final HCDiv aLogoContainer = div ().addClass (CSS_CLASS_BIG_QUERY_IMAGE_CONTAINER).addClass (CBootstrapCSS.MY_2);
+    final HCDiv aLogo = div ().addClass (CSS_CLASS_BIG_QUERY_IMAGE)
+                              .addStyle (CCSSProperties.BACKGROUND_IMAGE.newValue (CSSURLHelper.getAsCSSURL (CPDPublisher.getLogoImageURL (),
+                                                                                                             true)));
+    aLogoContainer.addChild (aLogo);
+    if (UI_MODE.isShowPrivacyPolicy ())
+    {
+      final BootstrapTabBox aTabBox = new BootstrapTabBox ();
+      aTabBox.addTab ("search", "Search", aLogoContainer);
+      aTabBox.addTab ("privacy",
+                      "Privacy Statement",
+                      new HCNodeList ().addChild (strong ("Privacy Policy for the OpenPeppol Directory"))
+                                       .addChild (div ().addChild ("This OpenPeppol Directory, and the related services under which data in the Directory are made available to certain third parties, are operated and provided jointly by OpenPeppol AISBL and the Service Providers of the Peppol Network (the ‘Operators’)." +
+                                                                   " Data in the OpenPeppol Directory can occasionally, and at a limited scale, contain data that would qualify as personal data under European data protection law." +
+                                                                   " Specifically, categories of personal data can include identity information and contact information of persons that act on behalf of end users of the Peppol Network, as communicated to the Operators by the Service Providers." +
+                                                                   " When this is the case, the Operators act as the joint data controllers in the sense of European data protection law, and the Directory is provided on the basis of the legitimate interest of the Operators in ensuring the proper functioning of the Peppol Network, as requested by the end users."))
+                                       .addChild (div ().addChild ("Any personal data in the Directory may only be used insofar as this is necessary to ensure the correct, effective and secure operation of the Peppol Network." +
+                                                                   " Under this policy, the Operators only permit access to personal data in the Directory by persons who are contractually authorised by at least one of the Operators to use the Peppol Network." +
+                                                                   " These are the only permitted recipients of personal data under this policy." +
+                                                                   " Personal data in the Directory will be retained as long as the persons concerned remain registered as persons acting on behalf of end users of the Peppol Network."))
+                                       .addChild (div ().addChild ("In case of any questions in relation to the Directory, or to exercise their rights to access, correct or delete their personal data, or to restrict or object to future processing, data subjects may contact the Operators via ")
+                                                        .addChild (HCA_MailTo.createLinkedEmail ("info@peppol.eu"))
+                                                        .addChild ("." +
+                                                                   " If the provided answer is not satisfactory, data subjects may choose to lodge a complaint with ")
+                                                        .addChild (a (new SimpleURL ("https://edpb.europa.eu/about-edpb/about-edpb/members_en")).addChild ("their local data protection authority."))));
+      aNodeList.addChild (div (aTabBox).addClass (CBootstrapCSS.MY_3));
+    }
+    else
+    {
+      // No tab box needed
+      aNodeList.addChild (aLogoContainer);
+    }
 
     if (aWPEC.hasAction (CPageParam.ACTION_VIEW) && StringHelper.hasText (sParticipantID))
     {
@@ -399,39 +425,6 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
         // Show big query box
         aLogo.addChild (_createInitialSearchForm (aWPEC));
       }
-
-      if (UI_MODE.isShowPrivacyPolicy ())
-      {
-        final BootstrapTabBox aTabBox = new BootstrapTabBox ();
-        aTabBox.addTab ("search", "Search", aLogoContainer);
-        aTabBox.addTab ("privacy",
-                        "Privacy Statement",
-                        new HCNodeList ().addChild (strong ("Privacy Policy for the OpenPeppol Directory"))
-                                         .addChild (div ().addChild ("This OpenPeppol Directory, and the related services under which data in the Directory are made available to certain third parties, are operated and provided jointly by OpenPeppol AISBL and the Service Providers of the Peppol Network (the ‘Operators’)." +
-                                                                     " Data in the OpenPeppol Directory can occasionally, and at a limited scale, contain data that would qualify as personal data under European data protection law." +
-                                                                     " Specifically, categories of personal data can include identity information and contact information of persons that act on behalf of end users of the Peppol Network, as communicated to the Operators by the Service Providers." +
-                                                                     " When this is the case, the Operators act as the joint data controllers in the sense of European data protection law, and the Directory is provided on the basis of the legitimate interest of the Operators in ensuring the proper functioning of the Peppol Network, as requested by the end users."))
-                                         .addChild (div ().addChild ("Any personal data in the Directory may only be used insofar as this is necessary to ensure the correct, effective and secure operation of the Peppol Network." +
-                                                                     " Under this policy, the Operators only permit access to personal data in the Directory by persons who are contractually authorised by at least one of the Operators to use the Peppol Network." +
-                                                                     " These are the only permitted recipients of personal data under this policy." +
-                                                                     " Personal data in the Directory will be retained as long as the persons concerned remain registered as persons acting on behalf of end users of the Peppol Network."))
-                                         .addChild (div ().addChild ("In case of any questions in relation to the Directory, or to exercise their rights to access, correct or delete their personal data, or to restrict or object to future processing, data subjects may contact the Operators via ")
-                                                          .addChild (HCA_MailTo.createLinkedEmail ("info@peppol.eu"))
-                                                          .addChild ("." +
-                                                                     " If the provided answer is not satisfactory, data subjects may choose to lodge a complaint with ")
-                                                          .addChild (a (new SimpleURL ("https://edpb.europa.eu/about-edpb/about-edpb/members_en")).addChild ("their local data protection authority."))));
-        aNodeList.addChild (div (aTabBox).addClass (CBootstrapCSS.MY_3));
-      }
-      else
-      {
-        // No tab box needed
-        aNodeList.addChild (aLogoContainer);
-      }
-    }
-    else
-    {
-      // Show results only
-      aNodeList.addChild (aLogoContainer);
     }
   }
 }
