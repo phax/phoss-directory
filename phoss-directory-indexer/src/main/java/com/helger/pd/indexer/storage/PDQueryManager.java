@@ -210,9 +210,10 @@ public final class PDQueryManager
     final Query q1 = convertQueryStringToLuceneQuery (aAnalyzerProvider, PDField.NAME.getFieldName (), sQueryString);
     final Query q2 = convertQueryStringToLuceneQuery (aAnalyzerProvider, PDField.ML_NAME.getFieldName (), sQueryString);
 
+    // One of both must match
     final BooleanQuery.Builder aBuilder = new BooleanQuery.Builder ();
-    aBuilder.add (q1, Occur.FILTER);
-    aBuilder.add (q2, Occur.FILTER);
+    aBuilder.add (q1, Occur.SHOULD);
+    aBuilder.add (q2, Occur.SHOULD);
     return aBuilder.build ();
   }
 
