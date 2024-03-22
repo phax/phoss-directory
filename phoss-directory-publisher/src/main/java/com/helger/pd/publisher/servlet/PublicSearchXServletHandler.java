@@ -59,6 +59,7 @@ import com.helger.pd.publisher.search.EPDOutputFormat;
 import com.helger.pd.publisher.search.EPDSearchField;
 import com.helger.pd.publisher.search.SearchRateLimit;
 import com.helger.peppolid.IParticipantIdentifier;
+import com.helger.servlet.request.RequestHelper;
 import com.helger.servlet.response.UnifiedResponse;
 import com.helger.web.scope.IRequestParamContainer;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
@@ -181,7 +182,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
                       " (" +
                       sPathInfo +
                       ") from '" +
-                      aRequestScope.getUserAgent ().getAsString () +
+                      RequestHelper.getHttpUserAgentStringFromRequest (aRequestScope.getRequest ()) +
                       "'");
 
       // Determine result offset and count
