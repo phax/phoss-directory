@@ -140,9 +140,10 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
   public void handleRequest (@Nonnull final IRequestWebScopeWithoutResponse aRequestScope,
                              @Nonnull final UnifiedResponse aUnifiedResponse) throws Exception
   {
-    final BiConsumer <UnifiedResponse, String> applyError = (ur, msg) -> ur.setContentAndCharset (msg,
-                                                                                                  StandardCharsets.UTF_8)
-                                                                           .setMimeType (CMimeType.TEXT_PLAIN);
+    final BiConsumer <UnifiedResponse, String> applyError = (ur,
+                                                             msg) -> ur.setContentAndCharset (msg,
+                                                                                              StandardCharsets.UTF_8)
+                                                                       .setMimeType (CMimeType.TEXT_PLAIN);
 
     if (SearchRateLimit.INSTANCE.rateLimiter () != null)
     {
@@ -293,7 +294,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
       final Query aLuceneQuery;
       if (aQueries.size () == 1)
       {
-        aLuceneQuery = aQueries.getFirst ();
+        aLuceneQuery = aQueries.getFirstOrNull ();
       }
       else
       {
@@ -324,8 +325,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
 
       // Filter by index/count
       final int nEffectiveLastIndex = Math.min (nLastResultIndex, aResultDocs.size () - 1);
-      final List <PDStoredBusinessEntity> aResultView = nFirstResultIndex >= aResultDocs.size () ? Collections
-                                                                                                              .emptyList ()
+      final List <PDStoredBusinessEntity> aResultView = nFirstResultIndex >= aResultDocs.size () ? Collections.emptyList ()
                                                                                                  : aResultDocs.subList (nFirstResultIndex,
                                                                                                                         nEffectiveLastIndex +
                                                                                                                                            1);

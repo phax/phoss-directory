@@ -106,7 +106,8 @@ public final class PDCommonUI
                                                                   @Nonnull final Locale aDisplayLocale)
   {
     final String sDisplayLanguage = LocaleHelper.getValidLanguageCode (aDisplayLocale.getLanguage ());
-    ICommonsList <PDStoredMLName> ret = CommonsArrayList.createFiltered (aNames, x -> x.hasLanguageCode (sDisplayLanguage));
+    ICommonsList <PDStoredMLName> ret = CommonsArrayList.createFiltered (aNames,
+                                                                         x -> x.hasLanguageCode (sDisplayLanguage));
     if (ret.isEmpty ())
     {
       // Filter matched no entry - take all names
@@ -141,7 +142,7 @@ public final class PDCommonUI
 
       IHCNode aNameCtrl;
       if (aNames.size () == 1)
-        aNameCtrl = getMLNameNode (aNames.getFirst (), aDisplayLocale);
+        aNameCtrl = getMLNameNode (aNames.getFirstOrNull (), aDisplayLocale);
       else
       {
         final HCUL aNameUL = new HCUL ();
@@ -255,7 +256,7 @@ public final class PDCommonUI
         aSB.append (", ");
       aSB.append (aParts.get (i));
     }
-    return aSB.append (" and ").append (aParts.getLast ()).toString ();
+    return aSB.append (" and ").append (aParts.getLastOrNull ()).toString ();
   }
 
   @Nonnull
@@ -281,7 +282,8 @@ public final class PDCommonUI
                 .addCell (new HCTextNode (PDTToString.getAsString (aNotAfter, aDisplayLocale)),
                           aNowLDT.isAfter (aNotAfter) ? new HCStrong ().addChild (" !!!NO LONGER VALID!!!")
                                                       : new HCDiv ().addChild ("Valid for: " +
-                                                                               PDTDisplayHelper.getPeriodTextEN (aNowLDT, aNotAfter)));
+                                                                               PDTDisplayHelper.getPeriodTextEN (aNowLDT,
+                                                                                                                 aNotAfter)));
 
     if (aPublicKey instanceof RSAPublicKey)
     {

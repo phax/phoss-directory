@@ -262,7 +262,7 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
                                      ":"));
 
         HCOL aDocTypeOL = null;
-        final ICommonsList <IDocumentTypeIdentifier> aDocTypeIDs = aResultDocs.getFirst ()
+        final ICommonsList <IDocumentTypeIdentifier> aDocTypeIDs = aResultDocs.getFirstOrNull ()
                                                                               .documentTypeIDs ()
                                                                               .getSorted (IDocumentTypeIdentifier.comparator ());
         for (final IDocumentTypeIdentifier aDocTypeID : aDocTypeIDs)

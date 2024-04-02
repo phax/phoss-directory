@@ -62,7 +62,7 @@
   </developers>
   
   <properties>
-    <!-- Don't go beyond v7, otherwise the backwards compatibility is lost -->
+    <!-- Peppol Directory runs on Lucene v8 -->
     <lucene.version>8.11.2</lucene.version>
     <jersey.version>3.1.5</jersey.version>
     <log4j.version>2.23.1</log4j.version>
@@ -235,7 +235,7 @@
         <plugin>
           <groupId>com.helger.maven</groupId>
           <artifactId>ph-csscompress-maven-plugin</artifactId>
-          <version>7.0.1</version>
+          <version>7.0.2</version>
         </plugin>
       </plugins>
     </pluginManagement>

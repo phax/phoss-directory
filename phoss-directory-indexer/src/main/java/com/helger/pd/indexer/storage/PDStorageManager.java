@@ -94,7 +94,7 @@ public final class PDStorageManager implements IPDStorageManager
   private static final FieldType TYPE_GROUP_END = new FieldType ();
   private static final String VALUE_GROUP_END = "x";
   private static final IMutableStatisticsHandlerKeyedTimer STATS_QUERY_TIMER = StatisticsManager.getKeyedTimerHandler (PDStorageManager.class.getName () +
-                                                                                                                        "$query");
+                                                                                                                       "$query");
 
   static
   {
@@ -192,10 +192,10 @@ public final class PDStorageManager implements IPDStorageManager
 
         aDoc.add (PDField.PARTICIPANT_ID.getAsField (aParticipantID));
         aSBAllFields.append (PDField.PARTICIPANT_ID.getAsStorageValue (aParticipantID)).append (' ');
-        if (aBusinessEntity.names ().size () == 1 && aBusinessEntity.names ().getFirst ().hasNoLanguageCode ())
+        if (aBusinessEntity.names ().size () == 1 && aBusinessEntity.names ().getFirstOrNull ().hasNoLanguageCode ())
         {
           // Single name without a language - legacy case
-          final String sName = aBusinessEntity.names ().getFirst ().getName ();
+          final String sName = aBusinessEntity.names ().getFirstOrNull ().getName ();
           aDoc.add (PDField.NAME.getAsField (sName));
           aSBAllFields.append (sName).append (' ');
         }

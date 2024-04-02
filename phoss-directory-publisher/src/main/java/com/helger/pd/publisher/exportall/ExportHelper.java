@@ -52,10 +52,9 @@ public final class ExportHelper
   @Nonnull
   private static IMicroElement _createMicroElement (@Nonnull final IDocumentTypeIdentifier aDocTypeID)
   {
-    final IMicroElement eDocTypeID = new MicroElement (XML_EXPORT_NS_URI, "doctypeid").setAttribute ("scheme",
-                                                                                                     aDocTypeID.getScheme ())
-                                                                                      .setAttribute ("value",
-                                                                                                     aDocTypeID.getValue ());
+    final IMicroElement eDocTypeID = new MicroElement (XML_EXPORT_NS_URI,
+                                                       "doctypeid").setAttribute ("scheme", aDocTypeID.getScheme ())
+                                                                   .setAttribute ("value", aDocTypeID.getValue ());
     final NiceNameEntry aNiceName = NiceNameHandler.getDocTypeNiceName (aDocTypeID.getURIEncoded ());
     if (aNiceName == null)
       eDocTypeID.setAttribute ("non-standard", true);
@@ -91,7 +90,7 @@ public final class ExportHelper
 
       // New in v2 - add all Document types
       if (bIncludeDocTypes && aEntry.getValue ().isNotEmpty ())
-        for (final IDocumentTypeIdentifier aDocTypeID : aEntry.getValue ().getFirst ().documentTypeIDs ())
+        for (final IDocumentTypeIdentifier aDocTypeID : aEntry.getValue ().getFirstOrNull ().documentTypeIDs ())
           eBC.appendChild (_createMicroElement (aDocTypeID));
 
       aRoot.appendChild (eBC);
@@ -183,7 +182,7 @@ public final class ExportHelper
       {
         final IJsonArray aDocTypes = new JsonArray ();
         if (aEntry.getValue ().isNotEmpty ())
-          for (final IDocumentTypeIdentifier aDocTypeID : aEntry.getValue ().getFirst ().documentTypeIDs ())
+          for (final IDocumentTypeIdentifier aDocTypeID : aEntry.getValue ().getFirstOrNull ().documentTypeIDs ())
             aDocTypes.add (_createJsonObject (aDocTypeID));
         aBC.add ("docTypes", aDocTypes);
       }
