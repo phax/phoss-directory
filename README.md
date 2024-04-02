@@ -110,6 +110,8 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
+* v0.13.2 - 2024-04-02
+    * Ensured Java 21 compatibility
 * v0.13.1 - 2024-03-22
     * Fixed the `name` REST API query parameter
 * v0.13.0 - 2023-11-13
