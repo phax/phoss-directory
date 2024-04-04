@@ -161,7 +161,7 @@ public final class PDClientConfiguration
     }
 
     if (!EqualsHelper.identityEqual (ret, aNewConfig))
-      LOGGER.info ("The SMPClient configuration provider was changed to " + aNewConfig);
+      LOGGER.info ("The PDClient configuration provider was changed to " + aNewConfig);
     return ret;
   }
 
