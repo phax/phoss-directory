@@ -340,7 +340,7 @@ public final class PDStorageManager implements IPDStorageManager
       // Special handling for predefined owners
       final BooleanQuery.Builder aBuilderOr = new BooleanQuery.Builder ();
 
-      // TODO the equals-check on deleteion is to strict for Peppol
+      // TODO the equals-check on deletion is to strict for Peppol
       aBuilderOr.add (new TermQuery (PDField.METADATA_OWNERID.getExactMatchTerm (aMetaData.getOwnerID ())),
                       Occur.SHOULD);
       aBuilderOr.add (new TermQuery (PDField.METADATA_OWNERID.getExactMatchTerm (CPDStorage.OWNER_DUPLICATE_ELIMINATION)),
