@@ -22,10 +22,10 @@ Previous modules:
 * Test version is available at https://test-directory.peppol.eu
     * It can only handle participants registered at the SMK
     * For the indexing REST API, a client certificate (SMP test) is needed 
-* A TOOP version is available at http://directory.acc.exchange.toop.eu/
+* A TOOP version is/was available at http://directory.acc.exchange.toop.eu/
     * It can only handle participants registered at the SMK at a specific DNS zone
     * For the indexing REST API, no client certificate is needed
-* A DE4A version is available at https://de4a.simplegob.com/directory/
+* A DE4A version is/was available at https://de4a.simplegob.com/directory/
     * It can only handle participants registered at the SML at a specific DNS zone
     * For the indexing REST API, no client certificate is needed
 
@@ -44,18 +44,16 @@ The PD client is a small Java library that uses Apache HttpClient to connect to 
 
 ## Client Configuration resolution
 
-Note: this is new in v0.9.0.
+The PD client uses `ph-config` to resolve configuration items.
+See https://github.com/phax/ph-commons/wiki/ph-config for the details on the resolution logic.
 
-The PD client uses the file `application.properties` for configuration.
-The file `pd-client.properties` is also evaluated for backwards-compatibility reasons but with lower priority.
-
-See https://github.com/phax/ph-commons#ph-config for the new resolution logic.
+Note: the old file `pd-client.properties` is still evaluated for backwards-compatibility reasons but with lower priority. It will be removed in the future.
 
 ## Client Configuration properties
 
 Note: the configuration properties were heavily renamed in v0.10.0. Previous old names are shown in brackets.
 
-The following options are supported in the `pd-client.properties` file:
+The following configuration items are supported by the PD Client:
 * **`pdclient.keystore.type`** (old: **`keystore.type`**) (since v0.6.0) - the type of the keystore. Can be `JKS` or `PKCS12` (case insensitive). Defaults to `JKS`.
 * **`pdclient.keystore.path`** (old: **`keystore.path`**) - the path to the keystore where the SMP certificate is contained
 * **`pdclient.keystore.password`** (old: **`keystore.password`**) - the password to open the key store
@@ -74,7 +72,7 @@ The following options are supported in the `pd-client.properties` file:
 * **`http.response.timeout.ms`** (old: **`http.request.timeout.ms`** or **`request.timeout.ms`**) (since v0.10.3) - the response/request/read timeout in milliseconds to read from the server. The default value is `10000` (10 seconds). A value of `0` means indefinite. A value of `-1` means using the system default.
 * **`https.hostname-verification.disabled`** (since v0.5.1) - a boolean value to indicate if https hostname verification should be disabled (`true`) or enabled (`false`). The default value is `true`.
 
-Example PD client configuration file:
+Example PD Client configuration properties:
 
 ```ini
 # Key store with SMP key (required)
