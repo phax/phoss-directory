@@ -55,7 +55,7 @@ import com.helger.pd.publisher.ui.PDCommonUI;
 import com.helger.peppolid.IDocumentTypeIdentifier;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.factory.PeppolIdentifierFactory;
-import com.helger.peppolid.peppol.pidscheme.IParticipantIdentifierScheme;
+import com.helger.peppolid.peppol.pidscheme.IPeppolParticipantIdentifierScheme;
 import com.helger.peppolid.peppol.pidscheme.ParticipantIdentifierSchemeManager;
 import com.helger.photon.bootstrap4.card.BootstrapCard;
 import com.helger.photon.bootstrap4.form.BootstrapFormGroup;
@@ -195,7 +195,7 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
         final boolean bIsPeppolDefault = aParticipantID.hasScheme (PeppolIdentifierFactory.INSTANCE.getDefaultParticipantIdentifierScheme ());
         if (bIsPeppolDefault)
         {
-          final IParticipantIdentifierScheme aIIA = ParticipantIdentifierSchemeManager.getSchemeOfIdentifier (aParticipantID);
+          final IPeppolParticipantIdentifierScheme aIIA = ParticipantIdentifierSchemeManager.getSchemeOfIdentifier (aParticipantID);
           if (aIIA != null)
           {
             final HCH1 aH1 = h1 ("Details for: " + aParticipantID.getValue ());
