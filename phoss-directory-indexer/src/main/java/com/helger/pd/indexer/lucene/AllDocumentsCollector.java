@@ -26,6 +26,8 @@ import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.search.Collector;
 import org.apache.lucene.search.ScoreMode;
 import org.apache.lucene.search.SimpleCollector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.string.ToStringGenerator;
@@ -37,6 +39,8 @@ import com.helger.commons.string.ToStringGenerator;
  */
 public class AllDocumentsCollector extends SimpleCollector
 {
+  private static final Logger LOGGER = LoggerFactory.getLogger (AllDocumentsCollector.class);
+
   private final ILuceneDocumentProvider m_aDocumentProvider;
   private final ObjIntConsumer <Document> m_aConsumer;
   private int m_nDocBase = 0;
@@ -76,9 +80,18 @@ public class AllDocumentsCollector extends SimpleCollector
     // Resolve document
     final Document aDoc = m_aDocumentProvider.getDocument (nAbsoluteDocID);
     if (aDoc == null)
-      throw new IllegalStateException ("Failed to resolve Lucene Document with ID " + nAbsoluteDocID);
-    // Pass to Consumer
-    m_aConsumer.accept (aDoc, nAbsoluteDocID);
+    {
+      // This may happen, if a document was deleted between searching and
+      // details retrieval
+      LOGGER.warn ("Failed to resolve Lucene Document with ID " +
+                   nAbsoluteDocID +
+                   " - eventually it was deleted in the meantime?");
+    }
+    else
+    {
+      // Pass to Consumer
+      m_aConsumer.accept (aDoc, nAbsoluteDocID);
+    }
   }
 
   // Lucene 8
