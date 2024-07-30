@@ -79,7 +79,10 @@ public final class AppCommonUI
 
   public static final Locale DEFAULT_LOCALE = LocaleCache.getInstance ().getLocale ("en", "US");
 
-  private static final DataTablesLengthMenu LENGTH_MENU = new DataTablesLengthMenu ().addItem (25).addItem (50).addItem (100).addItemAll ();
+  private static final DataTablesLengthMenu LENGTH_MENU = new DataTablesLengthMenu ().addItem (25)
+                                                                                     .addItem (50)
+                                                                                     .addItem (100)
+                                                                                     .addItemAll ();
 
   private static final ICommonsList <HCLink> DEFAULT_FAV_ICONS = new CommonsArrayList <> ();
 
@@ -120,7 +123,9 @@ public final class AppCommonUI
                                                           .data (new JSAssocArray ().add (AjaxExecutorDataTables.OBJECT_ID,
                                                                                           aTable.getID ())))
                  .setServerFilterType (EDataTablesFilterType.ALL_TERMS_PER_ROW)
-                 .setTextLoadingURL (CAjax.DATATABLES_I18N.getInvocationURL (aRequestScope), AjaxExecutorDataTablesI18N.LANGUAGE_ID)
+                 .setTextLoadingURL (CAjax.DATATABLES_I18N.getInvocationURL (aRequestScope),
+                                     AjaxExecutorDataTablesI18N.REQUEST_PARAM_LANGUAGE_ID,
+                                     AjaxExecutorDataTablesI18N.REQUEST_PARAM_MAX_PAGES)
                  .addPlugin (new DataTablesPluginSearchHighlight ());
     });
 
@@ -139,7 +144,8 @@ public final class AppCommonUI
   }
 
   @Nonnull
-  public static BootstrapForm createViewLoginForm (@Nonnull final LayoutExecutionContext aLEC, @Nullable final String sPreselectedUserName)
+  public static BootstrapForm createViewLoginForm (@Nonnull final LayoutExecutionContext aLEC,
+                                                   @Nullable final String sPreselectedUserName)
   {
     final Locale aDisplayLocale = aLEC.getDisplayLocale ();
     final IRequestWebScopeWithoutResponse aRequestScope = aLEC.getRequestScope ();
@@ -150,7 +156,8 @@ public final class AppCommonUI
     final String sIDPassword = GlobalIDFactory.getNewStringID ();
     final String sIDErrorField = GlobalIDFactory.getNewStringID ();
 
-    final BootstrapForm aForm = new BootstrapForm (aLEC).setAction (aLEC.getSelfHref ()).setFormType (EBootstrapFormType.DEFAULT);
+    final BootstrapForm aForm = new BootstrapForm (aLEC).setAction (aLEC.getSelfHref ())
+                                                        .setFormType (EBootstrapFormType.DEFAULT);
     aForm.setLeft (3);
 
     // User name field
@@ -178,7 +185,8 @@ public final class AppCommonUI
 
       aOnClick.add (new JQueryAjaxBuilder ().url (CAjax.LOGIN.getInvocationURI (aRequestScope))
                                             .method (EHttpMethod.POST)
-                                            .data (new JSAssocArray ().add (CLogin.REQUEST_ATTR_USERID, JQuery.idRef (sIDUserName).val ())
+                                            .data (new JSAssocArray ().add (CLogin.REQUEST_ATTR_USERID,
+                                                                            JQuery.idRef (sIDUserName).val ())
                                                                       .add (CLogin.REQUEST_ATTR_PASSWORD,
                                                                             JQuery.idRef (sIDPassword).val ()))
                                             .success (aJSSuccess)

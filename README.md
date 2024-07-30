@@ -108,6 +108,8 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
+* v0.13.4 - 2024-07-30
+    * Updated to peppol-commons 9.5.0 with eDEC Code Lists v8.9
 * v0.13.3 - 2024-05-24
     * Updated to peppol-commons 9.4.0
 * v0.13.2 - 2024-04-02
