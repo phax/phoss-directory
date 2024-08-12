@@ -106,8 +106,8 @@ public class PDClient implements Closeable
     ValueEnforcer.notNull (aPDHost, "PDHost");
 
     // Build string and ensure it ends with a "/"
-    final String sSMPHost = aPDHost.toString ();
-    m_sPDHostURI = sSMPHost.endsWith ("/") ? sSMPHost : sSMPHost + '/';
+    final String sPDHost = aPDHost.toString ();
+    m_sPDHostURI = sPDHost.endsWith ("/") ? sPDHost : sPDHost + '/';
     m_sPDIndexerURI = m_sPDHostURI + PATH_INDEXER_10;
     m_aHttpClientMgr = HttpClientManager.create (new PDHttpClientSettings (m_sPDHostURI));
   }
