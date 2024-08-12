@@ -6,8 +6,10 @@
 The official Peppol Directory (PD; https://directory.peppol.eu), 
   TOOP Directory software (The Once-Only Project; www.toop.eu) and 
   DE4A Directory software (Digital Europe 4 All; www.de4a.eu).
-  
-It is split into the following sub-projects (all require Java 11 or newer):
+
+This project is part of my Peppol solution stack. See https://github.com/phax/peppol for other components and libraries in that area.
+ 
+This project is split into the following sub-projects (all require Java 11 or newer):
 * `phoss-directory-indexer` - the PD indexer part
 * `phoss-directory-publisher` - the PD publisher web application
 * `phoss-directory-client` - a client library to be added to SMP servers to force indexing in the PD
@@ -21,16 +23,13 @@ Previous modules:
     * For the indexing REST API, a client certificate (SMP production) is needed 
 * Test version is available at https://test-directory.peppol.eu
     * It can only handle participants registered at the SMK
-    * For the indexing REST API, a client certificate (SMP test) is needed 
-* A TOOP version is/was available at http://directory.acc.exchange.toop.eu/
+    * For the indexing REST API, a client certificate (SMP test) is needed
+* A TOOP version was available at http://directory.acc.exchange.toop.eu/
     * It can only handle participants registered at the SMK at a specific DNS zone
     * For the indexing REST API, no client certificate is needed
-* A DE4A version is/was available at https://de4a.simplegob.com/directory/
+* A DE4A version was available at https://de4a.simplegob.com/directory/
     * It can only handle participants registered at the SML at a specific DNS zone
     * For the indexing REST API, no client certificate is needed
-
-* A Java library to be used in SMPs to communicate with the PD is available
-* [phoss SMP Server](https://github.com/phax/phoss-smp) supports starting with version 4.1.2 the graphical editing of Business Card incl. the necessary `/businesscard` API.
 
 # Building requirements
 
