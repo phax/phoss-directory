@@ -124,8 +124,7 @@ public final class AppCommonUI
                                                                                           aTable.getID ())))
                  .setServerFilterType (EDataTablesFilterType.ALL_TERMS_PER_ROW)
                  .setTextLoadingURL (CAjax.DATATABLES_I18N.getInvocationURL (aRequestScope),
-                                     AjaxExecutorDataTablesI18N.REQUEST_PARAM_LANGUAGE_ID,
-                                     AjaxExecutorDataTablesI18N.REQUEST_PARAM_MAX_PAGES)
+                                     AjaxExecutorDataTablesI18N.REQUEST_PARAM_LANGUAGE_ID)
                  .addPlugin (new DataTablesPluginSearchHighlight ());
     });
 
