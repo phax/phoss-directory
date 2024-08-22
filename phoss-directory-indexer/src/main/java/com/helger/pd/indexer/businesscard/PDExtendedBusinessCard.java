@@ -112,14 +112,17 @@ public class PDExtendedBusinessCard implements IHasJson, Serializable
     final IJsonObject ret = new JsonObject ();
     ret.addJson ("businesscard", m_aBusinessCard.getAsJson ());
     ret.addJson ("doctypes",
-                 new JsonArray ().addAllMapped (m_aDocumentTypeIDs, x -> PDIdentifier.getAsJson (x.getScheme (), x.getValue ())));
+                 new JsonArray ().addAllMapped (m_aDocumentTypeIDs,
+                                                x -> PDIdentifier.getAsJson (x.getScheme (), x.getValue ())));
     return ret;
   }
 
   @Override
   public String toString ()
   {
-    return new ToStringGenerator (this).append ("BusinessCard", m_aBusinessCard).append ("DocTypeIDs", m_aDocumentTypeIDs).getToString ();
+    return new ToStringGenerator (this).append ("BusinessCard", m_aBusinessCard)
+                                       .append ("DocTypeIDs", m_aDocumentTypeIDs)
+                                       .getToString ();
   }
 
   @Nonnull

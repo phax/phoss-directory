@@ -106,8 +106,9 @@ public class IndexerResource
                                              @Nonnull final String sParticipantID)
   {
     final String sLogPrefix = "[createOrUpdateParticipant] ";
-    final ClientCertificateValidationResult aResult = _checkClientCertificate (aHttpServletRequest, sLogPrefix);
-    if (aResult.isFailure ())
+    final ClientCertificateValidationResult aCertValidationResult = _checkClientCertificate (aHttpServletRequest,
+                                                                                             sLogPrefix);
+    if (aCertValidationResult.isFailure ())
       return Response.status (Response.Status.FORBIDDEN).build ();
 
     final String sRealParticipantID = _unifyPID (sParticipantID);
@@ -126,7 +127,7 @@ public class IndexerResource
     if (PDMetaManager.getIndexerMgr ()
                      .queueWorkItem (aPI,
                                      EIndexerWorkItemType.CREATE_UPDATE,
-                                     aResult.getClientID (),
+                                     aCertValidationResult.getClientID (),
                                      _getRequestingHost (aHttpServletRequest))
                      .isUnchanged ())
     {
@@ -142,8 +143,9 @@ public class IndexerResource
                                      @PathParam ("participantID") @Nonnull final String sParticipantID)
   {
     final String sLogPrefix = "[deleteParticipant] ";
-    final ClientCertificateValidationResult aResult = _checkClientCertificate (aHttpServletRequest, sLogPrefix);
-    if (aResult.isFailure ())
+    final ClientCertificateValidationResult aCertValidationResult = _checkClientCertificate (aHttpServletRequest,
+                                                                                             sLogPrefix);
+    if (aCertValidationResult.isFailure ())
       return Response.status (Response.Status.FORBIDDEN).build ();
 
     final String sRealParticipantID = _unifyPID (sParticipantID);
@@ -165,7 +167,7 @@ public class IndexerResource
     if (PDMetaManager.getIndexerMgr ()
                      .queueWorkItem (aPI,
                                      EIndexerWorkItemType.DELETE,
-                                     aResult.getClientID (),
+                                     aCertValidationResult.getClientID (),
                                      _getRequestingHost (aHttpServletRequest))
                      .isUnchanged ())
     {
