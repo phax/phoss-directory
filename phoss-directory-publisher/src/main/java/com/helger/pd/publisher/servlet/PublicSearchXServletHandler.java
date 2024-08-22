@@ -43,6 +43,7 @@ import com.helger.commons.datetime.PDTFactory;
 import com.helger.commons.datetime.PDTWebDateHelper;
 import com.helger.commons.error.IError;
 import com.helger.commons.http.CHttp;
+import com.helger.commons.http.CHttpHeader;
 import com.helger.commons.io.resource.ClassPathResource;
 import com.helger.commons.mime.CMimeType;
 import com.helger.commons.string.StringHelper;
@@ -338,6 +339,11 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
       final ICommonsMap <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> aGroupedDocs = PDStorageManager.getGroupedByParticipantID (aResultView);
       final ZonedDateTime aNow = PDTFactory.getCurrentZonedDateTimeUTC ();
 
+      // See Directory issue #68
+      aUnifiedResponse.addCustomResponseHeader (CHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
+      aUnifiedResponse.disableCaching ();
+      aUnifiedResponse.setMimeType (eOutputFormat.getMimeType ());
+
       // build result
       switch (eOutputFormat)
       {
@@ -374,8 +380,6 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
               LOGGER.error (aError.getAsString (AppCommonUI.DEFAULT_LOCALE));
           }
 
-          aUnifiedResponse.disableCaching ();
-          aUnifiedResponse.setMimeType (eOutputFormat.getMimeType ());
           aUnifiedResponse.setContent (MicroWriter.getNodeAsBytes (aDoc, aXWS));
           break;
         }
@@ -400,8 +404,6 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
           }
           aDoc.addJson ("matches", aMatches);
 
-          aUnifiedResponse.disableCaching ();
-          aUnifiedResponse.setMimeType (eOutputFormat.getMimeType ());
           aUnifiedResponse.setContentAndCharset (aDoc.getAsJsonString (aJWS), StandardCharsets.UTF_8);
           break;
         default:
