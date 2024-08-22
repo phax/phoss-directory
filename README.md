@@ -107,7 +107,7 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
-* v0.13.4 - work in progress
+* v0.13.5 - 2024-08-22
     * Added a CORS HTTP response header for the REST API. See [#68](https://github.com/phax/phoss-directory/issues/68)
 * v0.13.4 - 2024-07-30
     * Updated to peppol-commons 9.5.0 with eDEC Code Lists v8.9
