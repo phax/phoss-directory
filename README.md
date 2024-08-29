@@ -3,9 +3,7 @@
 [![javadoc](https://javadoc.io/badge2/com.helger/phoss-directory-indexer/javadoc.svg)](https://javadoc.io/doc/com.helger/phoss-directory-indexer)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.helger/phoss-directory-parent-pom/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.helger/phoss-directory-parent-pom) 
 
-The official Peppol Directory (PD; https://directory.peppol.eu), 
-  TOOP Directory software (The Once-Only Project; www.toop.eu) and 
-  DE4A Directory software (Digital Europe 4 All; www.de4a.eu).
+The official Peppol Directory (PD; https://directory.peppol.eu).
 
 This project is part of my Peppol solution stack. See https://github.com/phax/peppol for other components and libraries in that area.
  
@@ -24,16 +22,10 @@ Previous modules:
 * Test version is available at https://test-directory.peppol.eu
     * It can only handle participants registered at the SMK
     * For the indexing REST API, a client certificate (SMP test) is needed
-* A TOOP version was available at http://directory.acc.exchange.toop.eu/
-    * It can only handle participants registered at the SMK at a specific DNS zone
-    * For the indexing REST API, no client certificate is needed
-* A DE4A version was available at https://de4a.simplegob.com/directory/
-    * It can only handle participants registered at the SML at a specific DNS zone
-    * For the indexing REST API, no client certificate is needed
 
 # Building requirements
 
-To build the PD software you need at least Java 1.8 and Apache Maven 3.x.
+To build the PD software you need at least Java 11 and Apache Maven 3.x.
 
 Additionally to the contained projects you *MAY* need the latest SNAPSHOT of [ph-oton](https://github.com/phax/ph-oton) as part of your build environment.
 
