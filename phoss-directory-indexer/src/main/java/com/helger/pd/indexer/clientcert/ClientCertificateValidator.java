@@ -140,7 +140,9 @@ public final class ClientCertificateValidator
       X509Certificate aCert;
       try
       {
-        final KeyStore aKS = KeyStoreHelper.loadKeyStoreDirect (aTS.getType (), aTS.getPath (), aTS.getPassword ());
+        final KeyStore aKS = KeyStoreHelper.loadKeyStoreDirect (aTS.getType (),
+                                                                aTS.getPath (),
+                                                                aTS.getPassword ().toCharArray ());
         aCert = (X509Certificate) aKS.getCertificate (aTS.getAlias ());
       }
       catch (final Exception ex)

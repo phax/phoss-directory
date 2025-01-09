@@ -204,9 +204,9 @@ public final class PDClientConfiguration
    *         property <code>keystore.password</code>.
    */
   @Nullable
-  public static String getKeyStorePassword ()
+  public static char [] getKeyStorePassword ()
   {
-    return getConfig ().getAsStringOrFallback ("pdclient.keystore.password", "keystore.password");
+    return getConfig ().getAsCharArrayOrFallback ("pdclient.keystore.password", "keystore.password");
   }
 
   /**
@@ -284,9 +284,9 @@ public final class PDClientConfiguration
    * @since 0.5.1
    */
   @Nullable
-  public static String getTrustStorePassword ()
+  public static char [] getTrustStorePassword ()
   {
-    return getConfig ().getAsStringOrFallback ("pdclient.truststore.password", "truststore.password");
+    return getConfig ().getAsCharArrayOrFallback ("pdclient.truststore.password", "truststore.password");
   }
 
   /**

@@ -120,7 +120,7 @@ public final class LocalHost8080FuncTest
       // https
       final KeyStore aKeyStore = KeyStoreHelper.loadKeyStoreDirect (EKeyStoreType.JKS,
                                                                     aTestClientCertificateKeyStore.getAbsolutePath (),
-                                                                    "peppol");
+                                                                    "peppol".toCharArray ());
       // Try to create the socket factory from the provided key store
       final KeyManagerFactory aKeyManagerFactory = KeyManagerFactory.getInstance ("SunX509");
       aKeyManagerFactory.init (aKeyStore, "peppol".toCharArray ());
