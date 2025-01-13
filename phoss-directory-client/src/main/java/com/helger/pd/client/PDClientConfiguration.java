@@ -16,7 +16,6 @@
  */
 package com.helger.pd.client;
 
-import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 
 import javax.annotation.Nonnull;
@@ -31,17 +30,10 @@ import org.slf4j.LoggerFactory;
 import com.helger.commons.ValueEnforcer;
 import com.helger.commons.concurrent.SimpleReadWriteLock;
 import com.helger.commons.equals.EqualsHelper;
-import com.helger.commons.exception.InitializationException;
-import com.helger.commons.io.resource.IReadableResource;
-import com.helger.commons.io.resourceprovider.ReadableResourceProviderChain;
-import com.helger.commons.string.StringHelper;
-import com.helger.commons.system.SystemProperties;
 import com.helger.config.ConfigFactory;
 import com.helger.config.IConfig;
 import com.helger.config.fallback.ConfigWithFallback;
 import com.helger.config.fallback.IConfigWithFallback;
-import com.helger.config.source.MultiConfigurationValueProvider;
-import com.helger.config.source.res.ConfigurationSourceProperties;
 import com.helger.httpclient.HttpClientSettings;
 import com.helger.security.keystore.EKeyStoreType;
 import com.helger.security.keystore.KeyStoreHelper;
@@ -59,59 +51,9 @@ public final class PDClientConfiguration
 {
   private static final Logger LOGGER = LoggerFactory.getLogger (PDClientConfiguration.class);
 
-  static
-  {
-    // Since 0.9.0
-    if (StringHelper.hasText (SystemProperties.getPropertyValueOrNull ("peppol.pd.client.properties.path")))
-      throw new InitializationException ("The system property 'peppol.pd.client.properties.path' is no longer supported." +
-                                         " See https://github.com/phax/ph-commons#ph-config for alternatives." +
-                                         " Consider using the system property 'config.file' instead.");
-    if (StringHelper.hasText (SystemProperties.getPropertyValueOrNull ("pd.client.properties.path")))
-      throw new InitializationException ("The system property 'pd.client.properties.path' is no longer supported." +
-                                         " See https://github.com/phax/ph-commons#ph-config for alternatives." +
-                                         " Consider using the system property 'config.file' instead.");
-    if (StringHelper.hasText (System.getenv ().get ("DIRECTORY_CLIENT_CONFIG")))
-      throw new InitializationException ("The environment variable 'DIRECTORY_CLIENT_CONFIG' is no longer supported." +
-                                         " See https://github.com/phax/ph-commons#ph-config for alternatives." +
-                                         " Consider using the environment variable 'CONFIG_FILE' instead.");
-  }
-
-  /**
-   * @return The configuration value provider for phase4 that contains backward
-   *         compatibility support.
-   */
-  @Nonnull
-  public static MultiConfigurationValueProvider createPDClientValueProvider ()
-  {
-    // Start with default setup
-    final MultiConfigurationValueProvider ret = ConfigFactory.createDefaultValueProvider ();
-
-    final ReadableResourceProviderChain aResourceProvider = ConfigFactory.createDefaultResourceProviderChain ();
-
-    IReadableResource aRes;
-    final int nBasePrio = ConfigFactory.APPLICATION_PROPERTIES_PRIORITY;
-
-    // Lower priority than the standard files
-    aRes = aResourceProvider.getReadableResourceIf ("private-pd-client.properties", IReadableResource::exists);
-    if (aRes != null)
-    {
-      LOGGER.warn ("The support for the properties file 'private-pd-client.properties' is deprecated. Place the properties in 'application.properties' instead.");
-      ret.addConfigurationSource (new ConfigurationSourceProperties (aRes, StandardCharsets.UTF_8), nBasePrio - 1);
-    }
-
-    aRes = aResourceProvider.getReadableResourceIf ("pd-client.properties", IReadableResource::exists);
-    if (aRes != null)
-    {
-      LOGGER.warn ("The support for the properties file 'pd-client.properties' is deprecated. Place the properties in 'application.properties' instead.");
-      ret.addConfigurationSource (new ConfigurationSourceProperties (aRes, StandardCharsets.UTF_8), nBasePrio - 2);
-    }
-
-    return ret;
-  }
-
   public static final EKeyStoreType DEFAULT_TRUSTSTORE_TYPE = EKeyStoreType.JKS;
 
-  private static final IConfigWithFallback DEFAULT_CONFIG = new ConfigWithFallback (createPDClientValueProvider ());
+  private static final IConfigWithFallback DEFAULT_CONFIG = new ConfigWithFallback (ConfigFactory.createDefaultValueProvider ());
   private static final SimpleReadWriteLock RW_LOCK = new SimpleReadWriteLock ();
   @GuardedBy ("RW_LOCK")
   private static IConfigWithFallback s_aConfig = DEFAULT_CONFIG;
@@ -185,7 +127,7 @@ public final class PDClientConfiguration
   @Nonnull
   public static EKeyStoreType getKeyStoreType ()
   {
-    final String sType = getConfig ().getAsStringOrFallback ("pdclient.keystore.type", "keystore.type");
+    final String sType = getConfig ().getAsString ("pdclient.keystore.type");
     return EKeyStoreType.getFromIDCaseInsensitiveOrDefault (sType, EKeyStoreType.JKS);
   }
 
@@ -196,7 +138,7 @@ public final class PDClientConfiguration
   @Nullable
   public static String getKeyStorePath ()
   {
-    return getConfig ().getAsStringOrFallback ("pdclient.keystore.path", "keystore.path");
+    return getConfig ().getAsString ("pdclient.keystore.path");
   }
 
   /**
@@ -206,7 +148,7 @@ public final class PDClientConfiguration
   @Nullable
   public static char [] getKeyStorePassword ()
   {
-    return getConfig ().getAsCharArrayOrFallback ("pdclient.keystore.password", "keystore.password");
+    return getConfig ().getAsCharArray ("pdclient.keystore.password");
   }
 
   /**
@@ -225,7 +167,7 @@ public final class PDClientConfiguration
   @Nullable
   public static String getKeyStoreKeyAlias ()
   {
-    return getConfig ().getAsStringOrFallback ("pdclient.keystore.key.alias", "keystore.key.alias");
+    return getConfig ().getAsString ("pdclient.keystore.key.alias");
   }
 
   /**
@@ -235,7 +177,7 @@ public final class PDClientConfiguration
   @Nullable
   public static char [] getKeyStoreKeyPassword ()
   {
-    final String ret = getConfig ().getAsStringOrFallback ("pdclient.keystore.key.password", "keystore.key.password");
+    final String ret = getConfig ().getAsString ("pdclient.keystore.key.password");
     return ret == null ? null : ret.toCharArray ();
   }
 
@@ -261,7 +203,7 @@ public final class PDClientConfiguration
   @Nonnull
   public static EKeyStoreType getTrustStoreType ()
   {
-    final String sType = getConfig ().getAsStringOrFallback ("pdclient.truststore.type", "truststore.type");
+    final String sType = getConfig ().getAsString ("pdclient.truststore.type");
     return EKeyStoreType.getFromIDCaseInsensitiveOrDefault (sType, DEFAULT_TRUSTSTORE_TYPE);
   }
 
@@ -274,7 +216,7 @@ public final class PDClientConfiguration
   @Nullable
   public static String getTrustStorePath ()
   {
-    return getConfig ().getAsStringOrFallback ("pdclient.truststore.path", "truststore.path");
+    return getConfig ().getAsString ("pdclient.truststore.path");
   }
 
   /**
@@ -286,7 +228,7 @@ public final class PDClientConfiguration
   @Nullable
   public static char [] getTrustStorePassword ()
   {
-    return getConfig ().getAsCharArrayOrFallback ("pdclient.truststore.password", "truststore.password");
+    return getConfig ().getAsCharArray ("pdclient.truststore.password");
   }
 
   /**
