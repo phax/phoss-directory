@@ -68,9 +68,7 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
 {
   protected enum EUIMode implements IHasID <String>
   {
-    PEPPOL ("peppol"),
-    TOOP ("toop"),
-    DE4A ("de4a");
+    PEPPOL ("peppol");
 
     private final String m_sID;
 

@@ -16,8 +16,6 @@
  */
 package com.helger.pd.indexer.settings;
 
-import java.io.Serializable;
-
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 
@@ -31,7 +29,7 @@ import com.helger.security.keystore.EKeyStoreType;
  * @author Philip Helger
  */
 @Immutable
-public class PDConfiguredTrustStore implements Serializable
+public final class PDConfiguredTrustStore
 {
   private final EKeyStoreType m_eType;
   private final String m_sPath;

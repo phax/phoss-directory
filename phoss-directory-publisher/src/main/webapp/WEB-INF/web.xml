@@ -22,7 +22,7 @@
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
          version="3.0">
   <display-name>phoss-directory</display-name>
-  <description>phoss Directory for Peppol, TOOP and DE4A</description>
+  <description>phoss Directory for Peppol</description>
   
   <session-config>
     <session-timeout>60</session-timeout>
@@ -95,11 +95,11 @@
   <servlet>
     <servlet-name>ExportServlet</servlet-name>
     <servlet-class>com.helger.pd.publisher.servlet.ExportServlet</servlet-class>
-    <async-supported>true</async-supported>
     <init-param>
       <param-name>allowedExtensions</param-name>
       <param-value>*</param-value>
     </init-param>
+    <async-supported>true</async-supported>
   </servlet>
   <servlet-mapping>
     <servlet-name>ExportServlet</servlet-name>

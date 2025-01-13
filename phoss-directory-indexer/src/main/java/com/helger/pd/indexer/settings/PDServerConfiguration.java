@@ -18,7 +18,6 @@ package com.helger.pd.indexer.settings;
 
 import java.net.URI;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 
 import javax.annotation.CheckForSigned;
 import javax.annotation.Nonnegative;
@@ -26,25 +25,16 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.helger.commons.annotation.Nonempty;
 import com.helger.commons.annotation.UsedViaReflection;
 import com.helger.commons.collection.impl.CommonsArrayList;
 import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.debug.GlobalDebug;
-import com.helger.commons.exception.InitializationException;
-import com.helger.commons.io.resource.IReadableResource;
-import com.helger.commons.io.resourceprovider.ReadableResourceProviderChain;
 import com.helger.commons.string.StringHelper;
-import com.helger.commons.system.SystemProperties;
 import com.helger.commons.url.URLHelper;
-import com.helger.config.Config;
 import com.helger.config.ConfigFactory;
-import com.helger.config.IConfig;
-import com.helger.config.source.MultiConfigurationValueProvider;
-import com.helger.config.source.res.ConfigurationSourceProperties;
+import com.helger.config.fallback.ConfigWithFallback;
+import com.helger.config.fallback.IConfigWithFallback;
 import com.helger.peppol.sml.ESMPAPIType;
 import com.helger.peppol.utils.PeppolKeyStoreHelper;
 import com.helger.peppolid.factory.BDXR1IdentifierFactory;
@@ -60,75 +50,14 @@ import com.helger.smpclient.url.PeppolURLProvider;
 
 /**
  * This class manages the configuration properties of the Peppol Directory
- * Server. The order of the properties file resolving is as follows:
- * <ol>
- * <li>Check for the value of the system property
- * <code>peppol.directory.server.properties.path</code></li>
- * <li>Check for the value of the system property
- * <code>directory.server.properties.path</code></li>
- * <li>The filename <code>private-pd.properties</code> in the root of the
- * classpath</li>
- * <li>The filename <code>pd.properties</code> in the root of the classpath</li>
- * </ol>
+ * Server. It uses the default configuration value providers.
  *
  * @author Philip Helger
  */
 @Immutable
 public final class PDServerConfiguration extends AbstractGlobalSingleton
 {
-  private static final Logger LOGGER = LoggerFactory.getLogger (PDServerConfiguration.class);
-
-  static
-  {
-    // Since 0.9.0
-    if (StringHelper.hasText (SystemProperties.getPropertyValueOrNull ("peppol.directory.server.properties.path")))
-      throw new InitializationException ("The system property 'peppol.directory.server.properties.path' is no longer supported." +
-                                         " See https://github.com/phax/ph-commons#ph-config for alternatives." +
-                                         " Consider using the system property 'config.file' instead.");
-    if (StringHelper.hasText (SystemProperties.getPropertyValueOrNull ("directory.server.properties.path")))
-      throw new InitializationException ("The system property 'directory.server.properties.path' is no longer supported." +
-                                         " See https://github.com/phax/ph-commons#ph-config for alternatives." +
-                                         " Consider using the system property 'config.file' instead.");
-    if (StringHelper.hasText (System.getenv ().get ("DIRECTORY_SERVER_CONFIG")))
-      throw new InitializationException ("The environment variable 'DIRECTORY_SERVER_CONFIG' is no longer supported." +
-                                         " See https://github.com/phax/ph-commons#ph-config for alternatives." +
-                                         " Consider using the environment variable 'CONFIG_FILE' instead.");
-  }
-
-  /**
-   * @return The configuration value provider for phase4 that contains backward
-   *         compatibility support.
-   */
-  @Nonnull
-  public static MultiConfigurationValueProvider createConfigValueProvider ()
-  {
-    // Start with default setup
-    final MultiConfigurationValueProvider ret = ConfigFactory.createDefaultValueProvider ();
-
-    final ReadableResourceProviderChain aResourceProvider = ConfigFactory.createDefaultResourceProviderChain ();
-
-    IReadableResource aRes;
-    final int nBasePrio = ConfigFactory.APPLICATION_PROPERTIES_PRIORITY;
-
-    // Lower priority than the standard files
-    aRes = aResourceProvider.getReadableResourceIf ("private-pd.properties", IReadableResource::exists);
-    if (aRes != null)
-    {
-      LOGGER.warn ("The support for the properties file 'private-pd.properties' is deprecated. Place the properties in 'application.properties' instead.");
-      ret.addConfigurationSource (new ConfigurationSourceProperties (aRes, StandardCharsets.UTF_8), nBasePrio - 1);
-    }
-
-    aRes = aResourceProvider.getReadableResourceIf ("pd.properties", IReadableResource::exists);
-    if (aRes != null)
-    {
-      LOGGER.warn ("The support for the properties file 'pd.properties' is deprecated. Place the properties in 'application.properties' instead.");
-      ret.addConfigurationSource (new ConfigurationSourceProperties (aRes, StandardCharsets.UTF_8), nBasePrio - 2);
-    }
-
-    return ret;
-  }
-
-  private static final IConfig DEFAULT_INSTANCE = Config.create (createConfigValueProvider ());
+  private static final IConfigWithFallback DEFAULT_INSTANCE = new ConfigWithFallback (ConfigFactory.createDefaultValueProvider ());
 
   @Deprecated
   @UsedViaReflection
@@ -140,7 +69,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
    *         <code>null</code>.
    */
   @Nonnull
-  public static IConfig getConfig ()
+  public static IConfigWithFallback getConfig ()
   {
     return DEFAULT_INSTANCE;
   }
