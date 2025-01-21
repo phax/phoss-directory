@@ -65,7 +65,7 @@
     <awssdk.version>2.30.2</awssdk.version>
     <!-- Peppol Directory runs on Lucene v8 -->
     <lucene.version>8.11.2</lucene.version>
-    <jersey.version>3.1.7</jersey.version>
+    <jersey.version>3.1.10</jersey.version>
     <log4j.version>2.24.3</log4j.version>
     <jaxb-plugin.group>org.jvnet.jaxb</jaxb-plugin.group>
     <jaxb-plugin.artifact>jaxb-maven-plugin</jaxb-plugin.artifact>
