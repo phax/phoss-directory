@@ -61,7 +61,7 @@ import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.factory.IIdentifierFactory;
 import com.helger.peppolid.factory.PeppolIdentifierFactory;
 import com.helger.peppolid.peppol.pidscheme.IPeppolParticipantIdentifierScheme;
-import com.helger.peppolid.peppol.pidscheme.ParticipantIdentifierSchemeManager;
+import com.helger.peppolid.peppol.pidscheme.PeppolParticipantIdentifierSchemeManager;
 import com.helger.photon.ajax.decl.AjaxFunctionDeclaration;
 import com.helger.photon.bootstrap4.CBootstrapCSS;
 import com.helger.photon.bootstrap4.button.BootstrapButton;
@@ -201,8 +201,8 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     else
     {
       aNodeList.addChild (div (badgeSuccess ("Found " +
-                                             (aGroupedBEs.size () == 1 ? "1 entity" : aGroupedBEs.size () +
-                                                                                      " entities") +
+                                             (aGroupedBEs.size () == 1 ? "1 entity"
+                                                                       : aGroupedBEs.size () + " entities") +
                                              " matching '" +
                                              sQuery +
                                              "'")));
@@ -228,7 +228,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
           IHCNode aParticipantNode = null;
           if (bIsPeppolDefault)
           {
-            final IPeppolParticipantIdentifierScheme aScheme = ParticipantIdentifierSchemeManager.getSchemeOfIdentifier (aDocParticipantID);
+            final IPeppolParticipantIdentifierScheme aScheme = PeppolParticipantIdentifierSchemeManager.getSchemeOfIdentifier (aDocParticipantID);
             if (aScheme != null)
             {
               aParticipantNode = new HCNodeList ().addChild (aDocParticipantID.getValue ());
@@ -261,12 +261,11 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
                   .addCell ("Country:")
                   .addCell (new HCNodeList ().addChild (PDCommonUI.getFlagNode (sCountryCode))
                                              .addChild (" ")
-                                             .addChild (span (aCountry != null ? aCountry.getDisplayCountry (
-                                                                                                             aDisplayLocale) +
+                                             .addChild (span (aCountry != null ? aCountry.getDisplayCountry (aDisplayLocale) +
                                                                                  " (" +
                                                                                  sCountryCode +
-                                                                                 ")" : sCountryCode).addClass (
-                                                                                                               CSS_CLASS_RESULT_DOC_COUNTRY_CODE)));
+                                                                                 ")"
+                                                                               : sCountryCode).addClass (CSS_CLASS_RESULT_DOC_COUNTRY_CODE)));
           }
 
           if (aStoredDoc.names ().isNotEmpty ())

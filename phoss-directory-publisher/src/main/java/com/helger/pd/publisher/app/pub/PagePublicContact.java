@@ -38,7 +38,6 @@ import com.helger.photon.core.form.FormErrorList;
 import com.helger.photon.core.form.RequestField;
 import com.helger.photon.core.interror.InternalErrorSettings;
 import com.helger.photon.uicore.css.CPageParam;
-import com.helger.photon.uicore.html.google.HCReCaptchaV2;
 import com.helger.photon.uicore.html.google.ReCaptchaServerSideValidator;
 import com.helger.photon.uicore.html.select.HCExtSelect;
 import com.helger.photon.uicore.icon.EDefaultIcon;
@@ -155,9 +154,10 @@ public final class PagePublicContact extends AbstractAppWebPage
       if (!CaptchaSessionSingleton.getInstance ().isChecked ())
       {
         // Add visible Captcha
-        aForm.addFormGroup (new BootstrapFormGroup ().setCtrl (HCReCaptchaV2.create ("6LfZFS0UAAAAAJaqpHJdFS_xxY7dqMQjXoBIQWOD",
-                                                                                     aDisplayLocale))
-                                                     .setErrorList (aFormErrors.getListOfField (FIELD_CAPTCHA)));
+        // aForm.addFormGroup (new BootstrapFormGroup ().setCtrl (new
+        // HCReCaptchaV3.create ("6LfZFS0UAAAAAJaqpHJdFS_xxY7dqMQjXoBIQWOD",
+        // aDisplayLocale))
+        // .setErrorList (aFormErrors.getListOfField (FIELD_CAPTCHA)));
       }
 
       aForm.addChild (new HCHiddenField (CPageParam.PARAM_ACTION, CPageParam.ACTION_PERFORM));
