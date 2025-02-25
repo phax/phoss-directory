@@ -61,7 +61,7 @@ import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.factory.IIdentifierFactory;
 import com.helger.peppolid.factory.PeppolIdentifierFactory;
 import com.helger.peppolid.peppol.pidscheme.IPeppolParticipantIdentifierScheme;
-import com.helger.peppolid.peppol.pidscheme.ParticipantIdentifierSchemeManager;
+import com.helger.peppolid.peppol.pidscheme.PeppolParticipantIdentifierSchemeManager;
 import com.helger.photon.ajax.decl.AjaxFunctionDeclaration;
 import com.helger.photon.bootstrap4.CBootstrapCSS;
 import com.helger.photon.bootstrap4.button.BootstrapButton;
@@ -228,7 +228,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
           IHCNode aParticipantNode = null;
           if (bIsPeppolDefault)
           {
-            final IPeppolParticipantIdentifierScheme aScheme = ParticipantIdentifierSchemeManager.getSchemeOfIdentifier (aDocParticipantID);
+            final IPeppolParticipantIdentifierScheme aScheme = PeppolParticipantIdentifierSchemeManager.getSchemeOfIdentifier (aDocParticipantID);
             if (aScheme != null)
             {
               aParticipantNode = new HCNodeList ().addChild (aDocParticipantID.getValue ());
