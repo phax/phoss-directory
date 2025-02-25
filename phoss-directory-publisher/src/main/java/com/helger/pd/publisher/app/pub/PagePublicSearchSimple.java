@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2024 Philip Helger (www.helger.com)
+ * Copyright (C) 2015-2025 Philip Helger (www.helger.com)
  * philip[at]helger[dot]com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -201,8 +201,8 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     else
     {
       aNodeList.addChild (div (badgeSuccess ("Found " +
-                                             (aGroupedBEs.size () == 1 ? "1 entity" : aGroupedBEs.size () +
-                                                                                      " entities") +
+                                             (aGroupedBEs.size () == 1 ? "1 entity"
+                                                                       : aGroupedBEs.size () + " entities") +
                                              " matching '" +
                                              sQuery +
                                              "'")));
@@ -261,12 +261,11 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
                   .addCell ("Country:")
                   .addCell (new HCNodeList ().addChild (PDCommonUI.getFlagNode (sCountryCode))
                                              .addChild (" ")
-                                             .addChild (span (aCountry != null ? aCountry.getDisplayCountry (
-                                                                                                             aDisplayLocale) +
+                                             .addChild (span (aCountry != null ? aCountry.getDisplayCountry (aDisplayLocale) +
                                                                                  " (" +
                                                                                  sCountryCode +
-                                                                                 ")" : sCountryCode).addClass (
-                                                                                                               CSS_CLASS_RESULT_DOC_COUNTRY_CODE)));
+                                                                                 ")"
+                                                                               : sCountryCode).addClass (CSS_CLASS_RESULT_DOC_COUNTRY_CODE)));
           }
 
           if (aStoredDoc.names ().isNotEmpty ())
