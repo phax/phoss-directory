@@ -46,7 +46,7 @@ import com.helger.html.jquery.JQueryAjaxBuilder;
 import com.helger.html.jscode.JSAnonymousFunction;
 import com.helger.html.jscode.JSAssocArray;
 import com.helger.html.jscode.JSPackage;
-import com.helger.html.jscode.JSVar;
+import com.helger.html.jscode.JSParam;
 import com.helger.html.jscode.html.JSHtml;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.pd.publisher.CPDPublisher;
@@ -176,7 +176,7 @@ public final class AppCommonUI
     final JSPackage aOnClick = new JSPackage ();
     {
       final JSAnonymousFunction aJSSuccess = new JSAnonymousFunction ();
-      final JSVar aJSData = aJSSuccess.param ("data");
+      final JSParam aJSData = aJSSuccess.param ("data");
       aJSSuccess.body ()
                 ._if (aJSData.ref (AjaxExecutorPublicLogin.JSON_LOGGEDIN),
                       JSHtml.windowLocationReload (),

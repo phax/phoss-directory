@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Copyright (C) 2015-2025 Philip Helger (www.helger.com)
+=======
+ * Copyright (C) 2014-2025 Philip Helger and contributors
+>>>>>>> refs/remotes/origin/master
  * philip[at]helger[dot]com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,10 +37,12 @@ import com.helger.commons.io.resource.ClassPathResource;
 import com.helger.commons.io.resource.FileSystemResource;
 import com.helger.commons.io.resource.IReadableResource;
 import com.helger.commons.string.StringHelper;
+import com.helger.commons.string.StringParser;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.peppolid.IDocumentTypeIdentifier;
 import com.helger.peppolid.IProcessIdentifier;
 import com.helger.peppolid.factory.SimpleIdentifierFactory;
+import com.helger.peppolid.peppol.EPeppolCodeListItemState;
 import com.helger.peppolid.peppol.PeppolIdentifierHelper;
 import com.helger.peppolid.peppol.doctype.IPeppolDocumentTypeIdentifierParts;
 import com.helger.peppolid.peppol.doctype.PeppolDocumentTypeIdentifierParts;
@@ -50,12 +56,18 @@ public final class NiceNameHandler
   private static final String PREFIX_WILDCARD = PeppolIdentifierHelper.DOCUMENT_TYPE_SCHEME_PEPPOL_DOCTYPE_WILDCARD +
                                                 "::";
   private static final Logger LOGGER = LoggerFactory.getLogger (NiceNameHandler.class);
-  
+
   private static final SimpleReadWriteLock RW_LOCK = new SimpleReadWriteLock ();
   @GuardedBy ("RW_LOCK")
   private static final ICommonsOrderedMap <String, NiceNameEntry> DOCTYPE_IDS = new CommonsLinkedHashMap <> ();
   @GuardedBy ("RW_LOCK")
   private static final ICommonsOrderedMap <String, NiceNameEntry> PROCESS_IDS = new CommonsLinkedHashMap <> ();
+
+  @Nonnull
+  private static ClassLoader _getCL ()
+  {
+    return NiceNameHandler.class.getClassLoader ();
+  }
 
   static
   {
@@ -80,7 +92,20 @@ public final class NiceNameHandler
       {
         String sID = eChild.getAttributeValue ("id");
         final String sName = eChild.getAttributeValue ("name");
-        final boolean bDeprecated = eChild.getAttributeValueAsBool ("deprecated", false);
+        EPeppolCodeListItemState eState = EPeppolCodeListItemState.getFromIDOrNull (eChild.getAttributeValue ("state"));
+        if (eState == null)
+        {
+          final String sDeprecated = eChild.getAttributeValue ("deprecated");
+          if (sDeprecated != null)
+          {
+            // Legacy attribute is present
+            eState = StringParser.parseBool (sDeprecated, false) ? EPeppolCodeListItemState.DEPRECATED
+                                                                 : EPeppolCodeListItemState.ACTIVE;
+          }
+          else
+            eState = EPeppolCodeListItemState.ACTIVE;
+        }
+
         ICommonsList <IProcessIdentifier> aProcIDs = null;
         if (bReadProcIDs)
         {
@@ -113,7 +138,7 @@ public final class NiceNameHandler
           }
         }
 
-        ret.put (sID, new NiceNameEntry (sName, bDeprecated, sSpecialLabel, aProcIDs));
+        ret.put (sID, new NiceNameEntry (sName, eState, sSpecialLabel, aProcIDs));
       }
     }
     return ret;
@@ -138,8 +163,7 @@ public final class NiceNameHandler
 
       // Use defaults
       if (aDocTypeIDRes == null)
-        aDocTypeIDRes = new ClassPathResource ("codelists/directory/doctypeid-mapping.xml");
-
+        aDocTypeIDRes = new ClassPathResource ("codelists/directory/doctypeid-mapping.xml", _getCL ());
       final ICommonsOrderedMap <String, NiceNameEntry> aDocTypeIDs = readEntries (aDocTypeIDRes, true);
       RW_LOCK.writeLocked ( () -> DOCTYPE_IDS.setAll (aDocTypeIDs));
       LOGGER.info ("Loaded " + aDocTypeIDs.size () + " document type nice name entries");
@@ -162,7 +186,7 @@ public final class NiceNameHandler
 
       // Use defaults
       if (aProcessIDRes == null)
-        aProcessIDRes = new ClassPathResource ("codelists/directory/processid-mapping.xml");
+        aProcessIDRes = new ClassPathResource ("codelists/directory/processid-mapping.xml", _getCL ());
       final ICommonsOrderedMap <String, NiceNameEntry> aProcessIDs = readEntries (aProcessIDRes, false);
       RW_LOCK.writeLocked ( () -> PROCESS_IDS.setAll (aProcessIDs));
       LOGGER.info ("Loaded " + aProcessIDs.size () + " process nice name entries");
@@ -180,6 +204,7 @@ public final class NiceNameHandler
   {
     if (StringHelper.hasNoText (sID))
       return null;
+
     RW_LOCK.readLock ().lock ();
     try
     {
@@ -202,6 +227,7 @@ public final class NiceNameHandler
   {
     if (StringHelper.hasNoText (sID))
       return null;
+
     RW_LOCK.readLock ().lock ();
     try
     {
@@ -211,5 +237,19 @@ public final class NiceNameHandler
     {
       RW_LOCK.readLock ().unlock ();
     }
+  }
+
+  @Nonnull
+  @ReturnsMutableCopy
+  public static ICommonsOrderedMap <String, NiceNameEntry> getAllDocumentTypeMappings ()
+  {
+    return RW_LOCK.readLockedGet (DOCTYPE_IDS::getClone);
+  }
+
+  @Nonnull
+  @ReturnsMutableCopy
+  public static ICommonsOrderedMap <String, NiceNameEntry> getAllProcessMappings ()
+  {
+    return RW_LOCK.readLockedGet (PROCESS_IDS::getClone);
   }
 }
