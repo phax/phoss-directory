@@ -59,7 +59,7 @@ import com.helger.pd.publisher.search.EPDSearchField;
 import com.helger.pd.publisher.ui.PDCommonUI;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.factory.IIdentifierFactory;
-import com.helger.peppolid.factory.PeppolIdentifierFactory;
+import com.helger.peppolid.peppol.PeppolIdentifierHelper;
 import com.helger.peppolid.peppol.pidscheme.IPeppolParticipantIdentifierScheme;
 import com.helger.peppolid.peppol.pidscheme.PeppolParticipantIdentifierSchemeManager;
 import com.helger.photon.ajax.decl.AjaxFunctionDeclaration;
@@ -87,7 +87,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
   public static final int MAX_MAX = 1000;
 
   private static final Logger LOGGER = LoggerFactory.getLogger (PagePublicSearchSimple.class);
-  private static final String PEPPOL_DEFAULT_SCHEME = PeppolIdentifierFactory.INSTANCE.getDefaultParticipantIdentifierScheme ();
+  private static final String PEPPOL_DEFAULT_SCHEME = PeppolIdentifierHelper.DEFAULT_PARTICIPANT_SCHEME;
   private static final AjaxFunctionDeclaration AJAX_EXPORT_LAST;
 
   static

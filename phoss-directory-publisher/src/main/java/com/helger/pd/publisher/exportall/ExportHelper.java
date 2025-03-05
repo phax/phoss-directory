@@ -20,6 +20,7 @@ import java.util.Map;
 
 import javax.annotation.Nonnull;
 
+import com.helger.commons.annotation.DevelopersNote;
 import com.helger.commons.collection.impl.ICommonsList;
 import com.helger.commons.collection.impl.ICommonsOrderedMap;
 import com.helger.commons.datetime.PDTFactory;
@@ -44,7 +45,10 @@ import com.helger.xml.microdom.MicroElement;
 
 public final class ExportHelper
 {
-  public static final String XML_EXPORT_NS_URI = "http://www.peppol.eu/schema/pd/businesscard-generic/201907/";
+  @Deprecated
+  @DevelopersNote ("For historical reasons only")
+  public static final String XML_EXPORT_NS_URI_V2 = "http://www.peppol.eu/schema/pd/businesscard-generic/201907/";
+  public static final String XML_EXPORT_NS_URI_V3 = "urn:peppol:schema:pd:businesscard-generic:2025:03";
 
   private ExportHelper ()
   {}
@@ -52,16 +56,18 @@ public final class ExportHelper
   @Nonnull
   private static IMicroElement _createMicroElement (@Nonnull final IDocumentTypeIdentifier aDocTypeID)
   {
-    final IMicroElement eDocTypeID = new MicroElement (XML_EXPORT_NS_URI,
-                                                       "doctypeid").setAttribute ("scheme", aDocTypeID.getScheme ())
-                                                                   .setAttribute ("value", aDocTypeID.getValue ());
+    final IMicroElement eDocTypeID = new MicroElement (XML_EXPORT_NS_URI_V3, "doctypeid").setAttribute ("scheme",
+                                                                                                        aDocTypeID.getScheme ())
+                                                                                         .setAttribute ("value",
+                                                                                                        aDocTypeID.getValue ());
     final NiceNameEntry aNiceName = NiceNameHandler.getDocTypeNiceName (aDocTypeID.getURIEncoded ());
     if (aNiceName == null)
       eDocTypeID.setAttribute ("non-standard", true);
     else
     {
       eDocTypeID.setAttribute ("displayname", aNiceName.getName ());
-      eDocTypeID.setAttribute ("deprecated", aNiceName.isDeprecated ());
+      // New in XML v3: use "state" instead of "deprecated"
+      eDocTypeID.setAttribute ("state", aNiceName.getState ().getID ());
     }
     return eDocTypeID;
   }
@@ -72,8 +78,8 @@ public final class ExportHelper
   {
     // XML root
     final IMicroDocument aDoc = new MicroDocument ();
-    final IMicroElement aRoot = aDoc.appendElement (XML_EXPORT_NS_URI, "root");
-    aRoot.setAttribute ("version", "2");
+    final IMicroElement aRoot = aDoc.appendElement (XML_EXPORT_NS_URI_V3, "root");
+    aRoot.setAttribute ("version", "3");
     aRoot.setAttribute ("creationdt", PDTWebDateHelper.getAsStringXSD (PDTFactory.getCurrentZonedDateTimeUTC ()));
     aRoot.setAttribute ("codeListSupported", EPredefinedDocumentTypeIdentifier.CODE_LIST_VERSION);
 
@@ -86,9 +92,9 @@ public final class ExportHelper
       aBC.setParticipantIdentifier (new PDIdentifier (aParticipantID.getScheme (), aParticipantID.getValue ()));
       for (final PDStoredBusinessEntity aSBE : aEntry.getValue ())
         aBC.businessEntities ().add (aSBE.getAsBusinessEntity ());
-      final IMicroElement eBC = aBC.getAsMicroXML (XML_EXPORT_NS_URI, "businesscard");
+      final IMicroElement eBC = aBC.getAsMicroXML (XML_EXPORT_NS_URI_V3, "businesscard");
 
-      // New in v2 - add all Document types
+      // New in XML v2 - add all Document types
       if (bIncludeDocTypes && aEntry.getValue ().isNotEmpty ())
         for (final IDocumentTypeIdentifier aDocTypeID : aEntry.getValue ().getFirstOrNull ().documentTypeIDs ())
           eBC.appendChild (_createMicroElement (aDocTypeID));
@@ -147,7 +153,8 @@ public final class ExportHelper
     else
     {
       ret.add ("displayName", aNiceName.getName ());
-      ret.add ("deprecated", aNiceName.isDeprecated ());
+      // New in JSON v2: use "state" instead of "deprecated"
+      ret.add ("state", aNiceName.getState ().getID ());
     }
     return ret;
   }
@@ -158,7 +165,7 @@ public final class ExportHelper
   {
     // XML root
     final IJsonObject aObj = new JsonObject ();
-    aObj.add ("version", 1);
+    aObj.add ("version", 2);
     aObj.add ("creationdt", PDTWebDateHelper.getAsStringXSD (PDTFactory.getCurrentZonedDateTimeUTC ()));
     aObj.add ("participantCount", aMap.size ());
     aObj.add ("codeListSupported", EPredefinedDocumentTypeIdentifier.CODE_LIST_VERSION);

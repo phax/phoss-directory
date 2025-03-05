@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2025 Philip Helger (www.helger.com)
+ * Copyright (C) 2014-2025 Philip Helger and contributors
  * philip[at]helger[dot]com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,8 +28,10 @@ import com.helger.html.hc.html.textlevel.HCSmall;
 import com.helger.html.hc.html.textlevel.HCSpan;
 import com.helger.html.hc.html.textlevel.HCWBR;
 import com.helger.html.hc.impl.HCNodeList;
+import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.peppolid.IDocumentTypeIdentifier;
 import com.helger.peppolid.IProcessIdentifier;
+import com.helger.peppolid.peppol.EPeppolCodeListItemState;
 import com.helger.photon.bootstrap4.badge.BootstrapBadge;
 import com.helger.photon.bootstrap4.badge.EBootstrapBadgeType;
 
@@ -64,66 +66,82 @@ public final class NiceNameUI
   private static IHCNode _createFormattedID (@Nonnull final String sID,
                                              @Nullable final String sName,
                                              @Nullable final EBootstrapBadgeType eNameBadgeType,
-                                             final boolean bIsDeprecated,
+                                             @Nonnull final EPeppolCodeListItemState eState,
                                              @Nullable final String sSpecialLabel,
                                              @Nullable final EBootstrapBadgeType eSpecialLabelBadgeType,
-                                             final boolean bInDetails)
+                                             final boolean bInDetails,
+                                             final boolean bIsValid)
   {
+    final HCNodeList ret = new HCNodeList ();
     if (sName == null)
     {
       // No nice name present
-      final AbstractHCElementWithChildren <?> ret = bInDetails ? new HCCode () : new HCSpan ();
-      ret.addChild (sID);
+      final AbstractHCElementWithChildren <?> aElement = ret.addAndReturnChild (bInDetails ? new HCCode ()
+                                                                                           : new HCSpan ());
+      aElement.addChild (sID);
       if (bInDetails)
-        ret.addChild (" ").addChild (new BootstrapBadge (EBootstrapBadgeType.WARNING).addChild ("Unknown ID"));
-      return ret;
-    }
-
-    final HCNodeList ret = new HCNodeList ();
-    final BootstrapBadge aNameBadge = ret.addAndReturnChild (new BootstrapBadge (eNameBadgeType).addChild (sName));
-    if (bIsDeprecated)
-    {
-      ret.addChild (" ")
-         .addChild (new BootstrapBadge (EBootstrapBadgeType.WARNING).addChild ("Identifier is deprecated"));
-    }
-    if (StringHelper.hasText (sSpecialLabel))
-    {
-      ret.addChild (" ").addChild (new BootstrapBadge (eSpecialLabelBadgeType).addChild (sSpecialLabel));
-    }
-    if (bInDetails)
-    {
-      // Print ID in smaller font
-      ret.addChild (new HCSmall ().addChild (" (").addChild (new HCCode ().addChild (sID)).addChild (")"));
+        aElement.addChild (" ").addChild (new BootstrapBadge (EBootstrapBadgeType.WARNING).addChild ("Unknown ID"));
     }
     else
     {
-      // Add ID as mouse over
-      aNameBadge.setTitle (sID);
+      final BootstrapBadge aNameBadge = ret.addAndReturnChild (new BootstrapBadge (eNameBadgeType).addChild (sName));
+      if (eState.isRemoved ())
+      {
+        ret.addChild (" ")
+           .addChild (new BootstrapBadge (EBootstrapBadgeType.DANGER).addChild ("Identifier is removed"));
+      }
+      else
+        if (eState.isDeprecated ())
+        {
+          ret.addChild (" ")
+             .addChild (new BootstrapBadge (EBootstrapBadgeType.WARNING).addChild ("Identifier is deprecated"));
+        }
+      if (StringHelper.hasText (sSpecialLabel))
+      {
+        ret.addChild (" ").addChild (new BootstrapBadge (eSpecialLabelBadgeType).addChild (sSpecialLabel));
+      }
+      if (bInDetails)
+      {
+        // Print ID in smaller font
+        ret.addChild (new HCSmall ().addChild (" (").addChild (new HCCode ().addChild (sID)).addChild (")"));
+      }
+      else
+      {
+        // Add ID as mouse over
+        aNameBadge.setTitle (sID);
+      }
     }
+    if (!bIsValid)
+      ret.addChild (" ").addChild (new BootstrapBadge (EBootstrapBadgeType.DANGER).addChild ("Invalid"));
     return ret;
   }
 
   @Nonnull
   private static IHCNode _createID (@Nonnull final String sID,
                                     @Nullable final NiceNameEntry aNiceName,
-                                    final boolean bInDetails)
+                                    final boolean bInDetails,
+                                    final boolean bIsValid)
   {
     if (aNiceName == null)
-      return _createFormattedID (sID, null, null, false, null, null, bInDetails);
+      return _createFormattedID (sID, null, null, EPeppolCodeListItemState.ACTIVE, null, null, bInDetails, bIsValid);
     return _createFormattedID (sID,
                                aNiceName.getName (),
                                EBootstrapBadgeType.SUCCESS,
-                               aNiceName.isDeprecated (),
+                               aNiceName.getState (),
                                aNiceName.getSpecialLabel (),
                                EBootstrapBadgeType.INFO,
-                               bInDetails);
+                               bInDetails,
+                               bIsValid);
   }
 
   @Nonnull
   public static IHCNode getDocumentTypeID (@Nonnull final IDocumentTypeIdentifier aDocTypeID, final boolean bInDetails)
   {
     final String sURI = aDocTypeID.getURIEncoded ();
-    return _createID (sURI, NiceNameHandler.getDocTypeNiceName (sURI), bInDetails);
+    final boolean bIsValid = PDMetaManager.getIdentifierFactory ()
+                                          .createDocumentTypeIdentifier (aDocTypeID.getScheme (),
+                                                                         aDocTypeID.getValue ()) != null;
+    return _createID (sURI, NiceNameHandler.getDocTypeNiceName (sURI), bInDetails, bIsValid);
   }
 
   @Nonnull
@@ -132,11 +150,14 @@ public final class NiceNameUI
                                       final boolean bInDetails)
   {
     final String sURI = aProcessID.getURIEncoded ();
+    final boolean bIsValid = PDMetaManager.getIdentifierFactory ()
+                                          .createProcessIdentifier (aProcessID.getScheme (), aProcessID.getValue ()) !=
+                             null;
 
     // Check direct match first
     NiceNameEntry aNN = NiceNameHandler.getProcessNiceName (sURI);
     if (aNN != null)
-      return _createID (sURI, aNN, bInDetails);
+      return _createID (sURI, aNN, bInDetails, bIsValid);
 
     aNN = NiceNameHandler.getDocTypeNiceName (aDocTypeID.getURIEncoded ());
     if (aNN != null)
@@ -145,18 +166,21 @@ public final class NiceNameUI
         return _createFormattedID (sURI,
                                    "Matching Process Identifier",
                                    EBootstrapBadgeType.SUCCESS,
-                                   false,
+                                   EPeppolCodeListItemState.ACTIVE,
                                    null,
                                    null,
-                                   bInDetails);
+                                   bInDetails,
+                                   bIsValid);
+
       return _createFormattedID (sURI,
                                  "Unexpected Process Identifier",
                                  EBootstrapBadgeType.WARNING,
-                                 false,
+                                 EPeppolCodeListItemState.ACTIVE,
                                  null,
                                  null,
-                                 bInDetails);
+                                 bInDetails,
+                                 bIsValid);
     }
-    return _createFormattedID (sURI, null, null, false, null, null, bInDetails);
+    return _createFormattedID (sURI, null, null, EPeppolCodeListItemState.ACTIVE, null, null, bInDetails, bIsValid);
   }
 }
