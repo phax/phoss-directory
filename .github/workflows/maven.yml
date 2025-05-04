@@ -21,6 +21,7 @@ on:
   push:
     branches:
       - master
+      - 'feature-1.1'
     
 jobs:
   build:
