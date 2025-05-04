@@ -35,7 +35,7 @@ import com.helger.commons.collection.impl.CommonsHashMap;
 import com.helger.commons.collection.impl.ICommonsMap;
 import com.helger.commons.io.resource.ClassPathResource;
 import com.helger.commons.io.stream.StreamHelper;
-import com.helger.peppol.utils.PeppolKeyStoreHelper;
+import com.helger.peppol.security.PeppolTrustStores;
 
 import jakarta.servlet.Servlet;
 
@@ -92,8 +92,7 @@ final class MockServer
   }
 
   /**
-   * Starts Grizzly HTTP server exposing JAX-RS resources defined in this
-   * application.
+   * Starts Grizzly HTTP server exposing JAX-RS resources defined in this application.
    *
    * @return Grizzly HTTP server.
    */
@@ -110,8 +109,7 @@ final class MockServer
   }
 
   /**
-   * Starts Grizzly HTTP server exposing JAX-RS resources defined in this
-   * application.
+   * Starts Grizzly HTTP server exposing JAX-RS resources defined in this application.
    *
    * @return Grizzly HTTP server.
    */
@@ -126,8 +124,8 @@ final class MockServer
     aSSLContext.setKeyStoreFile ("src/test/resources/test-https-keystore.jks");
     aSSLContext.setKeyStorePass ("password");
     aSSLContext.setKeyStoreType ("JKS");
-    aSSLContext.setTrustStoreBytes (StreamHelper.getAllBytes (new ClassPathResource (PeppolKeyStoreHelper.TRUSTSTORE_COMPLETE_CLASSPATH)));
-    aSSLContext.setTrustStorePass (PeppolKeyStoreHelper.TRUSTSTORE_PASSWORD);
+    aSSLContext.setTrustStoreBytes (StreamHelper.getAllBytes (new ClassPathResource (PeppolTrustStores.TRUSTSTORE_COMPLETE_CLASSPATH)));
+    aSSLContext.setTrustStorePass (PeppolTrustStores.TRUSTSTORE_PASSWORD);
     aSSLContext.setTrustStoreType ("JKS");
     aSSLContext.setSecurityProtocol ("TLSv1.2");
 

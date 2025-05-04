@@ -1,9 +1,5 @@
 /*
-<<<<<<< HEAD
  * Copyright (C) 2015-2025 Philip Helger (www.helger.com)
-=======
- * Copyright (C) 2014-2025 Philip Helger and contributors
->>>>>>> refs/remotes/origin/master
  * philip[at]helger[dot]com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
