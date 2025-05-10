@@ -62,7 +62,7 @@
   </developers>
   
   <properties>
-    <awssdk.version>2.31.34</awssdk.version>
+    <awssdk.version>2.31.39</awssdk.version>
     <!-- Peppol Directory runs on Lucene v8 -->
     <lucene.version>8.11.2</lucene.version>
     <jersey.version>3.1.10</jersey.version>
@@ -118,7 +118,7 @@
       <dependency>
         <groupId>com.helger.peppol</groupId>
         <artifactId>peppol-commons-parent-pom</artifactId>
-        <version>10.3.2</version>
+        <version>10.4.0</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
