@@ -22,7 +22,7 @@
   <parent>
     <groupId>com.helger</groupId>
     <artifactId>parent-pom</artifactId>
-    <version>2.1.2</version>
+    <version>2.1.4</version>
   </parent>
   <artifactId>phoss-directory-parent-pom</artifactId>
   <version>1.1.0-SNAPSHOT</version>
@@ -62,7 +62,7 @@
   </developers>
   
   <properties>
-    <awssdk.version>2.31.39</awssdk.version>
+    <awssdk.version>2.31.41</awssdk.version>
     <!-- Peppol Directory runs on Lucene v8 -->
     <lucene.version>8.11.2</lucene.version>
     <jersey.version>3.1.10</jersey.version>
@@ -78,7 +78,7 @@
       <dependency>
         <groupId>com.helger.commons</groupId>
         <artifactId>ph-commons-parent-pom</artifactId>
-        <version>11.2.1</version>
+        <version>11.2.3</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -118,7 +118,7 @@
       <dependency>
         <groupId>com.helger.peppol</groupId>
         <artifactId>peppol-commons-parent-pom</artifactId>
-        <version>10.4.0</version>
+        <version>10.4.1</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
