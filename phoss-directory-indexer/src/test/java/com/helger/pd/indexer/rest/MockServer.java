@@ -35,7 +35,8 @@ import com.helger.commons.collection.impl.CommonsHashMap;
 import com.helger.commons.collection.impl.ICommonsMap;
 import com.helger.commons.io.resource.ClassPathResource;
 import com.helger.commons.io.stream.StreamHelper;
-import com.helger.peppol.utils.PeppolKeyStoreHelper;
+import com.helger.peppol.security.PeppolTrustStores;
+import com.helger.security.keystore.EKeyStoreType;
 
 import jakarta.servlet.Servlet;
 
@@ -92,8 +93,7 @@ final class MockServer
   }
 
   /**
-   * Starts Grizzly HTTP server exposing JAX-RS resources defined in this
-   * application.
+   * Starts Grizzly HTTP server exposing JAX-RS resources defined in this application.
    *
    * @return Grizzly HTTP server.
    */
@@ -110,8 +110,7 @@ final class MockServer
   }
 
   /**
-   * Starts Grizzly HTTP server exposing JAX-RS resources defined in this
-   * application.
+   * Starts Grizzly HTTP server exposing JAX-RS resources defined in this application.
    *
    * @return Grizzly HTTP server.
    */
@@ -125,10 +124,10 @@ final class MockServer
     final SSLContextConfigurator aSSLContext = new SSLContextConfigurator ();
     aSSLContext.setKeyStoreFile ("src/test/resources/test-https-keystore.jks");
     aSSLContext.setKeyStorePass ("password");
-    aSSLContext.setKeyStoreType ("JKS");
-    aSSLContext.setTrustStoreBytes (StreamHelper.getAllBytes (new ClassPathResource (PeppolKeyStoreHelper.TRUSTSTORE_COMPLETE_CLASSPATH)));
-    aSSLContext.setTrustStorePass (PeppolKeyStoreHelper.TRUSTSTORE_PASSWORD);
-    aSSLContext.setTrustStoreType ("JKS");
+    aSSLContext.setKeyStoreType (EKeyStoreType.JKS.getID ());
+    aSSLContext.setTrustStoreBytes (StreamHelper.getAllBytes (new ClassPathResource (PeppolTrustStores.TRUSTSTORE_COMPLETE_CLASSPATH)));
+    aSSLContext.setTrustStorePass (PeppolTrustStores.TRUSTSTORE_PASSWORD);
+    aSSLContext.setTrustStoreType (PeppolTrustStores.Config2018.TRUSTSTORE_TYPE.getID ());
     aSSLContext.setSecurityProtocol ("TLSv1.2");
 
     final SSLEngineConfigurator aSSLEngine = new SSLEngineConfigurator (aSSLContext);

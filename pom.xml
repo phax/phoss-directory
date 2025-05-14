@@ -22,7 +22,7 @@
   <parent>
     <groupId>com.helger</groupId>
     <artifactId>parent-pom</artifactId>
-    <version>2.0.8</version>
+    <version>2.1.4</version>
   </parent>
   <artifactId>phoss-directory-parent-pom</artifactId>
   <version>0.13.6-SNAPSHOT</version>
@@ -64,11 +64,11 @@
   <properties>
     <!-- Peppol Directory runs on Lucene v8 -->
     <lucene.version>8.11.2</lucene.version>
-    <jersey.version>3.1.7</jersey.version>
+    <jersey.version>3.1.10</jersey.version>
     <log4j.version>2.24.3</log4j.version>
     <jaxb-plugin.group>org.jvnet.jaxb</jaxb-plugin.group>
     <jaxb-plugin.artifact>jaxb-maven-plugin</jaxb-plugin.artifact>
-    <jaxb-plugin.version>4.0.8</jaxb-plugin.version>
+    <jaxb-plugin.version>4.0.9</jaxb-plugin.version>
     <ph-jaxb-plugin.version>4.0.3</ph-jaxb-plugin.version>
   </properties>
   
@@ -77,14 +77,14 @@
       <dependency>
         <groupId>com.helger.commons</groupId>
         <artifactId>ph-commons-parent-pom</artifactId>
-        <version>11.2.0</version>
+        <version>11.2.3</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
       <dependency>
         <groupId>com.helger</groupId>
         <artifactId>ph-poi</artifactId>
-        <version>6.0.3</version>
+        <version>6.0.4</version>
       </dependency>
       <dependency>
         <groupId>com.helger.masterdata</groupId>
@@ -103,7 +103,7 @@
       <dependency>
         <groupId>com.helger.web</groupId>
         <artifactId>ph-web-parent-pom</artifactId>
-        <version>10.4.0</version>
+        <version>10.4.2</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -117,7 +117,7 @@
       <dependency>
         <groupId>com.helger.peppol</groupId>
         <artifactId>peppol-commons-parent-pom</artifactId>
-        <version>10.0.2</version>
+        <version>10.4.2</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>

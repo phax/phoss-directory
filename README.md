@@ -99,6 +99,8 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
+* v0.13.6 - 2025-05-14
+    * Updated dependencies
 * v0.13.5 - 2024-08-22
     * Added a CORS HTTP response header for the REST API. See [#68](https://github.com/phax/phoss-directory/issues/68)
 * v0.13.4 - 2024-07-30

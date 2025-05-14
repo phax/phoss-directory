@@ -38,7 +38,7 @@ import com.helger.photon.core.form.FormErrorList;
 import com.helger.photon.core.form.RequestField;
 import com.helger.photon.core.interror.InternalErrorSettings;
 import com.helger.photon.uicore.css.CPageParam;
-import com.helger.photon.uicore.html.google.HCReCaptchaV2;
+import com.helger.photon.uicore.html.google.HCReCaptchaV3;
 import com.helger.photon.uicore.html.google.ReCaptchaServerSideValidator;
 import com.helger.photon.uicore.html.select.HCExtSelect;
 import com.helger.photon.uicore.icon.EDefaultIcon;
@@ -94,8 +94,7 @@ public final class PagePublicContact extends AbstractAppWebPage
           // Check only if no other errors occurred
           if (ReCaptchaServerSideValidator.check ("6LfZFS0U" + "AAAAAONDJHyDnuUUvMB_" + "oNmJxz9Utxza",
                                                   sReCaptcha,
-                                                  new HttpClientSettings ())
-                                          .isFailure ())
+                                                  new HttpClientSettings ()).isFailure ())
             aFormErrors.addFieldError (FIELD_CAPTCHA, "Please confirm you are not a robot!");
           else
             CaptchaSessionSingleton.getInstance ().setChecked ();
@@ -155,8 +154,9 @@ public final class PagePublicContact extends AbstractAppWebPage
       if (!CaptchaSessionSingleton.getInstance ().isChecked ())
       {
         // Add visible Captcha
-        aForm.addFormGroup (new BootstrapFormGroup ().setCtrl (HCReCaptchaV2.create ("6LfZFS0UAAAAAJaqpHJdFS_xxY7dqMQjXoBIQWOD",
-                                                                                     aDisplayLocale))
+        aForm.addFormGroup (new BootstrapFormGroup ().setCtrl (new HCReCaptchaV3 ("6LfZFS0UAAAAAJaqpHJdFS_xxY7dqMQjXoBIQWOD",
+                                                                                  aDisplayLocale.getLanguage (),
+                                                                                  aForm.ensureID ().getID ()))
                                                      .setErrorList (aFormErrors.getListOfField (FIELD_CAPTCHA)));
       }
 

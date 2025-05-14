@@ -45,8 +45,8 @@ import com.helger.config.ConfigFactory;
 import com.helger.config.IConfig;
 import com.helger.config.source.MultiConfigurationValueProvider;
 import com.helger.config.source.res.ConfigurationSourceProperties;
+import com.helger.peppol.security.PeppolTrustStores;
 import com.helger.peppol.sml.ESMPAPIType;
-import com.helger.peppol.utils.PeppolKeyStoreHelper;
 import com.helger.peppolid.factory.BDXR1IdentifierFactory;
 import com.helger.peppolid.factory.BDXR2IdentifierFactory;
 import com.helger.peppolid.factory.IIdentifierFactory;
@@ -56,18 +56,16 @@ import com.helger.scope.singleton.AbstractGlobalSingleton;
 import com.helger.security.keystore.EKeyStoreType;
 import com.helger.smpclient.url.BDXLURLProvider;
 import com.helger.smpclient.url.ISMPURLProvider;
-import com.helger.smpclient.url.PeppolURLProvider;
+import com.helger.smpclient.url.PeppolConfigurableURLProvider;
 
 /**
- * This class manages the configuration properties of the Peppol Directory
- * Server. The order of the properties file resolving is as follows:
+ * This class manages the configuration properties of the Peppol Directory Server. The order of the
+ * properties file resolving is as follows:
  * <ol>
  * <li>Check for the value of the system property
  * <code>peppol.directory.server.properties.path</code></li>
- * <li>Check for the value of the system property
- * <code>directory.server.properties.path</code></li>
- * <li>The filename <code>private-pd.properties</code> in the root of the
- * classpath</li>
+ * <li>Check for the value of the system property <code>directory.server.properties.path</code></li>
+ * <li>The filename <code>private-pd.properties</code> in the root of the classpath</li>
  * <li>The filename <code>pd.properties</code> in the root of the classpath</li>
  * </ol>
  *
@@ -96,8 +94,8 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   }
 
   /**
-   * @return The configuration value provider for phase4 that contains backward
-   *         compatibility support.
+   * @return The configuration value provider for phase4 that contains backward compatibility
+   *         support.
    */
   @Nonnull
   public static MultiConfigurationValueProvider createConfigValueProvider ()
@@ -136,8 +134,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   {}
 
   /**
-   * @return The global config file for the Peppol Directory server. Never
-   *         <code>null</code>.
+   * @return The global config file for the Peppol Directory server. Never <code>null</code>.
    */
   @Nonnull
   public static IConfig getConfig ()
@@ -148,8 +145,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   /**
    * Read value of <code>global.debug</code>
    *
-   * @return The global debug flag to be used in
-   *         {@link com.helger.commons.debug.GlobalDebug}.
+   * @return The global debug flag to be used in {@link com.helger.commons.debug.GlobalDebug}.
    */
   @Nullable
   public static String getGlobalDebug ()
@@ -160,8 +156,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   /**
    * Read value of <code>global.production</code>
    *
-   * @return The global production flag to be used in
-   *         {@link com.helger.commons.debug.GlobalDebug}.
+   * @return The global production flag to be used in {@link com.helger.commons.debug.GlobalDebug}.
    */
   @Nullable
   public static String getGlobalProduction ()
@@ -181,12 +176,10 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   }
 
   /**
-   * Read value of <code>webapp.checkfileaccess</code>. Defaults to
-   * <code>true</code>.
+   * Read value of <code>webapp.checkfileaccess</code>. Defaults to <code>true</code>.
    *
-   * @return <code>true</code> to perform a readability check on all files in
-   *         the web application directory to check for invalid OS user/access
-   *         rights.
+   * @return <code>true</code> to perform a readability check on all files in the web application
+   *         directory to check for invalid OS user/access rights.
    */
   public static boolean isCheckFileAccess ()
   {
@@ -197,8 +190,8 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
    * Read value of <code>webapp.testversion</code>. Defaults to
    * <code>GlobalDebug.isDebugMode ()</code>.
    *
-   * @return <code>true</code> if this is a test version. Usually has only
-   *         relevance on the UI for presentational purposes.
+   * @return <code>true</code> if this is a test version. Usually has only relevance on the UI for
+   *         presentational purposes.
    */
   public static boolean isTestVersion ()
   {
@@ -206,9 +199,9 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   }
 
   /**
-   * @return <code>true</code> if all paths should be forced to the ROOT ("/")
-   *         context, <code>false</code> if the context should remain as it is.
-   *         Property <code>webapp.forceroot</code>.
+   * @return <code>true</code> if all paths should be forced to the ROOT ("/") context,
+   *         <code>false</code> if the context should remain as it is. Property
+   *         <code>webapp.forceroot</code>.
    */
   public static boolean isForceRoot ()
   {
@@ -273,11 +266,10 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   }
 
   /**
-   * Read value of <code>indexer.clientcert.validation</code>. Defaults to
-   * <code>true</code>.
+   * Read value of <code>indexer.clientcert.validation</code>. Defaults to <code>true</code>.
    *
-   * @return <code>true</code> if client certificate validation is enabled (only
-   *         suitable if https is used), <code>false</code> otherwise.
+   * @return <code>true</code> if client certificate validation is enabled (only suitable if https
+   *         is used), <code>false</code> otherwise.
    */
   public static boolean isClientCertificateValidationActive ()
   {
@@ -285,11 +277,11 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   }
 
   /**
-   * Read value of <code>clientcert.issuer.X</code> values, where "X" is an
-   * ascending number starting from 1.
+   * Read value of <code>clientcert.issuer.X</code> values, where "X" is an ascending number
+   * starting from 1.
    *
-   * @return The list of potential issuers of the expected client certificates.
-   *         Never <code>null</code> but maybe empty.
+   * @return The list of potential issuers of the expected client certificates. Never
+   *         <code>null</code> but maybe empty.
    */
   @Nonnull
   public static ICommonsList <String> getAllClientCertIssuer ()
@@ -311,11 +303,9 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   }
 
   /**
-   * @return A list of trust stores configured. Property names are
-   *         <code>truststore.X.type</code>, <code>truststore.X.path</code>,
-   *         <code>truststore.X.password</code>,
-   *         <code>truststore.X.alias</code>, where "X" is an ascending number
-   *         starting from 1.
+   * @return A list of trust stores configured. Property names are <code>truststore.X.type</code>,
+   *         <code>truststore.X.path</code>, <code>truststore.X.password</code>,
+   *         <code>truststore.X.alias</code>, where "X" is an ascending number starting from 1.
    * @since 0.6.0
    */
   @Nonnull
@@ -330,7 +320,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
 
       final String sType = getConfig ().getAsString (sPrefix + ".type");
       final EKeyStoreType eType = EKeyStoreType.getFromIDCaseInsensitiveOrDefault (sType,
-                                                                                   PeppolKeyStoreHelper.TRUSTSTORE_TYPE);
+                                                                                   PeppolTrustStores.Config2018.TRUSTSTORE_TYPE);
       final String sPath = getConfig ().getAsString (sPrefix + ".path");
       final String sPassword = getConfig ().getAsString (sPrefix + ".password");
       final String sAlias = getConfig ().getAsString (sPrefix + ".alias");
@@ -346,8 +336,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   }
 
   /**
-   * Read value of <code>reindex.maxretryhours</code>. Defaults to
-   * <code>24</code>.
+   * Read value of <code>reindex.maxretryhours</code>. Defaults to <code>24</code>.
    *
    * @return The maximum number of hours a retry will happen. Always &ge; 0.
    */
@@ -361,8 +350,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   }
 
   /**
-   * Read value of <code>reindex.retryminutes</code>. Defaults to
-   * <code>5</code>.
+   * Read value of <code>reindex.retryminutes</code>. Defaults to <code>5</code>.
    *
    * @return The number of minutes between retries. Always &ge; 0.
    */
@@ -378,8 +366,8 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   /**
    * Read value of <code>http.proxyHost</code>.
    *
-   * @return The optional proxy host to use. May be an IP address or a host name
-   *         WITHOUT a port number or a user.
+   * @return The optional proxy host to use. May be an IP address or a host name WITHOUT a port
+   *         number or a user.
    */
   @Nullable
   public static String getProxyHost ()
@@ -390,8 +378,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   /**
    * Read value of <code>http.proxyPort</code>. Defaults to <code>0</code>.
    *
-   * @return The proxy port to use. Only relevant is {@link #getProxyHost()} is
-   *         present.
+   * @return The proxy port to use. Only relevant is {@link #getProxyHost()} is present.
    */
   public static int getProxyPort ()
   {
@@ -421,10 +408,9 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   }
 
   /**
-   * @return The fixed SMP URI to be used to retrieve business cards. This
-   *         document should only be used when setting up a new network and
-   *         SML/DNS are not (yet) available in the system. Because it is
-   *         special, it is not documented.
+   * @return The fixed SMP URI to be used to retrieve business cards. This document should only be
+   *         used when setting up a new network and SML/DNS are not (yet) available in the system.
+   *         Because it is special, it is not documented.
    */
   @Nullable
   public static URI getFixedSMPURI ()
@@ -434,8 +420,8 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   }
 
   /**
-   * @return The URL provider to be used, if an SML is used. If a direct SMP is
-   *         configured, this does not matter.
+   * @return The URL provider to be used, if an SML is used. If a direct SMP is configured, this
+   *         does not matter.
    */
   @Nonnull
   public static ISMPURLProvider getURLProvider ()
@@ -445,7 +431,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
       return BDXLURLProvider.INSTANCE;
 
     // Default is Peppol
-    return PeppolURLProvider.INSTANCE;
+    return PeppolConfigurableURLProvider.INSTANCE;
   }
 
   @Nonnull

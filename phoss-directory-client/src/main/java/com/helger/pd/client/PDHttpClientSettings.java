@@ -36,7 +36,6 @@ import com.helger.commons.url.EURLProtocol;
 import com.helger.httpclient.HttpClientSettings;
 import com.helger.httpclient.security.PrivateKeyStrategyFromAliasCaseInsensitive;
 import com.helger.httpclient.security.TrustStrategyTrustAll;
-import com.helger.peppol.utils.PeppolKeyStoreHelper;
 import com.helger.security.keystore.LoadedKey;
 import com.helger.security.keystore.LoadedKeyStore;
 
@@ -54,8 +53,7 @@ public class PDHttpClientSettings extends HttpClientSettings
    * Constructor.
    *
    * @param sTargetURI
-   *        The target URI of the Directory use. May neither be
-   *        <code>null</code> nor empty.
+   *        The target URI of the Directory use. May neither be <code>null</code> nor empty.
    * @throws IllegalStateException
    *         If the "https" protocol is used, and the SSL setup is incomplete.
    */
@@ -65,12 +63,11 @@ public class PDHttpClientSettings extends HttpClientSettings
   }
 
   /**
-   * Overwrite all settings that can appear in the configuration file
-   * "pd-client.properties".
+   * Overwrite all settings that can appear in the configuration file "pd-client.properties".
    *
    * @param sTargetURI
-   *        The target URI to connect to. Makes a difference if this is "http"
-   *        or "https". May neither be <code>null</code> nor empty.
+   *        The target URI to connect to. Makes a difference if this is "http" or "https". May
+   *        neither be <code>null</code> nor empty.
    */
   public final void resetToConfiguration (@Nonnull @Nonempty final String sTargetURI)
   {
@@ -116,7 +113,7 @@ public class PDHttpClientSettings extends HttpClientSettings
       if (aLoadedKeyStore.isFailure ())
       {
         LOGGER.error ("PD client failed to initialize keystore for service connection - can only use http now! Details: " +
-                      PeppolKeyStoreHelper.getLoadError (aLoadedKeyStore));
+                      LoadedKeyStore.getLoadError (aLoadedKeyStore));
       }
       else
       {
@@ -128,7 +125,7 @@ public class PDHttpClientSettings extends HttpClientSettings
           if (aLoadedKey.isFailure ())
           {
             LOGGER.error ("PD client failed to initialize key from keystore. Details: " +
-                          PeppolKeyStoreHelper.getLoadError (aLoadedKey));
+                          LoadedKey.getLoadError (aLoadedKey));
           }
           else
             LOGGER.info ("PD client key successfully loaded");
@@ -138,7 +135,7 @@ public class PDHttpClientSettings extends HttpClientSettings
         final LoadedKeyStore aLoadedTrustStore = PDClientConfiguration.loadTrustStore ();
         if (aLoadedTrustStore.isFailure ())
           LOGGER.error ("PD client failed to initialize truststore for service connection. Details: " +
-                        PeppolKeyStoreHelper.getLoadError (aLoadedTrustStore));
+                        LoadedKeyStore.getLoadError (aLoadedTrustStore));
         else
           LOGGER.info ("PD client truststore successfully loaded");
 
