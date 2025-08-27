@@ -20,31 +20,28 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
-import javax.annotation.CheckForSigned;
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.annotation.UsedViaReflection;
-import com.helger.commons.collection.impl.CommonsArrayList;
-import com.helger.commons.collection.impl.ICommonsList;
-import com.helger.commons.debug.GlobalDebug;
-import com.helger.commons.exception.InitializationException;
-import com.helger.commons.io.resource.IReadableResource;
-import com.helger.commons.io.resourceprovider.ReadableResourceProviderChain;
-import com.helger.commons.string.StringHelper;
-import com.helger.commons.system.SystemProperties;
-import com.helger.commons.url.URLHelper;
+import com.helger.annotation.CheckForSigned;
+import com.helger.annotation.Nonempty;
+import com.helger.annotation.Nonnegative;
+import com.helger.annotation.concurrent.Immutable;
+import com.helger.annotation.style.UsedViaReflection;
+import com.helger.base.debug.GlobalDebug;
+import com.helger.base.exception.InitializationException;
+import com.helger.base.string.StringHelper;
+import com.helger.base.system.SystemProperties;
+import com.helger.base.url.URLHelper;
+import com.helger.collection.commons.CommonsArrayList;
+import com.helger.collection.commons.ICommonsList;
 import com.helger.config.Config;
 import com.helger.config.ConfigFactory;
 import com.helger.config.IConfig;
 import com.helger.config.source.MultiConfigurationValueProvider;
-import com.helger.config.source.res.ConfigurationSourceProperties;
+import com.helger.config.source.resource.properties.ConfigurationSourceProperties;
+import com.helger.io.resource.IReadableResource;
+import com.helger.io.resourceprovider.ReadableResourceProviderChain;
 import com.helger.peppol.security.PeppolTrustStores;
 import com.helger.peppol.sml.ESMPAPIType;
 import com.helger.peppolid.factory.BDXR1IdentifierFactory;
@@ -57,6 +54,9 @@ import com.helger.security.keystore.EKeyStoreType;
 import com.helger.smpclient.url.BDXLURLProvider;
 import com.helger.smpclient.url.ISMPURLProvider;
 import com.helger.smpclient.url.PeppolConfigurableURLProvider;
+
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 /**
  * This class manages the configuration properties of the Peppol Directory Server. The order of the
@@ -79,15 +79,15 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   static
   {
     // Since 0.9.0
-    if (StringHelper.hasText (SystemProperties.getPropertyValueOrNull ("peppol.directory.server.properties.path")))
+    if (StringHelper.isNotEmpty (SystemProperties.getPropertyValueOrNull ("peppol.directory.server.properties.path")))
       throw new InitializationException ("The system property 'peppol.directory.server.properties.path' is no longer supported." +
                                          " See https://github.com/phax/ph-commons#ph-config for alternatives." +
                                          " Consider using the system property 'config.file' instead.");
-    if (StringHelper.hasText (SystemProperties.getPropertyValueOrNull ("directory.server.properties.path")))
+    if (StringHelper.isNotEmpty (SystemProperties.getPropertyValueOrNull ("directory.server.properties.path")))
       throw new InitializationException ("The system property 'directory.server.properties.path' is no longer supported." +
                                          " See https://github.com/phax/ph-commons#ph-config for alternatives." +
                                          " Consider using the system property 'config.file' instead.");
-    if (StringHelper.hasText (System.getenv ().get ("DIRECTORY_SERVER_CONFIG")))
+    if (StringHelper.isNotEmpty (System.getenv ().get ("DIRECTORY_SERVER_CONFIG")))
       throw new InitializationException ("The environment variable 'DIRECTORY_SERVER_CONFIG' is no longer supported." +
                                          " See https://github.com/phax/ph-commons#ph-config for alternatives." +
                                          " Consider using the environment variable 'CONFIG_FILE' instead.");
@@ -145,7 +145,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   /**
    * Read value of <code>global.debug</code>
    *
-   * @return The global debug flag to be used in {@link com.helger.commons.debug.GlobalDebug}.
+   * @return The global debug flag to be used in {@link com.helger.base.debug.GlobalDebug}.
    */
   @Nullable
   public static String getGlobalDebug ()
@@ -156,7 +156,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   /**
    * Read value of <code>global.production</code>
    *
-   * @return The global production flag to be used in {@link com.helger.commons.debug.GlobalDebug}.
+   * @return The global production flag to be used in {@link com.helger.base.debug.GlobalDebug}.
    */
   @Nullable
   public static String getGlobalProduction ()
@@ -256,7 +256,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   public static URL getWebAppContactExternalURL ()
   {
     final String sURL = getConfig ().getAsString ("webapp.contact.external.url");
-    return StringHelper.hasText (sURL) ? URLHelper.getAsURL (sURL, false) : null;
+    return StringHelper.isNotEmpty (sURL) ? URLHelper.getAsURL (sURL, false) : null;
   }
 
   @Nullable
@@ -292,7 +292,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
     while (true)
     {
       final String sValue = getConfig ().getAsString ("clientcert.issuer." + nIndex);
-      if (StringHelper.hasNoText (sValue))
+      if (StringHelper.isEmpty (sValue))
         break;
 
       // Present - try next
@@ -325,7 +325,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
       final String sPassword = getConfig ().getAsString (sPrefix + ".password");
       final String sAlias = getConfig ().getAsString (sPrefix + ".alias");
 
-      if (StringHelper.hasNoText (sPath) || StringHelper.hasNoText (sPassword) || StringHelper.hasNoText (sAlias))
+      if (StringHelper.isEmpty (sPath) || StringHelper.isEmpty (sPassword) || StringHelper.isEmpty (sAlias))
         break;
 
       // Present - try next

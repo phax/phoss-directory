@@ -20,8 +20,8 @@ import java.io.File;
 
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
-import com.helger.commons.id.factory.GlobalIDFactory;
-import com.helger.commons.io.file.FileOperationManager;
+import com.helger.base.id.factory.GlobalIDFactory;
+import com.helger.io.file.FileOperationManager;
 import com.helger.pd.indexer.lucene.PDLucene;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.photon.app.mock.PhotonAppWebTestRule;

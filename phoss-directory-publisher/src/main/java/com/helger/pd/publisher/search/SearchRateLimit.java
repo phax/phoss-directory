@@ -18,8 +18,6 @@ package com.helger.pd.publisher.search;
 
 import java.time.Duration;
 
-import javax.annotation.Nullable;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +26,7 @@ import com.helger.pd.indexer.settings.PDServerConfiguration;
 import es.moki.ratelimitj.core.limiter.request.RequestLimitRule;
 import es.moki.ratelimitj.core.limiter.request.RequestRateLimiter;
 import es.moki.ratelimitj.inmemory.request.InMemorySlidingWindowRequestRateLimiter;
+import jakarta.annotation.Nullable;
 
 public final class SearchRateLimit
 {

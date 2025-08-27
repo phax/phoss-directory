@@ -18,15 +18,15 @@ package com.helger.pd.indexer.index;
 
 import java.io.Serializable;
 
-import javax.annotation.Nonnull;
-
-import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.annotation.ReturnsMutableCopy;
-import com.helger.commons.name.IHasDisplayName;
-import com.helger.commons.type.ITypedObject;
+import com.helger.annotation.Nonempty;
+import com.helger.annotation.style.ReturnsMutableCopy;
+import com.helger.base.name.IHasDisplayName;
+import com.helger.base.type.ITypedObject;
 import com.helger.datetime.domain.IHasCreationDateTime;
 import com.helger.pd.indexer.storage.PDStoredMetaData;
 import com.helger.peppolid.IParticipantIdentifier;
+
+import jakarta.annotation.Nonnull;
 
 /**
  * Base interface for indexer work item with only reading methods.

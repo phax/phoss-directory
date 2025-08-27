@@ -18,21 +18,21 @@ package com.helger.pd.publisher.app;
 
 import java.net.URI;
 
-import javax.annotation.Nonnull;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.commons.annotation.UsedViaReflection;
-import com.helger.commons.debug.GlobalDebug;
-import com.helger.commons.exception.InitializationException;
-import com.helger.commons.lang.ClassHelper;
+import com.helger.annotation.style.UsedViaReflection;
+import com.helger.base.debug.GlobalDebug;
+import com.helger.base.exception.InitializationException;
+import com.helger.base.lang.clazz.ClassHelper;
 import com.helger.pd.indexer.businesscard.SMPBusinessCardProvider;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.photon.core.interror.InternalErrorBuilder;
 import com.helger.scope.IScope;
 import com.helger.scope.singleton.AbstractGlobalSingleton;
+
+import jakarta.annotation.Nonnull;
 
 /**
  * PD Publisher meta manager
@@ -80,7 +80,9 @@ public final class PDPMetaManager extends AbstractGlobalSingleton
     {
       if (GlobalDebug.isProductionMode ())
       {
-        new InternalErrorBuilder ().setThrowable (ex).addErrorMessage (ClassHelper.getClassLocalName (this) + " init failed").handle ();
+        new InternalErrorBuilder ().setThrowable (ex)
+                                   .addErrorMessage (ClassHelper.getClassLocalName (this) + " init failed")
+                                   .handle ();
       }
 
       throw new InitializationException ("Failed to init " + ClassHelper.getClassLocalName (this), ex);

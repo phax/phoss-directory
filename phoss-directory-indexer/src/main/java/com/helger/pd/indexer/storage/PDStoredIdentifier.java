@@ -16,14 +16,14 @@
  */
 package com.helger.pd.indexer.storage;
 
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.Immutable;
-
-import com.helger.commons.ValueEnforcer;
-import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.hashcode.HashCodeGenerator;
-import com.helger.commons.string.ToStringGenerator;
+import com.helger.annotation.Nonempty;
+import com.helger.annotation.concurrent.Immutable;
+import com.helger.base.enforce.ValueEnforcer;
+import com.helger.base.hashcode.HashCodeGenerator;
+import com.helger.base.tostring.ToStringGenerator;
 import com.helger.peppol.businesscard.generic.PDIdentifier;
+
+import jakarta.annotation.Nonnull;
 
 /**
  * This class represents a single identifier as stored by Lucene consisting of a

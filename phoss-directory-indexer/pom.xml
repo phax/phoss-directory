@@ -22,7 +22,7 @@
   <parent>
     <groupId>com.helger</groupId>
     <artifactId>phoss-directory-parent-pom</artifactId>
-    <version>0.13.7-SNAPSHOT</version>
+    <version>0.14.0-SNAPSHOT</version>
   </parent>
   <artifactId>phoss-directory-indexer</artifactId>
   <packaging>bundle</packaging>
@@ -54,10 +54,6 @@
   </developers>
 
   <dependencies>
-    <dependency>
-      <groupId>com.helger.commons</groupId>
-      <artifactId>ph-commons</artifactId>
-    </dependency>
     <dependency>
       <groupId>com.helger.photon</groupId>
       <artifactId>ph-oton-core</artifactId>
@@ -99,8 +95,6 @@
     <dependency>
       <groupId>jakarta.servlet</groupId>
       <artifactId>jakarta.servlet-api</artifactId>
-      <!-- New version required for testing -->
-      <version>6.0.0</version><!--$NO-MVN-MAN-VER$-->
       <scope>provided</scope>
     </dependency>
     
@@ -127,6 +121,11 @@
     <dependency>
       <groupId>com.sun.xml.bind</groupId>
       <artifactId>jaxb-impl</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.helger.commons</groupId>
+      <artifactId>ph-unittest-support-ext</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -158,7 +157,7 @@
             <!-- To use the filtered resources -->
             <Automatic-Module-Name>com.helger.pd.indexer</Automatic-Module-Name>
             <Export-Package>com.helger.pd.indexer.*</Export-Package>
-            <Import-Package>!javax.annotation.*,*</Import-Package>
+            <Import-Package>!jakarta.annotation.*,*</Import-Package>
             <Require-Capability>osgi.extender; filter:="(osgi.extender=osgi.serviceloader.registrar)"</Require-Capability>
             <Provide-Capability>osgi.serviceloader; osgi.serviceloader=com.helger.xml.microdom.convert.IMicroTypeConverterRegistrarSPI</Provide-Capability>
             <!-- The latter one has precedence -->

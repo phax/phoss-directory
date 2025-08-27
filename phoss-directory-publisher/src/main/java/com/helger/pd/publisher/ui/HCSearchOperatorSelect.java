@@ -19,12 +19,12 @@ package com.helger.pd.publisher.ui;
 import java.util.EnumSet;
 import java.util.Locale;
 
-import javax.annotation.Nonnull;
-
 import com.helger.html.request.IHCRequestField;
 import com.helger.pd.publisher.search.ESearchDataType;
 import com.helger.pd.publisher.search.ESearchOperator;
 import com.helger.photon.uicore.html.select.HCExtSelect;
+
+import jakarta.annotation.Nonnull;
 
 public class HCSearchOperatorSelect extends HCExtSelect
 {

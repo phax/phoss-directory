@@ -16,9 +16,7 @@
  */
 package com.helger.pd.publisher.app.secure;
 
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.Immutable;
-
+import com.helger.annotation.concurrent.Immutable;
 import com.helger.pd.publisher.app.AppCommonUI;
 import com.helger.pd.publisher.app.AppSecurity;
 import com.helger.photon.bootstrap4.pages.BootstrapPagesMenuConfigurator;
@@ -27,6 +25,8 @@ import com.helger.photon.core.menu.IMenuItemPage;
 import com.helger.photon.core.menu.IMenuTree;
 import com.helger.photon.core.menu.filter.MenuObjectFilterUserAssignedToUserGroup;
 import com.helger.photon.uicore.page.system.BasePageShowChildren;
+
+import jakarta.annotation.Nonnull;
 
 @Immutable
 public final class MenuSecure

@@ -18,20 +18,19 @@ package com.helger.pd.publisher.app.secure;
 
 import java.util.Locale;
 
-import javax.annotation.Nonnull;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.collection.impl.CommonsArrayList;
-import com.helger.commons.collection.impl.ICommonsList;
-import com.helger.commons.error.IError;
-import com.helger.commons.state.ESuccess;
-import com.helger.commons.string.StringHelper;
+import com.helger.annotation.Nonempty;
+import com.helger.base.state.ESuccess;
+import com.helger.base.string.StringHelper;
+import com.helger.base.string.StringImplode;
+import com.helger.collection.commons.CommonsArrayList;
+import com.helger.collection.commons.ICommonsList;
+import com.helger.diagnostics.error.IError;
 import com.helger.html.hc.html.grouping.HCUL;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.businesscard.IPDBusinessCardProvider;
@@ -58,6 +57,8 @@ import com.helger.web.fileupload.IFileItem;
 import com.helger.xml.sax.CollectingSAXErrorHandler;
 import com.helger.xml.serialize.read.SAXReader;
 import com.helger.xml.serialize.read.SAXReaderSettings;
+
+import jakarta.annotation.Nonnull;
 
 public final class PageSecureIndexImport extends AbstractAppWebPage
 {
@@ -89,9 +90,10 @@ public final class PageSecureIndexImport extends AbstractAppWebPage
         else
         {
           aNodeList.addChild (info ("The following SMLs are crawled for entries: " +
-                                    StringHelper.getImplodedMapped (", ",
-                                                                    aSMPBCProv.getAllSMLsToUse (),
-                                                                    ISMLInfo::getDisplayName)));
+                                    StringImplode.imploder ()
+                                                 .source (aSMPBCProv.getAllSMLsToUse (), ISMLInfo::getDisplayName)
+                                                 .separator (", ")
+                                                 .build ()));
         }
       }
     }
@@ -99,7 +101,7 @@ public final class PageSecureIndexImport extends AbstractAppWebPage
     if (bIsFormSubmitted)
     {
       final IFileItem aFile = aWPEC.params ().getAsFileItem (FIELD_FILE);
-      if (aFile == null || StringHelper.hasNoText (aFile.getName ()))
+      if (aFile == null || StringHelper.isEmpty (aFile.getName ()))
         aFormErrors.addFieldError (FIELD_FILE, "No file was selected");
 
       if (aFormErrors.isEmpty ())

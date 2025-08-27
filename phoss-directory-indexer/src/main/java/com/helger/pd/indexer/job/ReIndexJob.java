@@ -16,13 +16,11 @@
  */
 package com.helger.pd.indexer.job;
 
-import javax.annotation.Nonnull;
-
-import com.helger.commons.ValueEnforcer;
-import com.helger.commons.annotation.OverrideOnDemand;
-import com.helger.commons.collection.impl.CommonsHashMap;
-import com.helger.commons.collection.impl.ICommonsMap;
-import com.helger.commons.datetime.PDTFactory;
+import com.helger.annotation.style.OverrideOnDemand;
+import com.helger.base.enforce.ValueEnforcer;
+import com.helger.collection.commons.CommonsHashMap;
+import com.helger.collection.commons.ICommonsMap;
+import com.helger.datetime.helper.PDTFactory;
 import com.helger.pd.indexer.mgr.PDIndexerManager;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.quartz.DisallowConcurrentExecution;
@@ -38,6 +36,7 @@ import com.helger.servlet.mock.OfflineHttpServletRequest;
 import com.helger.web.scope.mgr.WebScopeManager;
 import com.helger.web.scope.util.AbstractScopeAwareJob;
 
+import jakarta.annotation.Nonnull;
 import jakarta.servlet.ServletContext;
 
 /**

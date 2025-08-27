@@ -18,18 +18,11 @@ package com.helger.pd.publisher.app;
 
 import java.util.Locale;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
-
-import com.helger.commons.collection.impl.CommonsArrayList;
-import com.helger.commons.collection.impl.ICommonsList;
-import com.helger.commons.http.EHttpMethod;
-import com.helger.commons.id.factory.GlobalIDFactory;
-import com.helger.commons.locale.LocaleCache;
-import com.helger.commons.mime.CMimeType;
-import com.helger.commons.string.StringHelper;
-import com.helger.commons.url.SimpleURL;
+import com.helger.annotation.concurrent.Immutable;
+import com.helger.base.id.factory.GlobalIDFactory;
+import com.helger.base.string.StringHelper;
+import com.helger.collection.commons.CommonsArrayList;
+import com.helger.collection.commons.ICommonsList;
 import com.helger.css.property.CCSSProperties;
 import com.helger.css.propertyvalue.CCSSValue;
 import com.helger.html.css.DefaultCSSClassProvider;
@@ -48,6 +41,8 @@ import com.helger.html.jscode.JSAssocArray;
 import com.helger.html.jscode.JSPackage;
 import com.helger.html.jscode.JSParam;
 import com.helger.html.jscode.html.JSHtml;
+import com.helger.http.EHttpMethod;
+import com.helger.mime.CMimeType;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.ajax.AjaxExecutorPublicLogin;
@@ -68,7 +63,12 @@ import com.helger.photon.uictrls.datatables.EDataTablesFilterType;
 import com.helger.photon.uictrls.datatables.ajax.AjaxExecutorDataTables;
 import com.helger.photon.uictrls.datatables.ajax.AjaxExecutorDataTablesI18N;
 import com.helger.photon.uictrls.datatables.plugins.DataTablesPluginSearchHighlight;
+import com.helger.text.locale.LocaleCache;
+import com.helger.url.SimpleURL;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
+
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 @Immutable
 public final class AppCommonUI
@@ -89,21 +89,21 @@ public final class AppCommonUI
   static
   {
     final String sFavIcon16x16 = PDServerConfiguration.getConfig ().getAsString ("webapp.favicon.png.16x16");
-    if (StringHelper.hasText (sFavIcon16x16))
+    if (StringHelper.isNotEmpty (sFavIcon16x16))
       DEFAULT_FAV_ICONS.add (new HCLink ().setRel (EHCLinkType.ICON)
                                           .setType (CMimeType.IMAGE_PNG)
                                           .setSizes ("16x16")
                                           .setHref (new SimpleURL (sFavIcon16x16)));
 
     final String sFavIcon32x32 = PDServerConfiguration.getConfig ().getAsString ("webapp.favicon.png.32x32");
-    if (StringHelper.hasText (sFavIcon32x32))
+    if (StringHelper.isNotEmpty (sFavIcon32x32))
       DEFAULT_FAV_ICONS.add (new HCLink ().setRel (EHCLinkType.ICON)
                                           .setType (CMimeType.IMAGE_PNG)
                                           .setSizes ("32x32")
                                           .setHref (new SimpleURL (sFavIcon32x32)));
 
     final String sFavIcon96x96 = PDServerConfiguration.getConfig ().getAsString ("webapp.favicon.png.96x96");
-    if (StringHelper.hasText (sFavIcon96x96))
+    if (StringHelper.isNotEmpty (sFavIcon96x96))
       DEFAULT_FAV_ICONS.add (new HCLink ().setRel (EHCLinkType.ICON)
                                           .setType (CMimeType.IMAGE_PNG)
                                           .setSizes ("96x96")
@@ -133,7 +133,7 @@ public final class AppCommonUI
 
     // Change logo image?
     final String sLogoImageURL = PDServerConfiguration.getLogoImageURL ();
-    if (StringHelper.hasText (sLogoImageURL))
+    if (StringHelper.isNotEmpty (sLogoImageURL))
       CPDPublisher.setLogoImageURL (sLogoImageURL);
   }
 
@@ -200,7 +200,7 @@ public final class AppCommonUI
   public static HCImg createLogoImg ()
   {
     final String sSrc = PDServerConfiguration.getAppLogoImagePath ();
-    if (StringHelper.hasNoText (sSrc))
+    if (StringHelper.isEmpty (sSrc))
       return null;
     return new HCImg ().setSrc (LinkHelper.getURLWithContext (sSrc))
                        .addStyle (CCSSProperties.MARGIN.newValue ("-15px"))

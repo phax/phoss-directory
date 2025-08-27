@@ -24,25 +24,25 @@ import java.time.MonthDay;
 import java.time.YearMonth;
 import java.util.Locale;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.commons.CGlobal;
-import com.helger.commons.ValueEnforcer;
-import com.helger.commons.compare.CompareHelper;
-import com.helger.commons.equals.EqualsHelper;
-import com.helger.commons.math.MathHelper;
-import com.helger.commons.regex.RegExHelper;
-import com.helger.commons.string.StringHelper;
-import com.helger.commons.typeconvert.TypeConverter;
-import com.helger.commons.typeconvert.TypeConverterException;
+import com.helger.base.CGlobal;
+import com.helger.base.compare.CompareHelper;
+import com.helger.base.enforce.ValueEnforcer;
+import com.helger.base.equals.EqualsHelper;
+import com.helger.base.numeric.BigHelper;
+import com.helger.base.string.StringHelper;
+import com.helger.cache.regex.RegExHelper;
+import com.helger.typeconvert.TypeConverterException;
+import com.helger.typeconvert.impl.TypeConverter;
+
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 /**
- * Generic matcher. Compares a search value using a specified operator on a
- * reference values that has a certain data type.
+ * Generic matcher. Compares a search value using a specified operator on a reference values that
+ * has a certain data type.
  *
  * @author Philip Helger
  */
@@ -78,21 +78,27 @@ public final class SearchMatcher
       case GE:
         return CompareHelper.compare (sSearchValue, sReferenceValue) >= 0;
       case EMPTY:
-        return StringHelper.hasNoText (sReferenceValue);
+        return StringHelper.isEmpty (sReferenceValue);
       case NOT_EMPTY:
-        return StringHelper.hasText (sReferenceValue);
+        return StringHelper.isNotEmpty (sReferenceValue);
       case STRING_CONTAINS:
         // Different semantics than StringHelper.contains for empty values!
-        return StringHelper.hasText (sReferenceValue) && StringHelper.hasText (sSearchValue) && sReferenceValue.contains (sSearchValue);
+        return StringHelper.isNotEmpty (sReferenceValue) &&
+               StringHelper.isNotEmpty (sSearchValue) &&
+               sReferenceValue.contains (sSearchValue);
       case STRING_STARTS_WITH:
         // Different semantics than StringHelper.startsWith for empty values!
-        return StringHelper.hasText (sReferenceValue) && StringHelper.hasText (sSearchValue) && sReferenceValue.startsWith (sSearchValue);
+        return StringHelper.isNotEmpty (sReferenceValue) &&
+               StringHelper.isNotEmpty (sSearchValue) &&
+               sReferenceValue.startsWith (sSearchValue);
       case STRING_ENDS_WITH:
         // Different semantics than StringHelper.endsWith for empty values!
-        return StringHelper.hasText (sReferenceValue) && StringHelper.hasText (sSearchValue) && sReferenceValue.endsWith (sSearchValue);
+        return StringHelper.isNotEmpty (sReferenceValue) &&
+               StringHelper.isNotEmpty (sSearchValue) &&
+               sReferenceValue.endsWith (sSearchValue);
       case STRING_REGEX:
-        return StringHelper.hasText (sReferenceValue) &&
-               StringHelper.hasText (sSearchValue) &&
+        return StringHelper.isNotEmpty (sReferenceValue) &&
+               StringHelper.isNotEmpty (sSearchValue) &&
                RegExHelper.stringMatchesPattern (sSearchValue, sReferenceValue);
       default:
         throw new IllegalArgumentException ("Unsupported String search operator " + eOperator);
@@ -130,9 +136,9 @@ public final class SearchMatcher
                               eOperator,
                               TypeConverter.convert (aSearchValue, String.class));
       case INT_EVEN:
-        return aReferenceValue != null && MathHelper.isEQ0 (aReferenceValue.mod (CGlobal.BIGINT_2));
+        return aReferenceValue != null && BigHelper.isEQ0 (aReferenceValue.mod (CGlobal.BIGINT_2));
       case INT_ODD:
-        return aReferenceValue != null && MathHelper.isNE0 (aReferenceValue.mod (CGlobal.BIGINT_2));
+        return aReferenceValue != null && BigHelper.isNE0 (aReferenceValue.mod (CGlobal.BIGINT_2));
       default:
         throw new IllegalArgumentException ("Unsupported Int search operator " + eOperator);
     }
@@ -202,9 +208,11 @@ public final class SearchMatcher
       case DATE_DAY:
         return aReferenceValue != null && aReferenceValue.getDayOfMonth () == TypeConverter.convertToInt (aSearchValue);
       case DATE_YEAR_MONTH:
-        return aReferenceValue != null && YearMonth.from (aReferenceValue).equals (TypeConverter.convert (aSearchValue, YearMonth.class));
+        return aReferenceValue != null &&
+               YearMonth.from (aReferenceValue).equals (TypeConverter.convert (aSearchValue, YearMonth.class));
       case DATE_MONTH_DAY:
-        return aReferenceValue != null && MonthDay.from (aReferenceValue).equals (TypeConverter.convert (aSearchValue, MonthDay.class));
+        return aReferenceValue != null &&
+               MonthDay.from (aReferenceValue).equals (TypeConverter.convert (aSearchValue, MonthDay.class));
       default:
         throw new IllegalArgumentException ("Unsupported LocalDate search operator " + eOperator);
     }

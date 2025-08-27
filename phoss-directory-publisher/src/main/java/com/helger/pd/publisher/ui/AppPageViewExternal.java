@@ -16,19 +16,19 @@
  */
 package com.helger.pd.publisher.ui;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.io.resource.IReadableResource;
+import com.helger.annotation.Nonempty;
 import com.helger.html.EHTMLVersion;
 import com.helger.html.hc.IHCNode;
+import com.helger.io.resource.IReadableResource;
 import com.helger.photon.bootstrap4.pages.BootstrapWebPageUIHandler;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 import com.helger.photon.uicore.page.external.BasePageViewExternal;
 import com.helger.photon.uicore.page.external.PageViewExternalHTMLCleanser;
 import com.helger.xml.microdom.IMicroContainer;
 import com.helger.xml.microdom.util.MicroVisitor;
+
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 public class AppPageViewExternal extends BasePageViewExternal <WebPageExecutionContext>
 {
@@ -39,7 +39,9 @@ public class AppPageViewExternal extends BasePageViewExternal <WebPageExecutionC
     MicroVisitor.visit (aCont, aCleanser);
   }
 
-  public AppPageViewExternal (@Nonnull @Nonempty final String sID, @Nonnull final String sName, @Nonnull final IReadableResource aResource)
+  public AppPageViewExternal (@Nonnull @Nonempty final String sID,
+                              @Nonnull final String sName,
+                              @Nonnull final IReadableResource aResource)
   {
     // Special content cleaner
     super (sID, sName, aResource, AppPageViewExternal::_cleanCode);

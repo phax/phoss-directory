@@ -18,12 +18,12 @@ package com.helger.pd.indexer.settings;
 
 import java.io.Serializable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.Immutable;
-
-import com.helger.commons.ValueEnforcer;
-import com.helger.commons.annotation.Nonempty;
+import com.helger.annotation.Nonempty;
+import com.helger.annotation.concurrent.Immutable;
+import com.helger.base.enforce.ValueEnforcer;
 import com.helger.security.keystore.EKeyStoreType;
+
+import jakarta.annotation.Nonnull;
 
 /**
  * A single truststore as found in the pd.properties configuration file.

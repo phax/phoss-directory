@@ -16,7 +16,7 @@
  */
 package com.helger.pd.publisher.app.secure;
 
-import javax.annotation.concurrent.Immutable;
+import com.helger.annotation.concurrent.Immutable;
 
 @Immutable
 public final class CMenuSecure

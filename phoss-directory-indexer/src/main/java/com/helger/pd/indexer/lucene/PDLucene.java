@@ -24,9 +24,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.core.SimpleAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -47,15 +44,18 @@ import org.apache.lucene.store.FSDirectory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.commons.ValueEnforcer;
-import com.helger.commons.annotation.ELockType;
-import com.helger.commons.annotation.MustBeLocked;
-import com.helger.commons.callback.IThrowingRunnable;
-import com.helger.commons.concurrent.SimpleReadWriteLock;
-import com.helger.commons.functional.IThrowingSupplier;
-import com.helger.commons.io.stream.StreamHelper;
-import com.helger.commons.state.ESuccess;
+import com.helger.annotation.concurrent.ELockType;
+import com.helger.annotation.concurrent.MustBeLocked;
+import com.helger.base.concurrent.SimpleReadWriteLock;
+import com.helger.base.enforce.ValueEnforcer;
+import com.helger.base.functional.IThrowingSupplier;
+import com.helger.base.iface.IThrowingRunnable;
+import com.helger.base.io.stream.StreamHelper;
+import com.helger.base.state.ESuccess;
 import com.helger.photon.io.WebFileIO;
+
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 /**
  * The singleton wrapper around the Lucene index to be used in Peppol Directory.

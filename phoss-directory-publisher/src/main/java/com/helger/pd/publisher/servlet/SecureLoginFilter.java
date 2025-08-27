@@ -16,9 +16,7 @@
  */
 package com.helger.pd.publisher.servlet;
 
-import javax.annotation.Nonnull;
-
-import com.helger.commons.state.EContinue;
+import com.helger.base.state.EContinue;
 import com.helger.pd.publisher.app.AppSecurity;
 import com.helger.pd.publisher.app.PDLoginManager;
 import com.helger.photon.core.servlet.AbstractUnifiedResponseFilter;
@@ -27,6 +25,7 @@ import com.helger.photon.security.util.SecurityHelper;
 import com.helger.servlet.response.UnifiedResponse;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 
+import jakarta.annotation.Nonnull;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletResponse;
 

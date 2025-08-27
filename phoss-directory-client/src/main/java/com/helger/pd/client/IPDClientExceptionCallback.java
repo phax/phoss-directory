@@ -16,10 +16,10 @@
  */
 package com.helger.pd.client;
 
-import javax.annotation.Nonnull;
-
-import com.helger.commons.callback.ICallback;
+import com.helger.base.callback.ICallback;
 import com.helger.peppolid.IParticipantIdentifier;
+
+import jakarta.annotation.Nonnull;
 
 /**
  * Special exception callback interface for the Peppol Directory client.

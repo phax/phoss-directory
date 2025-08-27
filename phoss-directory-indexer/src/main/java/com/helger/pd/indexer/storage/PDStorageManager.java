@@ -22,11 +22,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.ObjIntConsumer;
 
-import javax.annotation.CheckForSigned;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
-
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Store;
@@ -47,25 +42,25 @@ import org.apache.lucene.search.TotalHitCountCollector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.commons.CGlobal;
-import com.helger.commons.ValueEnforcer;
-import com.helger.commons.annotation.ReturnsMutableCopy;
-import com.helger.commons.callback.IThrowingRunnable;
-import com.helger.commons.collection.CollectionHelper;
-import com.helger.commons.collection.impl.CommonsArrayList;
-import com.helger.commons.collection.impl.CommonsLinkedHashMap;
-import com.helger.commons.collection.impl.CommonsTreeMap;
-import com.helger.commons.collection.impl.ICommonsList;
-import com.helger.commons.collection.impl.ICommonsMap;
-import com.helger.commons.collection.impl.ICommonsSortedMap;
-import com.helger.commons.datetime.PDTWebDateHelper;
-import com.helger.commons.functional.IThrowingSupplier;
-import com.helger.commons.mutable.MutableInt;
-import com.helger.commons.state.ESuccess;
-import com.helger.commons.statistics.IMutableStatisticsHandlerKeyedTimer;
-import com.helger.commons.statistics.StatisticsManager;
-import com.helger.commons.string.StringHelper;
-import com.helger.commons.timing.StopWatch;
+import com.helger.annotation.CheckForSigned;
+import com.helger.annotation.concurrent.Immutable;
+import com.helger.annotation.style.ReturnsMutableCopy;
+import com.helger.base.CGlobal;
+import com.helger.base.enforce.ValueEnforcer;
+import com.helger.base.functional.IThrowingSupplier;
+import com.helger.base.iface.IThrowingRunnable;
+import com.helger.base.numeric.mutable.MutableInt;
+import com.helger.base.state.ESuccess;
+import com.helger.base.string.StringHelper;
+import com.helger.base.timing.StopWatch;
+import com.helger.collection.CollectionFind;
+import com.helger.collection.commons.CommonsArrayList;
+import com.helger.collection.commons.CommonsLinkedHashMap;
+import com.helger.collection.commons.CommonsTreeMap;
+import com.helger.collection.commons.ICommonsList;
+import com.helger.collection.commons.ICommonsMap;
+import com.helger.collection.commons.ICommonsSortedMap;
+import com.helger.datetime.web.PDTWebDateHelper;
 import com.helger.pd.indexer.businesscard.PDExtendedBusinessCard;
 import com.helger.pd.indexer.lucene.AllDocumentsCollector;
 import com.helger.pd.indexer.lucene.PDLucene;
@@ -80,6 +75,11 @@ import com.helger.peppolid.IDocumentTypeIdentifier;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.simple.participant.SimpleParticipantIdentifier;
 import com.helger.photon.audit.AuditHelper;
+import com.helger.statistics.api.IMutableStatisticsHandlerKeyedTimer;
+import com.helger.statistics.impl.StatisticsManager;
+
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 /**
  * The global storage manager that wraps the used Lucene index.
@@ -288,7 +288,7 @@ public final class PDStorageManager implements IPDStorageManager
       if (aDocs.isNotEmpty ())
       {
         // Add "group end" marker
-        CollectionHelper.getLastElement (aDocs).add (new Field (FIELD_GROUP_END, VALUE_GROUP_END, TYPE_GROUP_END));
+        CollectionFind.getLastElement (aDocs).add (new Field (FIELD_GROUP_END, VALUE_GROUP_END, TYPE_GROUP_END));
       }
       // Delete all existing documents of the participant ID
       // and add the new ones to the index
@@ -377,8 +377,8 @@ public final class PDStorageManager implements IPDStorageManager
   }
 
   /**
-   * Search all documents matching the passed query and pass the result on to
-   * the provided {@link Consumer}.
+   * Search all documents matching the passed query and pass the result on to the provided
+   * {@link Consumer}.
    *
    * @param aQuery
    *        Query to execute. May not be <code>null</code>-
@@ -428,16 +428,15 @@ public final class PDStorageManager implements IPDStorageManager
   }
 
   /**
-   * Search all documents matching the passed query and pass the result on to
-   * the provided {@link Consumer}.
+   * Search all documents matching the passed query and pass the result on to the provided
+   * {@link Consumer}.
    *
    * @param aQuery
    *        Query to execute. May not be <code>null</code>.
    * @param nMaxResultCount
    *        Maximum number of results. Values &le; 0 mean all.
    * @param aFromDocumentConverter
-   *        The function to extract data from the Lucene Document. May not be
-   *        <code>null</code>.
+   *        The function to extract data from the Lucene Document. May not be <code>null</code>.
    * @param aConsumer
    *        The consumer of the mapped objects. May not be <code>null</code>.
    * @throws IOException
@@ -491,9 +490,8 @@ public final class PDStorageManager implements IPDStorageManager
   }
 
   /**
-   * Search all documents matching the passed query and pass the result on to
-   * the provided {@link Consumer}. This is a specific version of
-   * #searchAll(Query, int, Function, Consumer) with
+   * Search all documents matching the passed query and pass the result on to the provided
+   * {@link Consumer}. This is a specific version of #searchAll(Query, int, Function, Consumer) with
    * {@link PDStoredBusinessEntity} objects.
    *
    * @param aQuery
@@ -501,8 +499,8 @@ public final class PDStorageManager implements IPDStorageManager
    * @param nMaxResultCount
    *        Maximum number of results. Values &le; 0 mean all.
    * @param aConsumer
-   *        The consumer of the {@link PDStoredBusinessEntity} objects. May not
-   *        be <code>null</code>.
+   *        The consumer of the {@link PDStoredBusinessEntity} objects. May not be
+   *        <code>null</code>.
    * @throws IOException
    *         On Lucene error
    * @see #searchAtomic(Query, Collector)
@@ -516,9 +514,8 @@ public final class PDStorageManager implements IPDStorageManager
   }
 
   /**
-   * Get all {@link PDStoredBusinessEntity} objects matching the provided query.
-   * This is a specialization of
-   * {@link #searchAllDocuments(Query, int, Consumer)}.
+   * Get all {@link PDStoredBusinessEntity} objects matching the provided query. This is a
+   * specialization of {@link #searchAllDocuments(Query, int, Consumer)}.
    *
    * @param aQuery
    *        The query to be executed. May not be <code>null</code>.
@@ -605,8 +602,8 @@ public final class PDStorageManager implements IPDStorageManager
    *
    * @param aDocs
    *        The document list to group.
-   * @return A non-<code>null</code> ordered map with the results. Order is like
-   *         the order of the input list.
+   * @return A non-<code>null</code> ordered map with the results. Order is like the order of the
+   *         input list.
    */
   @Nonnull
   @ReturnsMutableCopy

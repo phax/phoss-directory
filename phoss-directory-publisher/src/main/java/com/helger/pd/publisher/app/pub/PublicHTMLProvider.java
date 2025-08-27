@@ -19,13 +19,9 @@ package com.helger.pd.publisher.app.pub;
 import java.net.URL;
 import java.util.Locale;
 
-import javax.annotation.Nonnull;
-
-import com.helger.commons.collection.impl.CommonsArrayList;
-import com.helger.commons.collection.impl.ICommonsList;
-import com.helger.commons.string.StringHelper;
-import com.helger.commons.url.ISimpleURL;
-import com.helger.commons.url.SimpleURL;
+import com.helger.base.string.StringHelper;
+import com.helger.collection.commons.CommonsArrayList;
+import com.helger.collection.commons.ICommonsList;
 import com.helger.css.property.CCSSProperties;
 import com.helger.html.css.DefaultCSSClassProvider;
 import com.helger.html.css.ICSSClassProvider;
@@ -80,8 +76,12 @@ import com.helger.photon.security.user.IUser;
 import com.helger.photon.security.util.SecurityHelper;
 import com.helger.photon.uicore.html.HCCookieConsent;
 import com.helger.photon.uicore.html.google.HCGoogleAnalyticsV4;
+import com.helger.url.ISimpleURL;
+import com.helger.url.SimpleURL;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 import com.helger.xservlet.forcedredirect.ForcedRedirectException;
+
+import jakarta.annotation.Nonnull;
 
 /**
  * Main class for creating HTML output
@@ -342,7 +342,7 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
 
     // Google Analytics?
     final String sV4AccountID = PDServerConfiguration.getConfig ().getAsString ("webapp.google.analytics.v4.account");
-    if (StringHelper.hasText (sV4AccountID))
+    if (StringHelper.isNotEmpty (sV4AccountID))
       ret.addChild (new HCGoogleAnalyticsV4 (sV4AccountID));
 
     ret.addChild (HCCookieConsent.createBottomDefault ("#000", "#0f0", "#0f0", null));

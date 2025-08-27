@@ -23,16 +23,14 @@ import static org.junit.Assert.assertNull;
 import java.io.IOException;
 import java.time.Month;
 
-import javax.annotation.Nonnull;
-
 import org.apache.lucene.search.TermQuery;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 
-import com.helger.commons.collection.impl.CommonsArrayList;
-import com.helger.commons.collection.impl.ICommonsList;
-import com.helger.commons.datetime.PDTFactory;
+import com.helger.collection.commons.CommonsArrayList;
+import com.helger.collection.commons.ICommonsList;
+import com.helger.datetime.helper.PDTFactory;
 import com.helger.pd.indexer.PDIndexerTestRule;
 import com.helger.pd.indexer.businesscard.PDExtendedBusinessCard;
 import com.helger.pd.indexer.lucene.PDLucene;
@@ -45,6 +43,8 @@ import com.helger.peppol.businesscard.generic.PDIdentifier;
 import com.helger.peppol.businesscard.generic.PDName;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.peppol.doctype.EPredefinedDocumentTypeIdentifier;
+
+import jakarta.annotation.Nonnull;
 
 /**
  * Test class for class {@link PDStorageManager}.

@@ -16,10 +16,10 @@
  */
 package com.helger.pd.indexer.businesscard;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import com.helger.peppolid.IParticipantIdentifier;
+
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 /**
  * Abstract interface to retrieve the {@link PDExtendedBusinessCard} from a

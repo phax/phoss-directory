@@ -18,19 +18,19 @@ package com.helger.pd.indexer.index;
 
 import java.time.LocalDateTime;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.commons.string.StringHelper;
+import com.helger.base.string.StringHelper;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.factory.SimpleIdentifierFactory;
 import com.helger.xml.microdom.IMicroElement;
 import com.helger.xml.microdom.MicroElement;
 import com.helger.xml.microdom.convert.IMicroTypeConverter;
+
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 /**
  * {@link IMicroTypeConverter} implementation for {@link IndexerWorkItem}
@@ -66,13 +66,14 @@ public final class IndexerWorkItemMicroTypeConverter implements IMicroTypeConver
   @Nullable
   public IndexerWorkItem convertToNative (@Nonnull final IMicroElement aElement)
   {
-
     final String sID = aElement.getAttributeValue (ATTR_ID);
 
-    final LocalDateTime aCreationDT = aElement.getAttributeValueWithConversion (ATTR_CREATION_DATE_TIME, LocalDateTime.class);
+    final LocalDateTime aCreationDT = aElement.getAttributeValueWithConversion (ATTR_CREATION_DATE_TIME,
+                                                                                LocalDateTime.class);
 
     final String sParticipantID = StringHelper.trim (aElement.getAttributeValue (ATTR_PARTICIPANT_ID));
-    IParticipantIdentifier aParticipantID = PDMetaManager.getIdentifierFactory ().parseParticipantIdentifier (sParticipantID);
+    IParticipantIdentifier aParticipantID = PDMetaManager.getIdentifierFactory ()
+                                                         .parseParticipantIdentifier (sParticipantID);
     if (aParticipantID == null)
     {
       LOGGER.warn ("Failed to parse '" +

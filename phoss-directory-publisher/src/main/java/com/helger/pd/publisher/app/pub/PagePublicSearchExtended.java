@@ -18,9 +18,7 @@ package com.helger.pd.publisher.app.pub;
 
 import java.util.Locale;
 
-import javax.annotation.Nonnull;
-
-import com.helger.commons.annotation.Nonempty;
+import com.helger.annotation.Nonempty;
 import com.helger.html.hc.html.forms.HCEdit;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.publisher.search.EPDSearchField;
@@ -34,6 +32,8 @@ import com.helger.photon.bootstrap4.uictrls.datetimepicker.EBootstrap4DateTimePi
 import com.helger.photon.core.form.RequestField;
 import com.helger.photon.uicore.html.select.HCCountrySelect;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
+
+import jakarta.annotation.Nonnull;
 
 public final class PagePublicSearchExtended extends AbstractPagePublicSearch
 {

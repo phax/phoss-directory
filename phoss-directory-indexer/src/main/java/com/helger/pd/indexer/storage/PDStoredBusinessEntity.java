@@ -18,23 +18,20 @@ package com.helger.pd.indexer.storage;
 
 import java.time.LocalDate;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.NotThreadSafe;
-
 import org.apache.lucene.document.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.commons.ValueEnforcer;
-import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.annotation.ReturnsMutableCopy;
-import com.helger.commons.annotation.ReturnsMutableObject;
-import com.helger.commons.collection.impl.CommonsArrayList;
-import com.helger.commons.collection.impl.ICommonsList;
-import com.helger.commons.datetime.PDTWebDateHelper;
-import com.helger.commons.string.StringHelper;
-import com.helger.commons.string.ToStringGenerator;
+import com.helger.annotation.Nonempty;
+import com.helger.annotation.concurrent.NotThreadSafe;
+import com.helger.annotation.style.ReturnsMutableCopy;
+import com.helger.annotation.style.ReturnsMutableObject;
+import com.helger.base.enforce.ValueEnforcer;
+import com.helger.base.string.StringHelper;
+import com.helger.base.tostring.ToStringGenerator;
+import com.helger.collection.commons.CommonsArrayList;
+import com.helger.collection.commons.ICommonsList;
+import com.helger.datetime.web.PDTWebDateHelper;
 import com.helger.json.IJson;
 import com.helger.json.IJsonArray;
 import com.helger.json.IJsonObject;
@@ -49,12 +46,14 @@ import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.xml.microdom.IMicroElement;
 import com.helger.xml.microdom.MicroElement;
 
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
+
 /**
- * This class represents a document stored in the Lucene index but with a nicer
- * API to not work on a field basis. It contains the data at a certain point of
- * time and this might not necessarily be the most current data. Modifications
- * to this object have no impact on the underlying Lucene document. This is a
- * like a temporary "view" on a Lucene document at a single point of time.
+ * This class represents a document stored in the Lucene index but with a nicer API to not work on a
+ * field basis. It contains the data at a certain point of time and this might not necessarily be
+ * the most current data. Modifications to this object have no impact on the underlying Lucene
+ * document. This is a like a temporary "view" on a Lucene document at a single point of time.
  *
  * @author Philip Helger
  */
@@ -107,7 +106,7 @@ public final class PDStoredBusinessEntity
 
   public boolean hasCountryCode ()
   {
-    return StringHelper.hasText (m_sCountryCode);
+    return StringHelper.isNotEmpty (m_sCountryCode);
   }
 
   void setCountryCode (@Nullable final String sCountryCode)
@@ -123,7 +122,7 @@ public final class PDStoredBusinessEntity
 
   public boolean hasGeoInfo ()
   {
-    return StringHelper.hasText (m_sGeoInfo);
+    return StringHelper.isNotEmpty (m_sGeoInfo);
   }
 
   void setGeoInfo (@Nullable final String sGeoInfo)
@@ -160,7 +159,7 @@ public final class PDStoredBusinessEntity
 
   public boolean hasAdditionalInformation ()
   {
-    return StringHelper.hasText (m_sAdditionalInformation);
+    return StringHelper.isNotEmpty (m_sAdditionalInformation);
   }
 
   void setAdditionalInformation (@Nullable final String sAdditionalInformation)
@@ -204,8 +203,7 @@ public final class PDStoredBusinessEntity
   }
 
   /**
-   * @return Parts of this {@link PDStoredBusinessEntity} as a
-   *         {@link PDBusinessEntity}.
+   * @return Parts of this {@link PDStoredBusinessEntity} as a {@link PDBusinessEntity}.
    */
   @Nonnull
   @ReturnsMutableCopy
@@ -242,8 +240,8 @@ public final class PDStoredBusinessEntity
    * Create the REST search response XML element.
    *
    * @param aDocs
-   *        All the documents that have the same participant ID. May neither be
-   *        <code>null</code> nor empty.
+   *        All the documents that have the same participant ID. May neither be <code>null</code>
+   *        nor empty.
    * @return The micro element
    */
   @Nonnull
@@ -254,50 +252,46 @@ public final class PDStoredBusinessEntity
     final PDStoredBusinessEntity aFirst = aDocs.getFirstOrNull ();
 
     final IMicroElement aMatch = new MicroElement ("match");
-    aMatch.appendElement ("participantID")
+    aMatch.addElement ("participantID")
           .setAttribute ("scheme", aFirst.m_aParticipantID.getScheme ())
-          .appendText (aFirst.m_aParticipantID.getValue ());
+          .addText (aFirst.m_aParticipantID.getValue ());
 
     // Add all document type IDs
     for (final IDocumentTypeIdentifier aDocTypeID : aFirst.m_aDocumentTypeIDs)
     {
-      aMatch.appendElement ("docTypeID")
-            .setAttribute ("scheme", aDocTypeID.getScheme ())
-            .appendText (aDocTypeID.getValue ());
+      aMatch.addElement ("docTypeID").setAttribute ("scheme", aDocTypeID.getScheme ()).addText (aDocTypeID.getValue ());
     }
 
     // Add all entities
     for (final PDStoredBusinessEntity aDoc : aDocs)
     {
-      final IMicroElement aEntity = aMatch.appendElement ("entity");
+      final IMicroElement aEntity = aMatch.addElement ("entity");
 
       for (final PDStoredMLName aName : aDoc.m_aNames)
-        aEntity.appendElement ("name")
-               .setAttribute ("language", aName.getLanguageCode ())
-               .appendText (aName.getName ());
+        aEntity.addElement ("name").setAttribute ("language", aName.getLanguageCode ()).addText (aName.getName ());
 
-      aEntity.appendElement ("countryCode").appendText (aDoc.m_sCountryCode);
+      aEntity.addElement ("countryCode").addText (aDoc.m_sCountryCode);
 
-      if (StringHelper.hasText (aDoc.m_sGeoInfo))
-        aEntity.appendElement ("geoInfo").appendText (aDoc.m_sGeoInfo);
+      if (StringHelper.isNotEmpty (aDoc.m_sGeoInfo))
+        aEntity.addElement ("geoInfo").addText (aDoc.m_sGeoInfo);
 
       for (final PDStoredIdentifier aID : aDoc.m_aIdentifiers)
-        aEntity.appendElement ("identifier").setAttribute ("scheme", aID.getScheme ()).appendText (aID.getValue ());
+        aEntity.addElement ("identifier").setAttribute ("scheme", aID.getScheme ()).addText (aID.getValue ());
 
       for (final String sWebsite : aDoc.m_aWebsiteURIs)
-        aEntity.appendElement ("website").appendText (sWebsite);
+        aEntity.addElement ("website").addText (sWebsite);
 
       for (final PDStoredContact aContact : aDoc.m_aContacts)
-        aEntity.appendElement ("contact")
+        aEntity.addElement ("contact")
                .setAttribute ("type", aContact.getType ())
                .setAttribute ("name", aContact.getName ())
                .setAttribute ("phone", aContact.getPhone ())
                .setAttribute ("email", aContact.getEmail ());
 
-      if (StringHelper.hasText (aDoc.m_sAdditionalInformation))
-        aEntity.appendElement ("additionalInfo").appendText (aDoc.m_sAdditionalInformation);
+      if (StringHelper.isNotEmpty (aDoc.m_sAdditionalInformation))
+        aEntity.addElement ("additionalInfo").addText (aDoc.m_sAdditionalInformation);
       if (aDoc.m_aRegistrationDate != null)
-        aEntity.appendElement ("regDate").appendText (PDTWebDateHelper.getAsStringXSD (aDoc.m_aRegistrationDate));
+        aEntity.addElement ("regDate").addText (PDTWebDateHelper.getAsStringXSD (aDoc.m_aRegistrationDate));
     }
 
     return aMatch;
@@ -323,15 +317,14 @@ public final class PDStoredBusinessEntity
     final PDStoredBusinessEntity aFirst = aDocs.getFirstOrNull ();
 
     final IJsonObject ret = new JsonObject ();
-    ret.addJson ("participantID",
-                 _getIDAsJson (aFirst.m_aParticipantID.getScheme (), aFirst.m_aParticipantID.getValue ()));
+    ret.add ("participantID", _getIDAsJson (aFirst.m_aParticipantID.getScheme (), aFirst.m_aParticipantID.getValue ()));
 
     // Add the items retrieved from SMP as well
     final IJsonArray aDocTypes = new JsonArray ();
     for (final IDocumentTypeIdentifier aDocTypeID : aFirst.m_aDocumentTypeIDs)
       aDocTypes.add (_getIDAsJson (aDocTypeID.getScheme (), aDocTypeID.getValue ()));
     if (aDocTypes.isNotEmpty ())
-      ret.addJson ("docTypes", aDocTypes);
+      ret.add ("docTypes", aDocTypes);
 
     final IJsonArray aEntities = new JsonArray ();
     for (final PDStoredBusinessEntity aDoc : aDocs)
@@ -343,24 +336,24 @@ public final class PDStoredBusinessEntity
       for (final PDStoredMLName aName : aDoc.m_aNames)
         aMLNames.add (_getMLNameAsJson (aName.getName (), aName.getLanguageCode ()));
       if (aMLNames.isNotEmpty ())
-        aEntity.addJson ("name", aMLNames);
+        aEntity.add ("name", aMLNames);
 
       aEntity.add ("countryCode", aDoc.m_sCountryCode);
 
-      if (StringHelper.hasText (aDoc.m_sGeoInfo))
+      if (StringHelper.isNotEmpty (aDoc.m_sGeoInfo))
         aEntity.add ("geoInfo", aDoc.m_sGeoInfo);
 
       final IJsonArray aIDs = new JsonArray ();
       for (final PDStoredIdentifier aID : aDoc.m_aIdentifiers)
         aIDs.add (_getIDAsJson (aID.getScheme (), aID.getValue ()));
       if (aIDs.isNotEmpty ())
-        aEntity.addJson ("identifiers", aIDs);
+        aEntity.add ("identifiers", aIDs);
 
       final IJsonArray aWebsites = new JsonArray ();
       for (final String sWebsite : aDoc.m_aWebsiteURIs)
         aWebsites.add (sWebsite);
       if (aWebsites.isNotEmpty ())
-        aEntity.addJson ("websites", aWebsites);
+        aEntity.add ("websites", aWebsites);
 
       final IJsonArray aContacts = new JsonArray ();
       for (final PDStoredContact aContact : aDoc.m_aContacts)
@@ -369,16 +362,16 @@ public final class PDStoredBusinessEntity
                                         .addIfNotNull ("phone", aContact.getPhone ())
                                         .addIfNotNull ("email", aContact.getEmail ()));
       if (aContacts.isNotEmpty ())
-        aEntity.addJson ("contacts", aContacts);
+        aEntity.add ("contacts", aContacts);
 
-      if (StringHelper.hasText (aDoc.m_sAdditionalInformation))
+      if (StringHelper.isNotEmpty (aDoc.m_sAdditionalInformation))
         aEntity.add ("additionalInfo", aDoc.m_sAdditionalInformation);
       if (aDoc.m_aRegistrationDate != null)
         aEntity.add ("regDate", PDTWebDateHelper.getAsStringXSD (aDoc.m_aRegistrationDate));
 
       aEntities.add (aEntity);
     }
-    ret.addJson ("entities", aEntities);
+    ret.add ("entities", aEntities);
     return ret;
   }
 
@@ -400,9 +393,8 @@ public final class PDStoredBusinessEntity
   }
 
   /**
-   * Convert a stored Lucene {@link Document} to a
-   * {@link PDStoredBusinessEntity}. This method resolves all Lucene fields to
-   * Java fields.
+   * Convert a stored Lucene {@link Document} to a {@link PDStoredBusinessEntity}. This method
+   * resolves all Lucene fields to Java fields.
    *
    * @param aDoc
    *        Source Lucene document. May not be <code>null</code>.

@@ -16,15 +16,13 @@
  */
 package com.helger.pd.publisher.servlet;
 
-import javax.annotation.Nonnull;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.commons.collection.impl.ICommonsList;
-import com.helger.commons.http.CHttp;
-import com.helger.commons.string.StringHelper;
-import com.helger.commons.url.SimpleURL;
+import com.helger.base.string.StringHelper;
+import com.helger.http.CHttp;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.publisher.app.AppCommonUI;
 import com.helger.pd.publisher.app.pub.CMenuPublic;
@@ -35,9 +33,11 @@ import com.helger.peppolid.factory.PeppolIdentifierFactory;
 import com.helger.photon.core.requestparam.RequestParameterManager;
 import com.helger.photon.uicore.css.CPageParam;
 import com.helger.servlet.response.UnifiedResponse;
+import com.helger.url.SimpleURL;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 import com.helger.xservlet.handler.simple.IXServletSimpleHandler;
 
+import jakarta.annotation.Nonnull;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
@@ -71,10 +71,10 @@ public final class PublicParticipantXServletHandler implements IXServletSimpleHa
     // http://127.0.0.1:8080/participant/ -> "/"
     // http://127.0.0.1:8080/participant/x -> "/x"
     final String sPathInfo = StringHelper.getNotNull (aRequestScope.getPathInfo (), "");
-    final ICommonsList <String> aParts = StringHelper.getExploded ('/', sPathInfo.substring (1));
+    final List <String> aParts = StringHelper.getExploded ('/', sPathInfo.substring (1));
 
     IParticipantIdentifier aPI = null;
-    if (aParts.isNotEmpty ())
+    if (!aParts.isEmpty ())
     {
       final String sID = aParts.get (0);
       aPI = PDMetaManager.getIdentifierFactory ().parseParticipantIdentifier (sID);

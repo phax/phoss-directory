@@ -16,10 +16,10 @@
  */
 package com.helger.pd.publisher.app.pub;
 
-import javax.annotation.Nonnull;
-
-import com.helger.commons.annotation.UsedViaReflection;
+import com.helger.annotation.style.UsedViaReflection;
 import com.helger.web.scope.singleton.AbstractSessionWebSingleton;
+
+import jakarta.annotation.Nonnull;
 
 public final class CaptchaSessionSingleton extends AbstractSessionWebSingleton
 {

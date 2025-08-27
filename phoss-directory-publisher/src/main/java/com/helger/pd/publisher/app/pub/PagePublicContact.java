@@ -18,12 +18,10 @@ package com.helger.pd.publisher.app.pub;
 
 import java.util.Locale;
 
-import javax.annotation.Nonnull;
-
-import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.email.EmailAddress;
-import com.helger.commons.email.EmailAddressHelper;
-import com.helger.commons.string.StringHelper;
+import com.helger.annotation.Nonempty;
+import com.helger.base.email.EmailAddress;
+import com.helger.base.email.EmailAddressHelper;
+import com.helger.base.string.StringHelper;
 import com.helger.html.hc.html.forms.HCEdit;
 import com.helger.html.hc.html.forms.HCHiddenField;
 import com.helger.html.hc.impl.HCNodeList;
@@ -47,6 +45,8 @@ import com.helger.photon.uictrls.autosize.HCTextAreaAutosize;
 import com.helger.smtp.data.EEmailType;
 import com.helger.smtp.data.EmailData;
 import com.helger.smtp.scope.ScopedMailAPI;
+
+import jakarta.annotation.Nonnull;
 
 public final class PagePublicContact extends AbstractAppWebPage
 {
@@ -77,17 +77,17 @@ public final class PagePublicContact extends AbstractAppWebPage
       final String sText = StringHelper.trim (aWPEC.params ().getAsString (FIELD_TEXT));
       final String sReCaptcha = StringHelper.trim (aWPEC.params ().getAsString ("g-recaptcha-response"));
 
-      if (StringHelper.hasNoText (sName))
+      if (StringHelper.isEmpty (sName))
         aFormErrors.addFieldError (FIELD_NAME, "Your name must be provided.");
-      if (StringHelper.hasNoText (sEmail))
+      if (StringHelper.isEmpty (sEmail))
         aFormErrors.addFieldError (FIELD_EMAIL, "Your email address must be provided.");
       else
         if (!EmailAddressHelper.isValid (sEmail))
           aFormErrors.addFieldError (FIELD_EMAIL, "The provided email address is invalid.");
-      if (StringHelper.hasNoText (sText))
+      if (StringHelper.isEmpty (sText))
         aFormErrors.addFieldError (FIELD_TEXT, "A message text must be provided.");
 
-      if (aFormErrors.isEmpty () || StringHelper.hasText (sReCaptcha))
+      if (aFormErrors.isEmpty () || StringHelper.isNotEmpty (sReCaptcha))
       {
         if (!CaptchaSessionSingleton.getInstance ().isChecked ())
         {

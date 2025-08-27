@@ -16,8 +16,7 @@
  */
 package com.helger.pd.searchapi;
 
-import javax.annotation.concurrent.NotThreadSafe;
-
+import com.helger.annotation.concurrent.NotThreadSafe;
 import com.helger.jaxb.GenericJAXBMarshaller;
 import com.helger.pd.searchapi.v1.ObjectFactory;
 import com.helger.pd.searchapi.v1.ResultListType;

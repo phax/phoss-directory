@@ -18,17 +18,17 @@ package com.helger.pd.indexer.mgr;
 
 import java.util.function.Consumer;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.commons.state.ESuccess;
+import com.helger.annotation.Nonnegative;
+import com.helger.base.state.ESuccess;
 import com.helger.pd.indexer.businesscard.IPDBusinessCardProvider;
 import com.helger.pd.indexer.businesscard.PDExtendedBusinessCard;
 import com.helger.pd.indexer.index.IIndexerWorkItem;
 import com.helger.peppolid.IParticipantIdentifier;
+
+import jakarta.annotation.Nonnull;
 
 /**
  * Internal class to execute a single work item. It is invoked by the

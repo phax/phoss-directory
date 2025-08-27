@@ -19,11 +19,10 @@ package com.helger.pd.publisher.app;
 import java.util.List;
 import java.util.Locale;
 
-import javax.annotation.concurrent.Immutable;
-
-import com.helger.commons.annotation.CodingStyleguideUnaware;
-import com.helger.commons.collection.impl.CommonsArrayList;
-import com.helger.commons.collection.impl.ICommonsMap;
+import com.helger.annotation.concurrent.Immutable;
+import com.helger.annotation.style.CodingStyleguideUnaware;
+import com.helger.collection.commons.CommonsArrayList;
+import com.helger.collection.commons.ICommonsMap;
 import com.helger.photon.security.CSecurity;
 import com.helger.photon.security.login.LoggedInUserManager;
 import com.helger.photon.security.mgr.PhotonSecurityManager;

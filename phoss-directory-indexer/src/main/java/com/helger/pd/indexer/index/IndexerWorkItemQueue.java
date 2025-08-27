@@ -23,22 +23,21 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import javax.annotation.Nonnull;
-
-import com.helger.commons.ValueEnforcer;
-import com.helger.commons.annotation.ReturnsMutableCopy;
-import com.helger.commons.annotation.ReturnsMutableObject;
-import com.helger.commons.collection.impl.ICommonsList;
-import com.helger.commons.concurrent.BasicThreadFactory;
-import com.helger.commons.concurrent.ExecutorServiceHelper;
+import com.helger.annotation.style.ReturnsMutableCopy;
+import com.helger.annotation.style.ReturnsMutableObject;
+import com.helger.base.concurrent.BasicThreadFactoryBuilder;
+import com.helger.base.concurrent.ExecutorServiceHelper;
+import com.helger.base.enforce.ValueEnforcer;
+import com.helger.collection.commons.ICommonsList;
 import com.helger.commons.concurrent.collector.ConcurrentCollectorSingle;
 import com.helger.commons.concurrent.collector.IConcurrentPerformer;
 
+import jakarta.annotation.Nonnull;
+
 /**
- * The indexer queue that holds all items to be indexed initially. If indexing
- * fails, items are shifted to the re-index list (see
- * {@link com.helger.pd.indexer.reindex.ReIndexWorkItemList}) where graceful
- * retries will happen.
+ * The indexer queue that holds all items to be indexed initially. If indexing fails, items are
+ * shifted to the re-index list (see {@link com.helger.pd.indexer.reindex.ReIndexWorkItemList})
+ * where graceful retries will happen.
  *
  * @author Philip Helger
  */
@@ -46,10 +45,10 @@ public final class IndexerWorkItemQueue
 {
   private final LinkedBlockingQueue <Object> m_aQueue;
   private final ConcurrentCollectorSingle <IIndexerWorkItem> m_aImmediateCollector;
-  private final ThreadFactory m_aThreadFactory = new BasicThreadFactory.Builder ().namingPattern ("pd-indexer-%d")
-                                                                                  .daemon (false)
-                                                                                  .priority (Thread.NORM_PRIORITY)
-                                                                                  .build ();
+  private final ThreadFactory m_aThreadFactory = new BasicThreadFactoryBuilder ().namingPattern ("pd-indexer-%d")
+                                                                                 .daemon (false)
+                                                                                 .priority (Thread.NORM_PRIORITY)
+                                                                                 .build ();
 
   private final ExecutorService m_aSenderThreadPool = new ThreadPoolExecutor (1,
                                                                               2,
@@ -62,8 +61,7 @@ public final class IndexerWorkItemQueue
    * Constructor.
    *
    * @param aPerformer
-   *        The executor that will effective handle work items (e.g. retrieve
-   *        from SMP).
+   *        The executor that will effective handle work items (e.g. retrieve from SMP).
    */
   public IndexerWorkItemQueue (@Nonnull final IConcurrentPerformer <IIndexerWorkItem> aPerformer)
   {
@@ -80,8 +78,7 @@ public final class IndexerWorkItemQueue
   /**
    * Stop the indexer work queue immediately.
    *
-   * @return The list of all remaining objects in the queue. Never
-   *         <code>null</code>.
+   * @return The list of all remaining objects in the queue. Never <code>null</code>.
    */
   @Nonnull
   @ReturnsMutableCopy
@@ -100,8 +97,8 @@ public final class IndexerWorkItemQueue
   }
 
   /**
-   * @return The internal queue. Handle with care - usually you don't need that
-   *         one. Never <code>null</code>,
+   * @return The internal queue. Handle with care - usually you don't need that one. Never
+   *         <code>null</code>,
    */
   @Nonnull
   @ReturnsMutableObject
