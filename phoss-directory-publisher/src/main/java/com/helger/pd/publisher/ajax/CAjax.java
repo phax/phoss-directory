@@ -16,15 +16,15 @@
  */
 package com.helger.pd.publisher.ajax;
 
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.Immutable;
-
+import com.helger.annotation.concurrent.Immutable;
 import com.helger.pd.publisher.app.AppCommonUI;
 import com.helger.photon.ajax.IAjaxRegistry;
 import com.helger.photon.ajax.decl.AjaxFunctionDeclaration;
 import com.helger.photon.ajax.decl.IAjaxFunctionDeclaration;
 import com.helger.photon.uictrls.datatables.ajax.AjaxExecutorDataTables;
 import com.helger.photon.uictrls.datatables.ajax.AjaxExecutorDataTablesI18N;
+
+import jakarta.annotation.Nonnull;
 
 /**
  * This class defines the available ajax functions for the application.

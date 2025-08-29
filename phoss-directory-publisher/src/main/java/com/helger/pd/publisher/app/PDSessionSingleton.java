@@ -16,19 +16,19 @@
  */
 package com.helger.pd.publisher.app;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import org.apache.lucene.search.Query;
 
-import com.helger.commons.annotation.UsedViaReflection;
+import com.helger.annotation.style.UsedViaReflection;
 import com.helger.web.scope.singleton.AbstractSessionWebSingleton;
+
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 public final class PDSessionSingleton extends AbstractSessionWebSingleton
 {
   private Query m_aLastQuery;
 
-  @Deprecated
+  @Deprecated (forRemoval = false)
   @UsedViaReflection
   public PDSessionSingleton ()
   {}

@@ -23,8 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.xml.validation.Validator;
 
 import org.apache.lucene.search.BooleanClause.Occur;
@@ -33,25 +31,25 @@ import org.apache.lucene.search.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.collection.ArrayHelper;
-import com.helger.commons.collection.impl.CommonsArrayList;
-import com.helger.commons.collection.impl.CommonsEnumMap;
-import com.helger.commons.collection.impl.ICommonsList;
-import com.helger.commons.collection.impl.ICommonsMap;
-import com.helger.commons.datetime.PDTFactory;
-import com.helger.commons.datetime.PDTWebDateHelper;
-import com.helger.commons.error.IError;
-import com.helger.commons.http.CHttp;
-import com.helger.commons.http.CHttpHeader;
-import com.helger.commons.io.resource.ClassPathResource;
-import com.helger.commons.mime.CMimeType;
-import com.helger.commons.string.StringHelper;
+import com.helger.annotation.Nonempty;
+import com.helger.base.array.ArrayHelper;
+import com.helger.base.string.StringHelper;
+import com.helger.collection.commons.CommonsArrayList;
+import com.helger.collection.commons.CommonsEnumMap;
+import com.helger.collection.commons.ICommonsList;
+import com.helger.collection.commons.ICommonsMap;
+import com.helger.datetime.helper.PDTFactory;
+import com.helger.datetime.web.PDTWebDateHelper;
+import com.helger.diagnostics.error.IError;
+import com.helger.http.CHttp;
+import com.helger.http.CHttpHeader;
+import com.helger.io.resource.ClassPathResource;
 import com.helger.json.IJsonArray;
 import com.helger.json.IJsonObject;
 import com.helger.json.JsonArray;
 import com.helger.json.JsonObject;
 import com.helger.json.serialize.JsonWriterSettings;
+import com.helger.mime.CMimeType;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
@@ -74,6 +72,9 @@ import com.helger.xml.serialize.write.EXMLSerializeIndent;
 import com.helger.xml.serialize.write.XMLWriterSettings;
 import com.helger.xml.transform.TransformSourceFactory;
 import com.helger.xservlet.handler.simple.IXServletSimpleHandler;
+
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 /**
  * The REST search servlet. Handles only GET requests.
@@ -173,8 +174,8 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
       // Version 1.0
 
       // Determine output format
-      final ICommonsList <String> aParts = StringHelper.getExploded ('/', sPathInfo.substring (1));
-      final String sFormat = aParts.getAtIndex (1);
+      final List <String> aParts = StringHelper.getExploded ('/', sPathInfo.substring (1));
+      final String sFormat = aParts.size () >= 2 ? aParts.get (1) : null;
       final EPDOutputFormat eOutputFormat = EPDOutputFormat.getFromIDCaseInsensitiveOrDefault (sFormat,
                                                                                                EPDOutputFormat.XML);
       if (LOGGER.isDebugEnabled ())
@@ -348,7 +349,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
           final XMLWriterSettings aXWS = new XMLWriterSettings ().setIndent (bBeautify ? EXMLSerializeIndent.INDENT_AND_ALIGN
                                                                                        : EXMLSerializeIndent.NONE);
           final IMicroDocument aDoc = new MicroDocument ();
-          final IMicroElement eRoot = aDoc.appendElement ("resultlist");
+          final IMicroElement eRoot = aDoc.addElement ("resultlist");
           eRoot.setAttribute (RESPONSE_VERSION, eSearchVersion.getVersion ());
           eRoot.setAttribute (RESPONSE_TOTAL_RESULT_COUNT, nTotalBEs);
           eRoot.setAttribute (RESPONSE_USED_RESULT_COUNT, aResultView.size ());
@@ -362,7 +363,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
           for (final ICommonsList <PDStoredBusinessEntity> aPerParticipant : aGroupedDocs.values ())
           {
             final IMicroElement eItem = PDStoredBusinessEntity.getAsSearchResultMicroElement (aPerParticipant);
-            eRoot.appendChild (eItem);
+            eRoot.addChild (eItem);
           }
           if (false)
           {
@@ -397,7 +398,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
             final IJsonObject aItem = PDStoredBusinessEntity.getAsSearchResultJsonObject (aPerParticipant);
             aMatches.add (aItem);
           }
-          aDoc.addJson ("matches", aMatches);
+          aDoc.add ("matches", aMatches);
 
           aUnifiedResponse.setContentAndCharset (aDoc.getAsJsonString (aJWS), StandardCharsets.UTF_8);
           break;

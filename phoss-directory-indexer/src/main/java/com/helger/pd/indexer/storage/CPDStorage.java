@@ -16,8 +16,9 @@
  */
 package com.helger.pd.indexer.storage;
 
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
+import com.helger.annotation.concurrent.Immutable;
+
+import jakarta.annotation.Nullable;
 
 /**
  * Constants Lucene field names

@@ -18,22 +18,21 @@ package com.helger.pd.indexer.rest;
 
 import java.io.IOException;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.equals.EqualsHelper;
-import com.helger.commons.url.URLHelper;
+import com.helger.annotation.Nonempty;
+import com.helger.base.equals.EqualsHelper;
 import com.helger.pd.indexer.clientcert.ClientCertificateValidationResult;
 import com.helger.pd.indexer.clientcert.ClientCertificateValidator;
 import com.helger.pd.indexer.index.EIndexerWorkItemType;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.factory.IIdentifierFactory;
+import com.helger.url.codec.URLCoder;
 
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -55,8 +54,7 @@ public class IndexerResource
   private static final Logger LOGGER = LoggerFactory.getLogger (IndexerResource.class);
 
   /**
-   * Check if the current request contains a client certificate and whether it
-   * is valid.
+   * Check if the current request contains a client certificate and whether it is valid.
    *
    * @param aHttpServletRequest
    *        The current servlet request. May not be <code>null</code>.
@@ -98,7 +96,7 @@ public class IndexerResource
       return null;
 
     final String sTrimmed = sParticipantID.trim ();
-    return URLHelper.urlDecodeOrDefault (sTrimmed, sTrimmed);
+    return URLCoder.urlDecodeOrDefault (sTrimmed, sTrimmed);
   }
 
   @PUT

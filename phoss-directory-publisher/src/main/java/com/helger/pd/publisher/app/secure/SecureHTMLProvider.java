@@ -18,10 +18,7 @@ package com.helger.pd.publisher.app.secure;
 
 import java.util.Locale;
 
-import javax.annotation.Nonnull;
-
-import com.helger.commons.string.StringHelper;
-import com.helger.commons.url.ISimpleURL;
+import com.helger.base.string.StringHelper;
 import com.helger.html.hc.IHCNode;
 import com.helger.html.hc.html.IHCElement;
 import com.helger.html.hc.html.grouping.HCDiv;
@@ -58,8 +55,11 @@ import com.helger.photon.core.servlet.LogoutServlet;
 import com.helger.photon.security.login.LoggedInUserManager;
 import com.helger.photon.security.user.IUser;
 import com.helger.photon.security.util.SecurityHelper;
+import com.helger.url.ISimpleURL;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 import com.helger.xservlet.forcedredirect.ForcedRedirectException;
+
+import jakarta.annotation.Nonnull;
 
 /**
  * Main class for creating HTML output
@@ -79,8 +79,8 @@ public class SecureHTMLProvider extends AbstractSWECHTMLProvider
     final BootstrapNavbar aNavbar = new BootstrapNavbar ();
     aNavbar.addBrand (new HCNodeList ().addChild (new HCSpan ().addClass (AppCommonUI.CSS_CLASS_LOGO1)
                                                                .addChild (CPDPublisher.getApplicationTitle ()))
-                                       .addChild (new HCSpan ().addClass (AppCommonUI.CSS_CLASS_LOGO2).addChild (" Administration")),
-                      aLinkToStartPage);
+                                       .addChild (new HCSpan ().addClass (AppCommonUI.CSS_CLASS_LOGO2)
+                                                               .addChild (" Administration")), aLinkToStartPage);
 
     final BootstrapNavbarToggleable aToggleable = aNavbar.addAndReturnToggleable ();
 
@@ -131,7 +131,8 @@ public class SecureHTMLProvider extends AbstractSWECHTMLProvider
     // Content
     {
       final HCDiv aRow = aOuterContainer.addAndReturnChild (new HCDiv ().addClass (CBootstrapCSS.D_MD_FLEX));
-      final HCDiv aCol1 = aRow.addAndReturnChild (new HCDiv ().addClass (CBootstrapCSS.D_MD_FLEX).addClass (CBootstrapCSS.MR_2));
+      final HCDiv aCol1 = aRow.addAndReturnChild (new HCDiv ().addClass (CBootstrapCSS.D_MD_FLEX)
+                                                              .addClass (CBootstrapCSS.MR_2));
       final HCDiv aCol2 = aRow.addAndReturnChild (new HCDiv ().addClass (CBootstrapCSS.FLEX_FILL));
 
       // left
@@ -152,7 +153,8 @@ public class SecureHTMLProvider extends AbstractSWECHTMLProvider
   }
 
   @Override
-  protected void fillBody (@Nonnull final ISimpleWebExecutionContext aSWEC, @Nonnull final HCHtml aHtml) throws ForcedRedirectException
+  protected void fillBody (@Nonnull final ISimpleWebExecutionContext aSWEC, @Nonnull final HCHtml aHtml)
+                                                                                                         throws ForcedRedirectException
   {
     final IRequestWebScopeWithoutResponse aRequestScope = aSWEC.getRequestScope ();
     final Locale aDisplayLocale = aSWEC.getDisplayLocale ();

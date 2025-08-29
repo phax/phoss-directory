@@ -18,12 +18,10 @@ package com.helger.pd.publisher.app.secure;
 
 import java.io.IOException;
 
-import javax.annotation.Nonnull;
-
 import org.apache.lucene.index.DirectoryReader;
 
-import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.lang.StackTraceHelper;
+import com.helger.annotation.Nonempty;
+import com.helger.base.rt.StackTraceHelper;
 import com.helger.html.hc.ext.HCExtHelper;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.lucene.PDLucene;
@@ -31,6 +29,8 @@ import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.photon.bootstrap4.table.BootstrapTable;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
+
+import jakarta.annotation.Nonnull;
 
 /**
  * Information on the Lucene Index.

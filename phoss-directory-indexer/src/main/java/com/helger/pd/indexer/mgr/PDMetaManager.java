@@ -16,20 +16,17 @@
  */
 package com.helger.pd.indexer.mgr;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.GuardedBy;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.commons.ValueEnforcer;
-import com.helger.commons.annotation.UsedViaReflection;
-import com.helger.commons.concurrent.SimpleReadWriteLock;
-import com.helger.commons.debug.GlobalDebug;
-import com.helger.commons.exception.InitializationException;
-import com.helger.commons.io.stream.StreamHelper;
-import com.helger.commons.lang.ClassHelper;
+import com.helger.annotation.concurrent.GuardedBy;
+import com.helger.annotation.style.UsedViaReflection;
+import com.helger.base.concurrent.SimpleReadWriteLock;
+import com.helger.base.debug.GlobalDebug;
+import com.helger.base.enforce.ValueEnforcer;
+import com.helger.base.exception.InitializationException;
+import com.helger.base.io.stream.StreamHelper;
+import com.helger.base.lang.clazz.ClassHelper;
 import com.helger.pd.indexer.businesscard.IPDBusinessCardProvider;
 import com.helger.pd.indexer.lucene.PDLucene;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
@@ -39,9 +36,12 @@ import com.helger.photon.core.interror.InternalErrorBuilder;
 import com.helger.scope.IScope;
 import com.helger.scope.singleton.AbstractGlobalSingleton;
 
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
+
 /**
- * The Peppol Directory meta manager. It consists all the other managers for the
- * Peppol Directory indexing.
+ * The Peppol Directory meta manager. It consists all the other managers for the Peppol Directory
+ * indexing.
  *
  * @author Philip Helger
  */
@@ -59,7 +59,7 @@ public final class PDMetaManager extends AbstractGlobalSingleton
   private PDStorageManager m_aStorageMgr;
   private PDIndexerManager m_aIndexerMgr;
 
-  @Deprecated
+  @Deprecated (forRemoval = false)
   @UsedViaReflection
   public PDMetaManager ()
   {}
@@ -79,7 +79,9 @@ public final class PDMetaManager extends AbstractGlobalSingleton
     {
       if (GlobalDebug.isProductionMode ())
       {
-        new InternalErrorBuilder ().setThrowable (ex).addErrorMessage (ClassHelper.getClassLocalName (this) + " init failed").handle ();
+        new InternalErrorBuilder ().setThrowable (ex)
+                                   .addErrorMessage (ClassHelper.getClassLocalName (this) + " init failed")
+                                   .handle ();
       }
 
       throw new InitializationException ("Failed to init " + ClassHelper.getClassLocalName (this), ex);
@@ -101,8 +103,7 @@ public final class PDMetaManager extends AbstractGlobalSingleton
   }
 
   /**
-   * @return The global {@link IPDBusinessCardProvider}. May be
-   *         <code>null</code> .
+   * @return The global {@link IPDBusinessCardProvider}. May be <code>null</code> .
    */
   @Nullable
   public static IPDBusinessCardProvider getBusinessCardProviderOrNull ()
@@ -111,8 +112,7 @@ public final class PDMetaManager extends AbstractGlobalSingleton
   }
 
   /**
-   * @return The global {@link IPDBusinessCardProvider}. Never <code>null</code>
-   *         .
+   * @return The global {@link IPDBusinessCardProvider}. Never <code>null</code> .
    */
   @Nonnull
   public static IPDBusinessCardProvider getBusinessCardProvider ()
@@ -124,8 +124,7 @@ public final class PDMetaManager extends AbstractGlobalSingleton
   }
 
   /**
-   * Set the global {@link IPDBusinessCardProvider} that is used for future
-   * create/update requests.
+   * Set the global {@link IPDBusinessCardProvider} that is used for future create/update requests.
    *
    * @param aBCProvider
    *        Business card provider to be used. May not be <code>null</code>.

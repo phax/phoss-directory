@@ -19,19 +19,16 @@ package com.helger.pd.indexer.settings;
 import java.net.URI;
 import java.net.URL;
 
-import javax.annotation.CheckForSigned;
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
-
-import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.annotation.UsedViaReflection;
-import com.helger.commons.collection.impl.CommonsArrayList;
-import com.helger.commons.collection.impl.ICommonsList;
-import com.helger.commons.debug.GlobalDebug;
-import com.helger.commons.string.StringHelper;
-import com.helger.commons.url.URLHelper;
+import com.helger.annotation.CheckForSigned;
+import com.helger.annotation.Nonempty;
+import com.helger.annotation.Nonnegative;
+import com.helger.annotation.concurrent.Immutable;
+import com.helger.annotation.style.UsedViaReflection;
+import com.helger.base.debug.GlobalDebug;
+import com.helger.base.string.StringHelper;
+import com.helger.base.url.URLHelper;
+import com.helger.collection.commons.CommonsArrayList;
+import com.helger.collection.commons.ICommonsList;
 import com.helger.config.ConfigFactory;
 import com.helger.config.fallback.ConfigWithFallback;
 import com.helger.config.fallback.IConfigWithFallback;
@@ -48,9 +45,19 @@ import com.helger.smpclient.url.BDXLURLProvider;
 import com.helger.smpclient.url.ISMPURLProvider;
 import com.helger.smpclient.url.PeppolConfigurableURLProvider;
 
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
+
 /**
- * This class manages the configuration properties of the Peppol Directory Server. It uses the
- * default configuration value providers.
+ * This class manages the configuration properties of the Peppol Directory Server. The order of the
+ * properties file resolving is as follows:
+ * <ol>
+ * <li>Check for the value of the system property
+ * <code>peppol.directory.server.properties.path</code></li>
+ * <li>Check for the value of the system property <code>directory.server.properties.path</code></li>
+ * <li>The filename <code>private-pd.properties</code> in the root of the classpath</li>
+ * <li>The filename <code>pd.properties</code> in the root of the classpath</li>
+ * </ol>
  *
  * @author Philip Helger
  */
@@ -59,7 +66,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
 {
   private static final IConfigWithFallback DEFAULT_INSTANCE = new ConfigWithFallback (ConfigFactory.createDefaultValueProvider ());
 
-  @Deprecated
+  @Deprecated (forRemoval = false)
   @UsedViaReflection
   private PDServerConfiguration ()
   {}
@@ -76,7 +83,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   /**
    * Read value of <code>global.debug</code>
    *
-   * @return The global debug flag to be used in {@link com.helger.commons.debug.GlobalDebug}.
+   * @return The global debug flag to be used in {@link com.helger.base.debug.GlobalDebug}.
    */
   @Nullable
   public static String getGlobalDebug ()
@@ -87,7 +94,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   /**
    * Read value of <code>global.production</code>
    *
-   * @return The global production flag to be used in {@link com.helger.commons.debug.GlobalDebug}.
+   * @return The global production flag to be used in {@link com.helger.base.debug.GlobalDebug}.
    */
   @Nullable
   public static String getGlobalProduction ()
@@ -187,7 +194,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   public static URL getWebAppContactExternalURL ()
   {
     final String sURL = getConfig ().getAsString ("webapp.contact.external.url");
-    return StringHelper.hasText (sURL) ? URLHelper.getAsURL (sURL, false) : null;
+    return StringHelper.isNotEmpty (sURL) ? URLHelper.getAsURL (sURL, false) : null;
   }
 
   @Nullable
@@ -223,7 +230,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
     while (true)
     {
       final String sValue = getConfig ().getAsString ("clientcert.issuer." + nIndex);
-      if (StringHelper.hasNoText (sValue))
+      if (StringHelper.isEmpty (sValue))
         break;
 
       // Present - try next
@@ -256,7 +263,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
       final String sPassword = getConfig ().getAsString (sPrefix + ".password");
       final String sAlias = getConfig ().getAsString (sPrefix + ".alias");
 
-      if (StringHelper.hasNoText (sPath) || StringHelper.hasNoText (sPassword) || StringHelper.hasNoText (sAlias))
+      if (StringHelper.isEmpty (sPath) || StringHelper.isEmpty (sPassword) || StringHelper.isEmpty (sAlias))
         break;
 
       // Present - try next

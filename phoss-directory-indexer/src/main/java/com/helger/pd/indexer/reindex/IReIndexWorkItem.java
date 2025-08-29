@@ -19,15 +19,15 @@ package com.helger.pd.indexer.reindex;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.datetime.PDTFactory;
-import com.helger.commons.name.IHasDisplayName;
-import com.helger.commons.type.ITypedObject;
+import com.helger.annotation.Nonempty;
+import com.helger.annotation.Nonnegative;
+import com.helger.base.name.IHasDisplayName;
+import com.helger.base.type.ITypedObject;
+import com.helger.datetime.helper.PDTFactory;
 import com.helger.pd.indexer.index.IIndexerWorkItem;
+
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 /**
  * This class holds a single item to be re-indexed. It is only invoked if

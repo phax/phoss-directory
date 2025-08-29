@@ -16,15 +16,15 @@
  */
 package com.helger.pd.publisher.app.secure;
 
-import javax.annotation.Nonnull;
-
-import com.helger.commons.annotation.Nonempty;
+import com.helger.annotation.Nonempty;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.mgr.PDIndexerManager;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.reindex.IReIndexWorkItemList;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
+
+import jakarta.annotation.Nonnull;
 
 public final class PageSecureListReIndex extends AbstractPageSecureReIndex
 {

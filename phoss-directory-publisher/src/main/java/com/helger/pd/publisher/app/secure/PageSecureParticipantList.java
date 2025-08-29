@@ -20,16 +20,13 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.annotation.Nonnull;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.collection.impl.ICommonsSortedMap;
-import com.helger.commons.compare.ESortOrder;
-import com.helger.commons.mutable.MutableInt;
-import com.helger.commons.url.ISimpleURL;
+import com.helger.annotation.Nonempty;
+import com.helger.base.compare.ESortOrder;
+import com.helger.base.numeric.mutable.MutableInt;
+import com.helger.collection.commons.ICommonsSortedMap;
 import com.helger.html.hc.html.tabular.HCRow;
 import com.helger.html.hc.html.tabular.HCTable;
 import com.helger.html.hc.html.tabular.IHCCell;
@@ -48,7 +45,10 @@ import com.helger.photon.uicore.css.CPageParam;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 import com.helger.photon.uictrls.datatables.column.DTCol;
 import com.helger.photon.uictrls.datatables.column.EDTColType;
+import com.helger.url.ISimpleURL;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
+
+import jakarta.annotation.Nonnull;
 
 public final class PageSecureParticipantList extends AbstractAppWebPage
 {
@@ -95,7 +95,8 @@ public final class PageSecureParticipantList extends AbstractAppWebPage
       }
     }
 
-    final ICommonsSortedMap <IParticipantIdentifier, MutableInt> aAllIDs = PDMetaManager.getStorageMgr ().getAllContainedParticipantIDs ();
+    final ICommonsSortedMap <IParticipantIdentifier, MutableInt> aAllIDs = PDMetaManager.getStorageMgr ()
+                                                                                        .getAllContainedParticipantIDs ();
     aNodeList.addChild (h3 (aAllIDs.size () + " participants (=Business Cards) are contained"));
 
     int nMaxEntries;
@@ -134,7 +135,8 @@ public final class PageSecureParticipantList extends AbstractAppWebPage
       aRow.addCell (Integer.toString (aEntry.getValue ().intValue ()));
 
       final IHCCell <?> aActionCell = aRow.addCell ();
-      final ISimpleURL aShowDetails = aWPEC.getLinkToMenuItem (CApplicationID.APP_ID_PUBLIC, CMenuPublic.MENU_SEARCH_SIMPLE)
+      final ISimpleURL aShowDetails = aWPEC.getLinkToMenuItem (CApplicationID.APP_ID_PUBLIC,
+                                                               CMenuPublic.MENU_SEARCH_SIMPLE)
                                            .add (PagePublicSearchSimple.FIELD_QUERY, sParticipantID)
                                            .add (CPageParam.PARAM_ACTION, CPageParam.ACTION_VIEW)
                                            .add (PagePublicSearchSimple.FIELD_PARTICIPANT_ID, sParticipantID);

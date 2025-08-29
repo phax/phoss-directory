@@ -22,23 +22,21 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.GuardedBy;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.commons.ValueEnforcer;
-import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.collection.impl.CommonsHashSet;
-import com.helger.commons.collection.impl.ICommonsList;
-import com.helger.commons.collection.impl.ICommonsSet;
-import com.helger.commons.concurrent.SimpleReadWriteLock;
-import com.helger.commons.datetime.PDTFactory;
-import com.helger.commons.io.file.FileOperationManager;
-import com.helger.commons.state.EChange;
-import com.helger.commons.string.ToStringGenerator;
+import com.helger.annotation.Nonempty;
+import com.helger.annotation.concurrent.GuardedBy;
+import com.helger.base.concurrent.SimpleReadWriteLock;
+import com.helger.base.enforce.ValueEnforcer;
+import com.helger.base.state.EChange;
+import com.helger.base.tostring.ToStringGenerator;
+import com.helger.collection.commons.CommonsHashSet;
+import com.helger.collection.commons.ICommonsList;
+import com.helger.collection.commons.ICommonsSet;
 import com.helger.dao.DAOException;
+import com.helger.datetime.helper.PDTFactory;
+import com.helger.io.file.FileOperationManager;
 import com.helger.pd.indexer.businesscard.IPDBusinessCardProvider;
 import com.helger.pd.indexer.index.EIndexerWorkItemType;
 import com.helger.pd.indexer.index.IIndexerWorkItem;
@@ -61,9 +59,11 @@ import com.helger.xml.microdom.convert.MicroTypeConverter;
 import com.helger.xml.microdom.serialize.MicroReader;
 import com.helger.xml.microdom.serialize.MicroWriter;
 
+import jakarta.annotation.Nonnull;
+
 /**
- * The global indexer manager that takes an item for queuing and maintains the
- * uniqueness of the items to queue.
+ * The global indexer manager that takes an item for queuing and maintains the uniqueness of the
+ * items to queue.
  *
  * @author Philip Helger
  */
@@ -84,10 +84,9 @@ public final class PDIndexerManager implements Closeable
   private final TriggerKey m_aTriggerKey;
 
   /**
-   * This set contains all work items that are not yet finished. It contains all
-   * items in the indexer work queue as well as the ones in the re-index work
-   * item list. Once the items are moved to the dead list, they are removed from
-   * here.
+   * This set contains all work items that are not yet finished. It contains all items in the
+   * indexer work queue as well as the ones in the re-index work item list. Once the items are moved
+   * to the dead list, they are removed from here.
    */
   @GuardedBy ("m_aRWLock")
   private final ICommonsSet <IIndexerWorkItem> m_aUniqueItems = new CommonsHashSet <> ();
@@ -120,12 +119,12 @@ public final class PDIndexerManager implements Closeable
    * Constructor.<br>
    * Initialized the work item queue, the re-index queue and the dead-queue.<br>
    * Schedules the re-index job.<br>
-   * Read all work items persisted to disk. This happens when the application is
-   * shutdown while elements are still in the queue.<br>
-   * Please note that the queuing of the items might directly trigger the usage
-   * of the {@link PDMetaManager#getBusinessCardProvider()} so make sure to call
-   * {@link PDMetaManager#setBusinessCardProvider(IPDBusinessCardProvider)}
-   * before calling this method.
+   * Read all work items persisted to disk. This happens when the application is shutdown while
+   * elements are still in the queue.<br>
+   * Please note that the queuing of the items might directly trigger the usage of the
+   * {@link PDMetaManager#getBusinessCardProvider()} so make sure to call
+   * {@link PDMetaManager#setBusinessCardProvider(IPDBusinessCardProvider)} before calling this
+   * method.
    *
    * @param aStorageMgr
    *        Storage manager to used. May not be <code>null</code>.
@@ -149,8 +148,8 @@ public final class PDIndexerManager implements Closeable
     m_aIndexerWorkQueue = new IndexerWorkItemQueue (aQueueItem -> PDIndexExecutor.executeWorkItem (m_aStorageMgr,
                                                                                                    aQueueItem,
                                                                                                    0,
-                                                                                                   aSuccessItem -> _onIndexSuccess (aSuccessItem),
-                                                                                                   aFailureItem -> _onIndexFailure (aFailureItem)));
+                                                                                                   this::_onIndexSuccess,
+                                                                                                   this::_onIndexFailure));
 
     // Schedule re-index job
     m_aTriggerKey = ReIndexJob.schedule (SimpleScheduleBuilder.repeatMinutelyForever (1));
@@ -184,9 +183,9 @@ public final class PDIndexerManager implements Closeable
     {
       LOGGER.info ("Persisting " + aRemainingWorkItems.size () + " indexer work items");
       final IMicroDocument aDoc = new MicroDocument ();
-      final IMicroElement eRoot = aDoc.appendElement (ELEMENT_ROOT);
+      final IMicroElement eRoot = aDoc.addElement (ELEMENT_ROOT);
       for (final IIndexerWorkItem aItem : aRemainingWorkItems)
-        eRoot.appendChild (MicroTypeConverter.convertToMicroElement (aItem, ELEMENT_ITEM));
+        eRoot.addChild (MicroTypeConverter.convertToMicroElement (aItem, ELEMENT_ITEM));
       if (MicroWriter.writeToFile (aDoc, m_aIndexerWorkItemFile).isFailure ())
         throw new IllegalStateException ("Failed to write IndexerWorkItems to " + m_aIndexerWorkItemFile);
     }
@@ -201,8 +200,7 @@ public final class PDIndexerManager implements Closeable
   }
 
   /**
-   * Queue a single work item of any type. If the item is already in the queue,
-   * it is ignored.
+   * Queue a single work item of any type. If the item is already in the queue, it is ignored.
    *
    * @param aWorkItem
    *        Work item to be queued. May not be <code>null</code>.
@@ -252,8 +250,8 @@ public final class PDIndexerManager implements Closeable
    *        Owner of this action
    * @param sRequestingHost
    *        Requesting host (IP address)
-   * @return {@link EChange#UNCHANGED} if the item was queued,
-   *         {@link EChange#UNCHANGED} if this item is already in the queue!
+   * @return {@link EChange#UNCHANGED} if the item was queued, {@link EChange#UNCHANGED} if this
+   *         item is already in the queue!
    */
   @Nonnull
   public EChange queueWorkItem (@Nonnull final IParticipantIdentifier aParticipantID,
@@ -268,9 +266,8 @@ public final class PDIndexerManager implements Closeable
   }
 
   /**
-   * Expire all re-index entries that are in the list for a too long time. This
-   * is called from a scheduled job only. All respective items are move from the
-   * re-index list to the dead list.
+   * Expire all re-index entries that are in the list for a too long time. This is called from a
+   * scheduled job only. All respective items are move from the re-index list to the dead list.
    */
   public void expireOldEntries ()
   {
@@ -293,8 +290,8 @@ public final class PDIndexerManager implements Closeable
   }
 
   /**
-   * Re-index all entries that are ready to be re-indexed now. This is called
-   * from a scheduled job only.
+   * Re-index all entries that are ready to be re-indexed now. This is called from a scheduled job
+   * only.
    */
   public void reIndexParticipantData ()
   {
@@ -313,14 +310,13 @@ public final class PDIndexerManager implements Closeable
       PDIndexExecutor.executeWorkItem (m_aStorageMgr,
                                        aReIndexItem.getWorkItem (),
                                        1 + aReIndexItem.getRetryCount (),
-                                       aSuccessItem -> _onReIndexSuccess (aSuccessItem),
+                                       this::_onReIndexSuccess,
                                        aFailureItem -> _onReIndexFailure (aReIndexItem));
     }
   }
 
   /**
-   * @return The queue with all work items. Never <code>null</code> but maybe
-   *         empty.
+   * @return The queue with all work items. Never <code>null</code> but maybe empty.
    */
   @Nonnull
   public IndexerWorkItemQueue getIndexerWorkQueue ()
@@ -329,8 +325,8 @@ public final class PDIndexerManager implements Closeable
   }
 
   /**
-   * @return A list with all items where the re-index period has expired. Never
-   *         <code>null</code> but maybe empty.
+   * @return A list with all items where the re-index period has expired. Never <code>null</code>
+   *         but maybe empty.
    */
   @Nonnull
   public IReIndexWorkItemList getReIndexList ()
@@ -339,8 +335,8 @@ public final class PDIndexerManager implements Closeable
   }
 
   /**
-   * @return A list with all items where the re-index period has expired. Never
-   *         <code>null</code> but maybe empty.
+   * @return A list with all items where the re-index period has expired. Never <code>null</code>
+   *         but maybe empty.
    */
   @Nonnull
   public IReIndexWorkItemList getDeadList ()

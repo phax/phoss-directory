@@ -19,8 +19,6 @@ package com.helger.pd.indexer.rest;
 import java.net.URI;
 import java.util.Map;
 
-import javax.annotation.Nonnull;
-
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.servlet.ServletRegistration;
 import org.glassfish.grizzly.servlet.WebappContext;
@@ -31,12 +29,14 @@ import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.glassfish.jersey.uri.UriComponent;
 
-import com.helger.commons.collection.impl.CommonsHashMap;
-import com.helger.commons.collection.impl.ICommonsMap;
-import com.helger.commons.io.resource.ClassPathResource;
-import com.helger.commons.io.stream.StreamHelper;
+import com.helger.base.io.stream.StreamHelper;
+import com.helger.collection.commons.CommonsHashMap;
+import com.helger.collection.commons.ICommonsMap;
+import com.helger.io.resource.ClassPathResource;
 import com.helger.peppol.security.PeppolTrustStores;
+import com.helger.security.keystore.EKeyStoreType;
 
+import jakarta.annotation.Nonnull;
 import jakarta.servlet.Servlet;
 
 /**
@@ -123,10 +123,10 @@ final class MockServer
     final SSLContextConfigurator aSSLContext = new SSLContextConfigurator ();
     aSSLContext.setKeyStoreFile ("src/test/resources/test-https-keystore.jks");
     aSSLContext.setKeyStorePass ("password");
-    aSSLContext.setKeyStoreType ("JKS");
-    aSSLContext.setTrustStoreBytes (StreamHelper.getAllBytes (new ClassPathResource (PeppolTrustStores.TRUSTSTORE_COMPLETE_CLASSPATH)));
+    aSSLContext.setKeyStoreType (EKeyStoreType.JKS.getID ());
+    aSSLContext.setTrustStoreBytes (StreamHelper.getAllBytes (new ClassPathResource (PeppolTrustStores.Config2025.TRUSTSTORE_SMP_TEST_CLASSPATH)));
     aSSLContext.setTrustStorePass (PeppolTrustStores.TRUSTSTORE_PASSWORD);
-    aSSLContext.setTrustStoreType ("JKS");
+    aSSLContext.setTrustStoreType (PeppolTrustStores.Config2025.TRUSTSTORE_TYPE.getID ());
     aSSLContext.setSecurityProtocol ("TLSv1.2");
 
     final SSLEngineConfigurator aSSLEngine = new SSLEngineConfigurator (aSSLContext);

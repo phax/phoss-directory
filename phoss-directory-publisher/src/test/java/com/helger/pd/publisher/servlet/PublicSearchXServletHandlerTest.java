@@ -23,7 +23,7 @@ import javax.xml.validation.Validator;
 
 import org.junit.Test;
 
-import com.helger.commons.io.resource.FileSystemResource;
+import com.helger.io.resource.FileSystemResource;
 import com.helger.xml.sax.CollectingSAXErrorHandler;
 import com.helger.xml.schema.XMLSchemaCache;
 

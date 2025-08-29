@@ -19,8 +19,6 @@ package com.helger.pd.indexer.lucene;
 import java.io.IOException;
 import java.util.function.ObjIntConsumer;
 
-import javax.annotation.Nonnull;
-
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.search.Collector;
@@ -29,8 +27,10 @@ import org.apache.lucene.search.SimpleCollector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.commons.ValueEnforcer;
-import com.helger.commons.string.ToStringGenerator;
+import com.helger.base.enforce.ValueEnforcer;
+import com.helger.base.tostring.ToStringGenerator;
+
+import jakarta.annotation.Nonnull;
 
 /**
  * A Lucene {@link Collector} that always collects all {@link Document} objects.

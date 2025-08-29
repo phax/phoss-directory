@@ -25,8 +25,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import javax.annotation.Nullable;
-
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.LongPoint;
@@ -42,9 +40,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 
-import com.helger.commons.io.file.FileOperationManager;
-import com.helger.commons.io.file.SimpleFileIO;
+import com.helger.io.file.FileOperationManager;
+import com.helger.io.file.SimpleFileIO;
 import com.helger.photon.app.mock.PhotonAppTestRule;
+
+import jakarta.annotation.Nullable;
 
 /**
  * Test class for class {@link PDLucene}.

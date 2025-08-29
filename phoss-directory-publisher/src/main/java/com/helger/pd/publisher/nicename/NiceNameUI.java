@@ -16,11 +16,8 @@
  */
 package com.helger.pd.publisher.nicename;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
-
-import com.helger.commons.string.StringHelper;
+import com.helger.annotation.concurrent.Immutable;
+import com.helger.base.string.StringHelper;
 import com.helger.html.hc.IHCNode;
 import com.helger.html.hc.html.AbstractHCElementWithChildren;
 import com.helger.html.hc.html.textlevel.HCCode;
@@ -34,6 +31,9 @@ import com.helger.peppolid.IProcessIdentifier;
 import com.helger.peppolid.peppol.EPeppolCodeListItemState;
 import com.helger.photon.bootstrap4.badge.BootstrapBadge;
 import com.helger.photon.bootstrap4.badge.EBootstrapBadgeType;
+
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 /**
  * Common UI for nice names
@@ -96,7 +96,7 @@ public final class NiceNameUI
           ret.addChild (" ")
              .addChild (new BootstrapBadge (EBootstrapBadgeType.WARNING).addChild ("Identifier is deprecated"));
         }
-      if (StringHelper.hasText (sSpecialLabel))
+      if (StringHelper.isNotEmpty (sSpecialLabel))
       {
         ret.addChild (" ").addChild (new BootstrapBadge (eSpecialLabelBadgeType).addChild (sSpecialLabel));
       }

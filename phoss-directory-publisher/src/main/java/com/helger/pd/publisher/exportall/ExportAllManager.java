@@ -23,30 +23,28 @@ import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
 import java.util.function.Consumer;
 
-import javax.annotation.Nonnull;
-import javax.annotation.WillNotClose;
-import javax.annotation.concurrent.ThreadSafe;
-
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.commons.collection.impl.CommonsArrayList;
-import com.helger.commons.collection.impl.CommonsLinkedHashMap;
-import com.helger.commons.collection.impl.CommonsTreeSet;
-import com.helger.commons.collection.impl.ICommonsList;
-import com.helger.commons.collection.impl.ICommonsOrderedMap;
-import com.helger.commons.collection.impl.ICommonsSortedSet;
-import com.helger.commons.concurrent.SimpleReadWriteLock;
+import com.helger.annotation.WillNotClose;
+import com.helger.annotation.concurrent.ThreadSafe;
+import com.helger.base.concurrent.SimpleReadWriteLock;
+import com.helger.base.state.ESuccess;
+import com.helger.base.string.StringImplode;
+import com.helger.collection.commons.CommonsArrayList;
+import com.helger.collection.commons.CommonsLinkedHashMap;
+import com.helger.collection.commons.CommonsTreeSet;
+import com.helger.collection.commons.ICommonsList;
+import com.helger.collection.commons.ICommonsOrderedMap;
+import com.helger.collection.commons.ICommonsSortedSet;
 import com.helger.commons.csv.CSVWriter;
-import com.helger.commons.datetime.PDTFactory;
-import com.helger.commons.datetime.PDTWebDateHelper;
-import com.helger.commons.http.CHttpHeader;
-import com.helger.commons.io.file.FileHelper;
-import com.helger.commons.io.resource.FileSystemResource;
-import com.helger.commons.state.ESuccess;
-import com.helger.commons.string.StringHelper;
+import com.helger.datetime.helper.PDTFactory;
+import com.helger.datetime.web.PDTWebDateHelper;
+import com.helger.http.CHttpHeader;
+import com.helger.io.file.FileHelper;
+import com.helger.io.resource.FileSystemResource;
 import com.helger.json.IJsonArray;
 import com.helger.json.IJsonObject;
 import com.helger.json.JsonArray;
@@ -69,6 +67,8 @@ import com.helger.xml.microdom.IMicroDocument;
 import com.helger.xml.microdom.IMicroElement;
 import com.helger.xml.microdom.MicroDocument;
 import com.helger.xml.microdom.serialize.MicroWriter;
+
+import jakarta.annotation.Nonnull;
 
 @ThreadSafe
 public final class ExportAllManager
@@ -335,24 +335,45 @@ public final class ExportAllManager
     final Consumer <? super PDStoredBusinessEntity> aConsumer = aEntity -> {
       aWBCH.addRow ();
       aWBCH.addCell (aEntity.getParticipantID ().getURIEncoded ());
-      aWBCH.addCell (StringHelper.getImplodedMapped ("\n", aEntity.names (), PDStoredMLName::getNameAndLanguageCode));
+      aWBCH.addCell (StringImplode.imploder ()
+                                  .source (aEntity.names (), PDStoredMLName::getNameAndLanguageCode)
+                                  .separator ("\n")
+                                  .build ());
       aWBCH.addCellStyle (ES_WRAP);
       aWBCH.addCell (aEntity.getCountryCode ());
       aWBCH.addCell (aEntity.getGeoInfo ());
       aWBCH.addCellStyle (ES_WRAP);
-      aWBCH.addCell (StringHelper.getImplodedMapped ("\n", aEntity.identifiers (), PDStoredIdentifier::getScheme));
+      aWBCH.addCell (StringImplode.imploder ()
+                                  .source (aEntity.identifiers (), PDStoredIdentifier::getScheme)
+                                  .separator ("\n")
+                                  .build ());
       aWBCH.addCellStyle (ES_WRAP);
-      aWBCH.addCell (StringHelper.getImplodedMapped ("\n", aEntity.identifiers (), PDStoredIdentifier::getValue));
+      aWBCH.addCell (StringImplode.imploder ()
+                                  .source (aEntity.identifiers (), PDStoredIdentifier::getValue)
+                                  .separator ("\n")
+                                  .build ());
       aWBCH.addCellStyle (ES_WRAP);
-      aWBCH.addCell (StringHelper.getImploded ("\n", aEntity.websiteURIs ()));
+      aWBCH.addCell (StringImplode.imploder ().source (aEntity.websiteURIs ()).separator ("\n").build ());
       aWBCH.addCellStyle (ES_WRAP);
-      aWBCH.addCell (StringHelper.getImplodedMapped ("\n", aEntity.contacts (), PDStoredContact::getType));
+      aWBCH.addCell (StringImplode.imploder ()
+                                  .source (aEntity.contacts (), PDStoredContact::getType)
+                                  .separator ("\n")
+                                  .build ());
       aWBCH.addCellStyle (ES_WRAP);
-      aWBCH.addCell (StringHelper.getImplodedMapped ("\n", aEntity.contacts (), PDStoredContact::getName));
+      aWBCH.addCell (StringImplode.imploder ()
+                                  .source (aEntity.contacts (), PDStoredContact::getName)
+                                  .separator ("\n")
+                                  .build ());
       aWBCH.addCellStyle (ES_WRAP);
-      aWBCH.addCell (StringHelper.getImplodedMapped ("\n", aEntity.contacts (), PDStoredContact::getPhone));
+      aWBCH.addCell (StringImplode.imploder ()
+                                  .source (aEntity.contacts (), PDStoredContact::getPhone)
+                                  .separator ("\n")
+                                  .build ());
       aWBCH.addCellStyle (ES_WRAP);
-      aWBCH.addCell (StringHelper.getImplodedMapped ("\n", aEntity.contacts (), PDStoredContact::getEmail));
+      aWBCH.addCell (StringImplode.imploder ()
+                                  .source (aEntity.contacts (), PDStoredContact::getEmail)
+                                  .separator ("\n")
+                                  .build ());
       aWBCH.addCellStyle (ES_WRAP);
       aWBCH.addCell (aEntity.getAdditionalInformation ());
       aWBCH.addCellStyle (ES_WRAP);
@@ -360,9 +381,9 @@ public final class ExportAllManager
       aWBCH.addCellStyle (ES_DATE);
       if (bIncludeDocTypes)
       {
-        aWBCH.addCell (StringHelper.getImplodedMapped ("\n",
-                                                       aEntity.documentTypeIDs (),
-                                                       IDocumentTypeIdentifier::getURIEncoded));
+        aWBCH.addCell (StringImplode.getImplodedMapped ("\n",
+                                                        aEntity.documentTypeIDs (),
+                                                        IDocumentTypeIdentifier::getURIEncoded));
         aWBCH.addCellStyle (ES_WRAP);
       }
     };
@@ -459,25 +480,43 @@ public final class ExportAllManager
 
     final Consumer <? super PDStoredBusinessEntity> aConsumer = aEntity -> {
       aCSVWriter.writeNext (aEntity.getParticipantID ().getURIEncoded (),
-                            StringHelper.getImplodedMapped ("\n",
-                                                            aEntity.names (),
-                                                            PDStoredMLName::getNameAndLanguageCode),
+                            StringImplode.imploder ()
+                                         .source (aEntity.names (), PDStoredMLName::getNameAndLanguageCode)
+                                         .separator ("\n")
+                                         .build (),
                             aEntity.getCountryCode (),
                             aEntity.getGeoInfo (),
-                            StringHelper.getImplodedMapped ("\n",
-                                                            aEntity.identifiers (),
-                                                            PDStoredIdentifier::getScheme),
-                            StringHelper.getImplodedMapped ("\n", aEntity.identifiers (), PDStoredIdentifier::getValue),
-                            StringHelper.getImploded ("\n", aEntity.websiteURIs ()),
-                            StringHelper.getImplodedMapped ("\n", aEntity.contacts (), PDStoredContact::getType),
-                            StringHelper.getImplodedMapped ("\n", aEntity.contacts (), PDStoredContact::getName),
-                            StringHelper.getImplodedMapped ("\n", aEntity.contacts (), PDStoredContact::getPhone),
-                            StringHelper.getImplodedMapped ("\n", aEntity.contacts (), PDStoredContact::getEmail),
+                            StringImplode.imploder ()
+                                         .source (aEntity.identifiers (), PDStoredIdentifier::getScheme)
+                                         .separator ("\n")
+                                         .build (),
+                            StringImplode.imploder ()
+                                         .source (aEntity.identifiers (), PDStoredIdentifier::getValue)
+                                         .separator ("\n")
+                                         .build (),
+                            StringImplode.imploder ().source (aEntity.websiteURIs ()).separator ("\n").build (),
+                            StringImplode.imploder ()
+                                         .source (aEntity.contacts (), PDStoredContact::getType)
+                                         .separator ("\n")
+                                         .build (),
+                            StringImplode.imploder ()
+                                         .source (aEntity.contacts (), PDStoredContact::getName)
+                                         .separator ("\n")
+                                         .build (),
+                            StringImplode.imploder ()
+                                         .source (aEntity.contacts (), PDStoredContact::getPhone)
+                                         .separator ("\n")
+                                         .build (),
+                            StringImplode.imploder ()
+                                         .source (aEntity.contacts (), PDStoredContact::getEmail)
+                                         .separator ("\n")
+                                         .build (),
                             aEntity.getAdditionalInformation (),
                             aEntity.getRegistrationDate () == null ? "" : aEntity.getRegistrationDate ().toString (),
-                            StringHelper.getImplodedMapped ("\n",
-                                                            aEntity.documentTypeIDs (),
-                                                            IDocumentTypeIdentifier::getURIEncoded));
+                            StringImplode.imploder ()
+                                         .source (aEntity.documentTypeIDs (), IDocumentTypeIdentifier::getURIEncoded)
+                                         .separator ("\n")
+                                         .build ());
     };
     PDMetaManager.getStorageMgr ().searchAllDocuments (aQuery, -1, aConsumer);
     aCSVWriter.flush ();
@@ -555,7 +594,7 @@ public final class ExportAllManager
     // XML root
     final IMicroDocument aDoc = new MicroDocument ();
     final String sNamespaceURI = "http://www.peppol.eu/schema/pd/participant-generic/201910/";
-    final IMicroElement aRoot = aDoc.appendElement (sNamespaceURI, "root");
+    final IMicroElement aRoot = aDoc.addElementNS (sNamespaceURI, "root");
     aRoot.setAttribute ("version", "1");
     aRoot.setAttribute ("creationdt", PDTWebDateHelper.getAsStringXSD (PDTFactory.getCurrentZonedDateTimeUTC ()));
     aRoot.setAttribute ("count", aSet.size ());
@@ -563,7 +602,7 @@ public final class ExportAllManager
     // For all participants
     for (final IParticipantIdentifier aParticipantID : aSet)
     {
-      aRoot.appendElement (sNamespaceURI, "participantID")
+      aRoot.addElementNS (sNamespaceURI, "participantID")
            .setAttribute ("scheme", aParticipantID.getScheme ())
            .setAttribute ("value", aParticipantID.getValue ());
     }
@@ -644,7 +683,7 @@ public final class ExportAllManager
     final IJsonArray aArray = new JsonArray ();
     for (final IParticipantIdentifier aParticipantID : aSet)
       aArray.add (aParticipantID.getURIEncoded ());
-    aObj.addJson ("participants", aArray);
+    aObj.add ("participants", aArray);
 
     return aObj;
   }

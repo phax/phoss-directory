@@ -26,7 +26,6 @@ import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.annotation.Nonnull;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -40,11 +39,10 @@ import org.junit.rules.TestRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.commons.collection.impl.CommonsArrayList;
-import com.helger.commons.concurrent.ThreadHelper;
-import com.helger.commons.mock.CommonsTestHelper;
-import com.helger.commons.ws.HostnameVerifierVerifyAll;
-import com.helger.commons.ws.TrustManagerTrustAll;
+import com.helger.base.concurrent.ThreadHelper;
+import com.helger.collection.commons.CommonsArrayList;
+import com.helger.http.security.HostnameVerifierVerifyAll;
+import com.helger.http.security.TrustManagerTrustAll;
 import com.helger.pd.indexer.PDIndexerTestRule;
 import com.helger.pd.indexer.businesscard.PDExtendedBusinessCard;
 import com.helger.pd.indexer.clientcert.ClientCertificateValidator;
@@ -60,7 +58,9 @@ import com.helger.peppolid.peppol.PeppolIdentifierHelper;
 import com.helger.peppolid.peppol.doctype.EPredefinedDocumentTypeIdentifier;
 import com.helger.security.keystore.EKeyStoreType;
 import com.helger.security.keystore.KeyStoreHelper;
+import com.helger.unittest.support.TestHelper;
 
+import jakarta.annotation.Nonnull;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
@@ -153,7 +153,7 @@ public final class LocalHost8080FuncTest
     final IParticipantIdentifier aPI_0 = PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9915:test0");
 
     final int nCount = 4;
-    CommonsTestHelper.testInParallel (nCount, () -> {
+    TestHelper.testInParallel (nCount, () -> {
       // Create
       final IParticipantIdentifier aPI = PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9915:test" +
                                                                                                                         aIndex.getAndIncrement ());
@@ -171,7 +171,7 @@ public final class LocalHost8080FuncTest
                              .getCount (new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aPI_0))) > 0);
 
     aIndex.set (0);
-    CommonsTestHelper.testInParallel (nCount, () -> {
+    TestHelper.testInParallel (nCount, () -> {
       // Delete
       final IParticipantIdentifier aPI = PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9915:test" +
                                                                                                                         aIndex.getAndIncrement ());

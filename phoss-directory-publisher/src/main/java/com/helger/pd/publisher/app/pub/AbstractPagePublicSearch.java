@@ -20,22 +20,19 @@ import java.util.Collection;
 import java.util.Locale;
 import java.util.function.Function;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.commons.ValueEnforcer;
-import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.collection.impl.CommonsArrayList;
-import com.helger.commons.collection.impl.ICommonsList;
-import com.helger.commons.collection.impl.ICommonsMap;
-import com.helger.commons.datetime.PDTToString;
-import com.helger.commons.debug.GlobalDebug;
-import com.helger.commons.id.IHasID;
-import com.helger.commons.lang.EnumHelper;
-import com.helger.commons.string.StringHelper;
+import com.helger.annotation.Nonempty;
+import com.helger.base.debug.GlobalDebug;
+import com.helger.base.enforce.ValueEnforcer;
+import com.helger.base.id.IHasID;
+import com.helger.base.lang.EnumHelper;
+import com.helger.base.string.StringHelper;
+import com.helger.collection.commons.CommonsArrayList;
+import com.helger.collection.commons.ICommonsList;
+import com.helger.collection.commons.ICommonsMap;
+import com.helger.datetime.format.PDTToString;
 import com.helger.html.css.DefaultCSSClassProvider;
 import com.helger.html.css.ICSSClassProvider;
 import com.helger.html.hc.IHCNode;
@@ -63,6 +60,9 @@ import com.helger.photon.bootstrap4.form.BootstrapViewForm;
 import com.helger.photon.bootstrap4.nav.BootstrapTabBox;
 import com.helger.photon.bootstrap4.pages.BootstrapWebPageUIHandler;
 import com.helger.photon.bootstrap4.utils.BootstrapPageHeader;
+
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
 {
@@ -197,7 +197,7 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
           if (aIIA != null)
           {
             final HCH1 aH1 = h1 ("Details for: " + aParticipantID.getValue ());
-            if (StringHelper.hasText (aIIA.getSchemeAgency ()))
+            if (StringHelper.isNotEmpty (aIIA.getSchemeAgency ()))
               aH1.addChild (small (" (" + aIIA.getSchemeAgency () + ")"));
             aDetailsHeader = new BootstrapPageHeader ().addChild (aH1);
           }

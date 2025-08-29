@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 
 import org.apache.lucene.document.Field;
 
-import com.helger.commons.datetime.PDTFactory;
+import com.helger.datetime.helper.PDTFactory;
 import com.helger.peppolid.IDocumentTypeIdentifier;
 import com.helger.peppolid.IParticipantIdentifier;
 

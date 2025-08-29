@@ -16,15 +16,15 @@
  */
 package com.helger.pd.publisher.search;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import com.helger.annotation.Nonempty;
+import com.helger.base.id.IHasID;
+import com.helger.base.lang.EnumHelper;
+import com.helger.base.name.IHasDisplayName;
+import com.helger.mime.CMimeType;
+import com.helger.mime.IMimeType;
 
-import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.id.IHasID;
-import com.helger.commons.lang.EnumHelper;
-import com.helger.commons.mime.CMimeType;
-import com.helger.commons.mime.IMimeType;
-import com.helger.commons.name.IHasDisplayName;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 /**
  * Defines the search REST service output format.
@@ -76,8 +76,8 @@ public enum EPDOutputFormat implements IHasID <String>, IHasDisplayName
   }
 
   /**
-   * @return The filename extension for this output format. Neither
-   *         <code>null</code> nor empty and always starting with a dot!
+   * @return The filename extension for this output format. Neither <code>null</code> nor empty and
+   *         always starting with a dot!
    */
   @Nonnull
   @Nonempty
@@ -93,7 +93,8 @@ public enum EPDOutputFormat implements IHasID <String>, IHasDisplayName
   }
 
   @Nullable
-  public static EPDOutputFormat getFromIDCaseInsensitiveOrDefault (@Nullable final String sID, @Nullable final EPDOutputFormat eDefault)
+  public static EPDOutputFormat getFromIDCaseInsensitiveOrDefault (@Nullable final String sID,
+                                                                   @Nullable final EPDOutputFormat eDefault)
   {
     return EnumHelper.getFromIDCaseInsensitiveOrDefault (EPDOutputFormat.class, sID, eDefault);
   }

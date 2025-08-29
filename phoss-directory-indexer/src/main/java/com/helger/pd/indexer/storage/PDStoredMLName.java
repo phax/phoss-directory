@@ -16,21 +16,21 @@
  */
 package com.helger.pd.indexer.storage;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
-
-import com.helger.commons.ValueEnforcer;
-import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.equals.EqualsHelper;
-import com.helger.commons.hashcode.HashCodeGenerator;
-import com.helger.commons.string.StringHelper;
-import com.helger.commons.string.ToStringGenerator;
+import com.helger.annotation.Nonempty;
+import com.helger.annotation.concurrent.Immutable;
+import com.helger.base.enforce.ValueEnforcer;
+import com.helger.base.equals.EqualsHelper;
+import com.helger.base.hashcode.HashCodeGenerator;
+import com.helger.base.string.StringHelper;
+import com.helger.base.tostring.ToStringGenerator;
 import com.helger.peppol.businesscard.generic.PDName;
 
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
+
 /**
- * This class represents a single multilingual name as stored by Lucene
- * consisting of a name and a language.
+ * This class represents a single multilingual name as stored by Lucene consisting of a name and a
+ * language.
  *
  * @author Philip Helger
  */
@@ -66,7 +66,7 @@ public final class PDStoredMLName
 
   public boolean hasLanguageCode ()
   {
-    return StringHelper.hasText (m_sLanguageCode);
+    return StringHelper.isNotEmpty (m_sLanguageCode);
   }
 
   public boolean hasLanguageCode (@Nullable final String sLanguageCode)
@@ -109,6 +109,8 @@ public final class PDStoredMLName
   @Override
   public String toString ()
   {
-    return new ToStringGenerator (null).append ("Name", m_sName).appendIfNotNull ("LanguageCode", m_sLanguageCode).getToString ();
+    return new ToStringGenerator (null).append ("Name", m_sName)
+                                       .appendIfNotNull ("LanguageCode", m_sLanguageCode)
+                                       .getToString ();
   }
 }

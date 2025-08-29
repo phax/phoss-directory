@@ -18,13 +18,10 @@ package com.helger.pd.publisher.exportall;
 
 import java.util.Map;
 
-import javax.annotation.Nonnull;
-
-import com.helger.commons.annotation.DevelopersNote;
-import com.helger.commons.collection.impl.ICommonsList;
-import com.helger.commons.collection.impl.ICommonsOrderedMap;
-import com.helger.commons.datetime.PDTFactory;
-import com.helger.commons.datetime.PDTWebDateHelper;
+import com.helger.collection.commons.ICommonsList;
+import com.helger.collection.commons.ICommonsOrderedMap;
+import com.helger.datetime.helper.PDTFactory;
+import com.helger.datetime.web.PDTWebDateHelper;
 import com.helger.json.IJsonArray;
 import com.helger.json.IJsonObject;
 import com.helger.json.JsonArray;
@@ -43,11 +40,11 @@ import com.helger.xml.microdom.IMicroElement;
 import com.helger.xml.microdom.MicroDocument;
 import com.helger.xml.microdom.MicroElement;
 
+import jakarta.annotation.Nonnull;
+
 public final class ExportHelper
 {
-  @Deprecated
-  @DevelopersNote ("For historical reasons only")
-  public static final String XML_EXPORT_NS_URI_V2 = "http://www.peppol.eu/schema/pd/businesscard-generic/201907/";
+  // XML_EXPORT_NS_URI_V2 = "http://www.peppol.eu/schema/pd/businesscard-generic/201907/";
   public static final String XML_EXPORT_NS_URI_V3 = "urn:peppol:schema:pd:businesscard-generic:2025:03";
 
   private ExportHelper ()
@@ -78,7 +75,7 @@ public final class ExportHelper
   {
     // XML root
     final IMicroDocument aDoc = new MicroDocument ();
-    final IMicroElement aRoot = aDoc.appendElement (XML_EXPORT_NS_URI_V3, "root");
+    final IMicroElement aRoot = aDoc.addElementNS (XML_EXPORT_NS_URI_V3, "root");
     aRoot.setAttribute ("version", "3");
     aRoot.setAttribute ("creationdt", PDTWebDateHelper.getAsStringXSD (PDTFactory.getCurrentZonedDateTimeUTC ()));
     aRoot.setAttribute ("codeListSupported", EPredefinedDocumentTypeIdentifier.CODE_LIST_VERSION);
@@ -97,9 +94,9 @@ public final class ExportHelper
       // New in XML v2 - add all Document types
       if (bIncludeDocTypes && aEntry.getValue ().isNotEmpty ())
         for (final IDocumentTypeIdentifier aDocTypeID : aEntry.getValue ().getFirstOrNull ().documentTypeIDs ())
-          eBC.appendChild (_createMicroElement (aDocTypeID));
+          eBC.addChild (_createMicroElement (aDocTypeID));
 
-      aRoot.appendChild (eBC);
+      aRoot.addChild (eBC);
     }
 
     return aDoc;

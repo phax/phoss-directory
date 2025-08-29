@@ -19,14 +19,10 @@ package com.helger.pd.publisher.app.secure;
 import java.net.URL;
 import java.util.Locale;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.compare.ESortOrder;
-import com.helger.commons.string.StringHelper;
-import com.helger.commons.url.ISimpleURL;
-import com.helger.commons.url.URLHelper;
+import com.helger.annotation.Nonempty;
+import com.helger.base.compare.ESortOrder;
+import com.helger.base.string.StringHelper;
+import com.helger.base.url.URLHelper;
 import com.helger.html.hc.html.forms.HCCheckBox;
 import com.helger.html.hc.html.forms.HCEdit;
 import com.helger.html.hc.html.tabular.HCRow;
@@ -55,6 +51,10 @@ import com.helger.photon.uicore.page.EWebPageFormAction;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 import com.helger.photon.uictrls.datatables.DataTables;
 import com.helger.photon.uictrls.datatables.column.DTCol;
+import com.helger.url.ISimpleURL;
+
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 public class PageSecureAdminSMLConfiguration extends AbstractAppWebPageForm <ISMLInfo>
 {
@@ -151,19 +151,20 @@ public class PageSecureAdminSMLConfiguration extends AbstractAppWebPageForm <ISM
 
     aForm.addChild (getUIHandler ().createActionHeader (bEdit ? "Edit SML configuration '" +
                                                                 aSelectedObject.getDisplayName () +
-                                                                "'"
-                                                              : "Create new SML configuration"));
+                                                                "'" : "Create new SML configuration"));
 
     aForm.addFormGroup (new BootstrapFormGroup ().setLabelMandatory ("Name")
                                                  .setCtrl (new HCEdit (new RequestField (FIELD_DISPLAY_NAME,
-                                                                                         aSelectedObject != null ? aSelectedObject.getDisplayName ()
+                                                                                         aSelectedObject != null
+                                                                                                                 ? aSelectedObject.getDisplayName ()
                                                                                                                  : null)))
                                                  .setHelpText ("The name of the SML configuration. This is for informational purposes only and has no effect on the functionality.")
                                                  .setErrorList (aFormErrors.getListOfField (FIELD_DISPLAY_NAME)));
 
     aForm.addFormGroup (new BootstrapFormGroup ().setLabelMandatory ("DNS Zone")
                                                  .setCtrl (new HCEdit (new RequestField (FIELD_DNS_ZONE,
-                                                                                         aSelectedObject != null ? aSelectedObject.getDNSZone ()
+                                                                                         aSelectedObject != null
+                                                                                                                 ? aSelectedObject.getDNSZone ()
                                                                                                                  : null)))
                                                  .setHelpText (new HCTextNode ("The name of the DNS Zone that this SML is working upon (e.g. "),
                                                                code ("acc.edelivery.tech.ec.europa.eu."),
@@ -172,7 +173,8 @@ public class PageSecureAdminSMLConfiguration extends AbstractAppWebPageForm <ISM
 
     aForm.addFormGroup (new BootstrapFormGroup ().setLabelMandatory ("Management Service URL")
                                                  .setCtrl (new HCEdit (new RequestField (FIELD_MANAGEMENT_ADDRESS_URL,
-                                                                                         aSelectedObject != null ? aSelectedObject.getManagementServiceURL ()
+                                                                                         aSelectedObject != null
+                                                                                                                 ? aSelectedObject.getManagementServiceURL ()
                                                                                                                  : null)))
                                                  .setHelpText ("The service URL where the SML management application is running on including the host name. It may not contain the '" +
                                                                CSMLDefault.MANAGEMENT_SERVICE_METADATA +
@@ -183,11 +185,11 @@ public class PageSecureAdminSMLConfiguration extends AbstractAppWebPageForm <ISM
 
     aForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Client Certificate required?")
                                                  .setCtrl (new HCCheckBox (new RequestFieldBoolean (FIELD_CLIENT_CERTIFICATE_REQUIRED,
-                                                                                                    aSelectedObject != null ? aSelectedObject.isClientCertificateRequired ()
-                                                                                                                            : true)))
+                                                                                                    aSelectedObject !=
+                                                                                                                                       null ? aSelectedObject.isClientCertificateRequired ()
+                                                                                                                                            : true)))
                                                  .setHelpText ("Check this if this SML requires a client certificate for access. Both Peppol production SML and SMK require a client certificate. Only a locally running SML software may not require a client certificate.")
                                                  .setErrorList (aFormErrors.getListOfField (FIELD_CLIENT_CERTIFICATE_REQUIRED)));
-
   }
 
   @Override
@@ -206,13 +208,13 @@ public class PageSecureAdminSMLConfiguration extends AbstractAppWebPageForm <ISM
                                                     .isCheckBoxChecked (FIELD_CLIENT_CERTIFICATE_REQUIRED, true);
 
     // validations
-    if (StringHelper.hasNoText (sDisplayName))
+    if (StringHelper.isEmpty (sDisplayName))
       aFormErrors.addFieldError (FIELD_DISPLAY_NAME, "The SML configuration name must not be empty!");
 
-    if (StringHelper.hasNoText (sDNSZone))
+    if (StringHelper.isEmpty (sDNSZone))
       aFormErrors.addFieldError (FIELD_DNS_ZONE, "The DNS Zone must not be empty!");
 
-    if (StringHelper.hasNoText (sManagementAddressURL))
+    if (StringHelper.isEmpty (sManagementAddressURL))
       aFormErrors.addFieldError (FIELD_MANAGEMENT_ADDRESS_URL, "The Management Address URL must not be empty!");
     else
     {
@@ -283,9 +285,11 @@ public class PageSecureAdminSMLConfiguration extends AbstractAppWebPageForm <ISM
                     new HCTextNode (" "),
                     createCopyLink (aWPEC, aCurObject, "Copy " + aCurObject.getID ()),
                     new HCTextNode (" "),
-                    isActionAllowed (aWPEC,
-                                     EWebPageFormAction.DELETE,
-                                     aCurObject) ? createDeleteLink (aWPEC, aCurObject, "Delete " + aCurObject.getDisplayName ()) : createEmptyAction ());
+                    isActionAllowed (aWPEC, EWebPageFormAction.DELETE, aCurObject) ? createDeleteLink (aWPEC,
+                                                                                                       aCurObject,
+                                                                                                       "Delete " +
+                                                                                                                   aCurObject.getDisplayName ())
+                                                                                   : createEmptyAction ());
     }
 
     final DataTables aDataTables = BootstrapDataTables.createDefaultDataTables (aWPEC, aTable);

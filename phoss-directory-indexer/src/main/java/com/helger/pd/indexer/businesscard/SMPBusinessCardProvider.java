@@ -23,9 +23,6 @@ import java.security.GeneralSecurityException;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import org.apache.hc.client5.http.HttpResponseException;
 import org.apache.hc.client5.http.auth.Credentials;
 import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
@@ -34,10 +31,10 @@ import org.apache.hc.core5.http.HttpHost;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.commons.ValueEnforcer;
-import com.helger.commons.annotation.VisibleForTesting;
-import com.helger.commons.collection.impl.ICommonsList;
-import com.helger.commons.http.CHttp;
+import com.helger.annotation.style.VisibleForTesting;
+import com.helger.base.enforce.ValueEnforcer;
+import com.helger.collection.commons.ICommonsList;
+import com.helger.http.CHttp;
 import com.helger.httpclient.HttpClientManager;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
@@ -55,10 +52,13 @@ import com.helger.smpclient.peppol.SMPClientReadOnly;
 import com.helger.smpclient.url.ISMPURLProvider;
 import com.helger.smpclient.url.SMPDNSResolutionException;
 
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
+
 /**
- * The SMP based {@link IPDBusinessCardProvider} implementation. An SMP lookup
- * of the ServiceGroup is performed, and the <code>Extension</code> element is
- * parsed for the elements as specified in the Peppol Directory specification.
+ * The SMP based {@link IPDBusinessCardProvider} implementation. An SMP lookup of the ServiceGroup
+ * is performed, and the <code>Extension</code> element is parsed for the elements as specified in
+ * the Peppol Directory specification.
  *
  * @author Philip Helger
  */
@@ -80,17 +80,14 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
    * @param eSMPMode
    *        SMP Mode to use.
    * @param aSMPURI
-   *        The URI of the SMP. May be <code>null</code> to use SML/DNS lookup.
-   *        If this parameter is non-<code>null</code> the SML parameter MUST be
-   *        <code>null</code>. This parameter is only needed for testing
-   *        purposes, if a network consists of a single SMP and has NO DNS
+   *        The URI of the SMP. May be <code>null</code> to use SML/DNS lookup. If this parameter is
+   *        non-<code>null</code> the SML parameter MUST be <code>null</code>. This parameter is
+   *        only needed for testing purposes, if a network consists of a single SMP and has NO DNS
    *        setup!
    * @param aURLProvider
-   *        The URL provider to be used. Must be non-<code>null</code> if SML is
-   *        to be used.
+   *        The URL provider to be used. Must be non-<code>null</code> if SML is to be used.
    * @param aSMLInfoProvider
-   *        The supplier for all {@link ISMLInfo} objects to be tried (may be
-   *        more then one)
+   *        The supplier for all {@link ISMLInfo} objects to be tried (may be more then one)
    */
   protected SMPBusinessCardProvider (@Nonnull final ESMPAPIType eSMPMode,
                                      @Nullable final URI aSMPURI,
@@ -132,9 +129,9 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
   }
 
   /**
-   * @return The HttpProxy object to be used by SMP clients based on the Java
-   *         System properties "http.proxyHost" and "http.proxyPort". Note:
-   *         https is not needed, because SMPs must run on http only.
+   * @return The HttpProxy object to be used by SMP clients based on the Java System properties
+   *         "http.proxyHost" and "http.proxyPort". Note: https is not needed, because SMPs must run
+   *         on http only.
    */
   @Nullable
   private static HttpHost _getHttpProxy ()
@@ -350,7 +347,10 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
     if (LOGGER.isDebugEnabled ())
       LOGGER.debug ("Now configuring the the SMP client");
 
-    aSMPClient.httpClientSettings ().setProxyHost (_getHttpProxy ()).setProxyCredentials (_getHttpProxyCredentials ());
+    aSMPClient.httpClientSettings ()
+              .getGeneralProxy ()
+              .setProxyHost (_getHttpProxy ())
+              .setProxyCredentials (_getHttpProxyCredentials ());
     if (PDServerConfiguration.isSMPTLSTrustAll ())
       try
       {

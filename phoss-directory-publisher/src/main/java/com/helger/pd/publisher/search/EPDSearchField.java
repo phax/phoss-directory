@@ -20,25 +20,25 @@ import java.time.LocalDate;
 import java.util.Locale;
 import java.util.function.Function;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import org.apache.lucene.search.Query;
 
-import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.id.IHasID;
-import com.helger.commons.lang.EnumHelper;
-import com.helger.commons.text.display.IHasDisplayText;
+import com.helger.annotation.Nonempty;
+import com.helger.base.id.IHasID;
+import com.helger.base.lang.EnumHelper;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.CPDStorage;
 import com.helger.pd.indexer.storage.PDQueryManager;
 import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
 import com.helger.peppolid.IDocumentTypeIdentifier;
 import com.helger.peppolid.IParticipantIdentifier;
+import com.helger.text.display.IHasDisplayText;
+
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 /**
- * The Peppol Directory specific search fields. The fields here should be
- * conform to the fields in {@link PDStoredBusinessEntity}.
+ * The Peppol Directory specific search fields. The fields here should be conform to the fields in
+ * {@link PDStoredBusinessEntity}.
  *
  * @author Philip Helger
  */

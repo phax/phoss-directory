@@ -18,10 +18,8 @@ package com.helger.pd.publisher.app.secure;
 
 import java.io.IOException;
 
-import javax.annotation.Nonnull;
-
-import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.string.StringHelper;
+import com.helger.annotation.Nonempty;
+import com.helger.base.string.StringHelper;
 import com.helger.html.hc.html.forms.HCEdit;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.mgr.PDMetaManager;
@@ -38,6 +36,8 @@ import com.helger.photon.core.form.RequestField;
 import com.helger.photon.uicore.css.CPageParam;
 import com.helger.photon.uicore.icon.EDefaultIcon;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
+
+import jakarta.annotation.Nonnull;
 
 public final class PageSecureDeleteManually extends AbstractAppWebPage
 {
@@ -60,7 +60,7 @@ public final class PageSecureDeleteManually extends AbstractAppWebPage
       final String sParticipantID = aWPEC.params ().getAsString (FIELD_PARTICIPANT_ID);
       final IParticipantIdentifier aParticipantID = aIdentifierFactory.parseParticipantIdentifier (sParticipantID);
 
-      if (StringHelper.hasNoText (sParticipantID))
+      if (StringHelper.isEmpty (sParticipantID))
         aFormErrors.addFieldError (FIELD_PARTICIPANT_ID, "A participant ID must be provided.");
       else
         if (aParticipantID == null)
@@ -85,7 +85,9 @@ public final class PageSecureDeleteManually extends AbstractAppWebPage
                                                   nDeleted +
                                                   " rows)"));
         else
-          aWPEC.postRedirectGetInternal (error ("Error deleting participant ID '" + aParticipantID.getURIEncoded () + "'"));
+          aWPEC.postRedirectGetInternal (error ("Error deleting participant ID '" +
+                                                aParticipantID.getURIEncoded () +
+                                                "'"));
       }
     }
 

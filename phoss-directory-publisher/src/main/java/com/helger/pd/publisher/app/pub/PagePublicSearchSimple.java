@@ -19,20 +19,15 @@ package com.helger.pd.publisher.app.pub;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import org.apache.lucene.search.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.collection.impl.ICommonsList;
-import com.helger.commons.collection.impl.ICommonsMap;
-import com.helger.commons.locale.country.CountryCache;
-import com.helger.commons.string.StringHelper;
-import com.helger.commons.url.SimpleURL;
+import com.helger.annotation.Nonempty;
+import com.helger.annotation.Nonnegative;
+import com.helger.base.string.StringHelper;
+import com.helger.collection.commons.ICommonsList;
+import com.helger.collection.commons.ICommonsMap;
 import com.helger.css.property.CCSSProperties;
 import com.helger.css.utils.CSSURLHelper;
 import com.helger.html.hc.IHCNode;
@@ -75,8 +70,13 @@ import com.helger.photon.core.form.RequestField;
 import com.helger.photon.uicore.css.CPageParam;
 import com.helger.photon.uicore.icon.EDefaultIcon;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
+import com.helger.text.locale.country.CountryCache;
+import com.helger.url.SimpleURL;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 import com.helger.xml.microdom.IMicroDocument;
+
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 public final class PagePublicSearchSimple extends AbstractPagePublicSearch
 {
@@ -232,7 +232,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
             if (aScheme != null)
             {
               aParticipantNode = new HCNodeList ().addChild (aDocParticipantID.getValue ());
-              if (StringHelper.hasText (aScheme.getSchemeAgency ()))
+              if (StringHelper.isNotEmpty (aScheme.getSchemeAgency ()))
                 ((HCNodeList) aParticipantNode).addChild (" (" + aScheme.getSchemeAgency () + ")");
             }
           }
@@ -351,7 +351,8 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
 
     final HCDiv aLogoContainer = div ().addClass (CSS_CLASS_BIG_QUERY_IMAGE_CONTAINER).addClass (CBootstrapCSS.MY_2);
     final HCDiv aLogo = div ().addClass (CSS_CLASS_BIG_QUERY_IMAGE)
-                              .addStyle (CCSSProperties.BACKGROUND_IMAGE.newValue (CSSURLHelper.getAsCSSURL (CPDPublisher.getLogoImageURL (),
+                              .addStyle (CCSSProperties.BACKGROUND_IMAGE.newValue (CSSURLHelper.getAsCSSURL (CPDPublisher.getLogoImageURL ()
+                                                                                                                         .getAsString (),
                                                                                                              true)));
     aLogoContainer.addChild (aLogo);
     if (UI_MODE.isShowPrivacyPolicy ())
@@ -382,7 +383,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
       aNodeList.addChild (aLogoContainer);
     }
 
-    if (aWPEC.hasAction (CPageParam.ACTION_VIEW) && StringHelper.hasText (sParticipantID))
+    if (aWPEC.hasAction (CPageParam.ACTION_VIEW) && StringHelper.isNotEmpty (sParticipantID))
     {
       // Show details of a participant
       final IParticipantIdentifier aParticipantID = aIdentifierFactory.parseParticipantIdentifier (sParticipantID);
@@ -411,7 +412,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
 
     if (bShowQuery)
     {
-      if (StringHelper.hasText (sQuery))
+      if (StringHelper.isNotEmpty (sQuery))
       {
         // Show small query box
         aLogo.addChild (_createInitialSearchForm (aWPEC));

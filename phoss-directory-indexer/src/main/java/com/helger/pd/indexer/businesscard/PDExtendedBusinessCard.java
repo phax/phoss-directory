@@ -19,17 +19,14 @@ package com.helger.pd.indexer.businesscard;
 import java.io.Serializable;
 import java.util.function.Predicate;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
-
-import com.helger.commons.ValueEnforcer;
-import com.helger.commons.annotation.ReturnsMutableCopy;
-import com.helger.commons.annotation.ReturnsMutableObject;
-import com.helger.commons.collection.impl.CommonsArrayList;
-import com.helger.commons.collection.impl.ICommonsList;
-import com.helger.commons.string.ToStringGenerator;
+import com.helger.annotation.Nonnegative;
+import com.helger.annotation.concurrent.Immutable;
+import com.helger.annotation.style.ReturnsMutableCopy;
+import com.helger.annotation.style.ReturnsMutableObject;
+import com.helger.base.enforce.ValueEnforcer;
+import com.helger.base.tostring.ToStringGenerator;
+import com.helger.collection.commons.CommonsArrayList;
+import com.helger.collection.commons.ICommonsList;
 import com.helger.json.IHasJson;
 import com.helger.json.IJson;
 import com.helger.json.IJsonObject;
@@ -40,10 +37,13 @@ import com.helger.peppol.businesscard.generic.PDIdentifier;
 import com.helger.peppolid.IDocumentTypeIdentifier;
 import com.helger.peppolid.simple.doctype.SimpleDocumentTypeIdentifier;
 
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
+
 /**
- * This class encapsulates all the data to be added to the Lucene index. It
- * consists of the main {@link PDBusinessCard} object as retrieved from the SMP
- * plus a list of all document types supported by the respective service group.
+ * This class encapsulates all the data to be added to the Lucene index. It consists of the main
+ * {@link PDBusinessCard} object as retrieved from the SMP plus a list of all document types
+ * supported by the respective service group.
  *
  * @author Philip Helger
  */
@@ -76,8 +76,8 @@ public class PDExtendedBusinessCard implements IHasJson, Serializable
   }
 
   /**
-   * @return The mutable {@link PDBusinessCard} object as provided in the
-   *         constructor (or the converted object). Never <code>null</code>.
+   * @return The mutable {@link PDBusinessCard} object as provided in the constructor (or the
+   *         converted object). Never <code>null</code>.
    */
   @Nonnull
   @ReturnsMutableObject
@@ -87,8 +87,8 @@ public class PDExtendedBusinessCard implements IHasJson, Serializable
   }
 
   /**
-   * @return A copy of the list of all contained document type IDs. Never
-   *         <code>null</code> but maybe empty.
+   * @return A copy of the list of all contained document type IDs. Never <code>null</code> but
+   *         maybe empty.
    */
   @Nonnull
   @ReturnsMutableCopy
@@ -110,10 +110,10 @@ public class PDExtendedBusinessCard implements IHasJson, Serializable
   public IJsonObject getAsJson ()
   {
     final IJsonObject ret = new JsonObject ();
-    ret.addJson ("businesscard", m_aBusinessCard.getAsJson ());
-    ret.addJson ("doctypes",
-                 new JsonArray ().addAllMapped (m_aDocumentTypeIDs,
-                                                x -> PDIdentifier.getAsJson (x.getScheme (), x.getValue ())));
+    ret.add ("businesscard", m_aBusinessCard.getAsJson ());
+    ret.add ("doctypes",
+             new JsonArray ().addAllMapped (m_aDocumentTypeIDs,
+                                            x -> PDIdentifier.getAsJson (x.getScheme (), x.getValue ())));
     return ret;
   }
 

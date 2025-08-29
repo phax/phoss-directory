@@ -16,15 +16,15 @@
  */
 package com.helger.pd.publisher.app.pub;
 
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.Immutable;
-
-import com.helger.commons.debug.GlobalDebug;
-import com.helger.commons.io.resource.ClassPathResource;
+import com.helger.annotation.concurrent.Immutable;
+import com.helger.base.debug.GlobalDebug;
+import com.helger.io.resource.ClassPathResource;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.ui.AppPageViewExternal;
 import com.helger.photon.core.menu.IMenuTree;
+
+import jakarta.annotation.Nonnull;
 
 @Immutable
 public final class MenuPublic

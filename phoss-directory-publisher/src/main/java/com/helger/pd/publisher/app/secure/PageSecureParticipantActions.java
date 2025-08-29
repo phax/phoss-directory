@@ -24,34 +24,31 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import javax.annotation.Nonnull;
-
 import org.apache.lucene.document.Document;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.collection.impl.CommonsHashMap;
-import com.helger.commons.collection.impl.CommonsHashSet;
-import com.helger.commons.collection.impl.CommonsTreeSet;
-import com.helger.commons.collection.impl.ICommonsMap;
-import com.helger.commons.collection.impl.ICommonsSet;
-import com.helger.commons.collection.impl.ICommonsSortedSet;
-import com.helger.commons.compare.IComparator;
+import com.helger.annotation.Nonempty;
+import com.helger.base.io.nonblocking.NonBlockingByteArrayOutputStream;
+import com.helger.base.io.stream.StreamHelper;
+import com.helger.base.numeric.mutable.MutableInt;
+import com.helger.collection.commons.CommonsHashMap;
+import com.helger.collection.commons.CommonsHashSet;
+import com.helger.collection.commons.CommonsTreeSet;
+import com.helger.collection.commons.ICommonsMap;
+import com.helger.collection.commons.ICommonsSet;
+import com.helger.collection.commons.ICommonsSortedSet;
 import com.helger.commons.csv.CSVWriter;
-import com.helger.commons.datetime.PDTToString;
-import com.helger.commons.datetime.PDTWebDateHelper;
-import com.helger.commons.io.stream.NonBlockingByteArrayOutputStream;
-import com.helger.commons.io.stream.StreamHelper;
-import com.helger.commons.mime.CMimeType;
-import com.helger.commons.mutable.MutableInt;
+import com.helger.datetime.format.PDTToString;
+import com.helger.datetime.web.PDTWebDateHelper;
 import com.helger.html.hc.html.grouping.HCDiv;
 import com.helger.html.hc.html.grouping.HCOL;
 import com.helger.html.hc.html.grouping.IHCLI;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.json.IJsonObject;
+import com.helger.mime.CMimeType;
 import com.helger.pd.indexer.index.EIndexerWorkItemType;
 import com.helger.pd.indexer.mgr.PDIndexerManager;
 import com.helger.pd.indexer.mgr.PDMetaManager;
@@ -81,10 +78,13 @@ import com.helger.photon.uicore.icon.EDefaultIcon;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 import com.helger.poi.excel.EExcelVersion;
 import com.helger.poi.excel.WorkbookCreationHelper;
+import com.helger.text.compare.ComparatorHelper;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 import com.helger.xml.microdom.IMicroDocument;
 import com.helger.xml.microdom.IMicroElement;
 import com.helger.xml.microdom.MicroDocument;
+
+import jakarta.annotation.Nonnull;
 
 public final class PageSecureParticipantActions extends AbstractAppWebPage
 {
@@ -108,7 +108,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
     AJAX_DOWNLOAD_ALL_IDS_XML = addAjax ( (req, res) -> {
       LOGGER.info ("Starting AJAX_DOWNLOAD_ALL_IDS_XML");
       final IMicroDocument aDoc = new MicroDocument ();
-      final IMicroElement aRoot = aDoc.appendElement ("root");
+      final IMicroElement aRoot = aDoc.addElement ("root");
       final Set <IParticipantIdentifier> aAllIDs = PDMetaManager.getStorageMgr ()
                                                                 .getAllContainedParticipantIDs ()
                                                                 .keySet ();
@@ -116,7 +116,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
       {
         // Use the same layout as for the "full export", so that it can be used
         // by the import
-        aRoot.appendElement ("participant")
+        aRoot.addElement ("participant")
              .setAttribute ("scheme", aParticipantID.getScheme ())
              .setAttribute ("value", aParticipantID.getValue ());
       }
@@ -127,7 +127,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
     AJAX_DOWNLOAD_ALL_IDS_AND_METADATA_XML = addAjax ( (req, res) -> {
       LOGGER.info ("Starting AJAX_DOWNLOAD_ALL_IDS_AND_METADATA_XML");
       final IMicroDocument aDoc = new MicroDocument ();
-      final IMicroElement aRoot = aDoc.appendElement ("root");
+      final IMicroElement aRoot = aDoc.addElement ("root");
       final MutableInt aCount = new MutableInt (0);
       final ICommonsSet <IParticipantIdentifier> aUniquePIDs = new CommonsHashSet <> ();
       PDMetaManager.getStorageMgr ().searchAll (new MatchAllDocsQuery (), -1, doc -> {
@@ -138,12 +138,12 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
         final IParticipantIdentifier aPID = PDField.PARTICIPANT_ID.getDocValue (doc);
         if (aUniquePIDs.add (aPID))
         {
-          final IMicroElement eP = aRoot.appendElement ("participant")
+          final IMicroElement eP = aRoot.addElement ("participant")
                                         .setAttribute ("scheme", aPID.getScheme ())
                                         .setAttribute ("value", aPID.getValue ());
 
           final String sOwnerID = PDField.METADATA_OWNERID.getDocValue (doc);
-          eP.appendElement ("metadata")
+          eP.addElement ("metadata")
             .setAttribute ("creationDT",
                            PDTWebDateHelper.getAsStringXSD (PDField.METADATA_CREATIONDT.getDocValue (doc)))
             .setAttribute ("ownerID", sOwnerID)
@@ -253,7 +253,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
       final HCDiv aDiv = div ("Found " + aSet.size () + " duplicate IDs for ").addChild (code (sDesiredVersion))
                                                                               .addChild (":");
       final HCOL aOL = aDiv.addAndReturnChild (new HCOL ());
-      for (final String sVersion : aSet.getSorted (IComparator.getComparatorCollating (aDisplayLocale)))
+      for (final String sVersion : aSet.getSorted (ComparatorHelper.getComparatorCollating (aDisplayLocale)))
       {
         final boolean bIsDesired = sDesiredVersion.equals (sVersion);
         final IHCLI <?> aLI = aOL.addAndReturnItem (code (sVersion));
@@ -315,7 +315,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
       LOGGER.info (sMsg);
       aNL.addChild (h2 (sMsg));
       HCOL aOL = aNL.addAndReturnChild (new HCOL ());
-      for (final String s : aPIsToDelete.getSorted (IComparator.getComparatorCollating (aDisplayLocale)))
+      for (final String s : aPIsToDelete.getSorted (ComparatorHelper.getComparatorCollating (aDisplayLocale)))
       {
         aOL.addItem (s);
         aIndexerMgr.queueWorkItem (aIF.parseParticipantIdentifier (s),
@@ -330,7 +330,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
         LOGGER.info (sMsg);
         aNL.addChild (h2 (sMsg));
         aOL = aNL.addAndReturnChild (new HCOL ());
-        for (final String s : aPIsToAdd.getSorted (IComparator.getComparatorCollating (aDisplayLocale)))
+        for (final String s : aPIsToAdd.getSorted (ComparatorHelper.getComparatorCollating (aDisplayLocale)))
         {
           aOL.addItem (s);
           aIndexerMgr.queueWorkItem (aIF.parseParticipantIdentifier (s),

@@ -16,14 +16,13 @@
  */
 package com.helger.pd.indexer;
 
-import javax.annotation.concurrent.Immutable;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.commons.collection.impl.ICommonsMap;
-import com.helger.commons.io.resource.ClassPathResource;
-import com.helger.commons.lang.PropertiesHelper;
+import com.helger.annotation.concurrent.Immutable;
+import com.helger.base.rt.NonBlockingProperties;
+import com.helger.base.rt.PropertiesHelper;
+import com.helger.io.resource.ClassPathResource;
 
 /**
  * Contains application wide constants.
@@ -44,7 +43,8 @@ public final class CDirectoryVersion
   {
     String sProjectVersion = null;
     String sProjectTimestamp = null;
-    final ICommonsMap <String, String> p = PropertiesHelper.loadProperties (new ClassPathResource ("phoss-directory-version.properties"));
+    final NonBlockingProperties p = PropertiesHelper.loadProperties (ClassPathResource.getInputStream ("phoss-directory-version.properties",
+                                                                                                       CDirectoryVersion.class.getClassLoader ()));
     if (p != null)
     {
       sProjectVersion = p.get ("version");

@@ -18,13 +18,13 @@ package com.helger.pd.indexer.storage.field;
 
 import java.util.function.Function;
 
-import javax.annotation.Nonnull;
-
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.index.IndexableField;
 
-import com.helger.commons.annotation.Nonempty;
+import com.helger.annotation.Nonempty;
+
+import jakarta.annotation.Nonnull;
 
 /**
  * A Lucene field that can be mapped to a {@link Number} and back.

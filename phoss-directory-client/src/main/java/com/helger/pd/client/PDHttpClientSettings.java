@@ -19,8 +19,6 @@ package com.helger.pd.client;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore.PrivateKeyEntry;
 
-import javax.annotation.Nonnull;
-
 import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.ssl.PrivateKeyStrategy;
@@ -29,15 +27,17 @@ import org.apache.hc.core5.ssl.TrustStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.commons.ValueEnforcer;
-import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.string.StringHelper;
-import com.helger.commons.url.EURLProtocol;
+import com.helger.annotation.Nonempty;
+import com.helger.base.enforce.ValueEnforcer;
+import com.helger.base.string.StringHelper;
 import com.helger.httpclient.HttpClientSettings;
 import com.helger.httpclient.security.PrivateKeyStrategyFromAliasCaseInsensitive;
 import com.helger.httpclient.security.TrustStrategyTrustAll;
 import com.helger.security.keystore.LoadedKey;
 import com.helger.security.keystore.LoadedKeyStore;
+import com.helger.url.protocol.EURLProtocol;
+
+import jakarta.annotation.Nonnull;
 
 /**
  * Special {@link HttpClientSettings} that incorporates all the parameters from
@@ -81,20 +81,21 @@ public class PDHttpClientSettings extends HttpClientSettings
     {
       final HttpHost aProxyHost = new HttpHost (sProxyHost, nProxyPort);
       LOGGER.info ("PD client uses proxy host " + aProxyHost);
-      setProxyHost (aProxyHost);
+      getGeneralProxy ().setProxyHost (aProxyHost);
     }
     else
-      setProxyHost (null);
+      getGeneralProxy ().setProxyHost (null);
 
     // Proxy credentials
     final String sProxyUsername = PDClientConfiguration.getProxyUsername ();
-    if (StringHelper.hasText (sProxyUsername))
+    if (StringHelper.isNotEmpty (sProxyUsername))
     {
       LOGGER.info ("PD client uses proxy credentials");
-      setProxyCredentials (new UsernamePasswordCredentials (sProxyUsername, PDClientConfiguration.getProxyPassword ()));
+      getGeneralProxy ().setProxyCredentials (new UsernamePasswordCredentials (sProxyUsername,
+                                                                               PDClientConfiguration.getProxyPassword ()));
     }
     else
-      setProxyCredentials (null);
+      getGeneralProxy ().setProxyCredentials (null);
 
     // Reset SSL stuff
     setHostnameVerifier (null);

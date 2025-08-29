@@ -16,17 +16,17 @@
  */
 package com.helger.pd.publisher;
 
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.NotThreadSafe;
-
-import com.helger.commons.ValueEnforcer;
-import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.email.EmailAddress;
-import com.helger.commons.email.IEmailAddress;
-import com.helger.commons.url.ISimpleURL;
-import com.helger.commons.url.SimpleURL;
+import com.helger.annotation.Nonempty;
+import com.helger.annotation.concurrent.NotThreadSafe;
+import com.helger.base.email.EmailAddress;
+import com.helger.base.email.IEmailAddress;
+import com.helger.base.enforce.ValueEnforcer;
 import com.helger.pd.indexer.CDirectoryVersion;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
+import com.helger.url.ISimpleURL;
+import com.helger.url.SimpleURL;
+
+import jakarta.annotation.Nonnull;
 
 @NotThreadSafe
 public final class CPDPublisher

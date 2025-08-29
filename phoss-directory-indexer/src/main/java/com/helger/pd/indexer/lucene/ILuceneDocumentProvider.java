@@ -18,9 +18,9 @@ package com.helger.pd.indexer.lucene;
 
 import java.io.IOException;
 
-import javax.annotation.Nullable;
-
 import org.apache.lucene.document.Document;
+
+import jakarta.annotation.Nullable;
 
 /**
  * {@link Document} retrieval interface

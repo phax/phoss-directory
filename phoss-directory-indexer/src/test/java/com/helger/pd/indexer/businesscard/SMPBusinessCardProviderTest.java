@@ -28,9 +28,9 @@ import org.junit.rules.TestRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.commons.collection.impl.CommonsArrayList;
-import com.helger.commons.collection.impl.ICommonsList;
-import com.helger.commons.url.URLHelper;
+import com.helger.base.url.URLHelper;
+import com.helger.collection.commons.CommonsArrayList;
+import com.helger.collection.commons.ICommonsList;
 import com.helger.json.IJsonObject;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.peppol.sml.ESML;

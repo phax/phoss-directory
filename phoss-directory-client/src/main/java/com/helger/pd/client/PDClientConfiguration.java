@@ -18,18 +18,15 @@ package com.helger.pd.client;
 
 import java.security.KeyStore;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.GuardedBy;
-import javax.annotation.concurrent.ThreadSafe;
-
 import org.apache.hc.core5.util.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.commons.ValueEnforcer;
-import com.helger.commons.concurrent.SimpleReadWriteLock;
-import com.helger.commons.equals.EqualsHelper;
+import com.helger.annotation.concurrent.GuardedBy;
+import com.helger.annotation.concurrent.ThreadSafe;
+import com.helger.base.concurrent.SimpleReadWriteLock;
+import com.helger.base.enforce.ValueEnforcer;
+import com.helger.base.equals.EqualsHelper;
 import com.helger.config.ConfigFactory;
 import com.helger.config.IConfig;
 import com.helger.config.fallback.ConfigWithFallback;
@@ -40,9 +37,12 @@ import com.helger.security.keystore.KeyStoreHelper;
 import com.helger.security.keystore.LoadedKey;
 import com.helger.security.keystore.LoadedKeyStore;
 
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
+
 /**
- * This class manages the configuration properties of the Peppol Directory
- * client using the global {@link IConfig} interface.
+ * This class manages the configuration properties of the Peppol Directory client using the global
+ * {@link IConfig} interface.
  *
  * @author Philip Helger
  */
@@ -121,8 +121,7 @@ public final class PDClientConfiguration
   }
 
   /**
-   * @return The type to the keystore. This is usually JKS. Property
-   *         <code>keystore.type</code>.
+   * @return The type to the keystore. This is usually JKS. Property <code>keystore.type</code>.
    */
   @Nonnull
   public static EKeyStoreType getKeyStoreType ()
@@ -132,8 +131,8 @@ public final class PDClientConfiguration
   }
 
   /**
-   * @return The key store location as specified in the configuration file by
-   *         the property <code>keystore.path</code>.
+   * @return The key store location as specified in the configuration file by the property
+   *         <code>keystore.path</code>.
    */
   @Nullable
   public static String getKeyStorePath ()
@@ -142,8 +141,8 @@ public final class PDClientConfiguration
   }
 
   /**
-   * @return The keystore password as specified in the configuration file by the
-   *         property <code>keystore.password</code>.
+   * @return The keystore password as specified in the configuration file by the property
+   *         <code>keystore.password</code>.
    */
   @Nullable
   public static char [] getKeyStorePassword ()
@@ -161,8 +160,8 @@ public final class PDClientConfiguration
   }
 
   /**
-   * @return The private key alias as specified in the configuration file by the
-   *         property <code>keystore.key.alias</code>.
+   * @return The private key alias as specified in the configuration file by the property
+   *         <code>keystore.key.alias</code>.
    */
   @Nullable
   public static String getKeyStoreKeyAlias ()
@@ -171,8 +170,8 @@ public final class PDClientConfiguration
   }
 
   /**
-   * @return The private key password as specified in the configuration file by
-   *         the property <code>keystore.key.password</code>.
+   * @return The private key password as specified in the configuration file by the property
+   *         <code>keystore.key.password</code>.
    */
   @Nullable
   public static char [] getKeyStoreKeyPassword ()
@@ -196,8 +195,7 @@ public final class PDClientConfiguration
   }
 
   /**
-   * @return The type to the truststore. This is usually JKS. Property
-   *         <code>truststore.type</code>.
+   * @return The type to the truststore. This is usually JKS. Property <code>truststore.type</code>.
    * @since 0.6.0
    */
   @Nonnull
@@ -208,9 +206,8 @@ public final class PDClientConfiguration
   }
 
   /**
-   * @return The trust store location as specified in the configuration file by
-   *         the property <code>truststore.path</code>. Defaults to
-   *         <code>null</code>
+   * @return The trust store location as specified in the configuration file by the property
+   *         <code>truststore.path</code>. Defaults to <code>null</code>
    * @since 0.5.1
    */
   @Nullable
@@ -220,9 +217,8 @@ public final class PDClientConfiguration
   }
 
   /**
-   * @return The trust store password as specified in the configuration file by
-   *         the property <code>truststore.password</code>. Defaults to
-   *         <code>null</code>.
+   * @return The trust store password as specified in the configuration file by the property
+   *         <code>truststore.password</code>. Defaults to <code>null</code>.
    * @since 0.5.1
    */
   @Nullable
@@ -241,8 +237,7 @@ public final class PDClientConfiguration
   }
 
   /**
-   * @return The proxy host to be used for "http" calls. May be
-   *         <code>null</code>.
+   * @return The proxy host to be used for "http" calls. May be <code>null</code>.
    */
   @Nullable
   public static String getHttpProxyHost ()
@@ -259,8 +254,8 @@ public final class PDClientConfiguration
   }
 
   /**
-   * @return The username for proxy calls. Valid for https and https proxy. May
-   *         be <code>null</code>.
+   * @return The username for proxy calls. Valid for https and https proxy. May be
+   *         <code>null</code>.
    * @since 0.6.0
    */
   @Nullable
@@ -270,8 +265,8 @@ public final class PDClientConfiguration
   }
 
   /**
-   * @return The password for proxy calls. Valid for https and https proxy. May
-   *         be <code>null</code>.
+   * @return The password for proxy calls. Valid for https and https proxy. May be
+   *         <code>null</code>.
    * @since 0.6.0
    */
   @Nullable
@@ -282,8 +277,8 @@ public final class PDClientConfiguration
   }
 
   /**
-   * @return Connection timeout in milliseconds. Defaults to 5000 (=5 seconds).
-   *         0 means "indefinite", -1 means "system default".
+   * @return Connection timeout in milliseconds. Defaults to 5000 (=5 seconds). 0 means
+   *         "indefinite", -1 means "system default".
    * @since 0.6.0
    */
   @Nonnull
@@ -296,8 +291,8 @@ public final class PDClientConfiguration
   }
 
   /**
-   * @return Request/read/socket timeout in milliseconds. Defaults to 10000 (=10
-   *         seconds). 0 means "indefinite", -1 means "system default".
+   * @return Request/read/socket timeout in milliseconds. Defaults to 10000 (=10 seconds). 0 means
+   *         "indefinite", -1 means "system default".
    * @since 0.6.0
    */
   @Nonnull
@@ -314,12 +309,12 @@ public final class PDClientConfiguration
   }
 
   /**
-   * During handshaking, if the URL's hostname and the server's identification
-   * hostname mismatch, the verification mechanism can call back to implementers
-   * of this interface to determine if this connection should be allowed.
+   * During handshaking, if the URL's hostname and the server's identification hostname mismatch,
+   * the verification mechanism can call back to implementers of this interface to determine if this
+   * connection should be allowed.
    *
-   * @return <code>true</code> if hostname checking is disabled (the default),
-   *         or <code>false</code> if it is enabled.
+   * @return <code>true</code> if hostname checking is disabled (the default), or <code>false</code>
+   *         if it is enabled.
    * @since 0.5.1
    */
   public static boolean isHttpsHostnameVerificationDisabled ()

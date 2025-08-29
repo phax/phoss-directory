@@ -18,9 +18,6 @@ package com.helger.pd.publisher.app;
 
 import java.time.Duration;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import com.helger.html.hc.IHCNode;
 import com.helger.html.hc.html.grouping.HCDiv;
 import com.helger.html.hc.html.textlevel.HCSmall;
@@ -32,6 +29,9 @@ import com.helger.photon.bootstrap4.uictrls.ext.BootstrapLoginHTMLProvider;
 import com.helger.photon.bootstrap4.uictrls.ext.BootstrapLoginManager;
 import com.helger.photon.core.execcontext.ISimpleWebExecutionContext;
 import com.helger.security.authentication.credentials.ICredentialValidationResult;
+
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 public final class PDLoginManager extends BootstrapLoginManager
 {

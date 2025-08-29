@@ -23,9 +23,6 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.ThreadSafe;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 import javax.security.auth.x500.X500Principal;
@@ -33,27 +30,30 @@ import javax.security.auth.x500.X500Principal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.annotation.PresentForCodeCoverage;
-import com.helger.commons.annotation.ReturnsMutableCopy;
-import com.helger.commons.annotation.VisibleForTesting;
-import com.helger.commons.collection.ArrayHelper;
-import com.helger.commons.collection.impl.CommonsArrayList;
-import com.helger.commons.collection.impl.CommonsHashMap;
-import com.helger.commons.collection.impl.ICommonsList;
-import com.helger.commons.collection.impl.ICommonsMap;
-import com.helger.commons.datetime.PDTFactory;
-import com.helger.commons.exception.InitializationException;
+import com.helger.annotation.Nonempty;
+import com.helger.annotation.concurrent.ThreadSafe;
+import com.helger.annotation.style.PresentForCodeCoverage;
+import com.helger.annotation.style.ReturnsMutableCopy;
+import com.helger.annotation.style.VisibleForTesting;
+import com.helger.base.array.ArrayHelper;
+import com.helger.base.exception.InitializationException;
+import com.helger.collection.commons.CommonsArrayList;
+import com.helger.collection.commons.CommonsHashMap;
+import com.helger.collection.commons.ICommonsList;
+import com.helger.collection.commons.ICommonsMap;
+import com.helger.datetime.helper.PDTFactory;
 import com.helger.pd.indexer.settings.PDConfiguredTrustStore;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.security.keystore.KeyStoreHelper;
 
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
- * Extract provided certificates from HTTPS requests. These are the client
- * certificates submitted by the user. Client requests are only present in HTTPS
- * requests and will never be present in pure HTTP requests.
+ * Extract provided certificates from HTTPS requests. These are the client certificates submitted by
+ * the user. Client requests are only present in HTTPS requests and will never be present in pure
+ * HTTP requests.
  *
  * @author Philip Helger
  */
@@ -71,8 +71,7 @@ public final class ClientCertificateValidator
   private static final AtomicBoolean CHECK_DISABLED = new AtomicBoolean (!PDServerConfiguration.isClientCertificateValidationActive ());
 
   /**
-   * All root certificates from the truststore configuration. May be empty if
-   * checks are disabled.
+   * All root certificates from the truststore configuration. May be empty if checks are disabled.
    */
   private static final ICommonsList <X509Certificate> ALLOWED_ROOT_CERTS = new CommonsArrayList <> ();
 
@@ -80,14 +79,12 @@ public final class ClientCertificateValidator
   private static final ICommonsList <X500Principal> ALLOWED_CERTIFICATE_ISSUERS = new CommonsArrayList <> ();
 
   /**
-   * This method is only for testing purposes to disable the complete client
-   * certificate check, so that the tests can be performed, even if no SMP
-   * certificate for testing is present.
+   * This method is only for testing purposes to disable the complete client certificate check, so
+   * that the tests can be performed, even if no SMP certificate for testing is present.
    *
    * @param bCheckDisabled
-   *        <code>true</code> to always return <code>true</code> for the client
-   *        certificate check, <code>false</code> to enable client certificate
-   *        check.
+   *        <code>true</code> to always return <code>true</code> for the client certificate check,
+   *        <code>false</code> to enable client certificate check.
    * @see PDServerConfiguration#isClientCertificateValidationActive()
    */
   @VisibleForTesting
@@ -196,8 +193,8 @@ public final class ClientCertificateValidator
   {}
 
   /**
-   * @return A list of all root certificates from the truststore configuration.
-   *         Never <code>null</code> nor empty.
+   * @return A list of all root certificates from the truststore configuration. Never
+   *         <code>null</code> nor empty.
    * @since 0.8.5
    */
   @Nonnull
@@ -209,8 +206,7 @@ public final class ClientCertificateValidator
   }
 
   /**
-   * @return A sorted list with all issuers we're accepting. Never
-   *         <code>null</code> nor empty.
+   * @return A sorted list with all issuers we're accepting. Never <code>null</code> nor empty.
    * @since 0.8.5
    */
   @Nonnull
@@ -229,8 +225,8 @@ public final class ClientCertificateValidator
    * @param aCRLs
    *        A non-<code>null</code> list with revocation lists to handle
    * @param aDT
-   *        The date and time which should be used for checking. May be
-   *        <code>null</code> to indicate "now".
+   *        The date and time which should be used for checking. May be <code>null</code> to
+   *        indicate "now".
    * @return <code>null</code> in case of success, the error message otherwise!
    */
   @Nullable

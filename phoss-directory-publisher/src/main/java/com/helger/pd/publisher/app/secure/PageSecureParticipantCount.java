@@ -18,13 +18,11 @@ package com.helger.pd.publisher.app.secure;
 
 import java.io.IOException;
 
-import javax.annotation.Nonnull;
-
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.Collector;
 import org.apache.lucene.search.MatchAllDocsQuery;
 
-import com.helger.commons.annotation.Nonempty;
+import com.helger.annotation.Nonempty;
 import com.helger.html.hc.html.grouping.HCHR;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.lucene.AllDocumentsCollector;
@@ -34,6 +32,8 @@ import com.helger.photon.bootstrap4.buttongroup.BootstrapButtonToolbar;
 import com.helger.photon.bootstrap4.table.BootstrapTable;
 import com.helger.photon.uicore.icon.EDefaultIcon;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
+
+import jakarta.annotation.Nonnull;
 
 public final class PageSecureParticipantCount extends AbstractAppWebPage
 {

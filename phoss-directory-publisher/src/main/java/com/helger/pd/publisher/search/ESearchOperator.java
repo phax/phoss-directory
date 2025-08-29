@@ -20,13 +20,13 @@ import java.time.MonthDay;
 import java.time.YearMonth;
 import java.util.Locale;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import com.helger.annotation.Nonempty;
+import com.helger.base.id.IHasID;
+import com.helger.base.lang.EnumHelper;
+import com.helger.text.display.IHasDisplayText;
 
-import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.id.IHasID;
-import com.helger.commons.lang.EnumHelper;
-import com.helger.commons.text.display.IHasDisplayText;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 public enum ESearchOperator implements IHasDisplayText, IHasID <String>
 {
@@ -99,8 +99,8 @@ public enum ESearchOperator implements IHasDisplayText, IHasID <String>
   }
 
   /**
-   * @return <code>true</code> if a search value is needed (mostly),
-   *         <code>false</code> if not (e.g. for 'empty')
+   * @return <code>true</code> if a search value is needed (mostly), <code>false</code> if not (e.g.
+   *         for 'empty')
    */
   public boolean isValueNeeded ()
   {
@@ -108,9 +108,8 @@ public enum ESearchOperator implements IHasDisplayText, IHasID <String>
   }
 
   /**
-   * @return The special value classes needed for search values or
-   *         <code>null</code> if the value should have the same class as the
-   *         reference value.
+   * @return The special value classes needed for search values or <code>null</code> if the value
+   *         should have the same class as the reference value.
    */
   @Nullable
   public Class <?> getSpecialValueClass ()
@@ -119,8 +118,7 @@ public enum ESearchOperator implements IHasDisplayText, IHasID <String>
   }
 
   /**
-   * @return <code>true</code> if search values of this operator need to have a
-   *         special class!
+   * @return <code>true</code> if search values of this operator need to have a special class!
    */
   public boolean hasSpecialValueClass ()
   {

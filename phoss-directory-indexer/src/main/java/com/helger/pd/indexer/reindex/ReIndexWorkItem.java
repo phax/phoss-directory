@@ -18,19 +18,19 @@ package com.helger.pd.indexer.reindex;
 
 import java.time.LocalDateTime;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.NotThreadSafe;
-
-import com.helger.commons.ValueEnforcer;
-import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.datetime.PDTFactory;
-import com.helger.commons.hashcode.HashCodeGenerator;
-import com.helger.commons.string.ToStringGenerator;
-import com.helger.commons.type.ObjectType;
+import com.helger.annotation.Nonempty;
+import com.helger.annotation.Nonnegative;
+import com.helger.annotation.concurrent.NotThreadSafe;
+import com.helger.base.enforce.ValueEnforcer;
+import com.helger.base.hashcode.HashCodeGenerator;
+import com.helger.base.tostring.ToStringGenerator;
+import com.helger.base.type.ObjectType;
+import com.helger.datetime.helper.PDTFactory;
 import com.helger.pd.indexer.index.IIndexerWorkItem;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
+
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 /**
  * The default implementation of {@link IReIndexWorkItem}.
@@ -68,8 +68,7 @@ public class ReIndexWorkItem implements IReIndexWorkItem
    * @param nRetries
    *        The number of retries so far. Must be &ge; 0.
    * @param aPreviousRetryDT
-   *        The last retry time. May be <code>null</code> if no retry happened
-   *        so far.
+   *        The last retry time. May be <code>null</code> if no retry happened so far.
    * @param aNextRetryDT
    *        The next retry time. Must be &ge; now.
    */
@@ -132,8 +131,7 @@ public class ReIndexWorkItem implements IReIndexWorkItem
   }
 
   /**
-   * Increment the number of retries and update the previous and the next retry
-   * datetime.
+   * Increment the number of retries and update the previous and the next retry datetime.
    */
   public void incRetryCount ()
   {
