@@ -18,18 +18,17 @@ package com.helger.pd.publisher.aws;
 
 import java.nio.charset.StandardCharsets;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.commons.annotation.Nonempty;
-import com.helger.commons.io.stream.StreamHelper;
-import com.helger.commons.mime.CMimeType;
-import com.helger.commons.mime.IMimeType;
-import com.helger.commons.string.StringHelper;
+import com.helger.annotation.Nonempty;
+import com.helger.base.io.stream.StreamHelper;
+import com.helger.base.string.StringHelper;
+import com.helger.mime.CMimeType;
+import com.helger.mime.IMimeType;
 
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -100,10 +99,10 @@ public final class AwsHelper
     final String sLogLocation = "S3 '" + sTargetBucket + "' / '" + sTargetKey + "'";
     LOGGER.info ("Writing " + sDebugWhatIsIt + " to " + sLogLocation);
     final PutObjectResponse aPutResponse = AwsHelper.S3.putObject (PutObjectRequest.builder ()
-                                                                                    .bucket (sTargetBucket)
-                                                                                    .key (sTargetKey)
-                                                                                    .contentType (aMimeType.getAsString ())
-                                                                                    .build (), aRequestBody);
+                                                                                   .bucket (sTargetBucket)
+                                                                                   .key (sTargetKey)
+                                                                                   .contentType (aMimeType.getAsString ())
+                                                                                   .build (), aRequestBody);
     if (!aPutResponse.sdkHttpResponse ().isSuccessful ())
       throw new IllegalStateException ("Failed to putObject " + sDebugWhatIsIt + " to " + sLogLocation);
 
