@@ -59,7 +59,7 @@ public final class PDMetaManager extends AbstractGlobalSingleton
   private PDStorageManager m_aStorageMgr;
   private PDIndexerManager m_aIndexerMgr;
 
-  @Deprecated
+  @Deprecated (forRemoval = false)
   @UsedViaReflection
   public PDMetaManager ()
   {}

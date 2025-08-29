@@ -28,7 +28,7 @@ public final class PDSessionSingleton extends AbstractSessionWebSingleton
 {
   private Query m_aLastQuery;
 
-  @Deprecated
+  @Deprecated (forRemoval = false)
   @UsedViaReflection
   public PDSessionSingleton ()
   {}

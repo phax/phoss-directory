@@ -128,7 +128,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
 
   private static final IConfig DEFAULT_INSTANCE = Config.create (createConfigValueProvider ());
 
-  @Deprecated
+  @Deprecated (forRemoval = false)
   @UsedViaReflection
   private PDServerConfiguration ()
   {}

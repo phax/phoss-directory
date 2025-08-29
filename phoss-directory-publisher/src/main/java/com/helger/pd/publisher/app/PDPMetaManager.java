@@ -47,7 +47,7 @@ public final class PDPMetaManager extends AbstractGlobalSingleton
 
   private SMLInfoManager m_aSMLInfoMgr;
 
-  @Deprecated
+  @Deprecated (forRemoval = false)
   @UsedViaReflection
   public PDPMetaManager ()
   {}

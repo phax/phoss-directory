@@ -18,7 +18,6 @@ package com.helger.pd.publisher.exportall;
 
 import java.util.Map;
 
-import com.helger.annotation.misc.DevelopersNote;
 import com.helger.collection.commons.ICommonsList;
 import com.helger.collection.commons.ICommonsOrderedMap;
 import com.helger.datetime.helper.PDTFactory;
@@ -45,9 +44,7 @@ import jakarta.annotation.Nonnull;
 
 public final class ExportHelper
 {
-  @Deprecated
-  @DevelopersNote ("For historical reasons only")
-  public static final String XML_EXPORT_NS_URI_V2 = "http://www.peppol.eu/schema/pd/businesscard-generic/201907/";
+  // XML_EXPORT_NS_URI_V2 = "http://www.peppol.eu/schema/pd/businesscard-generic/201907/";
   public static final String XML_EXPORT_NS_URI_V3 = "urn:peppol:schema:pd:businesscard-generic:2025:03";
 
   private ExportHelper ()
