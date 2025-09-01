@@ -47,7 +47,7 @@ import com.helger.peppolid.peppol.doctype.EPredefinedDocumentTypeIdentifier;
 import jakarta.annotation.Nonnull;
 
 /**
- * Test class for class {@link PDStorageManager}.
+ * Test class for class {@link PDStorageManagerLucene}.
  *
  * @author Philip Helger
  */
@@ -102,7 +102,7 @@ public final class PDStorageManagerTest
                                                                .createParticipantIdentifier ("myscheme-actorid-upis", "0088:test");
     assertNotNull (aParticipantID);
 
-    try (final PDStorageManager aMgr = new PDStorageManager (new PDLucene ()))
+    try (final PDStorageManagerLucene aMgr = new PDStorageManagerLucene (new PDLucene ()))
     {
       final PDStoredMetaData aMetaData = _createMockMetaData ();
       aMgr.createOrUpdateEntry (aParticipantID, _createMockBI (aParticipantID), aMetaData);
@@ -176,7 +176,7 @@ public final class PDStorageManagerTest
                                                                .createParticipantIdentifier ("myscheme-actorid-upis", "0088:test");
     assertNotNull (aParticipantID);
 
-    try (final PDStorageManager aMgr = new PDStorageManager (new PDLucene ()))
+    try (final PDStorageManagerLucene aMgr = new PDStorageManagerLucene (new PDLucene ()))
     {
       final PDStoredMetaData aMetaData = _createMockMetaData ();
       aMgr.createOrUpdateEntry (aParticipantID, _createMockBI (aParticipantID), aMetaData);

@@ -44,7 +44,7 @@ import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.CPDStorage;
 import com.helger.pd.indexer.storage.PDQueryManager;
-import com.helger.pd.indexer.storage.PDStorageManager;
+import com.helger.pd.indexer.storage.PDStorageManagerLucene;
 import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
 import com.helger.pd.indexer.storage.PDStoredMLName;
 import com.helger.pd.publisher.CPDPublisher;
@@ -162,7 +162,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     final HCNodeList aNodeList = aWPEC.getNodeList ();
     final Locale aDisplayLocale = aWPEC.getDisplayLocale ();
     final IRequestWebScopeWithoutResponse aRequestScope = aWPEC.getRequestScope ();
-    final PDStorageManager aStorageMgr = PDMetaManager.getStorageMgr ();
+    final PDStorageManagerLucene aStorageMgr = PDMetaManager.getStorageMgr ();
 
     // Search all documents
     LOGGER.info ("Searching generically for '" + sQuery + "'");
@@ -191,7 +191,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
                  (nTotalBEs >= 0 ? " " + nTotalBEs + " total hits are available." : ""));
 
     // Group by participant ID
-    final ICommonsMap <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> aGroupedBEs = PDStorageManager.getGroupedByParticipantID (aResultBEs);
+    final ICommonsMap <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> aGroupedBEs = PDStorageManagerLucene.getGroupedByParticipantID (aResultBEs);
 
     // Display results
     if (aGroupedBEs.isEmpty ())

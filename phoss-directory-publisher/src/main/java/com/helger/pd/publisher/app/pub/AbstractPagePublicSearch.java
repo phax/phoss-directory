@@ -43,7 +43,7 @@ import com.helger.html.hc.html.sections.HCH1;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
-import com.helger.pd.indexer.storage.PDStorageManager;
+import com.helger.pd.indexer.storage.PDStorageManagerLucene;
 import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
 import com.helger.pd.indexer.storage.PDStoredMLName;
 import com.helger.pd.publisher.nicename.NiceNameUI;
@@ -173,7 +173,7 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
     final ICommonsList <PDStoredBusinessEntity> aResultDocs = PDMetaManager.getStorageMgr ()
                                                                            .getAllDocumentsOfParticipant (aParticipantID);
     // Group by participant ID
-    final ICommonsMap <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> aGroupedDocs = PDStorageManager.getGroupedByParticipantID (aResultDocs);
+    final ICommonsMap <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> aGroupedDocs = PDStorageManagerLucene.getGroupedByParticipantID (aResultDocs);
     if (aGroupedDocs.isEmpty ())
       LOGGER.error ("No stored document matches participant identifier '" + sParticipantID + "' - cannot show details");
     else

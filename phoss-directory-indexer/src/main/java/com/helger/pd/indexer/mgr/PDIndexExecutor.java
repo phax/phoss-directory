@@ -31,8 +31,7 @@ import com.helger.peppolid.IParticipantIdentifier;
 import jakarta.annotation.Nonnull;
 
 /**
- * Internal class to execute a single work item. It is invoked by the
- * {@link PDIndexerManager}.
+ * Internal class to execute a single work item. It is invoked by the {@link PDIndexerManager}.
  *
  * @author Philip Helger
  */
@@ -44,16 +43,14 @@ final class PDIndexExecutor
   {}
 
   /**
-   * This method is responsible for executing the specified work item depending
-   * on its type.
+   * This method is responsible for executing the specified work item depending on its type.
    *
    * @param aStorageMgr
    *        Storage manager.
    * @param aWorkItem
    *        The work item to be executed. May not be <code>null</code>.
    * @param nRetryCount
-   *        The retry count. For the initial indexing it is 0, for the first
-   *        retry 1 etc.
+   *        The retry count. For the initial indexing it is 0, for the first retry 1 etc.
    * @param aSuccessHandler
    *        A callback that is invoked upon success only.
    * @param aFailureHandler
@@ -84,8 +81,7 @@ final class PDIndexExecutor
       {
         final IParticipantIdentifier aParticipantID = aWorkItem.getParticipantID ();
 
-        final ESuccess eSuccess;
-        switch (aWorkItem.getType ())
+        final ESuccess eSuccess = switch (aWorkItem.getType ())
         {
           case CREATE_UPDATE:
           {
@@ -94,22 +90,15 @@ final class PDIndexExecutor
             if (aBI == null)
             {
               // No/invalid extension present - no need to try again
-              eSuccess = ESuccess.FAILURE;
+              yield ESuccess.FAILURE;
             }
-            else
-            {
-              // Got data - put in storage
-              eSuccess = aStorageMgr.createOrUpdateEntry (aParticipantID, aBI, aWorkItem.getAsMetaData ());
-            }
-            break;
+            // Got data - put in storage
+            yield aStorageMgr.createOrUpdateEntry (aParticipantID, aBI, aWorkItem.getAsMetaData ());
           }
           case DELETE:
           {
             // Really delete it
-            eSuccess = ESuccess.valueOf (aStorageMgr.deleteEntry (aParticipantID,
-                                                                  aWorkItem.getAsMetaData (),
-                                                                  true) >= 0);
-            break;
+            yield ESuccess.valueOf (aStorageMgr.deleteEntry (aParticipantID, aWorkItem.getAsMetaData (), true) >= 0);
           }
           case SYNC:
           {
@@ -118,20 +107,14 @@ final class PDIndexExecutor
             if (aBI == null)
             {
               // No/invalid extension present - delete from index
-              eSuccess = ESuccess.valueOf (aStorageMgr.deleteEntry (aParticipantID,
-                                                                    aWorkItem.getAsMetaData (),
-                                                                    true) >= 0);
+              yield ESuccess.valueOf (aStorageMgr.deleteEntry (aParticipantID, aWorkItem.getAsMetaData (), true) >= 0);
             }
-            else
-            {
-              // Got data - put in storage
-              eSuccess = aStorageMgr.createOrUpdateEntry (aParticipantID, aBI, aWorkItem.getAsMetaData ());
-            }
-            break;
+            // Got data - put in storage
+            yield aStorageMgr.createOrUpdateEntry (aParticipantID, aBI, aWorkItem.getAsMetaData ());
           }
           default:
             throw new IllegalStateException ("Unsupported work item type: " + aWorkItem);
-        }
+        };
 
         if (eSuccess.isSuccess ())
         {

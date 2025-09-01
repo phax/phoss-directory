@@ -51,7 +51,7 @@ import com.helger.json.JsonObject;
 import com.helger.json.serialize.JsonWriterSettings;
 import com.helger.mime.CMimeType;
 import com.helger.pd.indexer.mgr.PDMetaManager;
-import com.helger.pd.indexer.storage.PDStorageManager;
+import com.helger.pd.indexer.storage.PDStorageManagerLucene;
 import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
 import com.helger.pd.publisher.app.AppCommonUI;
 import com.helger.pd.publisher.search.EPDOutputFormat;
@@ -309,7 +309,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
       final int nMaxResults = nLastResultIndex + 1;
 
       // Search all documents
-      final PDStorageManager aStorageMgr = PDMetaManager.getStorageMgr ();
+      final PDStorageManagerLucene aStorageMgr = PDMetaManager.getStorageMgr ();
       final ICommonsList <PDStoredBusinessEntity> aResultDocs = aStorageMgr.getAllDocuments (aLuceneQuery, nMaxResults);
 
       // Also get the total hit count for UI display. May be < 0 in case of
@@ -333,7 +333,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
                                                                                                                                            1);
 
       // Group results by participant ID
-      final ICommonsMap <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> aGroupedDocs = PDStorageManager.getGroupedByParticipantID (aResultView);
+      final ICommonsMap <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> aGroupedDocs = PDStorageManagerLucene.getGroupedByParticipantID (aResultView);
       final ZonedDateTime aNow = PDTFactory.getCurrentZonedDateTimeUTC ();
 
       // See Directory issue #68

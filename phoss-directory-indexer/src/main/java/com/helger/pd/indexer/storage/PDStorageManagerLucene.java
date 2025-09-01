@@ -87,13 +87,13 @@ import jakarta.annotation.Nullable;
  * @author Philip Helger
  */
 @Immutable
-public final class PDStorageManager implements IPDStorageManager
+public final class PDStorageManagerLucene implements IPDStorageManager
 {
-  private static final Logger LOGGER = LoggerFactory.getLogger (PDStorageManager.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger (PDStorageManagerLucene.class);
   private static final String FIELD_GROUP_END = "groupend";
   private static final FieldType TYPE_GROUP_END = new FieldType ();
   private static final String VALUE_GROUP_END = "x";
-  private static final IMutableStatisticsHandlerKeyedTimer STATS_QUERY_TIMER = StatisticsManager.getKeyedTimerHandler (PDStorageManager.class.getName () +
+  private static final IMutableStatisticsHandlerKeyedTimer STATS_QUERY_TIMER = StatisticsManager.getKeyedTimerHandler (PDStorageManagerLucene.class.getName () +
                                                                                                                        "$query");
 
   static
@@ -106,7 +106,7 @@ public final class PDStorageManager implements IPDStorageManager
 
   private final PDLucene m_aLucene;
 
-  public PDStorageManager (@Nonnull final PDLucene aLucene)
+  public PDStorageManagerLucene (@Nonnull final PDLucene aLucene)
   {
     m_aLucene = ValueEnforcer.notNull (aLucene, "Lucene");
   }

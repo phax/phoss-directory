@@ -30,7 +30,7 @@ import com.helger.base.lang.clazz.ClassHelper;
 import com.helger.pd.indexer.businesscard.IPDBusinessCardProvider;
 import com.helger.pd.indexer.lucene.PDLucene;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
-import com.helger.pd.indexer.storage.PDStorageManager;
+import com.helger.pd.indexer.storage.PDStorageManagerLucene;
 import com.helger.peppolid.factory.IIdentifierFactory;
 import com.helger.photon.core.interror.InternalErrorBuilder;
 import com.helger.scope.IScope;
@@ -56,7 +56,7 @@ public final class PDMetaManager extends AbstractGlobalSingleton
   private static IPDBusinessCardProvider s_aBCProvider;
 
   private PDLucene m_aLucene;
-  private PDStorageManager m_aStorageMgr;
+  private PDStorageManagerLucene m_aStorageMgr;
   private PDIndexerManager m_aIndexerMgr;
 
   @Deprecated (forRemoval = false)
@@ -70,7 +70,7 @@ public final class PDMetaManager extends AbstractGlobalSingleton
     try
     {
       m_aLucene = new PDLucene ();
-      m_aStorageMgr = new PDStorageManager (m_aLucene);
+      m_aStorageMgr = new PDStorageManagerLucene (m_aLucene);
       m_aIndexerMgr = new PDIndexerManager (m_aStorageMgr);
 
       LOGGER.info (ClassHelper.getClassLocalName (this) + " was initialized");
@@ -142,7 +142,7 @@ public final class PDMetaManager extends AbstractGlobalSingleton
   }
 
   @Nonnull
-  public static PDStorageManager getStorageMgr ()
+  public static PDStorageManagerLucene getStorageMgr ()
   {
     return getInstance ().m_aStorageMgr;
   }
