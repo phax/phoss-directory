@@ -336,6 +336,7 @@ public final class PDStorageManagerLucene implements IPDStorageManager
         }
       }
     }
+
     final Query aDeleteQuery;
     if (bVerifyOwner && aMetaData != null)
     {

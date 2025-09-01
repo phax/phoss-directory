@@ -54,11 +54,11 @@ import jakarta.annotation.Nullable;
  * @author Philip Helger
  */
 @Immutable
-public final class PDQueryManager
+public final class PDQueryManagerLucene
 {
-  private static final Logger LOGGER = LoggerFactory.getLogger (PDQueryManager.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger (PDQueryManagerLucene.class);
 
-  private PDQueryManager ()
+  private PDQueryManagerLucene ()
   {}
 
   /**

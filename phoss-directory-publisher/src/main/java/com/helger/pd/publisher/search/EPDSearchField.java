@@ -27,8 +27,8 @@ import com.helger.base.id.IHasID;
 import com.helger.base.lang.EnumHelper;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.CPDStorage;
-import com.helger.pd.indexer.storage.PDQueryManager;
-import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
+import com.helger.pd.indexer.storage.PDQueryManagerLucene;
+import com.helger.pd.indexer.storage.model.PDStoredBusinessEntity;
 import com.helger.peppolid.IDocumentTypeIdentifier;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.text.display.IHasDisplayText;
@@ -48,65 +48,65 @@ public enum EPDSearchField implements IHasID <String>, IHasDisplayText
            EPDSearchFieldName.GENERIC,
            ESearchDataType.STRING_CS,
            Object.class,
-           sQuery -> PDQueryManager.convertQueryStringToLuceneQuery (PDMetaManager.getLucene (),
+           sQuery -> PDQueryManagerLucene.convertQueryStringToLuceneQuery (PDMetaManager.getLucene (),
                                                                      CPDStorage.FIELD_ALL_FIELDS,
                                                                      sQuery)),
   PARTICIPANT_ID ("participant",
                   EPDSearchFieldName.PARTICIPANT_ID,
                   ESearchDataType.STRING_CS,
                   IParticipantIdentifier.class,
-                  PDQueryManager::getParticipantIDLuceneQuery),
+                  PDQueryManagerLucene::getParticipantIDLuceneQuery),
   NAME ("name",
         EPDSearchFieldName.NAME,
         ESearchDataType.STRING_CI,
         String.class,
-        sQuery -> PDQueryManager.getNameLuceneQuery (PDMetaManager.getLucene (), sQuery)),
+        sQuery -> PDQueryManagerLucene.getNameLuceneQuery (PDMetaManager.getLucene (), sQuery)),
   COUNTRY ("country",
            EPDSearchFieldName.COUNTRY,
            ESearchDataType.STRING_CI,
            Locale.class,
-           PDQueryManager::getCountryCodeLuceneQuery),
+           PDQueryManagerLucene::getCountryCodeLuceneQuery),
   GEO_INFO ("geoinfo",
             EPDSearchFieldName.GEO_INFO,
             ESearchDataType.STRING_CI,
             String.class,
-            sQuery -> PDQueryManager.getGeoInfoLuceneQuery (PDMetaManager.getLucene (), sQuery)),
+            sQuery -> PDQueryManagerLucene.getGeoInfoLuceneQuery (PDMetaManager.getLucene (), sQuery)),
   IDENTIFIER_SCHEME ("identifierScheme",
                      EPDSearchFieldName.IDENTIFIER,
                      ESearchDataType.STRING_CS,
                      String.class,
-                     PDQueryManager::getIdentifierSchemeLuceneQuery),
+                     PDQueryManagerLucene::getIdentifierSchemeLuceneQuery),
   IDENTIFIER_VALUE ("identifierValue",
                     EPDSearchFieldName.IDENTIFIER,
                     ESearchDataType.STRING_CS,
                     String.class,
-                    PDQueryManager::getIdentifierValueLuceneQuery),
+                    PDQueryManagerLucene::getIdentifierValueLuceneQuery),
   WEBSITE ("website",
            EPDSearchFieldName.WEBSITE,
            ESearchDataType.STRING_CI,
            String.class,
-           PDQueryManager::getWebsiteLuceneQuery),
+           PDQueryManagerLucene::getWebsiteLuceneQuery),
   CONTACT ("contact",
            EPDSearchFieldName.CONTACT,
            ESearchDataType.STRING_CI,
            String.class,
-           PDQueryManager::getContactLuceneQuery),
+           PDQueryManagerLucene::getContactLuceneQuery),
   ADDITIONAL_INFORMATION ("addinfo",
                           EPDSearchFieldName.ADDITIONAL_INFORMATION,
                           ESearchDataType.STRING_CI,
                           String.class,
-                          sQuery -> PDQueryManager.getAdditionalInformationLuceneQuery (PDMetaManager.getLucene (),
+                          sQuery -> PDQueryManagerLucene.getAdditionalInformationLuceneQuery (PDMetaManager.getLucene (),
                                                                                         sQuery)),
   REGISTRATION_DATE ("regdate",
                      EPDSearchFieldName.REGISTRATION_DATE,
                      ESearchDataType.DATE,
                      LocalDate.class,
-                     PDQueryManager::getRegistrationDateLuceneQuery),
+                     PDQueryManagerLucene::getRegistrationDateLuceneQuery),
   DOCUMENT_TYPE ("doctype",
                  EPDSearchFieldName.DOCUMENT_TYPE,
                  ESearchDataType.STRING_CS,
                  IDocumentTypeIdentifier.class,
-                 PDQueryManager::getDocumentTypeIDLuceneQuery);
+                 PDQueryManagerLucene::getDocumentTypeIDLuceneQuery);
 
   private final String m_sID;
   private final ESearchDataType m_eDataType;

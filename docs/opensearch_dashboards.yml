@@ -1,0 +1,18 @@
+server.name: opensearch_dashboards
+server.host: "0.0.0.0"
+server.customResponseHeaders : { "Access-Control-Allow-Credentials" : "true" }
+    
+# Disabling HTTPS on OpenSearch Dashboards
+server.ssl.enabled: false
+    
+opensearch.hosts: ["https://opensearch-node:9200"] # Using the opensearch container name
+    
+opensearch.ssl.verificationMode: none
+opensearch.username: kibanaserver
+opensearch.password: kibanaserver
+opensearch.requestHeadersWhitelist: ["securitytenant","Authorization"]
+    
+# Multitenancy
+opensearch_security.multitenancy.enabled: true
+opensearch_security.multitenancy.tenants.preferred: ["Private", "Global"]
+opensearch_security.readonly_mode.roles: ["kibana_read_only"]

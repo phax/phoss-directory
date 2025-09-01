@@ -43,10 +43,10 @@ import com.helger.html.hc.html.tabular.HCCol;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.CPDStorage;
-import com.helger.pd.indexer.storage.PDQueryManager;
+import com.helger.pd.indexer.storage.PDQueryManagerLucene;
 import com.helger.pd.indexer.storage.PDStorageManagerLucene;
-import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
-import com.helger.pd.indexer.storage.PDStoredMLName;
+import com.helger.pd.indexer.storage.model.PDStoredBusinessEntity;
+import com.helger.pd.indexer.storage.model.PDStoredMLName;
 import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.app.PDSessionSingleton;
 import com.helger.pd.publisher.exportall.ExportAllManager;
@@ -168,7 +168,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     LOGGER.info ("Searching generically for '" + sQuery + "'");
 
     // Build Lucene query
-    final Query aLuceneQuery = PDQueryManager.convertQueryStringToLuceneQuery (PDMetaManager.getLucene (),
+    final Query aLuceneQuery = PDQueryManagerLucene.convertQueryStringToLuceneQuery (PDMetaManager.getLucene (),
                                                                                CPDStorage.FIELD_ALL_FIELDS,
                                                                                sQuery);
     if (LOGGER.isDebugEnabled ())

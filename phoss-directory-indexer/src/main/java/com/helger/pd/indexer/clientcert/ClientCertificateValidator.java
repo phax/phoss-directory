@@ -37,6 +37,7 @@ import com.helger.annotation.style.ReturnsMutableCopy;
 import com.helger.annotation.style.VisibleForTesting;
 import com.helger.base.array.ArrayHelper;
 import com.helger.base.exception.InitializationException;
+import com.helger.cache.regex.RegExHelper;
 import com.helger.collection.commons.CommonsArrayList;
 import com.helger.collection.commons.CommonsHashMap;
 import com.helger.collection.commons.ICommonsList;
@@ -44,6 +45,7 @@ import com.helger.collection.commons.ICommonsMap;
 import com.helger.datetime.helper.PDTFactory;
 import com.helger.pd.indexer.settings.PDConfiguredTrustStore;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
+import com.helger.security.certificate.CertificateHelper;
 import com.helger.security.keystore.KeyStoreHelper;
 
 import jakarta.annotation.Nonnull;
@@ -270,7 +272,7 @@ public final class ClientCertificateValidator
   }
 
   @Nullable
-  static String getClientUniqueID (@Nonnull final X509Certificate aCert)
+  static String getClientUniqueIDOld (@Nonnull final X509Certificate aCert)
   {
     try
     {
@@ -296,6 +298,28 @@ public final class ClientCertificateValidator
     catch (final Exception ex)
     {
       LOGGER.error ("Failed to parse '" + aCert.getSubjectX500Principal ().getName () + "'", ex);
+      return null;
+    }
+  }
+
+  @Nullable
+  static String getClientUniqueIDNew (@Nonnull final X509Certificate aCert)
+  {
+    try
+    {
+      String sSeatID = CertificateHelper.getSubjectCN (aCert);
+      if (sSeatID == null)
+        throw new IllegalArgumentException ("Certificate has no Subject CN");
+      if (sSeatID.length () != 9)
+        throw new IllegalArgumentException ("Subject CN is not 9 digits long: '" + sSeatID + "'");
+      if (!RegExHelper.stringMatchesPattern ("^P[A-Z]{2}[0-9]{6}", sSeatID))
+        throw new IllegalArgumentException ("Subject CN does not seem to be a Seat ID: '" + sSeatID + "'");
+
+      return sSeatID.substring (3);
+    }
+    catch (final Exception ex)
+    {
+      LOGGER.error ("Failed to extract client unique ID: " + ex.getMessage ());
       return null;
     }
   }
@@ -371,7 +395,10 @@ public final class ClientCertificateValidator
                                          Arrays.toString (aRequestCerts));
       }
     }
-    final String sClientID = getClientUniqueID (aClientCertToVerify);
+
+    // TODO change to SPID only - migration needed
+    final String sClientIDOld = getClientUniqueIDOld (aClientCertToVerify);
+    String sClientIDNew = getClientUniqueIDNew (aClientCertToVerify);
 
     // This is the main verification process against the Peppol SMP root
     // certificate
@@ -381,10 +408,10 @@ public final class ClientCertificateValidator
       if (sVerifyErrorMsg == null)
       {
         LOGGER.info (sLogPrefix + "  Passed client certificate is valid");
-        return ClientCertificateValidationResult.createSuccess (sClientID);
+        return ClientCertificateValidationResult.createSuccess (sClientIDOld);
       }
     }
-    LOGGER.warn ("Client certificate is invalid: " + sClientID);
+    LOGGER.warn ("Client certificate is invalid: " + sClientIDOld);
     return ClientCertificateValidationResult.createFailure ();
   }
 }

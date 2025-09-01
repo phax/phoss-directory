@@ -130,7 +130,7 @@ public class PDExtendedBusinessCard implements IHasJson, Serializable
   {
     final PDBusinessCard aBC = PDBusinessCard.of (aJson.getAsObject ("businesscard"));
     final ICommonsList <IDocumentTypeIdentifier> aDocTypes = CommonsArrayList.createFiltered (aJson.getAsArray ("doctypes"),
-                                                                                              (Predicate <IJson>) IJson::isObject,
+                                                                                              (Predicate <? super IJson>) IJson::isObject,
                                                                                               x -> new SimpleDocumentTypeIdentifier (x.getAsObject ()
                                                                                                                                       .getAsString ("scheme"),
                                                                                                                                      x.getAsObject ()

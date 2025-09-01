@@ -52,7 +52,7 @@ import com.helger.json.serialize.JsonWriterSettings;
 import com.helger.mime.CMimeType;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.PDStorageManagerLucene;
-import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
+import com.helger.pd.indexer.storage.model.PDStoredBusinessEntity;
 import com.helger.pd.publisher.app.AppCommonUI;
 import com.helger.pd.publisher.search.EPDOutputFormat;
 import com.helger.pd.publisher.search.EPDSearchField;
