@@ -23,7 +23,7 @@ import com.helger.annotation.style.ReturnsMutableCopy;
 import com.helger.base.name.IHasDisplayName;
 import com.helger.base.type.ITypedObject;
 import com.helger.datetime.domain.IHasCreationDateTime;
-import com.helger.pd.indexer.storage.PDStoredMetaData;
+import com.helger.pd.indexer.storage.model.PDStoredMetaData;
 import com.helger.peppolid.IParticipantIdentifier;
 
 import jakarta.annotation.Nonnull;

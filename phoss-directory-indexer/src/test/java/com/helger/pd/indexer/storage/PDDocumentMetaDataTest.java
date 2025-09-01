@@ -21,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import com.helger.datetime.helper.PDTFactory;
+import com.helger.pd.indexer.storage.model.PDStoredMetaData;
 
 public final class PDDocumentMetaDataTest
 {

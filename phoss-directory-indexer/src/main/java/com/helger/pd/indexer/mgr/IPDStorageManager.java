@@ -22,7 +22,7 @@ import java.io.IOException;
 import com.helger.annotation.CheckForSigned;
 import com.helger.base.state.ESuccess;
 import com.helger.pd.indexer.businesscard.PDExtendedBusinessCard;
-import com.helger.pd.indexer.storage.PDStoredMetaData;
+import com.helger.pd.indexer.storage.model.PDStoredMetaData;
 import com.helger.peppolid.IParticipantIdentifier;
 
 import jakarta.annotation.Nonnull;

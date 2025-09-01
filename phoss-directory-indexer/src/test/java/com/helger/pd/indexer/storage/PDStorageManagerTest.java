@@ -36,6 +36,8 @@ import com.helger.pd.indexer.businesscard.PDExtendedBusinessCard;
 import com.helger.pd.indexer.lucene.PDLucene;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.field.PDField;
+import com.helger.pd.indexer.storage.model.PDStoredBusinessEntity;
+import com.helger.pd.indexer.storage.model.PDStoredMetaData;
 import com.helger.peppol.businesscard.generic.PDBusinessCard;
 import com.helger.peppol.businesscard.generic.PDBusinessEntity;
 import com.helger.peppol.businesscard.generic.PDContact;

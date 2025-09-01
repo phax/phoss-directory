@@ -9,6 +9,7 @@ import com.helger.base.enforce.ValueEnforcer;
 import com.helger.base.state.ESuccess;
 import com.helger.pd.indexer.businesscard.PDExtendedBusinessCard;
 import com.helger.pd.indexer.mgr.IPDStorageManager;
+import com.helger.pd.indexer.storage.model.PDStoredMetaData;
 import com.helger.peppolid.IParticipantIdentifier;
 
 import jakarta.annotation.Nonnull;
