@@ -305,9 +305,9 @@ public final class PDStorageManagerLucene implements IPDStorageManager
   }
 
   @CheckForSigned
-  public int deleteEntry (@Nonnull final IParticipantIdentifier aParticipantID,
-                          @Nullable final PDStoredMetaData aMetaData,
-                          final boolean bVerifyOwner) throws IOException
+  public long deleteEntry (@Nonnull final IParticipantIdentifier aParticipantID,
+                           @Nullable final PDStoredMetaData aMetaData,
+                           final boolean bVerifyOwner) throws IOException
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
 
@@ -361,7 +361,7 @@ public final class PDStorageManagerLucene implements IPDStorageManager
     }
     else
       aDeleteQuery = aParticipantQuery;
-    final int nCount = getCount (aDeleteQuery);
+    final long nCount = getCount (aDeleteQuery);
     if (m_aLucene.writeLockedAtomic ( () -> {
       // Delete
       m_aLucene.deleteDocuments (aDeleteQuery);
@@ -373,7 +373,7 @@ public final class PDStorageManagerLucene implements IPDStorageManager
     LOGGER.info ("Deleted " + nCount + " docs from the index using the query '" + aDeleteQuery + "'");
     AuditHelper.onAuditExecuteSuccess ("pd-indexer-delete",
                                        aParticipantID.getURIEncoded (),
-                                       Integer.valueOf (nCount),
+                                       Long.valueOf (nCount),
                                        aMetaData,
                                        Boolean.toString (bVerifyOwner));
     return nCount;
@@ -414,7 +414,7 @@ public final class PDStorageManagerLucene implements IPDStorageManager
   }
 
   @CheckForSigned
-  public int getCount (@Nonnull final Query aQuery)
+  public long getCount (@Nonnull final Query aQuery)
   {
     ValueEnforcer.notNull (aQuery, "Query");
     try
@@ -595,7 +595,7 @@ public final class PDStorageManagerLucene implements IPDStorageManager
   }
 
   @CheckForSigned
-  public int getContainedParticipantCount ()
+  public long getContainedParticipantCount ()
   {
     return getCount (new MatchAllDocsQuery ());
   }

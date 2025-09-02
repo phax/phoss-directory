@@ -31,7 +31,8 @@ import com.helger.datetime.format.PDTFromString;
 import com.helger.datetime.helper.PDTFactory;
 import com.helger.io.file.SimpleFileIO;
 import com.helger.pd.indexer.index.EIndexerWorkItemType;
-import com.helger.pd.indexer.mgr.PDIndexerManager;
+import com.helger.pd.indexer.mgr.IPDIndexerManager;
+import com.helger.pd.indexer.mgr.PDIndexerManagerLucene;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.CPDStorage;
 import com.helger.peppolid.IParticipantIdentifier;
@@ -67,7 +68,8 @@ public final class SyncAllBusinessCardsJob extends AbstractScopeAwareJob
   public static LocalDateTime getLastSync ()
   {
     final String sPayload = SimpleFileIO.getFileAsString (_getLastSyncFile (), StandardCharsets.ISO_8859_1);
-    final LocalDateTime ret = PDTFromString.getLocalDateTimeFromString (sPayload, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+    final LocalDateTime ret = PDTFromString.getLocalDateTimeFromString (sPayload,
+                                                                        DateTimeFormatter.ISO_LOCAL_DATE_TIME);
     return ret == null ? INITIAL_SYNC : ret;
   }
 
@@ -91,23 +93,29 @@ public final class SyncAllBusinessCardsJob extends AbstractScopeAwareJob
     }
 
     LOGGER.info ("Start synchronizing business cards" + (bForceSync ? " (forced)" : ""));
-    final PDIndexerManager aIndexerMgr = PDMetaManager.getIndexerMgr ();
+    final IPDIndexerManager aIndexerMgr = PDMetaManager.getIndexerMgr ();
     // Queue a work item to re-scan all
     final Set <IParticipantIdentifier> aAll = PDMetaManager.getStorageMgr ().getAllContainedParticipantIDs ().keySet ();
     for (final IParticipantIdentifier aParticipantID : aAll)
     {
-      aIndexerMgr.queueWorkItem (aParticipantID, EIndexerWorkItemType.SYNC, CPDStorage.OWNER_SYNC_JOB, PDIndexerManager.HOST_LOCALHOST);
+      aIndexerMgr.queueWorkItem (aParticipantID,
+                                 EIndexerWorkItemType.SYNC,
+                                 CPDStorage.OWNER_SYNC_JOB,
+                                 PDIndexerManagerLucene.HOST_LOCALHOST);
     }
     LOGGER.info ("Finished synchronizing of " + aAll.size () + " business cards");
-    AuditHelper.onAuditExecuteSuccess ("sync-bc-started", Integer.valueOf (aAll.size ()), aNow, Boolean.valueOf (bForceSync));
+    AuditHelper.onAuditExecuteSuccess ("sync-bc-started",
+                                       Integer.valueOf (aAll.size ()),
+                                       aNow,
+                                       Boolean.valueOf (bForceSync));
     _setLastSync (aNow);
 
     return EChange.CHANGED;
   }
 
   @Override
-  protected void onExecute (@Nonnull final JobDataMap aJobDataMap,
-                            @Nonnull final IJobExecutionContext aContext) throws JobExecutionException
+  protected void onExecute (@Nonnull final JobDataMap aJobDataMap, @Nonnull final IJobExecutionContext aContext)
+                                                                                                                 throws JobExecutionException
   {
     // Ignore result - not forced
     syncAllBusinessCards (false);

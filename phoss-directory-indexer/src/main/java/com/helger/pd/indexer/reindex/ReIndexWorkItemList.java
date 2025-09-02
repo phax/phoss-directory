@@ -35,7 +35,7 @@ import jakarta.annotation.Nullable;
 
 /**
  * This is the list with {@link IReIndexWorkItem} objects. It is solely used in
- * the {@link com.helger.pd.indexer.mgr.PDIndexerManager} for "re-index" and
+ * the {@link com.helger.pd.indexer.mgr.PDIndexerManagerLucene} for "re-index" and
  * "dead" work items.
  *
  * @author Philip Helger

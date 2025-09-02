@@ -18,7 +18,7 @@ package com.helger.pd.publisher.app.secure;
 
 import com.helger.annotation.Nonempty;
 import com.helger.html.hc.impl.HCNodeList;
-import com.helger.pd.indexer.mgr.PDIndexerManager;
+import com.helger.pd.indexer.mgr.IPDIndexerManager;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.reindex.IReIndexWorkItemList;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
@@ -36,7 +36,7 @@ public final class PageSecureListDeadIndex extends AbstractPageSecureReIndex
   @Nonnull
   protected IReIndexWorkItemList getReIndexWorkItemList ()
   {
-    final PDIndexerManager aIndexerMgr = PDMetaManager.getIndexerMgr ();
+    final IPDIndexerManager aIndexerMgr = PDMetaManager.getIndexerMgr ();
     return aIndexerMgr.getDeadList ();
   }
 

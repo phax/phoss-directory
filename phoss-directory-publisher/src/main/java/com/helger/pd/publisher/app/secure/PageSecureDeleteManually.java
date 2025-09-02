@@ -68,7 +68,7 @@ public final class PageSecureDeleteManually extends AbstractAppWebPage
 
       if (aFormErrors.isEmpty ())
       {
-        int nDeleted = 0;
+        long nDeleted = 0;
         try
         {
           nDeleted = PDMetaManager.getStorageMgr ().deleteEntry (aParticipantID, null, false);

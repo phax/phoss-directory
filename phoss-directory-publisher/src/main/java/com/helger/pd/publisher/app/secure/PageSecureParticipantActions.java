@@ -50,7 +50,8 @@ import com.helger.html.hc.impl.HCNodeList;
 import com.helger.json.IJsonObject;
 import com.helger.mime.CMimeType;
 import com.helger.pd.indexer.index.EIndexerWorkItemType;
-import com.helger.pd.indexer.mgr.PDIndexerManager;
+import com.helger.pd.indexer.mgr.IPDIndexerManager;
+import com.helger.pd.indexer.mgr.PDIndexerManagerLucene;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.CPDStorage;
 import com.helger.pd.indexer.storage.field.PDField;
@@ -309,7 +310,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
       // Important to use this identifier factory so that the correct key is
       // created
       final IIdentifierFactory aIF = SimpleIdentifierFactory.INSTANCE;
-      final PDIndexerManager aIndexerMgr = PDMetaManager.getIndexerMgr ();
+      final IPDIndexerManager aIndexerMgr = PDMetaManager.getIndexerMgr ();
 
       String sMsg = "Deleting " + aPIsToDelete.size () + " participant ID(s):";
       LOGGER.info (sMsg);
@@ -321,7 +322,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
         aIndexerMgr.queueWorkItem (aIF.parseParticipantIdentifier (s),
                                    EIndexerWorkItemType.DELETE,
                                    CPDStorage.OWNER_DUPLICATE_ELIMINATION,
-                                   PDIndexerManager.HOST_LOCALHOST);
+                                   PDIndexerManagerLucene.HOST_LOCALHOST);
       }
 
       if (aPIsToAdd.isNotEmpty ())
@@ -336,7 +337,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
           aIndexerMgr.queueWorkItem (aIF.parseParticipantIdentifier (s),
                                      EIndexerWorkItemType.CREATE_UPDATE,
                                      CPDStorage.OWNER_DUPLICATE_ELIMINATION,
-                                     PDIndexerManager.HOST_LOCALHOST);
+                                     PDIndexerManagerLucene.HOST_LOCALHOST);
         }
       }
 

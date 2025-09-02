@@ -18,7 +18,7 @@ package com.helger.pd.publisher.app.secure;
 
 import com.helger.annotation.Nonempty;
 import com.helger.html.hc.impl.HCNodeList;
-import com.helger.pd.indexer.mgr.PDIndexerManager;
+import com.helger.pd.indexer.mgr.IPDIndexerManager;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.reindex.IReIndexWorkItemList;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
@@ -37,7 +37,7 @@ public final class PageSecureListReIndex extends AbstractPageSecureReIndex
   @Nonnull
   protected IReIndexWorkItemList getReIndexWorkItemList ()
   {
-    final PDIndexerManager aIndexerMgr = PDMetaManager.getIndexerMgr ();
+    final IPDIndexerManager aIndexerMgr = PDMetaManager.getIndexerMgr ();
     return aIndexerMgr.getReIndexList ();
   }
 
@@ -46,7 +46,9 @@ public final class PageSecureListReIndex extends AbstractPageSecureReIndex
   {
     final HCNodeList aNodeList = aWPEC.getNodeList ();
     aNodeList.addChild (info ().addChild (div ("This page contains all entries where indexing failed initially but is re-tried."))
-                               .addChild (div ("Re-index happens every " + PDServerConfiguration.getReIndexRetryMinutes () + " minute(s)"))
+                               .addChild (div ("Re-index happens every " +
+                                               PDServerConfiguration.getReIndexRetryMinutes () +
+                                               " minute(s)"))
                                .addChild (div ("Re-indexing stops after " +
                                                PDServerConfiguration.getReIndexMaxRetryHours () +
                                                " hour(s)")));

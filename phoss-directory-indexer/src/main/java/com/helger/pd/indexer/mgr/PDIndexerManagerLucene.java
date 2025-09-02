@@ -16,7 +16,6 @@
  */
 package com.helger.pd.indexer.mgr;
 
-import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -67,11 +66,11 @@ import jakarta.annotation.Nonnull;
  *
  * @author Philip Helger
  */
-public final class PDIndexerManager implements Closeable
+public final class PDIndexerManagerLucene implements IPDIndexerManager
 {
   public static final String HOST_LOCALHOST = "localhost";
 
-  private static final Logger LOGGER = LoggerFactory.getLogger (PDIndexerManager.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger (PDIndexerManagerLucene.class);
   private static final String ELEMENT_ROOT = "root";
   private static final String ELEMENT_ITEM = "item";
 
@@ -131,7 +130,7 @@ public final class PDIndexerManager implements Closeable
    * @throws DAOException
    *         If DAO initialization failed
    */
-  public PDIndexerManager (@Nonnull final IPDStorageManager aStorageMgr) throws DAOException
+  public PDIndexerManagerLucene (@Nonnull final IPDStorageManager aStorageMgr) throws DAOException
   {
     m_aStorageMgr = ValueEnforcer.notNull (aStorageMgr, "StorageMgr");
 

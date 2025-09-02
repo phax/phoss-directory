@@ -132,6 +132,11 @@
       <artifactId>ph-unittest-support-ext</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+    	<groupId>com.helger</groupId>
+    	<artifactId>phoss-smp-webapp-sql</artifactId>
+    	<version>8.0.1-SNAPSHOT</version>
+    </dependency>
   </dependencies>
 
   <build>

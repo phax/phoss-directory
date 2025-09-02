@@ -50,6 +50,7 @@ import com.helger.json.JsonArray;
 import com.helger.json.JsonObject;
 import com.helger.json.serialize.JsonWriterSettings;
 import com.helger.mime.CMimeType;
+import com.helger.pd.indexer.mgr.IPDStorageManager;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.PDStorageManagerLucene;
 import com.helger.pd.indexer.storage.model.PDStoredBusinessEntity;
@@ -309,12 +310,12 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
       final int nMaxResults = nLastResultIndex + 1;
 
       // Search all documents
-      final PDStorageManagerLucene aStorageMgr = PDMetaManager.getStorageMgr ();
+      final IPDStorageManager aStorageMgr = PDMetaManager.getStorageMgr ();
       final ICommonsList <PDStoredBusinessEntity> aResultDocs = aStorageMgr.getAllDocuments (aLuceneQuery, nMaxResults);
 
       // Also get the total hit count for UI display. May be < 0 in case of
       // error
-      final int nTotalBEs = aStorageMgr.getCount (aLuceneQuery);
+      final long nTotalBEs = aStorageMgr.getCount (aLuceneQuery);
 
       if (LOGGER.isDebugEnabled ())
         LOGGER.debug ("  Result for <" +

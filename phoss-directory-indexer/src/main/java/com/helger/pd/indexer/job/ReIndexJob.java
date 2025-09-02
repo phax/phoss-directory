@@ -21,7 +21,7 @@ import com.helger.base.enforce.ValueEnforcer;
 import com.helger.collection.commons.CommonsHashMap;
 import com.helger.collection.commons.ICommonsMap;
 import com.helger.datetime.helper.PDTFactory;
-import com.helger.pd.indexer.mgr.PDIndexerManager;
+import com.helger.pd.indexer.mgr.IPDIndexerManager;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.quartz.DisallowConcurrentExecution;
 import com.helger.quartz.IJobExecutionContext;
@@ -40,8 +40,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.servlet.ServletContext;
 
 /**
- * A Quartz job that is scheduled to re-index existing entries that failed to
- * re-index previously.
+ * A Quartz job that is scheduled to re-index existing entries that failed to re-index previously.
  *
  * @author Philip Helger
  */
@@ -68,10 +67,10 @@ public class ReIndexJob extends AbstractScopeAwareJob
   }
 
   @Override
-  protected void onExecute (@Nonnull final JobDataMap aJobDataMap,
-                            @Nonnull final IJobExecutionContext aContext) throws JobExecutionException
+  protected void onExecute (@Nonnull final JobDataMap aJobDataMap, @Nonnull final IJobExecutionContext aContext)
+                                                                                                                 throws JobExecutionException
   {
-    final PDIndexerManager aIndexerMgr = PDMetaManager.getIndexerMgr ();
+    final IPDIndexerManager aIndexerMgr = PDMetaManager.getIndexerMgr ();
 
     // First expire all old entries
     aIndexerMgr.expireOldEntries ();
@@ -82,8 +81,7 @@ public class ReIndexJob extends AbstractScopeAwareJob
 
   /**
    * @param aScheduleBuilder
-   *        The schedule builder to be used. May not be <code>null</code>.
-   *        Example:
+   *        The schedule builder to be used. May not be <code>null</code>. Example:
    *        <code>SimpleScheduleBuilder.repeatMinutelyForever (1)</code>
    * @return The created trigger key for further usage. Never <code>null</code>.
    */

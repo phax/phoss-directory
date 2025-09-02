@@ -31,7 +31,7 @@ import com.helger.peppolid.IParticipantIdentifier;
 import jakarta.annotation.Nonnull;
 
 /**
- * Internal class to execute a single work item. It is invoked by the {@link PDIndexerManager}.
+ * Internal class to execute a single work item. It is invoked by the {@link PDIndexerManagerLucene}.
  *
  * @author Philip Helger
  */

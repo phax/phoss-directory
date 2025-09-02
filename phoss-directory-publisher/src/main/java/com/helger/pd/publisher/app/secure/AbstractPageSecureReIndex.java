@@ -29,7 +29,7 @@ import com.helger.html.hc.html.textlevel.HCA;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.index.EIndexerWorkItemType;
 import com.helger.pd.indexer.index.IIndexerWorkItem;
-import com.helger.pd.indexer.mgr.PDIndexerManager;
+import com.helger.pd.indexer.mgr.PDIndexerManagerLucene;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.reindex.IReIndexWorkItem;
 import com.helger.pd.indexer.reindex.IReIndexWorkItemList;
@@ -141,7 +141,7 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
                                            .queueWorkItem (aParticipantID,
                                                            EIndexerWorkItemType.CREATE_UPDATE,
                                                            CPDStorage.OWNER_MANUALLY_TRIGGERED,
-                                                           PDIndexerManager.HOST_LOCALHOST)
+                                                           PDIndexerManagerLucene.HOST_LOCALHOST)
                                            .isChanged ())
                           {
                             aWPEC.postRedirectGetInternal (success ("The re-indexing of participant ID '" +

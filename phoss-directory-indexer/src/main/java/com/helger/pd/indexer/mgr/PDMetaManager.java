@@ -56,8 +56,8 @@ public final class PDMetaManager extends AbstractGlobalSingleton
   private static IPDBusinessCardProvider s_aBCProvider;
 
   private PDLucene m_aLucene;
-  private PDStorageManagerLucene m_aStorageMgr;
-  private PDIndexerManager m_aIndexerMgr;
+  private IPDStorageManager m_aStorageMgr;
+  private IPDIndexerManager m_aIndexerMgr;
 
   @Deprecated (forRemoval = false)
   @UsedViaReflection
@@ -71,7 +71,7 @@ public final class PDMetaManager extends AbstractGlobalSingleton
     {
       m_aLucene = new PDLucene ();
       m_aStorageMgr = new PDStorageManagerLucene (m_aLucene);
-      m_aIndexerMgr = new PDIndexerManager (m_aStorageMgr);
+      m_aIndexerMgr = new PDIndexerManagerLucene (m_aStorageMgr);
 
       LOGGER.info (ClassHelper.getClassLocalName (this) + " was initialized");
     }
@@ -142,13 +142,13 @@ public final class PDMetaManager extends AbstractGlobalSingleton
   }
 
   @Nonnull
-  public static PDStorageManagerLucene getStorageMgr ()
+  public static IPDStorageManager getStorageMgr ()
   {
     return getInstance ().m_aStorageMgr;
   }
 
   @Nonnull
-  public static PDIndexerManager getIndexerMgr ()
+  public static IPDIndexerManager getIndexerMgr ()
   {
     return getInstance ().m_aIndexerMgr;
   }

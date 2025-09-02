@@ -53,16 +53,16 @@ public final class PageSecureParticipantCount extends AbstractAppWebPage
       aNodeList.addChild (aToolbar);
     }
 
-    final int nNotDeletedCount = PDMetaManager.getStorageMgr ().getContainedParticipantCount ();
+    final long nNotDeletedCount = PDMetaManager.getStorageMgr ().getContainedParticipantCount ();
     aNodeList.addChild (h3 (nNotDeletedCount + " participants (entities) are contained"));
 
-    final int nIndexCount = PDMetaManager.getIndexerMgr ().getIndexerWorkQueue ().internalGetQueue ().size ();
+    final long nIndexCount = PDMetaManager.getIndexerMgr ().getIndexerWorkQueue ().internalGetQueue ().size ();
     aNodeList.addChild (h3 (nIndexCount + " index items are contained"));
 
-    final int nReIndexCount = PDMetaManager.getIndexerMgr ().getReIndexList ().getItemCount ();
+    final long nReIndexCount = PDMetaManager.getIndexerMgr ().getReIndexList ().getItemCount ();
     aNodeList.addChild (h3 (nReIndexCount + " re-index items are contained"));
 
-    final int nDeadCount = PDMetaManager.getIndexerMgr ().getDeadList ().getItemCount ();
+    final long nDeadCount = PDMetaManager.getIndexerMgr ().getDeadList ().getItemCount ();
     aNodeList.addChild (h3 (nDeadCount + " dead items are contained"));
 
     if (false)

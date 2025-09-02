@@ -41,6 +41,7 @@ import com.helger.html.hc.html.grouping.HCOL;
 import com.helger.html.hc.html.grouping.HCUL;
 import com.helger.html.hc.html.tabular.HCCol;
 import com.helger.html.hc.impl.HCNodeList;
+import com.helger.pd.indexer.mgr.IPDStorageManager;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.CPDStorage;
 import com.helger.pd.indexer.storage.PDQueryManagerLucene;
@@ -162,15 +163,15 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     final HCNodeList aNodeList = aWPEC.getNodeList ();
     final Locale aDisplayLocale = aWPEC.getDisplayLocale ();
     final IRequestWebScopeWithoutResponse aRequestScope = aWPEC.getRequestScope ();
-    final PDStorageManagerLucene aStorageMgr = PDMetaManager.getStorageMgr ();
+    final IPDStorageManager aStorageMgr = PDMetaManager.getStorageMgr ();
 
     // Search all documents
     LOGGER.info ("Searching generically for '" + sQuery + "'");
 
     // Build Lucene query
     final Query aLuceneQuery = PDQueryManagerLucene.convertQueryStringToLuceneQuery (PDMetaManager.getLucene (),
-                                                                               CPDStorage.FIELD_ALL_FIELDS,
-                                                                               sQuery);
+                                                                                     CPDStorage.FIELD_ALL_FIELDS,
+                                                                                     sQuery);
     if (LOGGER.isDebugEnabled ())
       LOGGER.debug ("Created query for '" + sQuery + "' is <" + aLuceneQuery + ">");
 
@@ -180,7 +181,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     final ICommonsList <PDStoredBusinessEntity> aResultBEs = aStorageMgr.getAllDocuments (aLuceneQuery, nMaxResults);
     // Also get the total hit count for UI display. May be < 0 in case of
     // error
-    final int nTotalBEs = aStorageMgr.getCount (aLuceneQuery);
+    final long nTotalBEs = aStorageMgr.getCount (aLuceneQuery);
     LOGGER.info ("  Result for <" +
                  aLuceneQuery +
                  "> (max=" +
@@ -201,8 +202,8 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     else
     {
       aNodeList.addChild (div (badgeSuccess ("Found " +
-                                             (aGroupedBEs.size () == 1 ? "1 entity"
-                                                                       : aGroupedBEs.size () + " entities") +
+                                             (aGroupedBEs.size () == 1 ? "1 entity" : aGroupedBEs.size () +
+                                                                                      " entities") +
                                              " matching '" +
                                              sQuery +
                                              "'")));
@@ -261,11 +262,12 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
                   .addCell ("Country:")
                   .addCell (new HCNodeList ().addChild (PDCommonUI.getFlagNode (sCountryCode))
                                              .addChild (" ")
-                                             .addChild (span (aCountry != null ? aCountry.getDisplayCountry (aDisplayLocale) +
+                                             .addChild (span (aCountry != null ? aCountry.getDisplayCountry (
+                                                                                                             aDisplayLocale) +
                                                                                  " (" +
                                                                                  sCountryCode +
-                                                                                 ")"
-                                                                               : sCountryCode).addClass (CSS_CLASS_RESULT_DOC_COUNTRY_CODE)));
+                                                                                 ")" : sCountryCode).addClass (
+                                                                                                               CSS_CLASS_RESULT_DOC_COUNTRY_CODE)));
           }
 
           if (aStoredDoc.names ().isNotEmpty ())

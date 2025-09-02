@@ -12,6 +12,8 @@ import org.opensearch.client.opensearch._types.OpenSearchException;
 import org.opensearch.client.opensearch._types.Result;
 import org.opensearch.client.opensearch._types.query_dsl.IdsQuery;
 import org.opensearch.client.opensearch._types.query_dsl.Query;
+import org.opensearch.client.opensearch._types.query_dsl.QueryStringQuery;
+import org.opensearch.client.opensearch.core.CountResponse;
 import org.opensearch.client.opensearch.core.DeleteResponse;
 import org.opensearch.client.opensearch.core.IndexRequest;
 import org.opensearch.client.opensearch.core.IndexResponse;
@@ -31,6 +33,7 @@ import com.helger.pd.indexer.businesscard.PDExtendedBusinessCard;
 import com.helger.pd.indexer.mgr.IPDStorageManager;
 import com.helger.pd.indexer.storage.model.PDStoredMetaData;
 import com.helger.peppolid.IParticipantIdentifier;
+import com.helger.photon.audit.AuditHelper;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -97,7 +100,7 @@ public class PDStorageManagerOpenSearch implements IPDStorageManager
                                                                                                       .id (aData.getID ())
                                                                                                       .document (aData)
                                                                                                       .build ());
-    return switch (aResponse.result ())
+    final ESuccess ret = switch (aResponse.result ())
     {
       case Created:
       case Updated:
@@ -105,12 +108,23 @@ public class PDStorageManagerOpenSearch implements IPDStorageManager
       default:
         yield ESuccess.FAILURE;
     };
+    if (ret.isSuccess ())
+      AuditHelper.onAuditExecuteSuccess ("pd-indexer-create",
+                                         aData.getID (),
+                                         Integer.valueOf (aExtBI.getDocumentTypeCount ()),
+                                         aMetaData);
+    else
+      AuditHelper.onAuditExecuteFailure ("pd-indexer-create",
+                                         aData.getID (),
+                                         Integer.valueOf (aExtBI.getDocumentTypeCount ()),
+                                         aMetaData);
+    return ret;
   }
 
   @CheckForSigned
-  public int deleteEntry (@Nonnull final IParticipantIdentifier aParticipantID,
-                          @Nullable final PDStoredMetaData aMetaData,
-                          final boolean bVerifyOwner) throws IOException
+  public long deleteEntry (@Nonnull final IParticipantIdentifier aParticipantID,
+                           @Nullable final PDStoredMetaData aMetaData,
+                           final boolean bVerifyOwner) throws IOException
   {
     final String sID = aParticipantID.getURIEncoded ();
 
@@ -148,5 +162,62 @@ public class PDStorageManagerOpenSearch implements IPDStorageManager
     // Safe to delete the document
     final DeleteResponse aResponse = m_aClient.delete (b -> b.index (INDEX_BUSINESS_CARD).id (sID));
     return aResponse.result () == Result.Deleted ? 1 : 0;
+  }
+
+  private static Query _getStringQuery (@Nonnull final org.apache.lucene.search.Query aQuery)
+  {
+    return new Query.Builder ().queryString (new QueryStringQuery.Builder ().query (aQuery.toString ()).build ())
+                               .build ();
+  }
+
+  @CheckForSigned
+  public long getCount (@Nonnull final org.apache.lucene.search.Query aQuery)
+  {
+    try
+    {
+      // Query the existing record
+      final CountResponse countResponse = m_aClient.count (s -> s.index (INDEX_BUSINESS_CARD)
+                                                                 .query (_getStringQuery (aQuery)));
+      return countResponse.count ();
+    }
+    catch (IOException | OpenSearchException ex)
+    {
+      LOGGER.error ("Error counting documents with query " + aQuery, ex);
+      return -1;
+    }
+  }
+
+  @CheckForSigned
+  public long getContainedParticipantCount ()
+  {
+    try
+    {
+      // Query the existing record
+      final CountResponse countResponse = m_aClient.count (s -> s.index (INDEX_BUSINESS_CARD));
+      return countResponse.count ();
+    }
+    catch (IOException | OpenSearchException ex)
+    {
+      LOGGER.error ("Error counting participants", ex);
+      return -1;
+    }
+  }
+
+  public boolean containsEntry (@Nonnull final IParticipantIdentifier aPI)
+  {
+    try
+    {
+      // Query the existing record
+      final CountResponse countResponse = m_aClient.count (s -> s.index (INDEX_BUSINESS_CARD)
+                                                                 .query (new Query.Builder ().ids (new IdsQuery.Builder ().values (aPI.getURIEncoded ())
+                                                                                                                          .build ())
+                                                                                             .build ()));
+      return countResponse.count () > 0;
+    }
+    catch (IOException | OpenSearchException ex)
+    {
+      LOGGER.error ("Error in containsEntry " + aPI.getURIEncoded (), ex);
+      return false;
+    }
   }
 }
