@@ -110,9 +110,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
       LOGGER.info ("Starting AJAX_DOWNLOAD_ALL_IDS_XML");
       final IMicroDocument aDoc = new MicroDocument ();
       final IMicroElement aRoot = aDoc.addElement ("root");
-      final Set <IParticipantIdentifier> aAllIDs = PDMetaManager.getStorageMgr ()
-                                                                .getAllContainedParticipantIDs ()
-                                                                .keySet ();
+      final Set <IParticipantIdentifier> aAllIDs = PDMetaManager.getStorageMgr ().getAllContainedParticipantIDs ();
       for (final IParticipantIdentifier aParticipantID : aAllIDs)
       {
         // Use the same layout as for the "full export", so that it can be used

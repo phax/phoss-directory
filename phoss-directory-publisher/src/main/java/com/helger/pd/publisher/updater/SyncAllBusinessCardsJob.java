@@ -95,7 +95,7 @@ public final class SyncAllBusinessCardsJob extends AbstractScopeAwareJob
     LOGGER.info ("Start synchronizing business cards" + (bForceSync ? " (forced)" : ""));
     final IPDIndexerManager aIndexerMgr = PDMetaManager.getIndexerMgr ();
     // Queue a work item to re-scan all
-    final Set <IParticipantIdentifier> aAll = PDMetaManager.getStorageMgr ().getAllContainedParticipantIDs ().keySet ();
+    final Set <IParticipantIdentifier> aAll = PDMetaManager.getStorageMgr ().getAllContainedParticipantIDs ();
     for (final IParticipantIdentifier aParticipantID : aAll)
     {
       aIndexerMgr.queueWorkItem (aParticipantID,

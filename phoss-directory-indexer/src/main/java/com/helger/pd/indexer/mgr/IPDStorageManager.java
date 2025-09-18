@@ -19,10 +19,12 @@ package com.helger.pd.indexer.mgr;
 import java.io.Closeable;
 import java.io.IOException;
 
-import org.apache.lucene.search.Query;
-
 import com.helger.annotation.CheckForSigned;
+import com.helger.annotation.style.ReturnsMutableCopy;
+import com.helger.base.numeric.mutable.MutableInt;
 import com.helger.base.state.ESuccess;
+import com.helger.collection.commons.ICommonsSortedMap;
+import com.helger.collection.commons.ICommonsSortedSet;
 import com.helger.pd.indexer.businesscard.PDExtendedBusinessCard;
 import com.helger.pd.indexer.storage.model.PDStoredMetaData;
 import com.helger.peppolid.IParticipantIdentifier;
@@ -77,8 +79,19 @@ public interface IPDStorageManager extends Closeable
   @CheckForSigned
   long getContainedParticipantCount ();
 
-  @CheckForSigned
-  long getCount (@Nonnull Query aQuery);
-
   boolean containsEntry (@Nonnull IParticipantIdentifier aPI) throws IOException;
+
+  /**
+   * @return A map from participant ID to the number of business entities
+   */
+  @Nonnull
+  @ReturnsMutableCopy
+  ICommonsSortedSet <IParticipantIdentifier> getAllContainedParticipantIDs ();
+
+  /**
+   * @return A map from participant ID to the number of business entities
+   */
+  @Nonnull
+  @ReturnsMutableCopy
+  ICommonsSortedMap <IParticipantIdentifier, MutableInt> getAllContainedParticipantIDsAndEntityCount ();
 }

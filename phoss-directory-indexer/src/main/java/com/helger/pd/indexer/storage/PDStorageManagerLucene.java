@@ -57,9 +57,11 @@ import com.helger.collection.CollectionFind;
 import com.helger.collection.commons.CommonsArrayList;
 import com.helger.collection.commons.CommonsLinkedHashMap;
 import com.helger.collection.commons.CommonsTreeMap;
+import com.helger.collection.commons.CommonsTreeSet;
 import com.helger.collection.commons.ICommonsList;
 import com.helger.collection.commons.ICommonsMap;
 import com.helger.collection.commons.ICommonsSortedMap;
+import com.helger.collection.commons.ICommonsSortedSet;
 import com.helger.datetime.web.PDTWebDateHelper;
 import com.helger.pd.indexer.businesscard.PDExtendedBusinessCard;
 import com.helger.pd.indexer.lucene.AllDocumentsCollector;
@@ -573,7 +575,31 @@ public final class PDStorageManagerLucene implements IPDStorageManager
 
   @Nonnull
   @ReturnsMutableCopy
-  public ICommonsSortedMap <IParticipantIdentifier, MutableInt> getAllContainedParticipantIDs ()
+  public ICommonsSortedSet <IParticipantIdentifier> getAllContainedParticipantIDs ()
+  {
+    // Map from ID to entity count
+    final ICommonsSortedSet <IParticipantIdentifier> aTargetSet = new CommonsTreeSet <> ();
+    final Query aQuery = new MatchAllDocsQuery ();
+    try
+    {
+      final ObjIntConsumer <Document> aConsumer = (aDoc, nDocID) -> {
+        final IParticipantIdentifier aResolvedParticipantID = PDField.PARTICIPANT_ID.getDocValue (aDoc);
+        if (aResolvedParticipantID != null)
+          aTargetSet.add (aResolvedParticipantID);
+      };
+      final Collector aCollector = new AllDocumentsCollector (m_aLucene, aConsumer);
+      searchAtomic (aQuery, aCollector);
+    }
+    catch (final IOException ex)
+    {
+      LOGGER.error ("Error searching for documents with query " + aQuery, ex);
+    }
+    return aTargetSet;
+  }
+
+  @Nonnull
+  @ReturnsMutableCopy
+  public ICommonsSortedMap <IParticipantIdentifier, MutableInt> getAllContainedParticipantIDsAndEntityCount ()
   {
     // Map from ID to entity count
     final ICommonsSortedMap <IParticipantIdentifier, MutableInt> aTargetSet = new CommonsTreeMap <> ();
@@ -582,7 +608,8 @@ public final class PDStorageManagerLucene implements IPDStorageManager
     {
       final ObjIntConsumer <Document> aConsumer = (aDoc, nDocID) -> {
         final IParticipantIdentifier aResolvedParticipantID = PDField.PARTICIPANT_ID.getDocValue (aDoc);
-        aTargetSet.computeIfAbsent (aResolvedParticipantID, k -> new MutableInt (0)).inc ();
+        if (aResolvedParticipantID != null)
+          aTargetSet.computeIfAbsent (aResolvedParticipantID, k -> new MutableInt (0)).inc ();
       };
       final Collector aCollector = new AllDocumentsCollector (m_aLucene, aConsumer);
       searchAtomic (aQuery, aCollector);

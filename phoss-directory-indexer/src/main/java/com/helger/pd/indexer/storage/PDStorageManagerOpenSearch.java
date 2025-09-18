@@ -10,7 +10,9 @@ import org.apache.hc.core5.http.HttpHost;
 import org.opensearch.client.opensearch.OpenSearchClient;
 import org.opensearch.client.opensearch._types.OpenSearchException;
 import org.opensearch.client.opensearch._types.Result;
+import org.opensearch.client.opensearch._types.query_dsl.FieldAndFormat;
 import org.opensearch.client.opensearch._types.query_dsl.IdsQuery;
+import org.opensearch.client.opensearch._types.query_dsl.MatchAllQuery;
 import org.opensearch.client.opensearch._types.query_dsl.Query;
 import org.opensearch.client.opensearch._types.query_dsl.QueryStringQuery;
 import org.opensearch.client.opensearch.core.CountResponse;
@@ -26,7 +28,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.annotation.CheckForSigned;
+import com.helger.annotation.style.ReturnsMutableCopy;
 import com.helger.base.state.ESuccess;
+import com.helger.collection.commons.CommonsTreeSet;
+import com.helger.collection.commons.ICommonsSortedSet;
 import com.helger.httpclient.HttpClientFactory;
 import com.helger.httpclient.HttpClientSettings;
 import com.helger.pd.indexer.businesscard.PDExtendedBusinessCard;
@@ -144,7 +149,7 @@ public class PDStorageManagerOpenSearch implements IPDStorageManager
       LOGGER.error ("Found more than one hit (" + searchResponse.hits ().hits ().size () + ") for deletion");
 
     final Hit <OpenSearchIndexData> aData = searchResponse.hits ().hits ().get (0);
-    final String sStoredOwnerID = aData.source ().m_aMetaData.getOwnerID ();
+    final String sStoredOwnerID = aData.source ().getMetaData ().getOwnerID ();
     if (sStoredOwnerID == null)
       throw new IllegalStateException ("No owner ID is present");
     if (!sStoredOwnerID.equals (aMetaData.getOwnerID ()) &&
@@ -214,10 +219,34 @@ public class PDStorageManagerOpenSearch implements IPDStorageManager
                                                                                              .build ()));
       return countResponse.count () > 0;
     }
-    catch (IOException | OpenSearchException ex)
+    catch (final IOException | OpenSearchException ex)
     {
       LOGGER.error ("Error in containsEntry " + aPI.getURIEncoded (), ex);
       return false;
+    }
+  }
+
+  @Nonnull
+  @ReturnsMutableCopy
+  public ICommonsSortedSet <IParticipantIdentifier> getAllContainedParticipantIDs ()
+  {
+    try
+    {
+      final SearchResponse <OpenSearchIndexData> searchResponse = m_aClient.search (s -> s.index (INDEX_BUSINESS_CARD)
+                                                                                          .fields (new FieldAndFormat.Builder ().field (OpenSearchIndexData.FIELD_PARTICIPANT)
+                                                                                                                                .build ())
+                                                                                          .query (new Query.Builder ().matchAll (new MatchAllQuery.Builder ().build ())
+                                                                                                                      .build ()),
+                                                                                    OpenSearchIndexData.class);
+
+      final ICommonsSortedSet <IParticipantIdentifier> ret = new CommonsTreeSet <> ();
+      // TODO
+      return ret;
+    }
+    catch (final IOException | OpenSearchException ex)
+    {
+      LOGGER.error ("Error in getAllContainedParticipantIDs", ex);
+      return new CommonsTreeSet <> ();
     }
   }
 }

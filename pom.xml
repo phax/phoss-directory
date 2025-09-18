@@ -62,14 +62,14 @@
   </developers>
   
   <properties>
-    <awssdk.version>2.33.8</awssdk.version>
+    <awssdk.version>2.33.12</awssdk.version>
     <!-- Peppol Directory runs on Lucene v8 -->
     <lucene.version>8.11.2</lucene.version>
     <jersey.version>3.1.11</jersey.version>
     <log4j.version>2.25.1</log4j.version>
     <jaxb-plugin.group>org.jvnet.jaxb</jaxb-plugin.group>
     <jaxb-plugin.artifact>jaxb-maven-plugin</jaxb-plugin.artifact>
-    <jaxb-plugin.version>4.0.10</jaxb-plugin.version>
+    <jaxb-plugin.version>4.0.11</jaxb-plugin.version>
     <ph-jaxb-plugin.version>5.0.1</ph-jaxb-plugin.version>
   </properties>
   
@@ -78,7 +78,7 @@
       <dependency>
         <groupId>com.helger.commons</groupId>
         <artifactId>ph-commons-parent-pom</artifactId>
-        <version>12.0.0</version>
+        <version>12.0.1</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -90,7 +90,7 @@
       <dependency>
         <groupId>com.helger.masterdata</groupId>
         <artifactId>ph-masterdata-parent-pom</artifactId>
-        <version>8.0.0</version>
+        <version>8.0.1</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -104,7 +104,7 @@
       <dependency>
         <groupId>com.helger.web</groupId>
         <artifactId>ph-web-parent-pom</artifactId>
-        <version>11.1.0-SNAPSHOT</version>
+        <version>11.1.0</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -125,7 +125,7 @@
       <dependency>
         <groupId>com.helger.peppol</groupId>
         <artifactId>peppol-commons-parent-pom</artifactId>
-        <version>12.0.1</version>
+        <version>12.0.3</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>

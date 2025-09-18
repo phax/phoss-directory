@@ -96,7 +96,7 @@ public final class PageSecureParticipantList extends AbstractAppWebPage
     }
 
     final ICommonsSortedMap <IParticipantIdentifier, MutableInt> aAllIDs = PDMetaManager.getStorageMgr ()
-                                                                                        .getAllContainedParticipantIDs ();
+                                                                                        .getAllContainedParticipantIDsAndEntityCount ();
     aNodeList.addChild (h3 (aAllIDs.size () + " participants (=Business Cards) are contained"));
 
     int nMaxEntries;
