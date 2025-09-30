@@ -218,8 +218,7 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
       aNavbar.addBrand (aImg, aLinkToStartPage);
 
     aNavbar.addBrand (new HCSpan ().addClass (AppCommonUI.CSS_CLASS_LOGO1)
-                                   .addChild (CPDPublisher.getApplicationTitle ()),
-                      aLinkToStartPage);
+                                   .addChild (CPDPublisher.getApplicationTitle ()), aLinkToStartPage);
 
     _addNavbarLoginLogout (aLEC, aNavbar);
     return aNavbar;
@@ -270,11 +269,6 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
       aDiv.addChild (new HCP ().addChild (CPDPublisher.getApplication () + " - an ")
                                .addChild (new HCA (new SimpleURL (VENDOR_URL)).addChild (VENDOR_NAME))
                                .addChild (" service"));
-      if (PDServerConfiguration.getConfig ().getAsBoolean ("webapp.showtwitter", true))
-      {
-        aDiv.addChild (new HCP ().addChild ("Follow us on Twitter: ")
-                                 .addChild (new HCA (new SimpleURL ("https://twitter.com/PEPPOLDirectory")).addChild ("@PEPPOLDirectory")));
-      }
       final HCP aP = new HCP ().addChild ("Download data [");
       aP.addChild (new HCA (LinkHelper.getURLWithContext (aRequestScope,
                                                           ExportServlet.SERVLET_DEFAULT_PATH +
@@ -350,8 +344,8 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
   }
 
   @Override
-  protected void fillBody (@Nonnull final ISimpleWebExecutionContext aSWEC,
-                           @Nonnull final HCHtml aHtml) throws ForcedRedirectException
+  protected void fillBody (@Nonnull final ISimpleWebExecutionContext aSWEC, @Nonnull final HCHtml aHtml)
+                                                                                                         throws ForcedRedirectException
   {
     final IRequestWebScopeWithoutResponse aRequestScope = aSWEC.getRequestScope ();
     final Locale aDisplayLocale = aSWEC.getDisplayLocale ();
