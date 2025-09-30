@@ -44,7 +44,8 @@ public final class CDirectoryVersion
   {
     String sProjectVersion = null;
     String sProjectTimestamp = null;
-    final ICommonsMap <String, String> p = PropertiesHelper.loadProperties (new ClassPathResource ("phoss-directory-version.properties"));
+    final ICommonsMap <String, String> p = PropertiesHelper.loadProperties (new ClassPathResource ("phoss-directory-version.properties",
+                                                                                                   CDirectoryVersion.class.getClassLoader ()));
     if (p != null)
     {
       sProjectVersion = p.get ("version");
