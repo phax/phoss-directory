@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (C) 2015-2022 Philip Helger (www.helger.com)
+    Copyright (C) 2015-2025 Philip Helger (www.helger.com)
     philip[at]helger[dot]com
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -165,12 +165,16 @@
         <groupId>com.mycila</groupId>
         <artifactId>license-maven-plugin</artifactId>
         <configuration>
-          <excludes>
-            <exclude>data/**</exclude>
-            <exclude>**/NOTICE</exclude>
-            <exclude>**/LICENSE</exclude>
-            <exclude>**/*.jks</exclude>
-          </excludes>
+          <licenseSets>
+            <licenseSet>
+              <excludes>
+                <exclude>data/**</exclude>
+                <exclude>**/NOTICE</exclude>
+                <exclude>**/LICENSE</exclude>
+                <exclude>**/*.jks</exclude>
+              </excludes>
+            </licenseSet>
+          </licenseSets>
         </configuration>
       </plugin>
     </plugins>
