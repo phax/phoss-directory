@@ -64,14 +64,14 @@ public final class PDBusinessCardHelper
   {}
 
   /**
-   * A generic reading API to read all supported versions of the BusinessCard
-   * from a byte array and an optional character set.
+   * A generic reading API to read all supported versions of the BusinessCard from a byte array and
+   * an optional character set.
    *
    * @param aData
    *        Bytes to read. May not be <code>null</code>.
    * @param aCharset
-   *        Character set to use. May be <code>null</code> in which case the XML
-   *        character set determination takes place.
+   *        Character set to use. May be <code>null</code> in which case the XML character set
+   *        determination takes place.
    * @return <code>null</code> if parsing fails.
    */
   @Nullable
@@ -84,7 +84,7 @@ public final class PDBusinessCardHelper
       {
         // Silent mode for all versions but the latest
         m.readExceptionCallbacks ().removeAll ();
-        m.setValidationEventHandler (new DoNothingValidationEventHandler ());
+        m.setValidationEventHandlerFactory (aOldEventHandler -> new DoNothingValidationEventHandler ());
       }
       if (aCharset != null)
         m.setCharset (aCharset);
@@ -92,14 +92,13 @@ public final class PDBusinessCardHelper
   }
 
   /**
-   * A generic reading API to read all supported versions of the BusinessCard
-   * from a byte array and an optional character set.
+   * A generic reading API to read all supported versions of the BusinessCard from a byte array and
+   * an optional character set.
    *
    * @param aData
    *        Bytes to read. May not be <code>null</code>.
    * @param aMarshallerCustomizer
-   *        The optional marshaller customizer to be used. May be
-   *        <code>null</code>.
+   *        The optional marshaller customizer to be used. May be <code>null</code>.
    * @return <code>null</code> if parsing fails.
    * @since 0.9.6
    */
@@ -176,8 +175,7 @@ public final class PDBusinessCardHelper
   }
 
   /**
-   * A generic reading API to read all supported versions of the BusinessCard
-   * from a DOM node.
+   * A generic reading API to read all supported versions of the BusinessCard from a DOM node.
    *
    * @param aNode
    *        Pre-parsed XML node to read. May not be <code>null</code>.
@@ -194,20 +192,18 @@ public final class PDBusinessCardHelper
       {
         // Silent mode for all versions but the latest
         m.readExceptionCallbacks ().removeAll ();
-        m.setValidationEventHandler (new DoNothingValidationEventHandler ());
+        m.setValidationEventHandlerFactory (aOldEventHandler -> new DoNothingValidationEventHandler ());
       }
     });
   }
 
   /**
-   * A generic reading API to read all supported versions of the BusinessCard
-   * from a DOM node.
+   * A generic reading API to read all supported versions of the BusinessCard from a DOM node.
    *
    * @param aNode
    *        Pre-parsed XML node to read. May not be <code>null</code>.
    * @param aMarshallerCustomizer
-   *        The optional marshaller customizer to be used. May be
-   *        <code>null</code>.
+   *        The optional marshaller customizer to be used. May be <code>null</code>.
    * @return <code>null</code> if parsing fails.
    * @since 0.9.6
    */
