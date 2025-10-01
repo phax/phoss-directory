@@ -58,8 +58,8 @@ import com.helger.servlet.ServletContextPathHolder;
 import com.helger.xservlet.requesttrack.RequestTrackerSettings;
 
 /**
- * This listener is invoked during the servlet initialization. This is basically
- * a ServletContextListener.
+ * This listener is invoked during the servlet initialization. This is basically a
+ * ServletContextListener.
  *
  * @author Philip Helger
  */
@@ -195,7 +195,10 @@ public final class AppWebAppListener extends WebAppListenerBootstrap
                                                              JDK8TriggerBuilder.newTrigger ()
                                                                                .startAt (bDebug ? PDTFactory.getCurrentLocalDateTime ()
                                                                                                 : PDTFactory.getCurrentLocalDateTime ()
-                                                                                                            .plusHours (1))
+                                                                                                            .withHour (2)
+                                                                                                            .withMinute (0)
+                                                                                                            .withSecond (0)
+                                                                                                            .withNano (0))
                                                                                .withSchedule (bDebug ? SimpleScheduleBuilder.repeatMinutelyForever (2)
                                                                                                      : SimpleScheduleBuilder.repeatHourlyForever (24)),
                                                              ExportAllDataJob.class,
