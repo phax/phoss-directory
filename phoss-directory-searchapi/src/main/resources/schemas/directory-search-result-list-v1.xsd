@@ -20,7 +20,7 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
   <xs:annotation>
     <xs:documentation>
-      XML Schema for the PEPPOL Directory search rules.
+      XML Schema for the Peppol Directory search rules.
       Version 1.0
       Last update: 2018-10-25
       Author: Philip Helger
