@@ -5,6 +5,7 @@ generated/
 
 *.iml
 *.jks
+*.p12
 private-*.properties
 
 .project 
