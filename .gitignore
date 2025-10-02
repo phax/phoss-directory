@@ -1,12 +1,14 @@
 target/
 .settings/ 
 generated/
+data/
 
 *.iml
 *.jks
 private-*.properties
 
-.project 
 .classpath
+.DS_Store
 .factorypath
+.project 
 zz

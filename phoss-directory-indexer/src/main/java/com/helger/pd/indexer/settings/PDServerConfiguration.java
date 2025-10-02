@@ -246,7 +246,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
     return getConfig ().getAsString ("webapp.search.ui");
   }
 
-  public static boolean isWebAppShowContactPage ()
+  public static boolean isWebAppShowContactLink ()
   {
     // true for backwards compatibility
     return getConfig ().getAsBoolean ("webapp.contact.show", true);
