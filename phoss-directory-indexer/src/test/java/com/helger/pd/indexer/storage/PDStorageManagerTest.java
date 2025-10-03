@@ -132,7 +132,7 @@ public final class PDStorageManagerTest
         }
 
         assertEquals (1, aDoc1.websiteURIs ().size ());
-        assertEquals ("http://www.peppol.eu", aDoc1.websiteURIs ().get (0));
+        assertEquals ("https://peppol.org", aDoc1.websiteURIs ().get (0));
 
         assertEquals (1, aDoc1.contacts ().size ());
         assertEquals ("support", aDoc1.contacts ().get (0).getType ());

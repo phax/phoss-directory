@@ -34,17 +34,21 @@ public final class PDServerConfigurationTest
   public void testClientCerts ()
   {
     final ICommonsList <String> aList = PDServerConfiguration.getAllClientCertIssuer ();
-    assertEquals (2, aList.size ());
+    assertEquals (4, aList.size ());
     // Check if all items are unique
-    assertEquals (2, new CommonsHashSet <> (aList).size ());
+    assertEquals (4, new CommonsHashSet <> (aList).size ());
     assertEquals ("CN=PEPPOL SERVICE METADATA PUBLISHER CA - G2,O=OpenPEPPOL AISBL,C=BE", aList.get (0));
-    assertEquals ("CN=PEPPOL SERVICE METADATA PUBLISHER TEST CA - G2,OU=FOR TEST ONLY,O=OpenPEPPOL AISBL,C=BE", aList.get (1));
+    assertEquals ("CN=PEPPOL SERVICE METADATA PUBLISHER TEST CA - G2,OU=FOR TEST ONLY,O=OpenPEPPOL AISBL,C=BE",
+                  aList.get (1));
+    assertEquals ("CN=PEPPOL SERVICE METADATA PUBLISHER CA - G3,O=OpenPEPPOL AISBL,C=BE", aList.get (2));
+    assertEquals ("CN=PEPPOL SERVICE METADATA PUBLISHER TEST CA - G3,OU=FOR TEST ONLY,O=OpenPEPPOL AISBL,C=BE",
+                  aList.get (3));
   }
 
   @Test
   public void testTrustStores ()
   {
     final ICommonsList <PDConfiguredTrustStore> aList = PDServerConfiguration.getAllTrustStores ();
-    assertEquals (2, aList.size ());
+    assertEquals (4, aList.size ());
   }
 }
