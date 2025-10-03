@@ -105,6 +105,7 @@ v0.14.1 - 2025-10-03
 * Removed the contact page form, as it was not working anymore
 * Removed public page login
 * Updated to eDEC Code Lists v9.3
+* Fixed links to peppol.org and updated spelling where necessary
 
 v0.14.0 - 2025-08-27
 * Requires Java 17 as the minimum version
