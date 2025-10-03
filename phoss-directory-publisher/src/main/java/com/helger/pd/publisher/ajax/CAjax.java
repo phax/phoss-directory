@@ -40,9 +40,6 @@ public final class CAjax
   public static final IAjaxFunctionDeclaration DATATABLES_I18N = AjaxFunctionDeclaration.builder ("datatables-i18n")
                                                                                         .executor (new AjaxExecutorDataTablesI18N (AppCommonUI.DEFAULT_LOCALE))
                                                                                         .build ();
-  public static final IAjaxFunctionDeclaration LOGIN = AjaxFunctionDeclaration.builder ("login")
-                                                                              .executor (AjaxExecutorPublicLogin.class)
-                                                                              .build ();
 
   private CAjax ()
   {}
@@ -51,6 +48,5 @@ public final class CAjax
   {
     aAjaxRegistry.registerFunction (DATATABLES);
     aAjaxRegistry.registerFunction (DATATABLES_I18N);
-    aAjaxRegistry.registerFunction (LOGIN);
   }
 }

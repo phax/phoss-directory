@@ -28,7 +28,6 @@ import com.helger.html.css.ICSSClassProvider;
 import com.helger.html.hc.IHCNode;
 import com.helger.html.hc.html.IHCElement;
 import com.helger.html.hc.html.embedded.HCImg;
-import com.helger.html.hc.html.grouping.HCDiv;
 import com.helger.html.hc.html.grouping.HCP;
 import com.helger.html.hc.html.grouping.HCUL;
 import com.helger.html.hc.html.metadata.HCHead;
@@ -178,7 +177,7 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
         if (SecurityHelper.hasUserRole (aUser.getID (), AppSecurity.ROLE_CONFIG_ID))
         {
           aToggleable.addChild (new BootstrapButton ().addClass (CBootstrapCSS.MR_2)
-                                                      .addChild ("Goto secure area")
+                                                      .addChild ("Goto Administration")
                                                       .setOnClick (LinkHelper.getURLWithContext (AbstractSecureApplicationServlet.SERVLET_DEFAULT_PATH +
                                                                                                  "/")));
         }
@@ -186,18 +185,6 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
                                                                                                LogoutServlet.SERVLET_DEFAULT_PATH))
                                                     .addChild (EPhotonCoreText.LOGIN_LOGOUT.getDisplayText (aDisplayLocale))
                                                     .addStyle (CCSSProperties.MARGIN_RIGHT.newValue ("8px")));
-      }
-      else
-      {
-        final BootstrapNavbarNav aNav = aToggleable.addAndReturnNav ();
-        final BootstrapDropdownMenu aDropDown = new BootstrapDropdownMenu ();
-        {
-          final HCDiv aDiv = new HCDiv ().addClass (CBootstrapCSS.P_2)
-                                         .addStyle (CCSSProperties.MIN_WIDTH.newValue ("400px"));
-          aDiv.addChild (AppCommonUI.createViewLoginForm (aLEC, null));
-          aDropDown.addChild (aDiv);
-        }
-        aNav.addItem ().addNavDropDown ("Login", aDropDown);
       }
     }
   }
