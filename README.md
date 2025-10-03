@@ -103,6 +103,8 @@ v0.14.1 - 2025-10-03
 * The export job is now scheduled to happen on 2am - more deterministically
 * Added support for Peppol G2 + G3 support in parallel
 * Removed the contact page form, as it was not working anymore
+* Removed public page login
+* Updated to eDEC Code Lists v9.3
 
 v0.14.0 - 2025-08-27
 * Requires Java 17 as the minimum version

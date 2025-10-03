@@ -93,13 +93,13 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
   private static final String VENDOR_NAME = PDServerConfiguration.getVendorName ();
   private static final String VENDOR_URL = PDServerConfiguration.getVendorURL ();
 
-  private static final ICommonsList <IMenuObject> s_aFooterObjects = new CommonsArrayList <> ();
+  private static final ICommonsList <IMenuObject> FOOTER_OBJECTS = new CommonsArrayList <> ();
 
   static
   {
     PhotonGlobalState.state (CApplicationID.APP_ID_PUBLIC).getMenuTree ().iterateAllMenuObjects (aCurrentObject -> {
       if (aCurrentObject.attrs ().containsKey (CMenuPublic.FLAG_FOOTER))
-        s_aFooterObjects.add (aCurrentObject);
+        FOOTER_OBJECTS.add (aCurrentObject);
     });
   }
 
@@ -126,8 +126,9 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
                .addChild ("Export data")
                .setHref (aLEC.getLinkToMenuItem (CMenuPublic.MENU_DOCS_EXPORT_ALL));
       aDropDown.createAndAddItem ()
-               .addChild ("Specification v1.1.1 (PDF)")
-               .setHref (LinkHelper.getURLWithContext ("/files/PEPPOL-EDN-Directory-1.1.1-2020-10-15.pdf"));
+               .addChild ("Peppol Directory Specification (external)")
+               .setHref (new SimpleURL ("https://docs.peppol.eu/edelivery/"))
+               .setTargetBlank ();
       aDropDown.createAndAddItem ()
                .addChild ("Guide for SMP providers (PDF)")
                .setHref (LinkHelper.getURLWithContext ("/files/OpenPEPPOL Directory for SMP providers 2016-12-05.pdf"));
@@ -143,7 +144,7 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
         final String sTitle = PDServerConfiguration.getWebAppContactTitle ("Contact us");
         final URL aExternalURL = PDServerConfiguration.getWebAppContactExternalURL ();
         if (aExternalURL != null)
-          aDropDown.createAndAddItem ().addChild (sTitle).setHref (new SimpleURL (aExternalURL));
+          aDropDown.createAndAddItem ().addChild (sTitle).setHref (new SimpleURL (aExternalURL)).setTargetBlank ();
       }
       aDropDown.createAndAddItem ()
                .addChild ("Issue tracker (external)")
@@ -307,7 +308,7 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
 
       final BootstrapMenuItemRendererHorz aRenderer = new BootstrapMenuItemRendererHorz (aDisplayLocale);
       final HCUL aUL = aDiv.addAndReturnChild (new HCUL ().addClass (CSS_CLASS_FOOTER_LINKS));
-      for (final IMenuObject aMenuObj : s_aFooterObjects)
+      for (final IMenuObject aMenuObj : FOOTER_OBJECTS)
       {
         if (aMenuObj instanceof IMenuSeparator)
           aUL.addItem (aRenderer.renderSeparator (aLEC, (IMenuSeparator) aMenuObj));
