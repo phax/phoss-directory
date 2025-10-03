@@ -42,7 +42,6 @@ import com.helger.config.source.MultiConfigurationValueProvider;
 import com.helger.config.source.resource.properties.ConfigurationSourceProperties;
 import com.helger.io.resource.IReadableResource;
 import com.helger.io.resourceprovider.ReadableResourceProviderChain;
-import com.helger.peppol.security.PeppolTrustStores;
 import com.helger.peppol.sml.ESMPAPIType;
 import com.helger.peppolid.factory.BDXR1IdentifierFactory;
 import com.helger.peppolid.factory.BDXR2IdentifierFactory;
@@ -112,14 +111,14 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
     aRes = aResourceProvider.getReadableResourceIf ("private-pd.properties", IReadableResource::exists);
     if (aRes != null)
     {
-      LOGGER.warn ("The support for the properties file 'private-pd.properties' is deprecated. Place the properties in 'application.properties' instead.");
+      LOGGER.error ("The support for the properties file 'private-pd.properties' is deprecated. Place the properties in 'application.properties' instead.");
       ret.addConfigurationSource (new ConfigurationSourceProperties (aRes, StandardCharsets.UTF_8), nBasePrio - 1);
     }
 
     aRes = aResourceProvider.getReadableResourceIf ("pd.properties", IReadableResource::exists);
     if (aRes != null)
     {
-      LOGGER.warn ("The support for the properties file 'pd.properties' is deprecated. Place the properties in 'application.properties' instead.");
+      LOGGER.error ("The support for the properties file 'pd.properties' is deprecated. Place the properties in 'application.properties' instead.");
       ret.addConfigurationSource (new ConfigurationSourceProperties (aRes, StandardCharsets.UTF_8), nBasePrio - 2);
     }
 
@@ -319,13 +318,15 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
       final String sPrefix = "truststore." + nIndex;
 
       final String sType = getConfig ().getAsString (sPrefix + ".type");
-      final EKeyStoreType eType = EKeyStoreType.getFromIDCaseInsensitiveOrDefault (sType,
-                                                                                   PeppolTrustStores.Config2018.TRUSTSTORE_TYPE);
+      final EKeyStoreType eType = EKeyStoreType.getFromIDCaseInsensitiveOrNull (sType);
       final String sPath = getConfig ().getAsString (sPrefix + ".path");
       final String sPassword = getConfig ().getAsString (sPrefix + ".password");
       final String sAlias = getConfig ().getAsString (sPrefix + ".alias");
 
-      if (StringHelper.isEmpty (sPath) || StringHelper.isEmpty (sPassword) || StringHelper.isEmpty (sAlias))
+      if (eType == null ||
+          StringHelper.isEmpty (sPath) ||
+          StringHelper.isEmpty (sPassword) ||
+          StringHelper.isEmpty (sAlias))
         break;
 
       // Present - try next
