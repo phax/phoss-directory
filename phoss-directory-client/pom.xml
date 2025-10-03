@@ -27,7 +27,7 @@
   <artifactId>phoss-directory-client</artifactId>
   <packaging>bundle</packaging>
   <name>phoss-directory-client</name>
-  <description>The PEPPOL Directory client that can be used by SMP servers to register/uregister from Directory</description>
+  <description>The Peppol Directory client that can be used by SMP servers to register/uregister from Directory</description>
   <url>https://github.com/phax/phoss-directory/phoss-directory-client</url>
   <inceptionYear>2015</inceptionYear>
   <licenses>

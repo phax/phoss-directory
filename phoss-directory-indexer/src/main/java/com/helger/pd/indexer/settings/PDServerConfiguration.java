@@ -53,7 +53,7 @@ import com.helger.scope.singleton.AbstractGlobalSingleton;
 import com.helger.security.keystore.EKeyStoreType;
 import com.helger.smpclient.url.BDXLURLProvider;
 import com.helger.smpclient.url.ISMPURLProvider;
-import com.helger.smpclient.url.PeppolConfigurableURLProvider;
+import com.helger.smpclient.url.PeppolNaptrURLProvider;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -431,7 +431,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
       return BDXLURLProvider.INSTANCE;
 
     // Default is Peppol
-    return PeppolConfigurableURLProvider.INSTANCE;
+    return PeppolNaptrURLProvider.INSTANCE;
   }
 
   @Nonnull

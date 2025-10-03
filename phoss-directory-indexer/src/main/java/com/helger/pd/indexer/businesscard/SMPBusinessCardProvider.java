@@ -105,6 +105,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
       ValueEnforcer.notNull (aURLProvider, "URL Provider");
       // aSMLInfoProvider may be null
     }
+    
     m_eSMPMode = eSMPMode;
     m_aSMPURI = aSMPURI;
     m_aURLProvider = aURLProvider;
@@ -192,8 +193,8 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
     }
     catch (final IOException ex)
     {
-      if ((ex instanceof HttpResponseException &&
-           ((HttpResponseException) ex).getStatusCode () == CHttp.HTTP_NOT_FOUND) || ex instanceof UnknownHostException)
+      if ((ex instanceof HttpResponseException aHREx &&
+          aHREx.getStatusCode () == CHttp.HTTP_NOT_FOUND) || ex instanceof UnknownHostException)
       {
         LOGGER.warn ("No BusinessCard available for '" +
                      aParticipantID.getURIEncoded () +
@@ -204,12 +205,14 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
         LOGGER.error ("Error querying SMP for BusinessCard of '" + aParticipantID.getURIEncoded () + "'", ex);
       return null;
     }
+
     if (aBusinessCard == null)
     {
       // No extension present - no need to try again
       LOGGER.warn ("Failed to get SMP BusinessCard of " + aParticipantID.getURIEncoded ());
       return null;
     }
+
     // Query all document types
     final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
     final ICommonsList <IDocumentTypeIdentifier> aDocumentTypeIDs = SMPClientReadOnly.getAllDocumentTypes (aServiceGroup,
@@ -253,8 +256,8 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
     }
     catch (final IOException ex)
     {
-      if ((ex instanceof HttpResponseException &&
-           ((HttpResponseException) ex).getStatusCode () == CHttp.HTTP_NOT_FOUND) || ex instanceof UnknownHostException)
+      if ((ex instanceof HttpResponseException aHREx &&
+          aHREx.getStatusCode () == CHttp.HTTP_NOT_FOUND) || ex instanceof UnknownHostException)
       {
         LOGGER.warn ("No BusinessCard available for '" +
                      aParticipantID.getURIEncoded () +
@@ -265,12 +268,14 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
         LOGGER.error ("Error querying SMP for BusinessCard of '" + aParticipantID.getURIEncoded () + "'", ex);
       return null;
     }
+
     if (aBusinessCard == null)
     {
       // No extension present - no need to try again
       LOGGER.warn ("Failed to get SMP BusinessCard of " + aParticipantID.getURIEncoded ());
       return null;
     }
+
     // Query all document types
     final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
     final ICommonsList <IDocumentTypeIdentifier> aDocumentTypeIDs = BDXRClientReadOnly.getAllDocumentTypes (aServiceGroup,
@@ -302,6 +307,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
       LOGGER.error ("Error querying SMP for ServiceGroup of '" + aParticipantID.getURIEncoded () + "'", ex);
       return null;
     }
+
     // If the service group is present, try querying the business card
     final PDBusinessCard aBusinessCard;
     try (final HttpClientManager aHCM = HttpClientManager.create (aSMPClient.httpClientSettings ()))
@@ -316,8 +322,8 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
     }
     catch (final IOException ex)
     {
-      if ((ex instanceof HttpResponseException &&
-           ((HttpResponseException) ex).getStatusCode () == CHttp.HTTP_NOT_FOUND) || ex instanceof UnknownHostException)
+      if ((ex instanceof HttpResponseException aHREx &&
+          aHREx.getStatusCode () == CHttp.HTTP_NOT_FOUND) || ex instanceof UnknownHostException)
       {
         LOGGER.warn ("No BusinessCard available for '" +
                      aParticipantID.getURIEncoded () +
@@ -328,12 +334,14 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
         LOGGER.error ("Error querying SMP for BusinessCard of '" + aParticipantID.getURIEncoded () + "'", ex);
       return null;
     }
+
     if (aBusinessCard == null)
     {
       // No extension present - no need to try again
       LOGGER.warn ("Failed to get SMP BusinessCard of " + aParticipantID.getURIEncoded ());
       return null;
     }
+
     // Query all document types
     final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
     final ICommonsList <IDocumentTypeIdentifier> aDocumentTypeIDs = BDXR2ClientReadOnly.getAllDocumentTypes (aServiceGroup,
@@ -497,11 +505,13 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
           default:
             throw new IllegalStateException ("Unsupported SMP mode " + m_eSMPMode);
         }
+
         // Found one? Use the first one
         if (aBC != null)
           break;
       }
     }
+
     if (aBC != null)
     {
       LOGGER.info ("Found BusinessCard for '" +
@@ -516,6 +526,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
     {
       LOGGER.warn ("Found NO BusinessCard for '" + aParticipantID.getURIEncoded () + "'");
     }
+
     return aBC;
   }
 

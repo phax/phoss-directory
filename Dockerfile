@@ -15,9 +15,9 @@
 # limitations under the License.
 #
 
-FROM tomcat:10-jdk11
+FROM tomcat:10.1-jdk21
 
-ARG VERSION="0.13.1"
+ARG VERSION="0.14.1"
 ARG WAR_NAME=phoss-directory-publisher-${VERSION}.war
 
 WORKDIR $CATALINA_HOME/webapps

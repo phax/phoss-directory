@@ -200,6 +200,7 @@ public final class PDQueryManager
       LOGGER.warn ("Name query string '" + sQueryString + "' is too short!");
       return null;
     }
+    
     // Query both fields in parallel
     final Query q1 = convertQueryStringToLuceneQuery (aAnalyzerProvider, PDField.NAME.getFieldName (), sQueryString);
     final Query q2 = convertQueryStringToLuceneQuery (aAnalyzerProvider, PDField.ML_NAME.getFieldName (), sQueryString);
@@ -231,6 +232,7 @@ public final class PDQueryManager
       LOGGER.warn ("GeoInfo query string '" + sQueryString + "' is too short!");
       return null;
     }
+    
     // Split into pieces
     return convertQueryStringToLuceneQuery (aAnalyzerProvider, PDField.GEO_INFO.getFieldName (), sQueryString);
   }
@@ -276,6 +278,7 @@ public final class PDQueryManager
       LOGGER.warn ("Contact query string '" + sQueryString + "' is too short!");
       return null;
     }
+    
     final Query aQuery1 = new WildcardQuery (PDField.CONTACT_TYPE.getContainsTerm (_lowerCase (sQueryString)));
     final Query aQuery2 = new WildcardQuery (PDField.CONTACT_NAME.getContainsTerm (_lowerCase (sQueryString)));
     final Query aQuery3 = new WildcardQuery (PDField.CONTACT_PHONE.getContainsTerm (_lowerCase (sQueryString)));
@@ -314,6 +317,7 @@ public final class PDQueryManager
       LOGGER.warn ("Registration date '" + sQueryString + "' is invalid!");
       return null;
     }
+    
     return new TermQuery (PDField.REGISTRATION_DATE.getExactMatchTerm (sQueryString));
   }
 
@@ -331,6 +335,7 @@ public final class PDQueryManager
       LOGGER.warn ("Failed to convert '" + sQueryString + "' to document type ID!");
       return null;
     }
+    
     return new TermQuery (PDField.DOCTYPE_ID.getExactMatchTerm (aDTI));
   }
 }

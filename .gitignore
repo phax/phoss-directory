@@ -5,6 +5,7 @@ data/
 
 *.iml
 *.jks
+*.p12
 private-*.properties
 
 .classpath
