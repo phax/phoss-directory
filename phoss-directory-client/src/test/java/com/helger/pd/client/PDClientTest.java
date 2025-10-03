@@ -16,7 +16,8 @@
  */
 package com.helger.pd.client;
 
-import org.junit.Ignore;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,39 +36,26 @@ public final class PDClientTest
   private static final Logger LOGGER = LoggerFactory.getLogger (PDClientTest.class);
 
   @Test
-  @Ignore ("Avoid long connection timeout")
-  public void testNonExistingPort ()
-  {
-    final IParticipantIdentifier aPI = PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9915:test");
-    try (final PDClient aClient = new PDClient ("http://193.10.8.211:7999"))
-    {
-      if (aClient.deleteServiceGroupFromIndex (aPI).isSuccess ())
-      {
-        aClient.isServiceGroupRegistered (aPI);
-        aClient.addServiceGroupToIndex (aPI);
-      }
-    }
-    catch (final InitializationException ex)
-    {
-      LOGGER.error ("Failed to invoke PDClient", ex);
-    }
-  }
-
-  @Test
   public void testTestServer ()
   {
-    final IParticipantIdentifier aPI = PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9915:test");
-    try (final PDClient aClient = new PDClient ("https://test-directory.peppol.eu"))
+    if (PDClientConfiguration.loadKeyStore ().isSuccess ())
     {
-      if (aClient.deleteServiceGroupFromIndex (aPI).isSuccess ())
+      final IParticipantIdentifier aPI = PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9915:test");
+      try (final PDClient aClient = new PDClient ("https://test-directory.peppol.eu"))
       {
-        aClient.isServiceGroupRegistered (aPI);
-        aClient.addServiceGroupToIndex (aPI);
+        if (aClient.deleteServiceGroupFromIndex (aPI).isSuccess ())
+        {
+          // May still be present, because delete is async
+          aClient.isServiceGroupRegistered (aPI);
+          assertTrue (aClient.addServiceGroupToIndex (aPI).isSuccess ());
+        }
+      }
+      catch (final InitializationException ex)
+      {
+        LOGGER.error ("Failed to invoke PDClient", ex);
       }
     }
-    catch (final InitializationException ex)
-    {
-      LOGGER.error ("Failed to invoke PDClient", ex);
-    }
+    else
+      LOGGER.warn ("No proper keystore is configured");
   }
 }

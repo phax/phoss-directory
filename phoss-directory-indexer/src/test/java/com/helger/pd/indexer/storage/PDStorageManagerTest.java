@@ -76,7 +76,7 @@ public final class PDStorageManagerTest
 
       for (int i = 0; i < 10; ++i)
         aEntity.identifiers ().add (new PDIdentifier ("scheme" + i, "value" + i));
-      aEntity.websiteURIs ().add ("http://www.peppol.eu");
+      aEntity.websiteURIs ().add ("https://peppol.org");
       aEntity.contacts ().add (new PDContact ("support", "BC name", "12345", "test@example.org"));
 
       aEntity.setAdditionalInfo ("This is a mock entry for testing purposes only");
@@ -92,14 +92,16 @@ public final class PDStorageManagerTest
       aEntity.setAdditionalInfo ("Mock");
       aBI.businessEntities ().add (aEntity);
     }
-    return new PDExtendedBusinessCard (aBI, new CommonsArrayList <> (EPredefinedDocumentTypeIdentifier.INVOICE_EN16931_PEPPOL_V30));
+    return new PDExtendedBusinessCard (aBI,
+                                       new CommonsArrayList <> (EPredefinedDocumentTypeIdentifier.INVOICE_EN16931_PEPPOL_V30));
   }
 
   @Test
   public void testGetAllDocumentsOfParticipant () throws IOException
   {
     final IParticipantIdentifier aParticipantID = PDMetaManager.getIdentifierFactory ()
-                                                               .createParticipantIdentifier ("myscheme-actorid-upis", "0088:test");
+                                                               .createParticipantIdentifier ("myscheme-actorid-upis",
+                                                                                             "0088:test");
     assertNotNull (aParticipantID);
 
     try (final PDStorageManager aMgr = new PDStorageManager (new PDLucene ()))
@@ -173,7 +175,8 @@ public final class PDStorageManagerTest
   public void testGetAllDocumentsOfCountryCode () throws IOException
   {
     final IParticipantIdentifier aParticipantID = PDMetaManager.getIdentifierFactory ()
-                                                               .createParticipantIdentifier ("myscheme-actorid-upis", "0088:test");
+                                                               .createParticipantIdentifier ("myscheme-actorid-upis",
+                                                                                             "0088:test");
     assertNotNull (aParticipantID);
 
     try (final PDStorageManager aMgr = new PDStorageManager (new PDLucene ()))
