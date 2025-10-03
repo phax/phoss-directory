@@ -43,6 +43,7 @@ import com.helger.pd.publisher.app.AppCommonUI;
 import com.helger.pd.publisher.app.AppSecurity;
 import com.helger.pd.publisher.servlet.ExportDeliveryHttpHandler;
 import com.helger.pd.publisher.servlet.ExportServlet;
+import com.helger.pd.publisher.ui.IndefiniteArticleHelper;
 import com.helger.photon.app.url.LinkHelper;
 import com.helger.photon.bootstrap4.CBootstrapCSS;
 import com.helger.photon.bootstrap4.button.BootstrapButton;
@@ -92,6 +93,7 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
   private static final ICSSClassProvider CSS_CLASS_FOOTER_LINKS = DefaultCSSClassProvider.create ("footer-links");
   private static final String VENDOR_NAME = PDServerConfiguration.getVendorName ();
   private static final String VENDOR_URL = PDServerConfiguration.getVendorURL ();
+  private static final String VENDOR_ARTICLE = IndefiniteArticleHelper.getIndefiniteArticle (VENDOR_NAME);
 
   private static final ICommonsList <IMenuObject> FOOTER_OBJECTS = new CommonsArrayList <> ();
 
@@ -250,7 +252,7 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
     {
       final BootstrapContainer aDiv = new BootstrapContainer ().setFluid (true).setID (CLayout.LAYOUT_AREAID_FOOTER);
 
-      aDiv.addChild (new HCP ().addChild (CPDPublisher.getApplication () + " - an ")
+      aDiv.addChild (new HCP ().addChild (CPDPublisher.getApplication () + " - " + VENDOR_ARTICLE + " ")
                                .addChild (new HCA (new SimpleURL (VENDOR_URL)).addChild (VENDOR_NAME))
                                .addChild (" service"));
       final HCP aP = new HCP ().addChild ("Download data [");

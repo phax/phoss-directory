@@ -21,7 +21,7 @@
 <p>
   The Peppol Directory contains information about entities participating in the <a href="https://peppol.org">Peppol</a> Network.
   It is intended to support business cases that are concerned with finding Peppol participants registered 
-  on the Peppol network in order to start exchanging business documents with them.
+  on the Peppol Network in order to start exchanging business documents with them.
 </p>
 
 <p>
@@ -32,7 +32,7 @@
 <h2>Target audience</h2>
 
 <p>
-  This page is intended for all users that are trying to locate their business partners in the Peppol network.
+  This page is intended for all users that are trying to locate their business partners in the Peppol Network.
   Both for onboarding as well for extending the scope of document exchange.
 </p>
 
@@ -42,15 +42,15 @@
   Currently the publication of Peppol participant information in an SMP happens on a voluntary basis.
   That implies that not all business entities are listed in the Peppol Directory which implies
   that if your desired partner does not show up in here it doesn't mean that the entity is not
-  in the Peppol network!
+  in the Peppol Network!
   On the other hand if an entity shows up in the Peppol Directory you can be sure that the
-  participant is a participant of the Peppol network. 
+  participant is a participant of the Peppol Network. 
 </p>
 
 <h3>Why only receiving capabilities are listed?</h3>
 
 <p>
-  The current administrative policy of the Peppol network requires that only Document Receiving capabilities 
+  The current administrative policy of the Peppol Network requires that only Document Receiving capabilities 
   of Peppol participants are registered on the network.
   There are plans to expand this in future to also encompass Document senders.
 </p>  
