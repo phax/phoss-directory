@@ -99,6 +99,9 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
+v0.14.2 - 2025-10-06
+* Fixed HTTP response charset of CSV exports
+
 v0.14.1 - 2025-10-03
 * The export job is now scheduled to happen on 2am - more deterministically
 * Added support for Peppol G2 + G3 support in parallel
