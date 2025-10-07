@@ -99,6 +99,9 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
+v0.14.3 - work in progress
+* Updated to eDEC Code Lists v9.4
+
 v0.14.2 - 2025-10-07
 * Fixed HTTP response charset of CSV exports
 
