@@ -99,7 +99,7 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
-v0.14.2 - 2025-10-06
+v0.14.2 - 2025-10-07
 * Fixed HTTP response charset of CSV exports
 
 v0.14.1 - 2025-10-03
