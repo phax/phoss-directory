@@ -28,10 +28,10 @@ import com.helger.json.JsonArray;
 import com.helger.json.JsonObject;
 import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
 import com.helger.pd.indexer.storage.PDStoredMLName;
-import com.helger.pd.publisher.nicename.NiceNameEntry;
-import com.helger.pd.publisher.nicename.NiceNameHandler;
 import com.helger.peppol.businesscard.generic.PDBusinessCard;
 import com.helger.peppol.businesscard.generic.PDIdentifier;
+import com.helger.peppol.ui.types.nicename.NiceNameEntry;
+import com.helger.peppol.ui.types.nicename.NiceNameManager;
 import com.helger.peppolid.IDocumentTypeIdentifier;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.peppol.doctype.EPredefinedDocumentTypeIdentifier;
@@ -57,7 +57,7 @@ public final class ExportHelper
                                                                                                         aDocTypeID.getScheme ())
                                                                                          .setAttribute ("value",
                                                                                                         aDocTypeID.getValue ());
-    final NiceNameEntry aNiceName = NiceNameHandler.getDocTypeNiceName (aDocTypeID.getURIEncoded ());
+    final NiceNameEntry aNiceName = NiceNameManager.getDocTypeNiceName (aDocTypeID.getURIEncoded ());
     if (aNiceName == null)
       eDocTypeID.setAttribute ("non-standard", true);
     else
@@ -144,7 +144,7 @@ public final class ExportHelper
     final IJsonObject ret = new JsonObject ();
     ret.add ("scheme", aDocTypeID.getScheme ());
     ret.add ("value", aDocTypeID.getValue ());
-    final NiceNameEntry aNiceName = NiceNameHandler.getDocTypeNiceName (aDocTypeID.getURIEncoded ());
+    final NiceNameEntry aNiceName = NiceNameManager.getDocTypeNiceName (aDocTypeID.getURIEncoded ());
     if (aNiceName == null)
       ret.add ("nonStandard", true);
     else

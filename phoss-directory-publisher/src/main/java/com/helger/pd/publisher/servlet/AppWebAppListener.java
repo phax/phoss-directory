@@ -33,6 +33,7 @@ import com.helger.pd.publisher.app.PDPMetaManager;
 import com.helger.pd.publisher.app.pub.MenuPublic;
 import com.helger.pd.publisher.app.secure.MenuSecure;
 import com.helger.pd.publisher.exportall.ExportAllDataJob;
+import com.helger.pd.publisher.nicename.NiceNameHandler;
 import com.helger.pd.publisher.updater.SyncAllBusinessCardsJob;
 import com.helger.photon.ajax.IAjaxRegistry;
 import com.helger.photon.app.html.PhotonMetaElements;
@@ -58,8 +59,8 @@ import jakarta.annotation.Nonnull;
 import jakarta.servlet.ServletContext;
 
 /**
- * This listener is invoked during the servlet initialization. This is basically
- * a ServletContextListener.
+ * This listener is invoked during the servlet initialization. This is basically a
+ * ServletContextListener.
  *
  * @author Philip Helger
  */
@@ -123,6 +124,9 @@ public final class AppWebAppListener extends WebAppListenerBootstrap
     aCfgMgr.registerConfigurationFile (new ConfigurationFile (new ClassPathResource ("log4j2.xml")).setDescription ("log4j configuration file")
                                                                                                    .setSyntaxHighlightLanguage (EConfigurationFileSyntax.XML));
     aCfgMgr.registerAll (PDServerConfiguration.getConfig ());
+
+    // Load nice names
+    NiceNameHandler.loadNiceNames ();
 
     // Job scheduling etc
     if (GlobalDebug.isDebugMode ())
