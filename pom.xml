@@ -75,9 +75,9 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>com.helger.commons</groupId>
-        <artifactId>ph-commons-parent-pom</artifactId>
-        <version>12.0.4</version>
+        <groupId>com.helger.peppol.ui</groupId>
+        <artifactId>peppol-shared-ui-parent-pom</artifactId>
+        <version>0.9.0</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -85,55 +85,6 @@
         <groupId>com.helger</groupId>
         <artifactId>ph-poi</artifactId>
         <version>7.0.0</version>
-      </dependency>
-      <dependency>
-        <groupId>com.helger.masterdata</groupId>
-        <artifactId>ph-masterdata-parent-pom</artifactId>
-        <version>8.0.2</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.helger</groupId>
-        <artifactId>ph-css-parent-pom</artifactId>
-        <version>8.0.0</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.helger.web</groupId>
-        <artifactId>ph-web-parent-pom</artifactId>
-        <version>11.1.1</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.helger.photon</groupId>
-        <artifactId>ph-oton-parent-pom</artifactId>
-        <version>10.0.1</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.helger.photon</groupId>
-        <artifactId>ph-oton-bootstrap4-parent-pom</artifactId>
-        <version>10.0.0</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.helger.peppol</groupId>
-        <artifactId>peppol-commons-parent-pom</artifactId>
-        <version>12.0.4</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.helger.peppol.ui</groupId>
-        <artifactId>peppol-shared-ui-parent-pom</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
-        <type>pom</type>
-        <scope>import</scope>
       </dependency>
 
       <dependency>
