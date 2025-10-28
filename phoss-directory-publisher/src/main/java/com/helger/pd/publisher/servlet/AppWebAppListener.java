@@ -47,6 +47,7 @@ import com.helger.photon.core.locale.ILocaleManager;
 import com.helger.photon.core.menu.MenuTree;
 import com.helger.photon.core.requestparam.RequestParameterHandlerURLPathNamed;
 import com.helger.photon.core.requestparam.RequestParameterManager;
+import com.helger.quartz.ITrigger.EMisfireInstruction;
 import com.helger.quartz.SimpleScheduleBuilder;
 import com.helger.quartz.TriggerKey;
 import com.helger.schedule.quartz.GlobalQuartzScheduler;
@@ -204,7 +205,8 @@ public final class AppWebAppListener extends WebAppListenerBootstrap
                                                                                                             .withSecond (0)
                                                                                                             .withNano (0))
                                                                                .withSchedule (bDebug ? SimpleScheduleBuilder.repeatMinutelyForever (2)
-                                                                                                     : SimpleScheduleBuilder.repeatHourlyForever (24)),
+                                                                                                     : SimpleScheduleBuilder.repeatHourlyForever (24))
+                                                                               .withMisfireInstruction (EMisfireInstruction.MISFIRE_INSTRUCTION_RESCHEDULE_NEXT_WITH_EXISTING_COUNT),
                                                              ExportAllDataJob.class,
                                                              null);
 
@@ -217,7 +219,8 @@ public final class AppWebAppListener extends WebAppListenerBootstrap
                                                              JDK8TriggerBuilder.newTrigger ()
                                                                                .startAt (PDTFactory.getCurrentLocalDateTime ()
                                                                                                    .plusMinutes (2))
-                                                                               .withSchedule (SimpleScheduleBuilder.repeatHourlyForever (1)),
+                                                                               .withSchedule (SimpleScheduleBuilder.repeatHourlyForever (1))
+                                                                               .withMisfireInstruction (EMisfireInstruction.MISFIRE_INSTRUCTION_RESCHEDULE_NEXT_WITH_EXISTING_COUNT),
                                                              SyncAllBusinessCardsJob.class,
                                                              null);
     }
