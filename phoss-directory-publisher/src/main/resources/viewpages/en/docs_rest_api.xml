@@ -33,6 +33,11 @@
   Other HTTP verbs are rejected with HTTP status code 405.
   Query parameters must be appended to the URL as parameters.
 </p>
+<p>
+  The usage of the REST API is rate limited. You are only allowed to run 2 queries per second.
+  If you are not following the instructions, the HTTP Status code 429 (Too Many Requests) is returned.
+  In this case you MUST lower your query rate.
+</p>
 
 <p>
   The XML Schema for the XML responses can be downloaded from
