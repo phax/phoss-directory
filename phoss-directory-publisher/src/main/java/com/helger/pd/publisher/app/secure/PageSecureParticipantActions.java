@@ -57,6 +57,7 @@ import com.helger.pd.indexer.storage.PDStoredMetaData;
 import com.helger.pd.indexer.storage.field.PDField;
 import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.exportall.ExportAllDataJob;
+import com.helger.pd.publisher.exportall.ExportAllDataJob.ExportAllStatus;
 import com.helger.pd.publisher.exportall.ExportAllManager;
 import com.helger.pd.publisher.servlet.ExportDeliveryHttpHandler;
 import com.helger.pd.publisher.servlet.ExportServlet;
@@ -491,18 +492,21 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
 
     aCard.createAndAddHeader ().addChild ("Cache management");
     aBody = aCard.createAndAddBody ();
-    final boolean bIsRunning = ExportAllDataJob.isExportCurrentlyRunning ();
-    if (bIsRunning)
+    final ExportAllStatus aExportStatus = ExportAllDataJob.getExportStatus ();
+    if (aExportStatus.isRunning ())
     {
-      final LocalDateTime aStartDT = ExportAllDataJob.getExportAllBusinessCardsStartDT ();
+      final LocalDateTime aStartDT = aExportStatus.getExportAllBusinessCardsStartDT ();
       aBody.addChild (info ("Export of Business Card cache is currently running. Started at " +
-                            PDTToString.getAsString (aStartDT, aDisplayLocale)));
+                            PDTToString.getAsString (aStartDT, aDisplayLocale) +
+                            ". Current status: '" +
+                            aExportStatus.getStatus () +
+                            "'"));
     }
     aBody.addChild (new BootstrapButton ().addChild ("Update Business Card export cache (in background; takes too long)")
                                           .setOnClick (aWPEC.getSelfHref ()
                                                             .add (CPageParam.PARAM_ACTION, ACTION_UPDATE_EXPORTED_BCS))
                                           .setIcon (EDefaultIcon.INFO)
-                                          .setDisabled (bIsRunning));
+                                          .setDisabled (aExportStatus.isRunning ()));
 
     aCard.createAndAddHeader ().addChild ("Data Synchronization");
     aBody = aCard.createAndAddBody ();
