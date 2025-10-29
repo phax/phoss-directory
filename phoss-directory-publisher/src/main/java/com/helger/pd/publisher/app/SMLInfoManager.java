@@ -44,7 +44,7 @@ public final class SMLInfoManager extends AbstractPhotonMapBasedWALDAO <ISMLInfo
   {
     // Add the default transport profiles
     for (final ESML e : ESML.values ())
-      internalCreateItem (new SMLInfo (e));
+      internalCreateItem (SMLInfo.builder (e).build ());
     return EChange.CHANGED;
   }
 
@@ -54,7 +54,13 @@ public final class SMLInfoManager extends AbstractPhotonMapBasedWALDAO <ISMLInfo
                                  @Nonnull @Nonempty final String sManagementServiceURL,
                                  final boolean bClientCertificateRequired)
   {
-    final SMLInfo aSMLInfo = new SMLInfo (sDisplayName, sDNSZone, sManagementServiceURL, bClientCertificateRequired);
+    final SMLInfo aSMLInfo = SMLInfo.builder ()
+                                    .idNewPersistent ()
+                                    .displayName (sDisplayName)
+                                    .dnsZone (sDNSZone)
+                                    .managementServiceURL (sManagementServiceURL)
+                                    .clientCertificateRequired (bClientCertificateRequired)
+                                    .build ();
 
     m_aRWLock.writeLocked ( () -> { internalCreateItem (aSMLInfo); });
     AuditHelper.onAuditCreateSuccess (SMLInfo.OT,
@@ -83,15 +89,16 @@ public final class SMLInfoManager extends AbstractPhotonMapBasedWALDAO <ISMLInfo
     m_aRWLock.writeLock ().lock ();
     try
     {
-      EChange eChange = EChange.UNCHANGED;
-      eChange = eChange.or (aSMLInfo.setDisplayName (sDisplayName));
-      eChange = eChange.or (aSMLInfo.setDNSZone (sDNSZone));
-      eChange = eChange.or (aSMLInfo.setManagementServiceURL (sManagementServiceURL));
-      eChange = eChange.or (aSMLInfo.setClientCertificateRequired (bClientCertificateRequired));
-      if (eChange.isUnchanged ())
+      final SMLInfo aNewSMLInfo = SMLInfo.builder (aSMLInfo)
+                                         .displayName (sDisplayName)
+                                         .dnsZone (sDNSZone)
+                                         .managementServiceURL (sManagementServiceURL)
+                                         .clientCertificateRequired (bClientCertificateRequired)
+                                         .build ();
+      if (aSMLInfo.equals (aNewSMLInfo))
         return EChange.UNCHANGED;
 
-      internalUpdateItem (aSMLInfo);
+      internalUpdateItem (aNewSMLInfo);
     }
     finally
     {
