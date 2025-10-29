@@ -102,6 +102,7 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 v0.14.3 - work in progress
 * Updated to eDEC Code Lists v9.4
 * In case of an HTTP 429 response, the `Retry-After` header is set to the seconds to wait
+* Removed unwanted "Peppol " in front of some predefined document type names
 
 v0.14.2 - 2025-10-07
 * Fixed HTTP response charset of CSV exports
@@ -159,6 +160,16 @@ v0.12.0 - 2023-02-25
 * Updated to Jersey 3.1.1
 * Updated to ph-commons 11
 * Updated the known names to eDEC Code List v8.3
+
+v0.11.1 - 2025-10-01
+* Add the Disclaimer on the website
+* Update the known document type and process IDs to eDEC codelist v9.3
+* Added rudimentary support for Wildcard identifiers
+* Fixed a bug in the name search
+* Removed the Twitter links
+* Added a BusinessCard JSON export
+* The export of data is constantly scheduled to 2am instead of startup time
+* Added a CORS HTTP response header for the REST API. See [#68](https://github.com/phax/phoss-directory/issues/68)
 
 v0.11.0 - 2022-12-19
 * Updated to Lucene 8.x
