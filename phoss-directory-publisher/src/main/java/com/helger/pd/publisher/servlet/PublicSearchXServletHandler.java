@@ -156,7 +156,8 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
         if (LOGGER.isDebugEnabled ())
           LOGGER.debug ("REST search rate limit exceeded for " + sRateLimitKey);
 
-        aUnifiedResponse.setStatus (CHttp.HTTP_TOO_MANY_REQUESTS);
+        aUnifiedResponse.setStatus (CHttp.HTTP_TOO_MANY_REQUESTS)
+                        .addCustomResponseHeader (CHttpHeader.RETRY_AFTER, "2");
         applyError.accept (aUnifiedResponse, "REST search rate limit exceeded");
         return;
       }

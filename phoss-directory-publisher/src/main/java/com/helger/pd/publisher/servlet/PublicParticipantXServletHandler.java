@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.base.string.StringHelper;
 import com.helger.http.CHttp;
+import com.helger.http.CHttpHeader;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.publisher.app.AppCommonUI;
 import com.helger.pd.publisher.app.pub.CMenuPublic;
@@ -62,7 +63,8 @@ public final class PublicParticipantXServletHandler implements IXServletSimpleHa
         if (LOGGER.isDebugEnabled ())
           LOGGER.debug ("Rate limit exceeded for " + sRateLimitKey);
 
-        aUnifiedResponse.setStatus (CHttp.HTTP_TOO_MANY_REQUESTS);
+        aUnifiedResponse.setStatus (CHttp.HTTP_TOO_MANY_REQUESTS)
+                        .addCustomResponseHeader (CHttpHeader.RETRY_AFTER, "2");
         return;
       }
     }
