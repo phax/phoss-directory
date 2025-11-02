@@ -99,10 +99,11 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
-v0.14.3 - work in progress
+v0.14.3 - 2025-11-02
 * Updated to eDEC Code Lists v9.4
 * In case of an HTTP 429 response, the `Retry-After` header is set to the seconds to wait
 * Removed unwanted "Peppol " in front of some predefined document type names
+* Improved internal error and progress handling for export all job 
 
 v0.14.2 - 2025-10-07
 * Fixed HTTP response charset of CSV exports
