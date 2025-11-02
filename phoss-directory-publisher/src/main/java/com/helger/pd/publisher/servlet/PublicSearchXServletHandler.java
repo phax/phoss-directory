@@ -144,7 +144,8 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
   {
     final BiConsumer <UnifiedResponse, String> applyError = (ur, msg) -> ur.setContentAndCharset (msg,
                                                                                                   StandardCharsets.UTF_8)
-                                                                           .setMimeType (CMimeType.TEXT_PLAIN);
+                                                                           .setMimeType (CMimeType.TEXT_PLAIN)
+                                                                           .disableCaching ();
 
     if (SearchRateLimit.INSTANCE.rateLimiter () != null)
     {
