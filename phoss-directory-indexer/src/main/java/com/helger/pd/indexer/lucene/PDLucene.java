@@ -239,8 +239,7 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
    *
    * @param nDocID
    *        Document ID
-   * @return <code>null</code> if no reader could be obtained or no such
-   *         document exists.
+   * @return <code>null</code> if no reader could be obtained or no such document exists.
    * @throws IOException
    *         On IO error
    */
@@ -301,14 +300,12 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
   }
 
   /**
-   * Updates a document by first deleting the document(s) containing
-   * <code>term</code> and then adding the new document. The delete and then add
-   * are atomic as seen by a reader on the same index (flush may happen only
-   * after the add).
+   * Updates a document by first deleting the document(s) containing <code>term</code> and then
+   * adding the new document. The delete and then add are atomic as seen by a reader on the same
+   * index (flush may happen only after the add).
    *
    * @param aDelTerm
-   *        the term to identify the document(s) to be deleted. May be
-   *        <code>null</code>.
+   *        the term to identify the document(s) to be deleted. May be <code>null</code>.
    * @param aDoc
    *        the document to be added May not be <code>null</code>.
    * @throws CorruptIndexException
@@ -317,7 +314,8 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
    *         if there is a low-level IO error
    */
   @MustBeLocked (ELockType.WRITE)
-  public void updateDocument (@Nullable final Term aDelTerm, @Nonnull final Iterable <? extends IndexableField> aDoc) throws IOException
+  public void updateDocument (@Nullable final Term aDelTerm, @Nonnull final Iterable <? extends IndexableField> aDoc)
+                                                                                                                      throws IOException
   {
     final long nSeqNum = _getWriter ().updateDocument (aDelTerm, aDoc);
     if (LOGGER.isDebugEnabled ())
@@ -326,13 +324,12 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
   }
 
   /**
-   * Atomically deletes documents matching the provided delTerm and adds a block
-   * of documents with sequentially assigned document IDs, such that an external
-   * reader will see all or none of the documents.
+   * Atomically deletes documents matching the provided delTerm and adds a block of documents with
+   * sequentially assigned document IDs, such that an external reader will see all or none of the
+   * documents.
    *
    * @param aDelTerm
-   *        the term to identify the document(s) to be deleted. May be
-   *        <code>null</code>.
+   *        the term to identify the document(s) to be deleted. May be <code>null</code>.
    * @param aDocs
    *        the documents to be added. May not be <code>null</code>.
    * @throws CorruptIndexException
@@ -362,8 +359,8 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
   }
 
   /**
-   * Deletes the document(s) containing any of the terms. All given deletes are
-   * applied and flushed atomically at the same time.
+   * Deletes the document(s) containing any of the terms. All given deletes are applied and flushed
+   * atomically at the same time.
    *
    * @param aTerms
    *        array of terms to identify the documents to be deleted
@@ -382,8 +379,8 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
   }
 
   /**
-   * Deletes the document(s) containing any of the queries. All given deletes
-   * are applied and flushed atomically at the same time.
+   * Deletes the document(s) containing any of the queries. All given deletes are applied and
+   * flushed atomically at the same time.
    *
    * @param aQueries
    *        array of queries to identify the documents to be deleted
@@ -433,11 +430,8 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
   }
 
   /**
-   * Run the provided action within a locked section.<br>
-   * Note: because of a problem with JDK 1.8.60 (+) command line compiler, this
-   * method uses type "Exception" instead of "IOException" in the parameter
-   * signature
-   *
+   * Run the provided action within a locked section. *
+   * 
    * @param aRunnable
    *        Callback to be executed.
    * @return <code>null</code> if the index is just closing
