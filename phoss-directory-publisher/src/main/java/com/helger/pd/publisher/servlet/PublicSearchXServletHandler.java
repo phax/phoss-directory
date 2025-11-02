@@ -142,10 +142,12 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
   public void handleRequest (@Nonnull final IRequestWebScopeWithoutResponse aRequestScope,
                              @Nonnull final UnifiedResponse aUnifiedResponse) throws Exception
   {
+    // Never cache result, except explicitly stated otherwise
+    aUnifiedResponse.disableCaching ();
+
     final BiConsumer <UnifiedResponse, String> applyError = (ur, msg) -> ur.setContentAndCharset (msg,
                                                                                                   StandardCharsets.UTF_8)
-                                                                           .setMimeType (CMimeType.TEXT_PLAIN)
-                                                                           .disableCaching ();
+                                                                           .setMimeType (CMimeType.TEXT_PLAIN);
 
     if (SearchRateLimit.INSTANCE.rateLimiter () != null)
     {
@@ -340,7 +342,6 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
 
       // See Directory issue #68
       aUnifiedResponse.addCustomResponseHeader (CHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
-      aUnifiedResponse.disableCaching ();
       aUnifiedResponse.setMimeType (eOutputFormat.getMimeType ());
 
       // build result
