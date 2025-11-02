@@ -16,7 +16,6 @@
  */
 package com.helger.pd.publisher.exportall;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -24,6 +23,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.base.timing.StopWatch;
+import com.helger.collection.commons.CommonsArrayList;
+import com.helger.collection.commons.ICommonsList;
 import com.helger.datetime.helper.PDTFactory;
 import com.helger.pd.publisher.CPDPublisher;
 import com.helger.photon.io.PhotonWorkerPool;
@@ -50,7 +51,9 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
   {
     private final AtomicBoolean m_aRunning = new AtomicBoolean (false);
     private LocalDateTime m_aStartDT;
-    private String m_sStatus;
+    private String m_sCurrentStatus;
+    private LocalDateTime m_aLastStatusChangeDT;
+    private final ICommonsList <String> m_aFailedStatus = new CommonsArrayList <> ();
 
     boolean start ()
     {
@@ -72,21 +75,40 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
       return m_aStartDT;
     }
 
-    @Nullable
-    public String getStatus ()
+    void setCurrentStatus (@Nullable final String sStatus)
     {
-      return m_sStatus;
+      m_sCurrentStatus = sStatus;
+      m_aLastStatusChangeDT = PDTFactory.getCurrentLocalDateTime ();
     }
 
-    void setStatus (@Nullable final String sStatus)
+    @Nullable
+    public String getCurrentStatus ()
     {
-      m_sStatus = sStatus;
+      return m_sCurrentStatus;
+    }
+
+    @Nullable
+    public LocalDateTime getLastStatusChangeDT ()
+    {
+      return m_aLastStatusChangeDT;
+    }
+
+    void rememberFailedStatus ()
+    {
+      m_aFailedStatus.add (m_sCurrentStatus);
+    }
+
+    @Nonnull
+    public ICommonsList <String> getAllFailedStatus ()
+    {
+      return m_aFailedStatus.getClone ();
     }
 
     void end ()
     {
       m_aStartDT = null;
-      m_sStatus = null;
+      m_sCurrentStatus = null;
+      m_aFailedStatus.clear ();
       m_aRunning.set (false);
     }
   }
@@ -105,7 +127,7 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
     PhotonWorkerPool.getInstance ().runThrowing ("ExportAllBusinessCards", ExportAllDataJob::exportAllBusinessCards);
   }
 
-  public static void exportAllBusinessCards () throws IOException
+  public static void exportAllBusinessCards ()
   {
     // Avoid running it in parallel
     if (EXPORT_STATUS.start ())
@@ -119,8 +141,13 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
         LOGGER.info (sLogPrefix + "Start exporting business cards as XML (full)");
         try
         {
-          EXPORT_STATUS.setStatus ("writeFileBusinessCardXMLFull");
+          EXPORT_STATUS.setCurrentStatus ("writeFileBusinessCardXMLFull");
           ExportAllManager.writeFileBusinessCardXMLFull ();
+        }
+        catch (final Throwable t)
+        {
+          LOGGER.error (sLogPrefix + "Error exporting business cards as XML (full)", t);
+          EXPORT_STATUS.rememberFailedStatus ();
         }
         finally
         {
@@ -134,8 +161,13 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
         LOGGER.info (sLogPrefix + "Start exporting business cards as XML (no doc types)");
         try
         {
-          EXPORT_STATUS.setStatus ("writeFileBusinessCardXMLNoDocTypes");
+          EXPORT_STATUS.setCurrentStatus ("writeFileBusinessCardXMLNoDocTypes");
           ExportAllManager.writeFileBusinessCardXMLNoDocTypes ();
+        }
+        catch (final Throwable t)
+        {
+          LOGGER.error (sLogPrefix + "Error exporting business cards as XML (no doc types)", t);
+          EXPORT_STATUS.rememberFailedStatus ();
         }
         finally
         {
@@ -151,8 +183,13 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
           LOGGER.info (sLogPrefix + "Start exporting business cards as JSON");
           try
           {
-            EXPORT_STATUS.setStatus ("writeFileBusinessCardJSON");
+            EXPORT_STATUS.setCurrentStatus ("writeFileBusinessCardJSON");
             ExportAllManager.writeFileBusinessCardJSON ();
+          }
+          catch (final Throwable t)
+          {
+            LOGGER.error (sLogPrefix + "Error exporting business cards as JSON", t);
+            EXPORT_STATUS.rememberFailedStatus ();
           }
           finally
           {
@@ -169,8 +206,13 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
           LOGGER.info (sLogPrefix + "Start exporting business cards as Excel");
           try
           {
-            EXPORT_STATUS.setStatus ("writeFileBusinessCardExcel");
+            EXPORT_STATUS.setCurrentStatus ("writeFileBusinessCardExcel");
             ExportAllManager.writeFileBusinessCardExcel ();
+          }
+          catch (final Throwable t)
+          {
+            LOGGER.error (sLogPrefix + "Error exporting business cards as Excel", t);
+            EXPORT_STATUS.rememberFailedStatus ();
           }
           finally
           {
@@ -187,8 +229,13 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
           LOGGER.info (sLogPrefix + "Start exporting business cards as CSV");
           try
           {
-            EXPORT_STATUS.setStatus ("writeFileBusinessCardCSV");
+            EXPORT_STATUS.setCurrentStatus ("writeFileBusinessCardCSV");
             ExportAllManager.writeFileBusinessCardCSV ();
+          }
+          catch (final Throwable t)
+          {
+            LOGGER.error (sLogPrefix + "Error exporting business cards as CSV", t);
+            EXPORT_STATUS.rememberFailedStatus ();
           }
           finally
           {
@@ -205,8 +252,13 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
           LOGGER.info (sLogPrefix + "Start exporting participants as XML");
           try
           {
-            EXPORT_STATUS.setStatus ("writeFileParticipantXML");
+            EXPORT_STATUS.setCurrentStatus ("writeFileParticipantXML");
             ExportAllManager.writeFileParticipantXML ();
+          }
+          catch (final Throwable t)
+          {
+            LOGGER.error (sLogPrefix + "Error exporting participants cards as XML", t);
+            EXPORT_STATUS.rememberFailedStatus ();
           }
           finally
           {
@@ -223,8 +275,13 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
           LOGGER.info (sLogPrefix + "Start exporting participants as JSON");
           try
           {
-            EXPORT_STATUS.setStatus ("writeFileParticipantJSON");
+            EXPORT_STATUS.setCurrentStatus ("writeFileParticipantJSON");
             ExportAllManager.writeFileParticipantJSON ();
+          }
+          catch (final Throwable t)
+          {
+            LOGGER.error (sLogPrefix + "Error exporting participants cards as JSON", t);
+            EXPORT_STATUS.rememberFailedStatus ();
           }
           finally
           {
@@ -241,8 +298,13 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
           LOGGER.info (sLogPrefix + "Start exporting participants as CSV");
           try
           {
-            EXPORT_STATUS.setStatus ("writeFileParticipantCSV");
+            EXPORT_STATUS.setCurrentStatus ("writeFileParticipantCSV");
             ExportAllManager.writeFileParticipantCSV ();
+          }
+          catch (final Throwable t)
+          {
+            LOGGER.error (sLogPrefix + "Error exporting participants cards as CSV", t);
+            EXPORT_STATUS.rememberFailedStatus ();
           }
           finally
           {
@@ -272,7 +334,7 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
     {
       exportAllBusinessCards ();
     }
-    catch (final IOException ex)
+    catch (final RuntimeException ex)
     {
       throw new JobExecutionException ("Error exporting all business cards", ex);
     }

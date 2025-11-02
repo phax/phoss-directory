@@ -137,7 +137,9 @@ public final class PDStorageManager implements IPDStorageManager
     {
       final long nMillis = aSW.stopAndGetMillis ();
       STATS_QUERY_TIMER.addTime (aQuery.toString (), nMillis);
-      if (nMillis > CGlobal.MILLISECONDS_PER_SECOND)
+
+      // 1 seconds bloats the log - use 2 seconds
+      if (nMillis > 2 * CGlobal.MILLISECONDS_PER_SECOND)
         LOGGER.warn ("Lucene Query " + aQuery + " took too long: " + nMillis + "ms");
     }
   }
@@ -192,7 +194,7 @@ public final class PDStorageManager implements IPDStorageManager
 
         aDoc.add (PDField.PARTICIPANT_ID.getAsField (aParticipantID));
         aSBAllFields.append (PDField.PARTICIPANT_ID.getAsStorageValue (aParticipantID)).append (' ');
-        
+
         if (aBusinessEntity.names ().size () == 1 && aBusinessEntity.names ().getFirstOrNull ().hasNoLanguageCode ())
         {
           // Single name without a language - legacy case
@@ -214,7 +216,7 @@ public final class PDStorageManager implements IPDStorageManager
             aSBAllFields.append (sLanguage).append (' ');
           }
         }
-        
+
         if (aBusinessEntity.hasCountryCode ())
         {
           // Index all country codes in upper case (since 2017-09-20)
@@ -222,20 +224,20 @@ public final class PDStorageManager implements IPDStorageManager
           aDoc.add (PDField.COUNTRY_CODE.getAsField (sCountryCode));
           aSBAllFields.append (sCountryCode).append (' ');
         }
-        
+
         // Add all document types to all documents
         for (final IDocumentTypeIdentifier aDocTypeID : aExtBI.getAllDocumentTypeIDs ())
         {
           aDoc.add (PDField.DOCTYPE_ID.getAsField (aDocTypeID));
           aSBAllFields.append (PDField.DOCTYPE_ID.getAsStorageValue (aDocTypeID)).append (' ');
         }
-        
+
         if (aBusinessEntity.hasGeoInfo ())
         {
           aDoc.add (PDField.GEO_INFO.getAsField (aBusinessEntity.getGeoInfo ()));
           aSBAllFields.append (aBusinessEntity.getGeoInfo ()).append (' ');
         }
-        
+
         for (final PDIdentifier aIdentifier : aBusinessEntity.identifiers ())
         {
           aDoc.add (PDField.IDENTIFIER_SCHEME.getAsField (aIdentifier.getScheme ()));
@@ -244,13 +246,13 @@ public final class PDStorageManager implements IPDStorageManager
           aDoc.add (PDField.IDENTIFIER_VALUE.getAsField (aIdentifier.getValue ()));
           aSBAllFields.append (aIdentifier.getValue ()).append (' ');
         }
-        
+
         for (final String sWebSite : aBusinessEntity.websiteURIs ())
         {
           aDoc.add (PDField.WEBSITE_URI.getAsField (sWebSite));
           aSBAllFields.append (sWebSite).append (' ');
         }
-        
+
         for (final PDContact aContact : aBusinessEntity.contacts ())
         {
           final String sType = StringHelper.getNotNull (aContact.getType ());
@@ -269,20 +271,20 @@ public final class PDStorageManager implements IPDStorageManager
           aDoc.add (PDField.CONTACT_EMAIL.getAsField (sEmail));
           aSBAllFields.append (sEmail).append (' ');
         }
-        
+
         if (aBusinessEntity.hasAdditionalInfo ())
         {
           aDoc.add (PDField.ADDITIONAL_INFO.getAsField (aBusinessEntity.getAdditionalInfo ()));
           aSBAllFields.append (aBusinessEntity.getAdditionalInfo ()).append (' ');
         }
-        
+
         if (aBusinessEntity.hasRegistrationDate ())
         {
           final String sDate = PDTWebDateHelper.getAsStringXSD (aBusinessEntity.getRegistrationDate ());
           aDoc.add (PDField.REGISTRATION_DATE.getAsField (sDate));
           aSBAllFields.append (sDate).append (' ');
         }
-        
+
         // Add the "all" field - no need to store
         aDoc.add (new TextField (CPDStorage.FIELD_ALL_FIELDS, aSBAllFields.toString (), Store.NO));
 
@@ -344,7 +346,7 @@ public final class PDStorageManager implements IPDStorageManager
         }
       }
     }
-    
+
     final Query aDeleteQuery;
     if (bVerifyOwner && aMetaData != null)
     {
@@ -369,7 +371,7 @@ public final class PDStorageManager implements IPDStorageManager
     }
     else
       aDeleteQuery = aParticipantQuery;
-    
+
     final int nCount = getCount (aDeleteQuery);
     if (m_aLucene.writeLockedAtomic ( () -> {
       // Delete
@@ -379,7 +381,7 @@ public final class PDStorageManager implements IPDStorageManager
       LOGGER.error ("Failed to delete docs from the index using the query '" + aDeleteQuery + "'");
       return -1;
     }
-    
+
     LOGGER.info ("Deleted " + nCount + " docs from the index using the query '" + aDeleteQuery + "'");
     AuditHelper.onAuditExecuteSuccess ("pd-indexer-delete",
                                        aParticipantID.getURIEncoded (),
@@ -418,7 +420,7 @@ public final class PDStorageManager implements IPDStorageManager
       }
       else
         LOGGER.error ("Failed to obtain IndexSearcher for " + aQuery);
- 
+
       // Return values does not matter
       return null;
     });
@@ -476,7 +478,7 @@ public final class PDStorageManager implements IPDStorageManager
   {
     ValueEnforcer.notNull (aQuery, "Query");
     ValueEnforcer.notNull (aConsumer, "Consumer");
-  
+
     if (nMaxResultCount <= 0)
     {
       // Search all

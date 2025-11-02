@@ -37,6 +37,7 @@ import com.helger.base.numeric.mutable.MutableInt;
 import com.helger.collection.commons.CommonsHashMap;
 import com.helger.collection.commons.CommonsHashSet;
 import com.helger.collection.commons.CommonsTreeSet;
+import com.helger.collection.commons.ICommonsList;
 import com.helger.collection.commons.ICommonsMap;
 import com.helger.collection.commons.ICommonsSet;
 import com.helger.collection.commons.ICommonsSortedSet;
@@ -499,8 +500,12 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
       aBody.addChild (info ("Export of Business Card cache is currently running. Started at " +
                             PDTToString.getAsString (aStartDT, aDisplayLocale) +
                             ". Current status: '" +
-                            aExportStatus.getStatus () +
-                            "'"));
+                            aExportStatus.getCurrentStatus () +
+                            "' started at " +
+                            PDTToString.getAsString (aExportStatus.getLastStatusChangeDT (), aDisplayLocale)));
+      final ICommonsList <String> aFailedStatus = aExportStatus.getAllFailedStatus ();
+      if (aFailedStatus.isNotEmpty ())
+        aBody.addChild (error ("The following export actions had an error so far: " + aFailedStatus));
     }
     aBody.addChild (new BootstrapButton ().addChild ("Update Business Card export cache (in background; takes too long)")
                                           .setOnClick (aWPEC.getSelfHref ()
