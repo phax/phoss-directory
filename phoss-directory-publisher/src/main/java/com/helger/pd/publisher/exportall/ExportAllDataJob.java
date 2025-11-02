@@ -151,9 +151,10 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
         }
         finally
         {
+          aSW.stop ();
           LOGGER.info (sLogPrefix +
                        "Finished exporting business cards as XML (full) after " +
-                       aSW.stopAndGetMillis () +
+                       aSW.getDuration () +
                        " milliseconds");
         }
 
@@ -171,9 +172,10 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
         }
         finally
         {
+          aSW.stop ();
           LOGGER.info (sLogPrefix +
                        "Finished exporting business cards as XML (no doc types) after " +
-                       aSW.stopAndGetMillis () +
+                       aSW.getDuration () +
                        " milliseconds");
         }
 
@@ -193,9 +195,10 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
           }
           finally
           {
+            aSW.stop ();
             LOGGER.info (sLogPrefix +
                          "Finished exporting business cards as JSON after " +
-                         aSW.stopAndGetMillis () +
+                         aSW.getDuration () +
                          " milliseconds");
           }
         }
@@ -216,9 +219,10 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
           }
           finally
           {
+            aSW.stop ();
             LOGGER.info (sLogPrefix +
                          "Finished exporting business cards as Excel after " +
-                         aSW.stopAndGetMillis () +
+                         aSW.getDuration () +
                          " milliseconds");
           }
         }
@@ -239,9 +243,10 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
           }
           finally
           {
+            aSW.stop ();
             LOGGER.info (sLogPrefix +
                          "Finished exporting business cards as CSV after " +
-                         aSW.stopAndGetMillis () +
+                         aSW.getDuration () +
                          " milliseconds");
           }
         }
@@ -262,9 +267,10 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
           }
           finally
           {
+            aSW.stop ();
             LOGGER.info (sLogPrefix +
                          "Finished exporting participants as XML after " +
-                         aSW.stopAndGetMillis () +
+                         aSW.getDuration () +
                          " milliseconds");
           }
         }
@@ -285,9 +291,10 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
           }
           finally
           {
+            aSW.stop ();
             LOGGER.info (sLogPrefix +
                          "Finished exporting participants as JSON after " +
-                         aSW.stopAndGetMillis () +
+                         aSW.getDuration () +
                          " milliseconds");
           }
         }
@@ -308,9 +315,10 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
           }
           finally
           {
+            aSW.stop ();
             LOGGER.info (sLogPrefix +
                          "Finished exporting participants as CSV after " +
-                         aSW.stopAndGetMillis () +
+                         aSW.getDuration () +
                          " milliseconds");
           }
         }
