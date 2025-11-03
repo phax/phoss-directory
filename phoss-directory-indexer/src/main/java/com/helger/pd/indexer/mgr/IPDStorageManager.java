@@ -29,8 +29,8 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 /**
- * The abstract storage manager interface. It contains all the actions that can
- * be performed with business cards.
+ * The abstract storage manager interface. It contains all the actions that can be performed with
+ * business cards.
  *
  * @author Philip Helger
  */
@@ -45,8 +45,7 @@ public interface IPDStorageManager extends Closeable
    *        The extended business card with the document type identifiers.
    * @param aMetaData
    *        The additional meta data to be stored.
-   * @return {@link ESuccess#SUCCESS} upon success, {@link ESuccess#FAILURE} on
-   *         error.
+   * @return {@link ESuccess#SUCCESS} upon success, {@link ESuccess#FAILURE} on error.
    * @throws IOException
    *         in case of IO error
    */
@@ -61,11 +60,9 @@ public interface IPDStorageManager extends Closeable
    * @param aParticipantID
    *        Participant ID to be deleted.
    * @param aMetaData
-   *        The entry metadata. Basically only for logging purposes. May be
-   *        <code>null</code>.
+   *        The entry metadata. Basically only for logging purposes. May be <code>null</code>.
    * @param bVerifyOwner
-   *        <code>true</code> if the owner should be considered,
-   *        <code>false</code> if not.
+   *        <code>true</code> if the owner should be considered, <code>false</code> if not.
    * @return The number of deleted entries, or -1 in case of failure
    * @throws IOException
    *         in case of IO error

@@ -43,8 +43,7 @@ public interface IIndexerWorkItem extends ITypedObject <String>, Serializable, I
   String REQUESTING_HOST_SML = "automatic";
 
   /**
-   * @return The participant identifier it is all about. May not be
-   *         <code>null</code>.
+   * @return The participant identifier it is all about. May not be <code>null</code>.
    */
   @Nonnull
   IParticipantIdentifier getParticipantID ();
@@ -56,24 +55,23 @@ public interface IIndexerWorkItem extends ITypedObject <String>, Serializable, I
   EIndexerWorkItemType getType ();
 
   /**
-   * @return The ID of the client (=SMP; based on the provided client
-   *         certificate) that requested this action. Never <code>null</code>.
+   * @return The ID of the client (=SMP; based on the provided client certificate) that requested
+   *         this action. Never <code>null</code>.
    */
   @Nonnull
   @Nonempty
   String getOwnerID ();
 
   /**
-   * @return The IP address/host name of the host requesting this work item. If
-   *         this action is triggered by the scheduled SML exchange, this should
-   *         be <code>{@value #REQUESTING_HOST_SML}</code>.
+   * @return The IP address/host name of the host requesting this work item. If this action is
+   *         triggered by the scheduled SML exchange, this should be
+   *         <code>{@value #REQUESTING_HOST_SML}</code>.
    */
   @Nonnull
   String getRequestingHost ();
 
   /**
-   * @return A special pre-build log prefix used when logging something about
-   *         this object.
+   * @return A special pre-build log prefix used when logging something about this object.
    */
   @Nonnull
   @Nonempty
@@ -83,8 +81,8 @@ public interface IIndexerWorkItem extends ITypedObject <String>, Serializable, I
   }
 
   /**
-   * @return The information of this as a {@link PDStoredMetaData} object to be
-   *         used by the storage engine.
+   * @return The information of this as a {@link PDStoredMetaData} object to be used by the storage
+   *         engine.
    */
   @Nonnull
   @ReturnsMutableCopy
