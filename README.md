@@ -67,15 +67,18 @@ Example PD Client configuration properties:
 
 ```ini
 # Key store with SMP key (required)
-pdclient.keystore.type         = jks
-pdclient.keystore.path         = smp.pilot.jks
+pdclient.keystore.type         = pkcs12
+pdclient.keystore.path         = smp-test.p12
 pdclient.keystore.password     = password
-pdclient.keystore.key.alias    = smp.pilot
+pdclient.keystore.key.alias    = cert
 pdclient.keystore.key.password = password
 
 # Default trust store (optional)
-pdclient.truststore.type     = jks
-pdclient.truststore.path     = truststore/pd-client.truststore.jks
+pdclient.truststore.type     = pkcs12
+# For Test:
+pdclient.truststore.path     = truststore/2025/smp-test-truststore.p12
+# For production:
+# pdclient.truststore.path     = truststore/2025/smp-prod-truststore.p12
 pdclient.truststore.password = peppol
 
 # TLS settings
@@ -99,11 +102,15 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
+v0.14.4 - 2025-11-03
+* Fixed resilience when loading stored values that are invalid identifiers - was blocking the export
+
 v0.14.3 - 2025-11-02
 * Updated to eDEC Code Lists v9.4
 * In case of an HTTP 429 response, the `Retry-After` header is set to the seconds to wait
 * Removed unwanted "Peppol " in front of some predefined document type names
-* Improved internal error and progress handling for export all job 
+* Improved internal error and progress handling for export all job
+* Made sure the HTTP 429 response is properly documented on the REST API documentation page
 
 v0.14.2 - 2025-10-07
 * Fixed HTTP response charset of CSV exports
