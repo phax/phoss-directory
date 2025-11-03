@@ -134,7 +134,7 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
     {
       final StopWatch aSW = StopWatch.createdStarted ();
 
-      final String sLogPrefix = "[EXPORT-ALL | " + EXPORT_STATUS.getExportAllBusinessCardsStartDT () + "] ";
+      final String sLogPrefix = "[EXPORT-ALL-JOB | " + EXPORT_STATUS.getExportAllBusinessCardsStartDT () + "] ";
 
       try
       {

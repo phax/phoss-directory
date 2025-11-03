@@ -42,7 +42,7 @@ import com.helger.xml.microdom.MicroElement;
 
 import jakarta.annotation.Nonnull;
 
-public final class ExportHelper
+final class ExportHelper
 {
   // XML_EXPORT_NS_URI_V2 = "http://www.peppol.eu/schema/pd/businesscard-generic/201907/";
   public static final String XML_EXPORT_NS_URI_V3 = "urn:peppol:schema:pd:businesscard-generic:2025:03";
@@ -157,8 +157,8 @@ public final class ExportHelper
   }
 
   @Nonnull
-  public static IJsonObject getAsJSON (@Nonnull final ICommonsOrderedMap <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> aMap,
-                                       final boolean bIncludeDocTypes)
+  static IJsonObject getAsJSON (@Nonnull final ICommonsOrderedMap <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> aMap,
+                                final boolean bIncludeDocTypes)
   {
     // XML root
     final IJsonObject aObj = new JsonObject ();
