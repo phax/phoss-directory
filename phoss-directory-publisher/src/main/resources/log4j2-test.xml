@@ -20,17 +20,17 @@
 <Configuration status="WARN">
     <Properties>
         <Property name="logDir">/opt/tomcat/logs</Property>
-        <Property name="svc">PD-PROD</Property>
+        <Property name="svc">PD-TEST</Property>
     </Properties>
 
     <Appenders>
         <Console name="STDOUT" target="SYSTEM_OUT">
-            <PatternLayout pattern="[%d{ISO8601}] [${svc}] [%-5level] [%t] %msg%n%throwable -- %logger{36}:%L%n"/>
+            <PatternLayout pattern="[%d{ISO8601}] [${svc}] [%-5level] [%t] [%t] %msg%n%throwable -- %logger{36}:%L%n"/>
         </Console>
 
         <RollingFile name="FILE"
-                     fileName="${logDir}/pd-prod.log"
-                     filePattern="${logDir}/pd-prod-%d{yyyy-MM-dd}-%i.log.gz">
+                     fileName="${logDir}/pd-test.log"
+                     filePattern="${logDir}/pd-test-%d{yyyy-MM-dd}-%i.log.gz">
             <PatternLayout pattern="[%d{ISO8601}] [${svc}] [%-5level] [%t] %msg%n%throwable -- %logger{36}:%L%n"/>
             <Policies>
                 <TimeBasedTriggeringPolicy />
@@ -38,7 +38,7 @@
             <DefaultRolloverStrategy max="1000">
                 <!-- Purge anything older than 90 days -->
                 <Delete basePath="${logDir}">
-                    <IfFileName glob="pd-prod-*.log.gz"/>
+                    <IfFileName glob="pd-test-*.log.gz"/>
                     <IfLastModified age="90d"/>
                 </Delete>
             </DefaultRolloverStrategy>
