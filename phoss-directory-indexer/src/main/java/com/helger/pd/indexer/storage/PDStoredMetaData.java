@@ -28,8 +28,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 /**
- * This class contains all the metadata stored in a
- * {@link PDStoredBusinessEntity}.
+ * This class contains all the metadata stored in a {@link PDStoredBusinessEntity}.
  *
  * @author Philip Helger
  */
@@ -54,8 +53,7 @@ public final class PDStoredMetaData
   }
 
   /**
-   * @return The date time when the object was queued for indexing. Never
-   *         <code>null</code>.
+   * @return The date time when the object was queued for indexing. Never <code>null</code>.
    */
   @Nonnull
   public LocalDateTime getCreationDT ()
@@ -64,9 +62,10 @@ public final class PDStoredMetaData
   }
 
   /**
-   * @return The ID of the client (based on the provided certificate) that
-   *         requested this action. Never <code>null</code>. E.g.
-   *         <code>CN=PSG000155,O=SGNIC,C=SG:47186c3e6d05cffbd340f3f51e2425cc</code>
+   * @return The ID of the client (based on the provided certificate) that requested this action.
+   *         Never <code>null</code>. E.g.
+   *         <code>CN=PSG000155,O=SGNIC,C=SG:47186c3e6d05cffbd340f3f51e2425cc</code>. Since
+   *         2025-11-03 without the serial number, so <code>CN=PSG000155,O=SGNIC,C=SG</code>
    */
   @Nonnull
   @Nonempty
@@ -78,7 +77,7 @@ public final class PDStoredMetaData
   @Nullable
   public static String getOwnerIDSeatNumber (@Nonnull @Nonempty final String sOwnerID)
   {
-    final String [] aMatches = RegExHelper.getAllMatchingGroupValues ("CN=P[A-Z]{2}([^,]+),.*", sOwnerID);
+    final String [] aMatches = RegExHelper.getAllMatchingGroupValues ("CN=P[A-Z]{2}([0-9]{6})", sOwnerID);
     return aMatches == null || aMatches.length != 1 ? null : aMatches[0];
   }
 
@@ -89,9 +88,8 @@ public final class PDStoredMetaData
   }
 
   /**
-   * @return The IP address of the host requesting this work item. If this
-   *         action is triggered by the scheduled SML exchange, this should be
-   *         <code>automatic</code>.
+   * @return The IP address of the host requesting this work item. If this action is triggered by
+   *         the scheduled SML exchange, this should be <code>automatic</code>.
    */
   @Nonnull
   public String getRequestingHost ()

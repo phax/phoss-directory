@@ -16,13 +16,15 @@
  */
 package com.helger.pd.indexer.storage;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
 import com.helger.datetime.helper.PDTFactory;
 
-public final class PDDocumentMetaDataTest
+public final class PDStoredMetaDataTest
 {
   @Test
   public void testMillis ()
@@ -33,5 +35,19 @@ public final class PDDocumentMetaDataTest
                                                                       "localhost").getCreationDT ());
     // Less than a second difference
     assertTrue (nMillis + " vs. " + nMillis2, Math.abs (nMillis2 - nMillis) <= 1000);
+  }
+
+  @Test
+  public void testGetOwnerIDSeatNumber ()
+  {
+    assertEquals ("000155", PDStoredMetaData.getOwnerIDSeatNumber ("CN=PSG000155,O=SGNIC,C=SG"));
+    assertEquals ("000155", PDStoredMetaData.getOwnerIDSeatNumber ("C=SG,CN=PSG000155,O=SGNIC"));
+    assertEquals ("000155", PDStoredMetaData.getOwnerIDSeatNumber ("O=SGNIC,C=SG,CN=PSG000155"));
+    assertEquals ("000155", PDStoredMetaData.getOwnerIDSeatNumber ("CN=PSG000155"));
+    assertNull (PDStoredMetaData.getOwnerIDSeatNumber ("O=SGNIC,C=SG,N=PSG000155"));
+    assertNull (PDStoredMetaData.getOwnerIDSeatNumber ("O=SGNIC,C=SG,CN=PSG00015"));
+    assertNull (PDStoredMetaData.getOwnerIDSeatNumber ("CN=PSG00015,O=SGNIC,C=SG"));
+    assertNull (PDStoredMetaData.getOwnerIDSeatNumber ("CN=PS000155,O=SGNIC,C=SG"));
+    assertNull (PDStoredMetaData.getOwnerIDSeatNumber ("CN=QSG000155,O=SGNIC,C=SG"));
   }
 }
