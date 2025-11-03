@@ -102,6 +102,9 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
+v0.14.5 - 2025-11-03
+* Fixed a potential `NullPointerException` if a participant identifier could not be parsed
+
 v0.14.4 - 2025-11-03
 * Fixed resilience when loading stored values that are invalid identifiers - was blocking the export
 
