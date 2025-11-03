@@ -201,6 +201,7 @@ public final class ExportAllManager
     final IMicroDocument aDoc = ExportHelper.createXML ();
     final IMicroElement aRoot = aDoc.getDocumentElement ();
 
+    final String sSearchTerm = PDField.PARTICIPANT_ID.getFieldName ();
     for (final String sParticipantID : aAllParticipantIDs)
     {
       final IParticipantIdentifier aParticipantID = aIF.parseParticipantIdentifier (sParticipantID);
@@ -210,9 +211,14 @@ public final class ExportAllManager
       {
         // Search all entities of the current participant ID
         final ICommonsList <PDStoredBusinessEntity> aEntitiesPerPI = new CommonsArrayList <> ();
-        aStorageMgr.searchAllDocuments (new TermQuery (new Term (PDField.PARTICIPANT_ID.getFieldName (),
-                                                                 sParticipantID)), -1, aEntitiesPerPI::add);
-        aRoot.addChild (ExportHelper.createMicroElement (aParticipantID, aEntitiesPerPI, bIncludeDocTypes));
+        aStorageMgr.searchAllDocuments (new TermQuery (new Term (sSearchTerm, sParticipantID)),
+                                        -1,
+                                        aEntitiesPerPI::add);
+        // Otherwise, the PI might have been deleted in the meantime
+        if (aEntitiesPerPI.isNotEmpty ())
+        {
+          aRoot.addChild (ExportHelper.createMicroElement (aParticipantID, aEntitiesPerPI, bIncludeDocTypes));
+        }
       }
     }
 
@@ -297,34 +303,38 @@ public final class ExportAllManager
         aObj.add ("participantCount", aAllParticipantIDs.size ());
         aObj.add ("codeListSupported", EPredefinedDocumentTypeIdentifier.CODE_LIST_VERSION);
 
+        final String sSearchTerm = PDField.PARTICIPANT_ID.getFieldName ();
         final IJsonArray aBCs = new JsonArray ();
         for (final String sParticipantID : aAllParticipantIDs)
         {
           // Search all entities of the current participant ID
           final ICommonsList <PDStoredBusinessEntity> aEntitiesPerPI = new CommonsArrayList <> ();
-          aStorageMgr.searchAllDocuments (new TermQuery (new Term (PDField.PARTICIPANT_ID.getFieldName (),
-                                                                   sParticipantID)), -1, aEntitiesPerPI::add);
-
-          final IJsonObject aBC = new JsonObject ();
-          aBC.add ("pid", sParticipantID);
-
-          final IJsonArray aBEs = new JsonArray ();
-          for (final PDStoredBusinessEntity aSBE : aEntitiesPerPI)
-            aBEs.add (ExportHelper.createJsonObject (aSBE));
-          aBC.add ("entities", aBEs);
-
-          // Add all Document types (if wanted)
-          if (bIncludeDocTypes)
+          aStorageMgr.searchAllDocuments (new TermQuery (new Term (sSearchTerm, sParticipantID)),
+                                          -1,
+                                          aEntitiesPerPI::add);
+          // Otherwise, the PI might have been deleted in the meantime
+          if (aEntitiesPerPI.isNotEmpty ())
           {
-            final IJsonArray aDocTypes = new JsonArray ();
-            if (aEntitiesPerPI.isNotEmpty ())
-              for (final IDocumentTypeIdentifier aDocTypeID : aEntitiesPerPI.getFirstOrNull ().documentTypeIDs ())
-                aDocTypes.add (ExportHelper.createJsonObject (aDocTypeID));
-            aBC.add ("docTypes", aDocTypes);
+            final IJsonObject aBC = new JsonObject ();
+            aBC.add ("pid", sParticipantID);
+
+            final IJsonArray aBEs = new JsonArray ();
+            for (final PDStoredBusinessEntity aSBE : aEntitiesPerPI)
+              aBEs.add (ExportHelper.createJsonObject (aSBE));
+            aBC.add ("entities", aBEs);
+
+            // Add all Document types (if wanted)
+            if (bIncludeDocTypes)
+            {
+              final IJsonArray aDocTypes = new JsonArray ();
+              if (aEntitiesPerPI.isNotEmpty ())
+                for (final IDocumentTypeIdentifier aDocTypeID : aEntitiesPerPI.getFirstOrNull ().documentTypeIDs ())
+                  aDocTypes.add (ExportHelper.createJsonObject (aDocTypeID));
+              aBC.add ("docTypes", aDocTypes);
+            }
+
+            aBCs.add (aBC);
           }
-
-          aBCs.add (aBC);
-
         }
         aObj.add ("bc", aBCs);
 
@@ -433,10 +443,11 @@ public final class ExportAllManager
                                              .build ());
         };
 
+        final String sSearchTerm = PDField.PARTICIPANT_ID.getFieldName ();
         for (final String sParticipantID : aAllParticipantIDs)
         {
-          aStorageMgr.searchAllDocuments (new TermQuery (new Term (PDField.PARTICIPANT_ID.getFieldName (),
-                                                                   sParticipantID)), -1, aCSVConsumer);
+          // If the participant was deleted in the meantime, the consumer is simply not called
+          aStorageMgr.searchAllDocuments (new TermQuery (new Term (sSearchTerm, sParticipantID)), -1, aCSVConsumer);
         }
 
         aCSVWriter.flush ();

@@ -102,6 +102,10 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
+v0.14.6 - 2025-11-03
+* Improved "Export all" handling so that the participant list is queried only once
+* Also removed any locking on export, to avoid blocking access to the export data while exporting
+
 v0.14.5 - 2025-11-03
 * Fixed a potential `NullPointerException` if a participant identifier could not be parsed
 * Internal ownership representation was changed to not use the serial number anymore, therefore deletion should also work after a certificate update
