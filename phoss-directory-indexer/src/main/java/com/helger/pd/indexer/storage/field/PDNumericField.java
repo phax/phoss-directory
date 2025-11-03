@@ -62,7 +62,8 @@ public class PDNumericField <NATIVE_TYPE> extends AbstractPDField <NATIVE_TYPE, 
     catch (final PDFieldSerializeException ex)
     {
       // Parsing a numerical value should never fail
-      throw new IllegalStateException ("Failed to parse numerical value - weird", ex);
+      throw new IllegalStateException ("Failed to convert numerical value (" + aField.numericValue () + ") - weird",
+                                       ex);
     }
   }
 }
