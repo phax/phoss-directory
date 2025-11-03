@@ -596,7 +596,8 @@ public final class PDStorageManager implements IPDStorageManager
     {
       final ObjIntConsumer <Document> aConsumer = (aDoc, nDocID) -> {
         final IParticipantIdentifier aResolvedParticipantID = PDField.PARTICIPANT_ID.getDocValue (aDoc);
-        aTargetSet.computeIfAbsent (aResolvedParticipantID, k -> new MutableInt (0)).inc ();
+        if (aResolvedParticipantID != null)
+          aTargetSet.computeIfAbsent (aResolvedParticipantID, k -> new MutableInt (0)).inc ();
       };
       final Collector aCollector = new AllDocumentsCollector (m_aLucene, aConsumer);
       searchAtomic (aQuery, aCollector);
@@ -628,7 +629,11 @@ public final class PDStorageManager implements IPDStorageManager
   {
     final ICommonsMap <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> ret = new CommonsLinkedHashMap <> ();
     for (final PDStoredBusinessEntity aDoc : aDocs)
-      ret.computeIfAbsent (aDoc.getParticipantID (), k -> new CommonsArrayList <> ()).add (aDoc);
+    {
+      final IParticipantIdentifier aPID = aDoc.getParticipantID ();
+      if (aPID != null)
+        ret.computeIfAbsent (aPID, k -> new CommonsArrayList <> ()).add (aDoc);
+    }
     return ret;
   }
 }

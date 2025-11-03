@@ -79,15 +79,19 @@ public final class PDStoredBusinessEntity
   protected PDStoredBusinessEntity ()
   {}
 
-  @Nonnull
+  @Nullable
   public IParticipantIdentifier getParticipantID ()
   {
     return m_aParticipantID;
   }
 
-  void setParticipantID (@Nonnull final IParticipantIdentifier aParticipantID)
+  public boolean hasParticipantID ()
   {
-    ValueEnforcer.notNull (aParticipantID, "ParticipantID");
+    return m_aParticipantID != null;
+  }
+
+  void setParticipantID (@Nullable final IParticipantIdentifier aParticipantID)
+  {
     m_aParticipantID = aParticipantID;
   }
 

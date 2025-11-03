@@ -107,11 +107,12 @@ public final class ExportAllManager
   {
     // Query all and group by participant ID
     final ICommonsOrderedMap <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> aMap = new CommonsLinkedHashMap <> ();
-    PDMetaManager.getStorageMgr ()
-                 .searchAllDocuments (aQuery,
-                                      -1,
-                                      x -> aMap.computeIfAbsent (x.getParticipantID (), k -> new CommonsArrayList <> ())
-                                               .add (x));
+    PDMetaManager.getStorageMgr ().searchAllDocuments (aQuery, -1, aEntity -> {
+      if (!aEntity.hasParticipantID ())
+        return;
+
+      aMap.computeIfAbsent (aEntity.getParticipantID (), k -> new CommonsArrayList <> ()).add (aEntity);
+    });
 
     return ExportHelper.getAsXML (aMap, bIncludeDocTypes);
   }
@@ -246,11 +247,12 @@ public final class ExportAllManager
 
     // Query all and group by participant ID
     final ICommonsOrderedMap <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> aMap = new CommonsLinkedHashMap <> ();
-    PDMetaManager.getStorageMgr ()
-                 .searchAllDocuments (aQuery,
-                                      -1,
-                                      x -> aMap.computeIfAbsent (x.getParticipantID (), k -> new CommonsArrayList <> ())
-                                               .add (x));
+    PDMetaManager.getStorageMgr ().searchAllDocuments (aQuery, -1, aEntity -> {
+      if (!aEntity.hasParticipantID ())
+        return;
+
+      aMap.computeIfAbsent (aEntity.getParticipantID (), k -> new CommonsArrayList <> ()).add (aEntity);
+    });
 
     return ExportHelper.getAsJSON (aMap, bIncludeDocTypes);
   }
@@ -333,11 +335,14 @@ public final class ExportAllManager
       aWBCH.addCell ("Document types");
 
     final Consumer <? super PDStoredBusinessEntity> aConsumer = aEntity -> {
+      if (!aEntity.hasParticipantID ())
+        return;
+
       aWBCH.addRow ();
       aWBCH.addCell (aEntity.getParticipantID ().getURIEncoded ());
       aWBCH.addCell (StringImplode.imploder ()
                                   .source (aEntity.names (), PDStoredMLName::getNameAndLanguageCode)
-                                  .separator ("\n")
+                                  .separator ('\n')
                                   .build ());
       aWBCH.addCellStyle (ES_WRAP);
       aWBCH.addCell (aEntity.getCountryCode ());
@@ -345,34 +350,34 @@ public final class ExportAllManager
       aWBCH.addCellStyle (ES_WRAP);
       aWBCH.addCell (StringImplode.imploder ()
                                   .source (aEntity.identifiers (), PDStoredIdentifier::getScheme)
-                                  .separator ("\n")
+                                  .separator ('\n')
                                   .build ());
       aWBCH.addCellStyle (ES_WRAP);
       aWBCH.addCell (StringImplode.imploder ()
                                   .source (aEntity.identifiers (), PDStoredIdentifier::getValue)
-                                  .separator ("\n")
+                                  .separator ('\n')
                                   .build ());
       aWBCH.addCellStyle (ES_WRAP);
-      aWBCH.addCell (StringImplode.imploder ().source (aEntity.websiteURIs ()).separator ("\n").build ());
+      aWBCH.addCell (StringImplode.imploder ().source (aEntity.websiteURIs ()).separator ('\n').build ());
       aWBCH.addCellStyle (ES_WRAP);
       aWBCH.addCell (StringImplode.imploder ()
                                   .source (aEntity.contacts (), PDStoredContact::getType)
-                                  .separator ("\n")
+                                  .separator ('\n')
                                   .build ());
       aWBCH.addCellStyle (ES_WRAP);
       aWBCH.addCell (StringImplode.imploder ()
                                   .source (aEntity.contacts (), PDStoredContact::getName)
-                                  .separator ("\n")
+                                  .separator ('\n')
                                   .build ());
       aWBCH.addCellStyle (ES_WRAP);
       aWBCH.addCell (StringImplode.imploder ()
                                   .source (aEntity.contacts (), PDStoredContact::getPhone)
-                                  .separator ("\n")
+                                  .separator ('\n')
                                   .build ());
       aWBCH.addCellStyle (ES_WRAP);
       aWBCH.addCell (StringImplode.imploder ()
                                   .source (aEntity.contacts (), PDStoredContact::getEmail)
-                                  .separator ("\n")
+                                  .separator ('\n')
                                   .build ());
       aWBCH.addCellStyle (ES_WRAP);
       aWBCH.addCell (aEntity.getAdditionalInformation ());
@@ -381,9 +386,10 @@ public final class ExportAllManager
       aWBCH.addCellStyle (ES_DATE);
       if (bIncludeDocTypes)
       {
-        aWBCH.addCell (StringImplode.getImplodedMapped ("\n",
-                                                        aEntity.documentTypeIDs (),
-                                                        IDocumentTypeIdentifier::getURIEncoded));
+        aWBCH.addCell (StringImplode.imploder ()
+                                    .source (aEntity.documentTypeIDs (), IDocumentTypeIdentifier::getURIEncoded)
+                                    .separator ('\n')
+                                    .build ());
         aWBCH.addCellStyle (ES_WRAP);
       }
     };
@@ -479,43 +485,46 @@ public final class ExportAllManager
                           "Document types");
 
     final Consumer <? super PDStoredBusinessEntity> aConsumer = aEntity -> {
+      if (!aEntity.hasParticipantID ())
+        return;
+
       aCSVWriter.writeNext (aEntity.getParticipantID ().getURIEncoded (),
                             StringImplode.imploder ()
                                          .source (aEntity.names (), PDStoredMLName::getNameAndLanguageCode)
-                                         .separator ("\n")
+                                         .separator ('\n')
                                          .build (),
                             aEntity.getCountryCode (),
                             aEntity.getGeoInfo (),
                             StringImplode.imploder ()
                                          .source (aEntity.identifiers (), PDStoredIdentifier::getScheme)
-                                         .separator ("\n")
+                                         .separator ('\n')
                                          .build (),
                             StringImplode.imploder ()
                                          .source (aEntity.identifiers (), PDStoredIdentifier::getValue)
-                                         .separator ("\n")
+                                         .separator ('\n')
                                          .build (),
-                            StringImplode.imploder ().source (aEntity.websiteURIs ()).separator ("\n").build (),
+                            StringImplode.imploder ().source (aEntity.websiteURIs ()).separator ('\n').build (),
                             StringImplode.imploder ()
                                          .source (aEntity.contacts (), PDStoredContact::getType)
-                                         .separator ("\n")
+                                         .separator ('\n')
                                          .build (),
                             StringImplode.imploder ()
                                          .source (aEntity.contacts (), PDStoredContact::getName)
-                                         .separator ("\n")
+                                         .separator ('\n')
                                          .build (),
                             StringImplode.imploder ()
                                          .source (aEntity.contacts (), PDStoredContact::getPhone)
-                                         .separator ("\n")
+                                         .separator ('\n')
                                          .build (),
                             StringImplode.imploder ()
                                          .source (aEntity.contacts (), PDStoredContact::getEmail)
-                                         .separator ("\n")
+                                         .separator ('\n')
                                          .build (),
                             aEntity.getAdditionalInformation (),
                             aEntity.getRegistrationDate () == null ? "" : aEntity.getRegistrationDate ().toString (),
                             StringImplode.imploder ()
                                          .source (aEntity.documentTypeIDs (), IDocumentTypeIdentifier::getURIEncoded)
-                                         .separator ("\n")
+                                         .separator ('\n')
                                          .build ());
     };
     PDMetaManager.getStorageMgr ().searchAllDocuments (aQuery, -1, aConsumer);
