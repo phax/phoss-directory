@@ -155,7 +155,10 @@ public abstract class AbstractPDField <NATIVE_TYPE, STORAGE_TYPE>
   {
     final ICommonsList <NATIVE_TYPE> ret = new CommonsArrayList <> ();
     for (final IndexableField aField : getDocFields (aDoc))
+    {
+      // List may contain null values!
       ret.add (getFieldNativeValue (aField));
+    }
     return ret;
   }
 }
