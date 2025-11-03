@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import com.helger.annotation.Nonempty;
 import com.helger.annotation.WillNotClose;
 import com.helger.annotation.concurrent.ThreadSafe;
+import com.helger.base.functional.IThrowingFunction;
 import com.helger.base.state.ESuccess;
 import com.helger.base.string.StringImplode;
 import com.helger.collection.commons.CommonsArrayList;
@@ -42,9 +43,11 @@ import com.helger.collection.commons.ICommonsOrderedMap;
 import com.helger.collection.commons.ICommonsSortedSet;
 import com.helger.commons.csv.CSVWriter;
 import com.helger.datetime.helper.PDTFactory;
+import com.helger.datetime.util.PDTIOHelper;
 import com.helger.datetime.web.PDTWebDateHelper;
 import com.helger.http.CHttpHeader;
 import com.helger.io.file.FileHelper;
+import com.helger.io.file.FileOperations;
 import com.helger.io.resource.FileSystemResource;
 import com.helger.json.IJsonArray;
 import com.helger.json.IJsonObject;
@@ -68,6 +71,8 @@ import com.helger.xml.microdom.IMicroDocument;
 import com.helger.xml.microdom.IMicroElement;
 import com.helger.xml.microdom.MicroDocument;
 import com.helger.xml.microdom.serialize.MicroWriter;
+import com.helger.xml.serialize.write.EXMLSerializeIndent;
+import com.helger.xml.serialize.write.XMLWriterSettings;
 
 import jakarta.annotation.Nonnull;
 
@@ -98,18 +103,54 @@ public final class ExportAllManager
   private ExportAllManager ()
   {}
 
-  private static void _streamFileTo (@Nonnull final File f, @Nonnull final UnifiedResponse aUR)
+  @Nonnull
+  private static ESuccess _runWithTempFile (@Nonnull final File fTarget,
+                                            @Nonnull final IThrowingFunction <File, ESuccess, IOException> aCallback) throws IOException
+  {
+    final File fTempFile = new File (fTarget.getParentFile (), fTarget.getName () + ".tmp");
+    // Write result to temp file
+    final ESuccess ret = aCallback.apply (fTempFile);
+    if (ret.isFailure ())
+    {
+      // Operation failed - delete temp file
+      FileOperations.deleteFileIfExisting (fTempFile);
+    }
+    else
+    {
+      // Goal: replace target file
+      FileOperations.deleteFileIfExisting (fTarget);
+      if (!fTarget.isFile ())
+      {
+        // Deletion worked or did not exist in the first place
+        FileOperations.renameFile (fTempFile, fTarget);
+      }
+      else
+      {
+        // Old target still exists
+        // Keep the temp file to handle it manually
+        LOGGER.error ("Failed to delete file '" + fTarget.getAbsolutePath () + "' - manually storing temp file");
+        FileOperations.renameFile (fTempFile,
+                                   new File (fTarget.getParentFile (),
+                                             fTarget.getName () +
+                                                                       "." +
+                                                                       PDTIOHelper.getCurrentLocalDateTimeForFilename ()));
+      }
+    }
+    return ret;
+  }
+
+  private static void _streamFileToResponse (@Nonnull final File fSrc, @Nonnull final UnifiedResponse aUR)
   {
     // setContent(IReadableResource) is lazy
-    aUR.setContent (new FileSystemResource (f));
-    final long nFileLen = f.length ();
+    aUR.setContent (new FileSystemResource (fSrc));
+    final long nFileLen = fSrc.length ();
     if (nFileLen > 0)
       aUR.setCustomResponseHeader (CHttpHeader.CONTENT_LENGTH, Long.toString (nFileLen));
   }
 
   @Nonnull
   @Nonempty
-  public static ICommonsSortedSet <String> getAllStoredParticipantIDs () throws IOException
+  static ICommonsSortedSet <String> getAllStoredParticipantIDs () throws IOException
   {
     final ICommonsSortedSet <String> ret = new CommonsTreeSet <> ();
     PDMetaManager.getStorageMgr ().searchAll (new MatchAllDocsQuery (), -1, doc -> {
@@ -124,6 +165,7 @@ public final class ExportAllManager
     return ret;
   }
 
+  // This is only used for the on-demand export of UI search results
   @Nonnull
   public static IMicroDocument queryAllContainedBusinessCardsAsXML (@Nonnull final Query aQuery,
                                                                     final boolean bIncludeDocTypes) throws IOException
@@ -150,7 +192,7 @@ public final class ExportAllManager
 
   @Nonnull
   private static ESuccess _writeFileBusinessCardXML (@Nonnull final ICommonsSortedSet <String> aAllParticipantIDs,
-                                                     @Nonnull final File f,
+                                                     @Nonnull final File fTarget,
                                                      final boolean bIncludeDocTypes) throws IOException
   {
     final IIdentifierFactory aIF = PDMetaManager.getIdentifierFactory ();
@@ -174,26 +216,28 @@ public final class ExportAllManager
       }
     }
 
-    if (MicroWriter.writeToFile (aDoc, f).isFailure ())
+    // Safe space - no indent
+    if (MicroWriter.writeToFile (aDoc, fTarget, new XMLWriterSettings ().setIndent (EXMLSerializeIndent.NONE))
+                   .isFailure ())
     {
       LOGGER.error ("Failed to export all BCs as XML (" +
                     (bIncludeDocTypes ? "full" : "no doctypes") +
                     ") to " +
-                    f.getAbsolutePath ());
+                    fTarget.getAbsolutePath ());
       return ESuccess.FAILURE;
     }
     LOGGER.info ("Successfully wrote all BCs as XML (" +
                  (bIncludeDocTypes ? "full" : "no doctypes") +
                  ") to " +
-                 f.getAbsolutePath ());
+                 fTarget.getAbsolutePath ());
     return ESuccess.SUCCESS;
   }
 
   @Nonnull
   static ESuccess writeFileBusinessCardXMLFull (@Nonnull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
   {
-    final File f = _getInternalFileBusinessCardXMLFull ();
-    return _writeFileBusinessCardXML (aAllParticipantIDs, f, true);
+    return _runWithTempFile (_getInternalFileBusinessCardXMLFull (),
+                             f -> _writeFileBusinessCardXML (aAllParticipantIDs, f, true));
   }
 
   /**
@@ -204,7 +248,7 @@ public final class ExportAllManager
    */
   public static void streamFileBusinessCardXMLFullTo (@Nonnull final UnifiedResponse aUR)
   {
-    _streamFileTo (_getInternalFileBusinessCardXMLFull (), aUR);
+    _streamFileToResponse (_getInternalFileBusinessCardXMLFull (), aUR);
   }
 
   @Nonnull
@@ -216,8 +260,8 @@ public final class ExportAllManager
   @Nonnull
   static ESuccess writeFileBusinessCardXMLNoDocTypes (@Nonnull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
   {
-    final File f = _getInternalFileBusinessCardXMLNoDocTypes ();
-    return _writeFileBusinessCardXML (aAllParticipantIDs, f, false);
+    return _runWithTempFile (_getInternalFileBusinessCardXMLNoDocTypes (),
+                             f -> _writeFileBusinessCardXML (aAllParticipantIDs, f, false));
   }
 
   /**
@@ -228,7 +272,7 @@ public final class ExportAllManager
    */
   public static void streamFileBusinessCardXMLNoDocTypesTo (@Nonnull final UnifiedResponse aUR)
   {
-    _streamFileTo (_getInternalFileBusinessCardXMLNoDocTypes (), aUR);
+    _streamFileToResponse (_getInternalFileBusinessCardXMLNoDocTypes (), aUR);
   }
 
   @Nonnull
@@ -238,60 +282,63 @@ public final class ExportAllManager
   }
 
   @Nonnull
-  static ESuccess writeFileBusinessCardJSON (@Nonnull final ICommonsSortedSet <String> aAllParticipantIDs)
+  static ESuccess writeFileBusinessCardJSON (@Nonnull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
   {
-    final PDStorageManager aStorageMgr = PDMetaManager.getStorageMgr ();
-    final File f = _getInternalFileBusinessCardJSON ();
+    return _runWithTempFile (_getInternalFileBusinessCardJSON (), f -> {
+      final PDStorageManager aStorageMgr = PDMetaManager.getStorageMgr ();
+      final boolean bIncludeDocTypes = true;
 
-    try (final Writer aWriter = FileHelper.getBufferedWriter (f, StandardCharsets.UTF_8))
-    {
-      // JSON root
-      final IJsonObject aObj = new JsonObject ();
-      aObj.add ("version", 2);
-      aObj.add ("creationdt", PDTWebDateHelper.getAsStringXSD (PDTFactory.getCurrentZonedDateTimeUTC ()));
-      aObj.add ("participantCount", aAllParticipantIDs.size ());
-      aObj.add ("codeListSupported", EPredefinedDocumentTypeIdentifier.CODE_LIST_VERSION);
-
-      final IJsonArray aBCs = new JsonArray ();
-      for (final String sParticipantID : aAllParticipantIDs)
+      try (final Writer aWriter = FileHelper.getBufferedWriter (f, StandardCharsets.UTF_8))
       {
-        // Search all entities of the current participant ID
-        final ICommonsList <PDStoredBusinessEntity> aEntitiesPerPI = new CommonsArrayList <> ();
-        aStorageMgr.searchAllDocuments (new TermQuery (new Term (PDField.PARTICIPANT_ID.getFieldName (),
-                                                                 sParticipantID)), -1, aEntitiesPerPI::add);
+        // JSON root
+        final IJsonObject aObj = new JsonObject ();
+        aObj.add ("version", 2);
+        aObj.add ("creationdt", PDTWebDateHelper.getAsStringXSD (PDTFactory.getCurrentZonedDateTimeUTC ()));
+        aObj.add ("participantCount", aAllParticipantIDs.size ());
+        aObj.add ("codeListSupported", EPredefinedDocumentTypeIdentifier.CODE_LIST_VERSION);
 
-        final IJsonObject aBC = new JsonObject ();
-        aBC.add ("pid", sParticipantID);
-
-        final IJsonArray aBEs = new JsonArray ();
-        for (final PDStoredBusinessEntity aSBE : aEntitiesPerPI)
-          aBEs.add (ExportHelper.createJsonObject (aSBE));
-        aBC.add ("entities", aBEs);
-
-        // Add all Document types (if wanted)
-        if (true)
+        final IJsonArray aBCs = new JsonArray ();
+        for (final String sParticipantID : aAllParticipantIDs)
         {
-          final IJsonArray aDocTypes = new JsonArray ();
-          if (aEntitiesPerPI.isNotEmpty ())
-            for (final IDocumentTypeIdentifier aDocTypeID : aEntitiesPerPI.getFirstOrNull ().documentTypeIDs ())
-              aDocTypes.add (ExportHelper.createJsonObject (aDocTypeID));
-          aBC.add ("docTypes", aDocTypes);
+          // Search all entities of the current participant ID
+          final ICommonsList <PDStoredBusinessEntity> aEntitiesPerPI = new CommonsArrayList <> ();
+          aStorageMgr.searchAllDocuments (new TermQuery (new Term (PDField.PARTICIPANT_ID.getFieldName (),
+                                                                   sParticipantID)), -1, aEntitiesPerPI::add);
+
+          final IJsonObject aBC = new JsonObject ();
+          aBC.add ("pid", sParticipantID);
+
+          final IJsonArray aBEs = new JsonArray ();
+          for (final PDStoredBusinessEntity aSBE : aEntitiesPerPI)
+            aBEs.add (ExportHelper.createJsonObject (aSBE));
+          aBC.add ("entities", aBEs);
+
+          // Add all Document types (if wanted)
+          if (bIncludeDocTypes)
+          {
+            final IJsonArray aDocTypes = new JsonArray ();
+            if (aEntitiesPerPI.isNotEmpty ())
+              for (final IDocumentTypeIdentifier aDocTypeID : aEntitiesPerPI.getFirstOrNull ().documentTypeIDs ())
+                aDocTypes.add (ExportHelper.createJsonObject (aDocTypeID));
+            aBC.add ("docTypes", aDocTypes);
+          }
+
+          aBCs.add (aBC);
+
         }
+        aObj.add ("bc", aBCs);
 
-        aBCs.add (aBC);
-
+        // Safe space - no indent
+        new JsonWriter ().writeToWriterAndClose (aObj, aWriter);
+        LOGGER.info ("Successfully wrote all BusinessCards as JSON to " + f.getAbsolutePath ());
+        return ESuccess.SUCCESS;
       }
-      aObj.add ("bc", aBCs);
-
-      new JsonWriter ().writeToWriterAndClose (aObj, aWriter);
-      LOGGER.info ("Successfully wrote all BusinessCards as JSON to " + f.getAbsolutePath ());
-      return ESuccess.SUCCESS;
-    }
-    catch (final IOException ex)
-    {
-      LOGGER.error ("Failed to export all BusinessCards as JSON to " + f.getAbsolutePath (), ex);
-      return ESuccess.FAILURE;
-    }
+      catch (final IOException ex)
+      {
+        LOGGER.error ("Failed to export all BusinessCards as JSON to " + f.getAbsolutePath (), ex);
+        return ESuccess.FAILURE;
+      }
+    });
   }
 
   /**
@@ -302,7 +349,7 @@ public final class ExportAllManager
    */
   public static void streamFileBusinessCardJSONTo (@Nonnull final UnifiedResponse aUR)
   {
-    _streamFileTo (_getInternalFileBusinessCardJSON (), aUR);
+    _streamFileToResponse (_getInternalFileBusinessCardJSON (), aUR);
   }
 
   private static void _unify (@Nonnull @WillNotClose final CSVWriter aCSVWriter)
@@ -317,88 +364,91 @@ public final class ExportAllManager
   }
 
   @Nonnull
-  static ESuccess writeFileBusinessCardCSV (@Nonnull final ICommonsSortedSet <String> aAllParticipantIDs)
+  static ESuccess writeFileBusinessCardCSV (@Nonnull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
   {
-    final PDStorageManager aStorageMgr = PDMetaManager.getStorageMgr ();
-    final File f = _getInternalFileBusinessCardCSV ();
+    return _runWithTempFile (_getInternalFileBusinessCardCSV (), f -> {
+      final PDStorageManager aStorageMgr = PDMetaManager.getStorageMgr ();
 
-    try (final CSVWriter aCSVWriter = new CSVWriter (FileHelper.getBufferedWriter (f, StandardCharsets.ISO_8859_1)))
-    {
-      _unify (aCSVWriter);
-      aCSVWriter.writeNext ("Participant ID",
-                            "Names (per-row)",
-                            "Country code",
-                            "Geo info",
-                            "Identifier schemes",
-                            "Identifier values",
-                            "Websites",
-                            "Contact type",
-                            "Contact name",
-                            "Contact phone",
-                            "Contact email",
-                            "Additional info",
-                            "Registration date",
-                            "Document types");
-
-      final Consumer <? super PDStoredBusinessEntity> aCSVConsumer = aEntity -> {
-        if (!aEntity.hasParticipantID ())
-          return;
-
-        aCSVWriter.writeNext (aEntity.getParticipantID ().getURIEncoded (),
-                              StringImplode.imploder ()
-                                           .source (aEntity.names (), PDStoredMLName::getNameAndLanguageCode)
-                                           .separator ('\n')
-                                           .build (),
-                              aEntity.getCountryCode (),
-                              aEntity.getGeoInfo (),
-                              StringImplode.imploder ()
-                                           .source (aEntity.identifiers (), PDStoredIdentifier::getScheme)
-                                           .separator ('\n')
-                                           .build (),
-                              StringImplode.imploder ()
-                                           .source (aEntity.identifiers (), PDStoredIdentifier::getValue)
-                                           .separator ('\n')
-                                           .build (),
-                              StringImplode.imploder ().source (aEntity.websiteURIs ()).separator ('\n').build (),
-                              StringImplode.imploder ()
-                                           .source (aEntity.contacts (), PDStoredContact::getType)
-                                           .separator ('\n')
-                                           .build (),
-                              StringImplode.imploder ()
-                                           .source (aEntity.contacts (), PDStoredContact::getName)
-                                           .separator ('\n')
-                                           .build (),
-                              StringImplode.imploder ()
-                                           .source (aEntity.contacts (), PDStoredContact::getPhone)
-                                           .separator ('\n')
-                                           .build (),
-                              StringImplode.imploder ()
-                                           .source (aEntity.contacts (), PDStoredContact::getEmail)
-                                           .separator ('\n')
-                                           .build (),
-                              aEntity.getAdditionalInformation (),
-                              aEntity.getRegistrationDate () == null ? "" : aEntity.getRegistrationDate ().toString (),
-                              StringImplode.imploder ()
-                                           .source (aEntity.documentTypeIDs (), IDocumentTypeIdentifier::getURIEncoded)
-                                           .separator ('\n')
-                                           .build ());
-      };
-
-      for (final String sParticipantID : aAllParticipantIDs)
+      try (final CSVWriter aCSVWriter = new CSVWriter (FileHelper.getBufferedWriter (f, StandardCharsets.ISO_8859_1)))
       {
-        aStorageMgr.searchAllDocuments (new TermQuery (new Term (PDField.PARTICIPANT_ID.getFieldName (),
-                                                                 sParticipantID)), -1, aCSVConsumer);
-      }
+        _unify (aCSVWriter);
+        aCSVWriter.writeNext ("Participant ID",
+                              "Names (per-row)",
+                              "Country code",
+                              "Geo info",
+                              "Identifier schemes",
+                              "Identifier values",
+                              "Websites",
+                              "Contact type",
+                              "Contact name",
+                              "Contact phone",
+                              "Contact email",
+                              "Additional info",
+                              "Registration date",
+                              "Document types");
 
-      aCSVWriter.flush ();
-      LOGGER.info ("Successfully exported all BCs as CSV to " + f.getAbsolutePath ());
-      return ESuccess.SUCCESS;
-    }
-    catch (final IOException ex)
-    {
-      LOGGER.error ("Failed to export all BCs as CSV to " + f.getAbsolutePath (), ex);
-      return ESuccess.FAILURE;
-    }
+        final Consumer <? super PDStoredBusinessEntity> aCSVConsumer = aEntity -> {
+          if (!aEntity.hasParticipantID ())
+            return;
+
+          aCSVWriter.writeNext (aEntity.getParticipantID ().getURIEncoded (),
+                                StringImplode.imploder ()
+                                             .source (aEntity.names (), PDStoredMLName::getNameAndLanguageCode)
+                                             .separator ('\n')
+                                             .build (),
+                                aEntity.getCountryCode (),
+                                aEntity.getGeoInfo (),
+                                StringImplode.imploder ()
+                                             .source (aEntity.identifiers (), PDStoredIdentifier::getScheme)
+                                             .separator ('\n')
+                                             .build (),
+                                StringImplode.imploder ()
+                                             .source (aEntity.identifiers (), PDStoredIdentifier::getValue)
+                                             .separator ('\n')
+                                             .build (),
+                                StringImplode.imploder ().source (aEntity.websiteURIs ()).separator ('\n').build (),
+                                StringImplode.imploder ()
+                                             .source (aEntity.contacts (), PDStoredContact::getType)
+                                             .separator ('\n')
+                                             .build (),
+                                StringImplode.imploder ()
+                                             .source (aEntity.contacts (), PDStoredContact::getName)
+                                             .separator ('\n')
+                                             .build (),
+                                StringImplode.imploder ()
+                                             .source (aEntity.contacts (), PDStoredContact::getPhone)
+                                             .separator ('\n')
+                                             .build (),
+                                StringImplode.imploder ()
+                                             .source (aEntity.contacts (), PDStoredContact::getEmail)
+                                             .separator ('\n')
+                                             .build (),
+                                aEntity.getAdditionalInformation (),
+                                aEntity.getRegistrationDate () == null ? "" : aEntity.getRegistrationDate ()
+                                                                                     .toString (),
+                                StringImplode.imploder ()
+                                             .source (aEntity.documentTypeIDs (),
+                                                      IDocumentTypeIdentifier::getURIEncoded)
+                                             .separator ('\n')
+                                             .build ());
+        };
+
+        for (final String sParticipantID : aAllParticipantIDs)
+        {
+          aStorageMgr.searchAllDocuments (new TermQuery (new Term (PDField.PARTICIPANT_ID.getFieldName (),
+                                                                   sParticipantID)), -1, aCSVConsumer);
+        }
+
+        aCSVWriter.flush ();
+        LOGGER.info ("Successfully exported all BCs as CSV to " + f.getAbsolutePath ());
+        return ESuccess.SUCCESS;
+      }
+      catch (final IOException ex)
+      {
+        LOGGER.error ("Failed to export all BCs as CSV to " + f.getAbsolutePath (), ex);
+        return ESuccess.FAILURE;
+      }
+    });
   }
 
   /**
@@ -409,7 +459,7 @@ public final class ExportAllManager
    */
   public static void streamFileBusinessCardCSVTo (@Nonnull final UnifiedResponse aUR)
   {
-    _streamFileTo (_getInternalFileBusinessCardCSV (), aUR);
+    _streamFileToResponse (_getInternalFileBusinessCardCSV (), aUR);
   }
 
   @Nonnull
@@ -419,37 +469,39 @@ public final class ExportAllManager
   }
 
   @Nonnull
-  static ESuccess writeFileParticipantXML (@Nonnull final ICommonsSortedSet <String> aAllParticipantIDs)
+  static ESuccess writeFileParticipantXML (@Nonnull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
   {
-    final IIdentifierFactory aIF = PDMetaManager.getIdentifierFactory ();
-    final File f = _getInternalFileParticipantXML ();
+    return _runWithTempFile (_getInternalFileParticipantXML (), f -> {
+      final IIdentifierFactory aIF = PDMetaManager.getIdentifierFactory ();
 
-    // XML root
-    final IMicroDocument aDoc = new MicroDocument ();
-    final String sNamespaceURI = "http://www.peppol.eu/schema/pd/participant-generic/201910/";
-    final IMicroElement aRoot = aDoc.addElementNS (sNamespaceURI, "root");
-    aRoot.setAttribute ("version", "1");
-    aRoot.setAttribute ("creationdt", PDTWebDateHelper.getAsStringXSD (PDTFactory.getCurrentZonedDateTimeUTC ()));
-    aRoot.setAttribute ("count", aAllParticipantIDs.size ());
+      // XML root
+      final IMicroDocument aDoc = new MicroDocument ();
+      final String sNamespaceURI = "http://www.peppol.eu/schema/pd/participant-generic/201910/";
+      final IMicroElement aRoot = aDoc.addElementNS (sNamespaceURI, "root");
+      aRoot.setAttribute ("version", "1");
+      aRoot.setAttribute ("creationdt", PDTWebDateHelper.getAsStringXSD (PDTFactory.getCurrentZonedDateTimeUTC ()));
+      aRoot.setAttribute ("count", aAllParticipantIDs.size ());
 
-    // For all participants
-    for (final String sParticipantID : aAllParticipantIDs)
-    {
-      final IParticipantIdentifier aPI = aIF.parseParticipantIdentifier (sParticipantID);
-      final IMicroElement ePI = aRoot.addElementNS (sNamespaceURI, "participantID");
+      // For all participants
+      for (final String sParticipantID : aAllParticipantIDs)
+      {
+        final IParticipantIdentifier aPI = aIF.parseParticipantIdentifier (sParticipantID);
+        final IMicroElement ePI = aRoot.addElementNS (sNamespaceURI, "participantID");
 
-      // Should never happen because PIs are parsed before added into the source set
-      if (aPI != null)
-        ePI.setAttribute ("scheme", aPI.getScheme ()).setAttribute ("value", aPI.getValue ());
-    }
+        // Should never happen because PIs are parsed before added into the source set
+        if (aPI != null)
+          ePI.setAttribute ("scheme", aPI.getScheme ()).setAttribute ("value", aPI.getValue ());
+      }
 
-    if (MicroWriter.writeToFile (aDoc, f).isFailure ())
-    {
-      LOGGER.error ("Failed to export all Participants as XML to " + f.getAbsolutePath ());
-      return ESuccess.FAILURE;
-    }
-    LOGGER.info ("Successfully wrote all Participants as XML to " + f.getAbsolutePath ());
-    return ESuccess.SUCCESS;
+      // Safe space - no indent
+      if (MicroWriter.writeToFile (aDoc, f, new XMLWriterSettings ().setIndent (EXMLSerializeIndent.NONE)).isFailure ())
+      {
+        LOGGER.error ("Failed to export all Participants as XML to " + f.getAbsolutePath ());
+        return ESuccess.FAILURE;
+      }
+      LOGGER.info ("Successfully wrote all Participants as XML to " + f.getAbsolutePath ());
+      return ESuccess.SUCCESS;
+    });
   }
 
   /**
@@ -460,7 +512,7 @@ public final class ExportAllManager
    */
   public static void streamFileParticipantXMLTo (@Nonnull final UnifiedResponse aUR)
   {
-    _streamFileTo (_getInternalFileParticipantXML (), aUR);
+    _streamFileToResponse (_getInternalFileParticipantXML (), aUR);
   }
 
   @Nonnull
@@ -470,33 +522,34 @@ public final class ExportAllManager
   }
 
   @Nonnull
-  static ESuccess writeFileParticipantJSON (@Nonnull final ICommonsSortedSet <String> aAllParticipantIDs)
+  static ESuccess writeFileParticipantJSON (@Nonnull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
   {
-    final File f = _getInternalFileParticipantJSON ();
+    return _runWithTempFile (_getInternalFileParticipantJSON (), f -> {
+      try (final Writer aWriter = FileHelper.getBufferedWriter (f, StandardCharsets.UTF_8))
+      {
+        // JSON root
+        final IJsonObject aObj = new JsonObject ();
+        aObj.add ("version", 1);
+        aObj.add ("creationdt", PDTWebDateHelper.getAsStringXSD (PDTFactory.getCurrentZonedDateTimeUTC ()));
+        aObj.add ("count", aAllParticipantIDs.size ());
 
-    try (final Writer aWriter = FileHelper.getBufferedWriter (f, StandardCharsets.UTF_8))
-    {
-      // JSON root
-      final IJsonObject aObj = new JsonObject ();
-      aObj.add ("version", 1);
-      aObj.add ("creationdt", PDTWebDateHelper.getAsStringXSD (PDTFactory.getCurrentZonedDateTimeUTC ()));
-      aObj.add ("count", aAllParticipantIDs.size ());
+        // For all participants
+        final IJsonArray aArray = new JsonArray ();
+        for (final String sParticipantID : aAllParticipantIDs)
+          aArray.add (sParticipantID);
+        aObj.add ("participants", aArray);
 
-      // For all participants
-      final IJsonArray aArray = new JsonArray ();
-      for (final String sParticipantID : aAllParticipantIDs)
-        aArray.add (sParticipantID);
-      aObj.add ("participants", aArray);
-
-      new JsonWriter ().writeToWriterAndClose (aObj, aWriter);
-      LOGGER.info ("Successfully wrote all Participants as JSON to " + f.getAbsolutePath ());
-      return ESuccess.SUCCESS;
-    }
-    catch (final IOException ex)
-    {
-      LOGGER.error ("Failed to export all Participants as JSON to " + f.getAbsolutePath (), ex);
-      return ESuccess.FAILURE;
-    }
+        // Safe space - no indent
+        new JsonWriter ().writeToWriterAndClose (aObj, aWriter);
+        LOGGER.info ("Successfully wrote all Participants as JSON to " + f.getAbsolutePath ());
+        return ESuccess.SUCCESS;
+      }
+      catch (final IOException ex)
+      {
+        LOGGER.error ("Failed to export all Participants as JSON to " + f.getAbsolutePath (), ex);
+        return ESuccess.FAILURE;
+      }
+    });
   }
 
   /**
@@ -507,7 +560,7 @@ public final class ExportAllManager
    */
   public static void streamFileParticipantJSONTo (@Nonnull final UnifiedResponse aUR)
   {
-    _streamFileTo (_getInternalFileParticipantJSON (), aUR);
+    _streamFileToResponse (_getInternalFileParticipantJSON (), aUR);
   }
 
   @Nonnull
@@ -517,26 +570,26 @@ public final class ExportAllManager
   }
 
   @Nonnull
-  static ESuccess writeFileParticipantCSV (@Nonnull final ICommonsSortedSet <String> aAllParticipantIDs)
+  static ESuccess writeFileParticipantCSV (@Nonnull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
   {
-    final File f = _getInternalFileParticipantCSV ();
+    return _runWithTempFile (_getInternalFileParticipantCSV (), f -> {
+      try (final CSVWriter aCSVWriter = new CSVWriter (FileHelper.getBufferedWriter (f, StandardCharsets.ISO_8859_1)))
+      {
+        _unify (aCSVWriter);
+        aCSVWriter.writeNext ("Participant ID");
+        for (final String sParticipantID : aAllParticipantIDs)
+          aCSVWriter.writeNext (sParticipantID);
 
-    try (final CSVWriter aCSVWriter = new CSVWriter (FileHelper.getBufferedWriter (f, StandardCharsets.ISO_8859_1)))
-    {
-      _unify (aCSVWriter);
-      aCSVWriter.writeNext ("Participant ID");
-      for (final String sParticipantID : aAllParticipantIDs)
-        aCSVWriter.writeNext (sParticipantID);
-
-      aCSVWriter.flush ();
-      LOGGER.info ("Successfully wrote all Participants as CSV to " + f.getAbsolutePath ());
-      return ESuccess.SUCCESS;
-    }
-    catch (final IOException ex)
-    {
-      LOGGER.error ("Failed to export all Participants as CSV to " + f.getAbsolutePath (), ex);
-      return ESuccess.FAILURE;
-    }
+        aCSVWriter.flush ();
+        LOGGER.info ("Successfully wrote all Participants as CSV to " + f.getAbsolutePath ());
+        return ESuccess.SUCCESS;
+      }
+      catch (final IOException ex)
+      {
+        LOGGER.error ("Failed to export all Participants as CSV to " + f.getAbsolutePath (), ex);
+        return ESuccess.FAILURE;
+      }
+    });
   }
 
   /**
@@ -547,6 +600,6 @@ public final class ExportAllManager
    */
   public static void streamFileParticipantCSVTo (@Nonnull final UnifiedResponse aUR)
   {
-    _streamFileTo (_getInternalFileParticipantCSV (), aUR);
+    _streamFileToResponse (_getInternalFileParticipantCSV (), aUR);
   }
 }
