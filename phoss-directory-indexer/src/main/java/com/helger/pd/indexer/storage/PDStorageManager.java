@@ -33,6 +33,7 @@ import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Collector;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.MatchAllDocsQuery;
+import org.apache.lucene.search.PrefixQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TermQuery;
@@ -158,8 +159,6 @@ public final class PDStorageManager implements IPDStorageManager
         final TopDocs aTopDocs = _timedSearch ( () -> aSearcher.search (aQuery, 1), aQuery);
         // Lucene 8
         if (aTopDocs.totalHits.value > 0)
-          // Lucene 7
-          // if (aTopDocs.totalHits > 0)
           return Boolean.TRUE;
       }
       return Boolean.FALSE;
@@ -353,8 +352,17 @@ public final class PDStorageManager implements IPDStorageManager
       // Special handling for predefined owners
       final BooleanQuery.Builder aBuilderOr = new BooleanQuery.Builder ();
 
-      // TODO the equals-check on deletion is to strict for Peppol
-      aBuilderOr.add (new TermQuery (PDField.METADATA_OWNERID.getExactMatchTerm (aMetaData.getOwnerID ())),
+      if (false)
+      {
+        // TODO the equals-check on deletion is to strict for Peppol
+        // If the below Prefix Query works, this check should be ignored
+        aBuilderOr.add (new TermQuery (PDField.METADATA_OWNERID.getExactMatchTerm (aMetaData.getOwnerID ())),
+                        Occur.SHOULD);
+      }
+      // Since 2025-11-03 use PrefixQuery instead of TermQuery, because the stored OwnerID is longer
+      // (incl. serial number) then the provided OwnerID (without serial number)
+      // Note: PrefixQuery is supposed to work with the exact term, without a trailing "*"
+      aBuilderOr.add (new PrefixQuery (PDField.METADATA_OWNERID.getExactMatchTerm (aMetaData.getOwnerID ())),
                       Occur.SHOULD);
       aBuilderOr.add (new TermQuery (PDField.METADATA_OWNERID.getExactMatchTerm (CPDStorage.OWNER_DUPLICATE_ELIMINATION)),
                       Occur.SHOULD);
@@ -491,9 +499,6 @@ public final class PDStorageManager implements IPDStorageManager
       // Search top docs only
       // Lucene 8
       final TopScoreDocCollector aCollector = TopScoreDocCollector.create (nMaxResultCount, Integer.MAX_VALUE);
-      // Lucene 7
-      // final TopScoreDocCollector aCollector = TopScoreDocCollector.create
-      // (nMaxResultCount);
       searchAtomic (aQuery, aCollector);
       for (final ScoreDoc aScoreDoc : aCollector.topDocs ().scoreDocs)
       {

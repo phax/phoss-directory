@@ -148,7 +148,7 @@ public final class ClientCertificateValidator
         LOGGER.error (sMsg);
         throw new InitializationException (sMsg, ex);
       }
-      
+
       // Check if both root certificates could be loaded
       if (aCert == null)
       {
@@ -260,7 +260,7 @@ public final class ClientCertificateValidator
     {
       return ex.getMessage ();
     }
-    
+
     // Check passed revocation lists
     if (aCRLs != null)
       for (final CRL aCRL : aCRLs)
@@ -292,6 +292,16 @@ public final class ClientCertificateValidator
                                                                          aParts.get ("O"),
                                                                          aParts.get ("CN"))).toString ();
 
+      if (true)
+      {
+        return sSubjectName;
+      }
+
+      // 2025-11-03 - don't use the serial number, as it updates on certificate change - stick with
+      // subject fields
+      // For backwards compatibility only a "startsWith" instead of an "equals" check needs to be
+      // performed
+
       // subject-name + ":" + serial number hexstring
       return sSubjectName + ':' + aCert.getSerialNumber ().toString (16);
     }
@@ -321,7 +331,7 @@ public final class ClientCertificateValidator
         LOGGER.debug (sLogPrefix + "Client certificate is considered valid because the 'allow all' for tests is set!");
       return ClientCertificateValidationResult.createSuccess (INSECURE_DEBUG_CLIENT);
     }
-    
+
     // This is how to get client certificate from request
     final Object aValue = aHttpRequest.getAttribute ("jakarta.servlet.request.X509Certificate");
     if (aValue == null)
@@ -329,20 +339,19 @@ public final class ClientCertificateValidator
       LOGGER.warn (sLogPrefix + "No client certificates present in the request");
       return ClientCertificateValidationResult.createFailure ();
     }
-    
+
     // type check
-    if (!(aValue instanceof X509Certificate []))
+    if (!(aValue instanceof final X509Certificate [] aRequestCerts))
       throw new IllegalStateException ("Request value is not of type X509Certificate[] but of " + aValue.getClass ());
 
     // Main checking
-    final X509Certificate [] aRequestCerts = (X509Certificate []) aValue;
     if (ArrayHelper.isEmpty (aRequestCerts))
     {
       // Empty array
       LOGGER.warn (sLogPrefix + "No client certificates passed for validation");
       return ClientCertificateValidationResult.createFailure ();
     }
-    
+
     // OK, we have a non-empty, type checked Certificate array
 
     // TODO: determine CRLs
@@ -376,7 +385,7 @@ public final class ClientCertificateValidator
                                          Arrays.toString (aRequestCerts));
       }
     }
-    
+
     final String sClientID = getClientUniqueID (aClientCertToVerify);
 
     // This is the main verification process against the Peppol SMP root

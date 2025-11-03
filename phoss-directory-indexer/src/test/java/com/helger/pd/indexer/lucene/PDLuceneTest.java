@@ -32,6 +32,7 @@ import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.search.PrefixQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TermQuery;
@@ -118,16 +119,7 @@ public final class PDLuceneTest
   }
 
   @Nullable
-  private static Document _searchBest (final String sField, final String sExpectedValue) throws IOException
-  {
-    final Document aDoc = _searchBest (new TermQuery (new Term (sField, sExpectedValue)));
-    if (aDoc != null)
-      assertEquals (sExpectedValue, aDoc.get (sField));
-    return aDoc;
-  }
-
-  @Nullable
-  private static Document _searchBest (final Query aQuery) throws IOException
+  private static Document _search (final Query aQuery) throws IOException
   {
     try (final PDLucene aLucene = new PDLucene ())
     {
@@ -141,8 +133,6 @@ public final class PDLuceneTest
 
       // Lucene 8
       final long numTotalHits = results.totalHits.value;
-      // Lucene 7
-      // final long numTotalHits = results.totalHits;
       assertEquals (1, numTotalHits);
 
       /*
@@ -155,6 +145,24 @@ public final class PDLuceneTest
     }
   }
 
+  @Nullable
+  private static Document _searchBest (final String sField, final String sExpectedValue) throws IOException
+  {
+    final Document aDoc = _search (new TermQuery (new Term (sField, sExpectedValue)));
+    if (aDoc != null)
+      assertEquals (sExpectedValue, aDoc.get (sField));
+    return aDoc;
+  }
+
+  @Nullable
+  private static Document _searchPrefix (final String sField, final String sExpectedValue) throws IOException
+  {
+    final Document aDoc = _search (new PrefixQuery (new Term (sField, sExpectedValue)));
+    if (aDoc != null)
+      assertTrue (aDoc.get (sField).startsWith (sExpectedValue));
+    return aDoc;
+  }
+
   @Test
   public void testBasic () throws IOException
   {
@@ -163,12 +171,17 @@ public final class PDLuceneTest
     // Full ID
     Document aDoc = _searchBest ("id", "Apache Lucene 7.5.0");
     assertNotNull (aDoc);
-    assertNotNull (aDoc.get ("id"));
+    assertEquals ("Apache Lucene 7.5.0", aDoc.get ("id"));
 
     // Full identifier
     aDoc = _searchBest ("participantid", "iso6523-actorid-upis::9915:testluc");
     assertNotNull (aDoc);
-    assertNotNull (aDoc.get ("participantid"));
+    assertEquals ("iso6523-actorid-upis::9915:testluc", aDoc.get ("participantid"));
+
+    // Prefix identifier
+    aDoc = _searchPrefix ("participantid", "iso6523-actorid-upis::9915:test");
+    assertNotNull (aDoc);
+    assertEquals ("iso6523-actorid-upis::9915:testluc", aDoc.get ("participantid"));
 
     // part of the identifier
     aDoc = _searchBest ("participantid", "9915:testluc");
@@ -179,7 +192,7 @@ public final class PDLuceneTest
     assertNull (aDoc);
 
     // LongPoint - indexed but not stored
-    aDoc = _searchBest (LongPoint.newExactQuery ("num", 12345));
+    aDoc = _search (LongPoint.newExactQuery ("num", 12345));
     assertNotNull (aDoc);
     assertNull (aDoc.getField ("num"));
   }
