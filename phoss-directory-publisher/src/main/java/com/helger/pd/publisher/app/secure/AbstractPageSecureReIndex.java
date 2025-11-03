@@ -197,7 +197,7 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
                                                      .setCtrl (PDTToString.getAsString (aWorkItem.getCreationDateTime (),
                                                                                         aDisplayLocale)));
     aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Participant ID")
-                                                     .setCtrl (aParticipantID.getURIEncoded ()));
+                                                     .setCtrl (code (aParticipantID.getURIEncoded ())));
 
     final String sBCSuffix = "/businesscard/" + aParticipantID.getURIPercentEncoded ();
     {
@@ -206,6 +206,7 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
       {
         if (aURLs.hasChildren ())
           aURLs.addChild (div ("or"));
+
         try
         {
           aURLs.addChild (div (HCA.createLinkedWebsite (aURLProvider.getSMPURIOfParticipant (aParticipantID, aSMLInfo)
@@ -213,9 +214,8 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
         }
         catch (final SMPDNSResolutionException ex)
         {
-          // Non existing participant!
-          aURLs.addChild (div (aParticipantID.getURIPercentEncoded () +
-                               " on " +
+          // Non existing participant or cache issue
+          aURLs.addChild (div ("Error to get SMP URI on " +
                                aSMLInfo.getDisplayName () +
                                " @ " +
                                sBCSuffix +
@@ -228,9 +228,9 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
     }
     aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Action type")
                                                      .setCtrl (aWorkItem.getType ().getDisplayName ()));
-    aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Owner").setCtrl (aWorkItem.getOwnerID ()));
+    aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Owner").setCtrl (code (aWorkItem.getOwnerID ())));
     aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Requesting host")
-                                                     .setCtrl (aWorkItem.getRequestingHost ()));
+                                                     .setCtrl (code (aWorkItem.getRequestingHost ())));
     aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Retries so far")
                                                      .setCtrl (Integer.toString (aSelectedObject.getRetryCount ())));
     if (aSelectedObject.hasPreviousRetryDT ())
