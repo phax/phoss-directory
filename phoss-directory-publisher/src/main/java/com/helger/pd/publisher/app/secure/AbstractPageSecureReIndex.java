@@ -192,6 +192,7 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
     final IParticipantIdentifier aParticipantID = aWorkItem.getParticipantID ();
 
     final BootstrapViewForm aViewForm = aNodeList.addAndReturnChild (new BootstrapViewForm ());
+    aViewForm.setLeft (2);
     aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Creation datetime")
                                                      .setCtrl (PDTToString.getAsString (aWorkItem.getCreationDateTime (),
                                                                                         aDisplayLocale)));
