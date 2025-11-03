@@ -59,9 +59,6 @@ import com.helger.pd.indexer.storage.field.PDField;
 import com.helger.peppolid.IDocumentTypeIdentifier;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.photon.io.WebFileIO;
-import com.helger.poi.excel.EExcelVersion;
-import com.helger.poi.excel.WorkbookCreationHelper;
-import com.helger.poi.excel.style.ExcelStyle;
 import com.helger.servlet.response.UnifiedResponse;
 import com.helger.xml.microdom.IMicroDocument;
 import com.helger.xml.microdom.IMicroElement;
@@ -77,7 +74,6 @@ public final class ExportAllManager
   public static final String EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_FULL = "directory-export-business-cards.xml";
   public static final String EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_NO_DOC_TYPES = "directory-export-business-cards-no-doc-types.xml";
   public static final String EXTERNAL_EXPORT_ALL_BUSINESSCARDS_JSON = "directory-export-business-cards.json";
-  public static final String EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XLSX = "directory-export-business-cards.xlsx";
   public static final String EXTERNAL_EXPORT_ALL_BUSINESSCARDS_CSV = "directory-export-business-cards.csv";
   public static final String EXTERNAL_EXPORT_ALL_PARTICIPANTS_XML = "directory-export-participants.xml";
   public static final String EXTERNAL_EXPORT_ALL_PARTICIPANTS_JSON = "directory-export-participants.json";
@@ -87,7 +83,6 @@ public final class ExportAllManager
   private static final String INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_FULL = "export-all-businesscards.xml";
   private static final String INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_NO_DOC_TYPES = "export-all-businesscards-no-doc-types.xml";
   private static final String INTERNAL_EXPORT_ALL_BUSINESSCARDS_JSON = "export-all-businesscards.json";
-  private static final String INTERNAL_EXPORT_ALL_BUSINESSCARDS_XLSX = "export-all-businesscards.xlsx";
   private static final String INTERNAL_EXPORT_ALL_BUSINESSCARDS_CSV = "export-all-businesscards.csv";
   private static final String INTERNAL_EXPORT_ALL_PARTICIPANTS_XML = "export-all-participants.xml";
   private static final String INTERNAL_EXPORT_ALL_PARTICIPANTS_JSON = "export-all-participants.json";
@@ -154,19 +149,12 @@ public final class ExportAllManager
     return ESuccess.SUCCESS;
   }
 
-  /**
-   * Stream the stored XML file to the provided HTTP response
-   *
-   * @param aUR
-   *        The response to stream to. May not be <code>null</code>.
-   */
-  public static void streamFileBusinessCardXMLFullTo (@Nonnull final UnifiedResponse aUR)
+  private static void _streamFileTo (@Nonnull final File f, @Nonnull final UnifiedResponse aUR)
   {
     // Do it in a read lock!
     RW_LOCK.readLock ().lock ();
     try
     {
-      final File f = _getInternalFileBusinessCardXMLFull ();
       // setContent(IReadableResource) is lazy
       aUR.setContent (new FileSystemResource (f));
       final long nFileLen = f.length ();
@@ -177,6 +165,17 @@ public final class ExportAllManager
     {
       RW_LOCK.readLock ().unlock ();
     }
+  }
+
+  /**
+   * Stream the stored XML file to the provided HTTP response
+   *
+   * @param aUR
+   *        The response to stream to. May not be <code>null</code>.
+   */
+  public static void streamFileBusinessCardXMLFullTo (@Nonnull final UnifiedResponse aUR)
+  {
+    _streamFileTo (_getInternalFileBusinessCardXMLFull (), aUR);
   }
 
   @Nonnull
@@ -217,21 +216,7 @@ public final class ExportAllManager
    */
   public static void streamFileBusinessCardXMLNoDocTypesTo (@Nonnull final UnifiedResponse aUR)
   {
-    // Do it in a read lock!
-    RW_LOCK.readLock ().lock ();
-    try
-    {
-      final File f = _getInternalFileBusinessCardXMLNoDocTypes ();
-      // setContent(IReadableResource) is lazy
-      aUR.setContent (new FileSystemResource (f));
-      final long nFileLen = f.length ();
-      if (nFileLen > 0)
-        aUR.setCustomResponseHeader (CHttpHeader.CONTENT_LENGTH, Long.toString (nFileLen));
-    }
-    finally
-    {
-      RW_LOCK.readLock ().unlock ();
-    }
+    _streamFileTo (_getInternalFileBusinessCardXMLNoDocTypes (), aUR);
   }
 
   @Nonnull
@@ -289,173 +274,7 @@ public final class ExportAllManager
    */
   public static void streamFileBusinessCardJSONTo (@Nonnull final UnifiedResponse aUR)
   {
-    // Do it in a read lock!
-    RW_LOCK.readLock ().lock ();
-    try
-    {
-      final File f = _getInternalFileBusinessCardJSON ();
-      // setContent(IReadableResource) is lazy
-      aUR.setContent (new FileSystemResource (f));
-      final long nFileLen = f.length ();
-      if (nFileLen > 0)
-        aUR.setCustomResponseHeader (CHttpHeader.CONTENT_LENGTH, Long.toString (nFileLen));
-    }
-    finally
-    {
-      RW_LOCK.readLock ().unlock ();
-    }
-  }
-
-  @Nonnull
-  public static WorkbookCreationHelper queryAllContainedBusinessCardsAsExcel (final boolean bIncludeDocTypes) throws IOException
-  {
-    final Query aQuery = new MatchAllDocsQuery ();
-
-    final ExcelStyle ES_DATE = new ExcelStyle ().setDataFormat ("yyyy-mm-dd");
-    final ExcelStyle ES_WRAP = new ExcelStyle ().setWrapText (true);
-
-    @WillNotClose
-    final WorkbookCreationHelper aWBCH = new WorkbookCreationHelper (EExcelVersion.XLSX);
-    aWBCH.createNewSheet ();
-    aWBCH.addRow ();
-    aWBCH.addCell ("Participant ID");
-    aWBCH.addCell ("Names (per-row)");
-    aWBCH.addCell ("Country code");
-    aWBCH.addCell ("Geo info");
-    aWBCH.addCell ("Identifier schemes");
-    aWBCH.addCell ("Identifier values");
-    aWBCH.addCell ("Websites");
-    aWBCH.addCell ("Contact type");
-    aWBCH.addCell ("Contact name");
-    aWBCH.addCell ("Contact phone");
-    aWBCH.addCell ("Contact email");
-    aWBCH.addCell ("Additional info");
-    aWBCH.addCell ("Registration date");
-    if (bIncludeDocTypes)
-      aWBCH.addCell ("Document types");
-
-    final Consumer <? super PDStoredBusinessEntity> aConsumer = aEntity -> {
-      if (!aEntity.hasParticipantID ())
-        return;
-
-      aWBCH.addRow ();
-      aWBCH.addCell (aEntity.getParticipantID ().getURIEncoded ());
-      aWBCH.addCell (StringImplode.imploder ()
-                                  .source (aEntity.names (), PDStoredMLName::getNameAndLanguageCode)
-                                  .separator ('\n')
-                                  .build ());
-      aWBCH.addCellStyle (ES_WRAP);
-      aWBCH.addCell (aEntity.getCountryCode ());
-      aWBCH.addCell (aEntity.getGeoInfo ());
-      aWBCH.addCellStyle (ES_WRAP);
-      aWBCH.addCell (StringImplode.imploder ()
-                                  .source (aEntity.identifiers (), PDStoredIdentifier::getScheme)
-                                  .separator ('\n')
-                                  .build ());
-      aWBCH.addCellStyle (ES_WRAP);
-      aWBCH.addCell (StringImplode.imploder ()
-                                  .source (aEntity.identifiers (), PDStoredIdentifier::getValue)
-                                  .separator ('\n')
-                                  .build ());
-      aWBCH.addCellStyle (ES_WRAP);
-      aWBCH.addCell (StringImplode.imploder ().source (aEntity.websiteURIs ()).separator ('\n').build ());
-      aWBCH.addCellStyle (ES_WRAP);
-      aWBCH.addCell (StringImplode.imploder ()
-                                  .source (aEntity.contacts (), PDStoredContact::getType)
-                                  .separator ('\n')
-                                  .build ());
-      aWBCH.addCellStyle (ES_WRAP);
-      aWBCH.addCell (StringImplode.imploder ()
-                                  .source (aEntity.contacts (), PDStoredContact::getName)
-                                  .separator ('\n')
-                                  .build ());
-      aWBCH.addCellStyle (ES_WRAP);
-      aWBCH.addCell (StringImplode.imploder ()
-                                  .source (aEntity.contacts (), PDStoredContact::getPhone)
-                                  .separator ('\n')
-                                  .build ());
-      aWBCH.addCellStyle (ES_WRAP);
-      aWBCH.addCell (StringImplode.imploder ()
-                                  .source (aEntity.contacts (), PDStoredContact::getEmail)
-                                  .separator ('\n')
-                                  .build ());
-      aWBCH.addCellStyle (ES_WRAP);
-      aWBCH.addCell (aEntity.getAdditionalInformation ());
-      aWBCH.addCellStyle (ES_WRAP);
-      aWBCH.addCell (aEntity.getRegistrationDate ());
-      aWBCH.addCellStyle (ES_DATE);
-      if (bIncludeDocTypes)
-      {
-        aWBCH.addCell (StringImplode.imploder ()
-                                    .source (aEntity.documentTypeIDs (), IDocumentTypeIdentifier::getURIEncoded)
-                                    .separator ('\n')
-                                    .build ());
-        aWBCH.addCellStyle (ES_WRAP);
-      }
-    };
-    // Query all and group by participant ID
-    PDMetaManager.getStorageMgr ().searchAllDocuments (aQuery, -1, aConsumer);
-    aWBCH.autoSizeAllColumns ();
-    aWBCH.autoFilterAllColumns ();
-
-    return aWBCH;
-  }
-
-  @Nonnull
-  private static File _getInternalFileBusinessCardExcel ()
-  {
-    return WebFileIO.getDataIO ().getFile (INTERNAL_EXPORT_ALL_BUSINESSCARDS_XLSX);
-  }
-
-  @Nonnull
-  static ESuccess writeFileBusinessCardExcel () throws IOException
-  {
-    try (final WorkbookCreationHelper aWBCH = queryAllContainedBusinessCardsAsExcel (true))
-    {
-      final File f = _getInternalFileBusinessCardExcel ();
-
-      // Do it in a write lock!
-      RW_LOCK.writeLock ().lock ();
-      try
-      {
-        if (aWBCH.writeTo (f).isFailure ())
-        {
-          LOGGER.error ("Failed to export all BCs as XLSX to " + f.getAbsolutePath ());
-          return ESuccess.FAILURE;
-        }
-        LOGGER.info ("Successfully exported all BCs as XLSX to " + f.getAbsolutePath ());
-      }
-      finally
-      {
-        RW_LOCK.writeLock ().unlock ();
-      }
-    }
-    return ESuccess.SUCCESS;
-  }
-
-  /**
-   * Stream the stored Excel file to the provided HTTP response
-   *
-   * @param aUR
-   *        The response to stream to. May not be <code>null</code>.
-   */
-  public static void streamFileBusinessCardExcelTo (@Nonnull final UnifiedResponse aUR)
-  {
-    // Do it in a read lock!
-    RW_LOCK.readLock ().lock ();
-    try
-    {
-      final File f = _getInternalFileBusinessCardExcel ();
-      // setContent(IReadableResource) is lazy
-      aUR.setContent (new FileSystemResource (f));
-      final long nFileLen = f.length ();
-      if (nFileLen > 0)
-        aUR.setCustomResponseHeader (CHttpHeader.CONTENT_LENGTH, Long.toString (nFileLen));
-    }
-    finally
-    {
-      RW_LOCK.readLock ().unlock ();
-    }
+    _streamFileTo (_getInternalFileBusinessCardJSON (), aUR);
   }
 
   private static void _unify (@Nonnull @WillNotClose final CSVWriter aCSVWriter)
@@ -568,21 +387,7 @@ public final class ExportAllManager
    */
   public static void streamFileBusinessCardCSVTo (@Nonnull final UnifiedResponse aUR)
   {
-    // Do it in a read lock!
-    RW_LOCK.readLock ().lock ();
-    try
-    {
-      final File f = _getInternalFileBusinessCardCSV ();
-      // setContent(IReadableResource) is lazy
-      aUR.setContent (new FileSystemResource (f));
-      final long nFileLen = f.length ();
-      if (nFileLen > 0)
-        aUR.setCustomResponseHeader (CHttpHeader.CONTENT_LENGTH, Long.toString (nFileLen));
-    }
-    finally
-    {
-      RW_LOCK.readLock ().unlock ();
-    }
+    _streamFileTo (_getInternalFileBusinessCardCSV (), aUR);
   }
 
   @Nonnull
@@ -650,21 +455,7 @@ public final class ExportAllManager
    */
   public static void streamFileParticipantXMLTo (@Nonnull final UnifiedResponse aUR)
   {
-    // Do it in a read lock!
-    RW_LOCK.readLock ().lock ();
-    try
-    {
-      final File f = _getInternalFileParticipantXML ();
-      // setContent(IReadableResource) is lazy
-      aUR.setContent (new FileSystemResource (f));
-      final long nFileLen = f.length ();
-      if (nFileLen > 0)
-        aUR.setCustomResponseHeader (CHttpHeader.CONTENT_LENGTH, Long.toString (nFileLen));
-    }
-    finally
-    {
-      RW_LOCK.readLock ().unlock ();
-    }
+    _streamFileTo (_getInternalFileParticipantXML (), aUR);
   }
 
   @Nonnull
@@ -729,21 +520,7 @@ public final class ExportAllManager
    */
   public static void streamFileParticipantJSONTo (@Nonnull final UnifiedResponse aUR)
   {
-    // Do it in a read lock!
-    RW_LOCK.readLock ().lock ();
-    try
-    {
-      final File f = _getInternalFileParticipantJSON ();
-      // setContent(IReadableResource) is lazy
-      aUR.setContent (new FileSystemResource (f));
-      final long nFileLen = f.length ();
-      if (nFileLen > 0)
-        aUR.setCustomResponseHeader (CHttpHeader.CONTENT_LENGTH, Long.toString (nFileLen));
-    }
-    finally
-    {
-      RW_LOCK.readLock ().unlock ();
-    }
+    _streamFileTo (_getInternalFileParticipantJSON (), aUR);
   }
 
   @Nonnull
@@ -798,20 +575,6 @@ public final class ExportAllManager
    */
   public static void streamFileParticipantCSVTo (@Nonnull final UnifiedResponse aUR)
   {
-    // Do it in a read lock!
-    RW_LOCK.readLock ().lock ();
-    try
-    {
-      final File f = _getInternalFileParticipantCSV ();
-      // setContent(IReadableResource) is lazy
-      aUR.setContent (new FileSystemResource (f));
-      final long nFileLen = f.length ();
-      if (nFileLen > 0)
-        aUR.setCustomResponseHeader (CHttpHeader.CONTENT_LENGTH, Long.toString (nFileLen));
-    }
-    finally
-    {
-      RW_LOCK.readLock ().unlock ();
-    }
+    _streamFileTo (_getInternalFileParticipantCSV (), aUR);
   }
 }

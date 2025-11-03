@@ -256,52 +256,48 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
                                .addChild (new HCA (new SimpleURL (VENDOR_URL)).addChild (VENDOR_NAME))
                                .addChild (" service"));
       final HCP aP = new HCP ().addChild ("Download data [");
-      aP.addChild (new HCA (LinkHelper.getURLWithContext (aRequestScope,
-                                                          ExportServlet.SERVLET_DEFAULT_PATH +
-                                                                         ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_XML_FULL)).addChild ("BusinessCards XML"));
-      aP.addChild (" | ")
-        .addChild (new HCA (LinkHelper.getURLWithContext (aRequestScope,
-                                                          ExportServlet.SERVLET_DEFAULT_PATH +
-                                                                         ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_XML_NO_DOC_TYPES)).addChild ("BusinessCards w/o doctypes XML"));
+      if (CPDPublisher.EXPORT_BUSINESS_CARDS_XML)
+      {
+        aP.addChild (new HCA (LinkHelper.getURLWithContext (aRequestScope,
+                                                            ExportServlet.SERVLET_DEFAULT_PATH +
+                                                                           ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_XML_FULL)).addChild ("BusinessCards XML"))
+          .addChild (" | ")
+          .addChild (new HCA (LinkHelper.getURLWithContext (aRequestScope,
+                                                            ExportServlet.SERVLET_DEFAULT_PATH +
+                                                                           ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_XML_NO_DOC_TYPES)).addChild ("BusinessCards w/o doctypes XML"));
+      }
       if (CPDPublisher.EXPORT_BUSINESS_CARDS_JSON)
       {
-        aP.addChild (" | ")
-          .addChild (new HCA (LinkHelper.getURLWithContext (aRequestScope,
+        aP.addChild (" | ");
+        aP.addChild (new HCA (LinkHelper.getURLWithContext (aRequestScope,
                                                             ExportServlet.SERVLET_DEFAULT_PATH +
                                                                            ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_JSON)).addChild ("BusinessCards JSON"));
       }
-      if (CPDPublisher.EXPORT_BUSINESS_CARDS_EXCEL)
-      {
-        aP.addChild (" | ")
-          .addChild (new HCA (LinkHelper.getURLWithContext (aRequestScope,
-                                                            ExportServlet.SERVLET_DEFAULT_PATH +
-                                                                           ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_EXCEL)).addChild ("BusinessCards Excel"));
-      }
       if (CPDPublisher.EXPORT_BUSINESS_CARDS_CSV)
       {
-        aP.addChild (" | ")
-          .addChild (new HCA (LinkHelper.getURLWithContext (aRequestScope,
+        aP.addChild (" | ");
+        aP.addChild (new HCA (LinkHelper.getURLWithContext (aRequestScope,
                                                             ExportServlet.SERVLET_DEFAULT_PATH +
                                                                            ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_CSV)).addChild ("BusinessCards CSV"));
       }
       if (CPDPublisher.EXPORT_PARTICIPANTS_XML)
       {
-        aP.addChild (" | ")
-          .addChild (new HCA (LinkHelper.getURLWithContext (aRequestScope,
+        aP.addChild (" | ");
+        aP.addChild (new HCA (LinkHelper.getURLWithContext (aRequestScope,
                                                             ExportServlet.SERVLET_DEFAULT_PATH +
                                                                            ExportDeliveryHttpHandler.SPECIAL_PARTICIPANTS_XML)).addChild ("Participant IDs XML"));
       }
       if (CPDPublisher.EXPORT_PARTICIPANTS_JSON)
       {
-        aP.addChild (" | ")
-          .addChild (new HCA (LinkHelper.getURLWithContext (aRequestScope,
+        aP.addChild (" | ");
+        aP.addChild (new HCA (LinkHelper.getURLWithContext (aRequestScope,
                                                             ExportServlet.SERVLET_DEFAULT_PATH +
                                                                            ExportDeliveryHttpHandler.SPECIAL_PARTICIPANTS_JSON)).addChild ("Participant IDs JSON"));
       }
       if (CPDPublisher.EXPORT_PARTICIPANTS_CSV)
       {
-        aP.addChild (" | ")
-          .addChild (new HCA (LinkHelper.getURLWithContext (aRequestScope,
+        aP.addChild (" | ");
+        aP.addChild (new HCA (LinkHelper.getURLWithContext (aRequestScope,
                                                             ExportServlet.SERVLET_DEFAULT_PATH +
                                                                            ExportDeliveryHttpHandler.SPECIAL_PARTICIPANTS_CSV)).addChild ("Participant IDs CSV"));
       }

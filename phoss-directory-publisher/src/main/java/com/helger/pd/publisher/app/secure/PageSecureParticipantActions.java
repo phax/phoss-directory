@@ -78,8 +78,6 @@ import com.helger.photon.bootstrap4.card.BootstrapCardBody;
 import com.helger.photon.uicore.css.CPageParam;
 import com.helger.photon.uicore.icon.EDefaultIcon;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
-import com.helger.poi.excel.EExcelVersion;
-import com.helger.poi.excel.WorkbookCreationHelper;
 import com.helger.text.compare.ComparatorHelper;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 import com.helger.xml.microdom.IMicroDocument;
@@ -99,10 +97,10 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
 
   private static final AjaxFunctionDeclaration AJAX_DOWNLOAD_ALL_IDS_XML;
   private static final AjaxFunctionDeclaration AJAX_DOWNLOAD_ALL_IDS_AND_METADATA_XML;
+
   private static final AjaxFunctionDeclaration AJAX_DOWNLOAD_ALL_BCS_XML_FULL;
   private static final AjaxFunctionDeclaration AJAX_DOWNLOAD_ALL_BCS_XML_NO_DOCTYPES;
   private static final AjaxFunctionDeclaration AJAX_DOWNLOAD_ALL_BCS_JSON;
-  private static final AjaxFunctionDeclaration AJAX_DOWNLOAD_ALL_BCS_EXCEL;
   private static final AjaxFunctionDeclaration AJAX_DOWNLOAD_ALL_BCS_CSV;
 
   static
@@ -177,16 +175,6 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
       res.json (aObj);
       res.attachment (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_JSON);
       LOGGER.info ("Finished AJAX_DOWNLOAD_ALL_BCS_JSON");
-    });
-    AJAX_DOWNLOAD_ALL_BCS_EXCEL = addAjax ( (req, res) -> {
-      LOGGER.info ("Starting AJAX_DOWNLOAD_ALL_BCS_EXCEL");
-      try (final WorkbookCreationHelper aWBCH = ExportAllManager.queryAllContainedBusinessCardsAsExcel (true);
-           final NonBlockingByteArrayOutputStream aBAOS = new NonBlockingByteArrayOutputStream ())
-      {
-        aWBCH.writeTo (aBAOS);
-        res.binary (aBAOS, EExcelVersion.XLSX.getMimeType (), ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XLSX);
-      }
-      LOGGER.info ("Finished AJAX_DOWNLOAD_ALL_BCS_EXCEL");
     });
     AJAX_DOWNLOAD_ALL_BCS_CSV = addAjax ( (req, res) -> {
       LOGGER.info ("Starting AJAX_DOWNLOAD_ALL_BCS_CSV");
@@ -423,39 +411,31 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
     aBody.addChild (new BootstrapButton (EBootstrapButtonType.DANGER).addChild ("Download all Business Cards (JSON, live) (may take long)")
                                                                      .setOnClick (AJAX_DOWNLOAD_ALL_BCS_JSON.getInvocationURL (aRequestScope))
                                                                      .setIcon (EDefaultIcon.SAVE_ALL));
-    aBody.addChild (new BootstrapButton (EBootstrapButtonType.DANGER).addChild ("Download all Business Cards (Excel, live) (may take long)")
-                                                                     .setOnClick (AJAX_DOWNLOAD_ALL_BCS_EXCEL.getInvocationURL (aRequestScope))
-                                                                     .setIcon (EDefaultIcon.SAVE_ALL));
     aBody.addChild (new BootstrapButton (EBootstrapButtonType.DANGER).addChild ("Download all Business Cards (CSV, live) (may take long)")
                                                                      .setOnClick (AJAX_DOWNLOAD_ALL_BCS_CSV.getInvocationURL (aRequestScope))
                                                                      .setIcon (EDefaultIcon.SAVE_ALL));
 
     aCard.createAndAddHeader ().addChild ("Cached data downloads");
     aBody = aCard.createAndAddBody ();
-    aBody.addChild (new BootstrapButton ().addChild ("Download all Business Cards (XML, full, cached)")
-                                          .setOnClick (LinkHelper.getURLWithContext (aRequestScope,
-                                                                                     ExportServlet.SERVLET_DEFAULT_PATH +
-                                                                                                    ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_XML_FULL))
-                                          .setIcon (EDefaultIcon.SAVE_ALL));
-    aBody.addChild (new BootstrapButton ().addChild ("Download all Business Cards (XML, no document types, cached)")
-                                          .setOnClick (LinkHelper.getURLWithContext (aRequestScope,
-                                                                                     ExportServlet.SERVLET_DEFAULT_PATH +
-                                                                                                    ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_XML_NO_DOC_TYPES))
-                                          .setIcon (EDefaultIcon.SAVE_ALL));
+    if (CPDPublisher.EXPORT_BUSINESS_CARDS_XML)
+    {
+      aBody.addChild (new BootstrapButton ().addChild ("Download all Business Cards (XML, full, cached)")
+                                            .setOnClick (LinkHelper.getURLWithContext (aRequestScope,
+                                                                                       ExportServlet.SERVLET_DEFAULT_PATH +
+                                                                                                      ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_XML_FULL))
+                                            .setIcon (EDefaultIcon.SAVE_ALL));
+      aBody.addChild (new BootstrapButton ().addChild ("Download all Business Cards (XML, no document types, cached)")
+                                            .setOnClick (LinkHelper.getURLWithContext (aRequestScope,
+                                                                                       ExportServlet.SERVLET_DEFAULT_PATH +
+                                                                                                      ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_XML_NO_DOC_TYPES))
+                                            .setIcon (EDefaultIcon.SAVE_ALL));
+    }
     if (CPDPublisher.EXPORT_BUSINESS_CARDS_JSON)
     {
       aBody.addChild (new BootstrapButton ().addChild ("Download all Business Cards (JSON, cached)")
                                             .setOnClick (LinkHelper.getURLWithContext (aRequestScope,
                                                                                        ExportServlet.SERVLET_DEFAULT_PATH +
                                                                                                       ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_JSON))
-                                            .setIcon (EDefaultIcon.SAVE_ALL));
-    }
-    if (CPDPublisher.EXPORT_BUSINESS_CARDS_EXCEL)
-    {
-      aBody.addChild (new BootstrapButton ().addChild ("Download all Business Cards (Excel, cached)")
-                                            .setOnClick (LinkHelper.getURLWithContext (aRequestScope,
-                                                                                       ExportServlet.SERVLET_DEFAULT_PATH +
-                                                                                                      ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_EXCEL))
                                             .setIcon (EDefaultIcon.SAVE_ALL));
     }
     if (CPDPublisher.EXPORT_BUSINESS_CARDS_CSV)

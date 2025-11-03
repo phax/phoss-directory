@@ -138,45 +138,49 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
 
       try
       {
-        LOGGER.info (sLogPrefix + "Start exporting business cards as XML (full)");
-        try
+        if (CPDPublisher.EXPORT_BUSINESS_CARDS_XML)
         {
-          EXPORT_STATUS.setCurrentStatus ("writeFileBusinessCardXMLFull");
-          ExportAllManager.writeFileBusinessCardXMLFull ();
-        }
-        catch (final Throwable t)
-        {
-          LOGGER.error (sLogPrefix + "Error exporting business cards as XML (full)", t);
-          EXPORT_STATUS.rememberFailedStatus ();
-        }
-        finally
-        {
-          aSW.stop ();
-          LOGGER.info (sLogPrefix +
-                       "Finished exporting business cards as XML (full) after " +
-                       aSW.getDuration () +
-                       " milliseconds");
-        }
+          aSW.restart ();
+          LOGGER.info (sLogPrefix + "Start exporting business cards as XML (full)");
+          try
+          {
+            EXPORT_STATUS.setCurrentStatus ("writeFileBusinessCardXMLFull");
+            ExportAllManager.writeFileBusinessCardXMLFull ();
+          }
+          catch (final Throwable t)
+          {
+            LOGGER.error (sLogPrefix + "Error exporting business cards as XML (full)", t);
+            EXPORT_STATUS.rememberFailedStatus ();
+          }
+          finally
+          {
+            aSW.stop ();
+            LOGGER.info (sLogPrefix +
+                         "Finished exporting business cards as XML (full) after " +
+                         aSW.getDuration () +
+                         " milliseconds");
+          }
 
-        aSW.restart ();
-        LOGGER.info (sLogPrefix + "Start exporting business cards as XML (no doc types)");
-        try
-        {
-          EXPORT_STATUS.setCurrentStatus ("writeFileBusinessCardXMLNoDocTypes");
-          ExportAllManager.writeFileBusinessCardXMLNoDocTypes ();
-        }
-        catch (final Throwable t)
-        {
-          LOGGER.error (sLogPrefix + "Error exporting business cards as XML (no doc types)", t);
-          EXPORT_STATUS.rememberFailedStatus ();
-        }
-        finally
-        {
-          aSW.stop ();
-          LOGGER.info (sLogPrefix +
-                       "Finished exporting business cards as XML (no doc types) after " +
-                       aSW.getDuration () +
-                       " milliseconds");
+          aSW.restart ();
+          LOGGER.info (sLogPrefix + "Start exporting business cards as XML (no doc types)");
+          try
+          {
+            EXPORT_STATUS.setCurrentStatus ("writeFileBusinessCardXMLNoDocTypes");
+            ExportAllManager.writeFileBusinessCardXMLNoDocTypes ();
+          }
+          catch (final Throwable t)
+          {
+            LOGGER.error (sLogPrefix + "Error exporting business cards as XML (no doc types)", t);
+            EXPORT_STATUS.rememberFailedStatus ();
+          }
+          finally
+          {
+            aSW.stop ();
+            LOGGER.info (sLogPrefix +
+                         "Finished exporting business cards as XML (no doc types) after " +
+                         aSW.getDuration () +
+                         " milliseconds");
+          }
         }
 
         if (CPDPublisher.EXPORT_BUSINESS_CARDS_JSON)
@@ -198,30 +202,6 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
             aSW.stop ();
             LOGGER.info (sLogPrefix +
                          "Finished exporting business cards as JSON after " +
-                         aSW.getDuration () +
-                         " milliseconds");
-          }
-        }
-
-        if (CPDPublisher.EXPORT_BUSINESS_CARDS_EXCEL)
-        {
-          aSW.restart ();
-          LOGGER.info (sLogPrefix + "Start exporting business cards as Excel");
-          try
-          {
-            EXPORT_STATUS.setCurrentStatus ("writeFileBusinessCardExcel");
-            ExportAllManager.writeFileBusinessCardExcel ();
-          }
-          catch (final Throwable t)
-          {
-            LOGGER.error (sLogPrefix + "Error exporting business cards as Excel", t);
-            EXPORT_STATUS.rememberFailedStatus ();
-          }
-          finally
-          {
-            aSW.stop ();
-            LOGGER.info (sLogPrefix +
-                         "Finished exporting business cards as Excel after " +
                          aSW.getDuration () +
                          " milliseconds");
           }

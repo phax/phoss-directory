@@ -70,8 +70,8 @@ public final class ExportHelper
   }
 
   @Nonnull
-  public static IMicroDocument getAsXML (@Nonnull final ICommonsOrderedMap <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> aMap,
-                                         final boolean bIncludeDocTypes)
+  static IMicroDocument getAsXML (@Nonnull final ICommonsOrderedMap <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> aMap,
+                                  final boolean bIncludeDocTypes)
   {
     // XML root
     final IMicroDocument aDoc = new MicroDocument ();

@@ -65,10 +65,6 @@
       <artifactId>phoss-directory-indexer</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.helger</groupId>
-      <artifactId>ph-poi</artifactId>
-    </dependency>
-    <dependency>
       <groupId>com.helger.photon</groupId>
       <artifactId>ph-oton-bootstrap4-stub</artifactId>
     </dependency>

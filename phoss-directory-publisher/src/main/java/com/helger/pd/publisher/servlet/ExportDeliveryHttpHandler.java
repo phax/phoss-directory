@@ -32,7 +32,6 @@ import com.helger.mime.CMimeType;
 import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.exportall.ExportAllManager;
 import com.helger.photon.core.servlet.AbstractObjectDeliveryHttpHandler;
-import com.helger.poi.excel.EExcelVersion;
 import com.helger.servlet.response.UnifiedResponse;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 
@@ -44,11 +43,12 @@ public class ExportDeliveryHttpHandler extends AbstractObjectDeliveryHttpHandler
   public static final String SPECIAL_BUSINESS_CARDS_XML_FULL = "/businesscards";
   public static final String SPECIAL_BUSINESS_CARDS_XML_NO_DOC_TYPES = "/businesscards-xml-no-doc-types";
   public static final String SPECIAL_BUSINESS_CARDS_JSON = "/businesscards-json";
-  public static final String SPECIAL_BUSINESS_CARDS_EXCEL = "/businesscards-excel";
   public static final String SPECIAL_BUSINESS_CARDS_CSV = "/businesscards-csv";
+
   public static final String SPECIAL_PARTICIPANTS_XML = "/participants-xml";
   public static final String SPECIAL_PARTICIPANTS_JSON = "/participants-json";
   public static final String SPECIAL_PARTICIPANTS_CSV = "/participants-csv";
+
   private static final Logger LOGGER = LoggerFactory.getLogger (ExportDeliveryHttpHandler.class);
 
   private static ICommonsMap <String, Consumer <UnifiedResponse>> HANDLERS = new CommonsHashMap <> ();
@@ -56,16 +56,32 @@ public class ExportDeliveryHttpHandler extends AbstractObjectDeliveryHttpHandler
   {
     // BusinessCards
     HANDLERS.put (SPECIAL_BUSINESS_CARDS_XML_FULL, aUnifiedResponse -> {
-      aUnifiedResponse.disableCaching ();
-      ExportAllManager.streamFileBusinessCardXMLFullTo (aUnifiedResponse);
-      aUnifiedResponse.setMimeType (CMimeType.APPLICATION_XML);
-      aUnifiedResponse.setContentDispositionFilename (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_FULL);
+      if (CPDPublisher.EXPORT_BUSINESS_CARDS_XML)
+      {
+        aUnifiedResponse.disableCaching ();
+        ExportAllManager.streamFileBusinessCardXMLFullTo (aUnifiedResponse);
+        aUnifiedResponse.setMimeType (CMimeType.APPLICATION_XML);
+        aUnifiedResponse.setContentDispositionFilename (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_FULL);
+      }
+      else
+      {
+        aUnifiedResponse.disableCaching ();
+        aUnifiedResponse.setStatus (HttpServletResponse.SC_NOT_FOUND);
+      }
     });
     HANDLERS.put (SPECIAL_BUSINESS_CARDS_XML_NO_DOC_TYPES, aUnifiedResponse -> {
-      aUnifiedResponse.disableCaching ();
-      ExportAllManager.streamFileBusinessCardXMLNoDocTypesTo (aUnifiedResponse);
-      aUnifiedResponse.setMimeType (CMimeType.APPLICATION_XML);
-      aUnifiedResponse.setContentDispositionFilename (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_NO_DOC_TYPES);
+      if (CPDPublisher.EXPORT_BUSINESS_CARDS_XML)
+      {
+        aUnifiedResponse.disableCaching ();
+        ExportAllManager.streamFileBusinessCardXMLNoDocTypesTo (aUnifiedResponse);
+        aUnifiedResponse.setMimeType (CMimeType.APPLICATION_XML);
+        aUnifiedResponse.setContentDispositionFilename (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_NO_DOC_TYPES);
+      }
+      else
+      {
+        aUnifiedResponse.disableCaching ();
+        aUnifiedResponse.setStatus (HttpServletResponse.SC_NOT_FOUND);
+      }
     });
     HANDLERS.put (SPECIAL_BUSINESS_CARDS_JSON, aUnifiedResponse -> {
       if (CPDPublisher.EXPORT_BUSINESS_CARDS_JSON)
@@ -74,20 +90,6 @@ public class ExportDeliveryHttpHandler extends AbstractObjectDeliveryHttpHandler
         ExportAllManager.streamFileBusinessCardJSONTo (aUnifiedResponse);
         aUnifiedResponse.setMimeType (CMimeType.APPLICATION_JSON);
         aUnifiedResponse.setContentDispositionFilename (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_JSON);
-      }
-      else
-      {
-        aUnifiedResponse.disableCaching ();
-        aUnifiedResponse.setStatus (HttpServletResponse.SC_NOT_FOUND);
-      }
-    });
-    HANDLERS.put (SPECIAL_BUSINESS_CARDS_EXCEL, aUnifiedResponse -> {
-      if (CPDPublisher.EXPORT_BUSINESS_CARDS_EXCEL)
-      {
-        aUnifiedResponse.disableCaching ();
-        ExportAllManager.streamFileBusinessCardExcelTo (aUnifiedResponse);
-        aUnifiedResponse.setMimeType (EExcelVersion.XLSX.getMimeType ());
-        aUnifiedResponse.setContentDispositionFilename (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XLSX);
       }
       else
       {

@@ -33,9 +33,11 @@ public final class CPDPublisher
 {
   // Email sender - depends on the used SMTP server
   public static final IEmailAddress EMAIL_SENDER = new EmailAddress ("no-reply@helger.com");
+
+  public static final boolean EXPORT_BUSINESS_CARDS_XML = true;
   public static final boolean EXPORT_BUSINESS_CARDS_JSON = true;
-  public static final boolean EXPORT_BUSINESS_CARDS_EXCEL = false;
   public static final boolean EXPORT_BUSINESS_CARDS_CSV = true;
+
   public static final boolean EXPORT_PARTICIPANTS_XML = true;
   public static final boolean EXPORT_PARTICIPANTS_JSON = true;
   public static final boolean EXPORT_PARTICIPANTS_CSV = true;
