@@ -16,6 +16,8 @@
  */
 package com.helger.pd.publisher.exportall;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.time.LocalDateTime;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -24,7 +26,9 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.base.timing.StopWatch;
 import com.helger.collection.commons.CommonsArrayList;
+import com.helger.collection.commons.CommonsTreeSet;
 import com.helger.collection.commons.ICommonsList;
+import com.helger.collection.commons.ICommonsSortedSet;
 import com.helger.datetime.helper.PDTFactory;
 import com.helger.pd.publisher.CPDPublisher;
 import com.helger.photon.io.PhotonWorkerPool;
@@ -138,6 +142,33 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
 
       try
       {
+        aSW.restart ();
+        LOGGER.info (sLogPrefix + "Starting to gather all participant IDs from Lucene");
+        ICommonsSortedSet <String> aAllParticipantIDs = new CommonsTreeSet <> ();
+        try
+        {
+          EXPORT_STATUS.setCurrentStatus ("getAllStoredParticipantIDs");
+          aAllParticipantIDs = ExportAllManager.getAllStoredParticipantIDs ();
+        }
+        catch (final IOException ex)
+        {
+          LOGGER.error (sLogPrefix + "Error gathering all participant IDs from Lucene", ex);
+          EXPORT_STATUS.rememberFailedStatus ();
+
+          // We can't continue
+          throw new UncheckedIOException (ex);
+        }
+        finally
+        {
+          aSW.stop ();
+          LOGGER.info (sLogPrefix +
+                       "Finished gathering all participant IDs (" +
+                       aAllParticipantIDs.size () +
+                       ") from Lucene after " +
+                       aSW.getDuration () +
+                       " milliseconds");
+        }
+
         if (CPDPublisher.EXPORT_BUSINESS_CARDS_XML)
         {
           aSW.restart ();
@@ -145,7 +176,7 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
           try
           {
             EXPORT_STATUS.setCurrentStatus ("writeFileBusinessCardXMLFull");
-            ExportAllManager.writeFileBusinessCardXMLFull ();
+            ExportAllManager.writeFileBusinessCardXMLFull (aAllParticipantIDs);
           }
           catch (final Throwable t)
           {
@@ -166,7 +197,7 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
           try
           {
             EXPORT_STATUS.setCurrentStatus ("writeFileBusinessCardXMLNoDocTypes");
-            ExportAllManager.writeFileBusinessCardXMLNoDocTypes ();
+            ExportAllManager.writeFileBusinessCardXMLNoDocTypes (aAllParticipantIDs);
           }
           catch (final Throwable t)
           {
@@ -190,7 +221,7 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
           try
           {
             EXPORT_STATUS.setCurrentStatus ("writeFileBusinessCardJSON");
-            ExportAllManager.writeFileBusinessCardJSON ();
+            ExportAllManager.writeFileBusinessCardJSON (aAllParticipantIDs);
           }
           catch (final Throwable t)
           {
@@ -214,7 +245,7 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
           try
           {
             EXPORT_STATUS.setCurrentStatus ("writeFileBusinessCardCSV");
-            ExportAllManager.writeFileBusinessCardCSV ();
+            ExportAllManager.writeFileBusinessCardCSV (aAllParticipantIDs);
           }
           catch (final Throwable t)
           {
@@ -238,7 +269,7 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
           try
           {
             EXPORT_STATUS.setCurrentStatus ("writeFileParticipantXML");
-            ExportAllManager.writeFileParticipantXML ();
+            ExportAllManager.writeFileParticipantXML (aAllParticipantIDs);
           }
           catch (final Throwable t)
           {
@@ -262,7 +293,7 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
           try
           {
             EXPORT_STATUS.setCurrentStatus ("writeFileParticipantJSON");
-            ExportAllManager.writeFileParticipantJSON ();
+            ExportAllManager.writeFileParticipantJSON (aAllParticipantIDs);
           }
           catch (final Throwable t)
           {
@@ -286,7 +317,7 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
           try
           {
             EXPORT_STATUS.setCurrentStatus ("writeFileParticipantCSV");
-            ExportAllManager.writeFileParticipantCSV ();
+            ExportAllManager.writeFileParticipantCSV (aAllParticipantIDs);
           }
           catch (final Throwable t)
           {

@@ -17,7 +17,6 @@
 package com.helger.pd.publisher.app.secure;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Locale;
 import java.util.Map;
@@ -31,8 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.annotation.Nonempty;
-import com.helger.base.io.nonblocking.NonBlockingByteArrayOutputStream;
-import com.helger.base.io.stream.StreamHelper;
 import com.helger.base.numeric.mutable.MutableInt;
 import com.helger.collection.commons.CommonsHashMap;
 import com.helger.collection.commons.CommonsHashSet;
@@ -41,15 +38,12 @@ import com.helger.collection.commons.ICommonsList;
 import com.helger.collection.commons.ICommonsMap;
 import com.helger.collection.commons.ICommonsSet;
 import com.helger.collection.commons.ICommonsSortedSet;
-import com.helger.commons.csv.CSVWriter;
 import com.helger.datetime.format.PDTToString;
 import com.helger.datetime.web.PDTWebDateHelper;
 import com.helger.html.hc.html.grouping.HCDiv;
 import com.helger.html.hc.html.grouping.HCOL;
 import com.helger.html.hc.html.grouping.IHCLI;
 import com.helger.html.hc.impl.HCNodeList;
-import com.helger.json.IJsonObject;
-import com.helger.mime.CMimeType;
 import com.helger.pd.indexer.index.EIndexerWorkItemType;
 import com.helger.pd.indexer.mgr.PDIndexerManager;
 import com.helger.pd.indexer.mgr.PDMetaManager;
@@ -59,7 +53,6 @@ import com.helger.pd.indexer.storage.field.PDField;
 import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.exportall.ExportAllDataJob;
 import com.helger.pd.publisher.exportall.ExportAllDataJob.ExportAllStatus;
-import com.helger.pd.publisher.exportall.ExportAllManager;
 import com.helger.pd.publisher.servlet.ExportDeliveryHttpHandler;
 import com.helger.pd.publisher.servlet.ExportServlet;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
@@ -97,11 +90,6 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
 
   private static final AjaxFunctionDeclaration AJAX_DOWNLOAD_ALL_IDS_XML;
   private static final AjaxFunctionDeclaration AJAX_DOWNLOAD_ALL_IDS_AND_METADATA_XML;
-
-  private static final AjaxFunctionDeclaration AJAX_DOWNLOAD_ALL_BCS_XML_FULL;
-  private static final AjaxFunctionDeclaration AJAX_DOWNLOAD_ALL_BCS_XML_NO_DOCTYPES;
-  private static final AjaxFunctionDeclaration AJAX_DOWNLOAD_ALL_BCS_JSON;
-  private static final AjaxFunctionDeclaration AJAX_DOWNLOAD_ALL_BCS_CSV;
 
   static
   {
@@ -154,37 +142,6 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
       res.xml (aDoc);
       res.attachment ("directory-participant-list-with-metadata.xml");
       LOGGER.info ("Finished AJAX_DOWNLOAD_ALL_IDS_AND_METADATA_XML");
-    });
-    AJAX_DOWNLOAD_ALL_BCS_XML_FULL = addAjax ( (req, res) -> {
-      LOGGER.info ("Starting AJAX_DOWNLOAD_ALL_BCS_XML_FULL");
-      final IMicroDocument aDoc = ExportAllManager.queryAllContainedBusinessCardsAsXML (true);
-      res.xml (aDoc);
-      res.attachment (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_FULL);
-      LOGGER.info ("Finished AJAX_DOWNLOAD_ALL_BCS_XML_FULL");
-    });
-    AJAX_DOWNLOAD_ALL_BCS_XML_NO_DOCTYPES = addAjax ( (req, res) -> {
-      LOGGER.info ("Starting AJAX_DOWNLOAD_ALL_BCS_XML_NO_DOCTYPES");
-      final IMicroDocument aDoc = ExportAllManager.queryAllContainedBusinessCardsAsXML (false);
-      res.xml (aDoc);
-      res.attachment (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_NO_DOC_TYPES);
-      LOGGER.info ("Finished AJAX_DOWNLOAD_ALL_BCS_XML_NO_DOCTYPES");
-    });
-    AJAX_DOWNLOAD_ALL_BCS_JSON = addAjax ( (req, res) -> {
-      LOGGER.info ("Starting AJAX_DOWNLOAD_ALL_BCS_JSON");
-      final IJsonObject aObj = ExportAllManager.queryAllContainedBusinessCardsAsJSON (true);
-      res.json (aObj);
-      res.attachment (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_JSON);
-      LOGGER.info ("Finished AJAX_DOWNLOAD_ALL_BCS_JSON");
-    });
-    AJAX_DOWNLOAD_ALL_BCS_CSV = addAjax ( (req, res) -> {
-      LOGGER.info ("Starting AJAX_DOWNLOAD_ALL_BCS_CSV");
-      try (final NonBlockingByteArrayOutputStream aBAOS = new NonBlockingByteArrayOutputStream ();
-           final CSVWriter aCSVWriter = new CSVWriter (StreamHelper.createWriter (aBAOS, StandardCharsets.ISO_8859_1)))
-      {
-        ExportAllManager.queryAllContainedBusinessCardsAsCSV (aCSVWriter);
-        res.binary (aBAOS, CMimeType.TEXT_CSV, ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_CSV);
-      }
-      LOGGER.info ("Finished AJAX_DOWNLOAD_ALL_BCS_CSV");
     });
   }
 
@@ -401,18 +358,6 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
                                                                      .setIcon (EDefaultIcon.SAVE_ALL));
     aBody.addChild (new BootstrapButton (EBootstrapButtonType.DANGER).addChild ("Download all IDs and Metadata (XML, live)")
                                                                      .setOnClick (AJAX_DOWNLOAD_ALL_IDS_AND_METADATA_XML.getInvocationURL (aRequestScope))
-                                                                     .setIcon (EDefaultIcon.SAVE_ALL));
-    aBody.addChild (new BootstrapButton (EBootstrapButtonType.DANGER).addChild ("Download all Business Cards (XML, full, live) (may take long)")
-                                                                     .setOnClick (AJAX_DOWNLOAD_ALL_BCS_XML_FULL.getInvocationURL (aRequestScope))
-                                                                     .setIcon (EDefaultIcon.SAVE_ALL));
-    aBody.addChild (new BootstrapButton (EBootstrapButtonType.DANGER).addChild ("Download all Business Cards (XML, no document types, live) (may take long)")
-                                                                     .setOnClick (AJAX_DOWNLOAD_ALL_BCS_XML_NO_DOCTYPES.getInvocationURL (aRequestScope))
-                                                                     .setIcon (EDefaultIcon.SAVE_ALL));
-    aBody.addChild (new BootstrapButton (EBootstrapButtonType.DANGER).addChild ("Download all Business Cards (JSON, live) (may take long)")
-                                                                     .setOnClick (AJAX_DOWNLOAD_ALL_BCS_JSON.getInvocationURL (aRequestScope))
-                                                                     .setIcon (EDefaultIcon.SAVE_ALL));
-    aBody.addChild (new BootstrapButton (EBootstrapButtonType.DANGER).addChild ("Download all Business Cards (CSV, live) (may take long)")
-                                                                     .setOnClick (AJAX_DOWNLOAD_ALL_BCS_CSV.getInvocationURL (aRequestScope))
                                                                      .setIcon (EDefaultIcon.SAVE_ALL));
 
     aCard.createAndAddHeader ().addChild ("Cached data downloads");

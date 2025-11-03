@@ -51,7 +51,7 @@ final class ExportHelper
   {}
 
   @Nonnull
-  private static IMicroElement _createMicroElement (@Nonnull final IDocumentTypeIdentifier aDocTypeID)
+  static IMicroElement createMicroElement (@Nonnull final IDocumentTypeIdentifier aDocTypeID)
   {
     final IMicroElement eDocTypeID = new MicroElement (XML_EXPORT_NS_URI_V3, "doctypeid").setAttribute ("scheme",
                                                                                                         aDocTypeID.getScheme ())
@@ -70,8 +70,7 @@ final class ExportHelper
   }
 
   @Nonnull
-  static IMicroDocument getAsXML (@Nonnull final ICommonsOrderedMap <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> aMap,
-                                  final boolean bIncludeDocTypes)
+  static IMicroDocument createXML ()
   {
     // XML root
     final IMicroDocument aDoc = new MicroDocument ();
@@ -79,31 +78,46 @@ final class ExportHelper
     aRoot.setAttribute ("version", "3");
     aRoot.setAttribute ("creationdt", PDTWebDateHelper.getAsStringXSD (PDTFactory.getCurrentZonedDateTimeUTC ()));
     aRoot.setAttribute ("codeListSupported", EPredefinedDocumentTypeIdentifier.CODE_LIST_VERSION);
+    return aDoc;
+  }
+
+  static IMicroElement createMicroElement (@Nonnull final IParticipantIdentifier aParticipantID,
+                                           @Nonnull final ICommonsList <PDStoredBusinessEntity> aBEs,
+                                           final boolean bIncludeDocTypes)
+  {
+    final PDBusinessCard aBC = new PDBusinessCard ();
+    aBC.setParticipantIdentifier (new PDIdentifier (aParticipantID.getScheme (), aParticipantID.getValue ()));
+    for (final PDStoredBusinessEntity aSBE : aBEs)
+      aBC.businessEntities ().add (aSBE.getAsBusinessEntity ());
+    final IMicroElement eBC = aBC.getAsMicroXML (XML_EXPORT_NS_URI_V3, "businesscard");
+
+    // New in XML v2 - add all Document types
+    if (bIncludeDocTypes && aBEs.isNotEmpty ())
+      for (final IDocumentTypeIdentifier aDocTypeID : aBEs.getFirstOrNull ().documentTypeIDs ())
+        eBC.addChild (createMicroElement (aDocTypeID));
+
+    return eBC;
+  }
+
+  @Nonnull
+  static IMicroDocument getAsXML (@Nonnull final ICommonsOrderedMap <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> aMap,
+                                  final boolean bIncludeDocTypes)
+  {
+    // XML root
+    final IMicroDocument aDoc = createXML ();
+    final IMicroElement aRoot = aDoc.getDocumentElement ();
 
     // For all BCs
     for (final Map.Entry <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> aEntry : aMap.entrySet ())
     {
-      final IParticipantIdentifier aParticipantID = aEntry.getKey ();
-
-      final PDBusinessCard aBC = new PDBusinessCard ();
-      aBC.setParticipantIdentifier (new PDIdentifier (aParticipantID.getScheme (), aParticipantID.getValue ()));
-      for (final PDStoredBusinessEntity aSBE : aEntry.getValue ())
-        aBC.businessEntities ().add (aSBE.getAsBusinessEntity ());
-      final IMicroElement eBC = aBC.getAsMicroXML (XML_EXPORT_NS_URI_V3, "businesscard");
-
-      // New in XML v2 - add all Document types
-      if (bIncludeDocTypes && aEntry.getValue ().isNotEmpty ())
-        for (final IDocumentTypeIdentifier aDocTypeID : aEntry.getValue ().getFirstOrNull ().documentTypeIDs ())
-          eBC.addChild (_createMicroElement (aDocTypeID));
-
-      aRoot.addChild (eBC);
+      aRoot.addChild (createMicroElement (aEntry.getKey (), aEntry.getValue (), bIncludeDocTypes));
     }
 
     return aDoc;
   }
 
   @Nonnull
-  private static IJsonObject _createJsonObject (@Nonnull final PDStoredBusinessEntity aSBE)
+  static IJsonObject createJsonObject (@Nonnull final PDStoredBusinessEntity aSBE)
   {
     final IJsonObject ret = new JsonObject ();
     {
@@ -139,7 +153,7 @@ final class ExportHelper
   }
 
   @Nonnull
-  private static IJsonObject _createJsonObject (@Nonnull final IDocumentTypeIdentifier aDocTypeID)
+  static IJsonObject createJsonObject (@Nonnull final IDocumentTypeIdentifier aDocTypeID)
   {
     final IJsonObject ret = new JsonObject ();
     ret.add ("scheme", aDocTypeID.getScheme ());
@@ -154,46 +168,5 @@ final class ExportHelper
       ret.add ("state", aNiceName.getState ().getID ());
     }
     return ret;
-  }
-
-  @Nonnull
-  static IJsonObject getAsJSON (@Nonnull final ICommonsOrderedMap <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> aMap,
-                                final boolean bIncludeDocTypes)
-  {
-    // XML root
-    final IJsonObject aObj = new JsonObject ();
-    aObj.add ("version", 2);
-    aObj.add ("creationdt", PDTWebDateHelper.getAsStringXSD (PDTFactory.getCurrentZonedDateTimeUTC ()));
-    aObj.add ("participantCount", aMap.size ());
-    aObj.add ("codeListSupported", EPredefinedDocumentTypeIdentifier.CODE_LIST_VERSION);
-
-    final IJsonArray aBCs = new JsonArray ();
-    // For all BCs
-    for (final Map.Entry <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> aEntry : aMap.entrySet ())
-    {
-      final IParticipantIdentifier aParticipantID = aEntry.getKey ();
-
-      final IJsonObject aBC = new JsonObject ();
-      aBC.add ("pid", aParticipantID.getURIEncoded ());
-
-      final IJsonArray aBEs = new JsonArray ();
-      for (final PDStoredBusinessEntity aSBE : aEntry.getValue ())
-        aBEs.add (_createJsonObject (aSBE));
-      aBC.add ("entities", aBEs);
-
-      // Add all Document types (if wanted)
-      if (bIncludeDocTypes)
-      {
-        final IJsonArray aDocTypes = new JsonArray ();
-        if (aEntry.getValue ().isNotEmpty ())
-          for (final IDocumentTypeIdentifier aDocTypeID : aEntry.getValue ().getFirstOrNull ().documentTypeIDs ())
-            aDocTypes.add (_createJsonObject (aDocTypeID));
-        aBC.add ("docTypes", aDocTypes);
-      }
-
-      aBCs.add (aBC);
-    }
-    aObj.add ("bc", aBCs);
-    return aObj;
   }
 }
