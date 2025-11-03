@@ -16,12 +16,13 @@
  */
 package com.helger.pd.indexer.storage.field;
 
-import java.util.BitSet;
 import java.util.function.Function;
 
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.Term;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.helger.annotation.Nonempty;
 import com.helger.base.enforce.ValueEnforcer;
@@ -41,13 +42,15 @@ import jakarta.annotation.Nullable;
  */
 public class PDStringField <NATIVE_TYPE> extends AbstractPDField <NATIVE_TYPE, String>
 {
+  private static final Logger LOGGER = LoggerFactory.getLogger (PDStringField.class);
+
   private final EPDStringFieldTokenize m_eTokenize;
 
-  public PDStringField (@Nonnull @Nonempty final String sFieldName,
-                        @Nonnull final Function <? super NATIVE_TYPE, ? extends String> aConverterToStorage,
-                        @Nonnull final Function <? super String, ? extends NATIVE_TYPE> aConverterFromStorage,
-                        @Nonnull final Field.Store eStore,
-                        @Nonnull final EPDStringFieldTokenize eTokenize)
+  private PDStringField (@Nonnull @Nonempty final String sFieldName,
+                         @Nonnull final Function <? super NATIVE_TYPE, ? extends String> aConverterToStorage,
+                         @Nonnull final Function <? super String, ? extends NATIVE_TYPE> aConverterFromStorage,
+                         @Nonnull final Field.Store eStore,
+                         @Nonnull final EPDStringFieldTokenize eTokenize)
   {
     super (sFieldName, aConverterToStorage, aConverterFromStorage, eStore);
     m_eTokenize = ValueEnforcer.notNull (eTokenize, "Tokenize");
@@ -61,42 +64,23 @@ public class PDStringField <NATIVE_TYPE> extends AbstractPDField <NATIVE_TYPE, S
     return m_eTokenize.createField (getFieldName (), sStringValue, getStore ());
   }
 
-  private static final BitSet MASK_CHARS = new BitSet (256);
-  static
-  {
-    for (final char c : "+-&|!(){}[]^\"~*?:\\/".toCharArray ())
-      MASK_CHARS.set (c);
-  }
-
-  private String _getMaskedStorageValue (@Nonnull final NATIVE_TYPE aValue)
+  private String _getSafeStorageValue (@Nonnull final NATIVE_TYPE aValue)
   {
     final String sStorageValue = getAsStorageValue (aValue);
-    if (true)
-    {
-      // No masking needed
-      return sStorageValue;
-    }
-    // Masking is only needed, when the QueryParser is used
-    final StringBuilder aSB = new StringBuilder (sStorageValue.length () * 2);
-    for (final char c : sStorageValue.toCharArray ())
-    {
-      if (c <= 255 && MASK_CHARS.get (c))
-        aSB.append ('\\');
-      aSB.append (c);
-    }
-    return aSB.toString ();
+    // No masking needed
+    return sStorageValue;
   }
 
   @Nonnull
   public Term getExactMatchTerm (@Nonnull final NATIVE_TYPE aValue)
   {
-    return new Term (getFieldName (), _getMaskedStorageValue (aValue));
+    return new Term (getFieldName (), _getSafeStorageValue (aValue));
   }
 
   @Nonnull
   public Term getContainsTerm (@Nonnull final NATIVE_TYPE aValue)
   {
-    return new Term (getFieldName (), "*" + _getMaskedStorageValue (aValue) + "*");
+    return new Term (getFieldName (), "*" + _getSafeStorageValue (aValue) + "*");
   }
 
   @Override
@@ -105,7 +89,15 @@ public class PDStringField <NATIVE_TYPE> extends AbstractPDField <NATIVE_TYPE, S
   {
     final String sValue = aField.stringValue ();
     if (sValue != null)
-      return getAsNativeValue (sValue);
+      try
+      {
+        return getAsNativeValue (sValue);
+      }
+      catch (final PDFieldSerializeException e)
+      {
+        LOGGER.error ("Failed to convert value '" + sValue + "' to native value");
+        // Fall through
+      }
     return null;
   }
 
@@ -114,7 +106,7 @@ public class PDStringField <NATIVE_TYPE> extends AbstractPDField <NATIVE_TYPE, S
                                                      @Nonnull final Field.Store eStore,
                                                      @Nonnull final EPDStringFieldTokenize eTokenize)
   {
-    return new PDStringField <> (sFieldName, x -> x, x -> x, eStore, eTokenize);
+    return new PDStringField <> (sFieldName, Function.identity (), Function.identity (), eStore, eTokenize);
   }
 
   @Nonnull
@@ -123,7 +115,7 @@ public class PDStringField <NATIVE_TYPE> extends AbstractPDField <NATIVE_TYPE, S
                                                                                     @Nonnull final EPDStringFieldTokenize eTokenize)
   {
     return new PDStringField <> (sFieldName,
-                                 x -> x.getURIEncoded (),
+                                 IParticipantIdentifier::getURIEncoded,
                                  x -> PDMetaManager.getIdentifierFactory ().parseParticipantIdentifier (x),
                                  eStore,
                                  eTokenize);
@@ -135,7 +127,7 @@ public class PDStringField <NATIVE_TYPE> extends AbstractPDField <NATIVE_TYPE, S
                                                                                       @Nonnull final EPDStringFieldTokenize eTokenize)
   {
     return new PDStringField <> (sFieldName,
-                                 x -> x.getURIEncoded (),
+                                 IDocumentTypeIdentifier::getURIEncoded,
                                  x -> PDMetaManager.getIdentifierFactory ().parseDocumentTypeIdentifier (x),
                                  eStore,
                                  eTokenize);

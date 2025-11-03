@@ -55,6 +55,14 @@ public class PDNumericField <NATIVE_TYPE> extends AbstractPDField <NATIVE_TYPE, 
   @Nonnull
   protected NATIVE_TYPE getFieldNativeValue (@Nonnull final IndexableField aField)
   {
-    return getAsNativeValue (aField.numericValue ());
+    try
+    {
+      return getAsNativeValue (aField.numericValue ());
+    }
+    catch (final PDFieldSerializeException ex)
+    {
+      // Parsing a numerical value should never fail
+      throw new IllegalStateException ("Failed to parse numerical value - weird", ex);
+    }
   }
 }

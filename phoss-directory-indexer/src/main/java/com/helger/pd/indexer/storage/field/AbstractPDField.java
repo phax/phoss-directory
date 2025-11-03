@@ -89,6 +89,8 @@ public abstract class AbstractPDField <NATIVE_TYPE, STORAGE_TYPE>
   public STORAGE_TYPE getAsStorageValue (@Nonnull final NATIVE_TYPE aValue) throws IllegalStateException
   {
     ValueEnforcer.notNull (aValue, "Value");
+
+    // In the current setup, all "to storage" converters are guaranteed to be non-null
     final STORAGE_TYPE sStorageValue = getConverterToStorage ().apply (aValue);
     if (sStorageValue == null)
       throw new IllegalStateException ("The storage value of " +
@@ -100,16 +102,16 @@ public abstract class AbstractPDField <NATIVE_TYPE, STORAGE_TYPE>
   }
 
   @Nonnull
-  public NATIVE_TYPE getAsNativeValue (@Nonnull final STORAGE_TYPE aValue) throws IllegalStateException
+  public NATIVE_TYPE getAsNativeValue (@Nonnull final STORAGE_TYPE aValue) throws PDFieldSerializeException
   {
     ValueEnforcer.notNull (aValue, "Value");
     final NATIVE_TYPE aNativeValue = getConverterFromStorage ().apply (aValue);
     if (aNativeValue == null)
-      throw new IllegalStateException ("The native value of " +
-                                       aValue +
-                                       " for field " +
-                                       getFieldName () +
-                                       " should not be null!");
+      throw new PDFieldSerializeException ("The native value of " +
+                                           aValue +
+                                           " for field " +
+                                           getFieldName () +
+                                           " should not be null!");
     return aNativeValue;
   }
 
@@ -137,8 +139,7 @@ public abstract class AbstractPDField <NATIVE_TYPE, STORAGE_TYPE>
    *
    * @param aDoc
    *        The Lucene result document
-   * @return <code>null</code> if no such field is present, the stored value
-   *         otherwise.
+   * @return <code>null</code> if no such field is present, the stored value otherwise.
    */
   @Nullable
   public final NATIVE_TYPE getDocValue (@Nonnull final Document aDoc)
