@@ -102,9 +102,9 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
-v0.14.7 - work in progress
+v0.14.7 - 2025-11-04
 * Created an updated XML Schema v3 for the XML export
-* Using stream based JSON export to reduce memory usage
+* Using stream based JSON and XML export to reduce memory usage during export
 
 v0.14.6 - 2025-11-03
 * Improved "Export all" handling so that the participant list is queried only once
