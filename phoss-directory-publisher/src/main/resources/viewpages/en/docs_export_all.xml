@@ -17,35 +17,45 @@
 
 -->
 <p>
-  The Directory allows you to download <strong>all data</strong> contained.
+  The Directory allows you to download <strong>all data</strong> contained in different formats.
 </p>
 
 <h3>XML</h3>
 
 <ul>
-  <li>The Directory XML data can be downloaded via the URL <a href="../../export/businesscards">/export/businesscards</a>.</li>
+  <li>
+    The Directory XML data can be downloaded via the URLs
+    <a href="../../export/businesscards">/export/businesscards</a> (including all document types)
+    <a href="../../export/businesscards-xml-no-doc-types">/export/businesscards-xml-no-doc-types</a> (excluding all document types)
+  .</li>
   <li>The response MIME type is always <code>application/xml</code>.</li>
-  <li>Responses can be cached up to 24 hours.</li>
-  <li>The data is updated once a day.</li>
+  <li>Responses should be cached up to 24 hours.</li>
+  <li>The data is updated once a day. Exports start at 02:00 a.m. UTC.</li>
   <li>
     The XML Schema for the XML responses can be downloaded from
-    <a href="../../files/directory-export-v2.xsd">/files/directory-export-v2.xsd</a>
+    <a href="../../files/directory-export-v3.xsd">/files/directory-export-v3.xsd</a>
   </li>
   <li>
     XML schema old versions:
-    <a href="../../files/directory-export-v1.xsd">/files/directory-export-v1.xsd</a>
+    <a href="../../files/directory-export-v1.xsd">/files/directory-export-v1.xsd</a>,
+    <a href="../../files/directory-export-v2.xsd">/files/directory-export-v2.xsd</a>
   </li>
 </ul>
 
-<!--
-  
-<h3>Excel</h3>
+<h3>JSON</h3>
 
 <ul>
-  <li>The Directory data can be downloaded as Excel file via the URL <a href="../../export/businesscards-excel">/export/businesscards-excel</a>.</li>
-  <li>The response MIME type is always <code>application/vnd.openxmlformats-officedocument.spreadsheetml.sheet</code>.</li>
-  <li>Responses can be cached up to 24 hours.</li>
-  <li>The data is updated once a day.</li>
+  <li>The Directory JSON data can be downloaded via the URL <a href="../../export/businesscards-json">/export/businesscards-json</a>.</li>
+  <li>The response MIME type is always <code>application/json</code>.</li>
+  <li>Responses should be cached up to 24 hours.</li>
+  <li>The data is updated once a day. Exports start at 02:00 a.m. UTC.</li>
 </ul>
 
--->
+<h3>CSV</h3>
+
+<ul>
+  <li>The Directory CSV data can be downloaded via the URL <a href="../../export/businesscards-csv">/export/businesscards-csv</a>.</li>
+  <li>The response MIME type is always <code>text/csv</code>.</li>
+  <li>Responses should be cached up to 24 hours.</li>
+  <li>The data is updated once a day. Exports start at 02:00 a.m. UTC.</li>
+</ul>

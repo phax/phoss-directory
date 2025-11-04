@@ -138,6 +138,7 @@ v0.14.0 - 2025-08-27
 
 v0.13.6 - 2025-05-14
 * Updated dependencies
+* The version of the exported files have changed, because the code list states were incorporated (XML: v2 -> v3; JSON: v1 -> v2)
 
 v0.13.5 - 2024-08-22
 * Added a CORS HTTP response header for the REST API. See [#68](https://github.com/phax/phoss-directory/issues/68)
