@@ -22,6 +22,7 @@ import com.helger.annotation.Nonempty;
 import com.helger.base.compare.ESortOrder;
 import com.helger.datetime.format.PDTToString;
 import com.helger.datetime.helper.PDTFactory;
+import com.helger.html.hc.html.HC_Target;
 import com.helger.html.hc.html.tabular.HCRow;
 import com.helger.html.hc.html.tabular.HCTable;
 import com.helger.html.hc.html.tabular.IHCCell;
@@ -210,7 +211,7 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
         try
         {
           aURLs.addChild (div (HCA.createLinkedWebsite (aURLProvider.getSMPURIOfParticipant (aParticipantID, aSMLInfo)
-                                                                    .toString () + sBCSuffix)));
+                                                                    .toString () + sBCSuffix, HC_Target.BLANK)));
         }
         catch (final SMPDNSResolutionException ex)
         {
