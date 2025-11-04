@@ -19,6 +19,7 @@ package com.helger.pd.indexer.storage;
 import com.helger.annotation.concurrent.Immutable;
 import com.helger.base.equals.EqualsHelper;
 import com.helger.base.hashcode.HashCodeGenerator;
+import com.helger.base.string.StringHelper;
 import com.helger.base.tostring.ToStringGenerator;
 import com.helger.peppol.businesscard.generic.PDContact;
 
@@ -26,8 +27,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 /**
- * This class represents a single business contact as stored by Lucene
- * consisting of several fields.
+ * This class represents a single business contact as stored by Lucene consisting of several fields.
  *
  * @author Philip Helger
  */
@@ -50,10 +50,20 @@ public final class PDStoredContact
     m_sEmail = sEmail;
   }
 
+  public boolean hasType ()
+  {
+    return StringHelper.isNotEmpty (m_sType);
+  }
+
   @Nullable
   public String getType ()
   {
     return m_sType;
+  }
+
+  public boolean hasName ()
+  {
+    return StringHelper.isNotEmpty (m_sName);
   }
 
   @Nullable
@@ -62,10 +72,20 @@ public final class PDStoredContact
     return m_sName;
   }
 
+  public boolean hasPhone ()
+  {
+    return StringHelper.isNotEmpty (m_sPhone);
+  }
+
   @Nullable
   public String getPhone ()
   {
     return m_sPhone;
+  }
+
+  public boolean hasEmail ()
+  {
+    return StringHelper.isNotEmpty (m_sEmail);
   }
 
   @Nullable
@@ -97,7 +117,11 @@ public final class PDStoredContact
   @Override
   public int hashCode ()
   {
-    return new HashCodeGenerator (this).append (m_sType).append (m_sName).append (m_sPhone).append (m_sEmail).getHashCode ();
+    return new HashCodeGenerator (this).append (m_sType)
+                                       .append (m_sName)
+                                       .append (m_sPhone)
+                                       .append (m_sEmail)
+                                       .getHashCode ();
   }
 
   @Override

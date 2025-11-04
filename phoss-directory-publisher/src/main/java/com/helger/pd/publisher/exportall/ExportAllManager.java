@@ -50,11 +50,6 @@ import com.helger.http.CHttpHeader;
 import com.helger.io.file.FileHelper;
 import com.helger.io.file.FileOperations;
 import com.helger.io.resource.FileSystemResource;
-import com.helger.json.IJsonArray;
-import com.helger.json.IJsonObject;
-import com.helger.json.JsonArray;
-import com.helger.json.JsonObject;
-import com.helger.json.serialize.JsonWriter;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
@@ -78,6 +73,8 @@ import com.helger.xml.serialize.write.EXMLSerializeIndent;
 import com.helger.xml.serialize.write.XMLWriterSettings;
 
 import jakarta.annotation.Nonnull;
+import jakarta.json.Json;
+import jakarta.json.stream.JsonGenerator;
 
 @ThreadSafe
 public final class ExportAllManager
@@ -299,17 +296,19 @@ public final class ExportAllManager
       final PDStorageManager aStorageMgr = PDMetaManager.getStorageMgr ();
       final boolean bIncludeDocTypes = true;
 
-      try (final Writer aWriter = FileHelper.getBufferedWriter (f, StandardCharsets.UTF_8))
+      try (final Writer aWriter = FileHelper.getBufferedWriter (f, StandardCharsets.UTF_8);
+           final JsonGenerator aJsonGen = Json.createGenerator (aWriter))
       {
-        // JSON root
-        final IJsonObject aObj = new JsonObject ();
-        aObj.add ("version", 2);
-        aObj.add ("creationdt", PDTWebDateHelper.getAsStringXSD (PDTFactory.getCurrentZonedDateTimeUTC ()));
-        aObj.add ("participantCount", aAllParticipantIDs.size ());
-        aObj.add ("codeListSupported", EPredefinedDocumentTypeIdentifier.CODE_LIST_VERSION);
-
         final String sSearchTerm = PDField.PARTICIPANT_ID.getFieldName ();
-        final IJsonArray aBCs = new JsonArray ();
+
+        // JSON root
+        aJsonGen.writeStartObject ()
+                .write ("version", 2)
+                .write ("creationdt", PDTWebDateHelper.getAsStringXSD (PDTFactory.getCurrentZonedDateTimeUTC ()))
+                .write ("participantCount", aAllParticipantIDs.size ())
+                .write ("codeListSupported", EPredefinedDocumentTypeIdentifier.CODE_LIST_VERSION)
+                .writeStartArray ("bc");
+
         for (final String sParticipantID : aAllParticipantIDs)
         {
           // Search all entities of the current participant ID
@@ -317,80 +316,105 @@ public final class ExportAllManager
           aStorageMgr.searchAllDocuments (new TermQuery (new Term (sSearchTerm, sParticipantID)),
                                           -1,
                                           aEntitiesPerPI::add);
+
           // Otherwise, the PI might have been deleted in the meantime
-          if (aEntitiesPerPI.isNotEmpty ())
+          if (aEntitiesPerPI.isEmpty ())
+            continue;
+
+          aJsonGen.writeStartObject ().write ("pid", sParticipantID).writeStartArray ("entities");
+
+          for (final PDStoredBusinessEntity aSBE : aEntitiesPerPI)
           {
-            final IJsonObject aBC = new JsonObject ();
-            aBC.add ("pid", sParticipantID);
-
-            final IJsonArray aBEs = new JsonArray ();
-            for (final PDStoredBusinessEntity aSBE : aEntitiesPerPI)
+            aJsonGen.writeStartObject ();
             {
-              final IJsonObject aBE = new JsonObject ();
+              aJsonGen.writeStartArray ("names");
+              for (final PDStoredMLName aName : aSBE.names ())
               {
-                final IJsonArray aNames = new JsonArray ();
-                for (final PDStoredMLName aName : aSBE.names ())
-                  aNames.add (new JsonObject ().add ("name", aName.getName ())
-                                               .addIfNotNull ("lang", aName.getLanguageCode ()));
-                aBE.add ("names", aNames);
+                aJsonGen.writeStartObject ().write ("name", aName.getName ());
+                if (aName.hasLanguageCode ())
+                  aJsonGen.write ("lang", aName.getLanguageCode ());
+                aJsonGen.writeEnd ();
               }
-              if (aSBE.hasCountryCode ())
-                aBE.add ("countryCode", aSBE.getCountryCode ());
-              if (aSBE.hasGeoInfo ())
-                aBE.add ("geoinfo", aSBE.getGeoInfo ());
-              if (aSBE.identifiers ().isNotEmpty ())
-                aBE.add ("identifiers",
-                         new JsonArray ().addAllMapped (aSBE.identifiers (),
-                                                        x -> new JsonObject ().add ("scheme", x.getScheme ())
-                                                                              .add ("value", x.getValue ())));
-              if (aSBE.websiteURIs ().isNotEmpty ())
-                aBE.add ("websiteURIs", new JsonArray ().addAll (aSBE.websiteURIs ()));
-              if (aSBE.contacts ().isNotEmpty ())
-                aBE.add ("contacts",
-                         new JsonArray ().addAllMapped (aSBE.contacts (),
-                                                        x -> new JsonObject ().addIfNotNull ("type", x.getType ())
-                                                                              .addIfNotNull ("name", x.getName ())
-                                                                              .addIfNotNull ("phone", x.getPhone ())
-                                                                              .addIfNotNull ("email", x.getEmail ())));
-              if (aSBE.hasAdditionalInformation ())
-                aBE.add ("additionalInfo", aSBE.getAdditionalInformation ());
-              if (aSBE.hasRegistrationDate ())
-                aBE.add ("regdate", PDTWebDateHelper.getAsStringXSD (aSBE.getRegistrationDate ()));
-              aBEs.add (aBE);
+              aJsonGen.writeEnd ();
             }
-            aBC.add ("entities", aBEs);
-
-            // Add all Document types (if wanted)
-            if (bIncludeDocTypes)
+            if (aSBE.hasCountryCode ())
+              aJsonGen.write ("countryCode", aSBE.getCountryCode ());
+            if (aSBE.hasGeoInfo ())
+              aJsonGen.write ("geoinfo", aSBE.getGeoInfo ());
+            if (aSBE.identifiers ().isNotEmpty ())
             {
-              final IJsonArray aDocTypes = new JsonArray ();
-              if (aEntitiesPerPI.isNotEmpty ())
-                for (final IDocumentTypeIdentifier aDocTypeID : aEntitiesPerPI.getFirstOrNull ().documentTypeIDs ())
-                {
-                  final IJsonObject aDocType = new JsonObject ();
-                  aDocType.add ("scheme", aDocTypeID.getScheme ());
-                  aDocType.add ("value", aDocTypeID.getValue ());
-                  final NiceNameEntry aNiceName = NiceNameManager.getDocTypeNiceName (aDocTypeID.getURIEncoded ());
-                  if (aNiceName == null)
-                    aDocType.add ("nonStandard", true);
-                  else
-                  {
-                    aDocType.add ("displayName", aNiceName.getName ());
-                    // New in JSON v2: use "state" instead of "deprecated"
-                    aDocType.add ("state", aNiceName.getState ().getID ());
-                  }
-                  aDocTypes.add (aDocType);
-                }
-              aBC.add ("docTypes", aDocTypes);
+              aJsonGen.writeStartArray ("identifiers");
+              for (final PDStoredIdentifier aID : aSBE.identifiers ())
+              {
+                aJsonGen.writeStartObject ()
+                        .write ("scheme", aID.getScheme ())
+                        .write ("value", aID.getValue ())
+                        .writeEnd ();
+              }
+              aJsonGen.writeEnd ();
             }
-
-            aBCs.add (aBC);
+            if (aSBE.websiteURIs ().isNotEmpty ())
+            {
+              aJsonGen.writeStartArray ("websiteURIs");
+              for (final String sWebsite : aSBE.websiteURIs ())
+                aJsonGen.write (sWebsite);
+              aJsonGen.writeEnd ();
+            }
+            if (aSBE.contacts ().isNotEmpty ())
+            {
+              aJsonGen.writeStartArray ("contacts");
+              for (final PDStoredContact aContact : aSBE.contacts ())
+              {
+                aJsonGen.writeStartObject ();
+                if (aContact.hasType ())
+                  aJsonGen.write ("type", aContact.getType ());
+                if (aContact.hasName ())
+                  aJsonGen.write ("name", aContact.getName ());
+                if (aContact.hasPhone ())
+                  aJsonGen.write ("phone", aContact.getPhone ());
+                if (aContact.hasEmail ())
+                  aJsonGen.write ("email", aContact.getEmail ());
+                aJsonGen.writeEnd ();
+              }
+              aJsonGen.writeEnd ();
+            }
+            if (aSBE.hasAdditionalInformation ())
+              aJsonGen.write ("additionalInfo", aSBE.getAdditionalInformation ());
+            if (aSBE.hasRegistrationDate ())
+              aJsonGen.write ("regdate", PDTWebDateHelper.getAsStringXSD (aSBE.getRegistrationDate ()));
+            aJsonGen.writeEnd ();
           }
-        }
-        aObj.add ("bc", aBCs);
+          aJsonGen.writeEnd ();
 
-        // Safe space - no indent
-        new JsonWriter ().writeToWriterAndClose (aObj, aWriter);
+          // Add all Document types (if wanted)
+          if (bIncludeDocTypes)
+          {
+            aJsonGen.writeStartArray ("docTypes");
+            if (aEntitiesPerPI.isNotEmpty ())
+              for (final IDocumentTypeIdentifier aDocTypeID : aEntitiesPerPI.getFirstOrNull ().documentTypeIDs ())
+              {
+                aJsonGen.writeStartObject ()
+                        .write ("scheme", aDocTypeID.getScheme ())
+                        .write ("value", aDocTypeID.getValue ());
+                final NiceNameEntry aNiceName = NiceNameManager.getDocTypeNiceName (aDocTypeID.getURIEncoded ());
+                if (aNiceName == null)
+                  aJsonGen.write ("nonStandard", true);
+                else
+                {
+                  aJsonGen.write ("displayName", aNiceName.getName ());
+                  // New in JSON v2: use "state" instead of "deprecated"
+                  aJsonGen.write ("state", aNiceName.getState ().getID ());
+                }
+                aJsonGen.writeEnd ();
+              }
+            aJsonGen.writeEnd ();
+          }
+
+          aJsonGen.writeEnd ();
+        }
+
+        aJsonGen.writeEnd ().writeEnd ();
+
         LOGGER.info ("Successfully wrote all BusinessCards as JSON to " + f.getAbsolutePath ());
         return ESuccess.SUCCESS;
       }
@@ -587,22 +611,23 @@ public final class ExportAllManager
   static ESuccess writeFileParticipantJSON (@Nonnull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
   {
     return _runWithTempFile (_getInternalFileParticipantJSON (), f -> {
-      try (final Writer aWriter = FileHelper.getBufferedWriter (f, StandardCharsets.UTF_8))
+      try (final Writer aWriter = FileHelper.getBufferedWriter (f, StandardCharsets.UTF_8);
+           final JsonGenerator aJsonGen = Json.createGenerator (aWriter))
       {
         // JSON root
-        final IJsonObject aObj = new JsonObject ();
-        aObj.add ("version", 1);
-        aObj.add ("creationdt", PDTWebDateHelper.getAsStringXSD (PDTFactory.getCurrentZonedDateTimeUTC ()));
-        aObj.add ("count", aAllParticipantIDs.size ());
+        aJsonGen.writeStartObject ()
+                .write ("version", 1)
+                .write ("creationdt", PDTWebDateHelper.getAsStringXSD (PDTFactory.getCurrentZonedDateTimeUTC ()))
+                .write ("count", aAllParticipantIDs.size ())
+                .writeStartArray ("participants");
 
         // For all participants
-        final IJsonArray aArray = new JsonArray ();
         for (final String sParticipantID : aAllParticipantIDs)
-          aArray.add (sParticipantID);
-        aObj.add ("participants", aArray);
+          aJsonGen.write (sParticipantID);
+
+        aJsonGen.writeEnd ().writeEnd ();
 
         // Safe space - no indent
-        new JsonWriter ().writeToWriterAndClose (aObj, aWriter);
         LOGGER.info ("Successfully wrote all Participants as JSON to " + f.getAbsolutePath ());
         return ESuccess.SUCCESS;
       }
