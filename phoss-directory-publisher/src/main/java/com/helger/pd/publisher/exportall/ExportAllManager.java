@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import com.helger.annotation.Nonempty;
 import com.helger.annotation.WillNotClose;
 import com.helger.annotation.concurrent.ThreadSafe;
+import com.helger.annotation.style.VisibleForTesting;
 import com.helger.base.functional.IThrowingFunction;
 import com.helger.base.state.ESuccess;
 import com.helger.base.string.StringImplode;
@@ -185,7 +186,8 @@ public final class ExportAllManager
   }
 
   @Nonnull
-  private static File _getInternalFileBusinessCardXMLFull ()
+  @VisibleForTesting
+  static File _getInternalFileBusinessCardXMLFull ()
   {
     return WebFileIO.getDataIO ().getFile (INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_FULL);
   }
@@ -258,7 +260,8 @@ public final class ExportAllManager
   }
 
   @Nonnull
-  private static File _getInternalFileBusinessCardXMLNoDocTypes ()
+  @VisibleForTesting
+  static File _getInternalFileBusinessCardXMLNoDocTypes ()
   {
     return WebFileIO.getDataIO ().getFile (INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_NO_DOC_TYPES);
   }
