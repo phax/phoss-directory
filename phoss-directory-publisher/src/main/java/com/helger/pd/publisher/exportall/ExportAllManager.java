@@ -22,6 +22,10 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
 
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
@@ -66,10 +70,6 @@ import com.helger.peppolid.peppol.doctype.EPredefinedDocumentTypeIdentifier;
 import com.helger.photon.io.WebFileIO;
 import com.helger.servlet.response.UnifiedResponse;
 import com.helger.xml.microdom.IMicroDocument;
-import com.helger.xml.microdom.IMicroElement;
-import com.helger.xml.microdom.MicroDocument;
-import com.helger.xml.microdom.serialize.MicroWriter;
-import com.helger.xml.serialize.write.EXMLSerializeIndent;
 import com.helger.xml.serialize.write.XMLWriterSettings;
 
 import jakarta.annotation.Nonnull;
@@ -194,50 +194,68 @@ public final class ExportAllManager
   @Nonnull
   private static ESuccess _writeFileBusinessCardXML (@Nonnull final ICommonsSortedSet <String> aAllParticipantIDs,
                                                      @Nonnull final File fTarget,
-                                                     final boolean bIncludeDocTypes) throws IOException
+                                                     final boolean bIncludeDocTypes)
   {
     final IIdentifierFactory aIF = PDMetaManager.getIdentifierFactory ();
     final PDStorageManager aStorageMgr = PDMetaManager.getStorageMgr ();
-
-    final IMicroDocument aDoc = ExportHelper.createXML ();
-    final IMicroElement aRoot = aDoc.getDocumentElement ();
-
-    final String sSearchTerm = PDField.PARTICIPANT_ID.getFieldName ();
-    for (final String sParticipantID : aAllParticipantIDs)
+    final XMLOutputFactory aXmlOutputFactory = XMLOutputFactory.newInstance ();
+    try (final Writer aWriter = FileHelper.getWriter (fTarget, XMLWriterSettings.DEFAULT_XML_CHARSET_OBJ))
     {
-      final IParticipantIdentifier aParticipantID = aIF.parseParticipantIdentifier (sParticipantID);
+      final XMLStreamWriter aXmlWriter = aXmlOutputFactory.createXMLStreamWriter (aWriter);
 
-      // Should never happen because PIs are parsed before added into the source set
-      if (aParticipantID != null)
+      aXmlWriter.setDefaultNamespace (ExportHelper.XML_EXPORT_NS_URI_V3);
+
+      // XML root
+      aXmlWriter.writeStartDocument (XMLWriterSettings.DEFAULT_XML_CHARSET, "1.0");
+
+      aXmlWriter.writeStartElement (ExportHelper.XML_EXPORT_NS_URI_V3, "root");
+      aXmlWriter.writeAttribute ("xmlns", ExportHelper.XML_EXPORT_NS_URI_V3);
+      aXmlWriter.writeAttribute ("version", "3");
+      aXmlWriter.writeAttribute ("creationdt",
+                                 PDTWebDateHelper.getAsStringXSD (PDTFactory.getCurrentZonedDateTimeUTC ()));
+      aXmlWriter.writeAttribute ("codeListSupported", EPredefinedDocumentTypeIdentifier.CODE_LIST_VERSION);
+
+      final String sSearchTerm = PDField.PARTICIPANT_ID.getFieldName ();
+      for (final String sParticipantID : aAllParticipantIDs)
       {
-        // Search all entities of the current participant ID
-        final ICommonsList <PDStoredBusinessEntity> aEntitiesPerPI = new CommonsArrayList <> ();
-        aStorageMgr.searchAllDocuments (new TermQuery (new Term (sSearchTerm, sParticipantID)),
-                                        -1,
-                                        aEntitiesPerPI::add);
-        // Otherwise, the PI might have been deleted in the meantime
-        if (aEntitiesPerPI.isNotEmpty ())
+        final IParticipantIdentifier aParticipantID = aIF.parseParticipantIdentifier (sParticipantID);
+
+        // Should never happen because PIs are parsed before added into the source set
+        if (aParticipantID != null)
         {
-          aRoot.addChild (ExportHelper.createMicroElement (aParticipantID, aEntitiesPerPI, bIncludeDocTypes));
+          // Search all entities of the current participant ID
+          final ICommonsList <PDStoredBusinessEntity> aEntitiesPerPI = new CommonsArrayList <> ();
+          aStorageMgr.searchAllDocuments (new TermQuery (new Term (sSearchTerm, sParticipantID)),
+                                          -1,
+                                          aEntitiesPerPI::add);
+
+          // Otherwise, the PI might have been deleted in the meantime
+          if (aEntitiesPerPI.isNotEmpty ())
+          {
+            ExportHelper.writeElement (aParticipantID, aEntitiesPerPI, bIncludeDocTypes, aXmlWriter);
+          }
         }
       }
-    }
 
-    // Safe space - no indent
-    if (MicroWriter.writeToFile (aDoc, fTarget, new XMLWriterSettings ().setIndent (EXMLSerializeIndent.NONE))
-                   .isFailure ())
+      // root
+      aXmlWriter.writeEndElement ();
+      aXmlWriter.writeEndDocument ();
+
+      LOGGER.info ("Successfully wrote all BCs as XML (" +
+                   (bIncludeDocTypes ? "full" : "no doctypes") +
+                   ") to " +
+                   fTarget.getAbsolutePath ());
+      return ESuccess.SUCCESS;
+    }
+    catch (final IOException | XMLStreamException ex)
     {
       LOGGER.error ("Failed to export all BCs as XML (" +
                     (bIncludeDocTypes ? "full" : "no doctypes") +
                     ") to " +
-                    fTarget.getAbsolutePath ());
+                    fTarget.getAbsolutePath (),
+                    ex);
       return ESuccess.FAILURE;
     }
-    LOGGER.info ("Successfully wrote all BCs as XML (" +
-                 (bIncludeDocTypes ? "full" : "no doctypes") +
-                 ") to " +
-                 fTarget.getAbsolutePath ());
-    return ESuccess.SUCCESS;
   }
 
   @Nonnull
@@ -559,34 +577,51 @@ public final class ExportAllManager
   {
     return _runWithTempFile (_getInternalFileParticipantXML (), f -> {
       final IIdentifierFactory aIF = PDMetaManager.getIdentifierFactory ();
-
-      // XML root
-      final IMicroDocument aDoc = new MicroDocument ();
-      final String sNamespaceURI = "http://www.peppol.eu/schema/pd/participant-generic/201910/";
-      final IMicroElement aRoot = aDoc.addElementNS (sNamespaceURI, "root");
-      aRoot.setAttribute ("version", "1");
-      aRoot.setAttribute ("creationdt", PDTWebDateHelper.getAsStringXSD (PDTFactory.getCurrentZonedDateTimeUTC ()));
-      aRoot.setAttribute ("count", aAllParticipantIDs.size ());
-
-      // For all participants
-      for (final String sParticipantID : aAllParticipantIDs)
+      final XMLOutputFactory aXmlOutputFactory = XMLOutputFactory.newInstance ();
+      try (final Writer aWriter = FileHelper.getWriter (f, XMLWriterSettings.DEFAULT_XML_CHARSET_OBJ))
       {
-        final IParticipantIdentifier aPI = aIF.parseParticipantIdentifier (sParticipantID);
-        final IMicroElement ePI = aRoot.addElementNS (sNamespaceURI, "participantID");
+        final XMLStreamWriter aXmlWriter = aXmlOutputFactory.createXMLStreamWriter (aWriter);
 
-        // Should never happen because PIs are parsed before added into the source set
-        if (aPI != null)
-          ePI.setAttribute ("scheme", aPI.getScheme ()).setAttribute ("value", aPI.getValue ());
+        final String sNamespaceURI = "http://www.peppol.eu/schema/pd/participant-generic/201910/";
+        aXmlWriter.setDefaultNamespace (sNamespaceURI);
+
+        // XML root
+        aXmlWriter.writeStartDocument (XMLWriterSettings.DEFAULT_XML_CHARSET, "1.0");
+
+        aXmlWriter.writeStartElement (sNamespaceURI, "root");
+        aXmlWriter.writeAttribute ("xmlns", sNamespaceURI);
+        aXmlWriter.writeAttribute ("version", "1");
+        aXmlWriter.writeAttribute ("creationdt",
+                                   PDTWebDateHelper.getAsStringXSD (PDTFactory.getCurrentZonedDateTimeUTC ()));
+        aXmlWriter.writeAttribute ("count", Integer.toString (aAllParticipantIDs.size ()));
+
+        // For all participants
+        for (final String sParticipantID : aAllParticipantIDs)
+        {
+          final IParticipantIdentifier aPI = aIF.parseParticipantIdentifier (sParticipantID);
+
+          aXmlWriter.writeEmptyElement (sNamespaceURI, "participantID");
+          // Should never happen because PIs are parsed before added into the source set
+          if (aPI != null)
+          {
+            aXmlWriter.writeAttribute ("scheme", aPI.getScheme ());
+            aXmlWriter.writeAttribute ("value", aPI.getValue ());
+          }
+        }
+
+        // root
+        aXmlWriter.writeEndElement ();
+
+        aXmlWriter.writeEndDocument ();
+
+        LOGGER.info ("Successfully wrote all Participants as XML to " + f.getAbsolutePath ());
+        return ESuccess.SUCCESS;
       }
-
-      // Safe space - no indent
-      if (MicroWriter.writeToFile (aDoc, f, new XMLWriterSettings ().setIndent (EXMLSerializeIndent.NONE)).isFailure ())
+      catch (final IOException | XMLStreamException ex)
       {
-        LOGGER.error ("Failed to export all Participants as XML to " + f.getAbsolutePath ());
+        LOGGER.error ("Failed to export all Participants as XML to " + f.getAbsolutePath (), ex);
         return ESuccess.FAILURE;
       }
-      LOGGER.info ("Successfully wrote all Participants as XML to " + f.getAbsolutePath ());
-      return ESuccess.SUCCESS;
     });
   }
 
