@@ -55,6 +55,16 @@ public final class PublicSearchXServletHandlerTest
   }
 
   @Test
+  public void testParseXSDExportV3 ()
+  {
+    // Demo validation
+    final CollectingSAXErrorHandler aErrHdl = new CollectingSAXErrorHandler ();
+    final Validator v = new XMLSchemaCache (aErrHdl).getValidator (new FileSystemResource ("src/main/webapp/files/directory-export-v3.xsd"));
+    assertNotNull (v);
+    assertTrue (aErrHdl.getErrorList ().toString (), aErrHdl.getErrorList ().isEmpty ());
+  }
+
+  @Test
   public void testParseXSDSearch ()
   {
     final CollectingSAXErrorHandler aErrHdl = new CollectingSAXErrorHandler ();
