@@ -22,12 +22,7 @@ import com.helger.collection.commons.ICommonsList;
 import com.helger.collection.commons.ICommonsOrderedMap;
 import com.helger.datetime.helper.PDTFactory;
 import com.helger.datetime.web.PDTWebDateHelper;
-import com.helger.json.IJsonArray;
-import com.helger.json.IJsonObject;
-import com.helger.json.JsonArray;
-import com.helger.json.JsonObject;
 import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
-import com.helger.pd.indexer.storage.PDStoredMLName;
 import com.helger.peppol.businesscard.generic.PDBusinessCard;
 import com.helger.peppol.businesscard.generic.PDIdentifier;
 import com.helger.peppol.ui.types.nicename.NiceNameEntry;
@@ -114,59 +109,5 @@ final class ExportHelper
     }
 
     return aDoc;
-  }
-
-  @Nonnull
-  static IJsonObject createJsonObject (@Nonnull final PDStoredBusinessEntity aSBE)
-  {
-    final IJsonObject ret = new JsonObject ();
-    {
-      final IJsonArray aNames = new JsonArray ();
-      for (final PDStoredMLName aName : aSBE.names ())
-        aNames.add (new JsonObject ().add ("name", aName.getName ()).addIfNotNull ("lang", aName.getLanguageCode ()));
-      ret.add ("names", aNames);
-    }
-    if (aSBE.hasCountryCode ())
-      ret.add ("countryCode", aSBE.getCountryCode ());
-    if (aSBE.hasGeoInfo ())
-      ret.add ("geoinfo", aSBE.getGeoInfo ());
-    if (aSBE.identifiers ().isNotEmpty ())
-      ret.add ("identifiers",
-               new JsonArray ().addAllMapped (aSBE.identifiers (),
-                                              x -> new JsonObject ().add ("scheme", x.getScheme ())
-                                                                    .add ("value", x.getValue ())));
-    if (aSBE.websiteURIs ().isNotEmpty ())
-      ret.add ("websiteURIs", new JsonArray ().addAll (aSBE.websiteURIs ()));
-    if (aSBE.contacts ().isNotEmpty ())
-      ret.add ("contacts",
-               new JsonArray ().addAllMapped (aSBE.contacts (),
-                                              x -> new JsonObject ().addIfNotNull ("type", x.getType ())
-                                                                    .addIfNotNull ("name", x.getName ())
-                                                                    .addIfNotNull ("phone", x.getPhone ())
-                                                                    .addIfNotNull ("email", x.getEmail ())));
-    if (aSBE.hasAdditionalInformation ())
-      ret.add ("additionalInfo", aSBE.getAdditionalInformation ());
-    if (aSBE.hasRegistrationDate ())
-      ret.add ("regdate", PDTWebDateHelper.getAsStringXSD (aSBE.getRegistrationDate ()));
-
-    return ret;
-  }
-
-  @Nonnull
-  static IJsonObject createJsonObject (@Nonnull final IDocumentTypeIdentifier aDocTypeID)
-  {
-    final IJsonObject ret = new JsonObject ();
-    ret.add ("scheme", aDocTypeID.getScheme ());
-    ret.add ("value", aDocTypeID.getValue ());
-    final NiceNameEntry aNiceName = NiceNameManager.getDocTypeNiceName (aDocTypeID.getURIEncoded ());
-    if (aNiceName == null)
-      ret.add ("nonStandard", true);
-    else
-    {
-      ret.add ("displayName", aNiceName.getName ());
-      // New in JSON v2: use "state" instead of "deprecated"
-      ret.add ("state", aNiceName.getState ().getID ());
-    }
-    return ret;
   }
 }

@@ -62,6 +62,8 @@ import com.helger.pd.indexer.storage.PDStoredContact;
 import com.helger.pd.indexer.storage.PDStoredIdentifier;
 import com.helger.pd.indexer.storage.PDStoredMLName;
 import com.helger.pd.indexer.storage.field.PDField;
+import com.helger.peppol.ui.types.nicename.NiceNameEntry;
+import com.helger.peppol.ui.types.nicename.NiceNameManager;
 import com.helger.peppolid.IDocumentTypeIdentifier;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.factory.IIdentifierFactory;
@@ -323,7 +325,39 @@ public final class ExportAllManager
 
             final IJsonArray aBEs = new JsonArray ();
             for (final PDStoredBusinessEntity aSBE : aEntitiesPerPI)
-              aBEs.add (ExportHelper.createJsonObject (aSBE));
+            {
+              final IJsonObject aBE = new JsonObject ();
+              {
+                final IJsonArray aNames = new JsonArray ();
+                for (final PDStoredMLName aName : aSBE.names ())
+                  aNames.add (new JsonObject ().add ("name", aName.getName ())
+                                               .addIfNotNull ("lang", aName.getLanguageCode ()));
+                aBE.add ("names", aNames);
+              }
+              if (aSBE.hasCountryCode ())
+                aBE.add ("countryCode", aSBE.getCountryCode ());
+              if (aSBE.hasGeoInfo ())
+                aBE.add ("geoinfo", aSBE.getGeoInfo ());
+              if (aSBE.identifiers ().isNotEmpty ())
+                aBE.add ("identifiers",
+                         new JsonArray ().addAllMapped (aSBE.identifiers (),
+                                                        x -> new JsonObject ().add ("scheme", x.getScheme ())
+                                                                              .add ("value", x.getValue ())));
+              if (aSBE.websiteURIs ().isNotEmpty ())
+                aBE.add ("websiteURIs", new JsonArray ().addAll (aSBE.websiteURIs ()));
+              if (aSBE.contacts ().isNotEmpty ())
+                aBE.add ("contacts",
+                         new JsonArray ().addAllMapped (aSBE.contacts (),
+                                                        x -> new JsonObject ().addIfNotNull ("type", x.getType ())
+                                                                              .addIfNotNull ("name", x.getName ())
+                                                                              .addIfNotNull ("phone", x.getPhone ())
+                                                                              .addIfNotNull ("email", x.getEmail ())));
+              if (aSBE.hasAdditionalInformation ())
+                aBE.add ("additionalInfo", aSBE.getAdditionalInformation ());
+              if (aSBE.hasRegistrationDate ())
+                aBE.add ("regdate", PDTWebDateHelper.getAsStringXSD (aSBE.getRegistrationDate ()));
+              aBEs.add (aBE);
+            }
             aBC.add ("entities", aBEs);
 
             // Add all Document types (if wanted)
@@ -332,7 +366,21 @@ public final class ExportAllManager
               final IJsonArray aDocTypes = new JsonArray ();
               if (aEntitiesPerPI.isNotEmpty ())
                 for (final IDocumentTypeIdentifier aDocTypeID : aEntitiesPerPI.getFirstOrNull ().documentTypeIDs ())
-                  aDocTypes.add (ExportHelper.createJsonObject (aDocTypeID));
+                {
+                  final IJsonObject aDocType = new JsonObject ();
+                  aDocType.add ("scheme", aDocTypeID.getScheme ());
+                  aDocType.add ("value", aDocTypeID.getValue ());
+                  final NiceNameEntry aNiceName = NiceNameManager.getDocTypeNiceName (aDocTypeID.getURIEncoded ());
+                  if (aNiceName == null)
+                    aDocType.add ("nonStandard", true);
+                  else
+                  {
+                    aDocType.add ("displayName", aNiceName.getName ());
+                    // New in JSON v2: use "state" instead of "deprecated"
+                    aDocType.add ("state", aNiceName.getState ().getID ());
+                  }
+                  aDocTypes.add (aDocType);
+                }
               aBC.add ("docTypes", aDocTypes);
             }
 
