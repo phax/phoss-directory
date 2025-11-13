@@ -102,6 +102,10 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
+v0.14.8 - 2025-11-13
+* Fixed an error, that document types were not correctly extracted, if the SMP response contains a percent encoded participant identifier (fixed in peppol-smp-client 12.1.2)
+* Trying to disable DNSJava caches. See [#77](https://github.com/phax/phoss-directory/issues/77)
+
 v0.14.7 - 2025-11-04
 * Created an updated XML Schema v3 for the XML export
 * Using stream based JSON and XML export to reduce memory usage during export
