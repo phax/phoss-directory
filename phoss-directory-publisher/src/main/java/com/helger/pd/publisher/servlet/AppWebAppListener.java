@@ -16,6 +16,9 @@
  */
 package com.helger.pd.publisher.servlet;
 
+import org.xbill.DNS.DClass;
+import org.xbill.DNS.Lookup;
+
 import com.helger.base.debug.GlobalDebug;
 import com.helger.base.enforce.ValueEnforcer;
 import com.helger.commons.vendor.VendorInfo;
@@ -110,8 +113,14 @@ public final class AppWebAppListener extends WebAppListenerBootstrap
       ServletContextPathHolder.setCustomContextPath ("");
     }
 
+    // Optimize for speed
     if (GlobalDebug.isProductionMode ())
       ValueEnforcer.setEnabled (false);
+
+    // Disable DNSJava caching
+    // Source: https://github.com/spotify/dns-java/issues/24
+    Lookup.getDefaultCache (DClass.IN).setMaxCache (0);
+    Lookup.getDefaultCache (DClass.IN).setMaxNCache (0);
 
     // By disabling these settings, less audits are created hence less calls are
     // blocking
