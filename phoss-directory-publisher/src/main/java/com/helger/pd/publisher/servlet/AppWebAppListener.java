@@ -121,6 +121,8 @@ public final class AppWebAppListener extends WebAppListenerBootstrap
     // Source: https://github.com/spotify/dns-java/issues/24
     Lookup.getDefaultCache (DClass.IN).setMaxCache (0);
     Lookup.getDefaultCache (DClass.IN).setMaxNCache (0);
+    java.security.Security.setProperty ("networkaddress.cache.ttl", "0");
+    java.security.Security.setProperty ("networkaddress.cache.negative.ttl", "0");
 
     // By disabling these settings, less audits are created hence less calls are
     // blocking
