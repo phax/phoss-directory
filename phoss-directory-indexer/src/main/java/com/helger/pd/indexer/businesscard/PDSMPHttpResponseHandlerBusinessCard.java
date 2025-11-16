@@ -23,6 +23,7 @@ import java.nio.charset.StandardCharsets;
 import org.apache.hc.client5.http.ClientProtocolException;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
+import org.jspecify.annotations.NonNull;
 
 import com.helger.base.io.stream.StreamHelper;
 import com.helger.httpclient.HttpClientHelper;
@@ -30,7 +31,6 @@ import com.helger.peppol.businesscard.generic.PDBusinessCard;
 import com.helger.peppol.businesscard.helper.PDBusinessCardHelper;
 import com.helger.smpclient.httpclient.AbstractSMPResponseHandler;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 /**
@@ -42,7 +42,7 @@ final class PDSMPHttpResponseHandlerBusinessCard extends AbstractSMPResponseHand
 {
   @Override
   @Nullable
-  public PDBusinessCard handleEntity (@Nonnull final HttpEntity aEntity) throws IOException
+  public PDBusinessCard handleEntity (@NonNull final HttpEntity aEntity) throws IOException
   {
     // Read the payload and remember it!
     final ContentType aContentType = HttpClientHelper.getContentTypeOrDefault (aEntity);

@@ -18,6 +18,8 @@ package com.helger.pd.publisher.app;
 
 import java.util.Locale;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.annotation.concurrent.Immutable;
 import com.helger.base.string.StringHelper;
 import com.helger.collection.commons.CommonsArrayList;
@@ -48,7 +50,6 @@ import com.helger.text.locale.LocaleCache;
 import com.helger.url.SimpleURL;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 @Immutable
@@ -118,7 +119,7 @@ public final class AppCommonUI
       CPDPublisher.setLogoImageURL (sLogoImageURL);
   }
 
-  public static void addFavIcons (@Nonnull final HCHead aHead)
+  public static void addFavIcons (@NonNull final HCHead aHead)
   {
     aHead.links ().addAll (DEFAULT_FAV_ICONS);
   }

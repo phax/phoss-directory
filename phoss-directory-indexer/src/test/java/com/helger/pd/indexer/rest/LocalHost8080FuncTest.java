@@ -31,6 +31,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 
 import org.apache.lucene.search.TermQuery;
+import org.jspecify.annotations.NonNull;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -60,7 +61,6 @@ import com.helger.security.keystore.EKeyStoreType;
 import com.helger.security.keystore.KeyStoreHelper;
 import com.helger.unittest.support.TestHelper;
 
-import jakarta.annotation.Nonnull;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
@@ -81,8 +81,8 @@ public final class LocalHost8080FuncTest
 
   private WebTarget m_aTarget;
 
-  @Nonnull
-  private static PDExtendedBusinessCard _createMockBC (@Nonnull final IParticipantIdentifier aParticipantID)
+  @NonNull
+  private static PDExtendedBusinessCard _createMockBC (@NonNull final IParticipantIdentifier aParticipantID)
   {
     final PDBusinessCard aBI = new PDBusinessCard ();
     aBI.setParticipantIdentifier (new PDIdentifier (PeppolIdentifierHelper.DEFAULT_PARTICIPANT_SCHEME, "9915:mock"));

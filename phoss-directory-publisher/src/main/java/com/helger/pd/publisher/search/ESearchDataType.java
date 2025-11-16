@@ -18,11 +18,12 @@ package com.helger.pd.publisher.search;
 
 import java.util.EnumSet;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.annotation.Nonempty;
 import com.helger.annotation.style.CodingStyleguideUnaware;
 import com.helger.annotation.style.ReturnsMutableCopy;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 /**
@@ -118,12 +119,12 @@ public enum ESearchDataType
   @CodingStyleguideUnaware
   private final EnumSet <ESearchOperator> m_aAllowedOperators;
 
-  private ESearchDataType (@Nonnull @Nonempty final EnumSet <ESearchOperator> aAllowedOperators)
+  private ESearchDataType (@NonNull @Nonempty final EnumSet <ESearchOperator> aAllowedOperators)
   {
     m_aAllowedOperators = aAllowedOperators;
   }
 
-  @Nonnull
+  @NonNull
   @ReturnsMutableCopy
   public EnumSet <ESearchOperator> getAllAllowedOperators ()
   {

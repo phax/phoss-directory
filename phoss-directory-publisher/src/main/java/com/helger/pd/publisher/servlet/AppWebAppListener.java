@@ -16,6 +16,7 @@
  */
 package com.helger.pd.publisher.servlet;
 
+import org.jspecify.annotations.NonNull;
 import org.xbill.DNS.DClass;
 import org.xbill.DNS.Lookup;
 
@@ -59,7 +60,6 @@ import com.helger.schedule.quartz.trigger.JDK8TriggerBuilder;
 import com.helger.servlet.ServletContextPathHolder;
 import com.helger.xservlet.requesttrack.RequestTrackerSettings;
 
-import jakarta.annotation.Nonnull;
 import jakarta.servlet.ServletContext;
 
 /**
@@ -74,25 +74,25 @@ public final class AppWebAppListener extends WebAppListenerBootstrap
   private TriggerKey m_aSyncJobTrigger;
 
   @Override
-  protected String getInitParameterDebug (@Nonnull final ServletContext aSC)
+  protected String getInitParameterDebug (@NonNull final ServletContext aSC)
   {
     return PDServerConfiguration.getGlobalDebug ();
   }
 
   @Override
-  protected String getInitParameterProduction (@Nonnull final ServletContext aSC)
+  protected String getInitParameterProduction (@NonNull final ServletContext aSC)
   {
     return PDServerConfiguration.getGlobalProduction ();
   }
 
   @Override
-  protected String getDataPath (@Nonnull final ServletContext aSC)
+  protected String getDataPath (@NonNull final ServletContext aSC)
   {
     return PDServerConfiguration.getDataPath ();
   }
 
   @Override
-  protected boolean shouldCheckFileAccess (@Nonnull final ServletContext aSC)
+  protected boolean shouldCheckFileAccess (@NonNull final ServletContext aSC)
   {
     return PDServerConfiguration.isCheckFileAccess ();
   }
@@ -146,7 +146,7 @@ public final class AppWebAppListener extends WebAppListenerBootstrap
   }
 
   @Override
-  protected void initLocales (@Nonnull final ILocaleManager aLocaleMgr)
+  protected void initLocales (@NonNull final ILocaleManager aLocaleMgr)
   {
     aLocaleMgr.registerLocale (AppCommonUI.DEFAULT_LOCALE);
     aLocaleMgr.setDefaultLocale (AppCommonUI.DEFAULT_LOCALE);

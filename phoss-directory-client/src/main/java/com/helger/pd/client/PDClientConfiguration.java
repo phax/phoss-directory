@@ -20,6 +20,8 @@ import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 
 import org.apache.hc.core5.util.Timeout;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,9 +46,6 @@ import com.helger.security.keystore.EKeyStoreType;
 import com.helger.security.keystore.KeyStoreHelper;
 import com.helger.security.keystore.LoadedKey;
 import com.helger.security.keystore.LoadedKeyStore;
-
-import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
 
 /**
  * This class manages the configuration properties of the Peppol Directory client using the global
@@ -80,7 +79,7 @@ public final class PDClientConfiguration
    * @return The configuration value provider for phase4 that contains backward compatibility
    *         support.
    */
-  @Nonnull
+  @NonNull
   public static MultiConfigurationValueProvider createPDClientValueProvider ()
   {
     // Start with default setup
@@ -122,7 +121,7 @@ public final class PDClientConfiguration
   /**
    * @return The current global configuration. Never <code>null</code>.
    */
-  @Nonnull
+  @NonNull
   public static IConfigWithFallback getConfig ()
   {
     // Inline for performance
@@ -144,8 +143,8 @@ public final class PDClientConfiguration
    *        The configuration to use globally. May not be <code>null</code>.
    * @return The old value of {@link IConfig}. Never <code>null</code>.
    */
-  @Nonnull
-  public static IConfigWithFallback setConfig (@Nonnull final IConfigWithFallback aNewConfig)
+  @NonNull
+  public static IConfigWithFallback setConfig (@NonNull final IConfigWithFallback aNewConfig)
   {
     ValueEnforcer.notNull (aNewConfig, "NewConfig");
     final IConfigWithFallback ret;
@@ -181,7 +180,7 @@ public final class PDClientConfiguration
   /**
    * @return The type to the keystore. This is usually JKS. Property <code>keystore.type</code>.
    */
-  @Nonnull
+  @NonNull
   public static EKeyStoreType getKeyStoreType ()
   {
     final String sType = getConfig ().getAsStringOrFallback ("pdclient.keystore.type", "keystore.type");
@@ -211,7 +210,7 @@ public final class PDClientConfiguration
   /**
    * @return The loaded key store and never <code>null</code>.
    */
-  @Nonnull
+  @NonNull
   public static LoadedKeyStore loadKeyStore ()
   {
     return KeyStoreHelper.loadKeyStore (getKeyStoreType (), getKeyStorePath (), getKeyStorePassword ());
@@ -243,8 +242,8 @@ public final class PDClientConfiguration
    *        The key store to be used. May not be <code>null</code>.
    * @return The loaded key and never <code>null</code>.
    */
-  @Nonnull
-  public static LoadedKey <KeyStore.PrivateKeyEntry> loadPrivateKey (@Nonnull final KeyStore aKeyStore)
+  @NonNull
+  public static LoadedKey <KeyStore.PrivateKeyEntry> loadPrivateKey (@NonNull final KeyStore aKeyStore)
   {
     return KeyStoreHelper.loadPrivateKey (aKeyStore,
                                           getKeyStorePath (),
@@ -256,7 +255,7 @@ public final class PDClientConfiguration
    * @return The type to the truststore. This is usually JKS. Property <code>truststore.type</code>.
    * @since 0.6.0
    */
-  @Nonnull
+  @NonNull
   public static EKeyStoreType getTrustStoreType ()
   {
     final String sType = getConfig ().getAsStringOrFallback ("pdclient.truststore.type", "truststore.type");
@@ -288,7 +287,7 @@ public final class PDClientConfiguration
   /**
    * @return The loaded trust store and never <code>null</code>.
    */
-  @Nonnull
+  @NonNull
   public static LoadedKeyStore loadTrustStore ()
   {
     return KeyStoreHelper.loadKeyStore (getTrustStoreType (), getTrustStorePath (), getTrustStorePassword ());
@@ -339,7 +338,7 @@ public final class PDClientConfiguration
    *         "indefinite", -1 means "system default".
    * @since 0.6.0
    */
-  @Nonnull
+  @NonNull
   public static Timeout getConnectTimeout ()
   {
     final long nMillis = getConfig ().getAsLongOrFallback ("http.connect.timeout.ms", -1, -1, "connect.timeout.ms");
@@ -353,7 +352,7 @@ public final class PDClientConfiguration
    *         "indefinite", -1 means "system default".
    * @since 0.6.0
    */
-  @Nonnull
+  @NonNull
   public static Timeout getResponseTimeout ()
   {
     final long nMillis = getConfig ().getAsLongOrFallback ("http.response.timeout.ms",

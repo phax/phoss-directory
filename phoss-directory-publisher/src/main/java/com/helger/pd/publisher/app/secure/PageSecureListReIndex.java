@@ -16,6 +16,8 @@
  */
 package com.helger.pd.publisher.app.secure;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.annotation.Nonempty;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.mgr.PDIndexerManager;
@@ -24,17 +26,15 @@ import com.helger.pd.indexer.reindex.IReIndexWorkItemList;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 
-import jakarta.annotation.Nonnull;
-
 public final class PageSecureListReIndex extends AbstractPageSecureReIndex
 {
-  public PageSecureListReIndex (@Nonnull @Nonempty final String sID)
+  public PageSecureListReIndex (@NonNull @Nonempty final String sID)
   {
     super (sID, "Re-Index List", false);
   }
 
   @Override
-  @Nonnull
+  @NonNull
   protected IReIndexWorkItemList getReIndexWorkItemList ()
   {
     final PDIndexerManager aIndexerMgr = PDMetaManager.getIndexerMgr ();
@@ -42,7 +42,7 @@ public final class PageSecureListReIndex extends AbstractPageSecureReIndex
   }
 
   @Override
-  protected void showListOfExistingObjects (@Nonnull final WebPageExecutionContext aWPEC)
+  protected void showListOfExistingObjects (@NonNull final WebPageExecutionContext aWPEC)
   {
     final HCNodeList aNodeList = aWPEC.getNodeList ();
     aNodeList.addChild (info ().addChild (div ("This page contains all entries where indexing failed initially but is re-tried."))

@@ -18,13 +18,14 @@ package com.helger.pd.publisher.app;
 
 import java.util.function.Predicate;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.annotation.Nonempty;
 import com.helger.annotation.style.ReturnsMutableCopy;
 import com.helger.base.state.EChange;
 import com.helger.collection.commons.ICommonsList;
 import com.helger.peppol.sml.ISMLInfo;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 /**
@@ -55,10 +56,10 @@ public interface ISMLInfoManager
    *        SML software may not require a client certificate.
    * @return Never <code>null</code>.
    */
-  @Nonnull
-  ISMLInfo createSMLInfo (@Nonnull @Nonempty String sDisplayName,
-                          @Nonnull @Nonempty String sDNSZone,
-                          @Nonnull @Nonempty String sManagementServiceURL,
+  @NonNull
+  ISMLInfo createSMLInfo (@NonNull @Nonempty String sDisplayName,
+                          @NonNull @Nonempty String sDNSZone,
+                          @NonNull @Nonempty String sManagementServiceURL,
                           boolean bClientCertificateRequired);
 
   /**
@@ -84,11 +85,11 @@ public interface ISMLInfoManager
    *        SML software may not require a client certificate.
    * @return {@link EChange#CHANGED} if something was changed.
    */
-  @Nonnull
+  @NonNull
   EChange updateSMLInfo (@Nullable String sSMLInfoID,
-                         @Nonnull @Nonempty String sDisplayName,
-                         @Nonnull @Nonempty String sDNSZone,
-                         @Nonnull @Nonempty String sManagementServiceURL,
+                         @NonNull @Nonempty String sDisplayName,
+                         @NonNull @Nonempty String sDNSZone,
+                         @NonNull @Nonempty String sManagementServiceURL,
                          boolean bClientCertificateRequired);
 
   /**
@@ -105,7 +106,7 @@ public interface ISMLInfoManager
    * @return An unsorted collection of all contained SML information. Never <code>null</code> but
    *         maybe empty.
    */
-  @Nonnull
+  @NonNull
   @ReturnsMutableCopy
   ICommonsList <ISMLInfo> getAll ();
 

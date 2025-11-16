@@ -18,6 +18,8 @@ package com.helger.pd.publisher.app.pub;
 
 import java.util.Locale;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.annotation.Nonempty;
 import com.helger.html.hc.html.forms.HCEdit;
 import com.helger.html.hc.impl.HCNodeList;
@@ -33,20 +35,18 @@ import com.helger.photon.core.form.RequestField;
 import com.helger.photon.uicore.html.select.HCCountrySelect;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 
-import jakarta.annotation.Nonnull;
-
 public final class PagePublicSearchExtended extends AbstractPagePublicSearch
 {
   private static final String PREFIX_OPERATOR = "op-";
   private static final String PREFIX_SPECIAL = "special-";
 
-  public PagePublicSearchExtended (@Nonnull @Nonempty final String sID)
+  public PagePublicSearchExtended (@NonNull @Nonempty final String sID)
   {
     super (sID, "Extended Search [DEBUG ONLY]");
   }
 
-  @Nonnull
-  private static HCNodeList _createCtrl (@Nonnull final EPDSearchField eField, @Nonnull final Locale aDisplayLocale)
+  @NonNull
+  private static HCNodeList _createCtrl (@NonNull final EPDSearchField eField, @NonNull final Locale aDisplayLocale)
   {
     final String sFieldName = eField.getFieldName ();
     final HCNodeList ret = new HCNodeList ();
@@ -65,7 +65,7 @@ public final class PagePublicSearchExtended extends AbstractPagePublicSearch
   }
 
   @Override
-  protected void fillContent (@Nonnull final WebPageExecutionContext aWPEC)
+  protected void fillContent (@NonNull final WebPageExecutionContext aWPEC)
   {
     final HCNodeList aNodeList = aWPEC.getNodeList ();
     final Locale aDisplayLocale = aWPEC.getDisplayLocale ();

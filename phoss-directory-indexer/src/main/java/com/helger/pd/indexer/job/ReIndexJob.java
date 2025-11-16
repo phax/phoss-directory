@@ -16,6 +16,8 @@
  */
 package com.helger.pd.indexer.job;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.annotation.style.OverrideOnDemand;
 import com.helger.base.enforce.ValueEnforcer;
 import com.helger.collection.commons.CommonsHashMap;
@@ -36,7 +38,6 @@ import com.helger.servlet.mock.OfflineHttpServletRequest;
 import com.helger.web.scope.mgr.WebScopeManager;
 import com.helger.web.scope.util.AbstractScopeAwareJob;
 
-import jakarta.annotation.Nonnull;
 import jakarta.servlet.ServletContext;
 
 /**
@@ -60,7 +61,7 @@ public class ReIndexJob extends AbstractScopeAwareJob
   }
 
   @Override
-  @Nonnull
+  @NonNull
   @OverrideOnDemand
   protected MockHttpServletRequest createMockHttpServletRequest ()
   {
@@ -68,8 +69,8 @@ public class ReIndexJob extends AbstractScopeAwareJob
   }
 
   @Override
-  protected void onExecute (@Nonnull final JobDataMap aJobDataMap,
-                            @Nonnull final IJobExecutionContext aContext) throws JobExecutionException
+  protected void onExecute (@NonNull final JobDataMap aJobDataMap,
+                            @NonNull final IJobExecutionContext aContext) throws JobExecutionException
   {
     final PDIndexerManager aIndexerMgr = PDMetaManager.getIndexerMgr ();
 
@@ -87,8 +88,8 @@ public class ReIndexJob extends AbstractScopeAwareJob
    *        <code>SimpleScheduleBuilder.repeatMinutelyForever (1)</code>
    * @return The created trigger key for further usage. Never <code>null</code>.
    */
-  @Nonnull
-  public static TriggerKey schedule (@Nonnull final SimpleScheduleBuilder aScheduleBuilder)
+  @NonNull
+  public static TriggerKey schedule (@NonNull final SimpleScheduleBuilder aScheduleBuilder)
   {
     ValueEnforcer.notNull (aScheduleBuilder, "ScheduleBuilder");
 

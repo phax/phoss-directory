@@ -21,10 +21,9 @@ import java.util.function.Function;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.index.IndexableField;
+import org.jspecify.annotations.NonNull;
 
 import com.helger.annotation.Nonempty;
-
-import jakarta.annotation.Nonnull;
 
 /**
  * A Lucene field that can be mapped to a {@link Number} and back.
@@ -35,25 +34,25 @@ import jakarta.annotation.Nonnull;
  */
 public class PDNumericField <NATIVE_TYPE> extends AbstractPDField <NATIVE_TYPE, Number>
 {
-  public PDNumericField (@Nonnull @Nonempty final String sFieldName,
-                         @Nonnull final Function <? super NATIVE_TYPE, ? extends Number> aConverterToStorage,
-                         @Nonnull final Function <? super Number, ? extends NATIVE_TYPE> aConverterFromStorage,
-                         @Nonnull final Field.Store eStore)
+  public PDNumericField (@NonNull @Nonempty final String sFieldName,
+                         @NonNull final Function <? super NATIVE_TYPE, ? extends Number> aConverterToStorage,
+                         @NonNull final Function <? super Number, ? extends NATIVE_TYPE> aConverterFromStorage,
+                         final Field.@NonNull Store eStore)
   {
     super (sFieldName, aConverterToStorage, aConverterFromStorage, eStore);
   }
 
   @Override
-  @Nonnull
-  public Field getAsField (@Nonnull final NATIVE_TYPE aValue)
+  @NonNull
+  public Field getAsField (@NonNull final NATIVE_TYPE aValue)
   {
     final Number aLongValue = getAsStorageValue (aValue);
     return new StoredField (getFieldName (), aLongValue.longValue ());
   }
 
   @Override
-  @Nonnull
-  protected NATIVE_TYPE getFieldNativeValue (@Nonnull final IndexableField aField)
+  @NonNull
+  protected NATIVE_TYPE getFieldNativeValue (@NonNull final IndexableField aField)
   {
     try
     {

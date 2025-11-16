@@ -28,6 +28,7 @@ import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.WildcardQuery;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +46,6 @@ import com.helger.peppolid.IDocumentTypeIdentifier;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.factory.IIdentifierFactory;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 /**
@@ -76,10 +76,10 @@ public final class PDQueryManager
    *        nor empty.
    * @return The non-<code>null</code> list of all terms.
    */
-  @Nonnull
-  public static ICommonsList <String> getSplitIntoTerms (@Nonnull final ILuceneAnalyzerProvider aAnalyzerProvider,
-                                                         @Nonnull @Nonempty final String sFieldName,
-                                                         @Nonnull @Nonempty final String sQueryString)
+  @NonNull
+  public static ICommonsList <String> getSplitIntoTerms (@NonNull final ILuceneAnalyzerProvider aAnalyzerProvider,
+                                                         @NonNull @Nonempty final String sFieldName,
+                                                         @NonNull @Nonempty final String sQueryString)
   {
     // Use the default analyzer to split the query string into fields
     try (final TokenStream aTokenStream = aAnalyzerProvider.getAnalyzer ().tokenStream (sFieldName, sQueryString))
@@ -103,8 +103,8 @@ public final class PDQueryManager
     }
   }
 
-  @Nonnull
-  private static Query _createSimpleAllFieldsQuery (@Nonnull final String sFieldName, @Nonnull final String sQueryText)
+  @NonNull
+  private static Query _createSimpleAllFieldsQuery (@NonNull final String sFieldName, @NonNull final String sQueryText)
   {
     if (false)
       return new TermQuery (new Term (sFieldName, sQueryText));
@@ -129,10 +129,10 @@ public final class PDQueryManager
    *        may not be whitespace only.
    * @return The created Lucene {@link Query}
    */
-  @Nonnull
-  public static Query convertQueryStringToLuceneQuery (@Nonnull final ILuceneAnalyzerProvider aAnalyzerProvider,
-                                                       @Nonnull final String sFieldName,
-                                                       @Nonnull @Nonempty final String sQueryString)
+  @NonNull
+  public static Query convertQueryStringToLuceneQuery (@NonNull final ILuceneAnalyzerProvider aAnalyzerProvider,
+                                                       @NonNull final String sFieldName,
+                                                       @NonNull @Nonempty final String sQueryString)
   {
     ValueEnforcer.notEmpty (sQueryString, "QueryString");
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
@@ -161,20 +161,20 @@ public final class PDQueryManager
     return aQuery;
   }
 
-  @Nonnull
-  private static String _lowerCase (@Nonnull final String s)
+  @NonNull
+  private static String _lowerCase (@NonNull final String s)
   {
     return s.toLowerCase (Locale.US);
   }
 
-  @Nonnull
-  private static String _upperCase (@Nonnull final String s)
+  @NonNull
+  private static String _upperCase (@NonNull final String s)
   {
     return s.toUpperCase (Locale.US);
   }
 
   @Nullable
-  public static Query getParticipantIDLuceneQuery (@Nonnull @Nonempty final String sQueryString)
+  public static Query getParticipantIDLuceneQuery (@NonNull @Nonempty final String sQueryString)
   {
     ValueEnforcer.notEmpty (sQueryString, "QueryString");
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
@@ -190,8 +190,8 @@ public final class PDQueryManager
   }
 
   @Nullable
-  public static Query getNameLuceneQuery (@Nonnull final ILuceneAnalyzerProvider aAnalyzerProvider,
-                                          @Nonnull @Nonempty final String sQueryString)
+  public static Query getNameLuceneQuery (@NonNull final ILuceneAnalyzerProvider aAnalyzerProvider,
+                                          @NonNull @Nonempty final String sQueryString)
   {
     ValueEnforcer.notEmpty (sQueryString, "QueryString");
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
@@ -213,7 +213,7 @@ public final class PDQueryManager
   }
 
   @Nullable
-  public static Query getCountryCodeLuceneQuery (@Nonnull @Nonempty final String sQueryString)
+  public static Query getCountryCodeLuceneQuery (@NonNull @Nonempty final String sQueryString)
   {
     ValueEnforcer.notEmpty (sQueryString, "QueryString");
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
@@ -222,8 +222,8 @@ public final class PDQueryManager
   }
 
   @Nullable
-  public static Query getGeoInfoLuceneQuery (@Nonnull final ILuceneAnalyzerProvider aAnalyzerProvider,
-                                             @Nonnull @Nonempty final String sQueryString)
+  public static Query getGeoInfoLuceneQuery (@NonNull final ILuceneAnalyzerProvider aAnalyzerProvider,
+                                             @NonNull @Nonempty final String sQueryString)
   {
     ValueEnforcer.notEmpty (sQueryString, "QueryString");
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
@@ -238,7 +238,7 @@ public final class PDQueryManager
   }
 
   @Nullable
-  public static Query getIdentifierSchemeLuceneQuery (@Nonnull @Nonempty final String sQueryString)
+  public static Query getIdentifierSchemeLuceneQuery (@NonNull @Nonempty final String sQueryString)
   {
     ValueEnforcer.notEmpty (sQueryString, "QueryString");
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
@@ -247,7 +247,7 @@ public final class PDQueryManager
   }
 
   @Nullable
-  public static Query getIdentifierValueLuceneQuery (@Nonnull @Nonempty final String sQueryString)
+  public static Query getIdentifierValueLuceneQuery (@NonNull @Nonempty final String sQueryString)
   {
     ValueEnforcer.notEmpty (sQueryString, "QueryString");
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
@@ -256,7 +256,7 @@ public final class PDQueryManager
   }
 
   @Nullable
-  public static Query getWebsiteLuceneQuery (@Nonnull @Nonempty final String sQueryString)
+  public static Query getWebsiteLuceneQuery (@NonNull @Nonempty final String sQueryString)
   {
     ValueEnforcer.notEmpty (sQueryString, "QueryString");
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
@@ -269,7 +269,7 @@ public final class PDQueryManager
   }
 
   @Nullable
-  public static Query getContactLuceneQuery (@Nonnull @Nonempty final String sQueryString)
+  public static Query getContactLuceneQuery (@NonNull @Nonempty final String sQueryString)
   {
     ValueEnforcer.notEmpty (sQueryString, "QueryString");
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
@@ -291,8 +291,8 @@ public final class PDQueryManager
   }
 
   @Nullable
-  public static Query getAdditionalInformationLuceneQuery (@Nonnull final ILuceneAnalyzerProvider aAnalyzerProvider,
-                                                           @Nonnull @Nonempty final String sQueryString)
+  public static Query getAdditionalInformationLuceneQuery (@NonNull final ILuceneAnalyzerProvider aAnalyzerProvider,
+                                                           @NonNull @Nonempty final String sQueryString)
   {
     ValueEnforcer.notEmpty (sQueryString, "QueryString");
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
@@ -306,7 +306,7 @@ public final class PDQueryManager
   }
 
   @Nullable
-  public static Query getRegistrationDateLuceneQuery (@Nonnull @Nonempty final String sQueryString)
+  public static Query getRegistrationDateLuceneQuery (@NonNull @Nonempty final String sQueryString)
   {
     ValueEnforcer.notEmpty (sQueryString, "QueryString");
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
@@ -322,7 +322,7 @@ public final class PDQueryManager
   }
 
   @Nullable
-  public static Query getDocumentTypeIDLuceneQuery (@Nonnull @Nonempty final String sQueryString)
+  public static Query getDocumentTypeIDLuceneQuery (@NonNull @Nonempty final String sQueryString)
   {
     ValueEnforcer.notEmpty (sQueryString, "QueryString");
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");

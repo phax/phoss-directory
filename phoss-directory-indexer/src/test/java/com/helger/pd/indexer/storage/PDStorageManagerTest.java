@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.time.Month;
 
 import org.apache.lucene.search.TermQuery;
+import org.jspecify.annotations.NonNull;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -44,8 +45,6 @@ import com.helger.peppol.businesscard.generic.PDName;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.peppol.doctype.EPredefinedDocumentTypeIdentifier;
 
-import jakarta.annotation.Nonnull;
-
 /**
  * Test class for class {@link PDStorageManager}.
  *
@@ -56,14 +55,14 @@ public final class PDStorageManagerTest
   @Rule
   public final TestRule m_aRule = new PDIndexerTestRule ();
 
-  @Nonnull
+  @NonNull
   private static PDStoredMetaData _createMockMetaData ()
   {
     return new PDStoredMetaData (PDTFactory.getCurrentLocalDateTime (), "junittest", "localhost");
   }
 
-  @Nonnull
-  private static PDExtendedBusinessCard _createMockBI (@Nonnull final IParticipantIdentifier aParticipantID)
+  @NonNull
+  private static PDExtendedBusinessCard _createMockBI (@NonNull final IParticipantIdentifier aParticipantID)
   {
     final PDBusinessCard aBI = new PDBusinessCard ();
     aBI.setParticipantIdentifier (new PDIdentifier (aParticipantID.getScheme (), aParticipantID.getValue ()));

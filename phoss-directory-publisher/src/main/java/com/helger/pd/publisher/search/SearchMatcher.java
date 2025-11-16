@@ -24,6 +24,7 @@ import java.time.MonthDay;
 import java.time.YearMonth;
 import java.util.Locale;
 
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +38,6 @@ import com.helger.cache.regex.RegExHelper;
 import com.helger.typeconvert.TypeConverterException;
 import com.helger.typeconvert.impl.TypeConverter;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 /**
@@ -60,7 +60,7 @@ public final class SearchMatcher
   }
 
   public static boolean matchesString (@Nullable final String sReferenceValue,
-                                       @Nonnull final ESearchOperator eOperator,
+                                       @NonNull final ESearchOperator eOperator,
                                        @Nullable final String sSearchValue)
   {
     switch (eOperator)
@@ -106,7 +106,7 @@ public final class SearchMatcher
   }
 
   public static boolean matchesInt (@Nullable final BigInteger aReferenceValue,
-                                    @Nonnull final ESearchOperator eOperator,
+                                    @NonNull final ESearchOperator eOperator,
                                     @Nullable final Object aSearchValue)
   {
     switch (eOperator)
@@ -145,7 +145,7 @@ public final class SearchMatcher
   }
 
   public static boolean matchesDouble (@Nullable final BigDecimal aReferenceValue,
-                                       @Nonnull final ESearchOperator eOperator,
+                                       @NonNull final ESearchOperator eOperator,
                                        @Nullable final Object aSearchValue)
   {
     switch (eOperator)
@@ -180,7 +180,7 @@ public final class SearchMatcher
   }
 
   public static boolean matchesDate (@Nullable final LocalDate aReferenceValue,
-                                     @Nonnull final ESearchOperator eOperator,
+                                     @NonNull final ESearchOperator eOperator,
                                      @Nullable final Object aSearchValue)
   {
     switch (eOperator)
@@ -219,7 +219,7 @@ public final class SearchMatcher
   }
 
   public static boolean matchesTime (@Nullable final LocalTime aReferenceValue,
-                                     @Nonnull final ESearchOperator eOperator,
+                                     @NonNull final ESearchOperator eOperator,
                                      @Nullable final Object aSearchValue)
   {
     switch (eOperator)
@@ -252,7 +252,7 @@ public final class SearchMatcher
   }
 
   public static boolean matchesBoolean (@Nullable final Boolean aReferenceValue,
-                                        @Nonnull final ESearchOperator eOperator,
+                                        @NonNull final ESearchOperator eOperator,
                                         @Nullable final Boolean aSearchValue)
   {
     switch (eOperator)
@@ -271,8 +271,8 @@ public final class SearchMatcher
   }
 
   public static boolean matches (@Nullable final Object aReferenceValue,
-                                 @Nonnull final ESearchDataType eDataType,
-                                 @Nonnull final ESearchOperator eOperator,
+                                 @NonNull final ESearchDataType eDataType,
+                                 @NonNull final ESearchOperator eOperator,
                                  @Nullable final Object aSearchValue)
   {
     ValueEnforcer.notNull (eDataType, "DataType");

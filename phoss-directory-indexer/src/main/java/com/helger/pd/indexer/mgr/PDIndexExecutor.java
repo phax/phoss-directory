@@ -18,6 +18,7 @@ package com.helger.pd.indexer.mgr;
 
 import java.util.function.Consumer;
 
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,8 +28,6 @@ import com.helger.pd.indexer.businesscard.IPDBusinessCardProvider;
 import com.helger.pd.indexer.businesscard.PDExtendedBusinessCard;
 import com.helger.pd.indexer.index.IIndexerWorkItem;
 import com.helger.peppolid.IParticipantIdentifier;
-
-import jakarta.annotation.Nonnull;
 
 /**
  * Internal class to execute a single work item. It is invoked by the
@@ -60,12 +59,12 @@ final class PDIndexExecutor
    *        A callback that is invoked upon failure only.
    * @return {@link ESuccess}
    */
-  @Nonnull
-  public static ESuccess executeWorkItem (@Nonnull final IPDStorageManager aStorageMgr,
-                                          @Nonnull final IIndexerWorkItem aWorkItem,
+  @NonNull
+  public static ESuccess executeWorkItem (@NonNull final IPDStorageManager aStorageMgr,
+                                          @NonNull final IIndexerWorkItem aWorkItem,
                                           @Nonnegative final int nRetryCount,
-                                          @Nonnull final Consumer <? super IIndexerWorkItem> aSuccessHandler,
-                                          @Nonnull final Consumer <? super IIndexerWorkItem> aFailureHandler)
+                                          @NonNull final Consumer <? super IIndexerWorkItem> aSuccessHandler,
+                                          @NonNull final Consumer <? super IIndexerWorkItem> aFailureHandler)
   {
     LOGGER.info ("Execute work item " +
                  aWorkItem.getLogText () +

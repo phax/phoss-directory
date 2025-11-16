@@ -21,6 +21,8 @@ import java.util.Map;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.collection.commons.ICommonsList;
 import com.helger.collection.commons.ICommonsOrderedMap;
 import com.helger.datetime.helper.PDTFactory;
@@ -40,8 +42,6 @@ import com.helger.xml.microdom.IMicroElement;
 import com.helger.xml.microdom.MicroDocument;
 import com.helger.xml.microdom.MicroElement;
 
-import jakarta.annotation.Nonnull;
-
 final class ExportHelper
 {
   // XML_EXPORT_NS_URI_V2 = "http://www.peppol.eu/schema/pd/businesscard-generic/201907/";
@@ -50,8 +50,8 @@ final class ExportHelper
   private ExportHelper ()
   {}
 
-  @Nonnull
-  static IMicroDocument getAsXML (@Nonnull final ICommonsOrderedMap <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> aMap,
+  @NonNull
+  static IMicroDocument getAsXML (@NonNull final ICommonsOrderedMap <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> aMap,
                                   final boolean bIncludeDocTypes)
   {
     // XML root
@@ -98,10 +98,10 @@ final class ExportHelper
     return aDoc;
   }
 
-  static void writeElement (@Nonnull final IParticipantIdentifier aParticipantID,
-                            @Nonnull final ICommonsList <PDStoredBusinessEntity> aBEs,
+  static void writeElement (@NonNull final IParticipantIdentifier aParticipantID,
+                            @NonNull final ICommonsList <PDStoredBusinessEntity> aBEs,
                             final boolean bIncludeDocTypes,
-                            @Nonnull final XMLStreamWriter aXSW) throws XMLStreamException
+                            @NonNull final XMLStreamWriter aXSW) throws XMLStreamException
   {
     aXSW.writeStartElement (XML_EXPORT_NS_URI_V3, "businesscard");
 

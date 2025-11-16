@@ -102,6 +102,10 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
+v0.14.9 - 2025-11-16
+* Updated to ph-commons 12.1.0
+* Using JSpecify annotations
+
 v0.14.8 - 2025-11-13
 * Fixed an error, that document types were not correctly extracted, if the SMP response contains a percent encoded participant identifier (fixed in peppol-smp-client 12.1.2)
 * Trying to disable DNSJava caches. See [#77](https://github.com/phax/phoss-directory/issues/77)

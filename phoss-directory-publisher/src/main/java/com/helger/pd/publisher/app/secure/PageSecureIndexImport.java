@@ -18,6 +18,7 @@ package com.helger.pd.publisher.app.secure;
 
 import java.util.Locale;
 
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
@@ -58,14 +59,12 @@ import com.helger.xml.sax.CollectingSAXErrorHandler;
 import com.helger.xml.serialize.read.SAXReader;
 import com.helger.xml.serialize.read.SAXReaderSettings;
 
-import jakarta.annotation.Nonnull;
-
 public final class PageSecureIndexImport extends AbstractAppWebPage
 {
   public static final String FIELD_FILE = "file";
   private static final Logger LOGGER = LoggerFactory.getLogger (PageSecureIndexImport.class);
 
-  public PageSecureIndexImport (@Nonnull @Nonempty final String sID)
+  public PageSecureIndexImport (@NonNull @Nonempty final String sID)
   {
     super (sID, "Import participants");
   }

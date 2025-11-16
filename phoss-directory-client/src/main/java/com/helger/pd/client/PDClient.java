@@ -27,6 +27,7 @@ import org.apache.hc.client5.http.classic.methods.HttpPut;
 import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
 import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,8 +39,6 @@ import com.helger.base.state.ESuccess;
 import com.helger.base.url.URLHelper;
 import com.helger.httpclient.HttpClientManager;
 import com.helger.peppolid.IParticipantIdentifier;
-
-import jakarta.annotation.Nonnull;
 
 /**
  * This class is used for calling the PD indexer REST interface. The only part
@@ -56,7 +55,7 @@ public class PDClient implements Closeable
 
   private static final Logger LOGGER = LoggerFactory.getLogger (PDClient.class);
 
-  @Nonnull
+  @NonNull
   private static IPDClientExceptionCallback _createDefaultExCb ()
   {
     return (p, m, t) -> { LOGGER.error ("Internal error in " + m + " for " + p.getURIEncoded (), t); };
@@ -83,7 +82,7 @@ public class PDClient implements Closeable
    * @throws IllegalStateException
    *         If the "https" protocol is used, and the SSL setup is incomplete.
    */
-  public PDClient (@Nonnull final String sPDHost)
+  public PDClient (@NonNull final String sPDHost)
   {
     this (URLHelper.getAsURI (sPDHost));
   }
@@ -98,7 +97,7 @@ public class PDClient implements Closeable
    * @throws IllegalStateException
    *         If the "https" protocol is used, and the SSL setup is incomplete.
    */
-  public PDClient (@Nonnull final URI aPDHost)
+  public PDClient (@NonNull final URI aPDHost)
   {
     ValueEnforcer.notNull (aPDHost, "PDHost");
 
@@ -122,7 +121,7 @@ public class PDClient implements Closeable
    * @see #setExceptionHandler(IPDClientExceptionCallback)
    * @since 0.5.1
    */
-  @Nonnull
+  @NonNull
   public final IPDClientExceptionCallback getExceptionHandler ()
   {
     return m_aExceptionHdl;
@@ -139,7 +138,7 @@ public class PDClient implements Closeable
    * @see #getExceptionHandler()
    * @since 0.5.1
    */
-  public final void setExceptionHandler (@Nonnull final IPDClientExceptionCallback aExceptionHdl)
+  public final void setExceptionHandler (@NonNull final IPDClientExceptionCallback aExceptionHdl)
   {
     ValueEnforcer.notNull (aExceptionHdl, "ExceptionHdl");
     m_aExceptionHdl = aExceptionHdl;
@@ -149,7 +148,7 @@ public class PDClient implements Closeable
    * @return The Peppol Directory host URI string we're operating on. Never
    *         <code>null</code>. Always has a trailing "/".
    */
-  @Nonnull
+  @NonNull
   public final String getPDHostURI ()
   {
     return m_sPDHostURI;
@@ -160,7 +159,7 @@ public class PDClient implements Closeable
    *         Always has a trailing "/".
    * @since 0.8.5
    */
-  @Nonnull
+  @NonNull
   public final String getPDIndexerURI ()
   {
     return m_sPDIndexerURI;
@@ -170,7 +169,7 @@ public class PDClient implements Closeable
    * @return The internal HTTP client manager. Don't mess with it.
    * @since 0.8.5
    */
-  @Nonnull
+  @NonNull
   public final HttpClientManager getHttpClientManager ()
   {
     return m_aHttpClientMgr;
@@ -183,7 +182,7 @@ public class PDClient implements Closeable
    * @param aHttpClientMgr
    *        The new HTTP client manager to use. May not be <code>null</code>.
    */
-  public final void setHttpClientManager (@Nonnull final HttpClientManager aHttpClientMgr)
+  public final void setHttpClientManager (@NonNull final HttpClientManager aHttpClientMgr)
   {
     ValueEnforcer.notNull (aHttpClientMgr, "HttpClientMgr");
     m_aHttpClientMgr = aHttpClientMgr;
@@ -203,10 +202,10 @@ public class PDClient implements Closeable
    * @param <T>
    *        Response type
    */
-  @Nonnull
+  @NonNull
   @OverrideOnDemand
-  protected <T> T executeRequest (@Nonnull final HttpUriRequest aRequest,
-                                  @Nonnull final HttpClientResponseHandler <T> aHandler) throws IOException
+  protected <T> T executeRequest (@NonNull final HttpUriRequest aRequest,
+                                  @NonNull final HttpClientResponseHandler <T> aHandler) throws IOException
   {
     return m_aHttpClientMgr.execute (aRequest, aHandler);
   }
@@ -220,8 +219,8 @@ public class PDClient implements Closeable
    * @return <code>true</code> if the participant is in the index,
    *         <code>false</code> otherwise.
    */
-  @Nonnull
-  public boolean isServiceGroupRegistered (@Nonnull final IParticipantIdentifier aParticipantID)
+  @NonNull
+  public boolean isServiceGroupRegistered (@NonNull final IParticipantIdentifier aParticipantID)
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
 
@@ -237,8 +236,8 @@ public class PDClient implements Closeable
     return false;
   }
 
-  @Nonnull
-  public ESuccess addServiceGroupToIndex (@Nonnull final IParticipantIdentifier aParticipantID)
+  @NonNull
+  public ESuccess addServiceGroupToIndex (@NonNull final IParticipantIdentifier aParticipantID)
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
     final String sParticipantID = aParticipantID.getURIEncoded ();
@@ -263,8 +262,8 @@ public class PDClient implements Closeable
     return ESuccess.FAILURE;
   }
 
-  @Nonnull
-  public ESuccess deleteServiceGroupFromIndex (@Nonnull final IParticipantIdentifier aParticipantID)
+  @NonNull
+  public ESuccess deleteServiceGroupFromIndex (@NonNull final IParticipantIdentifier aParticipantID)
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
 

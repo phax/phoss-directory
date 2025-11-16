@@ -41,6 +41,7 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +55,6 @@ import com.helger.base.io.stream.StreamHelper;
 import com.helger.base.state.ESuccess;
 import com.helger.photon.io.WebFileIO;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 /**
@@ -76,13 +76,13 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
   private final AtomicBoolean m_aClosing = new AtomicBoolean (false);
   private final AtomicInteger m_aWriterChanges = new AtomicInteger (0);
 
-  @Nonnull
+  @NonNull
   public static File getLuceneIndexDir ()
   {
     return WebFileIO.getDataIO ().getFile ("lucene-index");
   }
 
-  @Nonnull
+  @NonNull
   public static Analyzer createAnalyzer ()
   {
     if (false)
@@ -112,7 +112,7 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
    * @throws IOException
    *         On IO error
    */
-  public PDLucene (@Nonnull final Supplier <? extends Analyzer> aAnalyzerProvider) throws IOException
+  public PDLucene (@NonNull final Supplier <? extends Analyzer> aAnalyzerProvider) throws IOException
   {
     ValueEnforcer.notNull (aAnalyzerProvider, "AnalyzerProvider");
 
@@ -180,14 +180,14 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
   /**
    * @return The analyzer to be used for all Lucene based actions
    */
-  @Nonnull
+  @NonNull
   public Analyzer getAnalyzer ()
   {
     _checkClosing ();
     return m_aAnalyzer;
   }
 
-  @Nonnull
+  @NonNull
   private IndexWriter _getWriter ()
   {
     _checkClosing ();
@@ -314,7 +314,7 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
    *         if there is a low-level IO error
    */
   @MustBeLocked (ELockType.WRITE)
-  public void updateDocument (@Nullable final Term aDelTerm, @Nonnull final Iterable <? extends IndexableField> aDoc)
+  public void updateDocument (@Nullable final Term aDelTerm, @NonNull final Iterable <? extends IndexableField> aDoc)
                                                                                                                       throws IOException
   {
     final long nSeqNum = _getWriter ().updateDocument (aDelTerm, aDoc);
@@ -339,7 +339,7 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
    */
   @MustBeLocked (ELockType.WRITE)
   public void updateDocuments (@Nullable final Term aDelTerm,
-                               @Nonnull final Iterable <? extends Iterable <? extends IndexableField>> aDocs) throws IOException
+                               @NonNull final Iterable <? extends Iterable <? extends IndexableField>> aDocs) throws IOException
   {
     final long nSeqNum;
     if (false)
@@ -407,8 +407,8 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
    * @throws IOException
    *         may be thrown by the callback
    */
-  @Nonnull
-  public ESuccess writeLockedAtomic (@Nonnull final IThrowingRunnable <IOException> aRunnable) throws IOException
+  @NonNull
+  public ESuccess writeLockedAtomic (@NonNull final IThrowingRunnable <IOException> aRunnable) throws IOException
   {
     if (false)
       m_aRWLock.writeLock ().lock ();
@@ -441,7 +441,7 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
    *        Result type
    */
   @Nullable
-  public <T> T readLockedAtomic (@Nonnull final IThrowingSupplier <T, IOException> aRunnable) throws IOException
+  public <T> T readLockedAtomic (@NonNull final IThrowingSupplier <T, IOException> aRunnable) throws IOException
   {
     if (false)
       m_aRWLock.readLock ().lock ();

@@ -18,6 +18,8 @@ package com.helger.pd.indexer.reindex;
 
 import java.time.LocalDateTime;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.annotation.Nonempty;
 import com.helger.annotation.Nonnegative;
 import com.helger.annotation.concurrent.NotThreadSafe;
@@ -29,7 +31,6 @@ import com.helger.datetime.helper.PDTFactory;
 import com.helger.pd.indexer.index.IIndexerWorkItem;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 /**
@@ -48,7 +49,7 @@ public class ReIndexWorkItem implements IReIndexWorkItem
   private LocalDateTime m_aPreviousRetryDT;
   private LocalDateTime m_aNextRetryDT;
 
-  public ReIndexWorkItem (@Nonnull final IIndexerWorkItem aWorkItem)
+  public ReIndexWorkItem (@NonNull final IIndexerWorkItem aWorkItem)
   {
     // The next retry happens from now in the configured number of minutes
     this (aWorkItem,
@@ -72,11 +73,11 @@ public class ReIndexWorkItem implements IReIndexWorkItem
    * @param aNextRetryDT
    *        The next retry time. Must be &ge; now.
    */
-  ReIndexWorkItem (@Nonnull final IIndexerWorkItem aWorkItem,
-                   @Nonnull final LocalDateTime aMaxRetryDT,
+  ReIndexWorkItem (@NonNull final IIndexerWorkItem aWorkItem,
+                   @NonNull final LocalDateTime aMaxRetryDT,
                    final int nRetries,
                    @Nullable final LocalDateTime aPreviousRetryDT,
-                   @Nonnull final LocalDateTime aNextRetryDT)
+                   @NonNull final LocalDateTime aNextRetryDT)
   {
     m_aWorkItem = ValueEnforcer.notNull (aWorkItem, "WorkItem");
     m_aMaxRetryDT = ValueEnforcer.notNull (aMaxRetryDT, "MaxRetryDT");
@@ -87,26 +88,26 @@ public class ReIndexWorkItem implements IReIndexWorkItem
     m_aNextRetryDT = ValueEnforcer.notNull (aNextRetryDT, "NextRetryDT");
   }
 
-  @Nonnull
+  @NonNull
   public ObjectType getObjectType ()
   {
     return OT;
   }
 
-  @Nonnull
+  @NonNull
   @Nonempty
   public String getID ()
   {
     return m_aWorkItem.getID ();
   }
 
-  @Nonnull
+  @NonNull
   public IIndexerWorkItem getWorkItem ()
   {
     return m_aWorkItem;
   }
 
-  @Nonnull
+  @NonNull
   public LocalDateTime getMaxRetryDT ()
   {
     return m_aMaxRetryDT;
@@ -124,7 +125,7 @@ public class ReIndexWorkItem implements IReIndexWorkItem
     return m_aPreviousRetryDT;
   }
 
-  @Nonnull
+  @NonNull
   public LocalDateTime getNextRetryDT ()
   {
     return m_aNextRetryDT;
@@ -140,7 +141,7 @@ public class ReIndexWorkItem implements IReIndexWorkItem
     m_aNextRetryDT = m_aPreviousRetryDT.plusMinutes (PDServerConfiguration.getReIndexRetryMinutes ());
   }
 
-  @Nonnull
+  @NonNull
   @Nonempty
   public String getLogText ()
   {

@@ -19,6 +19,8 @@ package com.helger.pd.indexer.reindex;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.annotation.Nonempty;
 import com.helger.annotation.Nonnegative;
 import com.helger.base.name.IHasDisplayName;
@@ -26,7 +28,6 @@ import com.helger.base.type.ITypedObject;
 import com.helger.datetime.helper.PDTFactory;
 import com.helger.pd.indexer.index.IIndexerWorkItem;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 /**
@@ -40,14 +41,14 @@ public interface IReIndexWorkItem extends ITypedObject <String>, IHasDisplayName
   /**
    * @return The original work item. Never <code>null</code>.
    */
-  @Nonnull
+  @NonNull
   IIndexerWorkItem getWorkItem ();
 
   /**
    * @return The maximum date and time until which the retry of this item
    *         occurs. Never <code>null</code>.
    */
-  @Nonnull
+  @NonNull
   LocalDateTime getMaxRetryDT ();
 
   /**
@@ -85,7 +86,7 @@ public interface IReIndexWorkItem extends ITypedObject <String>, IHasDisplayName
   /**
    * @return The next retry date time. Never <code>null</code>.
    */
-  @Nonnull
+  @NonNull
   LocalDateTime getNextRetryDT ();
 
   /**
@@ -95,16 +96,16 @@ public interface IReIndexWorkItem extends ITypedObject <String>, IHasDisplayName
    *        The date time to check
    * @return <code>true</code> if the time for the next retry is here.
    */
-  default boolean isRetryPossible (@Nonnull final LocalDateTime aDT)
+  default boolean isRetryPossible (@NonNull final LocalDateTime aDT)
   {
     return getNextRetryDT ().isBefore (aDT);
   }
 
-  @Nonnull
+  @NonNull
   @Nonempty
   String getLogText ();
 
-  @Nonnull
+  @NonNull
   default String getDisplayName ()
   {
     return getWorkItem ().getParticipantID ().getURIEncoded ();

@@ -16,9 +16,10 @@
  */
 package com.helger.pd.indexer.businesscard;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.peppolid.IParticipantIdentifier;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 /**
@@ -41,5 +42,5 @@ public interface IPDBusinessCardProvider
    *         participant ID.
    */
   @Nullable
-  PDExtendedBusinessCard getBusinessCard (@Nonnull IParticipantIdentifier aParticipantID);
+  PDExtendedBusinessCard getBusinessCard (@NonNull IParticipantIdentifier aParticipantID);
 }

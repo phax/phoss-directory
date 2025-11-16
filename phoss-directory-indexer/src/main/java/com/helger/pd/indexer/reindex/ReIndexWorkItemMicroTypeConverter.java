@@ -18,6 +18,8 @@ package com.helger.pd.indexer.reindex;
 
 import java.time.LocalDateTime;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.base.string.StringParser;
 import com.helger.pd.indexer.index.IIndexerWorkItem;
 import com.helger.pd.indexer.index.IndexerWorkItem;
@@ -26,7 +28,6 @@ import com.helger.xml.microdom.MicroElement;
 import com.helger.xml.microdom.convert.IMicroTypeConverter;
 import com.helger.xml.microdom.convert.MicroTypeConverter;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 /**
@@ -43,9 +44,9 @@ public final class ReIndexWorkItemMicroTypeConverter implements IMicroTypeConver
   private static final String ATTR_NEXT_RETRY_DT = "nextretrydt";
 
   @Nullable
-  public IMicroElement convertToMicroElement (@Nonnull final ReIndexWorkItem aValue,
+  public IMicroElement convertToMicroElement (@NonNull final ReIndexWorkItem aValue,
                                               @Nullable final String sNamespaceURI,
-                                              @Nonnull final String sTagName)
+                                              @NonNull final String sTagName)
   {
     final IMicroElement aElement = new MicroElement (sNamespaceURI, sTagName);
     aElement.addChild (MicroTypeConverter.convertToMicroElement (aValue.getWorkItem (),
@@ -59,7 +60,7 @@ public final class ReIndexWorkItemMicroTypeConverter implements IMicroTypeConver
   }
 
   @Nullable
-  public ReIndexWorkItem convertToNative (@Nonnull final IMicroElement aElement)
+  public ReIndexWorkItem convertToNative (@NonNull final IMicroElement aElement)
   {
     final IIndexerWorkItem aWorkItem = MicroTypeConverter.convertToNative (aElement.getFirstChildElement (ELEMENT_WORK_ITEM),
                                                                            IndexerWorkItem.class);

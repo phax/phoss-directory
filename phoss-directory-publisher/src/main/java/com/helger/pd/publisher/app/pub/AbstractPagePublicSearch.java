@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Locale;
 import java.util.function.Function;
 
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +62,6 @@ import com.helger.photon.bootstrap4.nav.BootstrapTabBox;
 import com.helger.photon.bootstrap4.pages.BootstrapWebPageUIHandler;
 import com.helger.photon.bootstrap4.utils.BootstrapPageHeader;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
@@ -72,12 +72,12 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
 
     private final String m_sID;
 
-    EUIMode (@Nonnull @Nonempty final String sID)
+    EUIMode (@NonNull @Nonempty final String sID)
     {
       m_sID = sID;
     }
 
-    @Nonnull
+    @NonNull
     @Nonempty
     public String getID ()
     {
@@ -99,7 +99,7 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
       return this == PEPPOL;
     }
 
-    @Nonnull
+    @NonNull
     public static EUIMode getFromIDOrDefault (@Nullable final String sID)
     {
       return EnumHelper.getFromIDOrDefault (EUIMode.class, sID, EUIMode.PEPPOL);
@@ -131,16 +131,16 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
     UI_MODE = EUIMode.getFromIDOrDefault (PDServerConfiguration.getSearchUIMode ());
   }
 
-  public AbstractPagePublicSearch (@Nonnull @Nonempty final String sID, @Nonnull final String sName)
+  public AbstractPagePublicSearch (@NonNull @Nonempty final String sID, @NonNull final String sName)
   {
     super (sID, sName);
   }
 
-  @Nonnull
-  protected static <ELEMENTTYPE> String _getImplodedMapped (@Nonnull final String sSep,
-                                                            @Nonnull final String sLastSep,
+  @NonNull
+  protected static <ELEMENTTYPE> String _getImplodedMapped (@NonNull final String sSep,
+                                                            @NonNull final String sLastSep,
                                                             @Nullable final Collection <? extends ELEMENTTYPE> aElements,
-                                                            @Nonnull final Function <? super ELEMENTTYPE, String> aMapper)
+                                                            @NonNull final Function <? super ELEMENTTYPE, String> aMapper)
   {
     ValueEnforcer.notNull (sSep, "Separator");
     ValueEnforcer.notNull (aMapper, "Mapper");
@@ -161,10 +161,10 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
     return aSB.toString ();
   }
 
-  @Nonnull
-  protected HCNodeList createParticipantDetails (@Nonnull final Locale aDisplayLocale,
-                                                 @Nonnull final String sParticipantID,
-                                                 @Nonnull final IParticipantIdentifier aParticipantID,
+  @NonNull
+  protected HCNodeList createParticipantDetails (@NonNull final Locale aDisplayLocale,
+                                                 @NonNull final String sParticipantID,
+                                                 @NonNull final IParticipantIdentifier aParticipantID,
                                                  final boolean bIsLoggedInUserAdministrator)
   {
     final HCNodeList aDetails = new HCNodeList ();

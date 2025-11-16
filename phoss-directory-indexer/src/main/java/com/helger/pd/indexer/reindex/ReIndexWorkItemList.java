@@ -18,6 +18,7 @@ package com.helger.pd.indexer.reindex;
 
 import java.util.function.Predicate;
 
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +31,6 @@ import com.helger.collection.commons.ICommonsList;
 import com.helger.dao.DAOException;
 import com.helger.photon.io.dao.AbstractPhotonMapBasedWALDAO;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 /**
@@ -59,7 +59,7 @@ public final class ReIndexWorkItemList extends AbstractPhotonMapBasedWALDAO <IRe
    * @throws IllegalStateException
    *         If an item with the same ID is already contained
    */
-  public void addItem (@Nonnull final ReIndexWorkItem aItem) throws IllegalStateException
+  public void addItem (@NonNull final ReIndexWorkItem aItem) throws IllegalStateException
   {
     ValueEnforcer.notNull (aItem, "Item");
     m_aRWLock.writeLocked ( () -> {
@@ -68,7 +68,7 @@ public final class ReIndexWorkItemList extends AbstractPhotonMapBasedWALDAO <IRe
     LOGGER.info ("Added " + aItem.getLogText () + " to re-try list for retry #" + (aItem.getRetryCount () + 1));
   }
 
-  public void incRetryCountAndAddItem (@Nonnull final IReIndexWorkItem aItem)
+  public void incRetryCountAndAddItem (@NonNull final IReIndexWorkItem aItem)
   {
     ValueEnforcer.notNull (aItem, "Item");
 
@@ -79,7 +79,7 @@ public final class ReIndexWorkItemList extends AbstractPhotonMapBasedWALDAO <IRe
   }
 
   @Nullable
-  public IReIndexWorkItem getAndRemoveEntry (@Nonnull final Predicate <? super IReIndexWorkItem> aPred)
+  public IReIndexWorkItem getAndRemoveEntry (@NonNull final Predicate <? super IReIndexWorkItem> aPred)
   {
     final IReIndexWorkItem aWorkItem = findFirst (aPred);
     if (aWorkItem == null)
@@ -88,9 +88,9 @@ public final class ReIndexWorkItemList extends AbstractPhotonMapBasedWALDAO <IRe
     return m_aRWLock.writeLockedGet ( () -> internalDeleteItem (aWorkItem.getID ()));
   }
 
-  @Nonnull
+  @NonNull
   @ReturnsMutableCopy
-  public ICommonsList <IReIndexWorkItem> getAndRemoveAllEntries (@Nonnull final Predicate <? super IReIndexWorkItem> aFilter)
+  public ICommonsList <IReIndexWorkItem> getAndRemoveAllEntries (@NonNull final Predicate <? super IReIndexWorkItem> aFilter)
   {
     ValueEnforcer.notNull (aFilter, "Filter");
     final ICommonsList <IReIndexWorkItem> aCopyOfAll = getAll ();
@@ -107,7 +107,7 @@ public final class ReIndexWorkItemList extends AbstractPhotonMapBasedWALDAO <IRe
     return ret;
   }
 
-  @Nonnull
+  @NonNull
   @ReturnsMutableCopy
   public ICommonsList <IReIndexWorkItem> getAllItems ()
   {

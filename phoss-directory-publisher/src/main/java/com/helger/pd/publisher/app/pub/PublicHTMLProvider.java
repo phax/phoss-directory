@@ -19,6 +19,8 @@ package com.helger.pd.publisher.app.pub;
 import java.net.URL;
 import java.util.Locale;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.base.string.StringHelper;
 import com.helger.collection.commons.CommonsArrayList;
 import com.helger.collection.commons.ICommonsList;
@@ -81,8 +83,6 @@ import com.helger.url.SimpleURL;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 import com.helger.xservlet.forcedredirect.ForcedRedirectException;
 
-import jakarta.annotation.Nonnull;
-
 /**
  * Main class for creating HTML output
  *
@@ -105,8 +105,8 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
     });
   }
 
-  private static void _addNavbarLoginLogout (@Nonnull final LayoutExecutionContext aLEC,
-                                             @Nonnull final BootstrapNavbar aNavbar)
+  private static void _addNavbarLoginLogout (@NonNull final LayoutExecutionContext aLEC,
+                                             @NonNull final BootstrapNavbar aNavbar)
   {
     final IRequestWebScopeWithoutResponse aRequestScope = aLEC.getRequestScope ();
     final Locale aDisplayLocale = aLEC.getDisplayLocale ();
@@ -192,8 +192,8 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
     }
   }
 
-  @Nonnull
-  private static BootstrapNavbar _getNavbar (@Nonnull final LayoutExecutionContext aLEC)
+  @NonNull
+  private static BootstrapNavbar _getNavbar (@NonNull final LayoutExecutionContext aLEC)
   {
     final ISimpleURL aLinkToStartPage = aLEC.getLinkToMenuItem (aLEC.getMenuTree ().getDefaultMenuItemID ());
 
@@ -210,8 +210,8 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
     return aNavbar;
   }
 
-  @Nonnull
-  public static IHCNode getMenuContent (@Nonnull final LayoutExecutionContext aLEC)
+  @NonNull
+  public static IHCNode getMenuContent (@NonNull final LayoutExecutionContext aLEC)
   {
     // Main menu
     final IMenuTree aMenuTree = aLEC.getMenuTree ();
@@ -219,7 +219,7 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
                                                                                      aLEC.getSelectedMenuItemID ())
     {
       @Override
-      protected boolean isMenuItemValidToBeDisplayed (@Nonnull final IMenuObject aMenuObj)
+      protected boolean isMenuItemValidToBeDisplayed (@NonNull final IMenuObject aMenuObj)
       {
         // Don't show items that belong to the footer
         if (aMenuObj.attrs ().containsKey (CMenuPublic.FLAG_FOOTER))
@@ -233,8 +233,8 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
     return aMenu;
   }
 
-  @Nonnull
-  public static IHCNode getContent (@Nonnull final LayoutExecutionContext aLEC)
+  @NonNull
+  public static IHCNode getContent (@NonNull final LayoutExecutionContext aLEC)
   {
     final Locale aDisplayLocale = aLEC.getDisplayLocale ();
     final IRequestWebScopeWithoutResponse aRequestScope = aLEC.getRequestScope ();
@@ -333,7 +333,7 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
   }
 
   @Override
-  protected void fillBody (@Nonnull final ISimpleWebExecutionContext aSWEC, @Nonnull final HCHtml aHtml)
+  protected void fillBody (@NonNull final ISimpleWebExecutionContext aSWEC, @NonNull final HCHtml aHtml)
                                                                                                          throws ForcedRedirectException
   {
     final IRequestWebScopeWithoutResponse aRequestScope = aSWEC.getRequestScope ();

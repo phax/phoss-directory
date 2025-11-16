@@ -18,6 +18,8 @@ package com.helger.pd.publisher.app.secure;
 
 import java.util.Locale;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.base.string.StringHelper;
 import com.helger.html.hc.IHCNode;
 import com.helger.html.hc.html.IHCElement;
@@ -59,8 +61,6 @@ import com.helger.url.ISimpleURL;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 import com.helger.xservlet.forcedredirect.ForcedRedirectException;
 
-import jakarta.annotation.Nonnull;
-
 /**
  * Main class for creating HTML output
  *
@@ -68,8 +68,8 @@ import jakarta.annotation.Nonnull;
  */
 public class SecureHTMLProvider extends AbstractSWECHTMLProvider
 {
-  @Nonnull
-  private static IHCNode _getNavbar (@Nonnull final SimpleWebExecutionContext aSWEC)
+  @NonNull
+  private static IHCNode _getNavbar (@NonNull final SimpleWebExecutionContext aSWEC)
   {
     final Locale aDisplayLocale = aSWEC.getDisplayLocale ();
     final IRequestWebScopeWithoutResponse aRequestScope = aSWEC.getRequestScope ();
@@ -103,16 +103,16 @@ public class SecureHTMLProvider extends AbstractSWECHTMLProvider
     return aNavbar;
   }
 
-  @Nonnull
-  public static IHCNode getMenuContent (@Nonnull final LayoutExecutionContext aLEC)
+  @NonNull
+  public static IHCNode getMenuContent (@NonNull final LayoutExecutionContext aLEC)
   {
     final IHCElement <?> ret = BootstrapMenuItemRenderer.createSideBarMenu (aLEC);
 
     return new HCNodeList ().addChild (ret);
   }
 
-  @Nonnull
-  public static IHCNode getContent (@Nonnull final LayoutExecutionContext aLEC)
+  @NonNull
+  public static IHCNode getContent (@NonNull final LayoutExecutionContext aLEC)
   {
     final HCNodeList ret = new HCNodeList ();
 
@@ -153,7 +153,7 @@ public class SecureHTMLProvider extends AbstractSWECHTMLProvider
   }
 
   @Override
-  protected void fillBody (@Nonnull final ISimpleWebExecutionContext aSWEC, @Nonnull final HCHtml aHtml)
+  protected void fillBody (@NonNull final ISimpleWebExecutionContext aSWEC, @NonNull final HCHtml aHtml)
                                                                                                          throws ForcedRedirectException
   {
     final IRequestWebScopeWithoutResponse aRequestScope = aSWEC.getRequestScope ();

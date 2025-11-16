@@ -16,6 +16,8 @@
  */
 package com.helger.pd.indexer.config;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.annotation.concurrent.Immutable;
 import com.helger.annotation.style.IsSPIImplementation;
 import com.helger.pd.indexer.index.IndexerWorkItem;
@@ -24,8 +26,6 @@ import com.helger.pd.indexer.reindex.ReIndexWorkItem;
 import com.helger.pd.indexer.reindex.ReIndexWorkItemMicroTypeConverter;
 import com.helger.xml.microdom.convert.IMicroTypeConverterRegistrarSPI;
 import com.helger.xml.microdom.convert.IMicroTypeConverterRegistry;
-
-import jakarta.annotation.Nonnull;
 
 /**
  * Implementation of {@link IMicroTypeConverterRegistrarSPI} for Peppol
@@ -37,7 +37,7 @@ import jakarta.annotation.Nonnull;
 @IsSPIImplementation
 public final class IndexerMicroTypeConverterRegistrar implements IMicroTypeConverterRegistrarSPI
 {
-  public void registerMicroTypeConverter (@Nonnull final IMicroTypeConverterRegistry aRegistry)
+  public void registerMicroTypeConverter (@NonNull final IMicroTypeConverterRegistry aRegistry)
   {
     aRegistry.registerMicroElementTypeConverter (IndexerWorkItem.class, new IndexerWorkItemMicroTypeConverter ());
     aRegistry.registerMicroElementTypeConverter (ReIndexWorkItem.class, new ReIndexWorkItemMicroTypeConverter ());

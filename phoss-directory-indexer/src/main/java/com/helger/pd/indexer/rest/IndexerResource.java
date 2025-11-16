@@ -18,6 +18,7 @@ package com.helger.pd.indexer.rest;
 
 import java.io.IOException;
 
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +32,6 @@ import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.factory.IIdentifierFactory;
 import com.helger.url.codec.URLCoder;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.DELETE;
@@ -62,9 +62,9 @@ public class IndexerResource
    *        The context - for logging only. May not be <code>null</code>.
    * @return The validation result
    */
-  @Nonnull
-  private static ClientCertificateValidationResult _checkClientCertificate (@Nonnull final HttpServletRequest aHttpServletRequest,
-                                                                            @Nonnull final String sLogPrefix)
+  @NonNull
+  private static ClientCertificateValidationResult _checkClientCertificate (@NonNull final HttpServletRequest aHttpServletRequest,
+                                                                            @NonNull final String sLogPrefix)
   {
     try
     {
@@ -78,9 +78,9 @@ public class IndexerResource
     return ClientCertificateValidationResult.createFailure ();
   }
 
-  @Nonnull
+  @NonNull
   @Nonempty
-  private static String _getRequestingHost (@Nonnull final HttpServletRequest aHttpServletRequest)
+  private static String _getRequestingHost (@NonNull final HttpServletRequest aHttpServletRequest)
   {
     final String sRemoteAddr = aHttpServletRequest.getRemoteAddr ();
     final String sRemoteHost = aHttpServletRequest.getRemoteHost ();
@@ -100,8 +100,8 @@ public class IndexerResource
   }
 
   @PUT
-  public Response createOrUpdateParticipant (@Context @Nonnull final HttpServletRequest aHttpServletRequest,
-                                             @Nonnull final String sParticipantID)
+  public Response createOrUpdateParticipant (@Context @NonNull final HttpServletRequest aHttpServletRequest,
+                                             @NonNull final String sParticipantID)
   {
     final String sLogPrefix = "[createOrUpdateParticipant] ";
     final ClientCertificateValidationResult aCertValidationResult = _checkClientCertificate (aHttpServletRequest,
@@ -137,8 +137,8 @@ public class IndexerResource
 
   @DELETE
   @Path ("{participantID}")
-  public Response deleteParticipant (@Context @Nonnull final HttpServletRequest aHttpServletRequest,
-                                     @PathParam ("participantID") @Nonnull final String sParticipantID)
+  public Response deleteParticipant (@Context @NonNull final HttpServletRequest aHttpServletRequest,
+                                     @PathParam ("participantID") @NonNull final String sParticipantID)
   {
     final String sLogPrefix = "[deleteParticipant] ";
     final ClientCertificateValidationResult aCertValidationResult = _checkClientCertificate (aHttpServletRequest,
@@ -177,8 +177,8 @@ public class IndexerResource
 
   @GET
   @Path ("{participantID}")
-  public Response checkParticipantExistence (@Context @Nonnull final HttpServletRequest aHttpServletRequest,
-                                             @PathParam ("participantID") @Nonnull final String sParticipantID) throws IOException
+  public Response checkParticipantExistence (@Context @NonNull final HttpServletRequest aHttpServletRequest,
+                                             @PathParam ("participantID") @NonNull final String sParticipantID) throws IOException
   {
     final String sLogPrefix = "[checkParticipantExistence] ";
     final ClientCertificateValidationResult aResult = _checkClientCertificate (aHttpServletRequest, sLogPrefix);

@@ -18,6 +18,8 @@ package com.helger.pd.publisher.app;
 
 import java.util.Map;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.annotation.Nonempty;
 import com.helger.base.email.EmailAddress;
 import com.helger.pd.publisher.CPDPublisher;
@@ -30,7 +32,6 @@ import com.helger.photon.core.smtp.NamedSMTPSettings;
 import com.helger.smtp.settings.ISMTPSettings;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 public final class AppInternalErrorHandler extends AbstractErrorCallback
@@ -38,7 +39,7 @@ public final class AppInternalErrorHandler extends AbstractErrorCallback
   @Override
   protected void onError (@Nullable final Throwable t,
                           @Nullable final IRequestWebScopeWithoutResponse aRequestScope,
-                          @Nonnull @Nonempty final String sErrorCode,
+                          @NonNull @Nonempty final String sErrorCode,
                           @Nullable final Map <String, String> aCustomAttrs)
   {
     new InternalErrorBuilder ().setThrowable (t)

@@ -18,6 +18,8 @@ package com.helger.pd.publisher.app.secure;
 
 import java.util.Locale;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.annotation.Nonempty;
 import com.helger.base.compare.ESortOrder;
 import com.helger.datetime.format.PDTToString;
@@ -63,7 +65,6 @@ import com.helger.smpclient.url.ISMPURLProvider;
 import com.helger.smpclient.url.SMPDNSResolutionException;
 import com.helger.url.ISimpleURL;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <IReIndexWorkItem>
@@ -73,8 +74,8 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
 
   private final boolean m_bDeadIndex;
 
-  public AbstractPageSecureReIndex (@Nonnull @Nonempty final String sID,
-                                    @Nonnull final String sName,
+  public AbstractPageSecureReIndex (@NonNull @Nonempty final String sID,
+                                    @NonNull final String sName,
                                     final boolean bDeadIndex)
   {
     super (sID, sName);
@@ -82,15 +83,15 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
     setDeleteHandler (new AbstractBootstrapWebPageActionHandlerDelete <IReIndexWorkItem, WebPageExecutionContext> ()
     {
       @Override
-      protected void showQuery (@Nonnull final WebPageExecutionContext aWPEC,
-                                @Nonnull final BootstrapForm aForm,
+      protected void showQuery (@NonNull final WebPageExecutionContext aWPEC,
+                                @NonNull final BootstrapForm aForm,
                                 @Nullable final IReIndexWorkItem aSelectedObject)
       {
         aForm.addChild (question ("Are you sure to delete the item " + aSelectedObject.getDisplayName () + "?"));
       }
 
       @Override
-      protected void performAction (@Nonnull final WebPageExecutionContext aWPEC,
+      protected void performAction (@NonNull final WebPageExecutionContext aWPEC,
                                     @Nullable final IReIndexWorkItem aSelectedObject)
       {
         if (getReIndexWorkItemList ().deleteItem (aSelectedObject.getID ()).isChanged ())
@@ -111,8 +112,8 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
                                                                                                                       "deleteall")
                       {
                         @Override
-                        protected void showQuery (@Nonnull final WebPageExecutionContext aWPEC,
-                                                  @Nonnull final BootstrapForm aForm,
+                        protected void showQuery (@NonNull final WebPageExecutionContext aWPEC,
+                                                  @NonNull final BootstrapForm aForm,
                                                   @Nullable final IReIndexWorkItem aSelectedObject)
                         {
                           aForm.addChild (question ("Are you sure to delete all items?"));
@@ -132,9 +133,9 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
     addCustomHandler (ACTION_REINDEX_NOW,
                       new AbstractBootstrapWebPageActionHandler <IReIndexWorkItem, WebPageExecutionContext> (true)
                       {
-                        @Nonnull
-                        public EShowList handleAction (@Nonnull final WebPageExecutionContext aWPEC,
-                                                       @Nonnull final IReIndexWorkItem aSelectedObject)
+                        @NonNull
+                        public EShowList handleAction (@NonNull final WebPageExecutionContext aWPEC,
+                                                       @NonNull final IReIndexWorkItem aSelectedObject)
                         {
                           final IParticipantIdentifier aParticipantID = aSelectedObject.getWorkItem ()
                                                                                        .getParticipantID ();
@@ -160,18 +161,18 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
                       });
   }
 
-  @Nonnull
+  @NonNull
   protected abstract IReIndexWorkItemList getReIndexWorkItemList ();
 
   @Override
-  protected IReIndexWorkItem getSelectedObject (@Nonnull final WebPageExecutionContext aWPEC, final String sID)
+  protected IReIndexWorkItem getSelectedObject (@NonNull final WebPageExecutionContext aWPEC, final String sID)
   {
     return getReIndexWorkItemList ().getItemOfID (sID);
   }
 
   @Override
-  protected boolean isActionAllowed (@Nonnull final WebPageExecutionContext aWPEC,
-                                     @Nonnull final EWebPageFormAction eFormAction,
+  protected boolean isActionAllowed (@NonNull final WebPageExecutionContext aWPEC,
+                                     @NonNull final EWebPageFormAction eFormAction,
                                      @Nullable final IReIndexWorkItem aSelectedObject)
   {
     if (eFormAction.isDelete ())
@@ -182,8 +183,8 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
   }
 
   @Override
-  protected void showSelectedObject (@Nonnull final WebPageExecutionContext aWPEC,
-                                     @Nonnull final IReIndexWorkItem aSelectedObject)
+  protected void showSelectedObject (@NonNull final WebPageExecutionContext aWPEC,
+                                     @NonNull final IReIndexWorkItem aSelectedObject)
   {
     final HCNodeList aNodeList = aWPEC.getNodeList ();
     final Locale aDisplayLocale = aWPEC.getDisplayLocale ();
@@ -248,27 +249,27 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
   }
 
   @Override
-  protected void validateAndSaveInputParameters (@Nonnull final WebPageExecutionContext aWPEC,
+  protected void validateAndSaveInputParameters (@NonNull final WebPageExecutionContext aWPEC,
                                                  @Nullable final IReIndexWorkItem aSelectedObject,
-                                                 @Nonnull final FormErrorList aFormErrors,
-                                                 @Nonnull final EWebPageFormAction eFormAction)
+                                                 @NonNull final FormErrorList aFormErrors,
+                                                 @NonNull final EWebPageFormAction eFormAction)
   {
     throw new UnsupportedOperationException ();
   }
 
   @Override
-  protected void showInputForm (@Nonnull final WebPageExecutionContext aWPEC,
+  protected void showInputForm (@NonNull final WebPageExecutionContext aWPEC,
                                 @Nullable final IReIndexWorkItem aSelectedObject,
-                                @Nonnull final BootstrapForm aForm,
+                                @NonNull final BootstrapForm aForm,
                                 final boolean bFormSubmitted,
-                                @Nonnull final EWebPageFormAction eFormAction,
-                                @Nonnull final FormErrorList aFormErrors)
+                                @NonNull final EWebPageFormAction eFormAction,
+                                @NonNull final FormErrorList aFormErrors)
   {
     throw new UnsupportedOperationException ();
   }
 
   @Override
-  protected void showListOfExistingObjects (@Nonnull final WebPageExecutionContext aWPEC)
+  protected void showListOfExistingObjects (@NonNull final WebPageExecutionContext aWPEC)
   {
     final HCNodeList aNodeList = aWPEC.getNodeList ();
     final Locale aDisplayLocale = aWPEC.getDisplayLocale ();

@@ -18,6 +18,8 @@ package com.helger.pd.publisher.app;
 
 import java.time.Duration;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.html.hc.IHCNode;
 import com.helger.html.hc.html.grouping.HCDiv;
 import com.helger.html.hc.html.textlevel.HCSmall;
@@ -30,7 +32,6 @@ import com.helger.photon.bootstrap4.uictrls.ext.BootstrapLoginManager;
 import com.helger.photon.core.execcontext.ISimpleWebExecutionContext;
 import com.helger.security.authentication.credentials.ICredentialValidationResult;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 public final class PDLoginManager extends BootstrapLoginManager
@@ -44,13 +45,13 @@ public final class PDLoginManager extends BootstrapLoginManager
 
   @Override
   protected IHTMLProvider createLoginScreen (final boolean bLoginError,
-                                             @Nonnull final ICredentialValidationResult aLoginResult)
+                                             @NonNull final ICredentialValidationResult aLoginResult)
   {
     return new BootstrapLoginHTMLProvider (bLoginError, aLoginResult, getPageTitle ())
     {
       @Override
       @Nullable
-      protected IHCNode createFormFooter (@Nonnull final ISimpleWebExecutionContext aSWEC)
+      protected IHCNode createFormFooter (@NonNull final ISimpleWebExecutionContext aSWEC)
       {
         final HCDiv aDiv = new HCDiv ().addClass (CBootstrapCSS.D_FLEX).addClass (CBootstrapCSS.MT_5);
         aDiv.addChild (new HCSmall ().addChild (CPDPublisher.getApplicationTitleWithVersion () +

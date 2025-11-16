@@ -16,6 +16,8 @@
  */
 package com.helger.pd.publisher.app.pub;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.annotation.concurrent.Immutable;
 import com.helger.base.debug.GlobalDebug;
 import com.helger.io.resource.ClassPathResource;
@@ -23,15 +25,13 @@ import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.ui.AppPageViewExternal;
 import com.helger.photon.core.menu.IMenuTree;
 
-import jakarta.annotation.Nonnull;
-
 @Immutable
 public final class MenuPublic
 {
   private MenuPublic ()
   {}
 
-  public static void init (@Nonnull final IMenuTree aMenuTree)
+  public static void init (@NonNull final IMenuTree aMenuTree)
   {
     // Not logged in
     aMenuTree.createRootItem (new PagePublicSearchSimple (CMenuPublic.MENU_SEARCH_SIMPLE));

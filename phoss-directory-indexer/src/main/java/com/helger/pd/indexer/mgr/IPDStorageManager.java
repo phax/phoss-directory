@@ -19,13 +19,14 @@ package com.helger.pd.indexer.mgr;
 import java.io.Closeable;
 import java.io.IOException;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.annotation.CheckForSigned;
 import com.helger.base.state.ESuccess;
 import com.helger.pd.indexer.businesscard.PDExtendedBusinessCard;
 import com.helger.pd.indexer.storage.PDStoredMetaData;
 import com.helger.peppolid.IParticipantIdentifier;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 /**
@@ -49,10 +50,10 @@ public interface IPDStorageManager extends Closeable
    * @throws IOException
    *         in case of IO error
    */
-  @Nonnull
-  ESuccess createOrUpdateEntry (@Nonnull IParticipantIdentifier aParticipantID,
-                                @Nonnull PDExtendedBusinessCard aExtBI,
-                                @Nonnull PDStoredMetaData aMetaData) throws IOException;
+  @NonNull
+  ESuccess createOrUpdateEntry (@NonNull IParticipantIdentifier aParticipantID,
+                                @NonNull PDExtendedBusinessCard aExtBI,
+                                @NonNull PDStoredMetaData aMetaData) throws IOException;
 
   /**
    * Delete an existing entry (not recoverable).
@@ -68,7 +69,7 @@ public interface IPDStorageManager extends Closeable
    *         in case of IO error
    */
   @CheckForSigned
-  int deleteEntry (@Nonnull IParticipantIdentifier aParticipantID,
+  int deleteEntry (@NonNull IParticipantIdentifier aParticipantID,
                    @Nullable PDStoredMetaData aMetaData,
                    boolean bVerifyOwner) throws IOException;
 }

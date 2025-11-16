@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.Map;
 
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,8 +49,6 @@ import com.helger.photon.uictrls.datatables.column.EDTColType;
 import com.helger.url.ISimpleURL;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 
-import jakarta.annotation.Nonnull;
-
 public final class PageSecureParticipantList extends AbstractAppWebPage
 {
   private static final Logger LOGGER = LoggerFactory.getLogger (PageSecureParticipantList.class);
@@ -58,7 +57,7 @@ public final class PageSecureParticipantList extends AbstractAppWebPage
   private static final String PARAM_MAX_ENTRIES = "maxentries";
   private static final String FIELD_PARTICIPANT_ID = "partid";
 
-  public PageSecureParticipantList (@Nonnull @Nonempty final String sID)
+  public PageSecureParticipantList (@NonNull @Nonempty final String sID)
   {
     super (sID, "Participant list");
   }

@@ -28,6 +28,7 @@ import javax.xml.validation.Validator;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,7 +74,6 @@ import com.helger.xml.serialize.write.XMLWriterSettings;
 import com.helger.xml.transform.TransformSourceFactory;
 import com.helger.xservlet.handler.simple.IXServletSimpleHandler;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 /**
@@ -109,20 +109,20 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
     private final String m_sVersion;
     private final String m_sPathPrefix;
 
-    ESearchVersion (@Nonnull @Nonempty final String sVersion)
+    ESearchVersion (@NonNull @Nonempty final String sVersion)
     {
       m_sVersion = sVersion;
       m_sPathPrefix = "/" + sVersion;
     }
 
-    @Nonnull
+    @NonNull
     @Nonempty
     public String getVersion ()
     {
       return m_sVersion;
     }
 
-    @Nonnull
+    @NonNull
     @Nonempty
     public String getPathPrefix ()
     {
@@ -130,7 +130,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
     }
 
     @Nullable
-    public static ESearchVersion getFromPathInfoOrNull (@Nonnull final String sPathInfo)
+    public static ESearchVersion getFromPathInfoOrNull (@NonNull final String sPathInfo)
     {
       return ArrayHelper.findFirst (values (), x -> sPathInfo.startsWith (x.m_sPathPrefix));
     }
@@ -139,8 +139,8 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
   public PublicSearchXServletHandler ()
   {}
 
-  public void handleRequest (@Nonnull final IRequestWebScopeWithoutResponse aRequestScope,
-                             @Nonnull final UnifiedResponse aUnifiedResponse) throws Exception
+  public void handleRequest (@NonNull final IRequestWebScopeWithoutResponse aRequestScope,
+                             @NonNull final UnifiedResponse aUnifiedResponse) throws Exception
   {
     // Never cache result, except explicitly stated otherwise
     aUnifiedResponse.disableCaching ();

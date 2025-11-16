@@ -18,6 +18,7 @@ package com.helger.pd.publisher.app;
 
 import java.net.URI;
 
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,8 +32,6 @@ import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.photon.core.interror.InternalErrorBuilder;
 import com.helger.scope.IScope;
 import com.helger.scope.singleton.AbstractGlobalSingleton;
-
-import jakarta.annotation.Nonnull;
 
 /**
  * PD Publisher meta manager
@@ -53,7 +52,7 @@ public final class PDPMetaManager extends AbstractGlobalSingleton
   {}
 
   @Override
-  protected void onAfterInstantiation (@Nonnull final IScope aScope)
+  protected void onAfterInstantiation (@NonNull final IScope aScope)
   {
     try
     {
@@ -89,13 +88,13 @@ public final class PDPMetaManager extends AbstractGlobalSingleton
     }
   }
 
-  @Nonnull
+  @NonNull
   public static PDPMetaManager getInstance ()
   {
     return getGlobalSingleton (PDPMetaManager.class);
   }
 
-  @Nonnull
+  @NonNull
   public static ISMLInfoManager getSMLInfoMgr ()
   {
     return getInstance ().m_aSMLInfoMgr;

@@ -18,6 +18,8 @@ package com.helger.pd.indexer.index;
 
 import java.io.Serializable;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.annotation.Nonempty;
 import com.helger.annotation.style.ReturnsMutableCopy;
 import com.helger.base.name.IHasDisplayName;
@@ -25,8 +27,6 @@ import com.helger.base.type.ITypedObject;
 import com.helger.datetime.domain.IHasCreationDateTime;
 import com.helger.pd.indexer.storage.PDStoredMetaData;
 import com.helger.peppolid.IParticipantIdentifier;
-
-import jakarta.annotation.Nonnull;
 
 /**
  * Base interface for indexer work item with only reading methods.
@@ -45,20 +45,20 @@ public interface IIndexerWorkItem extends ITypedObject <String>, Serializable, I
   /**
    * @return The participant identifier it is all about. May not be <code>null</code>.
    */
-  @Nonnull
+  @NonNull
   IParticipantIdentifier getParticipantID ();
 
   /**
    * @return The action type to execute. Never <code>null</code>.
    */
-  @Nonnull
+  @NonNull
   EIndexerWorkItemType getType ();
 
   /**
    * @return The ID of the client (=SMP; based on the provided client certificate) that requested
    *         this action. Never <code>null</code>.
    */
-  @Nonnull
+  @NonNull
   @Nonempty
   String getOwnerID ();
 
@@ -67,13 +67,13 @@ public interface IIndexerWorkItem extends ITypedObject <String>, Serializable, I
    *         triggered by the scheduled SML exchange, this should be
    *         <code>{@value #REQUESTING_HOST_SML}</code>.
    */
-  @Nonnull
+  @NonNull
   String getRequestingHost ();
 
   /**
    * @return A special pre-build log prefix used when logging something about this object.
    */
-  @Nonnull
+  @NonNull
   @Nonempty
   default String getLogText ()
   {
@@ -84,14 +84,14 @@ public interface IIndexerWorkItem extends ITypedObject <String>, Serializable, I
    * @return The information of this as a {@link PDStoredMetaData} object to be used by the storage
    *         engine.
    */
-  @Nonnull
+  @NonNull
   @ReturnsMutableCopy
   default PDStoredMetaData getAsMetaData ()
   {
     return new PDStoredMetaData (getCreationDateTime (), getOwnerID (), getRequestingHost ());
   }
 
-  @Nonnull
+  @NonNull
   @Nonempty
   default String getDisplayName ()
   {

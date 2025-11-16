@@ -18,13 +18,14 @@ package com.helger.pd.indexer.storage;
 
 import java.time.LocalDateTime;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.annotation.Nonempty;
 import com.helger.annotation.concurrent.Immutable;
 import com.helger.base.enforce.ValueEnforcer;
 import com.helger.base.tostring.ToStringGenerator;
 import com.helger.cache.regex.RegExHelper;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 /**
@@ -39,9 +40,9 @@ public final class PDStoredMetaData
   private final String m_sOwnerID;
   private final String m_sRequestingHost;
 
-  public PDStoredMetaData (@Nonnull final LocalDateTime aCreationDT,
-                           @Nonnull @Nonempty final String sOwnerID,
-                           @Nonnull @Nonempty final String sRequestingHost)
+  public PDStoredMetaData (@NonNull final LocalDateTime aCreationDT,
+                           @NonNull @Nonempty final String sOwnerID,
+                           @NonNull @Nonempty final String sRequestingHost)
   {
     ValueEnforcer.notNull (aCreationDT, "CreationDT");
     ValueEnforcer.notNull (sOwnerID, "OwnerID");
@@ -55,7 +56,7 @@ public final class PDStoredMetaData
   /**
    * @return The date time when the object was queued for indexing. Never <code>null</code>.
    */
-  @Nonnull
+  @NonNull
   public LocalDateTime getCreationDT ()
   {
     return m_aCreationDT;
@@ -67,7 +68,7 @@ public final class PDStoredMetaData
    *         <code>CN=PSG000155,O=SGNIC,C=SG:47186c3e6d05cffbd340f3f51e2425cc</code>. Since
    *         2025-11-03 without the serial number, so <code>CN=PSG000155,O=SGNIC,C=SG</code>
    */
-  @Nonnull
+  @NonNull
   @Nonempty
   public String getOwnerID ()
   {
@@ -75,7 +76,7 @@ public final class PDStoredMetaData
   }
 
   @Nullable
-  public static String getOwnerIDSeatNumber (@Nonnull @Nonempty final String sOwnerID)
+  public static String getOwnerIDSeatNumber (@NonNull @Nonempty final String sOwnerID)
   {
     final String [] aMatches = RegExHelper.getAllMatchingGroupValues ("CN=P[A-Z]{2}([0-9]{6})", sOwnerID);
     return aMatches == null || aMatches.length != 1 ? null : aMatches[0];
@@ -91,7 +92,7 @@ public final class PDStoredMetaData
    * @return The IP address of the host requesting this work item. If this action is triggered by
    *         the scheduled SML exchange, this should be <code>automatic</code>.
    */
-  @Nonnull
+  @NonNull
   public String getRequestingHost ()
   {
     return m_sRequestingHost;

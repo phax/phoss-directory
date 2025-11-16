@@ -16,6 +16,8 @@
  */
 package com.helger.pd.publisher.search;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.annotation.Nonempty;
 import com.helger.base.id.IHasID;
 import com.helger.base.lang.EnumHelper;
@@ -23,7 +25,6 @@ import com.helger.base.name.IHasDisplayName;
 import com.helger.mime.CMimeType;
 import com.helger.mime.IMimeType;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 /**
@@ -41,10 +42,10 @@ public enum EPDOutputFormat implements IHasID <String>, IHasDisplayName
   private final IMimeType m_aMimeType;
   private final String m_sFileExtension;
 
-  private EPDOutputFormat (@Nonnull @Nonempty final String sID,
-                           @Nonnull @Nonempty final String sDisplayName,
-                           @Nonnull final IMimeType aMimeType,
-                           @Nonnull @Nonempty final String sFileExtension)
+  private EPDOutputFormat (@NonNull @Nonempty final String sID,
+                           @NonNull @Nonempty final String sDisplayName,
+                           @NonNull final IMimeType aMimeType,
+                           @NonNull @Nonempty final String sFileExtension)
   {
     m_sID = sID;
     m_sDisplayName = sDisplayName;
@@ -52,14 +53,14 @@ public enum EPDOutputFormat implements IHasID <String>, IHasDisplayName
     m_sFileExtension = sFileExtension;
   }
 
-  @Nonnull
+  @NonNull
   @Nonempty
   public String getID ()
   {
     return m_sID;
   }
 
-  @Nonnull
+  @NonNull
   @Nonempty
   public String getDisplayName ()
   {
@@ -69,7 +70,7 @@ public enum EPDOutputFormat implements IHasID <String>, IHasDisplayName
   /**
    * @return The MIME type to be used for this format. Never <code>null</code>.
    */
-  @Nonnull
+  @NonNull
   public IMimeType getMimeType ()
   {
     return m_aMimeType;
@@ -79,7 +80,7 @@ public enum EPDOutputFormat implements IHasID <String>, IHasDisplayName
    * @return The filename extension for this output format. Neither <code>null</code> nor empty and
    *         always starting with a dot!
    */
-  @Nonnull
+  @NonNull
   @Nonempty
   public String getFileExtension ()
   {

@@ -16,14 +16,14 @@
  */
 package com.helger.pd.indexer.storage;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.annotation.Nonempty;
 import com.helger.annotation.concurrent.Immutable;
 import com.helger.base.enforce.ValueEnforcer;
 import com.helger.base.hashcode.HashCodeGenerator;
 import com.helger.base.tostring.ToStringGenerator;
 import com.helger.peppol.businesscard.generic.PDIdentifier;
-
-import jakarta.annotation.Nonnull;
 
 /**
  * This class represents a single identifier as stored by Lucene consisting of a
@@ -37,33 +37,33 @@ public final class PDStoredIdentifier
   private final String m_sScheme;
   private final String m_sValue;
 
-  public PDStoredIdentifier (@Nonnull @Nonempty final String sScheme, @Nonnull @Nonempty final String sValue)
+  public PDStoredIdentifier (@NonNull @Nonempty final String sScheme, @NonNull @Nonempty final String sValue)
   {
     m_sScheme = ValueEnforcer.notEmpty (sScheme, "Scheme");
     m_sValue = ValueEnforcer.notEmpty (sValue, "Value");
   }
 
-  @Nonnull
+  @NonNull
   @Nonempty
   public String getScheme ()
   {
     return m_sScheme;
   }
 
-  @Nonnull
+  @NonNull
   @Nonempty
   public String getValue ()
   {
     return m_sValue;
   }
 
-  @Nonnull
+  @NonNull
   public PDIdentifier getAsGenericObject ()
   {
     return new PDIdentifier (m_sScheme, m_sValue);
   }
 
-  @Nonnull
+  @NonNull
   @Nonempty
   public String getSchemeAndValue ()
   {

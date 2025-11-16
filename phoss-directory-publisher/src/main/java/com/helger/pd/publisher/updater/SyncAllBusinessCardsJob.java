@@ -23,6 +23,7 @@ import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.Set;
 
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,8 +44,6 @@ import com.helger.quartz.JobDataMap;
 import com.helger.quartz.JobExecutionException;
 import com.helger.web.scope.util.AbstractScopeAwareJob;
 
-import jakarta.annotation.Nonnull;
-
 /**
  * Job to update all BCs regularly from the source SMP.
  *
@@ -57,13 +56,13 @@ public final class SyncAllBusinessCardsJob extends AbstractScopeAwareJob
 
   private static final LocalDateTime INITIAL_SYNC = PDTFactory.createLocalDateTime (2018, Month.NOVEMBER, 7, 12, 0, 0);
 
-  @Nonnull
+  @NonNull
   private static File _getLastSyncFile ()
   {
     return WebFileIO.getDataIO ().getFile ("last-sync.dat");
   }
 
-  @Nonnull
+  @NonNull
   public static LocalDateTime getLastSync ()
   {
     final String sPayload = SimpleFileIO.getFileAsString (_getLastSyncFile (), StandardCharsets.ISO_8859_1);
@@ -71,13 +70,13 @@ public final class SyncAllBusinessCardsJob extends AbstractScopeAwareJob
     return ret == null ? INITIAL_SYNC : ret;
   }
 
-  public static void _setLastSync (@Nonnull final LocalDateTime aLastSyncDT)
+  public static void _setLastSync (@NonNull final LocalDateTime aLastSyncDT)
   {
     final String sPayload = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format (aLastSyncDT);
     SimpleFileIO.writeFile (_getLastSyncFile (), sPayload, StandardCharsets.ISO_8859_1);
   }
 
-  @Nonnull
+  @NonNull
   public static EChange syncAllBusinessCards (final boolean bForceSync)
   {
     final LocalDateTime aNow = PDTFactory.getCurrentLocalDateTime ();
@@ -106,8 +105,8 @@ public final class SyncAllBusinessCardsJob extends AbstractScopeAwareJob
   }
 
   @Override
-  protected void onExecute (@Nonnull final JobDataMap aJobDataMap,
-                            @Nonnull final IJobExecutionContext aContext) throws JobExecutionException
+  protected void onExecute (@NonNull final JobDataMap aJobDataMap,
+                            @NonNull final IJobExecutionContext aContext) throws JobExecutionException
   {
     // Ignore result - not forced
     syncAllBusinessCards (false);

@@ -61,6 +61,10 @@
   
   <dependencies>
     <dependency>
+      <groupId>com.helger.commons</groupId>
+      <artifactId>ph-csv</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.helger</groupId>
       <artifactId>phoss-directory-indexer</artifactId>
     </dependency>

@@ -16,6 +16,8 @@
  */
 package com.helger.pd.indexer.storage;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.annotation.concurrent.Immutable;
 import com.helger.base.equals.EqualsHelper;
 import com.helger.base.hashcode.HashCodeGenerator;
@@ -23,7 +25,6 @@ import com.helger.base.string.StringHelper;
 import com.helger.base.tostring.ToStringGenerator;
 import com.helger.peppol.businesscard.generic.PDContact;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 /**
@@ -94,7 +95,7 @@ public final class PDStoredContact
     return m_sEmail;
   }
 
-  @Nonnull
+  @NonNull
   public PDContact getAsGenericObject ()
   {
     return new PDContact (m_sType, m_sName, m_sPhone, m_sEmail);

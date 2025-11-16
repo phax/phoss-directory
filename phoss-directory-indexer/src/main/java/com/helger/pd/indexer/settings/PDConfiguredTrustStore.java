@@ -18,12 +18,12 @@ package com.helger.pd.indexer.settings;
 
 import java.io.Serializable;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.annotation.Nonempty;
 import com.helger.annotation.concurrent.Immutable;
 import com.helger.base.enforce.ValueEnforcer;
 import com.helger.security.keystore.EKeyStoreType;
-
-import jakarta.annotation.Nonnull;
 
 /**
  * A single truststore as found in the pd.properties configuration file.
@@ -38,10 +38,10 @@ public class PDConfiguredTrustStore implements Serializable
   private final String m_sPassword;
   private final String m_sAlias;
 
-  public PDConfiguredTrustStore (@Nonnull final EKeyStoreType eType,
-                                 @Nonnull @Nonempty final String sPath,
-                                 @Nonnull final String sPassword,
-                                 @Nonnull @Nonempty final String sAlias)
+  public PDConfiguredTrustStore (@NonNull final EKeyStoreType eType,
+                                 @NonNull @Nonempty final String sPath,
+                                 @NonNull final String sPassword,
+                                 @NonNull @Nonempty final String sAlias)
   {
     ValueEnforcer.notNull (eType, "Type");
     ValueEnforcer.notEmpty (sPath, "Path");
@@ -53,26 +53,26 @@ public class PDConfiguredTrustStore implements Serializable
     m_sAlias = sAlias;
   }
 
-  @Nonnull
+  @NonNull
   public EKeyStoreType getType ()
   {
     return m_eType;
   }
 
-  @Nonnull
+  @NonNull
   @Nonempty
   public String getPath ()
   {
     return m_sPath;
   }
 
-  @Nonnull
+  @NonNull
   public String getPassword ()
   {
     return m_sPassword;
   }
 
-  @Nonnull
+  @NonNull
   @Nonempty
   public String getAlias ()
   {

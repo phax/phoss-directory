@@ -16,6 +16,8 @@
  */
 package com.helger.pd.publisher.ui;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.annotation.Nonempty;
 import com.helger.html.EHTMLVersion;
 import com.helger.html.hc.IHCNode;
@@ -27,21 +29,20 @@ import com.helger.photon.uicore.page.external.PageViewExternalHTMLCleanser;
 import com.helger.xml.microdom.IMicroContainer;
 import com.helger.xml.microdom.util.MicroVisitor;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 public class AppPageViewExternal extends BasePageViewExternal <WebPageExecutionContext>
 {
-  private static void _cleanCode (@Nonnull final IMicroContainer aCont)
+  private static void _cleanCode (@NonNull final IMicroContainer aCont)
   {
     // Do not clean texts, because this destroys "pre" formatting!
     final PageViewExternalHTMLCleanser aCleanser = new PageViewExternalHTMLCleanser (EHTMLVersion.HTML5).setCleanTexts (false);
     MicroVisitor.visit (aCont, aCleanser);
   }
 
-  public AppPageViewExternal (@Nonnull @Nonempty final String sID,
-                              @Nonnull final String sName,
-                              @Nonnull final IReadableResource aResource)
+  public AppPageViewExternal (@NonNull @Nonempty final String sID,
+                              @NonNull final String sName,
+                              @NonNull final IReadableResource aResource)
   {
     // Special content cleaner
     super (sID, sName, aResource, AppPageViewExternal::_cleanCode);
@@ -49,14 +50,14 @@ public class AppPageViewExternal extends BasePageViewExternal <WebPageExecutionC
 
   @Override
   @Nullable
-  public IHCNode getHeaderNode (@Nonnull final WebPageExecutionContext aWPEC)
+  public IHCNode getHeaderNode (@NonNull final WebPageExecutionContext aWPEC)
   {
     final String sHeaderText = getHeaderText (aWPEC);
     return BootstrapWebPageUIHandler.INSTANCE.createPageHeader (sHeaderText);
   }
 
   @Override
-  protected void fillContent (@Nonnull final WebPageExecutionContext aWPEC)
+  protected void fillContent (@NonNull final WebPageExecutionContext aWPEC)
   {
     super.fillContent (aWPEC);
   }

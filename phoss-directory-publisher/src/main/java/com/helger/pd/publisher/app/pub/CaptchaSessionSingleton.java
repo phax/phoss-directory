@@ -16,10 +16,10 @@
  */
 package com.helger.pd.publisher.app.pub;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.annotation.style.UsedViaReflection;
 import com.helger.web.scope.singleton.AbstractSessionWebSingleton;
-
-import jakarta.annotation.Nonnull;
 
 public final class CaptchaSessionSingleton extends AbstractSessionWebSingleton
 {
@@ -30,7 +30,7 @@ public final class CaptchaSessionSingleton extends AbstractSessionWebSingleton
   public CaptchaSessionSingleton ()
   {}
 
-  @Nonnull
+  @NonNull
   public static CaptchaSessionSingleton getInstance ()
   {
     return getSessionSingleton (CaptchaSessionSingleton.class);

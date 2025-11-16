@@ -28,6 +28,7 @@ import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpContainer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.glassfish.jersey.uri.UriComponent;
+import org.jspecify.annotations.NonNull;
 
 import com.helger.base.io.stream.StreamHelper;
 import com.helger.collection.commons.CommonsHashMap;
@@ -36,7 +37,6 @@ import com.helger.io.resource.ClassPathResource;
 import com.helger.peppol.security.PeppolTrustStores;
 import com.helger.security.keystore.EKeyStoreType;
 
-import jakarta.annotation.Nonnull;
 import jakarta.servlet.Servlet;
 
 /**
@@ -48,7 +48,7 @@ final class MockServer
   public static final String BASE_URI_HTTP = "http://localhost:9090/unittest/";
   public static final String BASE_URI_HTTPS = "https://localhost:9090/unittest/";
 
-  @Nonnull
+  @NonNull
   private static WebappContext _createContext (final URI u,
                                                final Class <? extends Servlet> aServletClass,
                                                final Servlet aServlet,
@@ -82,7 +82,7 @@ final class MockServer
     return aContext;
   }
 
-  @Nonnull
+  @NonNull
   private static WebappContext _createContext (final String sURI)
   {
     final ICommonsMap <String, String> aInitParams = new CommonsHashMap <> ();
@@ -96,7 +96,7 @@ final class MockServer
    *
    * @return Grizzly HTTP server.
    */
-  @Nonnull
+  @NonNull
   public static HttpServer startRegularServer ()
   {
     final WebappContext aContext = _createContext (BASE_URI_HTTP);

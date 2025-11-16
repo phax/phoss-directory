@@ -21,6 +21,7 @@ import java.util.Locale;
 import java.util.function.Function;
 
 import org.apache.lucene.search.Query;
+import org.jspecify.annotations.NonNull;
 
 import com.helger.annotation.Nonempty;
 import com.helger.base.id.IHasID;
@@ -33,7 +34,6 @@ import com.helger.peppolid.IDocumentTypeIdentifier;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.text.display.IHasDisplayText;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 /**
@@ -114,11 +114,11 @@ public enum EPDSearchField implements IHasID <String>, IHasDisplayText
   private final Class <?> m_aNativeType;
   private final Function <String, Query> m_aQueryProvider;
 
-  EPDSearchField (@Nonnull @Nonempty final String sID,
-                  @Nonnull final EPDSearchFieldName eDisplayText,
-                  @Nonnull final ESearchDataType eDataType,
-                  @Nonnull final Class <?> aNativeType,
-                  @Nonnull final Function <String, Query> aQueryProvider)
+  EPDSearchField (@NonNull @Nonempty final String sID,
+                  @NonNull final EPDSearchFieldName eDisplayText,
+                  @NonNull final ESearchDataType eDataType,
+                  @NonNull final Class <?> aNativeType,
+                  @NonNull final Function <String, Query> aQueryProvider)
   {
     m_sID = sID;
     m_eDataType = eDataType;
@@ -127,40 +127,40 @@ public enum EPDSearchField implements IHasID <String>, IHasDisplayText
     m_aQueryProvider = aQueryProvider;
   }
 
-  @Nonnull
+  @NonNull
   @Nonempty
   public String getID ()
   {
     return m_sID;
   }
 
-  @Nonnull
+  @NonNull
   @Nonempty
   public String getFieldName ()
   {
     return getID ();
   }
 
-  @Nonnull
+  @NonNull
   public ESearchDataType getDataType ()
   {
     return m_eDataType;
   }
 
   @Nullable
-  public String getDisplayText (@Nonnull final Locale aContentLocale)
+  public String getDisplayText (@NonNull final Locale aContentLocale)
   {
     return m_eDisplayText.getDisplayText (aContentLocale);
   }
 
-  @Nonnull
+  @NonNull
   public Class <?> getNativeType ()
   {
     return m_aNativeType;
   }
 
   @Nullable
-  public Query getQuery (@Nonnull final String sQuery)
+  public Query getQuery (@NonNull final String sQuery)
   {
     return m_aQueryProvider.apply (sQuery);
   }

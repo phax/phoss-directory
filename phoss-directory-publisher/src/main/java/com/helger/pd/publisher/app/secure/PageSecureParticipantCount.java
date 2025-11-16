@@ -21,6 +21,7 @@ import java.io.IOException;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.Collector;
 import org.apache.lucene.search.MatchAllDocsQuery;
+import org.jspecify.annotations.NonNull;
 
 import com.helger.annotation.Nonempty;
 import com.helger.html.hc.html.grouping.HCHR;
@@ -33,17 +34,15 @@ import com.helger.photon.bootstrap4.table.BootstrapTable;
 import com.helger.photon.uicore.icon.EDefaultIcon;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 
-import jakarta.annotation.Nonnull;
-
 public final class PageSecureParticipantCount extends AbstractAppWebPage
 {
-  public PageSecureParticipantCount (@Nonnull @Nonempty final String sID)
+  public PageSecureParticipantCount (@NonNull @Nonempty final String sID)
   {
     super (sID, "Participant count");
   }
 
   @Override
-  protected void fillContent (@Nonnull final WebPageExecutionContext aWPEC)
+  protected void fillContent (@NonNull final WebPageExecutionContext aWPEC)
   {
     final HCNodeList aNodeList = aWPEC.getNodeList ();
 

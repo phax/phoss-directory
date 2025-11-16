@@ -16,6 +16,8 @@
  */
 package com.helger.pd.publisher.app.secure;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.annotation.Nonempty;
 import com.helger.base.string.StringHelper;
 import com.helger.base.string.StringImplode;
@@ -42,13 +44,11 @@ import com.helger.photon.uicore.css.CPageParam;
 import com.helger.photon.uicore.icon.EDefaultIcon;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 
-import jakarta.annotation.Nonnull;
-
 public final class PageSecureIndexManually extends AbstractAppWebPage
 {
   public static final String FIELD_PARTICIPANT_ID = "participantid";
 
-  public PageSecureIndexManually (@Nonnull @Nonempty final String sID)
+  public PageSecureIndexManually (@NonNull @Nonempty final String sID)
   {
     super (sID, "Manually index participant");
   }

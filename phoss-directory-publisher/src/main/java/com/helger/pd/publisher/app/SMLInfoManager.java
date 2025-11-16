@@ -16,6 +16,8 @@
  */
 package com.helger.pd.publisher.app;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.annotation.Nonempty;
 import com.helger.annotation.style.ReturnsMutableCopy;
 import com.helger.base.state.EChange;
@@ -28,18 +30,17 @@ import com.helger.peppol.sml.SMLInfo;
 import com.helger.photon.audit.AuditHelper;
 import com.helger.photon.io.dao.AbstractPhotonMapBasedWALDAO;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 public final class SMLInfoManager extends AbstractPhotonMapBasedWALDAO <ISMLInfo, SMLInfo> implements ISMLInfoManager
 {
-  public SMLInfoManager (@Nonnull @Nonempty final String sFilename) throws DAOException
+  public SMLInfoManager (@NonNull @Nonempty final String sFilename) throws DAOException
   {
     super (SMLInfo.class, sFilename);
   }
 
   @Override
-  @Nonnull
+  @NonNull
   protected EChange onInit ()
   {
     // Add the default transport profiles
@@ -48,10 +49,10 @@ public final class SMLInfoManager extends AbstractPhotonMapBasedWALDAO <ISMLInfo
     return EChange.CHANGED;
   }
 
-  @Nonnull
-  public ISMLInfo createSMLInfo (@Nonnull @Nonempty final String sDisplayName,
-                                 @Nonnull @Nonempty final String sDNSZone,
-                                 @Nonnull @Nonempty final String sManagementServiceURL,
+  @NonNull
+  public ISMLInfo createSMLInfo (@NonNull @Nonempty final String sDisplayName,
+                                 @NonNull @Nonempty final String sDNSZone,
+                                 @NonNull @Nonempty final String sManagementServiceURL,
                                  final boolean bClientCertificateRequired)
   {
     final SMLInfo aSMLInfo = SMLInfo.builder ()
@@ -72,11 +73,11 @@ public final class SMLInfoManager extends AbstractPhotonMapBasedWALDAO <ISMLInfo
     return aSMLInfo;
   }
 
-  @Nonnull
+  @NonNull
   public EChange updateSMLInfo (@Nullable final String sSMLInfoID,
-                                @Nonnull @Nonempty final String sDisplayName,
-                                @Nonnull @Nonempty final String sDNSZone,
-                                @Nonnull @Nonempty final String sManagementServiceURL,
+                                @NonNull @Nonempty final String sDisplayName,
+                                @NonNull @Nonempty final String sDNSZone,
+                                @NonNull @Nonempty final String sManagementServiceURL,
                                 final boolean bClientCertificateRequired)
   {
     final SMLInfo aSMLInfo = getOfID (sSMLInfoID);
@@ -138,7 +139,7 @@ public final class SMLInfoManager extends AbstractPhotonMapBasedWALDAO <ISMLInfo
     return EChange.CHANGED;
   }
 
-  @Nonnull
+  @NonNull
   @ReturnsMutableCopy
   public ICommonsList <ISMLInfo> getAllSorted ()
   {

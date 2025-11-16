@@ -20,8 +20,7 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
-
-import jakarta.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Toeknize or not tokenize?
@@ -33,8 +32,10 @@ public enum EPDStringFieldTokenize
   TOKENIZE
   {
     @Override
-    @Nonnull
-    public Field createField (@Nonnull final String sFieldName, @Nonnull final String sFieldValue, @Nonnull final Store eStore)
+    @NonNull
+    public Field createField (@NonNull final String sFieldName,
+                              @NonNull final String sFieldValue,
+                              @NonNull final Store eStore)
     {
       return new TextField (sFieldName, sFieldValue, eStore);
     }
@@ -42,13 +43,17 @@ public enum EPDStringFieldTokenize
   NO_TOKENIZE
   {
     @Override
-    @Nonnull
-    public Field createField (@Nonnull final String sFieldName, @Nonnull final String sFieldValue, @Nonnull final Store eStore)
+    @NonNull
+    public Field createField (@NonNull final String sFieldName,
+                              @NonNull final String sFieldValue,
+                              @NonNull final Store eStore)
     {
       return new StringField (sFieldName, sFieldValue, eStore);
     }
   };
 
-  @Nonnull
-  public abstract Field createField (@Nonnull String sFieldName, @Nonnull String sFieldValue, @Nonnull Field.Store eStore);
+  @NonNull
+  public abstract Field createField (@NonNull String sFieldName,
+                                     @NonNull String sFieldValue,
+                                     Field.@NonNull Store eStore);
 }

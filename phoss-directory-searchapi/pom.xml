@@ -125,6 +125,7 @@
             <arg>-no-header</arg>
             <arg>-Xph-default-locale</arg>
             <arg>en_US</arg>
+            <arg>-Xph-package-null-marked</arg>
             <arg>-Xph-annotate</arg>
             <arg>-Xph-fields-private</arg>
             <arg>-Xph-code-quality</arg>

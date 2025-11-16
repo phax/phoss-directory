@@ -16,10 +16,10 @@
  */
 package com.helger.pd.client;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.base.callback.ICallback;
 import com.helger.peppolid.IParticipantIdentifier;
-
-import jakarta.annotation.Nonnull;
 
 /**
  * Special exception callback interface for the Peppol Directory client.
@@ -41,5 +41,5 @@ public interface IPDClientExceptionCallback extends ICallback
    * @param aException
    *        The exception that occurred. May not be <code>null</code>.
    */
-  void onException (@Nonnull IParticipantIdentifier aParticipantID, @Nonnull String sContext, @Nonnull Throwable aException);
+  void onException (@NonNull IParticipantIdentifier aParticipantID, @NonNull String sContext, @NonNull Throwable aException);
 }

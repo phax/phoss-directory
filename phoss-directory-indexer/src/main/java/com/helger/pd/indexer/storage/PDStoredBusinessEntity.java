@@ -19,6 +19,7 @@ package com.helger.pd.indexer.storage;
 import java.time.LocalDate;
 
 import org.apache.lucene.document.Document;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +47,6 @@ import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.xml.microdom.IMicroElement;
 import com.helger.xml.microdom.MicroElement;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 /**
@@ -95,7 +95,7 @@ public final class PDStoredBusinessEntity
     m_aParticipantID = aParticipantID;
   }
 
-  @Nonnull
+  @NonNull
   @ReturnsMutableObject
   public ICommonsList <PDStoredMLName> names ()
   {
@@ -134,28 +134,28 @@ public final class PDStoredBusinessEntity
     m_sGeoInfo = sGeoInfo;
   }
 
-  @Nonnull
+  @NonNull
   @ReturnsMutableObject
   public ICommonsList <PDStoredIdentifier> identifiers ()
   {
     return m_aIdentifiers;
   }
 
-  @Nonnull
+  @NonNull
   @ReturnsMutableObject
   public ICommonsList <String> websiteURIs ()
   {
     return m_aWebsiteURIs;
   }
 
-  @Nonnull
+  @NonNull
   @ReturnsMutableObject
   public ICommonsList <PDStoredContact> contacts ()
   {
     return m_aContacts;
   }
 
-  @Nonnull
+  @NonNull
   public String getAdditionalInformation ()
   {
     return m_sAdditionalInformation;
@@ -187,20 +187,20 @@ public final class PDStoredBusinessEntity
     m_aRegistrationDate = aRegistrationDate;
   }
 
-  @Nonnull
+  @NonNull
   @ReturnsMutableObject
   public ICommonsList <IDocumentTypeIdentifier> documentTypeIDs ()
   {
     return m_aDocumentTypeIDs;
   }
 
-  @Nonnull
+  @NonNull
   public PDStoredMetaData getMetaData ()
   {
     return m_aMetaData;
   }
 
-  void setMetaData (@Nonnull final PDStoredMetaData aMetaData)
+  void setMetaData (@NonNull final PDStoredMetaData aMetaData)
   {
     ValueEnforcer.notNull (aMetaData, "MetaData");
     m_aMetaData = aMetaData;
@@ -209,7 +209,7 @@ public final class PDStoredBusinessEntity
   /**
    * @return Parts of this {@link PDStoredBusinessEntity} as a {@link PDBusinessEntity}.
    */
-  @Nonnull
+  @NonNull
   @ReturnsMutableCopy
   public PDBusinessEntity getAsBusinessEntity ()
   {
@@ -229,7 +229,7 @@ public final class PDStoredBusinessEntity
   /**
    * @return This {@link PDStoredBusinessEntity} as a {@link PDBusinessCard}.
    */
-  @Nonnull
+  @NonNull
   @ReturnsMutableCopy
   public PDBusinessCard getAsBusinessCard ()
   {
@@ -248,8 +248,8 @@ public final class PDStoredBusinessEntity
    *        nor empty.
    * @return The micro element
    */
-  @Nonnull
-  public static IMicroElement getAsSearchResultMicroElement (@Nonnull @Nonempty final ICommonsList <PDStoredBusinessEntity> aDocs)
+  @NonNull
+  public static IMicroElement getAsSearchResultMicroElement (@NonNull @Nonempty final ICommonsList <PDStoredBusinessEntity> aDocs)
   {
     ValueEnforcer.notEmptyNoNullValue (aDocs, "Docs");
 
@@ -301,20 +301,20 @@ public final class PDStoredBusinessEntity
     return aMatch;
   }
 
-  @Nonnull
+  @NonNull
   private static IJson _getIDAsJson (@Nullable final String sScheme, @Nullable final String sValue)
   {
     return new JsonObject ().add ("scheme", sScheme).add ("value", sValue);
   }
 
-  @Nonnull
+  @NonNull
   private static IJson _getMLNameAsJson (@Nullable final String sName, @Nullable final String sLanguage)
   {
     return new JsonObject ().add ("name", sName).addIfNotNull ("language", sLanguage);
   }
 
-  @Nonnull
-  public static IJsonObject getAsSearchResultJsonObject (@Nonnull @Nonempty final ICommonsList <PDStoredBusinessEntity> aDocs)
+  @NonNull
+  public static IJsonObject getAsSearchResultJsonObject (@NonNull @Nonempty final ICommonsList <PDStoredBusinessEntity> aDocs)
   {
     ValueEnforcer.notEmptyNoNullValue (aDocs, "Docs");
 
@@ -404,9 +404,9 @@ public final class PDStoredBusinessEntity
    *        Source Lucene document. May not be <code>null</code>.
    * @return The new {@link PDStoredBusinessEntity}.
    */
-  @Nonnull
+  @NonNull
   @ReturnsMutableCopy
-  public static PDStoredBusinessEntity create (@Nonnull final Document aDoc)
+  public static PDStoredBusinessEntity create (@NonNull final Document aDoc)
   {
     if (LOGGER.isDebugEnabled ())
       LOGGER.debug ("Creating PDStoredDocument from " + aDoc);

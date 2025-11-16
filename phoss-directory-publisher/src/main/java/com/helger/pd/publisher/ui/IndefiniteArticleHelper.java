@@ -18,7 +18,8 @@ package com.helger.pd.publisher.ui;
 
 import java.util.Locale;
 
-import jakarta.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
+
 import jakarta.annotation.Nullable;
 
 public final class IndefiniteArticleHelper
@@ -37,7 +38,7 @@ public final class IndefiniteArticleHelper
   private IndefiniteArticleHelper ()
   {}
 
-  @Nonnull
+  @NonNull
   public static String getIndefiniteArticle (@Nullable final String sWord)
   {
     if (sWord == null || sWord.isEmpty ())

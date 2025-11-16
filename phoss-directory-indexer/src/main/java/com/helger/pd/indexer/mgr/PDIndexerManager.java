@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,8 +60,6 @@ import com.helger.xml.microdom.convert.MicroTypeConverter;
 import com.helger.xml.microdom.serialize.MicroReader;
 import com.helger.xml.microdom.serialize.MicroWriter;
 
-import jakarta.annotation.Nonnull;
-
 /**
  * The global indexer manager that takes an item for queuing and maintains the uniqueness of the
  * items to queue.
@@ -94,23 +93,23 @@ public final class PDIndexerManager implements Closeable
   // Status vars
   private final GlobalQuartzScheduler m_aScheduler;
 
-  private void _onIndexSuccess (@Nonnull final IIndexerWorkItem aWorkItem)
+  private void _onIndexSuccess (@NonNull final IIndexerWorkItem aWorkItem)
   {
     m_aRWLock.writeLocked ( () -> m_aUniqueItems.remove (aWorkItem));
   }
 
-  private void _onIndexFailure (@Nonnull final IIndexerWorkItem aWorkItem)
+  private void _onIndexFailure (@NonNull final IIndexerWorkItem aWorkItem)
   {
     m_aReIndexList.addItem (new ReIndexWorkItem (aWorkItem));
     // Keep it in the "Unique items" list until re-indexing worked
   }
 
-  private void _onReIndexSuccess (@Nonnull final IIndexerWorkItem aWorkItem)
+  private void _onReIndexSuccess (@NonNull final IIndexerWorkItem aWorkItem)
   {
     _onIndexSuccess (aWorkItem);
   }
 
-  private void _onReIndexFailure (@Nonnull final IReIndexWorkItem aReIndexItem)
+  private void _onReIndexFailure (@NonNull final IReIndexWorkItem aReIndexItem)
   {
     m_aReIndexList.incRetryCountAndAddItem (aReIndexItem);
   }
@@ -131,7 +130,7 @@ public final class PDIndexerManager implements Closeable
    * @throws DAOException
    *         If DAO initialization failed
    */
-  public PDIndexerManager (@Nonnull final IPDStorageManager aStorageMgr) throws DAOException
+  public PDIndexerManager (@NonNull final IPDStorageManager aStorageMgr) throws DAOException
   {
     m_aStorageMgr = ValueEnforcer.notNull (aStorageMgr, "StorageMgr");
 
@@ -206,8 +205,8 @@ public final class PDIndexerManager implements Closeable
    *        Work item to be queued. May not be <code>null</code>.
    * @return {@link EChange#CHANGED} if it was queued
    */
-  @Nonnull
-  private EChange _queueUniqueWorkItem (@Nonnull final IIndexerWorkItem aWorkItem)
+  @NonNull
+  private EChange _queueUniqueWorkItem (@NonNull final IIndexerWorkItem aWorkItem)
   {
     ValueEnforcer.notNull (aWorkItem, "WorkItem");
 
@@ -253,11 +252,11 @@ public final class PDIndexerManager implements Closeable
    * @return {@link EChange#UNCHANGED} if the item was queued, {@link EChange#UNCHANGED} if this
    *         item is already in the queue!
    */
-  @Nonnull
-  public EChange queueWorkItem (@Nonnull final IParticipantIdentifier aParticipantID,
-                                @Nonnull final EIndexerWorkItemType eType,
-                                @Nonnull @Nonempty final String sOwnerID,
-                                @Nonnull @Nonempty final String sRequestingHost)
+  @NonNull
+  public EChange queueWorkItem (@NonNull final IParticipantIdentifier aParticipantID,
+                                @NonNull final EIndexerWorkItemType eType,
+                                @NonNull @Nonempty final String sOwnerID,
+                                @NonNull @Nonempty final String sRequestingHost)
   {
     // Build item
     final IIndexerWorkItem aWorkItem = new IndexerWorkItem (aParticipantID, eType, sOwnerID, sRequestingHost);
@@ -318,7 +317,7 @@ public final class PDIndexerManager implements Closeable
   /**
    * @return The queue with all work items. Never <code>null</code> but maybe empty.
    */
-  @Nonnull
+  @NonNull
   public IndexerWorkItemQueue getIndexerWorkQueue ()
   {
     return m_aIndexerWorkQueue;
@@ -328,7 +327,7 @@ public final class PDIndexerManager implements Closeable
    * @return A list with all items where the re-index period has expired. Never <code>null</code>
    *         but maybe empty.
    */
-  @Nonnull
+  @NonNull
   public IReIndexWorkItemList getReIndexList ()
   {
     return m_aReIndexList;
@@ -338,7 +337,7 @@ public final class PDIndexerManager implements Closeable
    * @return A list with all items where the re-index period has expired. Never <code>null</code>
    *         but maybe empty.
    */
-  @Nonnull
+  @NonNull
   public IReIndexWorkItemList getDeadList ()
   {
     return m_aDeadList;

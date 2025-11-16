@@ -23,6 +23,8 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.annotation.style.ReturnsMutableCopy;
 import com.helger.annotation.style.ReturnsMutableObject;
 import com.helger.base.concurrent.BasicThreadFactoryBuilder;
@@ -31,8 +33,6 @@ import com.helger.base.enforce.ValueEnforcer;
 import com.helger.collection.commons.ICommonsList;
 import com.helger.commons.concurrent.collector.ConcurrentCollectorSingle;
 import com.helger.commons.concurrent.collector.IConcurrentPerformer;
-
-import jakarta.annotation.Nonnull;
 
 /**
  * The indexer queue that holds all items to be indexed initially. If indexing fails, items are
@@ -63,7 +63,7 @@ public final class IndexerWorkItemQueue
    * @param aPerformer
    *        The executor that will effective handle work items (e.g. retrieve from SMP).
    */
-  public IndexerWorkItemQueue (@Nonnull final IConcurrentPerformer <IIndexerWorkItem> aPerformer)
+  public IndexerWorkItemQueue (@NonNull final IConcurrentPerformer <IIndexerWorkItem> aPerformer)
   {
     ValueEnforcer.notNull (aPerformer, "Performer");
     // Use an indefinite queue for holding tasks
@@ -80,7 +80,7 @@ public final class IndexerWorkItemQueue
    *
    * @return The list of all remaining objects in the queue. Never <code>null</code>.
    */
-  @Nonnull
+  @NonNull
   @ReturnsMutableCopy
   public ICommonsList <IIndexerWorkItem> stop ()
   {
@@ -100,7 +100,7 @@ public final class IndexerWorkItemQueue
    * @return The internal queue. Handle with care - usually you don't need that one. Never
    *         <code>null</code>,
    */
-  @Nonnull
+  @NonNull
   @ReturnsMutableObject
   public LinkedBlockingQueue <Object> internalGetQueue ()
   {
@@ -113,7 +113,7 @@ public final class IndexerWorkItemQueue
    * @param aItem
    *        The item to be added. May not be <code>null</code>.
    */
-  public void queueObject (@Nonnull final IIndexerWorkItem aItem)
+  public void queueObject (@NonNull final IIndexerWorkItem aItem)
   {
     ValueEnforcer.notNull (aItem, "Item");
     m_aImmediateCollector.queueObject (aItem);

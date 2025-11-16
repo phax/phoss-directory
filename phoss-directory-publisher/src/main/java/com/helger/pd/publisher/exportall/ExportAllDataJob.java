@@ -21,6 +21,7 @@ import java.io.UncheckedIOException;
 import java.time.LocalDateTime;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +39,6 @@ import com.helger.quartz.JobDataMap;
 import com.helger.quartz.JobExecutionException;
 import com.helger.web.scope.util.AbstractScopeAwareJob;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 /**
@@ -102,7 +102,7 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
       m_aFailedStatus.add (m_sCurrentStatus);
     }
 
-    @Nonnull
+    @NonNull
     public ICommonsList <String> getAllFailedStatus ()
     {
       return m_aFailedStatus.getClone ();
@@ -119,7 +119,7 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
 
   private static final ExportAllStatus EXPORT_STATUS = new ExportAllStatus ();
 
-  @Nonnull
+  @NonNull
   public static ExportAllStatus getExportStatus ()
   {
     return EXPORT_STATUS;
@@ -346,7 +346,7 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
   }
 
   @Override
-  protected void onExecute (@Nonnull final JobDataMap aJobDataMap, @Nonnull final IJobExecutionContext aContext)
+  protected void onExecute (@NonNull final JobDataMap aJobDataMap, @NonNull final IJobExecutionContext aContext)
                                                                                                                  throws JobExecutionException
   {
     try

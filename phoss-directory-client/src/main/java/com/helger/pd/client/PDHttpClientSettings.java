@@ -24,6 +24,7 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.ssl.PrivateKeyStrategy;
 import org.apache.hc.core5.ssl.SSLContexts;
 import org.apache.hc.core5.ssl.TrustStrategy;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,8 +37,6 @@ import com.helger.httpclient.security.TrustStrategyTrustAll;
 import com.helger.security.keystore.LoadedKey;
 import com.helger.security.keystore.LoadedKeyStore;
 import com.helger.url.protocol.EURLProtocol;
-
-import jakarta.annotation.Nonnull;
 
 /**
  * Special {@link HttpClientSettings} that incorporates all the parameters from
@@ -57,7 +56,7 @@ public class PDHttpClientSettings extends HttpClientSettings
    * @throws IllegalStateException
    *         If the "https" protocol is used, and the SSL setup is incomplete.
    */
-  public PDHttpClientSettings (@Nonnull @Nonempty final String sTargetURI)
+  public PDHttpClientSettings (@NonNull @Nonempty final String sTargetURI)
   {
     resetToConfiguration (sTargetURI);
   }
@@ -69,7 +68,7 @@ public class PDHttpClientSettings extends HttpClientSettings
    *        The target URI to connect to. Makes a difference if this is "http" or "https". May
    *        neither be <code>null</code> nor empty.
    */
-  public final void resetToConfiguration (@Nonnull @Nonempty final String sTargetURI)
+  public final void resetToConfiguration (@NonNull @Nonempty final String sTargetURI)
   {
     ValueEnforcer.notEmpty (sTargetURI, "TargetURI");
     final boolean bUseHttps = EURLProtocol.HTTPS.isUsedInURL (sTargetURI);

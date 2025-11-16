@@ -19,6 +19,7 @@ package com.helger.pd.publisher.app.secure;
 import java.io.IOException;
 
 import org.apache.lucene.index.DirectoryReader;
+import org.jspecify.annotations.NonNull;
 
 import com.helger.annotation.Nonempty;
 import com.helger.base.rt.StackTraceHelper;
@@ -30,8 +31,6 @@ import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.photon.bootstrap4.table.BootstrapTable;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 
-import jakarta.annotation.Nonnull;
-
 /**
  * Information on the Lucene Index.
  *
@@ -40,7 +39,7 @@ import jakarta.annotation.Nonnull;
  */
 public final class PageSecureAdminLuceneInformation extends AbstractAppWebPage
 {
-  public PageSecureAdminLuceneInformation (@Nonnull @Nonempty final String sID)
+  public PageSecureAdminLuceneInformation (@NonNull @Nonempty final String sID)
   {
     super (sID, "Lucene information");
   }

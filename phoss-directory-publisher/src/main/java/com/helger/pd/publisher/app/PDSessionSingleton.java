@@ -17,11 +17,11 @@
 package com.helger.pd.publisher.app;
 
 import org.apache.lucene.search.Query;
+import org.jspecify.annotations.NonNull;
 
 import com.helger.annotation.style.UsedViaReflection;
 import com.helger.web.scope.singleton.AbstractSessionWebSingleton;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 public final class PDSessionSingleton extends AbstractSessionWebSingleton
@@ -33,7 +33,7 @@ public final class PDSessionSingleton extends AbstractSessionWebSingleton
   public PDSessionSingleton ()
   {}
 
-  @Nonnull
+  @NonNull
   public static PDSessionSingleton getInstance ()
   {
     return getSessionSingleton (PDSessionSingleton.class);

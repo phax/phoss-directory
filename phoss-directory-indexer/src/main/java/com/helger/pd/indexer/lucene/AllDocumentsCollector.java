@@ -24,13 +24,12 @@ import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.search.Collector;
 import org.apache.lucene.search.ScoreMode;
 import org.apache.lucene.search.SimpleCollector;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.base.enforce.ValueEnforcer;
 import com.helger.base.tostring.ToStringGenerator;
-
-import jakarta.annotation.Nonnull;
 
 /**
  * A Lucene {@link Collector} that always collects all {@link Document} objects.
@@ -54,8 +53,8 @@ public class AllDocumentsCollector extends SimpleCollector
    *        The consumer that will take the Lucene {@link Document} objects. May
    *        not be <code>null</code>.
    */
-  public AllDocumentsCollector (@Nonnull final ILuceneDocumentProvider aDocumentProvider,
-                                @Nonnull final ObjIntConsumer <Document> aConsumer)
+  public AllDocumentsCollector (@NonNull final ILuceneDocumentProvider aDocumentProvider,
+                                @NonNull final ObjIntConsumer <Document> aConsumer)
   {
     m_aDocumentProvider = ValueEnforcer.notNull (aDocumentProvider, "DocumentProvider");
     m_aConsumer = ValueEnforcer.notNull (aConsumer, "Consumer");
@@ -67,7 +66,7 @@ public class AllDocumentsCollector extends SimpleCollector
   }
 
   @Override
-  protected void doSetNextReader (@Nonnull final LeafReaderContext aCtx)
+  protected void doSetNextReader (@NonNull final LeafReaderContext aCtx)
   {
     // Important to remember the current document base
     m_nDocBase = aCtx.docBase;

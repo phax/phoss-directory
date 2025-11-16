@@ -16,6 +16,8 @@
  */
 package com.helger.pd.publisher;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.annotation.Nonempty;
 import com.helger.annotation.concurrent.NotThreadSafe;
 import com.helger.base.email.EmailAddress;
@@ -25,8 +27,6 @@ import com.helger.pd.indexer.CDirectoryVersion;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.url.ISimpleURL;
 import com.helger.url.SimpleURL;
-
-import jakarta.annotation.Nonnull;
 
 @NotThreadSafe
 public final class CPDPublisher
@@ -50,33 +50,33 @@ public final class CPDPublisher
   private CPDPublisher ()
   {}
 
-  public static void setLogoImageURL (@Nonnull @Nonempty final String sLogoImageURL)
+  public static void setLogoImageURL (@NonNull @Nonempty final String sLogoImageURL)
   {
     ValueEnforcer.notEmpty (sLogoImageURL, "LogoImageURL");
     s_aLogoImageURL = new SimpleURL (sLogoImageURL);
   }
 
-  @Nonnull
+  @NonNull
   public static ISimpleURL getLogoImageURL ()
   {
     return s_aLogoImageURL;
   }
 
-  @Nonnull
+  @NonNull
   @Nonempty
   public static String getApplication ()
   {
     return APPLICATION_TITLE;
   }
 
-  @Nonnull
+  @NonNull
   @Nonempty
   public static String getApplicationTitle ()
   {
     return APPLICATION_TITLE + (PDServerConfiguration.isTestVersion () ? " [TEST]" : "");
   }
 
-  @Nonnull
+  @NonNull
   @Nonempty
   public static String getApplicationTitleWithVersion ()
   {

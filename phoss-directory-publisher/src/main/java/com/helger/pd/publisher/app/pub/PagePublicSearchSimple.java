@@ -20,6 +20,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.apache.lucene.search.Query;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,7 +76,6 @@ import com.helger.url.SimpleURL;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 import com.helger.xml.microdom.IMicroDocument;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 public final class PagePublicSearchSimple extends AbstractPagePublicSearch
@@ -105,27 +105,27 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     });
   }
 
-  public PagePublicSearchSimple (@Nonnull @Nonempty final String sID)
+  public PagePublicSearchSimple (@NonNull @Nonempty final String sID)
   {
     super (sID, "Search");
   }
 
   @Override
   @Nullable
-  public String getHeaderText (@Nonnull final WebPageExecutionContext aWPEC)
+  public String getHeaderText (@NonNull final WebPageExecutionContext aWPEC)
   {
     return null;
   }
 
-  @Nonnull
+  @NonNull
   private static HCEdit _createQueryEdit ()
   {
     return new HCEdit (new RequestField (FIELD_QUERY)).setPlaceholder ("Search " + CPDPublisher.getApplication ())
                                                       .addClass (CBootstrapCSS.FORM_CONTROL);
   }
 
-  @Nonnull
-  private BootstrapRow _createInitialSearchForm (@Nonnull final WebPageExecutionContext aWPEC)
+  @NonNull
+  private BootstrapRow _createInitialSearchForm (@NonNull final WebPageExecutionContext aWPEC)
   {
     final HCForm aBigQueryBox = new HCForm ().setAction (aWPEC.getSelfHref ()).setMethod (EHCFormMethod.GET);
 
@@ -155,8 +155,8 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     return aBodyRow;
   }
 
-  private void _showResultList (@Nonnull final WebPageExecutionContext aWPEC,
-                                @Nonnull @Nonempty final String sQuery,
+  private void _showResultList (@NonNull final WebPageExecutionContext aWPEC,
+                                @NonNull @Nonempty final String sQuery,
                                 @Nonnegative final int nMaxResults)
   {
     final HCNodeList aNodeList = aWPEC.getNodeList ();
@@ -328,7 +328,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
   }
 
   @Override
-  protected void fillContent (@Nonnull final WebPageExecutionContext aWPEC)
+  protected void fillContent (@NonNull final WebPageExecutionContext aWPEC)
   {
     final HCNodeList aNodeList = aWPEC.getNodeList ();
     final Locale aDisplayLocale = aWPEC.getDisplayLocale ();

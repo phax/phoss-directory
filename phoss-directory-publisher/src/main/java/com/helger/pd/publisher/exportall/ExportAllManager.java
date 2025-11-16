@@ -30,6 +30,7 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +47,7 @@ import com.helger.collection.commons.CommonsTreeSet;
 import com.helger.collection.commons.ICommonsList;
 import com.helger.collection.commons.ICommonsOrderedMap;
 import com.helger.collection.commons.ICommonsSortedSet;
-import com.helger.commons.csv.CSVWriter;
+import com.helger.csv.CSVWriter;
 import com.helger.datetime.helper.PDTFactory;
 import com.helger.datetime.util.PDTIOHelper;
 import com.helger.datetime.web.PDTWebDateHelper;
@@ -72,7 +73,6 @@ import com.helger.servlet.response.UnifiedResponse;
 import com.helger.xml.microdom.IMicroDocument;
 import com.helger.xml.serialize.write.XMLWriterSettings;
 
-import jakarta.annotation.Nonnull;
 import jakarta.json.Json;
 import jakarta.json.stream.JsonGenerator;
 
@@ -103,9 +103,9 @@ public final class ExportAllManager
   private ExportAllManager ()
   {}
 
-  @Nonnull
-  private static ESuccess _runWithTempFile (@Nonnull final File fTarget,
-                                            @Nonnull final IThrowingFunction <File, ESuccess, IOException> aCallback) throws IOException
+  @NonNull
+  private static ESuccess _runWithTempFile (@NonNull final File fTarget,
+                                            @NonNull final IThrowingFunction <File, ESuccess, IOException> aCallback) throws IOException
   {
     final File fTempFile = new File (fTarget.getParentFile (), fTarget.getName () + ".tmp");
     // Write result to temp file
@@ -139,7 +139,7 @@ public final class ExportAllManager
     return ret;
   }
 
-  private static void _streamFileToResponse (@Nonnull final File fSrc, @Nonnull final UnifiedResponse aUR)
+  private static void _streamFileToResponse (@NonNull final File fSrc, @NonNull final UnifiedResponse aUR)
   {
     // setContent(IReadableResource) is lazy
     aUR.setContent (new FileSystemResource (fSrc));
@@ -148,7 +148,7 @@ public final class ExportAllManager
       aUR.setCustomResponseHeader (CHttpHeader.CONTENT_LENGTH, Long.toString (nFileLen));
   }
 
-  @Nonnull
+  @NonNull
   @Nonempty
   static ICommonsSortedSet <String> getAllStoredParticipantIDs () throws IOException
   {
@@ -166,8 +166,8 @@ public final class ExportAllManager
   }
 
   // This is only used for the on-demand export of UI search results
-  @Nonnull
-  public static IMicroDocument queryAllContainedBusinessCardsAsXML (@Nonnull final Query aQuery,
+  @NonNull
+  public static IMicroDocument queryAllContainedBusinessCardsAsXML (@NonNull final Query aQuery,
                                                                     final boolean bIncludeDocTypes) throws IOException
   {
     final PDStorageManager aStorageMgr = PDMetaManager.getStorageMgr ();
@@ -184,16 +184,16 @@ public final class ExportAllManager
     return ExportHelper.getAsXML (aMap, bIncludeDocTypes);
   }
 
-  @Nonnull
+  @NonNull
   @VisibleForTesting
   static File _getInternalFileBusinessCardXMLFull ()
   {
     return WebFileIO.getDataIO ().getFile (INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_FULL);
   }
 
-  @Nonnull
-  private static ESuccess _writeFileBusinessCardXML (@Nonnull final ICommonsSortedSet <String> aAllParticipantIDs,
-                                                     @Nonnull final File fTarget,
+  @NonNull
+  private static ESuccess _writeFileBusinessCardXML (@NonNull final ICommonsSortedSet <String> aAllParticipantIDs,
+                                                     @NonNull final File fTarget,
                                                      final boolean bIncludeDocTypes)
   {
     final IIdentifierFactory aIF = PDMetaManager.getIdentifierFactory ();
@@ -258,8 +258,8 @@ public final class ExportAllManager
     }
   }
 
-  @Nonnull
-  static ESuccess writeFileBusinessCardXMLFull (@Nonnull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
+  @NonNull
+  static ESuccess writeFileBusinessCardXMLFull (@NonNull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
   {
     return _runWithTempFile (_getInternalFileBusinessCardXMLFull (),
                              f -> _writeFileBusinessCardXML (aAllParticipantIDs, f, true));
@@ -271,20 +271,20 @@ public final class ExportAllManager
    * @param aUR
    *        The response to stream to. May not be <code>null</code>.
    */
-  public static void streamFileBusinessCardXMLFullTo (@Nonnull final UnifiedResponse aUR)
+  public static void streamFileBusinessCardXMLFullTo (@NonNull final UnifiedResponse aUR)
   {
     _streamFileToResponse (_getInternalFileBusinessCardXMLFull (), aUR);
   }
 
-  @Nonnull
+  @NonNull
   @VisibleForTesting
   static File _getInternalFileBusinessCardXMLNoDocTypes ()
   {
     return WebFileIO.getDataIO ().getFile (INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_NO_DOC_TYPES);
   }
 
-  @Nonnull
-  static ESuccess writeFileBusinessCardXMLNoDocTypes (@Nonnull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
+  @NonNull
+  static ESuccess writeFileBusinessCardXMLNoDocTypes (@NonNull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
   {
     return _runWithTempFile (_getInternalFileBusinessCardXMLNoDocTypes (),
                              f -> _writeFileBusinessCardXML (aAllParticipantIDs, f, false));
@@ -296,19 +296,19 @@ public final class ExportAllManager
    * @param aUR
    *        The response to stream to. May not be <code>null</code>.
    */
-  public static void streamFileBusinessCardXMLNoDocTypesTo (@Nonnull final UnifiedResponse aUR)
+  public static void streamFileBusinessCardXMLNoDocTypesTo (@NonNull final UnifiedResponse aUR)
   {
     _streamFileToResponse (_getInternalFileBusinessCardXMLNoDocTypes (), aUR);
   }
 
-  @Nonnull
+  @NonNull
   private static File _getInternalFileBusinessCardJSON ()
   {
     return WebFileIO.getDataIO ().getFile (INTERNAL_EXPORT_ALL_BUSINESSCARDS_JSON);
   }
 
-  @Nonnull
-  static ESuccess writeFileBusinessCardJSON (@Nonnull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
+  @NonNull
+  static ESuccess writeFileBusinessCardJSON (@NonNull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
   {
     return _runWithTempFile (_getInternalFileBusinessCardJSON (), f -> {
       final PDStorageManager aStorageMgr = PDMetaManager.getStorageMgr ();
@@ -450,24 +450,24 @@ public final class ExportAllManager
    * @param aUR
    *        The response to stream to. May not be <code>null</code>.
    */
-  public static void streamFileBusinessCardJSONTo (@Nonnull final UnifiedResponse aUR)
+  public static void streamFileBusinessCardJSONTo (@NonNull final UnifiedResponse aUR)
   {
     _streamFileToResponse (_getInternalFileBusinessCardJSON (), aUR);
   }
 
-  private static void _unify (@Nonnull @WillNotClose final CSVWriter aCSVWriter)
+  private static void _unify (@NonNull @WillNotClose final CSVWriter aCSVWriter)
   {
     aCSVWriter.setSeparatorChar (';');
   }
 
-  @Nonnull
+  @NonNull
   private static File _getInternalFileBusinessCardCSV ()
   {
     return WebFileIO.getDataIO ().getFile (INTERNAL_EXPORT_ALL_BUSINESSCARDS_CSV);
   }
 
-  @Nonnull
-  static ESuccess writeFileBusinessCardCSV (@Nonnull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
+  @NonNull
+  static ESuccess writeFileBusinessCardCSV (@NonNull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
   {
     return _runWithTempFile (_getInternalFileBusinessCardCSV (), f -> {
       final PDStorageManager aStorageMgr = PDMetaManager.getStorageMgr ();
@@ -561,19 +561,19 @@ public final class ExportAllManager
    * @param aUR
    *        The response to stream to. May not be <code>null</code>.
    */
-  public static void streamFileBusinessCardCSVTo (@Nonnull final UnifiedResponse aUR)
+  public static void streamFileBusinessCardCSVTo (@NonNull final UnifiedResponse aUR)
   {
     _streamFileToResponse (_getInternalFileBusinessCardCSV (), aUR);
   }
 
-  @Nonnull
+  @NonNull
   private static File _getInternalFileParticipantXML ()
   {
     return WebFileIO.getDataIO ().getFile (INTERNAL_EXPORT_ALL_PARTICIPANTS_XML);
   }
 
-  @Nonnull
-  static ESuccess writeFileParticipantXML (@Nonnull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
+  @NonNull
+  static ESuccess writeFileParticipantXML (@NonNull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
   {
     return _runWithTempFile (_getInternalFileParticipantXML (), f -> {
       final IIdentifierFactory aIF = PDMetaManager.getIdentifierFactory ();
@@ -631,19 +631,19 @@ public final class ExportAllManager
    * @param aUR
    *        The response to stream to. May not be <code>null</code>.
    */
-  public static void streamFileParticipantXMLTo (@Nonnull final UnifiedResponse aUR)
+  public static void streamFileParticipantXMLTo (@NonNull final UnifiedResponse aUR)
   {
     _streamFileToResponse (_getInternalFileParticipantXML (), aUR);
   }
 
-  @Nonnull
+  @NonNull
   private static File _getInternalFileParticipantJSON ()
   {
     return WebFileIO.getDataIO ().getFile (INTERNAL_EXPORT_ALL_PARTICIPANTS_JSON);
   }
 
-  @Nonnull
-  static ESuccess writeFileParticipantJSON (@Nonnull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
+  @NonNull
+  static ESuccess writeFileParticipantJSON (@NonNull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
   {
     return _runWithTempFile (_getInternalFileParticipantJSON (), f -> {
       try (final Writer aWriter = FileHelper.getBufferedWriter (f, StandardCharsets.UTF_8);
@@ -680,19 +680,19 @@ public final class ExportAllManager
    * @param aUR
    *        The response to stream to. May not be <code>null</code>.
    */
-  public static void streamFileParticipantJSONTo (@Nonnull final UnifiedResponse aUR)
+  public static void streamFileParticipantJSONTo (@NonNull final UnifiedResponse aUR)
   {
     _streamFileToResponse (_getInternalFileParticipantJSON (), aUR);
   }
 
-  @Nonnull
+  @NonNull
   private static File _getInternalFileParticipantCSV ()
   {
     return WebFileIO.getDataIO ().getFile (INTERNAL_EXPORT_ALL_PARTICIPANTS_CSV);
   }
 
-  @Nonnull
-  static ESuccess writeFileParticipantCSV (@Nonnull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
+  @NonNull
+  static ESuccess writeFileParticipantCSV (@NonNull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
   {
     return _runWithTempFile (_getInternalFileParticipantCSV (), f -> {
       try (final CSVWriter aCSVWriter = new CSVWriter (FileHelper.getBufferedWriter (f, StandardCharsets.ISO_8859_1)))
@@ -720,7 +720,7 @@ public final class ExportAllManager
    * @param aUR
    *        The response to stream to. May not be <code>null</code>.
    */
-  public static void streamFileParticipantCSVTo (@Nonnull final UnifiedResponse aUR)
+  public static void streamFileParticipantCSVTo (@NonNull final UnifiedResponse aUR)
   {
     _streamFileToResponse (_getInternalFileParticipantCSV (), aUR);
   }

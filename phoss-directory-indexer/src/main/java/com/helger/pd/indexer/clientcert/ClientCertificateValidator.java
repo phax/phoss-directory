@@ -27,6 +27,7 @@ import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 import javax.security.auth.x500.X500Principal;
 
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +47,6 @@ import com.helger.pd.indexer.settings.PDConfiguredTrustStore;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.security.keystore.KeyStoreHelper;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -198,7 +198,7 @@ public final class ClientCertificateValidator
    *         <code>null</code> nor empty.
    * @since 0.8.5
    */
-  @Nonnull
+  @NonNull
   @Nonempty
   @ReturnsMutableCopy
   public static ICommonsList <X509Certificate> getAllRootCerts ()
@@ -210,7 +210,7 @@ public final class ClientCertificateValidator
    * @return A sorted list with all issuers we're accepting. Never <code>null</code> nor empty.
    * @since 0.8.5
    */
-  @Nonnull
+  @NonNull
   @Nonempty
   @ReturnsMutableCopy
   public static ICommonsList <X500Principal> getAllCertificateIssuers ()
@@ -231,9 +231,9 @@ public final class ClientCertificateValidator
    * @return <code>null</code> in case of success, the error message otherwise!
    */
   @Nullable
-  private static String _verifyCertificate (@Nonnull final X509Certificate aCert,
-                                            @Nonnull final X509Certificate aTrustedRootCert,
-                                            @Nonnull final Iterable <? extends CRL> aCRLs,
+  private static String _verifyCertificate (@NonNull final X509Certificate aCert,
+                                            @NonNull final X509Certificate aTrustedRootCert,
+                                            @NonNull final Iterable <? extends CRL> aCRLs,
                                             @Nullable final LocalDateTime aDT)
   {
     if (aCert.hasUnsupportedCriticalExtension ())
@@ -272,7 +272,7 @@ public final class ClientCertificateValidator
   }
 
   @Nullable
-  static String getClientUniqueID (@Nonnull final X509Certificate aCert)
+  static String getClientUniqueID (@NonNull final X509Certificate aCert)
   {
     try
     {
@@ -321,9 +321,9 @@ public final class ClientCertificateValidator
    *        The context - for logging only. May not be <code>null</code>.
    * @return Never <code>null</code>.
    */
-  @Nonnull
-  public static ClientCertificateValidationResult verifyClientCertificate (@Nonnull final HttpServletRequest aHttpRequest,
-                                                                           @Nonnull final String sLogPrefix)
+  @NonNull
+  public static ClientCertificateValidationResult verifyClientCertificate (@NonNull final HttpServletRequest aHttpRequest,
+                                                                           @NonNull final String sLogPrefix)
   {
     if (_isCheckDisabled ())
     {

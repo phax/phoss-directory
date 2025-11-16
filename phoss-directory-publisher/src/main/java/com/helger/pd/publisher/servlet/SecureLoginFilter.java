@@ -16,6 +16,8 @@
  */
 package com.helger.pd.publisher.servlet;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.base.state.EContinue;
 import com.helger.pd.publisher.app.AppSecurity;
 import com.helger.pd.publisher.app.PDLoginManager;
@@ -25,7 +27,6 @@ import com.helger.photon.security.util.SecurityHelper;
 import com.helger.servlet.response.UnifiedResponse;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 
-import jakarta.annotation.Nonnull;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -48,9 +49,9 @@ public final class SecureLoginFilter extends AbstractUnifiedResponseFilter
   }
 
   @Override
-  @Nonnull
-  protected EContinue handleRequest (@Nonnull final IRequestWebScopeWithoutResponse aRequestScope,
-                                     @Nonnull final UnifiedResponse aUnifiedResponse) throws ServletException
+  @NonNull
+  protected EContinue handleRequest (@NonNull final IRequestWebScopeWithoutResponse aRequestScope,
+                                     @NonNull final UnifiedResponse aUnifiedResponse) throws ServletException
   {
     if (m_aLogin.checkUserAndShowLogin (aRequestScope, aUnifiedResponse).isBreak ())
     {

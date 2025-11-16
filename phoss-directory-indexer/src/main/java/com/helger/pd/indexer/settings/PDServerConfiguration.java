@@ -20,6 +20,7 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +55,6 @@ import com.helger.smpclient.url.BDXLURLProvider;
 import com.helger.smpclient.url.ISMPURLProvider;
 import com.helger.smpclient.url.PeppolNaptrURLProvider;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 /**
@@ -96,7 +96,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
    * @return The configuration value provider for phase4 that contains backward compatibility
    *         support.
    */
-  @Nonnull
+  @NonNull
   public static MultiConfigurationValueProvider createConfigValueProvider ()
   {
     // Start with default setup
@@ -135,7 +135,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   /**
    * @return The global config file for the Peppol Directory server. Never <code>null</code>.
    */
-  @Nonnull
+  @NonNull
   public static IConfig getConfig ()
   {
     return DEFAULT_INSTANCE;
@@ -207,7 +207,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
     return getConfig ().getAsBoolean ("webapp.forceroot", false);
   }
 
-  @Nonnull
+  @NonNull
   @Nonempty
   public static String getAppName ()
   {
@@ -282,7 +282,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
    * @return The list of potential issuers of the expected client certificates. Never
    *         <code>null</code> but maybe empty.
    */
-  @Nonnull
+  @NonNull
   public static ICommonsList <String> getAllClientCertIssuer ()
   {
     final ICommonsList <String> ret = new CommonsArrayList <> ();
@@ -307,7 +307,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
    *         <code>truststore.X.alias</code>, where "X" is an ascending number starting from 1.
    * @since 0.6.0
    */
-  @Nonnull
+  @NonNull
   public static ICommonsList <PDConfiguredTrustStore> getAllTrustStores ()
   {
     final ICommonsList <PDConfiguredTrustStore> ret = new CommonsArrayList <> ();
@@ -424,7 +424,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
    * @return The URL provider to be used, if an SML is used. If a direct SMP is configured, this
    *         does not matter.
    */
-  @Nonnull
+  @NonNull
   public static ISMPURLProvider getURLProvider ()
   {
     final String sSMLURLProvider = getConfig ().getAsString ("sml.urlprovider");
@@ -435,7 +435,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
     return PeppolNaptrURLProvider.INSTANCE;
   }
 
-  @Nonnull
+  @NonNull
   public static ESMPAPIType getSMPMode ()
   {
     final String sSMPMode = getConfig ().getAsString ("smp.mode");
@@ -453,7 +453,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
     return getConfig ().getAsBoolean ("smp.tls.trust-all", false);
   }
 
-  @Nonnull
+  @NonNull
   public static IIdentifierFactory getIdentifierFactory ()
   {
     final String sSMPMode = getConfig ().getAsString ("identifier.type");

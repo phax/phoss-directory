@@ -19,6 +19,8 @@ package com.helger.pd.publisher.app.secure;
 import java.util.Locale;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.annotation.Nonempty;
 import com.helger.base.compare.ESortOrder;
 import com.helger.datetime.format.PDTToString;
@@ -38,11 +40,9 @@ import com.helger.photon.uicore.page.WebPageExecutionContext;
 import com.helger.photon.uictrls.datatables.column.DTCol;
 import com.helger.photon.uictrls.datatables.column.EDTColType;
 
-import jakarta.annotation.Nonnull;
-
 public final class PageSecureListIndex extends AbstractAppWebPage
 {
-  public PageSecureListIndex (@Nonnull @Nonempty final String sID)
+  public PageSecureListIndex (@NonNull @Nonempty final String sID)
   {
     super (sID, "Index Queue");
   }

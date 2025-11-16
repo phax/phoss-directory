@@ -16,26 +16,27 @@
  */
 package com.helger.pd.publisher.ui;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.annotation.Nonempty;
 import com.helger.base.id.IHasID;
 import com.helger.base.name.IHasDisplayName;
 import com.helger.photon.bootstrap4.pages.AbstractBootstrapWebPageForm;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 public abstract class AbstractAppWebPageForm <DATATYPE extends IHasID <String>> extends
                                              AbstractBootstrapWebPageForm <DATATYPE, WebPageExecutionContext>
 {
-  public AbstractAppWebPageForm (@Nonnull @Nonempty final String sID, @Nonnull final String sName)
+  public AbstractAppWebPageForm (@NonNull @Nonempty final String sID, @NonNull final String sName)
   {
     super (sID, sName);
   }
 
   @Override
   @Nullable
-  public String getHeaderText (@Nonnull final WebPageExecutionContext aWPEC)
+  public String getHeaderText (@NonNull final WebPageExecutionContext aWPEC)
   {
     final DATATYPE aSelectedObject = getSelectedObject (aWPEC, getSelectedObjectID (aWPEC));
     if (aSelectedObject instanceof IHasDisplayName)

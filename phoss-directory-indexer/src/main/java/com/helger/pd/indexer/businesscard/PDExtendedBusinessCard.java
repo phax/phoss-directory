@@ -19,6 +19,8 @@ package com.helger.pd.indexer.businesscard;
 import java.io.Serializable;
 import java.util.function.Predicate;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.annotation.Nonnegative;
 import com.helger.annotation.concurrent.Immutable;
 import com.helger.annotation.style.ReturnsMutableCopy;
@@ -37,7 +39,6 @@ import com.helger.peppol.businesscard.generic.PDIdentifier;
 import com.helger.peppolid.IDocumentTypeIdentifier;
 import com.helger.peppolid.simple.doctype.SimpleDocumentTypeIdentifier;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 /**
@@ -61,7 +62,7 @@ public class PDExtendedBusinessCard implements IHasJson, Serializable
    * @param aDocumentTypeIDs
    *        Document types supported. May be <code>null</code>.
    */
-  public PDExtendedBusinessCard (@Nonnull final PDBusinessCard aBusinessCard,
+  public PDExtendedBusinessCard (@NonNull final PDBusinessCard aBusinessCard,
                                  @Nullable final Iterable <? extends IDocumentTypeIdentifier> aDocumentTypeIDs)
   {
     m_aBusinessCard = ValueEnforcer.notNull (aBusinessCard, "BusinessCard");
@@ -79,7 +80,7 @@ public class PDExtendedBusinessCard implements IHasJson, Serializable
    * @return The mutable {@link PDBusinessCard} object as provided in the constructor (or the
    *         converted object). Never <code>null</code>.
    */
-  @Nonnull
+  @NonNull
   @ReturnsMutableObject
   public PDBusinessCard getBusinessCard ()
   {
@@ -90,7 +91,7 @@ public class PDExtendedBusinessCard implements IHasJson, Serializable
    * @return A copy of the list of all contained document type IDs. Never <code>null</code> but
    *         maybe empty.
    */
-  @Nonnull
+  @NonNull
   @ReturnsMutableCopy
   public ICommonsList <IDocumentTypeIdentifier> getAllDocumentTypeIDs ()
   {
@@ -106,7 +107,7 @@ public class PDExtendedBusinessCard implements IHasJson, Serializable
     return m_aDocumentTypeIDs.size ();
   }
 
-  @Nonnull
+  @NonNull
   public IJsonObject getAsJson ()
   {
     final IJsonObject ret = new JsonObject ();
@@ -125,8 +126,8 @@ public class PDExtendedBusinessCard implements IHasJson, Serializable
                                        .getToString ();
   }
 
-  @Nonnull
-  public static PDExtendedBusinessCard of (@Nonnull final IJsonObject aJson)
+  @NonNull
+  public static PDExtendedBusinessCard of (@NonNull final IJsonObject aJson)
   {
     final PDBusinessCard aBC = PDBusinessCard.of (aJson.getAsObject ("businesscard"));
     final ICommonsList <IDocumentTypeIdentifier> aDocTypes = CommonsArrayList.createFiltered (aJson.getAsArray ("doctypes"),

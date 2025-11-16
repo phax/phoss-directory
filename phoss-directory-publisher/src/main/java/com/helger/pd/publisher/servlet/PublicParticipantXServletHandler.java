@@ -18,6 +18,7 @@ package com.helger.pd.publisher.servlet;
 
 import java.util.List;
 
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +39,6 @@ import com.helger.url.SimpleURL;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 import com.helger.xservlet.handler.simple.IXServletSimpleHandler;
 
-import jakarta.annotation.Nonnull;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
@@ -50,8 +50,8 @@ public final class PublicParticipantXServletHandler implements IXServletSimpleHa
 {
   private static final Logger LOGGER = LoggerFactory.getLogger (PublicParticipantXServletHandler.class);
 
-  public void handleRequest (@Nonnull final IRequestWebScopeWithoutResponse aRequestScope,
-                             @Nonnull final UnifiedResponse aUnifiedResponse) throws Exception
+  public void handleRequest (@NonNull final IRequestWebScopeWithoutResponse aRequestScope,
+                             @NonNull final UnifiedResponse aUnifiedResponse) throws Exception
   {
     if (SearchRateLimit.INSTANCE.rateLimiter () != null)
     {

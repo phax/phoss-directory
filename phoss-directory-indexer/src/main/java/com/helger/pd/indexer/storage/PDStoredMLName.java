@@ -16,6 +16,8 @@
  */
 package com.helger.pd.indexer.storage;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.annotation.Nonempty;
 import com.helger.annotation.concurrent.Immutable;
 import com.helger.base.enforce.ValueEnforcer;
@@ -25,7 +27,6 @@ import com.helger.base.string.StringHelper;
 import com.helger.base.tostring.ToStringGenerator;
 import com.helger.peppol.businesscard.generic.PDName;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 /**
@@ -40,18 +41,18 @@ public final class PDStoredMLName
   private final String m_sName;
   private final String m_sLanguageCode;
 
-  public PDStoredMLName (@Nonnull @Nonempty final String sName)
+  public PDStoredMLName (@NonNull @Nonempty final String sName)
   {
     this (sName, (String) null);
   }
 
-  public PDStoredMLName (@Nonnull @Nonempty final String sName, @Nullable final String sLanguageCode)
+  public PDStoredMLName (@NonNull @Nonempty final String sName, @Nullable final String sLanguageCode)
   {
     m_sName = ValueEnforcer.notEmpty (sName, "Name");
     m_sLanguageCode = sLanguageCode;
   }
 
-  @Nonnull
+  @NonNull
   @Nonempty
   public String getName ()
   {
@@ -74,13 +75,13 @@ public final class PDStoredMLName
     return EqualsHelper.equals (m_sLanguageCode, sLanguageCode);
   }
 
-  @Nonnull
+  @NonNull
   public PDName getAsGenericObject ()
   {
     return new PDName (m_sName, m_sLanguageCode);
   }
 
-  @Nonnull
+  @NonNull
   @Nonempty
   public String getNameAndLanguageCode ()
   {

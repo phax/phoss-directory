@@ -22,6 +22,8 @@ import java.security.interfaces.RSAPublicKey;
 import java.time.LocalDateTime;
 import java.util.Locale;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.annotation.concurrent.Immutable;
 import com.helger.collection.commons.CommonsArrayList;
 import com.helger.collection.commons.ICommonsList;
@@ -57,7 +59,6 @@ import com.helger.text.locale.LocaleHelper;
 import com.helger.text.locale.country.CountryCache;
 import com.helger.text.locale.language.LanguageCache;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 /**
@@ -83,8 +84,8 @@ public final class PDCommonUI
     return eFlagIcon.getAsNode ();
   }
 
-  @Nonnull
-  public static IHCNode getMLNameNode (@Nonnull final PDStoredMLName aName, @Nonnull final Locale aDisplayLocale)
+  @NonNull
+  public static IHCNode getMLNameNode (@NonNull final PDStoredMLName aName, @NonNull final Locale aDisplayLocale)
   {
     String sName = aName.getName ();
     if (aName.hasLanguageCode ())
@@ -99,9 +100,9 @@ public final class PDCommonUI
     return new HCTextNode (sName);
   }
 
-  @Nonnull
-  public static ICommonsList <PDStoredMLName> getUIFilteredNames (@Nonnull final ICommonsList <PDStoredMLName> aNames,
-                                                                  @Nonnull final Locale aDisplayLocale)
+  @NonNull
+  public static ICommonsList <PDStoredMLName> getUIFilteredNames (@NonNull final ICommonsList <PDStoredMLName> aNames,
+                                                                  @NonNull final Locale aDisplayLocale)
   {
     final String sDisplayLanguage = LocaleHelper.getValidLanguageCode (aDisplayLocale.getLanguage ());
     ICommonsList <PDStoredMLName> ret = CommonsArrayList.createFiltered (aNames,
@@ -114,9 +115,9 @@ public final class PDCommonUI
     return ret;
   }
 
-  @Nonnull
-  public static BootstrapViewForm showBusinessInfoDetails (@Nonnull final PDStoredBusinessEntity aStoredDoc,
-                                                           @Nonnull final Locale aDisplayLocale)
+  @NonNull
+  public static BootstrapViewForm showBusinessInfoDetails (@NonNull final PDStoredBusinessEntity aStoredDoc,
+                                                           @NonNull final Locale aDisplayLocale)
   {
     final BootstrapViewForm aViewForm = new BootstrapViewForm ();
     if (aStoredDoc.hasCountryCode ())
@@ -201,8 +202,8 @@ public final class PDCommonUI
     return aViewForm;
   }
 
-  @Nonnull
-  public static HCUL getDocumentTypeIDDetails (@Nonnull final IPeppolDocumentTypeIdentifierParts aParts)
+  @NonNull
+  public static HCUL getDocumentTypeIDDetails (@NonNull final IPeppolDocumentTypeIdentifierParts aParts)
   {
     final HCUL aUL = new HCUL ();
     aUL.addItem ().addChild ("Root namespace: ").addChild (new HCCode ().addChild (aParts.getRootNS ()));
@@ -212,10 +213,10 @@ public final class PDCommonUI
     return aUL;
   }
 
-  @Nonnull
-  public static BootstrapTable createCertificateDetailsTable (@Nonnull final X509Certificate aX509Cert,
-                                                              @Nonnull final LocalDateTime aNowLDT,
-                                                              @Nonnull final Locale aDisplayLocale)
+  @NonNull
+  public static BootstrapTable createCertificateDetailsTable (@NonNull final X509Certificate aX509Cert,
+                                                              @NonNull final LocalDateTime aNowLDT,
+                                                              @NonNull final Locale aDisplayLocale)
   {
     final LocalDateTime aNotBefore = PDTFactory.createLocalDateTime (aX509Cert.getNotBefore ());
     final LocalDateTime aNotAfter = PDTFactory.createLocalDateTime (aX509Cert.getNotAfter ());

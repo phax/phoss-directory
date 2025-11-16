@@ -18,12 +18,13 @@ package com.helger.pd.indexer.reindex;
 
 import java.util.function.Predicate;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.annotation.Nonnegative;
 import com.helger.annotation.style.ReturnsMutableCopy;
 import com.helger.base.state.EChange;
 import com.helger.collection.commons.ICommonsList;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 /**
@@ -37,7 +38,7 @@ public interface IReIndexWorkItemList
    * @return A list of all re-index items currently in the list. Never
    *         <code>null</code> but maybe empty.
    */
-  @Nonnull
+  @NonNull
   @ReturnsMutableCopy
   ICommonsList <? extends IReIndexWorkItem> getAllItems ();
 
@@ -65,9 +66,9 @@ public interface IReIndexWorkItemList
    * @return <code>null</code> if no such entry exists.
    */
   @Nullable
-  IReIndexWorkItem getAndRemoveEntry (@Nonnull Predicate <? super IReIndexWorkItem> aFilter);
+  IReIndexWorkItem getAndRemoveEntry (@NonNull Predicate <? super IReIndexWorkItem> aFilter);
 
-  @Nonnull
+  @NonNull
   default EChange deleteItem (@Nullable final String sID)
   {
     return EChange.valueOf (sID != null && getAndRemoveEntry (x -> x.getID ().equals (sID)) != null);
@@ -80,11 +81,11 @@ public interface IReIndexWorkItemList
    *        The predicate to use. May not be <code>null</code>.
    * @return <code>null</code> if no such entry exists.
    */
-  @Nonnull
+  @NonNull
   @ReturnsMutableCopy
-  ICommonsList <IReIndexWorkItem> getAndRemoveAllEntries (@Nonnull Predicate <? super IReIndexWorkItem> aFilter);
+  ICommonsList <IReIndexWorkItem> getAndRemoveAllEntries (@NonNull Predicate <? super IReIndexWorkItem> aFilter);
 
-  @Nonnull
+  @NonNull
   default EChange deleteAllItems ()
   {
     return EChange.valueOf (getAndRemoveAllEntries (x -> true).isNotEmpty ());

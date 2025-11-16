@@ -18,13 +18,13 @@ package com.helger.pd.searchapi;
 
 import java.util.List;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.annotation.concurrent.Immutable;
 import com.helger.annotation.style.CodingStyleguideUnaware;
 import com.helger.annotation.style.PresentForCodeCoverage;
 import com.helger.collection.commons.CommonsArrayList;
 import com.helger.io.resource.ClassPathResource;
-
-import jakarta.annotation.Nonnull;
 
 /**
  * Contains all the constants for PD Search API handling.
@@ -34,7 +34,7 @@ import jakarta.annotation.Nonnull;
 @Immutable
 public final class CPDSearchAPI
 {
-  @Nonnull
+  @NonNull
   private static ClassLoader _getCL ()
   {
     return CPDSearchAPI.class.getClassLoader ();

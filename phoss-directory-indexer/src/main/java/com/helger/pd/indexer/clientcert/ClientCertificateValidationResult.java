@@ -18,12 +18,13 @@ package com.helger.pd.indexer.clientcert;
 
 import java.io.Serializable;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.annotation.Nonempty;
 import com.helger.annotation.concurrent.Immutable;
 import com.helger.base.enforce.ValueEnforcer;
 import com.helger.base.state.ISuccessIndicator;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 /**
@@ -74,8 +75,8 @@ public final class ClientCertificateValidationResult implements ISuccessIndicato
    *        Client ID to use. May neither be <code>null</code> nor empty.
    * @return Never <code>null</code>.
    */
-  @Nonnull
-  public static ClientCertificateValidationResult createSuccess (@Nonnull @Nonempty final String sClientID)
+  @NonNull
+  public static ClientCertificateValidationResult createSuccess (@NonNull @Nonempty final String sClientID)
   {
     ValueEnforcer.notEmpty (sClientID, "ClientID");
     return new ClientCertificateValidationResult (true, sClientID);
@@ -86,7 +87,7 @@ public final class ClientCertificateValidationResult implements ISuccessIndicato
    *
    * @return Never <code>null</code>.
    */
-  @Nonnull
+  @NonNull
   public static ClientCertificateValidationResult createFailure ()
   {
     return new ClientCertificateValidationResult (false, null);

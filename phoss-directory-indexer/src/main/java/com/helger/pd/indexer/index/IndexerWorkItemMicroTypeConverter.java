@@ -18,6 +18,7 @@ package com.helger.pd.indexer.index;
 
 import java.time.LocalDateTime;
 
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +30,6 @@ import com.helger.xml.microdom.IMicroElement;
 import com.helger.xml.microdom.MicroElement;
 import com.helger.xml.microdom.convert.IMicroTypeConverter;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 /**
@@ -49,9 +49,9 @@ public final class IndexerWorkItemMicroTypeConverter implements IMicroTypeConver
   private static final String ATTR_HOST = "host";
 
   @Nullable
-  public IMicroElement convertToMicroElement (@Nonnull final IndexerWorkItem aValue,
+  public IMicroElement convertToMicroElement (@NonNull final IndexerWorkItem aValue,
                                               @Nullable final String sNamespaceURI,
-                                              @Nonnull final String sTagName)
+                                              @NonNull final String sTagName)
   {
     final IMicroElement aElement = new MicroElement (sNamespaceURI, sTagName);
     aElement.setAttribute (ATTR_ID, aValue.getID ());
@@ -64,7 +64,7 @@ public final class IndexerWorkItemMicroTypeConverter implements IMicroTypeConver
   }
 
   @Nullable
-  public IndexerWorkItem convertToNative (@Nonnull final IMicroElement aElement)
+  public IndexerWorkItem convertToNative (@NonNull final IMicroElement aElement)
   {
     final String sID = aElement.getAttributeValue (ATTR_ID);
 

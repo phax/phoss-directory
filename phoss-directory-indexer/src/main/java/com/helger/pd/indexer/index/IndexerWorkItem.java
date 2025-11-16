@@ -18,6 +18,8 @@ package com.helger.pd.indexer.index;
 
 import java.time.LocalDateTime;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.annotation.Nonempty;
 import com.helger.annotation.concurrent.Immutable;
 import com.helger.base.enforce.ValueEnforcer;
@@ -28,8 +30,6 @@ import com.helger.base.type.ObjectType;
 import com.helger.datetime.helper.PDTFactory;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.simple.participant.SimpleParticipantIdentifier;
-
-import jakarta.annotation.Nonnull;
 
 /**
  * This class represents a single work item for the indexer. This is the default implementation of
@@ -49,10 +49,10 @@ public final class IndexerWorkItem implements IIndexerWorkItem
   private final String m_sOwnerID;
   private final String m_sRequestingHost;
 
-  public IndexerWorkItem (@Nonnull final IParticipantIdentifier aParticpantID,
-                          @Nonnull final EIndexerWorkItemType eType,
-                          @Nonnull @Nonempty final String sOwnerID,
-                          @Nonnull @Nonempty final String sRequestingHost)
+  public IndexerWorkItem (@NonNull final IParticipantIdentifier aParticpantID,
+                          @NonNull final EIndexerWorkItemType eType,
+                          @NonNull @Nonempty final String sOwnerID,
+                          @NonNull @Nonempty final String sRequestingHost)
   {
     this (GlobalIDFactory.getNewPersistentStringID (),
           PDTFactory.getCurrentLocalDateTime (),
@@ -62,12 +62,12 @@ public final class IndexerWorkItem implements IIndexerWorkItem
           sRequestingHost);
   }
 
-  IndexerWorkItem (@Nonnull @Nonempty final String sID,
-                   @Nonnull final LocalDateTime aCreationDT,
-                   @Nonnull final IParticipantIdentifier aParticpantID,
-                   @Nonnull final EIndexerWorkItemType eType,
-                   @Nonnull @Nonempty final String sOwnerID,
-                   @Nonnull @Nonempty final String sRequestingHost)
+  IndexerWorkItem (@NonNull @Nonempty final String sID,
+                   @NonNull final LocalDateTime aCreationDT,
+                   @NonNull final IParticipantIdentifier aParticpantID,
+                   @NonNull final EIndexerWorkItemType eType,
+                   @NonNull @Nonempty final String sOwnerID,
+                   @NonNull @Nonempty final String sRequestingHost)
   {
     ValueEnforcer.notNull (sID, "ID");
     ValueEnforcer.notNull (aCreationDT, "CreationDT");
@@ -87,45 +87,45 @@ public final class IndexerWorkItem implements IIndexerWorkItem
     m_sRequestingHost = sRequestingHost;
   }
 
-  @Nonnull
+  @NonNull
   public ObjectType getObjectType ()
   {
     return OT;
   }
 
-  @Nonnull
+  @NonNull
   @Nonempty
   public String getID ()
   {
     return m_sID;
   }
 
-  @Nonnull
+  @NonNull
   public LocalDateTime getCreationDateTime ()
   {
     return m_aCreationDT;
   }
 
-  @Nonnull
+  @NonNull
   public IParticipantIdentifier getParticipantID ()
   {
     return m_aParticipantID;
   }
 
-  @Nonnull
+  @NonNull
   public EIndexerWorkItemType getType ()
   {
     return m_eType;
   }
 
-  @Nonnull
+  @NonNull
   @Nonempty
   public String getOwnerID ()
   {
     return m_sOwnerID;
   }
 
-  @Nonnull
+  @NonNull
   public String getRequestingHost ()
   {
     return m_sRequestingHost;

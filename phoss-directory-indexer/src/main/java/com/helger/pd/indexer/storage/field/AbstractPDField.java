@@ -21,13 +21,13 @@ import java.util.function.Function;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexableField;
+import org.jspecify.annotations.NonNull;
 
 import com.helger.annotation.Nonempty;
 import com.helger.base.enforce.ValueEnforcer;
 import com.helger.collection.commons.CommonsArrayList;
 import com.helger.collection.commons.ICommonsList;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 /**
@@ -46,10 +46,10 @@ public abstract class AbstractPDField <NATIVE_TYPE, STORAGE_TYPE>
   private final Function <? super STORAGE_TYPE, ? extends NATIVE_TYPE> m_aConverterFromStorage;
   private final Field.Store m_eStore;
 
-  protected AbstractPDField (@Nonnull @Nonempty final String sFieldName,
-                             @Nonnull final Function <? super NATIVE_TYPE, ? extends STORAGE_TYPE> aConverterToStorage,
-                             @Nonnull final Function <? super STORAGE_TYPE, ? extends NATIVE_TYPE> aConverterFromStorage,
-                             @Nonnull final Field.Store eStore)
+  protected AbstractPDField (@NonNull @Nonempty final String sFieldName,
+                             @NonNull final Function <? super NATIVE_TYPE, ? extends STORAGE_TYPE> aConverterToStorage,
+                             @NonNull final Function <? super STORAGE_TYPE, ? extends NATIVE_TYPE> aConverterFromStorage,
+                             final Field.@NonNull Store eStore)
   {
     m_sFieldName = ValueEnforcer.notEmpty (sFieldName, "FieldName");
     m_aConverterToStorage = ValueEnforcer.notNull (aConverterToStorage, "ConverterToStorage");
@@ -57,36 +57,35 @@ public abstract class AbstractPDField <NATIVE_TYPE, STORAGE_TYPE>
     m_eStore = ValueEnforcer.notNull (eStore, "Store");
   }
 
-  @Nonnull
+  @NonNull
   @Nonempty
   public final String getFieldName ()
   {
     return m_sFieldName;
   }
 
-  @Nonnull
+  @NonNull
   protected final Function <? super NATIVE_TYPE, ? extends STORAGE_TYPE> getConverterToStorage ()
   {
     return m_aConverterToStorage;
   }
 
-  @Nonnull
+  @NonNull
   protected final Function <? super STORAGE_TYPE, ? extends NATIVE_TYPE> getConverterFromStorage ()
   {
     return m_aConverterFromStorage;
   }
 
-  @Nonnull
-  protected final Field.Store getStore ()
+  protected final Field.@NonNull Store getStore ()
   {
     return m_eStore;
   }
 
-  @Nonnull
-  public abstract Field getAsField (@Nonnull NATIVE_TYPE aValue);
+  @NonNull
+  public abstract Field getAsField (@NonNull NATIVE_TYPE aValue);
 
-  @Nonnull
-  public STORAGE_TYPE getAsStorageValue (@Nonnull final NATIVE_TYPE aValue) throws IllegalStateException
+  @NonNull
+  public STORAGE_TYPE getAsStorageValue (@NonNull final NATIVE_TYPE aValue) throws IllegalStateException
   {
     ValueEnforcer.notNull (aValue, "Value");
 
@@ -101,8 +100,8 @@ public abstract class AbstractPDField <NATIVE_TYPE, STORAGE_TYPE>
     return sStorageValue;
   }
 
-  @Nonnull
-  public NATIVE_TYPE getAsNativeValue (@Nonnull final STORAGE_TYPE aValue) throws PDFieldSerializeException
+  @NonNull
+  public NATIVE_TYPE getAsNativeValue (@NonNull final STORAGE_TYPE aValue) throws PDFieldSerializeException
   {
     ValueEnforcer.notNull (aValue, "Value");
     final NATIVE_TYPE aNativeValue = getConverterFromStorage ().apply (aValue);
@@ -116,13 +115,13 @@ public abstract class AbstractPDField <NATIVE_TYPE, STORAGE_TYPE>
   }
 
   @Nullable
-  public final IndexableField getDocField (@Nonnull final Document aDoc)
+  public final IndexableField getDocField (@NonNull final Document aDoc)
   {
     return aDoc.getField (m_sFieldName);
   }
 
-  @Nonnull
-  public final ICommonsList <IndexableField> getDocFields (@Nonnull final Document aDoc)
+  @NonNull
+  public final ICommonsList <IndexableField> getDocFields (@NonNull final Document aDoc)
   {
     final ICommonsList <IndexableField> ret = new CommonsArrayList <> ();
     for (final IndexableField aField : aDoc)
@@ -132,7 +131,7 @@ public abstract class AbstractPDField <NATIVE_TYPE, STORAGE_TYPE>
   }
 
   @Nullable
-  protected abstract NATIVE_TYPE getFieldNativeValue (@Nonnull IndexableField aField);
+  protected abstract NATIVE_TYPE getFieldNativeValue (@NonNull IndexableField aField);
 
   /**
    * Get the value of this field in the provided document
@@ -142,7 +141,7 @@ public abstract class AbstractPDField <NATIVE_TYPE, STORAGE_TYPE>
    * @return <code>null</code> if no such field is present, the stored value otherwise.
    */
   @Nullable
-  public final NATIVE_TYPE getDocValue (@Nonnull final Document aDoc)
+  public final NATIVE_TYPE getDocValue (@NonNull final Document aDoc)
   {
     final IndexableField aField = getDocField (aDoc);
     if (aField != null)
@@ -150,8 +149,8 @@ public abstract class AbstractPDField <NATIVE_TYPE, STORAGE_TYPE>
     return null;
   }
 
-  @Nonnull
-  public final ICommonsList <NATIVE_TYPE> getDocValues (@Nonnull final Document aDoc)
+  @NonNull
+  public final ICommonsList <NATIVE_TYPE> getDocValues (@NonNull final Document aDoc)
   {
     final ICommonsList <NATIVE_TYPE> ret = new CommonsArrayList <> ();
     for (final IndexableField aField : getDocFields (aDoc))

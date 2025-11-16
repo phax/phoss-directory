@@ -26,6 +26,7 @@ import java.util.function.Consumer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,8 +77,6 @@ import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 import com.helger.xml.microdom.IMicroDocument;
 import com.helger.xml.microdom.IMicroElement;
 import com.helger.xml.microdom.MicroDocument;
-
-import jakarta.annotation.Nonnull;
 
 public final class PageSecureParticipantActions extends AbstractAppWebPage
 {
@@ -145,12 +144,12 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
     });
   }
 
-  public PageSecureParticipantActions (@Nonnull @Nonempty final String sID)
+  public PageSecureParticipantActions (@NonNull @Nonempty final String sID)
   {
     super (sID, "Participant actions");
   }
 
-  @Nonnull
+  @NonNull
   private static ICommonsMap <IParticipantIdentifier, ICommonsSortedSet <String>> _getDuplicateSourceMap ()
   {
     LOGGER.info ("_getDuplicateSourceMap () start");
@@ -184,7 +183,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
     return ret;
   }
 
-  private void _showDuplicateIDs (@Nonnull final WebPageExecutionContext aWPEC)
+  private void _showDuplicateIDs (@NonNull final WebPageExecutionContext aWPEC)
   {
     // This method can take a couple of minutes
     LOGGER.info ("Showing all duplicate participant identifiers");
@@ -223,7 +222,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
       aWPEC.postRedirectGetInternal (success ("Found no duplicate entries"));
   }
 
-  private void _deleteDuplicateIDs (@Nonnull final WebPageExecutionContext aWPEC)
+  private void _deleteDuplicateIDs (@NonNull final WebPageExecutionContext aWPEC)
   {
     LOGGER.info ("Deleting all duplicate participant identifiers");
     final Locale aDisplayLocale = aWPEC.getDisplayLocale ();
@@ -298,7 +297,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
   }
 
   @Override
-  protected void fillContent (@Nonnull final WebPageExecutionContext aWPEC)
+  protected void fillContent (@NonNull final WebPageExecutionContext aWPEC)
   {
     final HCNodeList aNodeList = aWPEC.getNodeList ();
     final Locale aDisplayLocale = aWPEC.getDisplayLocale ();

@@ -28,6 +28,7 @@ import org.apache.hc.client5.http.auth.Credentials;
 import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.core5.http.HttpHost;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +53,6 @@ import com.helger.smpclient.peppol.SMPClientReadOnly;
 import com.helger.smpclient.url.ISMPURLProvider;
 import com.helger.smpclient.url.SMPDNSResolutionException;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 /**
@@ -89,7 +89,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
    * @param aSMLInfoProvider
    *        The supplier for all {@link ISMLInfo} objects to be tried (may be more then one)
    */
-  protected SMPBusinessCardProvider (@Nonnull final ESMPAPIType eSMPMode,
+  protected SMPBusinessCardProvider (@NonNull final ESMPAPIType eSMPMode,
                                      @Nullable final URI aSMPURI,
                                      @Nullable final ISMPURLProvider aURLProvider,
                                      @Nullable final Supplier <? extends ICommonsList <? extends ISMLInfo>> aSMLInfoProvider)
@@ -161,8 +161,8 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
 
   @Nullable
   @VisibleForTesting
-  PDExtendedBusinessCard getBusinessCardPeppolSMP (@Nonnull final IParticipantIdentifier aParticipantID,
-                                                   @Nonnull final SMPClientReadOnly aSMPClient)
+  PDExtendedBusinessCard getBusinessCardPeppolSMP (@NonNull final IParticipantIdentifier aParticipantID,
+                                                   @NonNull final SMPClientReadOnly aSMPClient)
   {
     LOGGER.info ("Querying BusinessCard for '" +
                  aParticipantID.getURIEncoded () +
@@ -224,8 +224,8 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
 
   @Nullable
   @VisibleForTesting
-  PDExtendedBusinessCard getBusinessCardBDXR1 (@Nonnull final IParticipantIdentifier aParticipantID,
-                                               @Nonnull final BDXRClientReadOnly aSMPClient)
+  PDExtendedBusinessCard getBusinessCardBDXR1 (@NonNull final IParticipantIdentifier aParticipantID,
+                                               @NonNull final BDXRClientReadOnly aSMPClient)
   {
     LOGGER.info ("Querying BusinessCard for '" +
                  aParticipantID.getURIEncoded () +
@@ -287,8 +287,8 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
 
   @Nullable
   @VisibleForTesting
-  PDExtendedBusinessCard getBusinessCardBDXR2 (@Nonnull final IParticipantIdentifier aParticipantID,
-                                               @Nonnull final BDXR2ClientReadOnly aSMPClient)
+  PDExtendedBusinessCard getBusinessCardBDXR2 (@NonNull final IParticipantIdentifier aParticipantID,
+                                               @NonNull final BDXR2ClientReadOnly aSMPClient)
   {
     LOGGER.info ("Querying BusinessCard for '" +
                  aParticipantID.getURIEncoded () +
@@ -350,7 +350,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
     return new PDExtendedBusinessCard (aBusinessCard, aDocumentTypeIDs);
   }
 
-  private void _configureSMPClient (@Nonnull final AbstractGenericSMPClient <?> aSMPClient)
+  private void _configureSMPClient (@NonNull final AbstractGenericSMPClient <?> aSMPClient)
   {
     if (LOGGER.isDebugEnabled ())
       LOGGER.debug ("Now configuring the the SMP client");
@@ -376,7 +376,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
   }
 
   @Nullable
-  public PDExtendedBusinessCard getBusinessCard (@Nonnull final IParticipantIdentifier aParticipantID)
+  public PDExtendedBusinessCard getBusinessCard (@NonNull final IParticipantIdentifier aParticipantID)
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
 
@@ -530,9 +530,9 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
     return aBC;
   }
 
-  @Nonnull
-  public static SMPBusinessCardProvider createWithSMLAutoDetect (@Nonnull final ESMPAPIType eSMPMode,
-                                                                 @Nonnull final ISMPURLProvider aURLProvider,
+  @NonNull
+  public static SMPBusinessCardProvider createWithSMLAutoDetect (@NonNull final ESMPAPIType eSMPMode,
+                                                                 @NonNull final ISMPURLProvider aURLProvider,
                                                                  @Nullable final Supplier <? extends ICommonsList <? extends ISMLInfo>> aSMLInfoProvider)
   {
     ValueEnforcer.notNull (eSMPMode, "SMPMode");
@@ -541,9 +541,9 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
     return new SMPBusinessCardProvider (eSMPMode, null, aURLProvider, aSMLInfoProvider);
   }
 
-  @Nonnull
-  public static SMPBusinessCardProvider createForFixedSMP (@Nonnull final ESMPAPIType eSMPMode,
-                                                           @Nonnull final URI aSMPURI)
+  @NonNull
+  public static SMPBusinessCardProvider createForFixedSMP (@NonNull final ESMPAPIType eSMPMode,
+                                                           @NonNull final URI aSMPURI)
   {
     ValueEnforcer.notNull (eSMPMode, "SMPMode");
     ValueEnforcer.notNull (aSMPURI, "SMP URI");

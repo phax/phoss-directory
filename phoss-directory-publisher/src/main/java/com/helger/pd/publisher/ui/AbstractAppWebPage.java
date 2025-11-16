@@ -16,15 +16,15 @@
  */
 package com.helger.pd.publisher.ui;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.annotation.Nonempty;
 import com.helger.photon.bootstrap4.pages.AbstractBootstrapWebPage;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 
-import jakarta.annotation.Nonnull;
-
 public abstract class AbstractAppWebPage extends AbstractBootstrapWebPage <WebPageExecutionContext>
 {
-  public AbstractAppWebPage (@Nonnull @Nonempty final String sID, @Nonnull final String sName)
+  public AbstractAppWebPage (@NonNull @Nonempty final String sID, @NonNull final String sName)
   {
     super (sID, sName);
   }

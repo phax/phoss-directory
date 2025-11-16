@@ -16,6 +16,7 @@
  */
 package com.helger.pd.indexer.mgr;
 
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +37,6 @@ import com.helger.photon.core.interror.InternalErrorBuilder;
 import com.helger.scope.IScope;
 import com.helger.scope.singleton.AbstractGlobalSingleton;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 /**
@@ -65,7 +65,7 @@ public final class PDMetaManager extends AbstractGlobalSingleton
   {}
 
   @Override
-  protected void onAfterInstantiation (@Nonnull final IScope aScope)
+  protected void onAfterInstantiation (@NonNull final IScope aScope)
   {
     try
     {
@@ -89,14 +89,14 @@ public final class PDMetaManager extends AbstractGlobalSingleton
   }
 
   @Override
-  protected void onDestroy (@Nonnull final IScope aScopeInDestruction)
+  protected void onDestroy (@NonNull final IScope aScopeInDestruction)
   {
     StreamHelper.close (m_aLucene);
     StreamHelper.close (m_aStorageMgr);
     StreamHelper.close (m_aIndexerMgr);
   }
 
-  @Nonnull
+  @NonNull
   public static PDMetaManager getInstance ()
   {
     return getGlobalSingleton (PDMetaManager.class);
@@ -114,7 +114,7 @@ public final class PDMetaManager extends AbstractGlobalSingleton
   /**
    * @return The global {@link IPDBusinessCardProvider}. Never <code>null</code> .
    */
-  @Nonnull
+  @NonNull
   public static IPDBusinessCardProvider getBusinessCardProvider ()
   {
     final IPDBusinessCardProvider ret = getBusinessCardProviderOrNull ();
@@ -129,31 +129,31 @@ public final class PDMetaManager extends AbstractGlobalSingleton
    * @param aBCProvider
    *        Business card provider to be used. May not be <code>null</code>.
    */
-  public static void setBusinessCardProvider (@Nonnull final IPDBusinessCardProvider aBCProvider)
+  public static void setBusinessCardProvider (@NonNull final IPDBusinessCardProvider aBCProvider)
   {
     ValueEnforcer.notNull (aBCProvider, "BCProvider");
     RW_LOCK.writeLockedGet ( () -> s_aBCProvider = aBCProvider);
   }
 
-  @Nonnull
+  @NonNull
   public static PDLucene getLucene ()
   {
     return getInstance ().m_aLucene;
   }
 
-  @Nonnull
+  @NonNull
   public static PDStorageManager getStorageMgr ()
   {
     return getInstance ().m_aStorageMgr;
   }
 
-  @Nonnull
+  @NonNull
   public static PDIndexerManager getIndexerMgr ()
   {
     return getInstance ().m_aIndexerMgr;
   }
 
-  @Nonnull
+  @NonNull
   public static IIdentifierFactory getIdentifierFactory ()
   {
     return IF;

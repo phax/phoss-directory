@@ -20,12 +20,13 @@ import java.time.MonthDay;
 import java.time.YearMonth;
 import java.util.Locale;
 
+import org.jspecify.annotations.NonNull;
+
 import com.helger.annotation.Nonempty;
 import com.helger.base.id.IHasID;
 import com.helger.base.lang.EnumHelper;
 import com.helger.text.display.IHasDisplayText;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 public enum ESearchOperator implements IHasDisplayText, IHasID <String>
@@ -80,10 +81,10 @@ public enum ESearchOperator implements IHasDisplayText, IHasID <String>
   private final Class <?> m_aSpecialValueClass;
   private final ESearchOperatorText m_eDisplayText;
 
-  private ESearchOperator (@Nonnull @Nonempty final String sID,
+  private ESearchOperator (@NonNull @Nonempty final String sID,
                            final boolean bNeedsValue,
                            @Nullable final Class <?> aSpecialValueClass,
-                           @Nonnull final ESearchOperatorText eDisplayText)
+                           @NonNull final ESearchOperatorText eDisplayText)
   {
     m_sID = sID;
     m_bNeedsValue = bNeedsValue;
@@ -91,7 +92,7 @@ public enum ESearchOperator implements IHasDisplayText, IHasID <String>
     m_eDisplayText = eDisplayText;
   }
 
-  @Nonnull
+  @NonNull
   @Nonempty
   public String getID ()
   {
@@ -126,7 +127,7 @@ public enum ESearchOperator implements IHasDisplayText, IHasID <String>
   }
 
   @Nullable
-  public String getDisplayText (@Nonnull final Locale aContentLocale)
+  public String getDisplayText (@NonNull final Locale aContentLocale)
   {
     return m_eDisplayText.getDisplayText (aContentLocale);
   }

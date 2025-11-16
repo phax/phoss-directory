@@ -26,12 +26,11 @@ import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.HttpClientResponseHandler;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import com.helger.base.state.ESuccess;
 import com.helger.httpclient.HttpClientHelper;
-
-import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
 
 /**
  * Special response handler for PD client
@@ -44,7 +43,7 @@ public class PDClientResponseHandler implements HttpClientResponseHandler <ESucc
   {}
 
   @Nullable
-  public ESuccess handleResponse (@Nonnull final ClassicHttpResponse aHttpResponse) throws ClientProtocolException,
+  public ESuccess handleResponse (@NonNull final ClassicHttpResponse aHttpResponse) throws ClientProtocolException,
                                                                                     IOException
   {
     // Check result
