@@ -57,14 +57,15 @@ public final class PageSecureDeleteManually extends AbstractAppWebPage
 
     if (aWPEC.hasAction (CPageParam.ACTION_PERFORM))
     {
-      final String sParticipantID = aWPEC.params ().getAsString (FIELD_PARTICIPANT_ID);
+      final String sParticipantID = aWPEC.params ().getAsStringTrimmed (FIELD_PARTICIPANT_ID);
       final IParticipantIdentifier aParticipantID = aIdentifierFactory.parseParticipantIdentifier (sParticipantID);
 
       if (StringHelper.isEmpty (sParticipantID))
         aFormErrors.addFieldError (FIELD_PARTICIPANT_ID, "A participant ID must be provided.");
       else
         if (aParticipantID == null)
-          aFormErrors.addFieldError (FIELD_PARTICIPANT_ID, "The provided participant ID is syntactically invalid.");
+          aFormErrors.addFieldError (FIELD_PARTICIPANT_ID,
+                                     "The provided participant ID '" + sParticipantID + "' is syntactically invalid.");
 
       if (aFormErrors.isEmpty ())
       {
