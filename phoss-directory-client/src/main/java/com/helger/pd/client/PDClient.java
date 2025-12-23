@@ -41,9 +41,9 @@ import com.helger.httpclient.HttpClientManager;
 import com.helger.peppolid.IParticipantIdentifier;
 
 /**
- * This class is used for calling the PD indexer REST interface. The only part
- * that concerns the configuration file is in the {@link PDHttpClientSettings}
- * used to customize the HTTP connectivity.
+ * This class is used for calling the PD indexer REST interface. The only part that concerns the
+ * configuration file is in the {@link PDHttpClientSettings} used to customize the HTTP
+ * connectivity.
  *
  * @author Philip Helger
  */
@@ -56,18 +56,20 @@ public class PDClient implements Closeable
   private static final Logger LOGGER = LoggerFactory.getLogger (PDClient.class);
 
   @NonNull
-  private static IPDClientExceptionCallback _createDefaultExCb ()
+  public static IPDClientExceptionCallback createDefaultExceptionCallback ()
   {
-    return (p, m, t) -> { LOGGER.error ("Internal error in " + m + " for " + p.getURIEncoded (), t); };
+    return (aParticipantID, sContext, aException) -> {
+      LOGGER.error ("Internal error in " + sContext + " for " + aParticipantID.getURIEncoded (), aException);
+    };
   }
 
   /**
-   * The string representation of the Peppol Directory host URL, always ending
-   * with a trailing slash!
+   * The string representation of the Peppol Directory host URL, always ending with a trailing
+   * slash!
    */
   private final String m_sPDHostURI;
   private final String m_sPDIndexerURI;
-  private IPDClientExceptionCallback m_aExceptionHdl = _createDefaultExCb ();
+  private IPDClientExceptionCallback m_aExceptionHdl = createDefaultExceptionCallback ();
 
   // Important to use the PDHttpClientSettings internally
   private HttpClientManager m_aHttpClientMgr;
@@ -76,9 +78,9 @@ public class PDClient implements Closeable
    * Constructor with a direct Peppol Directory URL.
    *
    * @param sPDHost
-   *        The address of the Peppol Directory Server including the application
-   *        server context path but without the REST interface. May be http or
-   *        https. Example: https://directory.peppol.eu/
+   *        The address of the Peppol Directory Server including the application server context path
+   *        but without the REST interface. May be http or https. Example:
+   *        https://directory.peppol.eu/
    * @throws IllegalStateException
    *         If the "https" protocol is used, and the SSL setup is incomplete.
    */
@@ -91,9 +93,9 @@ public class PDClient implements Closeable
    * Constructor with a direct Peppol Directory URL.
    *
    * @param aPDHost
-   *        The address of the Peppol Directory Server including the application
-   *        server context path but without the REST interface. May be http or
-   *        https. Example: https://directory.peppol.eu/
+   *        The address of the Peppol Directory Server including the application server context path
+   *        but without the REST interface. May be http or https. Example:
+   *        https://directory.peppol.eu/
    * @throws IllegalStateException
    *         If the "https" protocol is used, and the SSL setup is incomplete.
    */
@@ -114,8 +116,7 @@ public class PDClient implements Closeable
   }
 
   /**
-   * Get the current installed exception handler. By default a logging handler
-   * is installed.
+   * Get the current installed exception handler. By default a logging handler is installed.
    *
    * @return The exception handler currently in place. Never <code>null</code>.
    * @see #setExceptionHandler(IPDClientExceptionCallback)
@@ -128,10 +129,10 @@ public class PDClient implements Closeable
   }
 
   /**
-   * Set the exception handler to be used. It is invoked for every HTTP request
-   * that is performed and which throws an exception. The most common exception
-   * type is an {@link org.apache.hc.client5.http.HttpResponseException}
-   * indicating that something went wrong with an HTTP request.
+   * Set the exception handler to be used. It is invoked for every HTTP request that is performed
+   * and which throws an exception. The most common exception type is an
+   * {@link org.apache.hc.client5.http.HttpResponseException} indicating that something went wrong
+   * with an HTTP request.
    *
    * @param aExceptionHdl
    *        The exception callback to be invoked. May not be <code>null</code>.
@@ -145,8 +146,8 @@ public class PDClient implements Closeable
   }
 
   /**
-   * @return The Peppol Directory host URI string we're operating on. Never
-   *         <code>null</code>. Always has a trailing "/".
+   * @return The Peppol Directory host URI string we're operating on. Never <code>null</code>.
+   *         Always has a trailing "/".
    */
   @NonNull
   public final String getPDHostURI ()
@@ -155,8 +156,8 @@ public class PDClient implements Closeable
   }
 
   /**
-   * @return The Peppol Directory indexer URL to use. Never <code>null</code>.
-   *         Always has a trailing "/".
+   * @return The Peppol Directory indexer URL to use. Never <code>null</code>. Always has a trailing
+   *         "/".
    * @since 0.8.5
    */
   @NonNull
@@ -176,8 +177,8 @@ public class PDClient implements Closeable
   }
 
   /**
-   * Internal method to set a different {@link HttpClientManager} in case the
-   * default one using {@link PDHttpClientSettings} is not suitable (any more).
+   * Internal method to set a different {@link HttpClientManager} in case the default one using
+   * {@link PDHttpClientSettings} is not suitable (any more).
    *
    * @param aHttpClientMgr
    *        The new HTTP client manager to use. May not be <code>null</code>.
@@ -189,8 +190,7 @@ public class PDClient implements Closeable
   }
 
   /**
-   * The main execution routine. Overwrite this method to add additional
-   * properties to the call.
+   * The main execution routine. Overwrite this method to add additional properties to the call.
    *
    * @param aRequest
    *        The request to be executed. Never <code>null</code>.
@@ -211,13 +211,12 @@ public class PDClient implements Closeable
   }
 
   /**
-   * Gets a list of references to the CompleteServiceGroup's owned by the
-   * specified userId. This is a non-specification compliant method.
+   * Gets a list of references to the CompleteServiceGroup's owned by the specified userId. This is
+   * a non-specification compliant method.
    *
    * @param aParticipantID
    *        Participant ID to query for existence. May not be <code>null</code>.
-   * @return <code>true</code> if the participant is in the index,
-   *         <code>false</code> otherwise.
+   * @return <code>true</code> if the participant is in the index, <code>false</code> otherwise.
    */
   @NonNull
   public boolean isServiceGroupRegistered (@NonNull final IParticipantIdentifier aParticipantID)
