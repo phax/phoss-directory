@@ -67,6 +67,7 @@ public final class IndexerWorkItemQueue
   {
     ValueEnforcer.notNull (aPerformer, "Performer");
     // Use an indefinite queue for holding tasks
+    // It's a thread-safe collection
     m_aQueue = new LinkedBlockingQueue <> ();
     m_aImmediateCollector = new ConcurrentCollectorSingle <> (m_aQueue);
     m_aImmediateCollector.setPerformer (aPerformer);
