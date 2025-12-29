@@ -41,12 +41,14 @@ import com.helger.html.hc.html.grouping.HCHR;
 import com.helger.html.hc.html.grouping.HCLI;
 import com.helger.html.hc.html.grouping.HCOL;
 import com.helger.html.hc.impl.HCNodeList;
+import com.helger.masterdata.vat.VATINSyntaxChecker;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
 import com.helger.pd.indexer.storage.PDStoredMLName;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
+import com.helger.pd.publisher.ui.PACountryCodeHelper;
 import com.helger.pd.publisher.ui.PDCommonUI;
 import com.helger.peppol.ui.nicename.NiceNameUI;
 import com.helger.peppolid.IDocumentTypeIdentifier;
@@ -179,10 +181,11 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
       // Get the first one
       final ICommonsList <PDStoredBusinessEntity> aStoredEntities = aGroupedDocs.getFirstValue ();
 
+      final IPeppolParticipantIdentifierScheme aPIScheme = PeppolParticipantIdentifierSchemeManager.getSchemeOfIdentifier (aParticipantID);
+
       // Details header
       {
         final BootstrapPageHeader aDetailsHeader;
-        final IPeppolParticipantIdentifierScheme aPIScheme = PeppolParticipantIdentifierSchemeManager.getSchemeOfIdentifier (aParticipantID);
         if (aPIScheme != null)
         {
           // Known scheme
@@ -197,6 +200,30 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
           aDetailsHeader = BootstrapWebPageUIHandler.INSTANCE.createPageHeader ("Details for " + sParticipantID);
         }
         aDetails.addChild (aDetailsHeader);
+      }
+
+      // Country specifics
+      {
+        if (aPIScheme != null)
+        {
+          final String sParticipantIDValue = aParticipantID.getValue ().toUpperCase (Locale.ROOT);
+          final String sCountryCode = PACountryCodeHelper.getCountryCode (sParticipantIDValue);
+          if (PACountryCodeHelper.BE.equals (sCountryCode))
+          {
+            // Belgium specifics
+            String sCBENumber = null;
+            if (sParticipantIDValue.startsWith ("0208:"))
+              sCBENumber = sParticipantIDValue.substring (5);
+            else
+              if (sParticipantIDValue.startsWith ("9925:BE"))
+                sCBENumber = sParticipantIDValue.substring (7);
+
+            if (sCBENumber != null && !VATINSyntaxChecker.isValidVATIN_BE (sCBENumber))
+              aDetails.addChild (warn ("The CBE number '" +
+                                       sCBENumber +
+                                       "' does not seem to match the syntax requirements (length 10, start with 0 or 1, mod97 check digit)"));
+          }
+        }
       }
 
       final BootstrapTabBox aTabBox = new BootstrapTabBox ();
