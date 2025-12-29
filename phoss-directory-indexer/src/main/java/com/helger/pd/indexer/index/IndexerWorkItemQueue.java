@@ -44,13 +44,14 @@ import com.helger.commons.concurrent.collector.IConcurrentPerformer;
  */
 public final class IndexerWorkItemQueue
 {
+  private static final int MAX_PARALLEL = 4;
   private final LinkedBlockingQueue <Object> m_aQueue;
   private final ThreadFactory m_aThreadFactory = new BasicThreadFactoryBuilder ().namingPattern ("pd-indexer-%d")
                                                                                  .daemon (false)
                                                                                  .priority (Thread.NORM_PRIORITY)
                                                                                  .build ();
-  private final ExecutorService m_aSenderThreadPool = new ThreadPoolExecutor (1,
-                                                                              2,
+  private final ExecutorService m_aSenderThreadPool = new ThreadPoolExecutor (MAX_PARALLEL,
+                                                                              MAX_PARALLEL,
                                                                               60L,
                                                                               TimeUnit.SECONDS,
                                                                               new SynchronousQueue <> (),
@@ -72,8 +73,9 @@ public final class IndexerWorkItemQueue
     m_aImmediateCollector = new ConcurrentCollectorSingle <> (m_aQueue);
     m_aImmediateCollector.setPerformer (aPerformer);
 
-    // Start the collector
-    m_aSenderThreadPool.submit (m_aImmediateCollector::collect);
+    // Start the collector(s)
+    for (int i = 0; i < MAX_PARALLEL; ++i)
+      m_aSenderThreadPool.submit (m_aImmediateCollector::collect);
   }
 
   /**
@@ -86,7 +88,8 @@ public final class IndexerWorkItemQueue
   public ICommonsList <IIndexerWorkItem> stop ()
   {
     // don't take any more actions
-    m_aImmediateCollector.stopQueuingNewObjects ();
+    for (int i = 0; i < MAX_PARALLEL; ++i)
+      m_aImmediateCollector.stopQueuingNewObjects ();
 
     // Get all remaining objects and save them for late reuse
     final ICommonsList <IIndexerWorkItem> aRemainingItems = m_aImmediateCollector.drainQueue ();

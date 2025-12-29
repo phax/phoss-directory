@@ -34,14 +34,14 @@ import com.helger.photon.io.dao.AbstractPhotonMapBasedWALDAO;
 import jakarta.annotation.Nullable;
 
 /**
- * This is the list with {@link IReIndexWorkItem} objects. It is solely used in
- * the {@link com.helger.pd.indexer.mgr.PDIndexerManager} for "re-index" and
- * "dead" work items.
+ * This is the list with {@link IReIndexWorkItem} objects. It is solely used in the
+ * {@link com.helger.pd.indexer.mgr.PDIndexerManager} for "re-index" and "dead" work items.
  *
  * @author Philip Helger
  */
 @ThreadSafe
-public final class ReIndexWorkItemList extends AbstractPhotonMapBasedWALDAO <IReIndexWorkItem, ReIndexWorkItem> implements
+public final class ReIndexWorkItemList extends AbstractPhotonMapBasedWALDAO <IReIndexWorkItem, ReIndexWorkItem>
+                                       implements
                                        IReIndexWorkItemList
 {
   private static final Logger LOGGER = LoggerFactory.getLogger (ReIndexWorkItemList.class);
@@ -56,16 +56,17 @@ public final class ReIndexWorkItemList extends AbstractPhotonMapBasedWALDAO <IRe
    *
    * @param aItem
    *        The item to be added. May not be <code>null</code>.
+   * @param bLog
+   *        <code>true</code> to log
    * @throws IllegalStateException
    *         If an item with the same ID is already contained
    */
-  public void addItem (@NonNull final ReIndexWorkItem aItem) throws IllegalStateException
+  public void addItem (@NonNull final ReIndexWorkItem aItem, final boolean bLog) throws IllegalStateException
   {
     ValueEnforcer.notNull (aItem, "Item");
-    m_aRWLock.writeLocked ( () -> {
-      internalCreateItem (aItem);
-    });
-    LOGGER.info ("Added " + aItem.getLogText () + " to re-try list for retry #" + (aItem.getRetryCount () + 1));
+    m_aRWLock.writeLocked ( () -> { internalCreateItem (aItem); });
+    if (bLog)
+      LOGGER.info ("Added " + aItem.getLogText () + " to re-try list for retry #" + (aItem.getRetryCount () + 1));
   }
 
   public void incRetryCountAndAddItem (@NonNull final IReIndexWorkItem aItem)
@@ -75,7 +76,7 @@ public final class ReIndexWorkItemList extends AbstractPhotonMapBasedWALDAO <IRe
     // Item is not in the list anymore, therefore we need to cast it :(
     final ReIndexWorkItem aRealItem = (ReIndexWorkItem) aItem;
     m_aRWLock.writeLocked ( () -> aRealItem.incRetryCount ());
-    addItem (aRealItem);
+    addItem (aRealItem, true);
   }
 
   @Nullable

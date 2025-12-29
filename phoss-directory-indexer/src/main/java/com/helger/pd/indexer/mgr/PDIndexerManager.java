@@ -99,7 +99,10 @@ public final class PDIndexerManager implements Closeable
 
   private void _onIndexFailure (@NonNull final IIndexerWorkItem aWorkItem)
   {
-    m_aReIndexList.addItem (new ReIndexWorkItem (aWorkItem));
+    // if (PDServerConfiguration.getConfig ().getAsBoolean ("reindex.enabled", true))
+    // Initially add to re-index list
+
+    m_aReIndexList.addItem (new ReIndexWorkItem (aWorkItem), true);
     // Keep it in the "Unique items" list until re-indexing worked
   }
 
@@ -230,7 +233,9 @@ public final class PDIndexerManager implements Closeable
     m_aIndexerWorkQueue.queueObject (aWorkItem);
     LOGGER.info ("Queued work item " + aWorkItem.getLogText ());
 
-    // Remove the entry from the dead list to avoid spamming the dead list
+    // Remove the entry from the other lists to avoid spamming the dead list
+    if (m_aReIndexList.getAndRemoveEntry (x -> x.getWorkItem ().equals (aWorkItem)) != null)
+      LOGGER.info ("Removed the new work item " + aWorkItem.getLogText () + " from the re-index list");
     if (m_aDeadList.getAndRemoveEntry (x -> x.getWorkItem ().equals (aWorkItem)) != null)
       LOGGER.info ("Removed the new work item " + aWorkItem.getLogText () + " from the dead list");
 
@@ -281,7 +286,7 @@ public final class PDIndexerManager implements Closeable
         m_aRWLock.writeLocked ( () -> m_aUniqueItems.remove (aItem.getWorkItem ()));
 
         // move all to the dead item list
-        m_aDeadList.addItem ((ReIndexWorkItem) aItem);
+        m_aDeadList.addItem ((ReIndexWorkItem) aItem, false);
         LOGGER.info ("Added " + aItem.getLogText () + " to the dead list");
       }
     }
