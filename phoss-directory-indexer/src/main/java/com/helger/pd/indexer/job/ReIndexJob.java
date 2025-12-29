@@ -78,7 +78,7 @@ public class ReIndexJob extends AbstractScopeAwareJob
     aIndexerMgr.expireOldEntries ();
 
     // Re-index all items now
-    aIndexerMgr.reIndexParticipantData ();
+    aIndexerMgr.reIndexParticipantDataSynchronously ();
   }
 
   /**

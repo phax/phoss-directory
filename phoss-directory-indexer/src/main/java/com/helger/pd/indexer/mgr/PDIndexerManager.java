@@ -20,7 +20,6 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.List;
 
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
@@ -292,12 +291,12 @@ public final class PDIndexerManager implements Closeable
    * Re-index all entries that are ready to be re-indexed now. This is called from a scheduled job
    * only.
    */
-  public void reIndexParticipantData ()
+  public void reIndexParticipantDataSynchronously ()
   {
     final LocalDateTime aNow = PDTFactory.getCurrentLocalDateTime ();
 
     // Get and remove all items to re-index "now"
-    final List <IReIndexWorkItem> aReIndexNowItems = m_aReIndexList.getAndRemoveAllEntries (aWorkItem -> aWorkItem.isRetryPossible (aNow));
+    final ICommonsList <IReIndexWorkItem> aReIndexNowItems = m_aReIndexList.getAndRemoveAllEntries (aWorkItem -> aWorkItem.isRetryPossible (aNow));
 
     if (LOGGER.isDebugEnabled ())
       LOGGER.debug ("Re-indexing " + aReIndexNowItems.size () + " work items");
