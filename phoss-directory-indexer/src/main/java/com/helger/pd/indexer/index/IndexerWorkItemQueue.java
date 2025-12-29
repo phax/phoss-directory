@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.jspecify.annotations.NonNull;
 
+import com.helger.annotation.Nonnegative;
 import com.helger.annotation.style.ReturnsMutableCopy;
 import com.helger.annotation.style.ReturnsMutableObject;
 import com.helger.base.concurrent.BasicThreadFactoryBuilder;
@@ -44,18 +45,17 @@ import com.helger.commons.concurrent.collector.IConcurrentPerformer;
 public final class IndexerWorkItemQueue
 {
   private final LinkedBlockingQueue <Object> m_aQueue;
-  private final ConcurrentCollectorSingle <IIndexerWorkItem> m_aImmediateCollector;
   private final ThreadFactory m_aThreadFactory = new BasicThreadFactoryBuilder ().namingPattern ("pd-indexer-%d")
                                                                                  .daemon (false)
                                                                                  .priority (Thread.NORM_PRIORITY)
                                                                                  .build ();
-
   private final ExecutorService m_aSenderThreadPool = new ThreadPoolExecutor (1,
                                                                               2,
                                                                               60L,
                                                                               TimeUnit.SECONDS,
                                                                               new SynchronousQueue <> (),
                                                                               m_aThreadFactory);
+  private final ConcurrentCollectorSingle <IIndexerWorkItem> m_aImmediateCollector;
 
   /**
    * Constructor.
@@ -117,5 +117,14 @@ public final class IndexerWorkItemQueue
   {
     ValueEnforcer.notNull (aItem, "Item");
     m_aImmediateCollector.queueObject (aItem);
+  }
+
+  /**
+   * @return The amount of elements currently in the queue.
+   */
+  @Nonnegative
+  public int getQueueLength ()
+  {
+    return m_aQueue.size ();
   }
 }
