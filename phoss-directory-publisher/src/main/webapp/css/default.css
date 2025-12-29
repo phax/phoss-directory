@@ -117,37 +117,6 @@ div.result-doc ul li{
   list-style-type: none; 
 }
 
-.result-doc-header {
-  border-top: solid 1px black;
-  margin: 0;
-  padding: 0;
-}
-
-.result-doc-header:first-child {
-  border-top: none;
-}
-
-.result-doc-header table {
-  margin: 0;
-}
-
-.result-doc-header table tbody td {
-  padding-top:  0;
-  padding-bottom: 0;
-  border: 0;
-}
-
-.result-doc-geoinfo {
-}
-
-.result-doc-freetext {
-}
-
-.result-doc-sdbutton {
-  margin-top: 1em;
-  margin-left: 1em;
-}
-
 .result-panel .form-group {
   margin-bottom: 0;
 }
