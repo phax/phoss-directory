@@ -55,15 +55,14 @@ import com.helger.pd.publisher.search.EPDSearchField;
 import com.helger.pd.publisher.ui.PDCommonUI;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.factory.IIdentifierFactory;
-import com.helger.peppolid.peppol.PeppolIdentifierHelper;
 import com.helger.peppolid.peppol.pidscheme.IPeppolParticipantIdentifierScheme;
 import com.helger.peppolid.peppol.pidscheme.PeppolParticipantIdentifierSchemeManager;
 import com.helger.photon.ajax.decl.AjaxFunctionDeclaration;
 import com.helger.photon.bootstrap4.CBootstrapCSS;
 import com.helger.photon.bootstrap4.button.BootstrapButton;
 import com.helger.photon.bootstrap4.button.BootstrapSubmitButton;
-import com.helger.photon.bootstrap4.button.EBootstrapButtonSize;
 import com.helger.photon.bootstrap4.button.EBootstrapButtonType;
+import com.helger.photon.bootstrap4.grid.BootstrapCol;
 import com.helger.photon.bootstrap4.grid.BootstrapGridSpec;
 import com.helger.photon.bootstrap4.grid.BootstrapRow;
 import com.helger.photon.bootstrap4.nav.BootstrapTabBox;
@@ -87,7 +86,6 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
   public static final int MAX_MAX = 1000;
 
   private static final Logger LOGGER = LoggerFactory.getLogger (PagePublicSearchSimple.class);
-  private static final String PEPPOL_DEFAULT_SCHEME = PeppolIdentifierHelper.DEFAULT_PARTICIPANT_SCHEME;
   private static final AjaxFunctionDeclaration AJAX_EXPORT_LAST;
 
   static
@@ -224,19 +222,15 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
         final HCDiv aResultItem = div ().addClass (CSS_CLASS_RESULT_DOC);
         final HCDiv aHeadRow = aResultItem.addAndReturnChild (new HCDiv ());
         {
-          final boolean bIsPeppolDefault = aDocParticipantID.hasScheme (PEPPOL_DEFAULT_SCHEME);
-          IHCNode aParticipantNode = null;
-          if (bIsPeppolDefault)
+          final IHCNode aParticipantNode;
+          final IPeppolParticipantIdentifierScheme aScheme = PeppolParticipantIdentifierSchemeManager.getSchemeOfIdentifier (aDocParticipantID);
+          if (aScheme != null)
           {
-            final IPeppolParticipantIdentifierScheme aScheme = PeppolParticipantIdentifierSchemeManager.getSchemeOfIdentifier (aDocParticipantID);
-            if (aScheme != null)
-            {
-              aParticipantNode = new HCNodeList ().addChild (aDocParticipantID.getValue ());
-              if (StringHelper.isNotEmpty (aScheme.getSchemeAgency ()))
-                ((HCNodeList) aParticipantNode).addChild (" (" + aScheme.getSchemeAgency () + ")");
-            }
+            aParticipantNode = new HCNodeList ().addChild (strong (aDocParticipantID.getValue ()));
+            if (StringHelper.isNotEmpty (aScheme.getSchemeName ()))
+              ((HCNodeList) aParticipantNode).addChild (" (" + aScheme.getSchemeName () + ")");
           }
-          if (aParticipantNode == null)
+          else
           {
             // Fallback
             aParticipantNode = code (aDocParticipantID.getURIEncoded ());
@@ -262,14 +256,14 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
             // Add country flag (if available)
             final String sCountryCode = aStoredDoc.getCountryCode ();
             final Locale aCountry = CountryCache.getInstance ().getCountry (sCountryCode);
-            final var aRow = aLI.addAndReturnChild (new BootstrapRow ());
+            final BootstrapRow aRow = aLI.addAndReturnChild (new BootstrapRow ());
             aRow.createColumn (aLeft).addChild ("Country:");
-            final var aCol = aRow.createColumn (aRight);
-            aCol.addChild (PDCommonUI.getFlagNode (sCountryCode));
+            final BootstrapCol aColRight = aRow.createColumn (aRight).addChild (PDCommonUI.getFlagNode (sCountryCode));
             if (aCountry != null)
-              aCol.addChild (" ").addChild (aCountry.getDisplayCountry (aDisplayLocale) + " (" + sCountryCode + ")");
+              aColRight.addChild (" ")
+                       .addChild (aCountry.getDisplayCountry (aDisplayLocale) + " (" + sCountryCode + ")");
             else
-              aCol.addChild (sCountryCode);
+              aColRight.addChild (sCountryCode);
           }
 
           if (aStoredDoc.names ().isNotEmpty ())
@@ -278,7 +272,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
             final ICommonsList <PDStoredMLName> aNames = PDCommonUI.getUIFilteredNames (aStoredDoc.names (),
                                                                                         aDisplayLocale);
 
-            IHCNode aNameCtrl;
+            final IHCNode aNameCtrl;
             if (aNames.size () == 1)
               aNameCtrl = PDCommonUI.getMLNameNode (aNames.getFirstOrNull (), aDisplayLocale);
             else
@@ -288,30 +282,29 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
               aNameCtrl = aNameUL;
             }
 
-            final var aRow = aLI.addAndReturnChild (new BootstrapRow ());
+            final BootstrapRow aRow = aLI.addAndReturnChild (new BootstrapRow ());
             aRow.createColumn (aLeft).addChild ("Entity Name:");
             aRow.createColumn (aRight).addChild (aNameCtrl);
           }
 
           if (aStoredDoc.hasGeoInfo ())
           {
-            final var aRow = aLI.addAndReturnChild (new BootstrapRow ());
+            final BootstrapRow aRow = aLI.addAndReturnChild (new BootstrapRow ());
             aRow.createColumn (aLeft).addChild ("Geographical information:");
             aRow.createColumn (aRight).addChildren (HCExtHelper.nl2divList (aStoredDoc.getGeoInfo ()));
           }
           if (aStoredDoc.hasAdditionalInformation ())
           {
-            final var aRow = aLI.addAndReturnChild (new BootstrapRow ());
+            final BootstrapRow aRow = aLI.addAndReturnChild (new BootstrapRow ());
             aRow.createColumn (aLeft).addChild ("Additional information:");
             aRow.createColumn (aRight).addChildren (HCExtHelper.nl2divList (aStoredDoc.getAdditionalInformation ()));
           }
         }
 
-        final BootstrapButton aShowDetailsBtn = new BootstrapButton (EBootstrapButtonType.SUCCESS,
-                                                                     EBootstrapButtonSize.DEFAULT).addChild ("Show details")
+        final BootstrapButton aShowDetailsBtn = new BootstrapButton (EBootstrapButtonType.SUCCESS).addChild ("Show details")
                                                                                                   .setIcon (EDefaultIcon.MAGNIFIER)
-                                                                                                  .addClass (CBootstrapCSS.MT_1)
-                                                                                                  .addClass (CBootstrapCSS.ML_1)
+                                                                                                  .addClasses (CBootstrapCSS.MT_1,
+                                                                                                               CBootstrapCSS.ML_1)
                                                                                                   .setOnClick (aWPEC.getSelfHref ()
                                                                                                                     .add (FIELD_QUERY,
                                                                                                                           sQuery)
