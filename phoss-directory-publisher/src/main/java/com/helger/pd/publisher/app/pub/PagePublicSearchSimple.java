@@ -38,9 +38,9 @@ import com.helger.html.hc.html.forms.EHCFormMethod;
 import com.helger.html.hc.html.forms.HCEdit;
 import com.helger.html.hc.html.forms.HCForm;
 import com.helger.html.hc.html.grouping.HCDiv;
+import com.helger.html.hc.html.grouping.HCLI;
 import com.helger.html.hc.html.grouping.HCOL;
 import com.helger.html.hc.html.grouping.HCUL;
-import com.helger.html.hc.html.tabular.HCCol;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.CPDStorage;
@@ -64,9 +64,9 @@ import com.helger.photon.bootstrap4.button.BootstrapButton;
 import com.helger.photon.bootstrap4.button.BootstrapSubmitButton;
 import com.helger.photon.bootstrap4.button.EBootstrapButtonSize;
 import com.helger.photon.bootstrap4.button.EBootstrapButtonType;
+import com.helger.photon.bootstrap4.grid.BootstrapGridSpec;
 import com.helger.photon.bootstrap4.grid.BootstrapRow;
 import com.helger.photon.bootstrap4.nav.BootstrapTabBox;
-import com.helger.photon.bootstrap4.table.BootstrapTable;
 import com.helger.photon.core.form.RequestField;
 import com.helger.photon.uicore.css.CPageParam;
 import com.helger.photon.uicore.icon.EDefaultIcon;
@@ -248,25 +248,28 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
 
         // Show all entities of the stored document
         final HCUL aUL = aResultItem.addAndReturnChild (new HCUL ());
+
+        // Must be 12 in total
+        final BootstrapGridSpec aLeft = BootstrapGridSpec.create (3);
+        final BootstrapGridSpec aRight = BootstrapGridSpec.create (9);
+
         for (final PDStoredBusinessEntity aStoredDoc : aEntry.getValue ())
         {
-          final BootstrapTable aTable = new BootstrapTable (HCCol.perc (20), HCCol.star ());
-          aTable.setCondensed (true);
+          final HCLI aLI = aUL.addItem ();
+
           if (aStoredDoc.hasCountryCode ())
           {
             // Add country flag (if available)
             final String sCountryCode = aStoredDoc.getCountryCode ();
             final Locale aCountry = CountryCache.getInstance ().getCountry (sCountryCode);
-            aTable.addBodyRow ()
-                  .addCell ("Country:")
-                  .addCell (new HCNodeList ().addChild (PDCommonUI.getFlagNode (sCountryCode))
-                                             .addChild (" ")
-                                             .addChild (span (aCountry != null ? aCountry.getDisplayCountry (
-                                                                                                             aDisplayLocale) +
-                                                                                 " (" +
-                                                                                 sCountryCode +
-                                                                                 ")" : sCountryCode).addClass (
-                                                                                                               CSS_CLASS_RESULT_DOC_COUNTRY_CODE)));
+            final var aRow = aLI.addAndReturnChild (new BootstrapRow ());
+            aRow.createColumn (aLeft).addChild ("Country:");
+            final var aCol = aRow.createColumn (aRight);
+            aCol.addChild (PDCommonUI.getFlagNode (sCountryCode));
+            if (aCountry != null)
+              aCol.addChild (" ").addChild (aCountry.getDisplayCountry (aDisplayLocale) + " (" + sCountryCode + ")");
+            else
+              aCol.addChild (sCountryCode);
           }
 
           if (aStoredDoc.names ().isNotEmpty ())
@@ -285,26 +288,30 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
               aNameCtrl = aNameUL;
             }
 
-            aTable.addBodyRow ()
-                  .addCell ("Entity Name:")
-                  .addCell (span (aNameCtrl).addClass (CSS_CLASS_RESULT_DOC_NAME));
+            final var aRow = aLI.addAndReturnChild (new BootstrapRow ());
+            aRow.createColumn (aLeft).addChild ("Entity Name:");
+            aRow.createColumn (aRight).addChild (aNameCtrl);
           }
 
           if (aStoredDoc.hasGeoInfo ())
-            aTable.addBodyRow ()
-                  .addCell ("Geographical information:")
-                  .addCell (div (HCExtHelper.nl2divList (aStoredDoc.getGeoInfo ())).addClass (CSS_CLASS_RESULT_DOC_GEOINFO));
+          {
+            final var aRow = aLI.addAndReturnChild (new BootstrapRow ());
+            aRow.createColumn (aLeft).addChild ("Geographical information:");
+            aRow.createColumn (aRight).addChildren (HCExtHelper.nl2divList (aStoredDoc.getGeoInfo ()));
+          }
           if (aStoredDoc.hasAdditionalInformation ())
-            aTable.addBodyRow ()
-                  .addCell ("Additional information:")
-                  .addCell (div (HCExtHelper.nl2divList (aStoredDoc.getAdditionalInformation ())).addClass (CSS_CLASS_RESULT_DOC_FREETEXT));
-          aUL.addAndReturnItem (aTable).addClass (CSS_CLASS_RESULT_DOC_HEADER);
+          {
+            final var aRow = aLI.addAndReturnChild (new BootstrapRow ());
+            aRow.createColumn (aLeft).addChild ("Additional information:");
+            aRow.createColumn (aRight).addChildren (HCExtHelper.nl2divList (aStoredDoc.getAdditionalInformation ()));
+          }
         }
 
         final BootstrapButton aShowDetailsBtn = new BootstrapButton (EBootstrapButtonType.SUCCESS,
                                                                      EBootstrapButtonSize.DEFAULT).addChild ("Show details")
                                                                                                   .setIcon (EDefaultIcon.MAGNIFIER)
-                                                                                                  .addClass (CSS_CLASS_RESULT_DOC_SDBUTTON)
+                                                                                                  .addClass (CBootstrapCSS.MT_1)
+                                                                                                  .addClass (CBootstrapCSS.ML_1)
                                                                                                   .setOnClick (aWPEC.getSelfHref ()
                                                                                                                     .add (FIELD_QUERY,
                                                                                                                           sQuery)
