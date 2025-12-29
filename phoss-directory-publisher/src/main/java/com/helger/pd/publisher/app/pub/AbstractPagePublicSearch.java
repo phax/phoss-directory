@@ -40,7 +40,6 @@ import com.helger.html.hc.IHCNode;
 import com.helger.html.hc.html.grouping.HCHR;
 import com.helger.html.hc.html.grouping.HCLI;
 import com.helger.html.hc.html.grouping.HCOL;
-import com.helger.html.hc.html.sections.HCH1;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
@@ -52,7 +51,6 @@ import com.helger.pd.publisher.ui.PDCommonUI;
 import com.helger.peppol.ui.nicename.NiceNameUI;
 import com.helger.peppolid.IDocumentTypeIdentifier;
 import com.helger.peppolid.IParticipantIdentifier;
-import com.helger.peppolid.factory.PeppolIdentifierFactory;
 import com.helger.peppolid.peppol.pidscheme.IPeppolParticipantIdentifierScheme;
 import com.helger.peppolid.peppol.pidscheme.PeppolParticipantIdentifierSchemeManager;
 import com.helger.photon.bootstrap4.card.BootstrapCard;
@@ -115,12 +113,6 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
   protected static final ICSSClassProvider CSS_CLASS_BIG_QUERY_BUTTONS = DefaultCSSClassProvider.create ("big-query-buttons");
 
   protected static final ICSSClassProvider CSS_CLASS_RESULT_DOC = DefaultCSSClassProvider.create ("result-doc");
-  protected static final ICSSClassProvider CSS_CLASS_RESULT_DOC_HEADER = DefaultCSSClassProvider.create ("result-doc-header");
-  protected static final ICSSClassProvider CSS_CLASS_RESULT_DOC_COUNTRY_CODE = DefaultCSSClassProvider.create ("result-doc-country-code");
-  protected static final ICSSClassProvider CSS_CLASS_RESULT_DOC_NAME = DefaultCSSClassProvider.create ("result-doc-name");
-  protected static final ICSSClassProvider CSS_CLASS_RESULT_DOC_GEOINFO = DefaultCSSClassProvider.create ("result-doc-geoinfo");
-  protected static final ICSSClassProvider CSS_CLASS_RESULT_DOC_FREETEXT = DefaultCSSClassProvider.create ("result-doc-freetext");
-  protected static final ICSSClassProvider CSS_CLASS_RESULT_DOC_SDBUTTON = DefaultCSSClassProvider.create ("result-doc-sdbutton");
   protected static final ICSSClassProvider CSS_CLASS_RESULT_PANEL = DefaultCSSClassProvider.create ("result-panel");
 
   protected static final EUIMode UI_MODE;
@@ -189,20 +181,17 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
 
       // Details header
       {
-        IHCNode aDetailsHeader = null;
-        final boolean bIsPeppolDefault = aParticipantID.hasScheme (PeppolIdentifierFactory.INSTANCE.getDefaultParticipantIdentifierScheme ());
-        if (bIsPeppolDefault)
+        final BootstrapPageHeader aDetailsHeader;
+        final IPeppolParticipantIdentifierScheme aPIScheme = PeppolParticipantIdentifierSchemeManager.getSchemeOfIdentifier (aParticipantID);
+        if (aPIScheme != null)
         {
-          final IPeppolParticipantIdentifierScheme aIIA = PeppolParticipantIdentifierSchemeManager.getSchemeOfIdentifier (aParticipantID);
-          if (aIIA != null)
-          {
-            final HCH1 aH1 = h1 ("Details for: " + aParticipantID.getValue ());
-            if (StringHelper.isNotEmpty (aIIA.getSchemeAgency ()))
-              aH1.addChild (small (" (" + aIIA.getSchemeAgency () + ")"));
-            aDetailsHeader = new BootstrapPageHeader ().addChild (aH1);
-          }
+          // Known scheme
+          aDetailsHeader = new BootstrapPageHeader ();
+          aDetailsHeader.addChild (h1 ("Details for: " + aParticipantID.getValue ()));
+          if (StringHelper.isNotEmpty (aPIScheme.getSchemeName ()))
+            aDetailsHeader.addChild (div (strong ("(" + aPIScheme.getSchemeName () + ")")));
         }
-        if (aDetailsHeader == null)
+        else
         {
           // Fallback
           aDetailsHeader = BootstrapWebPageUIHandler.INSTANCE.createPageHeader ("Details for " + sParticipantID);
@@ -257,7 +246,7 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
           aNames.addAllMapped (aStoredEntity.names (), PDStoredMLName::getName);
         aDocTypeCtrl.addChild (info ("The following document types are supported by " +
                                      _getImplodedMapped (", ", " and ", aNames, x -> "'" + x + "'") +
-                                     ":"));
+                                     " at the time of the last indexation:"));
 
         HCOL aDocTypeOL = null;
         final ICommonsList <IDocumentTypeIdentifier> aDocTypeIDs = aResultDocs.getFirstOrNull ()
