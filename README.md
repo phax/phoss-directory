@@ -104,6 +104,7 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 v0.14.10 - work in progress
 * Updated to Peppol eDEC Code Lists v9.5
+* Added new configuration propery `webapp.api.allow.origin` to configure `Access-Control-Allow-Origin` response header
 
 v0.14.9 - 2025-11-16
 * Updated to ph-commons 12.1.0

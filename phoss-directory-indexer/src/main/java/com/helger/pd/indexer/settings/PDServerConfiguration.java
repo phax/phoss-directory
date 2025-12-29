@@ -18,7 +18,6 @@ package com.helger.pd.indexer.settings;
 
 import java.net.URI;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
@@ -40,9 +39,6 @@ import com.helger.config.Config;
 import com.helger.config.ConfigFactory;
 import com.helger.config.IConfig;
 import com.helger.config.source.MultiConfigurationValueProvider;
-import com.helger.config.source.resource.properties.ConfigurationSourceProperties;
-import com.helger.io.resource.IReadableResource;
-import com.helger.io.resourceprovider.ReadableResourceProviderChain;
 import com.helger.peppol.sml.ESMPAPIType;
 import com.helger.peppolid.factory.BDXR1IdentifierFactory;
 import com.helger.peppolid.factory.BDXR2IdentifierFactory;
@@ -102,25 +98,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
     // Start with default setup
     final MultiConfigurationValueProvider ret = ConfigFactory.createDefaultValueProvider ();
 
-    final ReadableResourceProviderChain aResourceProvider = ConfigFactory.createDefaultResourceProviderChain ();
-
-    IReadableResource aRes;
-    final int nBasePrio = ConfigFactory.APPLICATION_PROPERTIES_PRIORITY;
-
-    // Lower priority than the standard files
-    aRes = aResourceProvider.getReadableResourceIf ("private-pd.properties", IReadableResource::exists);
-    if (aRes != null)
-    {
-      LOGGER.error ("The support for the properties file 'private-pd.properties' is deprecated. Place the properties in 'application.properties' instead.");
-      ret.addConfigurationSource (new ConfigurationSourceProperties (aRes, StandardCharsets.UTF_8), nBasePrio - 1);
-    }
-
-    aRes = aResourceProvider.getReadableResourceIf ("pd.properties", IReadableResource::exists);
-    if (aRes != null)
-    {
-      LOGGER.error ("The support for the properties file 'pd.properties' is deprecated. Place the properties in 'application.properties' instead.");
-      ret.addConfigurationSource (new ConfigurationSourceProperties (aRes, StandardCharsets.UTF_8), nBasePrio - 2);
-    }
+    // Nothing atm
 
     return ret;
   }
@@ -262,6 +240,12 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   public static String getWebAppContactTitle (@Nullable final String sDefaultTitle)
   {
     return getConfig ().getAsString ("webapp.contact.title", sDefaultTitle);
+  }
+
+  @Nullable
+  public static String getWebAppAPIAllowOrigin ()
+  {
+    return getConfig ().getAsString ("webapp.api.allow.origin");
   }
 
   /**

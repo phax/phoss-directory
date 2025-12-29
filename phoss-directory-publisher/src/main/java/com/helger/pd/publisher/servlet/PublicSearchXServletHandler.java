@@ -52,6 +52,7 @@ import com.helger.json.JsonObject;
 import com.helger.json.serialize.JsonWriterSettings;
 import com.helger.mime.CMimeType;
 import com.helger.pd.indexer.mgr.PDMetaManager;
+import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
 import com.helger.pd.publisher.app.AppCommonUI;
@@ -341,7 +342,10 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
       final ZonedDateTime aNow = PDTFactory.getCurrentZonedDateTimeUTC ();
 
       // See Directory issue #68
-      aUnifiedResponse.addCustomResponseHeader (CHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
+      final String sAccessAllowOrigin = PDServerConfiguration.getWebAppAPIAllowOrigin ();
+      if (StringHelper.isNotEmpty (sAccessAllowOrigin))
+        aUnifiedResponse.addCustomResponseHeader (CHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN, sAccessAllowOrigin);
+
       aUnifiedResponse.setMimeType (eOutputFormat.getMimeType ());
 
       // build result
