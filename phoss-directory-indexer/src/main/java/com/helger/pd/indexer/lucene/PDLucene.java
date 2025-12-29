@@ -45,14 +45,8 @@ import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.helger.annotation.concurrent.ELockType;
-import com.helger.annotation.concurrent.MustBeLocked;
-import com.helger.base.concurrent.SimpleReadWriteLock;
 import com.helger.base.enforce.ValueEnforcer;
-import com.helger.base.functional.IThrowingSupplier;
-import com.helger.base.iface.IThrowingRunnable;
 import com.helger.base.io.stream.StreamHelper;
-import com.helger.base.state.ESuccess;
 import com.helger.photon.io.WebFileIO;
 
 import jakarta.annotation.Nullable;
@@ -66,11 +60,11 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
 {
   private static final Logger LOGGER = LoggerFactory.getLogger (PDLucene.class);
 
-  private final SimpleReadWriteLock m_aRWLock = new SimpleReadWriteLock ();
   private final Directory m_aDir;
   private final Analyzer m_aAnalyzer;
+  // IndexWriter is thread-safe
   private final IndexWriter m_aIndexWriter;
-  private DirectoryReader m_aIndexReader;
+  private DirectoryReader m_aDirectoryReader;
   private IndexReader m_aSearchReader;
   private IndexSearcher m_aSearcher;
   private final AtomicBoolean m_aClosing = new AtomicBoolean (false);
@@ -138,31 +132,21 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
     // Avoid double closing
     if (!m_aClosing.getAndSet (true))
     {
-      if (false)
-        m_aRWLock.writeLock ().lock ();
-      try
-      {
-        // Start closing
-        StreamHelper.close (m_aIndexReader);
+      // Start closing
+      StreamHelper.close (m_aDirectoryReader);
 
-        // Ensure to commit the writer in case of pending changes
-        if (m_aIndexWriter != null && m_aIndexWriter.isOpen ())
-        {
-          final long nSeqNum = m_aIndexWriter.commit ();
-          if (nSeqNum >= 0)
-            if (LOGGER.isDebugEnabled ())
-              LOGGER.debug ("Committed up to seq# " + nSeqNum);
-        }
-        StreamHelper.close (m_aIndexWriter);
-        StreamHelper.close (m_aDir);
-        StreamHelper.close (m_aAnalyzer);
-        LOGGER.info ("Closed Lucene reader/writer/directory");
-      }
-      finally
+      // Ensure to commit the writer in case of pending changes
+      if (m_aIndexWriter != null && m_aIndexWriter.isOpen ())
       {
-        if (false)
-          m_aRWLock.writeLock ().unlock ();
+        final long nSeqNum = m_aIndexWriter.commit ();
+        if (nSeqNum >= 0)
+          if (LOGGER.isDebugEnabled ())
+            LOGGER.debug ("Committed up to seq# " + nSeqNum);
       }
+      StreamHelper.close (m_aIndexWriter);
+      StreamHelper.close (m_aDir);
+      StreamHelper.close (m_aAnalyzer);
+      LOGGER.info ("Closed Lucene reader/writer/directory");
     }
   }
 
@@ -184,6 +168,7 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
   public Analyzer getAnalyzer ()
   {
     _checkClosing ();
+
     return m_aAnalyzer;
   }
 
@@ -191,13 +176,15 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
   private IndexWriter _getWriter ()
   {
     _checkClosing ();
+
     return m_aIndexWriter;
   }
 
   @Nullable
-  public DirectoryReader getReader () throws IOException
+  public DirectoryReader getDirectoryReader () throws IOException
   {
     _checkClosing ();
+
     try
     {
       // Commit the writer changes only if a reader is requested
@@ -211,12 +198,12 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
       }
 
       // Is a new reader required because the index changed?
-      final DirectoryReader aNewReader = m_aIndexReader != null ? DirectoryReader.openIfChanged (m_aIndexReader)
-                                                                : DirectoryReader.open (m_aDir);
+      final DirectoryReader aNewReader = m_aDirectoryReader != null ? DirectoryReader.openIfChanged (m_aDirectoryReader)
+                                                                    : DirectoryReader.open (m_aDir);
       if (aNewReader != null)
       {
         // Something changed in the index
-        m_aIndexReader = aNewReader;
+        m_aDirectoryReader = aNewReader;
         m_aSearcher = null;
 
         if (LOGGER.isDebugEnabled ())
@@ -225,11 +212,13 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
           LOGGER.debug ("Using DirectoryReader " + aNewReader.toString ());
         }
       }
-      return m_aIndexReader;
+      return m_aDirectoryReader;
     }
     catch (final IndexNotFoundException ex)
     {
       // No such index
+      if (LOGGER.isDebugEnabled ())
+        LOGGER.debug ("No such index", ex);
       return null;
     }
   }
@@ -251,9 +240,10 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
     if (LOGGER.isDebugEnabled ())
       LOGGER.debug ("getDocument(" + nDocID + ")");
 
-    final IndexReader aReader = getReader ();
+    final DirectoryReader aReader = getDirectoryReader ();
     if (aReader == null)
       return null;
+
     try
     {
       return aReader.document (nDocID);
@@ -277,7 +267,8 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
   public IndexSearcher getSearcher () throws IOException
   {
     _checkClosing ();
-    final IndexReader aReader = getReader ();
+
+    final DirectoryReader aReader = getDirectoryReader ();
     if (aReader == null)
     {
       // Index not readable
@@ -288,7 +279,6 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
     if (m_aSearchReader == aReader)
     {
       // Reader did not change - use cached searcher
-      assert m_aSearcher != null;
     }
     else
     {
@@ -313,10 +303,11 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
    * @throws IOException
    *         if there is a low-level IO error
    */
-  @MustBeLocked (ELockType.WRITE)
   public void updateDocument (@Nullable final Term aDelTerm, @NonNull final Iterable <? extends IndexableField> aDoc)
                                                                                                                       throws IOException
   {
+    _checkClosing ();
+
     final long nSeqNum = _getWriter ().updateDocument (aDelTerm, aDoc);
     if (LOGGER.isDebugEnabled ())
       LOGGER.debug ("Last seq# after updateDocument is " + nSeqNum);
@@ -337,10 +328,11 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
    * @throws IOException
    *         if there is a low-level IO error
    */
-  @MustBeLocked (ELockType.WRITE)
   public void updateDocuments (@Nullable final Term aDelTerm,
                                @NonNull final Iterable <? extends Iterable <? extends IndexableField>> aDocs) throws IOException
   {
+    _checkClosing ();
+
     final long nSeqNum;
     if (false)
     {
@@ -369,9 +361,10 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
    * @throws IOException
    *         if there is a low-level IO error
    */
-  @MustBeLocked (ELockType.WRITE)
   public void deleteDocuments (final Term... aTerms) throws IOException
   {
+    _checkClosing ();
+
     final long nSeqNum = _getWriter ().deleteDocuments (aTerms);
     if (LOGGER.isDebugEnabled ())
       LOGGER.debug ("Last seq# after deleteDocuments is " + nSeqNum);
@@ -389,74 +382,13 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
    * @throws IOException
    *         if there is a low-level IO error
    */
-  @MustBeLocked (ELockType.WRITE)
   public void deleteDocuments (final Query... aQueries) throws IOException
   {
+    _checkClosing ();
+
     final long nSeqNum = _getWriter ().deleteDocuments (aQueries);
     if (LOGGER.isDebugEnabled ())
       LOGGER.debug ("Last seq# after deleteDocuments is " + nSeqNum);
     m_aWriterChanges.incrementAndGet ();
-  }
-
-  /**
-   * Run the provided action within a locked section.
-   *
-   * @param aRunnable
-   *        Callback to be executed
-   * @return {@link ESuccess#FAILURE} if the index is just closing
-   * @throws IOException
-   *         may be thrown by the callback
-   */
-  @NonNull
-  public ESuccess writeLockedAtomic (@NonNull final IThrowingRunnable <IOException> aRunnable) throws IOException
-  {
-    if (false)
-      m_aRWLock.writeLock ().lock ();
-    try
-    {
-      if (isClosing ())
-      {
-        LOGGER.info ("Cannot executed something write locked, because Lucene is shutting down");
-        return ESuccess.FAILURE;
-      }
-      aRunnable.run ();
-    }
-    finally
-    {
-      if (false)
-        m_aRWLock.writeLock ().unlock ();
-    }
-    return ESuccess.SUCCESS;
-  }
-
-  /**
-   * Run the provided action within a locked section. *
-   * 
-   * @param aRunnable
-   *        Callback to be executed.
-   * @return <code>null</code> if the index is just closing
-   * @throws IOException
-   *         may be thrown by the callback
-   * @param <T>
-   *        Result type
-   */
-  @Nullable
-  public <T> T readLockedAtomic (@NonNull final IThrowingSupplier <T, IOException> aRunnable) throws IOException
-  {
-    if (false)
-      m_aRWLock.readLock ().lock ();
-    try
-    {
-      if (isClosing ())
-        LOGGER.info ("Cannot executed something read locked, because Lucene is shutting down");
-      else
-        return aRunnable.get ();
-    }
-    finally
-    {
-      if (false)
-        m_aRWLock.readLock ().unlock ();
-    }
-    return null;
   }
 }

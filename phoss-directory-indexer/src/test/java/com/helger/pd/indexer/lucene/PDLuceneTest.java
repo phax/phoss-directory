@@ -91,30 +91,24 @@ public final class PDLuceneTest
     // Existing index
     try (final PDLucene aLucene = new PDLucene ())
     {
-      aLucene.writeLockedAtomic ( () -> {
-        // create or update document
-        aLucene.updateDocument (new Term (idField.name (), idField.stringValue ()), doc);
-      });
+      // create or update document
+      aLucene.updateDocument (new Term (idField.name (), idField.stringValue ()), doc);
 
       // Update field
       doc.removeFields (idField.name ());
       final StringField idField2 = new StringField (idField.name (), "Apache Lucene 7.0.0", Field.Store.YES);
       doc.add (idField2);
 
-      aLucene.writeLockedAtomic ( () -> {
-        // create or update document (with old ID!)
-        aLucene.updateDocument (new Term (idField.name (), idField.stringValue ()), doc);
-      });
+      // create or update document (with old ID!)
+      aLucene.updateDocument (new Term (idField.name (), idField.stringValue ()), doc);
 
       // Update field
       doc.removeFields (idField.name ());
       final StringField idField3 = new StringField (idField.name (), "Apache Lucene 7.5.0", Field.Store.YES);
       doc.add (idField3);
 
-      aLucene.writeLockedAtomic ( () -> {
-        // create or update document (with old ID!)
-        aLucene.updateDocument (new Term (idField2.name (), idField2.stringValue ()), doc);
-      });
+      // create or update document (with old ID!)
+      aLucene.updateDocument (new Term (idField2.name (), idField2.stringValue ()), doc);
     }
   }
 

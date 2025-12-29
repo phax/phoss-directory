@@ -56,13 +56,17 @@ public final class PageSecureListIndex extends AbstractAppWebPage
     // Add toolbar
     {
       final BootstrapButtonToolbar aToolbar = aNodeList.addAndReturnChild (new BootstrapButtonToolbar (aWPEC));
-      aToolbar.addChild (new BootstrapButton ().addChild ("Refresh").setIcon (EDefaultIcon.REFRESH).setOnClick (aWPEC.getSelfHref ()));
+      aToolbar.addChild (new BootstrapButton ().addChild ("Refresh")
+                                               .setIcon (EDefaultIcon.REFRESH)
+                                               .setOnClick (aWPEC.getSelfHref ()));
       aToolbar.addChild (span ("Current server time: " +
-                               PDTToString.getAsString (PDTFactory.getCurrentLocalTime (), aDisplayLocale))
-                                                                                                           .addClass (PDCommonUI.CSS_CLASS_VERTICAL_PADDED_TEXT));
+                               PDTToString.getAsString (PDTFactory.getCurrentLocalTime (), aDisplayLocale)).addClass (
+                                                                                                                      PDCommonUI.CSS_CLASS_VERTICAL_PADDED_TEXT));
     }
 
-    final LinkedBlockingQueue <Object> aQueue = PDMetaManager.getIndexerMgr ().getIndexerWorkQueue ().internalGetQueue ();
+    final LinkedBlockingQueue <Object> aQueue = PDMetaManager.getIndexerMgr ()
+                                                             .getIndexerWorkQueue ()
+                                                             .internalGetQueue ();
     final int nLength = aQueue.size ();
     if (nLength == 0)
     {
@@ -72,16 +76,16 @@ public final class PageSecureListIndex extends AbstractAppWebPage
     {
       aNodeList.addChild (info ("The Index Queue contains " + nLength + " entries"));
 
-      final BootstrapTable aTable = new BootstrapTable (new DTCol ("Queue date time").setDisplayType (EDTColType.DATETIME, aDisplayLocale)
+      final BootstrapTable aTable = new BootstrapTable (new DTCol ("Queue date time").setDisplayType (EDTColType.DATETIME,
+                                                                                                      aDisplayLocale)
                                                                                      .setInitialSorting (ESortOrder.DESCENDING),
                                                         new DTCol ("Participant ID"),
                                                         new DTCol ("Action"),
                                                         new DTCol ("Owner"),
                                                         new DTCol ("Requestor")).setID ("indexqueue");
       for (final Object o : aQueue)
-        if (o instanceof IIndexerWorkItem)
+        if (o instanceof final IIndexerWorkItem aObj)
         {
-          final IIndexerWorkItem aObj = (IIndexerWorkItem) o;
           final HCRow aRow = aTable.addBodyRow ();
           aRow.addCell (PDTToString.getAsString (aObj.getCreationDateTime (), aDisplayLocale));
           aRow.addCell (aObj.getParticipantID ().getURIEncoded ());

@@ -54,7 +54,7 @@ public final class PageSecureAdminLuceneInformation extends AbstractAppWebPage
     aTable.addBodyRow ().addCells ("Lucene index directory", PDLucene.getLuceneIndexDir ().getAbsolutePath ());
     try
     {
-      final DirectoryReader aReader = aLucene.getReader ();
+      final DirectoryReader aReader = aLucene.getDirectoryReader ();
       if (aReader != null)
         aTable.addBodyRow ().addCells ("Directory information", aReader.toString ());
     }

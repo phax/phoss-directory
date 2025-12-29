@@ -55,7 +55,6 @@ import com.helger.base.numeric.mutable.MutableInt;
 import com.helger.base.state.ESuccess;
 import com.helger.base.string.StringHelper;
 import com.helger.base.timing.StopWatch;
-import com.helger.collection.CollectionFind;
 import com.helger.collection.commons.CommonsArrayList;
 import com.helger.collection.commons.CommonsLinkedHashMap;
 import com.helger.collection.commons.CommonsTreeMap;
@@ -150,20 +149,17 @@ public final class PDStorageManager implements IPDStorageManager
     if (aParticipantID == null)
       return false;
 
-    final IThrowingSupplier <Boolean, IOException> cb = () -> {
-      final IndexSearcher aSearcher = m_aLucene.getSearcher ();
-      if (aSearcher != null)
-      {
-        // Search only documents that do not have the deleted field
-        final Query aQuery = new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID));
-        final TopDocs aTopDocs = _timedSearch ( () -> aSearcher.search (aQuery, 1), aQuery);
-        // Lucene 8
-        if (aTopDocs.totalHits.value > 0)
-          return Boolean.TRUE;
-      }
-      return Boolean.FALSE;
-    };
-    return m_aLucene.readLockedAtomic (cb).booleanValue ();
+    final IndexSearcher aSearcher = m_aLucene.getSearcher ();
+    if (aSearcher != null)
+    {
+      // Search only documents that do not have the deleted field
+      final Query aQuery = new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID));
+      final TopDocs aTopDocs = _timedSearch ( () -> aSearcher.search (aQuery, 1), aQuery);
+      // Lucene 8
+      if (aTopDocs.totalHits.value > 0)
+        return true;
+    }
+    return false;
   }
 
   @NonNull
@@ -181,7 +177,8 @@ public final class PDStorageManager implements IPDStorageManager
                  aExtBI.getBusinessCard ().businessEntities ().size () +
                  " entities");
 
-    return m_aLucene.writeLockedAtomic ( () -> {
+    try
+    {
       final ICommonsList <Document> aDocs = new CommonsArrayList <> ();
 
       final PDBusinessCard aBI = aExtBI.getBusinessCard ();
@@ -299,7 +296,7 @@ public final class PDStorageManager implements IPDStorageManager
       if (aDocs.isNotEmpty ())
       {
         // Add "group end" marker
-        CollectionFind.getLastElement (aDocs).add (new Field (FIELD_GROUP_END, VALUE_GROUP_END, TYPE_GROUP_END));
+        aDocs.getLastOrNull ().add (new Field (FIELD_GROUP_END, VALUE_GROUP_END, TYPE_GROUP_END));
       }
       // Delete all existing documents of the participant ID
       // and add the new ones to the index
@@ -310,7 +307,13 @@ public final class PDStorageManager implements IPDStorageManager
                                          aParticipantID.getURIEncoded (),
                                          Integer.valueOf (aDocs.size ()),
                                          aMetaData);
-    });
+      return ESuccess.SUCCESS;
+    }
+    catch (final IllegalStateException ex)
+    {
+      // When index is closing
+      return ESuccess.FAILURE;
+    }
   }
 
   @CheckForSigned
@@ -381,12 +384,21 @@ public final class PDStorageManager implements IPDStorageManager
       aDeleteQuery = aParticipantQuery;
 
     final int nCount = getCount (aDeleteQuery);
-    if (m_aLucene.writeLockedAtomic ( () -> {
+    try
+    {
       // Delete
       m_aLucene.deleteDocuments (aDeleteQuery);
-    }).isFailure ())
+    }
+    catch (final Exception ex)
     {
+      // E.g. Lucene is closing
       LOGGER.error ("Failed to delete docs from the index using the query '" + aDeleteQuery + "'");
+      AuditHelper.onAuditExecuteFailure ("pd-indexer-delete",
+                                         aParticipantID.getURIEncoded (),
+                                         Integer.valueOf (nCount),
+                                         aMetaData,
+                                         Boolean.toString (bVerifyOwner),
+                                         ex.getMessage ());
       return -1;
     }
 
@@ -416,22 +428,17 @@ public final class PDStorageManager implements IPDStorageManager
     ValueEnforcer.notNull (aQuery, "Query");
     ValueEnforcer.notNull (aCollector, "Collector");
 
-    m_aLucene.readLockedAtomic ( () -> {
-      final IndexSearcher aSearcher = m_aLucene.getSearcher ();
-      if (aSearcher != null)
-      {
-        if (LOGGER.isDebugEnabled ())
-          LOGGER.debug ("Searching Lucene: " + aQuery);
+    final IndexSearcher aSearcher = m_aLucene.getSearcher ();
+    if (aSearcher != null)
+    {
+      if (LOGGER.isDebugEnabled ())
+        LOGGER.debug ("Searching Lucene: " + aQuery);
 
-        // Search all documents, collect them
-        _timedSearch ( () -> aSearcher.search (aQuery, aCollector), aQuery);
-      }
-      else
-        LOGGER.error ("Failed to obtain IndexSearcher for " + aQuery);
-
-      // Return values does not matter
-      return null;
-    });
+      // Search all documents, collect them
+      _timedSearch ( () -> aSearcher.search (aQuery, aCollector), aQuery);
+    }
+    else
+      LOGGER.error ("Failed to obtain IndexSearcher for " + aQuery);
   }
 
   @CheckForSigned
