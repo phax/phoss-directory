@@ -39,6 +39,7 @@ import com.helger.html.hc.html.textlevel.HCA;
 import com.helger.html.hc.html.textlevel.HCSpan;
 import com.helger.html.hc.html.textlevel.HCStrong;
 import com.helger.html.hc.impl.HCNodeList;
+import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.app.AppCommonUI;
@@ -163,6 +164,11 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
                .addChild ("About " + CPDPublisher.getApplication ())
                .setHref (aLEC.getLinkToMenuItem (CMenuPublic.MENU_ABOUT));
       aNav.addItem ().addNavDropDown ("About", aDropDown);
+    }
+
+    {
+      final int nQueueLen = PDMetaManager.getIndexerMgr ().getIndexerWorkQueue ().getQueueLength ();
+      aNavbar.addAndReturnText ().addChild ("[Queue length: " + nQueueLen + "]");
     }
 
     final BootstrapNavbarToggleable aToggleable = aNavbar.addAndReturnToggleable ();
@@ -308,14 +314,14 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
       final HCUL aUL = aDiv.addAndReturnChild (new HCUL ().addClass (CSS_CLASS_FOOTER_LINKS));
       for (final IMenuObject aMenuObj : FOOTER_OBJECTS)
       {
-        if (aMenuObj instanceof IMenuSeparator)
-          aUL.addItem (aRenderer.renderSeparator (aLEC, (IMenuSeparator) aMenuObj));
+        if (aMenuObj instanceof final IMenuSeparator aMenuSep)
+          aUL.addItem (aRenderer.renderSeparator (aLEC, aMenuSep));
         else
-          if (aMenuObj instanceof IMenuItemPage)
-            aUL.addItem (aRenderer.renderMenuItemPage (aLEC, (IMenuItemPage) aMenuObj, false, false, false));
+          if (aMenuObj instanceof final IMenuItemPage aMenuPage)
+            aUL.addItem (aRenderer.renderMenuItemPage (aLEC, aMenuPage, false, false, false));
           else
-            if (aMenuObj instanceof IMenuItemExternal)
-              aUL.addItem (aRenderer.renderMenuItemExternal (aLEC, (IMenuItemExternal) aMenuObj, false, false, false));
+            if (aMenuObj instanceof final IMenuItemExternal aMenuExt)
+              aUL.addItem (aRenderer.renderMenuItemExternal (aLEC, aMenuExt, false, false, false));
             else
               throw new IllegalStateException ("Unsupported menu object type!");
       }
