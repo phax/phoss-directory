@@ -22,6 +22,7 @@ import org.jspecify.annotations.NonNull;
 
 import com.helger.annotation.Nonempty;
 import com.helger.annotation.concurrent.Immutable;
+import com.helger.annotation.style.MustImplementEqualsAndHashcode;
 import com.helger.base.enforce.ValueEnforcer;
 import com.helger.base.hashcode.HashCodeGenerator;
 import com.helger.base.id.factory.GlobalIDFactory;
@@ -38,6 +39,7 @@ import com.helger.peppolid.simple.participant.SimpleParticipantIdentifier;
  * @author Philip Helger
  */
 @Immutable
+@MustImplementEqualsAndHashcode
 public final class IndexerWorkItem implements IIndexerWorkItem
 {
   public static final ObjectType OT = new ObjectType ("IndexerWorkItem");

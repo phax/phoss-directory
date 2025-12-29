@@ -21,6 +21,7 @@ import java.io.Serializable;
 import org.jspecify.annotations.NonNull;
 
 import com.helger.annotation.Nonempty;
+import com.helger.annotation.style.MustImplementEqualsAndHashcode;
 import com.helger.annotation.style.ReturnsMutableCopy;
 import com.helger.base.name.IHasDisplayName;
 import com.helger.base.type.ITypedObject;
@@ -33,6 +34,7 @@ import com.helger.peppolid.IParticipantIdentifier;
  *
  * @author Philip Helger
  */
+@MustImplementEqualsAndHashcode
 public interface IIndexerWorkItem extends ITypedObject <String>, Serializable, IHasCreationDateTime, IHasDisplayName
 {
   /**
