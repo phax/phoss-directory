@@ -20,8 +20,6 @@ import java.net.URI;
 import java.net.URL;
 
 import org.jspecify.annotations.NonNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.helger.annotation.CheckForSigned;
 import com.helger.annotation.Nonempty;
@@ -69,8 +67,6 @@ import jakarta.annotation.Nullable;
 @Immutable
 public final class PDServerConfiguration extends AbstractGlobalSingleton
 {
-  private static final Logger LOGGER = LoggerFactory.getLogger (PDServerConfiguration.class);
-
   static
   {
     // Since 0.9.0
