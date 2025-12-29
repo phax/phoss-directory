@@ -166,6 +166,7 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
       aNav.addItem ().addNavDropDown ("About", aDropDown);
     }
 
+    // Index queue length
     {
       final int nQueueLen = PDMetaManager.getIndexerMgr ().getIndexerWorkQueue ().getQueueLength ();
       aNavbar.addAndReturnText ().addChild ("[Queue length: " + nQueueLen + "]");
