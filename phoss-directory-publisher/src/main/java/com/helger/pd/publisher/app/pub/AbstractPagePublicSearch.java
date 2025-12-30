@@ -139,18 +139,22 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
     ValueEnforcer.notNull (sSep, "Separator");
     ValueEnforcer.notNull (aMapper, "Mapper");
 
+    if (aElements == null)
+      return "";
+
+    // Avoid overly long values like in 9949:si10641424
+    if (aElements.size () > 10)
+      return "the participant";
+
     final StringBuilder aSB = new StringBuilder ();
-    if (aElements != null)
+    final int nIndexOfLast = aElements.size () - 1;
+    int nIndex = 0;
+    for (final ELEMENTTYPE aElement : aElements)
     {
-      final int nIndexOfLast = aElements.size () - 1;
-      int nIndex = 0;
-      for (final ELEMENTTYPE aElement : aElements)
-      {
-        if (nIndex > 0)
-          aSB.append (nIndex == nIndexOfLast ? sLastSep : sSep);
-        aSB.append (aMapper.apply (aElement));
-        nIndex++;
-      }
+      if (nIndex > 0)
+        aSB.append (nIndex == nIndexOfLast ? sLastSep : sSep);
+      aSB.append (aMapper.apply (aElement));
+      nIndex++;
     }
     return aSB.toString ();
   }

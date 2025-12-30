@@ -38,6 +38,7 @@ import com.helger.html.hc.html.forms.EHCFormMethod;
 import com.helger.html.hc.html.forms.HCEdit;
 import com.helger.html.hc.html.forms.HCForm;
 import com.helger.html.hc.html.grouping.HCDiv;
+import com.helger.html.hc.html.grouping.HCHR;
 import com.helger.html.hc.html.grouping.HCLI;
 import com.helger.html.hc.html.grouping.HCOL;
 import com.helger.html.hc.html.grouping.HCUL;
@@ -244,12 +245,16 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
         final HCUL aUL = aResultItem.addAndReturnChild (new HCUL ());
 
         // Must be 12 in total
-        final BootstrapGridSpec aLeft = BootstrapGridSpec.create (3);
-        final BootstrapGridSpec aRight = BootstrapGridSpec.create (9);
+        final BootstrapGridSpec aLeft = BootstrapGridSpec.create (3, 3, 3, 2, 2);
+        final BootstrapGridSpec aRight = BootstrapGridSpec.create (9, 9, 9, 10, 10);
 
+        boolean bFirstEntity = true;
         for (final PDStoredBusinessEntity aStoredDoc : aEntry.getValue ())
         {
           final HCLI aLI = aUL.addItem ();
+
+          if (!bFirstEntity)
+            aLI.addChild (new HCHR ().addClass (CBootstrapCSS.P_0));
 
           if (aStoredDoc.hasCountryCode ())
           {
@@ -299,6 +304,8 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
             aRow.createColumn (aLeft).addChild ("Additional information:");
             aRow.createColumn (aRight).addChildren (HCExtHelper.nl2divList (aStoredDoc.getAdditionalInformation ()));
           }
+
+          bFirstEntity = false;
         }
 
         final BootstrapButton aShowDetailsBtn = new BootstrapButton (EBootstrapButtonType.SUCCESS).addChild ("Show details")
