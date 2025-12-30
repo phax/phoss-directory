@@ -230,7 +230,11 @@ public final class PDIndexerManager implements Closeable
     }
 
     // Queue it
-    m_aIndexerWorkQueue.queueObject (aWorkItem);
+    if (m_aIndexerWorkQueue.queueObject (aWorkItem).isFailure ())
+    {
+      LOGGER.error ("Failed to queue work item " + aWorkItem.getLogText ());
+      return EChange.UNCHANGED;
+    }
     LOGGER.info ("Queued work item " + aWorkItem.getLogText ());
 
     // Remove the entry from the other lists to avoid spamming the dead list

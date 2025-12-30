@@ -31,6 +31,9 @@ import com.helger.annotation.style.ReturnsMutableObject;
 import com.helger.base.concurrent.BasicThreadFactoryBuilder;
 import com.helger.base.concurrent.ExecutorServiceHelper;
 import com.helger.base.enforce.ValueEnforcer;
+import com.helger.base.reflection.GenericReflection;
+import com.helger.base.state.ESuccess;
+import com.helger.collection.commons.CommonsArrayList;
 import com.helger.collection.commons.ICommonsList;
 import com.helger.commons.concurrent.collector.ConcurrentCollectorSingle;
 import com.helger.commons.concurrent.collector.IConcurrentPerformer;
@@ -56,7 +59,7 @@ public final class IndexerWorkItemQueue
                                                                               TimeUnit.SECONDS,
                                                                               new SynchronousQueue <> (),
                                                                               m_aThreadFactory);
-  private final ConcurrentCollectorSingle <IIndexerWorkItem> m_aImmediateCollector;
+  private final ConcurrentCollectorSingle <IIndexerWorkItem> [] m_aImmediateCollector = GenericReflection.uncheckedCast (new ConcurrentCollectorSingle [MAX_PARALLEL]);
 
   /**
    * Constructor.
@@ -70,12 +73,14 @@ public final class IndexerWorkItemQueue
     // Use an indefinite queue for holding tasks
     // It's a thread-safe collection
     m_aQueue = new LinkedBlockingQueue <> ();
-    m_aImmediateCollector = new ConcurrentCollectorSingle <> (m_aQueue);
-    m_aImmediateCollector.setPerformer (aPerformer);
 
     // Start the collector(s)
     for (int i = 0; i < MAX_PARALLEL; ++i)
-      m_aSenderThreadPool.submit (m_aImmediateCollector::collect);
+    {
+      m_aImmediateCollector[i] = new ConcurrentCollectorSingle <> (m_aQueue);
+      m_aImmediateCollector[i].setPerformer (aPerformer);
+      m_aSenderThreadPool.submit (m_aImmediateCollector[i]::collect);
+    }
   }
 
   /**
@@ -89,10 +94,12 @@ public final class IndexerWorkItemQueue
   {
     // don't take any more actions
     for (int i = 0; i < MAX_PARALLEL; ++i)
-      m_aImmediateCollector.stopQueuingNewObjects ();
+      m_aImmediateCollector[i].stopQueuingNewObjects ();
 
-    // Get all remaining objects and save them for late reuse
-    final ICommonsList <IIndexerWorkItem> aRemainingItems = m_aImmediateCollector.drainQueue ();
+    // Get all remaining objects and save them for later reuse
+    final ICommonsList <IIndexerWorkItem> aRemainingItems = new CommonsArrayList <> ();
+    for (int i = 0; i < MAX_PARALLEL; ++i)
+      aRemainingItems.addAll (m_aImmediateCollector[i].drainQueue ());
 
     // Shutdown the thread pool afterwards
     ExecutorServiceHelper.shutdownAndWaitUntilAllTasksAreFinished (m_aSenderThreadPool);
@@ -116,11 +123,14 @@ public final class IndexerWorkItemQueue
    *
    * @param aItem
    *        The item to be added. May not be <code>null</code>.
+   * @return {@link ESuccess#SUCCESS} if queuing worked, {@link ESuccess#FAILURE} otherwise.
    */
-  public void queueObject (@NonNull final IIndexerWorkItem aItem)
+  @NonNull
+  public ESuccess queueObject (@NonNull final IIndexerWorkItem aItem)
   {
     ValueEnforcer.notNull (aItem, "Item");
-    m_aImmediateCollector.queueObject (aItem);
+    // Always queue at the first - as they all work on the same queue
+    return m_aImmediateCollector[0].queueObject (aItem);
   }
 
   /**
