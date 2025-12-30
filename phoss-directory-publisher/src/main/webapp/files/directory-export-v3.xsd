@@ -25,14 +25,16 @@
   <xs:annotation>
     <xs:documentation>
       XML Schema for the Directory export data.
-      Version 3
-      Last update: 2025-03-06
+      Version 3.0.1
+      Last update: 2025-12-30
       Author: Philip Helger
       
       This XSD is only needed in the Directory export.
       Additional XSDs are available for the business cards (BCs) as well as for the search results. 
       
       History:
+        * v3.0.1 - 2025-12-30
+          * Fixed the contact attribute name from "phonenumber" to "phone"
         * v3 - 2025-03-06
           * Code list state of nice names was used instead of only "deprecated" indicator
         * v2 - 2019-07-19
@@ -65,7 +67,7 @@
   <xs:complexType name="ContactType">
     <xs:attribute name="email" type="xs:string" use="optional" />
     <xs:attribute name="name" type="xs:string" use="optional" />
-    <xs:attribute name="phonenumber" type="xs:string" use="optional" />
+    <xs:attribute name="phone" type="xs:string" use="optional" />
     <xs:attribute name="type" type="xs:string" use="optional" />
   </xs:complexType>
   
