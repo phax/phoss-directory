@@ -102,13 +102,14 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
-v0.14.10 - 2025-12-29
+v0.14.10 - 2025-12-30
 * Updated to Peppol eDEC Code Lists v9.5
 * Added new configuration propery `webapp.api.allow.origin` to configure `Access-Control-Allow-Origin` response header
 * Removed support for the `pd.properties` and `private-pd.properties` configuration sources
 * The indexation happens now in 4 parallel threads
 * The participant details are now showing the Participant Identifier Scheme name instead of the agency providing it
 * The search result list details (like Name and Country) are now consistently aligned between the different participants
+* Fixed an error in the "directory-export-v3.xsd"
 
 v0.14.9 - 2025-11-16
 * Updated to ph-commons 12.1.0
