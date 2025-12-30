@@ -28,6 +28,7 @@ public final class CMenuPublic
   public static final String MENU_DOCS_REST_API = "docs-rest-api";
   public static final String MENU_DOCS_EXPORT_ALL = "docs-export-all";
   public static final String MENU_ABOUT = "about";
+  public static final String MENU_CHANGE_LOG = "changelog";
 
   // flags
   public static final String FLAG_FOOTER = "footer";

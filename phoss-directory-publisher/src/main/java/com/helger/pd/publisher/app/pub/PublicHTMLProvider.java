@@ -163,6 +163,9 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
       aDropDown.createAndAddItem ()
                .addChild ("About " + CPDPublisher.getApplication ())
                .setHref (aLEC.getLinkToMenuItem (CMenuPublic.MENU_ABOUT));
+      aDropDown.createAndAddItem ()
+               .addChild ("Change Log")
+               .setHref (aLEC.getLinkToMenuItem (CMenuPublic.MENU_CHANGE_LOG));
       aNav.addItem ().addNavDropDown ("About", aDropDown);
     }
 

@@ -52,6 +52,9 @@ public final class MenuPublic
     aMenuTree.createRootItem (new AppPageViewExternal (CMenuPublic.MENU_ABOUT,
                                                        "About " + CPDPublisher.getApplication (),
                                                        new ClassPathResource ("viewpages/en/about.xml")));
+    aMenuTree.createRootItem (new AppPageViewExternal (CMenuPublic.MENU_CHANGE_LOG,
+                                                       "Change Log",
+                                                       new ClassPathResource ("viewpages/en/changelog.xml")));
 
     // Set default
     aMenuTree.setDefaultMenuItemID (CMenuPublic.MENU_SEARCH_SIMPLE);

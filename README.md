@@ -109,7 +109,9 @@ v0.14.10 - 2025-12-30
 * The indexation happens now in 4 parallel threads
 * The participant details are now showing the Participant Identifier Scheme name instead of the agency providing it
 * The search result list details (like Name and Country) are now consistently aligned between the different participants
-* Fixed an error in the "directory-export-v3.xsd"
+* Added a small hint for invalid Belgian CBE numbers in the Participant Details
+* Fixed an error in the `directory-export-v3.xsd`
+* Implemented an initial version of the change log. See [#76](https://github.com/phax/phoss-directory/issues/76)
 
 v0.14.9 - 2025-11-16
 * Updated to ph-commons 12.1.0
