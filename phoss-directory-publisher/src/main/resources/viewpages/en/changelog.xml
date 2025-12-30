@@ -31,6 +31,7 @@
   <li>The search result list details (like Name and Country) are now consistently aligned between the different participants</li>
   <li>Added a small hint for invalid Belgian CBE numbers in the Participant Details</li>
   <li>Fixed an error in the <code>directory-export-v3.xsd</code></li>
+  <li>Showing the current queue length in the title bar to more easily evaluate possible delays</li>
 </ul>
 
 <div>The changes for previous releases are not available.</div>

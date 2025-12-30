@@ -112,6 +112,7 @@ v0.14.10 - 2025-12-30
 * Added a small hint for invalid Belgian CBE numbers in the Participant Details
 * Fixed an error in the `directory-export-v3.xsd`
 * Implemented an initial version of the change log. See [#76](https://github.com/phax/phoss-directory/issues/76)
+* Showing the current queue length in the title bar to more easily evaluate possible delays
 
 v0.14.9 - 2025-11-16
 * Updated to ph-commons 12.1.0
