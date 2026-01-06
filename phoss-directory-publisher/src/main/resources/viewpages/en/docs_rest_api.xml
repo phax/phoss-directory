@@ -187,7 +187,7 @@
   <div>Name: <span class="pname">identifierScheme</span></div>
   <div>Description:
     <span class="pdesc">
-      Searches for exact matches in the additional identifier schemes.
+      Searches for exact matches in the <strong>additional identifier schemes</strong>.
       Combine it with <span class="pname">identifierValue</span> for fine grained search results. 
     </span>
   </div>
@@ -214,8 +214,8 @@
   <div>Name: <span class="pname">identifierValue</span></div>
   <div>Description:
     <span class="pdesc">
-      Searches for exact matches in the additional identifier values.
-      Combine it with <span class="pname">identifierScheme</span> for fine grained search results. 
+      Searches for exact matches in the <strong>additional identifier values</strong>.
+      Combine it with <span class="pname">identifierScheme</span> for fine grained search results.
     </span>
   </div>
   <div>
@@ -226,6 +226,10 @@
     <span class="badge badge-info">Note</span>
     This field is only used for the additional identifiers and <strong>not</strong>
     for participant and document type identifiers!
+  </div>
+  <div>
+    <span class="badge badge-warning">Note</span>
+    This parameter does NOT search for participant identifiers. Use the <code>participant</code> parameter instead.
   </div>
   <div class="tryme">
     <span class="badge badge-primary">Example</span>
