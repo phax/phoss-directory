@@ -458,4 +458,10 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   {
     return getConfig ().getAsBoolean ("sync.businesscards", false);
   }
+
+  @Nullable
+  public static String getS3BucketName ()
+  {
+    return getConfig ().getAsString ("aws.export.s3.bucket");
+  }
 }

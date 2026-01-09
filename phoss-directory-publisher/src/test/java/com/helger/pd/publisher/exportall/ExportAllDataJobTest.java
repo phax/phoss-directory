@@ -56,11 +56,11 @@ public final class ExportAllDataJobTest
 
     final var aHdl = new CollectingSAXErrorHandler ();
     aValidator.setErrorHandler (aHdl);
-    aValidator.validate (TransformSourceFactory.create (ExportAllManager._getInternalFileBusinessCardXMLFull ()));
+    aValidator.validate (TransformSourceFactory.create (ExportAllManager.streamBusinessCardXMLFull ()));
     assertTrue (aHdl.getErrorList ().toString (), aHdl.getErrorList ().containsNoError ());
 
     aHdl.clearResourceErrors ();
-    aValidator.validate (TransformSourceFactory.create (ExportAllManager._getInternalFileBusinessCardXMLNoDocTypes ()));
+    aValidator.validate (TransformSourceFactory.create (ExportAllManager.streamBusinessCardXMLNoDocTypes ()));
     assertTrue (aHdl.getErrorList ().toString (), aHdl.getErrorList ().containsNoError ());
   }
 }
