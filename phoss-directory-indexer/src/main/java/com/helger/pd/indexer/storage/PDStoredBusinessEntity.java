@@ -97,7 +97,7 @@ public final class PDStoredBusinessEntity
 
   @NonNull
   @ReturnsMutableObject
-  public ICommonsList <PDStoredMLName> names ()
+  public ICommonsList <@NonNull PDStoredMLName> names ()
   {
     return m_aNames;
   }
@@ -136,21 +136,21 @@ public final class PDStoredBusinessEntity
 
   @NonNull
   @ReturnsMutableObject
-  public ICommonsList <PDStoredIdentifier> identifiers ()
+  public ICommonsList <@NonNull PDStoredIdentifier> identifiers ()
   {
     return m_aIdentifiers;
   }
 
   @NonNull
   @ReturnsMutableObject
-  public ICommonsList <String> websiteURIs ()
+  public ICommonsList <@NonNull String> websiteURIs ()
   {
     return m_aWebsiteURIs;
   }
 
   @NonNull
   @ReturnsMutableObject
-  public ICommonsList <PDStoredContact> contacts ()
+  public ICommonsList <@NonNull PDStoredContact> contacts ()
   {
     return m_aContacts;
   }
@@ -189,7 +189,7 @@ public final class PDStoredBusinessEntity
 
   @NonNull
   @ReturnsMutableObject
-  public ICommonsList <IDocumentTypeIdentifier> documentTypeIDs ()
+  public ICommonsList <@NonNull IDocumentTypeIdentifier> documentTypeIDs ()
   {
     return m_aDocumentTypeIDs;
   }

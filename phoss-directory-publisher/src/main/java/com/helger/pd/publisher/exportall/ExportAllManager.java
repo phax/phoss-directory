@@ -181,7 +181,7 @@ public final class ExportAllManager
       aMap.computeIfAbsent (aEntity.getParticipantID (), k -> new CommonsArrayList <> ()).add (aEntity);
     });
 
-    return ExportHelper.getAsXML (aMap, bIncludeDocTypes);
+    return ExportHelper.getAllBusinessCardsAsUIXML (aMap, bIncludeDocTypes);
   }
 
   @NonNull
@@ -232,7 +232,7 @@ public final class ExportAllManager
           // Otherwise, the PI might have been deleted in the meantime
           if (aEntitiesPerPI.isNotEmpty ())
           {
-            ExportHelper.writeElement (aParticipantID, aEntitiesPerPI, bIncludeDocTypes, aXmlWriter);
+            ExportHelper.exportSingleBusinessCard (aParticipantID, aEntitiesPerPI, bIncludeDocTypes, aXmlWriter);
           }
         }
       }

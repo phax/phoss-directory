@@ -16,8 +16,6 @@
  */
 package com.helger.pd.publisher.exportall;
 
-import java.util.Map;
-
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
@@ -51,8 +49,8 @@ final class ExportHelper
   {}
 
   @NonNull
-  static IMicroDocument getAsXML (@NonNull final ICommonsOrderedMap <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> aMap,
-                                  final boolean bIncludeDocTypes)
+  static IMicroDocument getAllBusinessCardsAsUIXML (@NonNull final ICommonsOrderedMap <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> aMap,
+                                                    final boolean bIncludeDocTypes)
   {
     // XML root
     final IMicroDocument aDoc = new MicroDocument ();
@@ -62,15 +60,18 @@ final class ExportHelper
     aRoot.setAttribute ("codeListSupported", EPredefinedDocumentTypeIdentifier.CODE_LIST_VERSION);
 
     // For all BCs
-    for (final Map.Entry <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> aEntry : aMap.entrySet ())
+    for (final var aEntry : aMap.entrySet ())
     {
       final IParticipantIdentifier aParticipantID = aEntry.getKey ();
       final ICommonsList <PDStoredBusinessEntity> aStoredBEs = aEntry.getValue ();
 
+      // Convert to a generic Business Card
       final PDBusinessCard aBC = new PDBusinessCard ();
       aBC.setParticipantIdentifier (new PDIdentifier (aParticipantID.getScheme (), aParticipantID.getValue ()));
       for (final PDStoredBusinessEntity aSBE : aStoredBEs)
         aBC.businessEntities ().add (aSBE.getAsBusinessEntity ());
+
+      // Use the XML representation of PDBusinessCard
       final IMicroElement eBC = aBC.getAsMicroXML (XML_EXPORT_NS_URI_V3, "businesscard");
 
       // New in XML v2 - add all Document types
@@ -98,10 +99,10 @@ final class ExportHelper
     return aDoc;
   }
 
-  static void writeElement (@NonNull final IParticipantIdentifier aParticipantID,
-                            @NonNull final ICommonsList <PDStoredBusinessEntity> aBEs,
-                            final boolean bIncludeDocTypes,
-                            @NonNull final XMLStreamWriter aXSW) throws XMLStreamException
+  static void exportSingleBusinessCard (@NonNull final IParticipantIdentifier aParticipantID,
+                                        @NonNull final ICommonsList <@NonNull PDStoredBusinessEntity> aBEs,
+                                        final boolean bIncludeDocTypes,
+                                        @NonNull final XMLStreamWriter aXSW) throws XMLStreamException
   {
     aXSW.writeStartElement (XML_EXPORT_NS_URI_V3, "businesscard");
 
