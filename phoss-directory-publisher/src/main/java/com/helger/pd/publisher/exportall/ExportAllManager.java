@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
 import com.helger.annotation.Nonempty;
 import com.helger.annotation.WillNotClose;
 import com.helger.annotation.concurrent.ThreadSafe;
+import com.helger.base.CGlobal;
 import com.helger.base.io.iface.IHasInputStream;
 import com.helger.base.io.stream.NonClosingOutputStream;
 import com.helger.base.io.stream.StreamHelper;
@@ -115,30 +116,31 @@ public final class ExportAllManager
     final String sTempFilename = sFilename + ".temp";
 
     // Pipe pair
-    try (final PipedInputStream in = new PipedInputStream ())
+    try (final PipedInputStream aPipeIS = new PipedInputStream (CGlobal.BYTES_PER_KILOBYTE * 50))
     {
-      final PipedOutputStream out = new PipedOutputStream (in);
+      final PipedOutputStream aPipeOS = new PipedOutputStream (aPipeIS);
 
       // Producer thread that writes to the OutputStream
       final Thread aProducerThread = new Thread ( () -> {
-        try (final OutputStream os = out)
+        try (final OutputStream os = aPipeOS)
         {
           aByteProducer.accept (os);
         }
         catch (final IOException ex)
         {
           LOGGER.error ("Failed fill OutputStream", ex);
-          StreamHelper.close (out);
+          StreamHelper.close (aPipeOS);
         }
-      });
+      }, "BackgroundPipedProducer1");
+      aProducerThread.setDaemon (true);
       aProducerThread.start ();
       try
       {
         // Upload; this call reads from the PipedInputStream while producer writes
         // Throws a runtime exception in case of error
-        S3Helper.putObjectFromStreamCrt (sBucketName, sTempFilename, aContentType, in);
+        S3Helper.putObjectFromStreamCrt (sBucketName, sTempFilename, aContentType, aPipeIS);
       }
-      catch (final RuntimeException ex)
+      catch (final Throwable ex)
       {
         LOGGER.error ("Failed to initially upload to S3", ex);
         return ESuccess.FAILURE;

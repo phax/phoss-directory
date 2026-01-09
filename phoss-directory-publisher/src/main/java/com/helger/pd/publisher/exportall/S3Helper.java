@@ -41,23 +41,26 @@ public final class S3Helper
   private static final Logger LOGGER = LoggerFactory.getLogger (S3Helper.class);
 
   // We run everything in EU West 1 (=Ireland)
-  private static final Region AWS_REGION = Region.EU_WEST_1;
+  private static final Region AWS_REGION = true ? Region.US_EAST_1 : Region.EU_WEST_1;
 
-  public static final S3Client S3 = S3Client.builder ()
-                                            .region (AWS_REGION)
-                                            .endpointOverride (URI.create ("http://localhost:4566"))
-                                            .credentialsProvider (StaticCredentialsProvider.create (AwsBasicCredentials.create ("test",
-                                                                                                                                "test")))
-                                            .serviceConfiguration (S3Configuration.builder ()
-                                                                                  .pathStyleAccessEnabled (Boolean.TRUE)
-                                                                                  .build ())
-                                            .build ();
-  public static final S3AsyncClient S3_ASYNC = S3AsyncClient.crtBuilder ()
-                                                            .region (AWS_REGION)
-                                                            .endpointOverride (URI.create ("http://localhost:4566"))
-                                                            .credentialsProvider (StaticCredentialsProvider.create (AwsBasicCredentials.create ("test",
-                                                                                                                                                "test")))
-                                                            .build ();
+  public static final S3Client S3;
+  public static final S3AsyncClient S3_ASYNC;
+
+  static
+  {
+    S3 = S3Client.builder ()
+                 .region (AWS_REGION)
+                 .endpointOverride (URI.create ("http://localhost:4566"))
+                 .credentialsProvider (StaticCredentialsProvider.create (AwsBasicCredentials.create ("test", "test")))
+                 .serviceConfiguration (S3Configuration.builder ().pathStyleAccessEnabled (Boolean.TRUE).build ())
+                 .build ();
+    S3_ASYNC = S3AsyncClient.crtBuilder ()
+                            .region (AWS_REGION)
+                            .endpointOverride (URI.create ("http://localhost:4566"))
+                            .credentialsProvider (StaticCredentialsProvider.create (AwsBasicCredentials.create ("test",
+                                                                                                                "test")))
+                            .build ();
+  }
 
   @Nullable
   public static ResponseInputStream <GetObjectResponse> getS3Object (@NonNull @Nonempty final String sBucketName,
