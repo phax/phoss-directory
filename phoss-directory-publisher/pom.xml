@@ -114,11 +114,6 @@
       <artifactId>s3-transfer-manager</artifactId>
       <version>${awssdk.version}</version>
     </dependency>
-    <dependency>
-      <groupId>software.amazon.awssdk.crt</groupId>
-      <artifactId>aws-crt</artifactId>
-      <version>0.42.1</version>
-    </dependency>
     
     <dependency>
       <groupId>jakarta.servlet</groupId>

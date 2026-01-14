@@ -464,4 +464,10 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   {
     return getConfig ().getAsString ("aws.export.s3.bucket");
   }
+
+  @Nullable
+  public static String getS3WebsiteURLWithTrailingSlash ()
+  {
+    return getConfig ().getAsString ("aws.export.s3.publicurl");
+  }
 }

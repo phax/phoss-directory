@@ -1,10 +1,6 @@
 package com.helger.pd.publisher.exportall;
 
-import java.io.InputStream;
 import java.net.URI;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -12,14 +8,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.annotation.Nonempty;
-import com.helger.annotation.WillNotClose;
 import com.helger.base.state.ESuccess;
+import com.helger.base.system.SystemProperties;
 import com.helger.mime.IMimeType;
+import com.helger.pd.indexer.settings.PDServerConfiguration;
 
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.ResponseInputStream;
-import software.amazon.awssdk.core.async.AsyncRequestBody;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3AsyncClient;
@@ -41,25 +37,53 @@ public final class S3Helper
   private static final Logger LOGGER = LoggerFactory.getLogger (S3Helper.class);
 
   // We run everything in EU West 1 (=Ireland)
-  private static final Region AWS_REGION = true ? Region.US_EAST_1 : Region.EU_WEST_1;
+  // Should be provided via EnvVar
 
   public static final S3Client S3;
   public static final S3AsyncClient S3_ASYNC;
+  public static final String S3_PUBLIC_URL;
 
   static
   {
-    S3 = S3Client.builder ()
-                 .region (AWS_REGION)
-                 .endpointOverride (URI.create ("http://localhost:4566"))
-                 .credentialsProvider (StaticCredentialsProvider.create (AwsBasicCredentials.create ("test", "test")))
-                 .serviceConfiguration (S3Configuration.builder ().pathStyleAccessEnabled (Boolean.TRUE).build ())
-                 .build ();
-    S3_ASYNC = S3AsyncClient.crtBuilder ()
-                            .region (AWS_REGION)
-                            .endpointOverride (URI.create ("http://localhost:4566"))
-                            .credentialsProvider (StaticCredentialsProvider.create (AwsBasicCredentials.create ("test",
-                                                                                                                "test")))
-                            .build ();
+    final String sBucketName = PDServerConfiguration.getS3BucketName ();
+    if ("true".equals (SystemProperties.getPropertyValue ("pd.aws.localstack")))
+    {
+      LOGGER.info ("Configuring S3 for LocalStack mode");
+      final URI aEndpointOverride = URI.create ("http://localhost:4566");
+      S3 = S3Client.builder ()
+                   .region (Region.US_EAST_1)
+                   .credentialsProvider (StaticCredentialsProvider.create (AwsBasicCredentials.create ("test", "test")))
+                   .endpointOverride (aEndpointOverride)
+                   .serviceConfiguration (S3Configuration.builder ().pathStyleAccessEnabled (Boolean.TRUE).build ())
+                   .build ();
+      S3_ASYNC = S3AsyncClient.builder ()
+                              .region (Region.US_EAST_1)
+                              .credentialsProvider (StaticCredentialsProvider.create (AwsBasicCredentials.create ("test",
+                                                                                                                  "test")))
+                              .endpointOverride (aEndpointOverride)
+                              .serviceConfiguration (S3Configuration.builder ()
+                                                                    .pathStyleAccessEnabled (Boolean.TRUE)
+                                                                    .build ())
+                              .build ();
+      // Constant URL for local stuff
+      S3_PUBLIC_URL = "http://" + sBucketName + ".s3-website.localhost.localstack.cloud:4566/";
+    }
+    else
+    {
+      LOGGER.info ("Configuring S3 for AWS mode");
+      S3 = S3Client.builder ()
+                   .region (Region.US_WEST_1)
+                   .serviceConfiguration (S3Configuration.builder ().pathStyleAccessEnabled (Boolean.TRUE).build ())
+                   .build ();
+      S3_ASYNC = S3AsyncClient.builder ()
+                              .region (Region.US_WEST_1)
+                              .serviceConfiguration (S3Configuration.builder ()
+                                                                    .pathStyleAccessEnabled (Boolean.TRUE)
+                                                                    .build ())
+                              .build ();
+      // Constant URL for local stuff
+      S3_PUBLIC_URL = PDServerConfiguration.getS3WebsiteURLWithTrailingSlash ();
+    }
   }
 
   @Nullable
@@ -78,10 +102,10 @@ public final class S3Helper
     }
   }
 
-  private static void _putS3Object (@NonNull @Nonempty final String sBucketName,
-                                    @NonNull @Nonempty final String sKey,
-                                    @NonNull final IMimeType aMimeType,
-                                    @NonNull final RequestBody aRequestBody)
+  public static void putS3Object (@NonNull @Nonempty final String sBucketName,
+                                  @NonNull @Nonempty final String sKey,
+                                  @NonNull final IMimeType aMimeType,
+                                  @NonNull final RequestBody aRequestBody)
   {
     LOGGER.info ("Writing to S3 '" + sBucketName + "' / '" + sKey + "' as '" + aMimeType.getAsString () + "'");
 
@@ -105,60 +129,6 @@ public final class S3Helper
     catch (final RuntimeException ex)
     {
       throw new IllegalStateException ("Failed to write to S3 '" + sBucketName + "' / '" + sKey + "'", ex);
-    }
-  }
-
-  @NonNull
-  public static PutObjectResponse putObjectFromStreamCrt (@NonNull @Nonempty final String sBucketName,
-                                                          @NonNull @Nonempty final String sKey,
-                                                          @NonNull final IMimeType aMimeType,
-                                                          @NonNull @WillNotClose final InputStream aIS)
-  {
-    LOGGER.info ("Writing async S3 '" + sBucketName + "' / '" + sKey + "' as '" + aMimeType.getAsString () + "'");
-
-    try
-    {
-      // Executor required to handle reading from the InputStream on a separate thread so the main
-      // upload is not blocked.
-      final ExecutorService aExecutor = Executors.newSingleThreadExecutor ();
-      try
-      {
-        // Specify "null" for the content length as the length is unknown
-        final AsyncRequestBody aBody = AsyncRequestBody.fromInputStream (aIS, null, aExecutor);
-
-        final CompletableFuture <PutObjectResponse> aFuture = S3_ASYNC.putObject (putObjReq -> putObjReq.bucket (sBucketName)
-                                                                                                        .key (sKey)
-                                                                                                        .contentType (aMimeType.getAsString ()),
-                                                                                  aBody);
-
-        // Wait for the response.
-        final PutObjectResponse aResponse = aFuture.join ();
-
-        if (!aResponse.sdkHttpResponse ().isSuccessful ())
-          throw new IllegalStateException ("Failed to put async S3 '" +
-                                           sBucketName +
-                                           "' / '" +
-                                           sKey +
-                                           "': " +
-                                           aResponse.sdkHttpResponse ());
-
-        if (LOGGER.isDebugEnabled ())
-          LOGGER.debug ("Successfully wrote async S3 '" + sBucketName + "' / '" + sKey + "'");
-
-        return aResponse;
-      }
-      finally
-      {
-        aExecutor.shutdown ();
-      }
-    }
-    catch (final IllegalStateException ex)
-    {
-      throw ex;
-    }
-    catch (final RuntimeException ex)
-    {
-      throw new IllegalStateException ("Failed to write async S3 '" + sBucketName + "' / '" + sKey + "'", ex);
     }
   }
 

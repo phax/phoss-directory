@@ -16,11 +16,10 @@
  */
 package com.helger.pd.publisher.exportall;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
@@ -34,15 +33,12 @@ import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.annotation.Nonempty;
 import com.helger.annotation.WillNotClose;
 import com.helger.annotation.concurrent.ThreadSafe;
-import com.helger.base.CGlobal;
-import com.helger.base.io.iface.IHasInputStream;
 import com.helger.base.io.stream.NonClosingOutputStream;
 import com.helger.base.io.stream.StreamHelper;
 import com.helger.base.state.ESuccess;
@@ -56,7 +52,7 @@ import com.helger.collection.commons.ICommonsSortedSet;
 import com.helger.csv.CSVWriter;
 import com.helger.datetime.helper.PDTFactory;
 import com.helger.datetime.web.PDTWebDateHelper;
-import com.helger.http.CHttpHeader;
+import com.helger.io.file.FileHelper;
 import com.helger.mime.CMimeType;
 import com.helger.mime.IMimeType;
 import com.helger.pd.indexer.mgr.PDMetaManager;
@@ -79,6 +75,7 @@ import com.helger.xml.serialize.write.XMLWriterSettings;
 
 import jakarta.json.Json;
 import jakarta.json.stream.JsonGenerator;
+import software.amazon.awssdk.core.sync.RequestBody;
 
 @ThreadSafe
 public final class ExportAllManager
@@ -112,89 +109,55 @@ public final class ExportAllManager
                                                 @NonNull final IMimeType aContentType,
                                                 @NonNull final Consumer <OutputStream> aByteProducer) throws IOException
   {
-    final String sBucketName = PDServerConfiguration.getS3BucketName ();
-    final String sTempFilename = sFilename + ".temp";
+    // 1. Create a temp file
+    final File fTemp = File.createTempFile ("pd-", ".xml");
 
-    // Pipe pair
-    try (final PipedInputStream aPipeIS = new PipedInputStream (CGlobal.BYTES_PER_KILOBYTE * 50))
+    try
     {
-      final PipedOutputStream aPipeOS = new PipedOutputStream (aPipeIS);
+      // 2. Write data to temp file
+      try (final OutputStream aFOS = FileHelper.getBufferedOutputStream (fTemp))
+      {
+        aByteProducer.accept (aFOS);
+      }
 
-      // Producer thread that writes to the OutputStream
-      final Thread aProducerThread = new Thread ( () -> {
-        try (final OutputStream os = aPipeOS)
-        {
-          aByteProducer.accept (os);
-        }
-        catch (final IOException ex)
-        {
-          LOGGER.error ("Failed fill OutputStream", ex);
-          StreamHelper.close (aPipeOS);
-        }
-      }, "BackgroundPipedProducer1");
-      aProducerThread.setDaemon (true);
-      aProducerThread.start ();
+      LOGGER.info ("Finished writing temp file '" + fTemp.getAbsolutePath () + "' - now upload to S3");
+
+      // 3. Now upload the temp file to S3
+      final String sBucketName = PDServerConfiguration.getS3BucketName ();
+      final String sTempFilename = sFilename + ".temp";
+
       try
       {
         // Upload; this call reads from the PipedInputStream while producer writes
         // Throws a runtime exception in case of error
-        S3Helper.putObjectFromStreamCrt (sBucketName, sTempFilename, aContentType, aPipeIS);
+        S3Helper.putS3Object (sBucketName, sTempFilename, aContentType, RequestBody.fromFile (fTemp));
       }
       catch (final Throwable ex)
       {
         LOGGER.error ("Failed to initially upload to S3", ex);
         return ESuccess.FAILURE;
       }
-      finally
+
+      // As S3 has no rename, we need to do copy and delete
+      // 4. Delete the original file, if it exists
+      S3Helper.deleteS3Object (sBucketName, sFilename);
+
+      // 5. copy the temp file to the new file
+      if (S3Helper.copyS3Object (sBucketName, sTempFilename, sFilename).isFailure ())
       {
-        // Optionally wait for producer to finish (for error handling)
-        try
-        {
-          aProducerThread.join ();
-        }
-        catch (final InterruptedException e)
-        {
-          Thread.currentThread ().interrupt ();
-          throw new IOException ("Producer thread interrupted", e);
-        }
+        LOGGER.error ("Failed to copy on S3 '" + sBucketName + "' / '" + sTempFilename + "' to '" + sFilename + "'");
+        return ESuccess.FAILURE;
       }
+
+      // 6. Delete the temp file
+      S3Helper.deleteS3Object (sBucketName, sTempFilename);
+      LOGGER.info ("Finished S3 uploading");
+      return ESuccess.SUCCESS;
     }
-
-    // As S3 has no rename, we need to do copy and delete
-    // 1. Delete the original file, if it exists
-    S3Helper.deleteS3Object (sBucketName, sFilename);
-    if (S3Helper.copyS3Object (sBucketName, sTempFilename, sFilename).isFailure ())
+    finally
     {
-      LOGGER.error ("Failed to copy on S3 '" + sBucketName + "' / '" + sTempFilename + "' to '" + sFilename + "'");
-      return ESuccess.FAILURE;
+      fTemp.delete ();
     }
-
-    S3Helper.deleteS3Object (sBucketName, sTempFilename);
-    return ESuccess.SUCCESS;
-  }
-
-  private static void _streamFileToResponse (@NonNull final String sKey, @NonNull final UnifiedResponse aUR)
-  {
-    final String sBucketName = PDServerConfiguration.getS3BucketName ();
-
-    // setContent(IReadableResource) is lazy
-    aUR.setContent (new IHasInputStream ()
-    {
-      public @Nullable InputStream getInputStream ()
-      {
-        return S3Helper.getS3Object (sBucketName, sKey);
-      }
-
-      public boolean isReadMultiple ()
-      {
-        return false;
-      }
-    });
-
-    // legacy - maybe we will need it
-    final long nFileLen = -1;
-    if (nFileLen > 0)
-      aUR.setCustomResponseHeader (CHttpHeader.CONTENT_LENGTH, Long.toString (nFileLen));
   }
 
   @NonNull
@@ -209,6 +172,12 @@ public final class ExportAllManager
   {
     final String sBucketName = PDServerConfiguration.getS3BucketName ();
     return S3Helper.getS3Object (sBucketName, INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_NO_DOC_TYPES);
+  }
+
+  private static void _redirectTo (@NonNull final String sKey, @NonNull final UnifiedResponse aUR)
+  {
+    // Get data directly from S3
+    aUR.setRedirect (S3Helper.S3_PUBLIC_URL + sKey);
   }
 
   @NonNull
@@ -321,9 +290,9 @@ public final class ExportAllManager
    * @param aUR
    *        The response to stream to. May not be <code>null</code>.
    */
-  public static void streamFileBusinessCardXMLFullTo (@NonNull final UnifiedResponse aUR)
+  public static void redirectToBusinessCardXMLFull (@NonNull final UnifiedResponse aUR)
   {
-    _streamFileToResponse (INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_FULL, aUR);
+    _redirectTo (INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_FULL, aUR);
   }
 
   @NonNull
@@ -340,9 +309,9 @@ public final class ExportAllManager
    * @param aUR
    *        The response to stream to. May not be <code>null</code>.
    */
-  public static void streamFileBusinessCardXMLNoDocTypesTo (@NonNull final UnifiedResponse aUR)
+  public static void redirectToBusinessCardXMLNoDocTypes (@NonNull final UnifiedResponse aUR)
   {
-    _streamFileToResponse (INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_NO_DOC_TYPES, aUR);
+    _redirectTo (INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_NO_DOC_TYPES, aUR);
   }
 
   @NonNull
@@ -486,9 +455,9 @@ public final class ExportAllManager
    * @param aUR
    *        The response to stream to. May not be <code>null</code>.
    */
-  public static void streamFileBusinessCardJSONTo (@NonNull final UnifiedResponse aUR)
+  public static void redirectToBusinessCardJSON (@NonNull final UnifiedResponse aUR)
   {
-    _streamFileToResponse (INTERNAL_EXPORT_ALL_BUSINESSCARDS_JSON, aUR);
+    _redirectTo (INTERNAL_EXPORT_ALL_BUSINESSCARDS_JSON, aUR);
   }
 
   private static void _unify (@NonNull @WillNotClose final CSVWriter aCSVWriter)
@@ -590,9 +559,9 @@ public final class ExportAllManager
    * @param aUR
    *        The response to stream to. May not be <code>null</code>.
    */
-  public static void streamFileBusinessCardCSVTo (@NonNull final UnifiedResponse aUR)
+  public static void redirectToBusinessCardCSV (@NonNull final UnifiedResponse aUR)
   {
-    _streamFileToResponse (INTERNAL_EXPORT_ALL_BUSINESSCARDS_CSV, aUR);
+    _redirectTo (INTERNAL_EXPORT_ALL_BUSINESSCARDS_CSV, aUR);
   }
 
   @NonNull
@@ -652,9 +621,9 @@ public final class ExportAllManager
    * @param aUR
    *        The response to stream to. May not be <code>null</code>.
    */
-  public static void streamFileParticipantXMLTo (@NonNull final UnifiedResponse aUR)
+  public static void redirectToParticipantXML (@NonNull final UnifiedResponse aUR)
   {
-    _streamFileToResponse (INTERNAL_EXPORT_ALL_PARTICIPANTS_XML, aUR);
+    _redirectTo (INTERNAL_EXPORT_ALL_PARTICIPANTS_XML, aUR);
   }
 
   @NonNull
@@ -693,9 +662,9 @@ public final class ExportAllManager
    * @param aUR
    *        The response to stream to. May not be <code>null</code>.
    */
-  public static void streamFileParticipantJSONTo (@NonNull final UnifiedResponse aUR)
+  public static void redirectToParticipantJSON (@NonNull final UnifiedResponse aUR)
   {
-    _streamFileToResponse (INTERNAL_EXPORT_ALL_PARTICIPANTS_JSON, aUR);
+    _redirectTo (INTERNAL_EXPORT_ALL_PARTICIPANTS_JSON, aUR);
   }
 
   @NonNull
@@ -726,8 +695,8 @@ public final class ExportAllManager
    * @param aUR
    *        The response to stream to. May not be <code>null</code>.
    */
-  public static void streamFileParticipantCSVTo (@NonNull final UnifiedResponse aUR)
+  public static void redirectToParticipantCSV (@NonNull final UnifiedResponse aUR)
   {
-    _streamFileToResponse (INTERNAL_EXPORT_ALL_PARTICIPANTS_CSV, aUR);
+    _redirectTo (INTERNAL_EXPORT_ALL_PARTICIPANTS_CSV, aUR);
   }
 }
