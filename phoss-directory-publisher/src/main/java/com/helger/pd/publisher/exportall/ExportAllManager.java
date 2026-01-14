@@ -90,13 +90,16 @@ public final class ExportAllManager
   public static final String EXTERNAL_EXPORT_ALL_PARTICIPANTS_CSV = "directory-export-participants.csv";
 
   // Internal filenames
-  private static final String INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_FULL = "export-all-businesscards.xml";
-  private static final String INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_NO_DOC_TYPES = "export-all-businesscards-no-doc-types.xml";
-  private static final String INTERNAL_EXPORT_ALL_BUSINESSCARDS_JSON = "export-all-businesscards.json";
-  private static final String INTERNAL_EXPORT_ALL_BUSINESSCARDS_CSV = "export-all-businesscards.csv";
-  private static final String INTERNAL_EXPORT_ALL_PARTICIPANTS_XML = "export-all-participants.xml";
-  private static final String INTERNAL_EXPORT_ALL_PARTICIPANTS_JSON = "export-all-participants.json";
-  private static final String INTERNAL_EXPORT_ALL_PARTICIPANTS_CSV = "export-all-participants.csv";
+  private static final String S3_FOLDER_NAME = "export1/";
+  private static final String INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_FULL = S3_FOLDER_NAME +
+                                                                           "export-all-businesscards.xml";
+  private static final String INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_NO_DOC_TYPES = S3_FOLDER_NAME +
+                                                                                   "export-all-businesscards-no-doc-types.xml";
+  private static final String INTERNAL_EXPORT_ALL_BUSINESSCARDS_JSON = S3_FOLDER_NAME + "export-all-businesscards.json";
+  private static final String INTERNAL_EXPORT_ALL_BUSINESSCARDS_CSV = S3_FOLDER_NAME + "export-all-businesscards.csv";
+  private static final String INTERNAL_EXPORT_ALL_PARTICIPANTS_XML = S3_FOLDER_NAME + "export-all-participants.xml";
+  private static final String INTERNAL_EXPORT_ALL_PARTICIPANTS_JSON = S3_FOLDER_NAME + "export-all-participants.json";
+  private static final String INTERNAL_EXPORT_ALL_PARTICIPANTS_CSV = S3_FOLDER_NAME + "export-all-participants.csv";
 
   // Rest
   private static final Logger LOGGER = LoggerFactory.getLogger (ExportAllManager.class);
@@ -105,7 +108,7 @@ public final class ExportAllManager
   {}
 
   @NonNull
-  private static ESuccess _runWithTempFileOnS3 (@NonNull final String sFilename,
+  private static ESuccess _runWithTempFileOnS3 (@NonNull final String sS3Filename,
                                                 @NonNull final IMimeType aContentType,
                                                 @NonNull final Consumer <OutputStream> aByteProducer) throws IOException
   {
@@ -124,7 +127,7 @@ public final class ExportAllManager
 
       // 3. Now upload the temp file to S3
       final String sBucketName = PDServerConfiguration.getS3BucketName ();
-      final String sTempFilename = sFilename + ".temp";
+      final String sTempFilename = sS3Filename + ".temp";
 
       try
       {
@@ -140,12 +143,12 @@ public final class ExportAllManager
 
       // As S3 has no rename, we need to do copy and delete
       // 4. Delete the original file, if it exists
-      S3Helper.deleteS3Object (sBucketName, sFilename);
+      S3Helper.deleteS3Object (sBucketName, sS3Filename);
 
       // 5. copy the temp file to the new file
-      if (S3Helper.copyS3Object (sBucketName, sTempFilename, sFilename).isFailure ())
+      if (S3Helper.copyS3Object (sBucketName, sTempFilename, sS3Filename).isFailure ())
       {
-        LOGGER.error ("Failed to copy on S3 '" + sBucketName + "' / '" + sTempFilename + "' to '" + sFilename + "'");
+        LOGGER.error ("Failed to copy on S3 '" + sBucketName + "' / '" + sTempFilename + "' to '" + sS3Filename + "'");
         return ESuccess.FAILURE;
       }
 
