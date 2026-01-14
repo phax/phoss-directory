@@ -56,48 +56,40 @@ public class ExportDeliveryHttpHandler extends AbstractObjectDeliveryHttpHandler
     HANDLERS.put (SPECIAL_BUSINESS_CARDS_XML_FULL, aUnifiedResponse -> {
       if (CPDPublisher.EXPORT_BUSINESS_CARDS_XML)
       {
-        aUnifiedResponse.disableCaching ();
         ExportAllManager.redirectToBusinessCardXMLFull (aUnifiedResponse);
       }
       else
       {
-        aUnifiedResponse.disableCaching ();
         aUnifiedResponse.setStatus (HttpServletResponse.SC_NOT_FOUND);
       }
     });
     HANDLERS.put (SPECIAL_BUSINESS_CARDS_XML_NO_DOC_TYPES, aUnifiedResponse -> {
       if (CPDPublisher.EXPORT_BUSINESS_CARDS_XML)
       {
-        aUnifiedResponse.disableCaching ();
         ExportAllManager.redirectToBusinessCardXMLNoDocTypes (aUnifiedResponse);
       }
       else
       {
-        aUnifiedResponse.disableCaching ();
         aUnifiedResponse.setStatus (HttpServletResponse.SC_NOT_FOUND);
       }
     });
     HANDLERS.put (SPECIAL_BUSINESS_CARDS_JSON, aUnifiedResponse -> {
       if (CPDPublisher.EXPORT_BUSINESS_CARDS_JSON)
       {
-        aUnifiedResponse.disableCaching ();
         ExportAllManager.redirectToBusinessCardJSON (aUnifiedResponse);
       }
       else
       {
-        aUnifiedResponse.disableCaching ();
         aUnifiedResponse.setStatus (HttpServletResponse.SC_NOT_FOUND);
       }
     });
     HANDLERS.put (SPECIAL_BUSINESS_CARDS_CSV, aUnifiedResponse -> {
       if (CPDPublisher.EXPORT_BUSINESS_CARDS_CSV)
       {
-        aUnifiedResponse.disableCaching ();
         ExportAllManager.redirectToBusinessCardCSV (aUnifiedResponse);
       }
       else
       {
-        aUnifiedResponse.disableCaching ();
         aUnifiedResponse.setStatus (HttpServletResponse.SC_NOT_FOUND);
       }
     });
@@ -106,36 +98,30 @@ public class ExportDeliveryHttpHandler extends AbstractObjectDeliveryHttpHandler
     HANDLERS.put (SPECIAL_PARTICIPANTS_XML, aUnifiedResponse -> {
       if (CPDPublisher.EXPORT_PARTICIPANTS_XML)
       {
-        aUnifiedResponse.disableCaching ();
         ExportAllManager.redirectToParticipantXML (aUnifiedResponse);
       }
       else
       {
-        aUnifiedResponse.disableCaching ();
         aUnifiedResponse.setStatus (HttpServletResponse.SC_NOT_FOUND);
       }
     });
     HANDLERS.put (SPECIAL_PARTICIPANTS_JSON, aUnifiedResponse -> {
       if (CPDPublisher.EXPORT_PARTICIPANTS_JSON)
       {
-        aUnifiedResponse.disableCaching ();
         ExportAllManager.redirectToParticipantJSON (aUnifiedResponse);
       }
       else
       {
-        aUnifiedResponse.disableCaching ();
         aUnifiedResponse.setStatus (HttpServletResponse.SC_NOT_FOUND);
       }
     });
     HANDLERS.put (SPECIAL_PARTICIPANTS_CSV, aUnifiedResponse -> {
       if (CPDPublisher.EXPORT_PARTICIPANTS_CSV)
       {
-        aUnifiedResponse.disableCaching ();
         ExportAllManager.redirectToParticipantCSV (aUnifiedResponse);
       }
       else
       {
-        aUnifiedResponse.disableCaching ();
         aUnifiedResponse.setStatus (HttpServletResponse.SC_NOT_FOUND);
       }
     });
