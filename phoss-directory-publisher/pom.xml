@@ -103,6 +103,17 @@
       <groupId>es.moki.ratelimitj</groupId>
       <artifactId>ratelimitj-inmemory</artifactId>
     </dependency>
+
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>s3</artifactId>
+      <version>${awssdk.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>s3-transfer-manager</artifactId>
+      <version>${awssdk.version}</version>
+    </dependency>
     
     <dependency>
       <groupId>jakarta.servlet</groupId>

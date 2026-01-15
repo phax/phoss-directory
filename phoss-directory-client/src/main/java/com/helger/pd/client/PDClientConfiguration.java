@@ -160,7 +160,12 @@ public final class PDClientConfiguration
     }
 
     if (!EqualsHelper.identityEqual (ret, aNewConfig))
-      LOGGER.info ("The PDClient configuration provider was changed to " + aNewConfig);
+    {
+      if (LOGGER.isDebugEnabled ())
+        LOGGER.debug ("The PDClient configuration provider was changed to " + aNewConfig);
+      else
+        LOGGER.debug ("The PDClient configuration provider was changed");
+    }
     return ret;
   }
 

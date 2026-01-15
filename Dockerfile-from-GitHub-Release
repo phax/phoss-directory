@@ -1,0 +1,50 @@
+#
+# Copyright (C) 2015-2025 Philip Helger (www.helger.com)
+# philip[at]helger[dot]com
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#         http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+FROM --platform=$BUILDPLATFORM ubuntu:latest AS build
+
+# Install unzip
+RUN apt-get update \
+  && apt-get upgrade -y \
+  && apt-get install -y wget unzip \
+  && rm -rf /var/lib/apt/lists/*
+
+ARG VERSION="0.14.10"
+ARG WAR_NAME=phoss-directory-publisher-${VERSION}.war
+
+# Download the PD from GitHub releases
+# Unzip the WAR file to /tmp
+# Remove the default "application.properties" file to avoid invalid default configuration
+RUN echo Downloading phoss Directory $VERSION \
+  && wget -nv https://github.com/phax/phoss-directory/releases/download/phoss-directory-parent-pom-${VERSION}/${WAR_NAME} -O ${WAR_NAME} \ 
+  && unzip ${WAR_NAME} -d /tmp \
+  && rm /tmp/WEB-INF/classes/application.properties
+
+
+# Use an official Tomcat runtime as a base image
+FROM tomcat:10.1-jdk21
+
+# Remove unused Tomcat web applications
+RUN rm -rf $CATALINA_HOME/webapps/manager \
+           $CATALINA_HOME/webapps/host-manager \
+           $CATALINA_HOME/webapps/docs \
+           $CATALINA_HOME/webapps/examples \
+           $CATALINA_HOME/webapps/ROOT \
+           $CATALINA_HOME/webapps.dist
+
+COPY --from=build /tmp $CATALINA_HOME/webapps/ROOT
+WORKDIR /home/git
