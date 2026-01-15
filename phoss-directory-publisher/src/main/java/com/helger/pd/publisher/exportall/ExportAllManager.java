@@ -22,6 +22,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.security.DigestOutputStream;
+import java.security.MessageDigest;
 import java.util.function.Consumer;
 
 import javax.xml.stream.XMLOutputFactory;
@@ -69,13 +71,13 @@ import com.helger.peppolid.IDocumentTypeIdentifier;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.factory.IIdentifierFactory;
 import com.helger.peppolid.peppol.doctype.EPredefinedDocumentTypeIdentifier;
+import com.helger.security.messagedigest.EMessageDigestAlgorithm;
 import com.helger.servlet.response.UnifiedResponse;
 import com.helger.xml.microdom.IMicroDocument;
 import com.helger.xml.serialize.write.XMLWriterSettings;
 
 import jakarta.json.Json;
 import jakarta.json.stream.JsonGenerator;
-import software.amazon.awssdk.core.sync.RequestBody;
 
 @ThreadSafe
 public final class ExportAllManager
@@ -118,11 +120,14 @@ public final class ExportAllManager
     try
     {
       // 2. Write data to temp file
-      try (final OutputStream aFOS = FileHelper.getBufferedOutputStream (fTemp))
+      final MessageDigest aMD = EMessageDigestAlgorithm.SHA_256.createMessageDigest ();
+      try (final OutputStream aFOS = FileHelper.getBufferedOutputStream (fTemp);
+           final DigestOutputStream aDOS = new DigestOutputStream (aFOS, aMD))
       {
-        aByteProducer.accept (aFOS);
+        aByteProducer.accept (aDOS);
       }
 
+      final byte [] aHashBytes = aMD.digest ();
       LOGGER.info ("Finished writing temp file '" + fTemp.getAbsolutePath () + "' - now upload to S3");
 
       // 3. Now upload the temp file to S3
@@ -133,7 +138,7 @@ public final class ExportAllManager
       {
         // Upload; this call reads from the PipedInputStream while producer writes
         // Throws a runtime exception in case of error
-        S3Helper.putS3Object (sBucketName, sTempFilename, aContentType, RequestBody.fromFile (fTemp));
+        S3Helper.putS3Object (sBucketName, sTempFilename, aContentType, fTemp, aHashBytes);
       }
       catch (final Throwable ex)
       {
