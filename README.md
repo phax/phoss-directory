@@ -103,6 +103,7 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 # News and noteworthy
 
 v0.15.0 - work in progress
+* Requires at least Java 21
 * Instead of streaming the export files to local disk, they are now stream to S3
 * Instead of reading the files from local disk, they are redirected to S3
 

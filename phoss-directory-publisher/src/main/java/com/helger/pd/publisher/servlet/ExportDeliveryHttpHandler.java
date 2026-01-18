@@ -52,6 +52,8 @@ public class ExportDeliveryHttpHandler extends AbstractObjectDeliveryHttpHandler
   private static ICommonsMap <String, Consumer <UnifiedResponse>> HANDLERS = new CommonsHashMap <> ();
   static
   {
+    // Caching is totally okay both in case of redirect as well as in case not found
+
     // BusinessCards
     HANDLERS.put (SPECIAL_BUSINESS_CARDS_XML_FULL, aUnifiedResponse -> {
       if (CPDPublisher.EXPORT_BUSINESS_CARDS_XML)
