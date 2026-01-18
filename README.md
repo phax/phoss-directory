@@ -1,7 +1,9 @@
 # phoss-directory
 
+<!-- ph-badge-start -->
+[![Maven Central](https://img.shields.io/maven-central/v/com.helger/phoss-directory-parent-pom)](https://img.shields.io/maven-central/v/com.helger/phoss-directory-parent-pom)
 [![javadoc](https://javadoc.io/badge2/com.helger/phoss-directory-indexer/javadoc.svg)](https://javadoc.io/doc/com.helger/phoss-directory-indexer)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.helger/phoss-directory-parent-pom/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.helger/phoss-directory-parent-pom) 
+<!-- ph-badge-end -->
 
 The official Peppol Directory (PD; https://directory.peppol.eu).
 
