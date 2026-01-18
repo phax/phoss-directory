@@ -18,11 +18,12 @@ package com.helger.pd.publisher.jetty;
 
 import com.helger.annotation.concurrent.Immutable;
 import com.helger.httpclient.HttpDebugger;
+import com.helger.pd.publisher.PDPublisherTestRule;
 import com.helger.photon.jetty.JettyStarter;
 
 /**
  * Run as a standalone web application in Jetty on port 8080.<br>
- * http://localhost:8080/
+ * http://localhost:8080/<br>
  *
  * @author Philip Helger
  */
@@ -32,6 +33,8 @@ public final class RunInJettyPD
   public static void main (final String [] args) throws Exception
   {
     HttpDebugger.setEnabled (false);
+    PDPublisherTestRule.setLocalStackAWSProps ();
+
     new JettyStarter (RunInJettyPD.class).setSessionCookieName ("PDSESSION").run ();
   }
 }

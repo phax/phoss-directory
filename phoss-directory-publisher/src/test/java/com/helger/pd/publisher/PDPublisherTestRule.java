@@ -19,6 +19,7 @@ package com.helger.pd.publisher;
 import java.io.File;
 
 import com.helger.base.id.factory.GlobalIDFactory;
+import com.helger.base.system.SystemProperties;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.photon.app.mock.PhotonAppWebTestRule;
 import com.helger.photon.io.WebIOIntIDFactory;
@@ -36,9 +37,15 @@ public class PDPublisherTestRule extends PhotonAppWebTestRule
     super (new File (PDServerConfiguration.getDataPath ()), ScopeTestRule.STORAGE_PATH.getAbsolutePath ());
   }
 
+  public static void setLocalStackAWSProps ()
+  {
+    SystemProperties.setPropertyValue ("pd.aws.localstack", "true");
+  }
+
   @Override
   public void before ()
   {
+    setLocalStackAWSProps ();
     super.before ();
     GlobalIDFactory.setPersistentIntIDFactory (new WebIOIntIDFactory ("pd-ids.dat"));
   }

@@ -22,6 +22,8 @@ import org.xbill.DNS.Lookup;
 
 import com.helger.base.debug.GlobalDebug;
 import com.helger.base.enforce.ValueEnforcer;
+import com.helger.base.exception.InitializationException;
+import com.helger.base.string.StringHelper;
 import com.helger.commons.vendor.VendorInfo;
 import com.helger.datetime.helper.PDTFactory;
 import com.helger.html.meta.MetaElement;
@@ -143,6 +145,14 @@ public final class AppWebAppListener extends WebAppListenerBootstrap
     // Job scheduling etc
     if (GlobalDebug.isDebugMode ())
       GlobalQuartzScheduler.getInstance ().addJobListener (new LoggingJobListener ());
+
+    // Check S3 configuration
+    if (StringHelper.isEmpty (PDServerConfiguration.getS3BucketName ()))
+      throw new InitializationException ("The S3 bucket name configuration is missing");
+    if (StringHelper.isEmpty (PDServerConfiguration.getS3WebsiteURLWithTrailingSlash ()))
+      throw new InitializationException ("The S3 bucket website URL configuration is missing");
+    if (!PDServerConfiguration.getS3WebsiteURLWithTrailingSlash ().endsWith ("/"))
+      throw new InitializationException ("The S3 bucket website URL configuration must end with a slash");
   }
 
   @Override

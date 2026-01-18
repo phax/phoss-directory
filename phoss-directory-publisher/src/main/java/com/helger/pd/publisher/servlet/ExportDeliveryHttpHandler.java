@@ -17,7 +17,6 @@
 package com.helger.pd.publisher.servlet;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
 
 import org.jspecify.annotations.NonNull;
@@ -29,7 +28,6 @@ import com.helger.base.state.EContinue;
 import com.helger.collection.commons.CommonsHashMap;
 import com.helger.collection.commons.ICommonsMap;
 import com.helger.io.file.FilenameHelper;
-import com.helger.mime.CMimeType;
 import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.exportall.ExportAllManager;
 import com.helger.photon.core.servlet.AbstractObjectDeliveryHttpHandler;
@@ -54,61 +52,46 @@ public class ExportDeliveryHttpHandler extends AbstractObjectDeliveryHttpHandler
   private static ICommonsMap <String, Consumer <UnifiedResponse>> HANDLERS = new CommonsHashMap <> ();
   static
   {
+    // Caching is totally okay both in case of redirect as well as in case not found
+
     // BusinessCards
     HANDLERS.put (SPECIAL_BUSINESS_CARDS_XML_FULL, aUnifiedResponse -> {
       if (CPDPublisher.EXPORT_BUSINESS_CARDS_XML)
       {
-        aUnifiedResponse.disableCaching ();
-        ExportAllManager.streamFileBusinessCardXMLFullTo (aUnifiedResponse);
-        aUnifiedResponse.setMimeType (CMimeType.APPLICATION_XML);
-        aUnifiedResponse.setContentDispositionFilename (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_FULL);
+        ExportAllManager.redirectToBusinessCardXMLFull (aUnifiedResponse);
       }
       else
       {
-        aUnifiedResponse.disableCaching ();
         aUnifiedResponse.setStatus (HttpServletResponse.SC_NOT_FOUND);
       }
     });
     HANDLERS.put (SPECIAL_BUSINESS_CARDS_XML_NO_DOC_TYPES, aUnifiedResponse -> {
       if (CPDPublisher.EXPORT_BUSINESS_CARDS_XML)
       {
-        aUnifiedResponse.disableCaching ();
-        ExportAllManager.streamFileBusinessCardXMLNoDocTypesTo (aUnifiedResponse);
-        aUnifiedResponse.setMimeType (CMimeType.APPLICATION_XML);
-        aUnifiedResponse.setContentDispositionFilename (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_NO_DOC_TYPES);
+        ExportAllManager.redirectToBusinessCardXMLNoDocTypes (aUnifiedResponse);
       }
       else
       {
-        aUnifiedResponse.disableCaching ();
         aUnifiedResponse.setStatus (HttpServletResponse.SC_NOT_FOUND);
       }
     });
     HANDLERS.put (SPECIAL_BUSINESS_CARDS_JSON, aUnifiedResponse -> {
       if (CPDPublisher.EXPORT_BUSINESS_CARDS_JSON)
       {
-        aUnifiedResponse.disableCaching ();
-        ExportAllManager.streamFileBusinessCardJSONTo (aUnifiedResponse);
-        aUnifiedResponse.setMimeType (CMimeType.APPLICATION_JSON);
-        aUnifiedResponse.setContentDispositionFilename (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_JSON);
+        ExportAllManager.redirectToBusinessCardJSON (aUnifiedResponse);
       }
       else
       {
-        aUnifiedResponse.disableCaching ();
         aUnifiedResponse.setStatus (HttpServletResponse.SC_NOT_FOUND);
       }
     });
     HANDLERS.put (SPECIAL_BUSINESS_CARDS_CSV, aUnifiedResponse -> {
       if (CPDPublisher.EXPORT_BUSINESS_CARDS_CSV)
       {
-        aUnifiedResponse.disableCaching ();
-        ExportAllManager.streamFileBusinessCardCSVTo (aUnifiedResponse);
-        aUnifiedResponse.setMimeType (CMimeType.TEXT_CSV);
-        aUnifiedResponse.setCharset (StandardCharsets.ISO_8859_1);
-        aUnifiedResponse.setContentDispositionFilename (ExportAllManager.EXTERNAL_EXPORT_ALL_BUSINESSCARDS_CSV);
+        ExportAllManager.redirectToBusinessCardCSV (aUnifiedResponse);
       }
       else
       {
-        aUnifiedResponse.disableCaching ();
         aUnifiedResponse.setStatus (HttpServletResponse.SC_NOT_FOUND);
       }
     });
@@ -117,43 +100,30 @@ public class ExportDeliveryHttpHandler extends AbstractObjectDeliveryHttpHandler
     HANDLERS.put (SPECIAL_PARTICIPANTS_XML, aUnifiedResponse -> {
       if (CPDPublisher.EXPORT_PARTICIPANTS_XML)
       {
-        aUnifiedResponse.disableCaching ();
-        ExportAllManager.streamFileParticipantXMLTo (aUnifiedResponse);
-        aUnifiedResponse.setMimeType (CMimeType.APPLICATION_XML);
-        aUnifiedResponse.setContentDispositionFilename (ExportAllManager.EXTERNAL_EXPORT_ALL_PARTICIPANTS_XML);
+        ExportAllManager.redirectToParticipantXML (aUnifiedResponse);
       }
       else
       {
-        aUnifiedResponse.disableCaching ();
         aUnifiedResponse.setStatus (HttpServletResponse.SC_NOT_FOUND);
       }
     });
     HANDLERS.put (SPECIAL_PARTICIPANTS_JSON, aUnifiedResponse -> {
       if (CPDPublisher.EXPORT_PARTICIPANTS_JSON)
       {
-        aUnifiedResponse.disableCaching ();
-        ExportAllManager.streamFileParticipantJSONTo (aUnifiedResponse);
-        aUnifiedResponse.setMimeType (CMimeType.APPLICATION_JSON);
-        aUnifiedResponse.setContentDispositionFilename (ExportAllManager.EXTERNAL_EXPORT_ALL_PARTICIPANTS_JSON);
+        ExportAllManager.redirectToParticipantJSON (aUnifiedResponse);
       }
       else
       {
-        aUnifiedResponse.disableCaching ();
         aUnifiedResponse.setStatus (HttpServletResponse.SC_NOT_FOUND);
       }
     });
     HANDLERS.put (SPECIAL_PARTICIPANTS_CSV, aUnifiedResponse -> {
       if (CPDPublisher.EXPORT_PARTICIPANTS_CSV)
       {
-        aUnifiedResponse.disableCaching ();
-        ExportAllManager.streamFileParticipantCSVTo (aUnifiedResponse);
-        aUnifiedResponse.setMimeType (CMimeType.TEXT_CSV);
-        aUnifiedResponse.setCharset (StandardCharsets.ISO_8859_1);
-        aUnifiedResponse.setContentDispositionFilename (ExportAllManager.EXTERNAL_EXPORT_ALL_PARTICIPANTS_CSV);
+        ExportAllManager.redirectToParticipantCSV (aUnifiedResponse);
       }
       else
       {
-        aUnifiedResponse.disableCaching ();
         aUnifiedResponse.setStatus (HttpServletResponse.SC_NOT_FOUND);
       }
     });
@@ -191,13 +161,10 @@ public class ExportDeliveryHttpHandler extends AbstractObjectDeliveryHttpHandler
                                     @NonNull final String sFilename) throws IOException
   {
     final Consumer <UnifiedResponse> aHandler = HANDLERS.get (sFilename);
-    if (aHandler != null)
-    {
-      aHandler.accept (aUnifiedResponse);
-    }
-    else
+    if (aHandler == null)
     {
       throw new IllegalStateException ("Unexpected filename '" + sFilename + "' - programming error");
     }
+    aHandler.accept (aUnifiedResponse);
   }
 }

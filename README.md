@@ -38,7 +38,7 @@ The PD client is a small Java library that uses Apache HttpClient to connect to 
 The PD client uses `ph-config` to resolve configuration items.
 See https://github.com/phax/ph-commons/wiki/ph-config for the details on the resolution logic.
 
-Note: the old file `pd-client.properties` is still evaluated for backwards-compatibility reasons but with lower priority. It will be removed in the future.
+Note: the old file `pd-client.properties` is not evaluated anymore.
 
 ## Client Configuration properties
 
@@ -101,6 +101,11 @@ Please see the [PD specification](https://docs.peppol.eu/edelivery/directory/PEP
 The PD Publisher is the publicly accessible web site with listing and search functionality for certain participants.
 
 # News and noteworthy
+
+v0.15.0 - work in progress
+* Requires at least Java 21
+* Instead of streaming the export files to local disk, they are now stream to S3
+* Instead of reading the files from local disk, they are redirected to S3
 
 v0.14.10 - 2025-12-30
 * Updated to Peppol eDEC Code Lists v9.5

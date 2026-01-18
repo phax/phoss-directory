@@ -18,8 +18,12 @@ package com.helger.pd.publisher.exportall;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.security.DigestOutputStream;
+import java.security.MessageDigest;
 import java.util.function.Consumer;
 
 import javax.xml.stream.XMLOutputFactory;
@@ -37,8 +41,8 @@ import org.slf4j.LoggerFactory;
 import com.helger.annotation.Nonempty;
 import com.helger.annotation.WillNotClose;
 import com.helger.annotation.concurrent.ThreadSafe;
-import com.helger.annotation.style.VisibleForTesting;
-import com.helger.base.functional.IThrowingFunction;
+import com.helger.base.io.stream.NonClosingOutputStream;
+import com.helger.base.io.stream.StreamHelper;
 import com.helger.base.state.ESuccess;
 import com.helger.base.string.StringImplode;
 import com.helger.collection.commons.CommonsArrayList;
@@ -49,13 +53,12 @@ import com.helger.collection.commons.ICommonsOrderedMap;
 import com.helger.collection.commons.ICommonsSortedSet;
 import com.helger.csv.CSVWriter;
 import com.helger.datetime.helper.PDTFactory;
-import com.helger.datetime.util.PDTIOHelper;
 import com.helger.datetime.web.PDTWebDateHelper;
-import com.helger.http.CHttpHeader;
 import com.helger.io.file.FileHelper;
-import com.helger.io.file.FileOperations;
-import com.helger.io.resource.FileSystemResource;
+import com.helger.mime.CMimeType;
+import com.helger.mime.IMimeType;
 import com.helger.pd.indexer.mgr.PDMetaManager;
+import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
 import com.helger.pd.indexer.storage.PDStoredContact;
@@ -68,7 +71,7 @@ import com.helger.peppolid.IDocumentTypeIdentifier;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.factory.IIdentifierFactory;
 import com.helger.peppolid.peppol.doctype.EPredefinedDocumentTypeIdentifier;
-import com.helger.photon.io.WebFileIO;
+import com.helger.security.messagedigest.EMessageDigestAlgorithm;
 import com.helger.servlet.response.UnifiedResponse;
 import com.helger.xml.microdom.IMicroDocument;
 import com.helger.xml.serialize.write.XMLWriterSettings;
@@ -89,13 +92,16 @@ public final class ExportAllManager
   public static final String EXTERNAL_EXPORT_ALL_PARTICIPANTS_CSV = "directory-export-participants.csv";
 
   // Internal filenames
-  private static final String INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_FULL = "export-all-businesscards.xml";
-  private static final String INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_NO_DOC_TYPES = "export-all-businesscards-no-doc-types.xml";
-  private static final String INTERNAL_EXPORT_ALL_BUSINESSCARDS_JSON = "export-all-businesscards.json";
-  private static final String INTERNAL_EXPORT_ALL_BUSINESSCARDS_CSV = "export-all-businesscards.csv";
-  private static final String INTERNAL_EXPORT_ALL_PARTICIPANTS_XML = "export-all-participants.xml";
-  private static final String INTERNAL_EXPORT_ALL_PARTICIPANTS_JSON = "export-all-participants.json";
-  private static final String INTERNAL_EXPORT_ALL_PARTICIPANTS_CSV = "export-all-participants.csv";
+  private static final String S3_FOLDER_NAME = "export1/";
+  private static final String INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_FULL = S3_FOLDER_NAME +
+                                                                           "export-all-businesscards.xml";
+  private static final String INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_NO_DOC_TYPES = S3_FOLDER_NAME +
+                                                                                   "export-all-businesscards-no-doc-types.xml";
+  private static final String INTERNAL_EXPORT_ALL_BUSINESSCARDS_JSON = S3_FOLDER_NAME + "export-all-businesscards.json";
+  private static final String INTERNAL_EXPORT_ALL_BUSINESSCARDS_CSV = S3_FOLDER_NAME + "export-all-businesscards.csv";
+  private static final String INTERNAL_EXPORT_ALL_PARTICIPANTS_XML = S3_FOLDER_NAME + "export-all-participants.xml";
+  private static final String INTERNAL_EXPORT_ALL_PARTICIPANTS_JSON = S3_FOLDER_NAME + "export-all-participants.json";
+  private static final String INTERNAL_EXPORT_ALL_PARTICIPANTS_CSV = S3_FOLDER_NAME + "export-all-participants.csv";
 
   // Rest
   private static final Logger LOGGER = LoggerFactory.getLogger (ExportAllManager.class);
@@ -104,48 +110,82 @@ public final class ExportAllManager
   {}
 
   @NonNull
-  private static ESuccess _runWithTempFile (@NonNull final File fTarget,
-                                            @NonNull final IThrowingFunction <File, ESuccess, IOException> aCallback) throws IOException
+  private static ESuccess _runWithTempFileOnS3 (@NonNull final String sS3Filename,
+                                                @NonNull final IMimeType aContentType,
+                                                @NonNull final Consumer <OutputStream> aByteProducer) throws IOException
   {
-    final File fTempFile = new File (fTarget.getParentFile (), fTarget.getName () + ".tmp");
-    // Write result to temp file
-    final ESuccess ret = aCallback.apply (fTempFile);
-    if (ret.isFailure ())
+    // 1. Create a temp file
+    final File fTemp = File.createTempFile ("pd-", ".xml");
+
+    try
     {
-      // Operation failed - delete temp file
-      FileOperations.deleteFileIfExisting (fTempFile);
+      // 2. Write data to temp file
+      final MessageDigest aMD = EMessageDigestAlgorithm.SHA_256.createMessageDigest ();
+      try (final OutputStream aFOS = FileHelper.getBufferedOutputStream (fTemp);
+           final DigestOutputStream aDOS = new DigestOutputStream (aFOS, aMD))
+      {
+        aByteProducer.accept (aDOS);
+      }
+
+      final byte [] aHashBytes = aMD.digest ();
+      LOGGER.info ("Finished writing temp file '" + fTemp.getAbsolutePath () + "' - now upload to S3");
+
+      // 3. Now upload the temp file to S3
+      final String sBucketName = PDServerConfiguration.getS3BucketName ();
+      final String sTempFilename = sS3Filename + ".temp";
+
+      try
+      {
+        // Upload; this call reads from the PipedInputStream while producer writes
+        // Throws a runtime exception in case of error
+        S3Helper.putS3Object (sBucketName, sTempFilename, aContentType, fTemp, aHashBytes);
+      }
+      catch (final Throwable ex)
+      {
+        LOGGER.error ("Failed to initially upload to S3", ex);
+        return ESuccess.FAILURE;
+      }
+
+      // As S3 has no rename, we need to do copy and delete
+      // 4. Delete the original file, if it exists
+      S3Helper.deleteS3Object (sBucketName, sS3Filename);
+
+      // 5. copy the temp file to the new file
+      if (S3Helper.copyS3Object (sBucketName, sTempFilename, sS3Filename).isFailure ())
+      {
+        LOGGER.error ("Failed to copy on S3 '" + sBucketName + "' / '" + sTempFilename + "' to '" + sS3Filename + "'");
+        return ESuccess.FAILURE;
+      }
+
+      // 6. Delete the temp file
+      S3Helper.deleteS3Object (sBucketName, sTempFilename);
+      LOGGER.info ("Finished S3 uploading");
+      return ESuccess.SUCCESS;
     }
-    else
+    finally
     {
-      // Goal: replace target file
-      FileOperations.deleteFileIfExisting (fTarget);
-      if (!fTarget.isFile ())
-      {
-        // Deletion worked or did not exist in the first place
-        FileOperations.renameFile (fTempFile, fTarget);
-      }
-      else
-      {
-        // Old target still exists
-        // Keep the temp file to handle it manually
-        LOGGER.error ("Failed to delete file '" + fTarget.getAbsolutePath () + "' - manually storing temp file");
-        FileOperations.renameFile (fTempFile,
-                                   new File (fTarget.getParentFile (),
-                                             fTarget.getName () +
-                                                                       "." +
-                                                                       PDTIOHelper.getCurrentLocalDateTimeForFilename ()));
-      }
+      fTemp.delete ();
     }
-    return ret;
   }
 
-  private static void _streamFileToResponse (@NonNull final File fSrc, @NonNull final UnifiedResponse aUR)
+  @NonNull
+  public static InputStream streamBusinessCardXMLFull ()
   {
-    // setContent(IReadableResource) is lazy
-    aUR.setContent (new FileSystemResource (fSrc));
-    final long nFileLen = fSrc.length ();
-    if (nFileLen > 0)
-      aUR.setCustomResponseHeader (CHttpHeader.CONTENT_LENGTH, Long.toString (nFileLen));
+    final String sBucketName = PDServerConfiguration.getS3BucketName ();
+    return S3Helper.getS3Object (sBucketName, INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_FULL);
+  }
+
+  @NonNull
+  public static InputStream streamBusinessCardXMLNoDocTypes ()
+  {
+    final String sBucketName = PDServerConfiguration.getS3BucketName ();
+    return S3Helper.getS3Object (sBucketName, INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_NO_DOC_TYPES);
+  }
+
+  private static void _redirectTo (@NonNull final String sKey, @NonNull final UnifiedResponse aUR)
+  {
+    // Get data directly from S3
+    aUR.setRedirect (S3Helper.S3_PUBLIC_URL + sKey);
   }
 
   @NonNull
@@ -185,23 +225,16 @@ public final class ExportAllManager
   }
 
   @NonNull
-  @VisibleForTesting
-  static File _getInternalFileBusinessCardXMLFull ()
-  {
-    return WebFileIO.getDataIO ().getFile (INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_FULL);
-  }
-
-  @NonNull
   private static ESuccess _writeFileBusinessCardXML (@NonNull final ICommonsSortedSet <String> aAllParticipantIDs,
-                                                     @NonNull final File fTarget,
+                                                     @NonNull @WillNotClose final OutputStream aOS,
                                                      final boolean bIncludeDocTypes)
   {
     final IIdentifierFactory aIF = PDMetaManager.getIdentifierFactory ();
     final PDStorageManager aStorageMgr = PDMetaManager.getStorageMgr ();
     final XMLOutputFactory aXmlOutputFactory = XMLOutputFactory.newInstance ();
-    try (final Writer aWriter = FileHelper.getWriter (fTarget, XMLWriterSettings.DEFAULT_XML_CHARSET_OBJ))
+    try
     {
-      final XMLStreamWriter aXmlWriter = aXmlOutputFactory.createXMLStreamWriter (aWriter);
+      final XMLStreamWriter aXmlWriter = aXmlOutputFactory.createXMLStreamWriter (aOS);
 
       aXmlWriter.setDefaultNamespace (ExportHelper.XML_EXPORT_NS_URI_V3);
 
@@ -241,19 +274,12 @@ public final class ExportAllManager
       aXmlWriter.writeEndElement ();
       aXmlWriter.writeEndDocument ();
 
-      LOGGER.info ("Successfully wrote all BCs as XML (" +
-                   (bIncludeDocTypes ? "full" : "no doctypes") +
-                   ") to " +
-                   fTarget.getAbsolutePath ());
+      LOGGER.info ("Successfully wrote all BCs as XML (" + (bIncludeDocTypes ? "full" : "no doctypes") + ")");
       return ESuccess.SUCCESS;
     }
     catch (final IOException | XMLStreamException ex)
     {
-      LOGGER.error ("Failed to export all BCs as XML (" +
-                    (bIncludeDocTypes ? "full" : "no doctypes") +
-                    ") to " +
-                    fTarget.getAbsolutePath (),
-                    ex);
+      LOGGER.error ("Failed to export all BCs as XML (" + (bIncludeDocTypes ? "full" : "no doctypes") + ")", ex);
       return ESuccess.FAILURE;
     }
   }
@@ -261,8 +287,9 @@ public final class ExportAllManager
   @NonNull
   static ESuccess writeFileBusinessCardXMLFull (@NonNull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
   {
-    return _runWithTempFile (_getInternalFileBusinessCardXMLFull (),
-                             f -> _writeFileBusinessCardXML (aAllParticipantIDs, f, true));
+    return _runWithTempFileOnS3 (INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_FULL,
+                                 CMimeType.APPLICATION_XML,
+                                 aOS -> _writeFileBusinessCardXML (aAllParticipantIDs, aOS, true));
   }
 
   /**
@@ -271,23 +298,17 @@ public final class ExportAllManager
    * @param aUR
    *        The response to stream to. May not be <code>null</code>.
    */
-  public static void streamFileBusinessCardXMLFullTo (@NonNull final UnifiedResponse aUR)
+  public static void redirectToBusinessCardXMLFull (@NonNull final UnifiedResponse aUR)
   {
-    _streamFileToResponse (_getInternalFileBusinessCardXMLFull (), aUR);
-  }
-
-  @NonNull
-  @VisibleForTesting
-  static File _getInternalFileBusinessCardXMLNoDocTypes ()
-  {
-    return WebFileIO.getDataIO ().getFile (INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_NO_DOC_TYPES);
+    _redirectTo (INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_FULL, aUR);
   }
 
   @NonNull
   static ESuccess writeFileBusinessCardXMLNoDocTypes (@NonNull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
   {
-    return _runWithTempFile (_getInternalFileBusinessCardXMLNoDocTypes (),
-                             f -> _writeFileBusinessCardXML (aAllParticipantIDs, f, false));
+    return _runWithTempFileOnS3 (INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_NO_DOC_TYPES,
+                                 CMimeType.APPLICATION_XML,
+                                 aOS -> _writeFileBusinessCardXML (aAllParticipantIDs, aOS, false));
   }
 
   /**
@@ -296,25 +317,19 @@ public final class ExportAllManager
    * @param aUR
    *        The response to stream to. May not be <code>null</code>.
    */
-  public static void streamFileBusinessCardXMLNoDocTypesTo (@NonNull final UnifiedResponse aUR)
+  public static void redirectToBusinessCardXMLNoDocTypes (@NonNull final UnifiedResponse aUR)
   {
-    _streamFileToResponse (_getInternalFileBusinessCardXMLNoDocTypes (), aUR);
-  }
-
-  @NonNull
-  private static File _getInternalFileBusinessCardJSON ()
-  {
-    return WebFileIO.getDataIO ().getFile (INTERNAL_EXPORT_ALL_BUSINESSCARDS_JSON);
+    _redirectTo (INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_NO_DOC_TYPES, aUR);
   }
 
   @NonNull
   static ESuccess writeFileBusinessCardJSON (@NonNull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
   {
-    return _runWithTempFile (_getInternalFileBusinessCardJSON (), f -> {
+    return _runWithTempFileOnS3 (INTERNAL_EXPORT_ALL_BUSINESSCARDS_JSON, CMimeType.APPLICATION_JSON, aOS -> {
       final PDStorageManager aStorageMgr = PDMetaManager.getStorageMgr ();
       final boolean bIncludeDocTypes = true;
 
-      try (final Writer aWriter = FileHelper.getBufferedWriter (f, StandardCharsets.UTF_8);
+      try (final Writer aWriter = StreamHelper.createWriter (new NonClosingOutputStream (aOS), StandardCharsets.UTF_8);
            final JsonGenerator aJsonGen = Json.createGenerator (aWriter))
       {
         final String sSearchTerm = PDField.PARTICIPANT_ID.getFieldName ();
@@ -433,13 +448,11 @@ public final class ExportAllManager
 
         aJsonGen.writeEnd ().writeEnd ();
 
-        LOGGER.info ("Successfully wrote all BusinessCards as JSON to " + f.getAbsolutePath ());
-        return ESuccess.SUCCESS;
+        LOGGER.info ("Successfully wrote all BusinessCards as JSON");
       }
       catch (final IOException ex)
       {
-        LOGGER.error ("Failed to export all BusinessCards as JSON to " + f.getAbsolutePath (), ex);
-        return ESuccess.FAILURE;
+        LOGGER.error ("Failed to export all BusinessCards as JSON", ex);
       }
     });
   }
@@ -450,9 +463,9 @@ public final class ExportAllManager
    * @param aUR
    *        The response to stream to. May not be <code>null</code>.
    */
-  public static void streamFileBusinessCardJSONTo (@NonNull final UnifiedResponse aUR)
+  public static void redirectToBusinessCardJSON (@NonNull final UnifiedResponse aUR)
   {
-    _streamFileToResponse (_getInternalFileBusinessCardJSON (), aUR);
+    _redirectTo (INTERNAL_EXPORT_ALL_BUSINESSCARDS_JSON, aUR);
   }
 
   private static void _unify (@NonNull @WillNotClose final CSVWriter aCSVWriter)
@@ -461,18 +474,13 @@ public final class ExportAllManager
   }
 
   @NonNull
-  private static File _getInternalFileBusinessCardCSV ()
-  {
-    return WebFileIO.getDataIO ().getFile (INTERNAL_EXPORT_ALL_BUSINESSCARDS_CSV);
-  }
-
-  @NonNull
   static ESuccess writeFileBusinessCardCSV (@NonNull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
   {
-    return _runWithTempFile (_getInternalFileBusinessCardCSV (), f -> {
+    return _runWithTempFileOnS3 (INTERNAL_EXPORT_ALL_BUSINESSCARDS_CSV, CMimeType.TEXT_CSV, aOS -> {
       final PDStorageManager aStorageMgr = PDMetaManager.getStorageMgr ();
 
-      try (final CSVWriter aCSVWriter = new CSVWriter (FileHelper.getBufferedWriter (f, StandardCharsets.ISO_8859_1)))
+      try (final CSVWriter aCSVWriter = new CSVWriter (StreamHelper.createWriter (new NonClosingOutputStream (aOS),
+                                                                                  StandardCharsets.ISO_8859_1)))
       {
         _unify (aCSVWriter);
         aCSVWriter.writeNext ("Participant ID",
@@ -544,13 +552,11 @@ public final class ExportAllManager
         }
 
         aCSVWriter.flush ();
-        LOGGER.info ("Successfully exported all BCs as CSV to " + f.getAbsolutePath ());
-        return ESuccess.SUCCESS;
+        LOGGER.info ("Successfully exported all BCs as CSV");
       }
       catch (final IOException ex)
       {
-        LOGGER.error ("Failed to export all BCs as CSV to " + f.getAbsolutePath (), ex);
-        return ESuccess.FAILURE;
+        LOGGER.error ("Failed to export all BCs as CSV", ex);
       }
     });
   }
@@ -561,26 +567,20 @@ public final class ExportAllManager
    * @param aUR
    *        The response to stream to. May not be <code>null</code>.
    */
-  public static void streamFileBusinessCardCSVTo (@NonNull final UnifiedResponse aUR)
+  public static void redirectToBusinessCardCSV (@NonNull final UnifiedResponse aUR)
   {
-    _streamFileToResponse (_getInternalFileBusinessCardCSV (), aUR);
-  }
-
-  @NonNull
-  private static File _getInternalFileParticipantXML ()
-  {
-    return WebFileIO.getDataIO ().getFile (INTERNAL_EXPORT_ALL_PARTICIPANTS_XML);
+    _redirectTo (INTERNAL_EXPORT_ALL_BUSINESSCARDS_CSV, aUR);
   }
 
   @NonNull
   static ESuccess writeFileParticipantXML (@NonNull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
   {
-    return _runWithTempFile (_getInternalFileParticipantXML (), f -> {
+    return _runWithTempFileOnS3 (INTERNAL_EXPORT_ALL_PARTICIPANTS_XML, CMimeType.APPLICATION_XML, aOS -> {
       final IIdentifierFactory aIF = PDMetaManager.getIdentifierFactory ();
       final XMLOutputFactory aXmlOutputFactory = XMLOutputFactory.newInstance ();
-      try (final Writer aWriter = FileHelper.getWriter (f, XMLWriterSettings.DEFAULT_XML_CHARSET_OBJ))
+      try
       {
-        final XMLStreamWriter aXmlWriter = aXmlOutputFactory.createXMLStreamWriter (aWriter);
+        final XMLStreamWriter aXmlWriter = aXmlOutputFactory.createXMLStreamWriter (aOS);
 
         final String sNamespaceURI = "http://www.peppol.eu/schema/pd/participant-generic/201910/";
         aXmlWriter.setDefaultNamespace (sNamespaceURI);
@@ -614,13 +614,11 @@ public final class ExportAllManager
 
         aXmlWriter.writeEndDocument ();
 
-        LOGGER.info ("Successfully wrote all Participants as XML to " + f.getAbsolutePath ());
-        return ESuccess.SUCCESS;
+        LOGGER.info ("Successfully wrote all Participants as XML");
       }
-      catch (final IOException | XMLStreamException ex)
+      catch (final Exception ex)
       {
-        LOGGER.error ("Failed to export all Participants as XML to " + f.getAbsolutePath (), ex);
-        return ESuccess.FAILURE;
+        LOGGER.error ("Failed to export all Participants as XML", ex);
       }
     });
   }
@@ -631,22 +629,16 @@ public final class ExportAllManager
    * @param aUR
    *        The response to stream to. May not be <code>null</code>.
    */
-  public static void streamFileParticipantXMLTo (@NonNull final UnifiedResponse aUR)
+  public static void redirectToParticipantXML (@NonNull final UnifiedResponse aUR)
   {
-    _streamFileToResponse (_getInternalFileParticipantXML (), aUR);
-  }
-
-  @NonNull
-  private static File _getInternalFileParticipantJSON ()
-  {
-    return WebFileIO.getDataIO ().getFile (INTERNAL_EXPORT_ALL_PARTICIPANTS_JSON);
+    _redirectTo (INTERNAL_EXPORT_ALL_PARTICIPANTS_XML, aUR);
   }
 
   @NonNull
   static ESuccess writeFileParticipantJSON (@NonNull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
   {
-    return _runWithTempFile (_getInternalFileParticipantJSON (), f -> {
-      try (final Writer aWriter = FileHelper.getBufferedWriter (f, StandardCharsets.UTF_8);
+    return _runWithTempFileOnS3 (INTERNAL_EXPORT_ALL_PARTICIPANTS_JSON, CMimeType.APPLICATION_JSON, aOS -> {
+      try (final Writer aWriter = StreamHelper.createWriter (new NonClosingOutputStream (aOS), StandardCharsets.UTF_8);
            final JsonGenerator aJsonGen = Json.createGenerator (aWriter))
       {
         // JSON root
@@ -663,13 +655,11 @@ public final class ExportAllManager
         aJsonGen.writeEnd ().writeEnd ();
 
         // Safe space - no indent
-        LOGGER.info ("Successfully wrote all Participants as JSON to " + f.getAbsolutePath ());
-        return ESuccess.SUCCESS;
+        LOGGER.info ("Successfully wrote all Participants as JSON");
       }
       catch (final IOException ex)
       {
-        LOGGER.error ("Failed to export all Participants as JSON to " + f.getAbsolutePath (), ex);
-        return ESuccess.FAILURE;
+        LOGGER.error ("Failed to export all Participants as JSON", ex);
       }
     });
   }
@@ -680,22 +670,17 @@ public final class ExportAllManager
    * @param aUR
    *        The response to stream to. May not be <code>null</code>.
    */
-  public static void streamFileParticipantJSONTo (@NonNull final UnifiedResponse aUR)
+  public static void redirectToParticipantJSON (@NonNull final UnifiedResponse aUR)
   {
-    _streamFileToResponse (_getInternalFileParticipantJSON (), aUR);
-  }
-
-  @NonNull
-  private static File _getInternalFileParticipantCSV ()
-  {
-    return WebFileIO.getDataIO ().getFile (INTERNAL_EXPORT_ALL_PARTICIPANTS_CSV);
+    _redirectTo (INTERNAL_EXPORT_ALL_PARTICIPANTS_JSON, aUR);
   }
 
   @NonNull
   static ESuccess writeFileParticipantCSV (@NonNull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
   {
-    return _runWithTempFile (_getInternalFileParticipantCSV (), f -> {
-      try (final CSVWriter aCSVWriter = new CSVWriter (FileHelper.getBufferedWriter (f, StandardCharsets.ISO_8859_1)))
+    return _runWithTempFileOnS3 (INTERNAL_EXPORT_ALL_PARTICIPANTS_CSV, CMimeType.TEXT_CSV, aOS -> {
+      try (final CSVWriter aCSVWriter = new CSVWriter (StreamHelper.createWriter (new NonClosingOutputStream (aOS),
+                                                                                  StandardCharsets.ISO_8859_1)))
       {
         _unify (aCSVWriter);
         aCSVWriter.writeNext ("Participant ID");
@@ -703,13 +688,11 @@ public final class ExportAllManager
           aCSVWriter.writeNext (sParticipantID);
 
         aCSVWriter.flush ();
-        LOGGER.info ("Successfully wrote all Participants as CSV to " + f.getAbsolutePath ());
-        return ESuccess.SUCCESS;
+        LOGGER.info ("Successfully wrote all Participants as CSV");
       }
       catch (final IOException ex)
       {
-        LOGGER.error ("Failed to export all Participants as CSV to " + f.getAbsolutePath (), ex);
-        return ESuccess.FAILURE;
+        LOGGER.error ("Failed to export all Participants as CSV", ex);
       }
     });
   }
@@ -720,8 +703,8 @@ public final class ExportAllManager
    * @param aUR
    *        The response to stream to. May not be <code>null</code>.
    */
-  public static void streamFileParticipantCSVTo (@NonNull final UnifiedResponse aUR)
+  public static void redirectToParticipantCSV (@NonNull final UnifiedResponse aUR)
   {
-    _streamFileToResponse (_getInternalFileParticipantCSV (), aUR);
+    _redirectTo (INTERNAL_EXPORT_ALL_PARTICIPANTS_CSV, aUR);
   }
 }
