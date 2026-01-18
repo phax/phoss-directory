@@ -23,7 +23,7 @@ RUN apt-get update \
   && apt-get install -y wget unzip \
   && rm -rf /var/lib/apt/lists/*
 
-ARG VERSION="0.14.10"
+ARG VERSION="0.15.0"
 ARG WAR_NAME=phoss-directory-publisher-${VERSION}.war
 
 # Download the PD from GitHub releases

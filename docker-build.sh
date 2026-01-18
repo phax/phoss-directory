@@ -16,7 +16,7 @@
 # limitations under the License.
 #
 
-version=0.14.10
+version=0.15.0
 docker build --build-arg VERSION=$version -t phelger/phoss-directory-publisher:$version -f Dockerfile-from-GitHub-Release .
 docker tag phelger/phoss-directory-publisher:$version phelger/phoss-directory-publisher:latest
 docker push phelger/phoss-directory-publisher:latest
