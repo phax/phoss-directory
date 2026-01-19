@@ -27,7 +27,7 @@ Previous modules:
 
 # Building requirements
 
-To build the PD software you need at least Java 21 and Apache Maven 3.x.
+To build the PD software you need at least Java 17 and Apache Maven 3.x.
 
 Additionally to the contained projects you *MAY* need the latest SNAPSHOT of [ph-oton](https://github.com/phax/ph-oton) as part of your build environment.
 
@@ -103,6 +103,10 @@ Please see the [PD specification](https://docs.peppol.eu/edelivery/directory/PEP
 The PD Publisher is the publicly accessible web site with listing and search functionality for certain participants.
 
 # News and noteworthy
+
+v0.15.1 - 2026-01-19
+* Requires at least Java 17 again - my bad
+* Updated changelog
 
 v0.15.0 - 2026-01-18
 * Requires at least Java 21

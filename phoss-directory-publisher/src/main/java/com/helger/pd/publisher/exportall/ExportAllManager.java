@@ -22,8 +22,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.security.DigestOutputStream;
-import java.security.MessageDigest;
 import java.util.function.Consumer;
 
 import javax.xml.stream.XMLOutputFactory;
@@ -41,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import com.helger.annotation.Nonempty;
 import com.helger.annotation.WillNotClose;
 import com.helger.annotation.concurrent.ThreadSafe;
+import com.helger.annotation.style.VisibleForTesting;
 import com.helger.base.io.stream.NonClosingOutputStream;
 import com.helger.base.io.stream.StreamHelper;
 import com.helger.base.state.ESuccess;
@@ -55,6 +54,7 @@ import com.helger.csv.CSVWriter;
 import com.helger.datetime.helper.PDTFactory;
 import com.helger.datetime.web.PDTWebDateHelper;
 import com.helger.io.file.FileHelper;
+import com.helger.io.file.FilenameHelper;
 import com.helger.mime.CMimeType;
 import com.helger.mime.IMimeType;
 import com.helger.pd.indexer.mgr.PDMetaManager;
@@ -71,7 +71,6 @@ import com.helger.peppolid.IDocumentTypeIdentifier;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.factory.IIdentifierFactory;
 import com.helger.peppolid.peppol.doctype.EPredefinedDocumentTypeIdentifier;
-import com.helger.security.messagedigest.EMessageDigestAlgorithm;
 import com.helger.servlet.response.UnifiedResponse;
 import com.helger.xml.microdom.IMicroDocument;
 import com.helger.xml.serialize.write.XMLWriterSettings;
@@ -93,15 +92,14 @@ public final class ExportAllManager
 
   // Internal filenames
   private static final String S3_FOLDER_NAME = "export1/";
-  private static final String INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_FULL = S3_FOLDER_NAME +
-                                                                           "export-all-businesscards.xml";
-  private static final String INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_NO_DOC_TYPES = S3_FOLDER_NAME +
-                                                                                   "export-all-businesscards-no-doc-types.xml";
-  private static final String INTERNAL_EXPORT_ALL_BUSINESSCARDS_JSON = S3_FOLDER_NAME + "export-all-businesscards.json";
-  private static final String INTERNAL_EXPORT_ALL_BUSINESSCARDS_CSV = S3_FOLDER_NAME + "export-all-businesscards.csv";
-  private static final String INTERNAL_EXPORT_ALL_PARTICIPANTS_XML = S3_FOLDER_NAME + "export-all-participants.xml";
-  private static final String INTERNAL_EXPORT_ALL_PARTICIPANTS_JSON = S3_FOLDER_NAME + "export-all-participants.json";
-  private static final String INTERNAL_EXPORT_ALL_PARTICIPANTS_CSV = S3_FOLDER_NAME + "export-all-participants.csv";
+  private static final String INTERNAL_BUSINESSCARDS_XML_FULL = S3_FOLDER_NAME + "export-all-businesscards.xml";
+  private static final String INTERNAL_BUSINESSCARDS_XML_NO_DOC_TYPES = S3_FOLDER_NAME +
+                                                                        "export-all-businesscards-no-doc-types.xml";
+  private static final String INTERNAL_BUSINESSCARDS_JSON = S3_FOLDER_NAME + "export-all-businesscards.json";
+  private static final String INTERNAL_BUSINESSCARDS_CSV = S3_FOLDER_NAME + "export-all-businesscards.csv";
+  private static final String INTERNAL_PARTICIPANTS_XML = S3_FOLDER_NAME + "export-all-participants.xml";
+  private static final String INTERNAL_PARTICIPANTS_JSON = S3_FOLDER_NAME + "export-all-participants.json";
+  private static final String INTERNAL_PARTICIPANTS_CSV = S3_FOLDER_NAME + "export-all-participants.csv";
 
   // Rest
   private static final Logger LOGGER = LoggerFactory.getLogger (ExportAllManager.class);
@@ -120,25 +118,23 @@ public final class ExportAllManager
     try
     {
       // 2. Write data to temp file
-      final MessageDigest aMD = EMessageDigestAlgorithm.SHA_256.createMessageDigest ();
-      try (final OutputStream aFOS = FileHelper.getBufferedOutputStream (fTemp);
-           final DigestOutputStream aDOS = new DigestOutputStream (aFOS, aMD))
+      try (final OutputStream aFOS = FileHelper.getBufferedOutputStream (fTemp))
       {
-        aByteProducer.accept (aDOS);
+        aByteProducer.accept (aFOS);
       }
 
-      final byte [] aHashBytes = aMD.digest ();
       LOGGER.info ("Finished writing temp file '" + fTemp.getAbsolutePath () + "' - now upload to S3");
 
       // 3. Now upload the temp file to S3
       final String sBucketName = PDServerConfiguration.getS3BucketName ();
       final String sTempFilename = sS3Filename + ".temp";
+      final String sContentDisposition = "attachment; filename=\"" + FilenameHelper.getWithoutPath (sS3Filename) + "\"";
 
       try
       {
         // Upload; this call reads from the PipedInputStream while producer writes
         // Throws a runtime exception in case of error
-        S3Helper.putS3Object (sBucketName, sTempFilename, aContentType, fTemp, aHashBytes);
+        S3Helper.putS3Object (sBucketName, sTempFilename, fTemp, aContentType, sContentDisposition);
       }
       catch (final Throwable ex)
       {
@@ -151,7 +147,8 @@ public final class ExportAllManager
       S3Helper.deleteS3Object (sBucketName, sS3Filename);
 
       // 5. copy the temp file to the new file
-      if (S3Helper.copyS3Object (sBucketName, sTempFilename, sS3Filename).isFailure ())
+      if (S3Helper.copyS3Object (sBucketName, sTempFilename, sS3Filename, aContentType, sContentDisposition)
+                  .isFailure ())
       {
         LOGGER.error ("Failed to copy on S3 '" + sBucketName + "' / '" + sTempFilename + "' to '" + sS3Filename + "'");
         return ESuccess.FAILURE;
@@ -169,23 +166,19 @@ public final class ExportAllManager
   }
 
   @NonNull
-  public static InputStream streamBusinessCardXMLFull ()
+  @VisibleForTesting
+  static InputStream streamBusinessCardXMLFull ()
   {
     final String sBucketName = PDServerConfiguration.getS3BucketName ();
-    return S3Helper.getS3Object (sBucketName, INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_FULL);
+    return S3Helper.getS3Object (sBucketName, INTERNAL_BUSINESSCARDS_XML_FULL);
   }
 
   @NonNull
-  public static InputStream streamBusinessCardXMLNoDocTypes ()
+  @VisibleForTesting
+  static InputStream streamBusinessCardXMLNoDocTypes ()
   {
     final String sBucketName = PDServerConfiguration.getS3BucketName ();
-    return S3Helper.getS3Object (sBucketName, INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_NO_DOC_TYPES);
-  }
-
-  private static void _redirectTo (@NonNull final String sKey, @NonNull final UnifiedResponse aUR)
-  {
-    // Get data directly from S3
-    aUR.setRedirect (S3Helper.S3_PUBLIC_URL + sKey);
+    return S3Helper.getS3Object (sBucketName, INTERNAL_BUSINESSCARDS_XML_NO_DOC_TYPES);
   }
 
   @NonNull
@@ -287,7 +280,7 @@ public final class ExportAllManager
   @NonNull
   static ESuccess writeFileBusinessCardXMLFull (@NonNull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
   {
-    return _runWithTempFileOnS3 (INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_FULL,
+    return _runWithTempFileOnS3 (INTERNAL_BUSINESSCARDS_XML_FULL,
                                  CMimeType.APPLICATION_XML,
                                  aOS -> _writeFileBusinessCardXML (aAllParticipantIDs, aOS, true));
   }
@@ -300,13 +293,14 @@ public final class ExportAllManager
    */
   public static void redirectToBusinessCardXMLFull (@NonNull final UnifiedResponse aUR)
   {
-    _redirectTo (INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_FULL, aUR);
+    // Get data directly from S3
+    aUR.setRedirect (S3Helper.S3_PUBLIC_URL + INTERNAL_BUSINESSCARDS_XML_FULL);
   }
 
   @NonNull
   static ESuccess writeFileBusinessCardXMLNoDocTypes (@NonNull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
   {
-    return _runWithTempFileOnS3 (INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_NO_DOC_TYPES,
+    return _runWithTempFileOnS3 (INTERNAL_BUSINESSCARDS_XML_NO_DOC_TYPES,
                                  CMimeType.APPLICATION_XML,
                                  aOS -> _writeFileBusinessCardXML (aAllParticipantIDs, aOS, false));
   }
@@ -319,13 +313,14 @@ public final class ExportAllManager
    */
   public static void redirectToBusinessCardXMLNoDocTypes (@NonNull final UnifiedResponse aUR)
   {
-    _redirectTo (INTERNAL_EXPORT_ALL_BUSINESSCARDS_XML_NO_DOC_TYPES, aUR);
+    // Get data directly from S3
+    aUR.setRedirect (S3Helper.S3_PUBLIC_URL + INTERNAL_BUSINESSCARDS_XML_NO_DOC_TYPES);
   }
 
   @NonNull
   static ESuccess writeFileBusinessCardJSON (@NonNull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
   {
-    return _runWithTempFileOnS3 (INTERNAL_EXPORT_ALL_BUSINESSCARDS_JSON, CMimeType.APPLICATION_JSON, aOS -> {
+    return _runWithTempFileOnS3 (INTERNAL_BUSINESSCARDS_JSON, CMimeType.APPLICATION_JSON, aOS -> {
       final PDStorageManager aStorageMgr = PDMetaManager.getStorageMgr ();
       final boolean bIncludeDocTypes = true;
 
@@ -465,7 +460,8 @@ public final class ExportAllManager
    */
   public static void redirectToBusinessCardJSON (@NonNull final UnifiedResponse aUR)
   {
-    _redirectTo (INTERNAL_EXPORT_ALL_BUSINESSCARDS_JSON, aUR);
+    // Get data directly from S3
+    aUR.setRedirect (S3Helper.S3_PUBLIC_URL + INTERNAL_BUSINESSCARDS_JSON);
   }
 
   private static void _unify (@NonNull @WillNotClose final CSVWriter aCSVWriter)
@@ -476,7 +472,7 @@ public final class ExportAllManager
   @NonNull
   static ESuccess writeFileBusinessCardCSV (@NonNull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
   {
-    return _runWithTempFileOnS3 (INTERNAL_EXPORT_ALL_BUSINESSCARDS_CSV, CMimeType.TEXT_CSV, aOS -> {
+    return _runWithTempFileOnS3 (INTERNAL_BUSINESSCARDS_CSV, CMimeType.TEXT_CSV, aOS -> {
       final PDStorageManager aStorageMgr = PDMetaManager.getStorageMgr ();
 
       try (final CSVWriter aCSVWriter = new CSVWriter (StreamHelper.createWriter (new NonClosingOutputStream (aOS),
@@ -569,13 +565,14 @@ public final class ExportAllManager
    */
   public static void redirectToBusinessCardCSV (@NonNull final UnifiedResponse aUR)
   {
-    _redirectTo (INTERNAL_EXPORT_ALL_BUSINESSCARDS_CSV, aUR);
+    // Get data directly from S3
+    aUR.setRedirect (S3Helper.S3_PUBLIC_URL + INTERNAL_BUSINESSCARDS_CSV);
   }
 
   @NonNull
   static ESuccess writeFileParticipantXML (@NonNull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
   {
-    return _runWithTempFileOnS3 (INTERNAL_EXPORT_ALL_PARTICIPANTS_XML, CMimeType.APPLICATION_XML, aOS -> {
+    return _runWithTempFileOnS3 (INTERNAL_PARTICIPANTS_XML, CMimeType.APPLICATION_XML, aOS -> {
       final IIdentifierFactory aIF = PDMetaManager.getIdentifierFactory ();
       final XMLOutputFactory aXmlOutputFactory = XMLOutputFactory.newInstance ();
       try
@@ -631,13 +628,14 @@ public final class ExportAllManager
    */
   public static void redirectToParticipantXML (@NonNull final UnifiedResponse aUR)
   {
-    _redirectTo (INTERNAL_EXPORT_ALL_PARTICIPANTS_XML, aUR);
+    // Get data directly from S3
+    aUR.setRedirect (S3Helper.S3_PUBLIC_URL + INTERNAL_PARTICIPANTS_XML);
   }
 
   @NonNull
   static ESuccess writeFileParticipantJSON (@NonNull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
   {
-    return _runWithTempFileOnS3 (INTERNAL_EXPORT_ALL_PARTICIPANTS_JSON, CMimeType.APPLICATION_JSON, aOS -> {
+    return _runWithTempFileOnS3 (INTERNAL_PARTICIPANTS_JSON, CMimeType.APPLICATION_JSON, aOS -> {
       try (final Writer aWriter = StreamHelper.createWriter (new NonClosingOutputStream (aOS), StandardCharsets.UTF_8);
            final JsonGenerator aJsonGen = Json.createGenerator (aWriter))
       {
@@ -672,13 +670,14 @@ public final class ExportAllManager
    */
   public static void redirectToParticipantJSON (@NonNull final UnifiedResponse aUR)
   {
-    _redirectTo (INTERNAL_EXPORT_ALL_PARTICIPANTS_JSON, aUR);
+    // Get data directly from S3
+    aUR.setRedirect (S3Helper.S3_PUBLIC_URL + INTERNAL_PARTICIPANTS_JSON);
   }
 
   @NonNull
   static ESuccess writeFileParticipantCSV (@NonNull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
   {
-    return _runWithTempFileOnS3 (INTERNAL_EXPORT_ALL_PARTICIPANTS_CSV, CMimeType.TEXT_CSV, aOS -> {
+    return _runWithTempFileOnS3 (INTERNAL_PARTICIPANTS_CSV, CMimeType.TEXT_CSV, aOS -> {
       try (final CSVWriter aCSVWriter = new CSVWriter (StreamHelper.createWriter (new NonClosingOutputStream (aOS),
                                                                                   StandardCharsets.ISO_8859_1)))
       {
@@ -705,6 +704,7 @@ public final class ExportAllManager
    */
   public static void redirectToParticipantCSV (@NonNull final UnifiedResponse aUR)
   {
-    _redirectTo (INTERNAL_EXPORT_ALL_PARTICIPANTS_CSV, aUR);
+    // Get data directly from S3
+    aUR.setRedirect (S3Helper.S3_PUBLIC_URL + INTERNAL_PARTICIPANTS_CSV);
   }
 }

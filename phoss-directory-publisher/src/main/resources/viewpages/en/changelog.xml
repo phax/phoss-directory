@@ -22,6 +22,12 @@
   This date is not necessarily identical to the date when the solution was deployed.
 </p>
 
+<h4>2026-01-19</h4>
+
+<ul>
+  <li>The full data export now resides in S3 buckets - this implies that for downloading data, HTTP redirects must be enabled</li>
+</ul>
+
 <h4>2025-12-30</h4>
 
 <ul>

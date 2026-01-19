@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.annotation.Nonempty;
-import com.helger.base.codec.base64.Base64;
 import com.helger.base.state.ESuccess;
 import com.helger.base.system.SystemProperties;
 import com.helger.mime.IMimeType;
@@ -29,7 +28,8 @@ import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.DeleteObjectResponse;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
-import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
+import software.amazon.awssdk.services.s3.model.MetadataDirective;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.transfer.s3.S3TransferManager;
 import software.amazon.awssdk.transfer.s3.model.CompletedCopy;
@@ -45,7 +45,7 @@ public final class S3Helper
   // We run everything in EU West 1 (=Ireland)
   // Should be provided via EnvVar
 
-  public static final S3Client S3;
+  public static final S3Client S3_SYNC;
   public static final S3AsyncClient S3_ASYNC;
   public static final String S3_PUBLIC_URL;
 
@@ -82,8 +82,9 @@ public final class S3Helper
       S3_PUBLIC_URL = PDServerConfiguration.getS3WebsiteURLWithTrailingSlash ();
     }
 
-    S3 = aS3Builder.serviceConfiguration (S3Configuration.builder ().pathStyleAccessEnabled (Boolean.TRUE).build ())
-                   .build ();
+    S3_SYNC = aS3Builder.serviceConfiguration (S3Configuration.builder ()
+                                                              .pathStyleAccessEnabled (Boolean.TRUE)
+                                                              .build ()).build ();
     S3_ASYNC = aS3AsyncBuilder.serviceConfiguration (S3Configuration.builder ()
                                                                     .pathStyleAccessEnabled (Boolean.TRUE)
                                                                     .build ()).build ();
@@ -97,7 +98,7 @@ public final class S3Helper
     {
       LOGGER.info ("Reading from S3 '" + sBucketName + "' / '" + sKey + "'");
 
-      return S3.getObject (GetObjectRequest.builder ().bucket (sBucketName).key (sKey).build ());
+      return S3_SYNC.getObject (GetObjectRequest.builder ().bucket (sBucketName).key (sKey).build ());
     }
     catch (final RuntimeException ex)
     {
@@ -107,16 +108,14 @@ public final class S3Helper
 
   public static void putS3Object (@NonNull @Nonempty final String sBucketName,
                                   @NonNull @Nonempty final String sKey,
-                                  @NonNull final IMimeType aMimeType,
                                   @NonNull final File aFileToUpload,
-                                  final byte @NonNull [] aHashBytes)
+                                  @NonNull final IMimeType aMimeType,
+                                  @NonNull final String sContentDisposition)
   {
     LOGGER.info ("Writing to S3 '" + sBucketName + "' / '" + sKey + "' as '" + aMimeType.getAsString () + "'");
 
     try
     {
-      final String sHashValue = Base64.encodeBytes (aHashBytes);
-
       final S3TransferManager aTransferMgr = S3TransferManager.builder ().s3Client (S3_ASYNC).build ();
 
       // main upload; TransferManager picks strategy based on size
@@ -125,7 +124,7 @@ public final class S3Helper
                                                        .bucket (sBucketName)
                                                        .key (sKey)
                                                        .contentType (aMimeType.getAsString ())
-                                                       .checksumSHA256 (sHashValue)
+                                                       .contentDisposition (sContentDisposition)
                                                        .build ();
 
       final FileUpload aUpload = aTransferMgr.uploadFile (x -> x.putObjectRequest (aPutReq)
@@ -136,22 +135,6 @@ public final class S3Helper
       final CompletedFileUpload aCompletedUpload = aUpload.completionFuture ().join ();
       if (!aCompletedUpload.response ().sdkHttpResponse ().isSuccessful ())
         throw new IllegalStateException ("Failed to put S3 object '" + sBucketName + "' / '" + sKey + "'");
-
-      // Does not work - maybe because of the multipart upload - only CRC32 checksums are created in
-      // Localstack
-      if (false)
-      {
-        // Check hash bytes
-        final String sBase64Checksum = S3.headObject (HeadObjectRequest.builder ()
-                                                                       .bucket (sBucketName)
-                                                                       .key (sKey)
-                                                                       .build ()).checksumSHA256 ();
-        if (sBase64Checksum == null || !sBase64Checksum.equalsIgnoreCase (sHashValue))
-          throw new IllegalStateException ("The checksums don't match after upload. Uploaded: " +
-                                           sHashValue +
-                                           " - received: " +
-                                           sBase64Checksum);
-      }
 
       if (LOGGER.isDebugEnabled ())
         LOGGER.debug ("Successfully wrote to S3 '" + sBucketName + "' / '" + sKey + "'");
@@ -174,10 +157,10 @@ public final class S3Helper
 
     try
     {
-      final DeleteObjectResponse aResponse = S3.deleteObject (DeleteObjectRequest.builder ()
-                                                                                 .bucket (sBucketName)
-                                                                                 .key (sKey)
-                                                                                 .build ());
+      final DeleteObjectResponse aResponse = S3_SYNC.deleteObject (DeleteObjectRequest.builder ()
+                                                                                      .bucket (sBucketName)
+                                                                                      .key (sKey)
+                                                                                      .build ());
       if (!aResponse.sdkHttpResponse ().isSuccessful ())
         return ESuccess.FAILURE;
 
@@ -194,7 +177,9 @@ public final class S3Helper
   @NonNull
   public static ESuccess copyS3Object (@NonNull @Nonempty final String sBucketName,
                                        @NonNull @Nonempty final String sOldKey,
-                                       @NonNull @Nonempty final String sNewKey)
+                                       @NonNull @Nonempty final String sNewKey,
+                                       @NonNull final IMimeType aMimeType,
+                                       @NonNull final String sContentDisposition)
   {
     LOGGER.info ("Copying on S3 '" + sBucketName + "' / '" + sOldKey + "' to '" + sNewKey + "'");
 
@@ -206,6 +191,9 @@ public final class S3Helper
                                                         .sourceKey (sOldKey)
                                                         .destinationBucket (sBucketName)
                                                         .destinationKey (sNewKey)
+                                                        .metadataDirective (MetadataDirective.REPLACE)
+                                                        .contentType (aMimeType.getAsString ())
+                                                        .contentDisposition (sContentDisposition)
                                                         .build ();
 
     final Copy aCopy = aTransferMgr.copy (x -> x.copyObjectRequest (aCopyReq)
@@ -214,6 +202,12 @@ public final class S3Helper
     final CompletedCopy aCompletedCopy = aCopy.completionFuture ().join ();
     if (!aCompletedCopy.response ().sdkHttpResponse ().isSuccessful ())
       return ESuccess.FAILURE;
+
+    if (false)
+    {
+      final HeadObjectResponse aHead = S3_SYNC.headObject (x -> x.bucket (sBucketName).key (sNewKey));
+      LOGGER.info ("HeadResponse: " + aHead);
+    }
 
     if (LOGGER.isDebugEnabled ())
       LOGGER.debug ("Successfully copied S3 '" + sBucketName + "' / '" + sOldKey + "' to '" + sNewKey + "'");
