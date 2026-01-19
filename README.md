@@ -107,6 +107,7 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 v0.15.1 - 2026-01-19
 * Requires at least Java 17 again - my bad
 * Updated changelog
+* Trying to get `Content-Disposition` to work
 
 v0.15.0 - 2026-01-18
 * Requires at least Java 21
