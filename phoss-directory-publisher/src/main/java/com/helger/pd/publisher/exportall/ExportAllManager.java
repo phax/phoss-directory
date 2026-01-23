@@ -65,6 +65,7 @@ import com.helger.pd.indexer.storage.PDStoredContact;
 import com.helger.pd.indexer.storage.PDStoredIdentifier;
 import com.helger.pd.indexer.storage.PDStoredMLName;
 import com.helger.pd.indexer.storage.field.PDField;
+import com.helger.pd.publisher.aws.S3Helper;
 import com.helger.peppol.ui.types.nicename.NiceNameEntry;
 import com.helger.peppol.ui.types.nicename.NiceNameManager;
 import com.helger.peppolid.IDocumentTypeIdentifier;

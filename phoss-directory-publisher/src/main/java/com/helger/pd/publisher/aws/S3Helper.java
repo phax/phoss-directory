@@ -1,4 +1,4 @@
-package com.helger.pd.publisher.exportall;
+package com.helger.pd.publisher.aws;
 
 import java.io.File;
 import java.net.URI;
@@ -125,6 +125,8 @@ public final class S3Helper
                                                        .key (sKey)
                                                        .contentType (aMimeType.getAsString ())
                                                        .contentDisposition (sContentDisposition)
+                                                       // Cache for 6h
+                                                       .cacheControl ("max-age=21600, public")
                                                        .build ();
 
       final FileUpload aUpload = aTransferMgr.uploadFile (x -> x.putObjectRequest (aPutReq)
