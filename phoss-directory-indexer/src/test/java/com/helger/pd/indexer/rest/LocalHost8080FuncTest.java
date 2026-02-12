@@ -111,7 +111,7 @@ public final class LocalHost8080FuncTest
   public void setUp () throws GeneralSecurityException, IOException
   {
     // Set test BC provider first!
-    PDMetaManager.setBusinessCardProvider (LocalHost8080FuncTest::_createMockBC);
+    PDMetaManager.setBusinessCardProvider ( (pid, errs) -> LocalHost8080FuncTest._createMockBC (pid));
     PDMetaManager.getInstance ();
 
     final File aTestClientCertificateKeyStore = new File ("src/test/resources/smp.pilot.jks");
