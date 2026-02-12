@@ -79,21 +79,13 @@ public final class PageSecureIndexImport extends AbstractAppWebPage
 
     {
       final IPDBusinessCardProvider aBCProv = PDMetaManager.getBusinessCardProvider ();
-      if (aBCProv instanceof SMPBusinessCardProvider)
+      if (aBCProv instanceof final SMPBusinessCardProvider aSMPBCProv)
       {
-        final SMPBusinessCardProvider aSMPBCProv = (SMPBusinessCardProvider) aBCProv;
-        if (aSMPBCProv.isFixedSMP ())
-        {
-          aNodeList.addChild (info ("Fixed SMP URI " + aSMPBCProv.getFixedSMPURI () + " is used."));
-        }
-        else
-        {
-          aNodeList.addChild (info ("The following SMLs are crawled for entries: " +
-                                    StringImplode.imploder ()
-                                                 .source (aSMPBCProv.getAllSMLsToUse (), ISMLInfo::getDisplayName)
-                                                 .separator (", ")
-                                                 .build ()));
-        }
+        aNodeList.addChild (info ("The following SMLs are crawled for entries: " +
+                                  StringImplode.imploder ()
+                                               .source (aSMPBCProv.getAllSMLsToUse (), ISMLInfo::getDisplayName)
+                                               .separator (", ")
+                                               .build ()));
       }
     }
     final boolean bIsFormSubmitted = aWPEC.hasAction (CPageParam.ACTION_PERFORM);

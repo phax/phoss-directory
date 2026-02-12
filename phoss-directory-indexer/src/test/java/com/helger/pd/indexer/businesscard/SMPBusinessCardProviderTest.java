@@ -59,7 +59,8 @@ public final class SMPBusinessCardProviderTest
     final SMPBusinessCardProvider aBI = SMPBusinessCardProvider.createWithSMLAutoDetect (PDServerConfiguration.getSMPMode (),
                                                                                          PDServerConfiguration.getURLProvider (),
                                                                                          SML_SUPPLIER_TEST_ONLY);
-    final PDExtendedBusinessCard aExtBI = aBI.getBusinessCard (PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9915:test"));
+    final PDExtendedBusinessCard aExtBI = aBI.getBusinessCard (PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9915:test"),
+                                                               LOGGER::error);
     assertNotNull (aExtBI);
     assertEquals (1, aExtBI.getBusinessCard ().businessEntities ().size ());
     LOGGER.info (aExtBI.toString ());
@@ -77,7 +78,8 @@ public final class SMPBusinessCardProviderTest
     final SMPBusinessCardProvider aBI = SMPBusinessCardProvider.createWithSMLAutoDetect (PDServerConfiguration.getSMPMode (),
                                                                                          PDServerConfiguration.getURLProvider (),
                                                                                          SML_SUPPLIER_TEST_ONLY);
-    final PDExtendedBusinessCard aExtBI = aBI.getBusinessCard (PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9915:helger"));
+    final PDExtendedBusinessCard aExtBI = aBI.getBusinessCard (PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9915:helger"),
+                                                               LOGGER::error);
     assertNotNull (aExtBI);
     assertEquals (1, aExtBI.getBusinessCard ().businessEntities ().size ());
     LOGGER.info (aExtBI.toString ());
@@ -96,7 +98,8 @@ public final class SMPBusinessCardProviderTest
     final SMPBusinessCardProvider aBI = SMPBusinessCardProvider.createWithSMLAutoDetect (PDServerConfiguration.getSMPMode (),
                                                                                          PDServerConfiguration.getURLProvider (),
                                                                                          SML_SUPPLIER_ALL);
-    final PDExtendedBusinessCard aExtBI = aBI.getBusinessCard (PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("0192:816572452"));
+    final PDExtendedBusinessCard aExtBI = aBI.getBusinessCard (PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("0192:816572452"),
+                                                               LOGGER::error);
     assertNotNull (aExtBI);
     LOGGER.info (aExtBI.toString ());
   }
@@ -109,7 +112,8 @@ public final class SMPBusinessCardProviderTest
                                                                                          PDServerConfiguration.getURLProvider (),
                                                                                          SML_SUPPLIER_ALL);
     final PDExtendedBusinessCard aExtBI = aBI.getBusinessCardPeppolSMP (PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9999:ghx"),
-                                                                        new SMPClientReadOnly (URLHelper.getAsURI ("http://localhost:90")));
+                                                                        new SMPClientReadOnly (URLHelper.getAsURI ("http://localhost:90")),
+                                                                        LOGGER::error);
     assertNotNull (aExtBI);
     LOGGER.info (aExtBI.toString ());
   }
@@ -122,7 +126,8 @@ public final class SMPBusinessCardProviderTest
                                                                                          PDServerConfiguration.getURLProvider (),
                                                                                          SML_SUPPLIER_ALL);
     final PDExtendedBusinessCard aExtBI = aBI.getBusinessCardPeppolSMP (PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9956:0471349823"),
-                                                                        new SMPClientReadOnly (URLHelper.getAsURI ("https://int.babelway.net/smp/")));
+                                                                        new SMPClientReadOnly (URLHelper.getAsURI ("https://int.babelway.net/smp/")),
+                                                                        LOGGER::error);
     assertNotNull (aExtBI);
     LOGGER.info (aExtBI.toString ());
   }

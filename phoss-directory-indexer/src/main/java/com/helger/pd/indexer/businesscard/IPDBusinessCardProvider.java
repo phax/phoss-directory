@@ -16,6 +16,8 @@
  */
 package com.helger.pd.indexer.businesscard;
 
+import java.util.function.Consumer;
+
 import org.jspecify.annotations.NonNull;
 
 import com.helger.peppolid.IParticipantIdentifier;
@@ -23,10 +25,9 @@ import com.helger.peppolid.IParticipantIdentifier;
 import jakarta.annotation.Nullable;
 
 /**
- * Abstract interface to retrieve the {@link PDExtendedBusinessCard} from a
- * provided Peppol participant ID. By default an SMP <code>/businesscard</code>
- * API is queried. Nevertheless for testing purposes it may be possible to
- * provide mock data.
+ * Abstract interface to retrieve the {@link PDExtendedBusinessCard} from a provided Peppol
+ * participant ID. By default an SMP <code>/businesscard</code> API is queried. Nevertheless for
+ * testing purposes it may be possible to provide mock data.
  *
  * @author Philip Helger
  */
@@ -38,9 +39,11 @@ public interface IPDBusinessCardProvider
    *
    * @param aParticipantID
    *        Peppol participant ID. May not be <code>null</code>.
-   * @return <code>null</code> if no business card exists for the provided
-   *         participant ID.
+   * @param aErrorMsgHandler
+   *        Handler to capture errors on what went wrong. May not be <code>null</code>.
+   * @return <code>null</code> if no business card exists for the provided participant ID.
    */
   @Nullable
-  PDExtendedBusinessCard getBusinessCard (@NonNull IParticipantIdentifier aParticipantID);
+  PDExtendedBusinessCard getBusinessCard (@NonNull IParticipantIdentifier aParticipantID,
+                                          @NonNull Consumer <String> aErrorMsgHandler);
 }

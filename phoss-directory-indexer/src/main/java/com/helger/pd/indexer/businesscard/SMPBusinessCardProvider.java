@@ -17,7 +17,6 @@
 package com.helger.pd.indexer.businesscard;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
 import java.util.function.Consumer;
@@ -70,7 +69,6 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
   };
 
   private final ESMPAPIType m_eSMPMode;
-  private final URI m_aSMPURI;
   private final ISMPURLProvider m_aURLProvider;
   private final Supplier <? extends ICommonsList <? extends ISMLInfo>> m_aSMLInfoProvider;
 
@@ -79,48 +77,22 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
    *
    * @param eSMPMode
    *        SMP Mode to use.
-   * @param aSMPURI
-   *        The URI of the SMP. May be <code>null</code> to use SML/DNS lookup. If this parameter is
-   *        non-<code>null</code> the SML parameter MUST be <code>null</code>. This parameter is
-   *        only needed for testing purposes, if a network consists of a single SMP and has NO DNS
-   *        setup!
    * @param aURLProvider
    *        The URL provider to be used. Must be non-<code>null</code> if SML is to be used.
    * @param aSMLInfoProvider
    *        The supplier for all {@link ISMLInfo} objects to be tried (may be more then one)
    */
   protected SMPBusinessCardProvider (@NonNull final ESMPAPIType eSMPMode,
-                                     @Nullable final URI aSMPURI,
                                      @Nullable final ISMPURLProvider aURLProvider,
                                      @Nullable final Supplier <? extends ICommonsList <? extends ISMLInfo>> aSMLInfoProvider)
   {
     ValueEnforcer.notNull (eSMPMode, "SMPMode");
-    if (aSMPURI != null)
-    {
-      ValueEnforcer.isNull (aURLProvider, "URL provider must be null if an SMP URI is present!");
-      ValueEnforcer.isNull (aSMLInfoProvider, "SMLInfoProvider must be null if an SMP URI is present!");
-    }
-    else
-    {
-      ValueEnforcer.notNull (aURLProvider, "URL Provider");
-      // aSMLInfoProvider may be null
-    }
-    
+    ValueEnforcer.notNull (aURLProvider, "URL Provider");
+    // aSMLInfoProvider may be null
+
     m_eSMPMode = eSMPMode;
-    m_aSMPURI = aSMPURI;
     m_aURLProvider = aURLProvider;
     m_aSMLInfoProvider = aSMLInfoProvider;
-  }
-
-  public final boolean isFixedSMP ()
-  {
-    return m_aSMPURI != null;
-  }
-
-  @Nullable
-  public final URI getFixedSMPURI ()
-  {
-    return m_aSMPURI;
   }
 
   @Nullable
@@ -162,7 +134,8 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
   @Nullable
   @VisibleForTesting
   PDExtendedBusinessCard getBusinessCardPeppolSMP (@NonNull final IParticipantIdentifier aParticipantID,
-                                                   @NonNull final SMPClientReadOnly aSMPClient)
+                                                   @NonNull final SMPClientReadOnly aSMPClient,
+                                                   @NonNull final Consumer <String> aErrorMsgHandler)
   {
     LOGGER.info ("Querying BusinessCard for '" +
                  aParticipantID.getURIEncoded () +
@@ -178,7 +151,12 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
     }
     catch (final SMPClientException ex)
     {
-      LOGGER.error ("Error querying SMP for ServiceGroup of '" + aParticipantID.getURIEncoded () + "'", ex);
+      final String sErrorMsg = "Error querying SMP for ServiceGroup of '" +
+                               aParticipantID.getURIEncoded () +
+                               "'. Details: " +
+                               ex.getMessage ();
+      LOGGER.error (sErrorMsg, ex);
+      aErrorMsgHandler.accept (sErrorMsg);
       return null;
     }
     // If the service group is present, try querying the business card
@@ -193,23 +171,34 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
     }
     catch (final IOException ex)
     {
-      if ((ex instanceof HttpResponseException aHREx &&
-          aHREx.getStatusCode () == CHttp.HTTP_NOT_FOUND) || ex instanceof UnknownHostException)
+      if ((ex instanceof final HttpResponseException aHREx && aHREx.getStatusCode () == CHttp.HTTP_NOT_FOUND) ||
+          ex instanceof UnknownHostException)
       {
-        LOGGER.warn ("No BusinessCard available for '" +
-                     aParticipantID.getURIEncoded () +
-                     "' - not in configured SMK/SML? - " +
-                     ex.getMessage ());
+        final String sErrorMsg = "No BusinessCard available for '" +
+                                 aParticipantID.getURIEncoded () +
+                                 "' - not in configured SML? Details: " +
+                                 ex.getMessage ();
+        LOGGER.warn (sErrorMsg);
+        aErrorMsgHandler.accept (sErrorMsg);
       }
       else
-        LOGGER.error ("Error querying SMP for BusinessCard of '" + aParticipantID.getURIEncoded () + "'", ex);
+      {
+        final String sErrorMsg = "Error querying SMP for BusinessCard of '" +
+                                 aParticipantID.getURIEncoded () +
+                                 "'. Details: " +
+                                 ex.getMessage ();
+        LOGGER.error (sErrorMsg, ex);
+        aErrorMsgHandler.accept (sErrorMsg);
+      }
       return null;
     }
 
     if (aBusinessCard == null)
     {
       // No extension present - no need to try again
-      LOGGER.warn ("Failed to get SMP BusinessCard of " + aParticipantID.getURIEncoded ());
+      final String sErrorMsg = "Failed to get SMP BusinessCard of '" + aParticipantID.getURIEncoded () + "'";
+      LOGGER.warn (sErrorMsg);
+      aErrorMsgHandler.accept (sErrorMsg);
       return null;
     }
 
@@ -225,7 +214,8 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
   @Nullable
   @VisibleForTesting
   PDExtendedBusinessCard getBusinessCardBDXR1 (@NonNull final IParticipantIdentifier aParticipantID,
-                                               @NonNull final BDXRClientReadOnly aSMPClient)
+                                               @NonNull final BDXRClientReadOnly aSMPClient,
+                                               @NonNull final Consumer <String> aErrorMsgHandler)
   {
     LOGGER.info ("Querying BusinessCard for '" +
                  aParticipantID.getURIEncoded () +
@@ -241,7 +231,12 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
     }
     catch (final SMPClientException ex)
     {
-      LOGGER.error ("Error querying SMP for ServiceGroup of '" + aParticipantID.getURIEncoded () + "'", ex);
+      final String sErrorMsg = "Error querying SMP for ServiceGroup of '" +
+                               aParticipantID.getURIEncoded () +
+                               "'. Details: " +
+                               ex.getMessage ();
+      LOGGER.error (sErrorMsg, ex);
+      aErrorMsgHandler.accept (sErrorMsg);
       return null;
     }
     // If the service group is present, try querying the business card
@@ -256,23 +251,34 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
     }
     catch (final IOException ex)
     {
-      if ((ex instanceof HttpResponseException aHREx &&
-          aHREx.getStatusCode () == CHttp.HTTP_NOT_FOUND) || ex instanceof UnknownHostException)
+      if ((ex instanceof final HttpResponseException aHREx && aHREx.getStatusCode () == CHttp.HTTP_NOT_FOUND) ||
+          ex instanceof UnknownHostException)
       {
-        LOGGER.warn ("No BusinessCard available for '" +
-                     aParticipantID.getURIEncoded () +
-                     "' - not in configured SMK/SML? - " +
-                     ex.getMessage ());
+        final String sErrorMsg = "No BusinessCard available for '" +
+                                 aParticipantID.getURIEncoded () +
+                                 "' - not in configured SML? Details: " +
+                                 ex.getMessage ();
+        LOGGER.warn (sErrorMsg);
+        aErrorMsgHandler.accept (sErrorMsg);
       }
       else
-        LOGGER.error ("Error querying SMP for BusinessCard of '" + aParticipantID.getURIEncoded () + "'", ex);
+      {
+        final String sErrorMsg = "Error querying SMP for BusinessCard of '" +
+                                 aParticipantID.getURIEncoded () +
+                                 "'. Details: " +
+                                 ex.getMessage ();
+        LOGGER.error (sErrorMsg, ex);
+        aErrorMsgHandler.accept (sErrorMsg);
+      }
       return null;
     }
 
     if (aBusinessCard == null)
     {
       // No extension present - no need to try again
-      LOGGER.warn ("Failed to get SMP BusinessCard of " + aParticipantID.getURIEncoded ());
+      final String sErrorMsg = "Failed to get SMP BusinessCard of '" + aParticipantID.getURIEncoded () + "'";
+      LOGGER.warn (sErrorMsg);
+      aErrorMsgHandler.accept (sErrorMsg);
       return null;
     }
 
@@ -288,7 +294,8 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
   @Nullable
   @VisibleForTesting
   PDExtendedBusinessCard getBusinessCardBDXR2 (@NonNull final IParticipantIdentifier aParticipantID,
-                                               @NonNull final BDXR2ClientReadOnly aSMPClient)
+                                               @NonNull final BDXR2ClientReadOnly aSMPClient,
+                                               @NonNull final Consumer <String> aErrorMsgHandler)
   {
     LOGGER.info ("Querying BusinessCard for '" +
                  aParticipantID.getURIEncoded () +
@@ -304,7 +311,12 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
     }
     catch (final SMPClientException ex)
     {
-      LOGGER.error ("Error querying SMP for ServiceGroup of '" + aParticipantID.getURIEncoded () + "'", ex);
+      final String sErrorMsg = "Error querying SMP for ServiceGroup of '" +
+                               aParticipantID.getURIEncoded () +
+                               "'. Details: " +
+                               ex.getMessage ();
+      LOGGER.error (sErrorMsg, ex);
+      aErrorMsgHandler.accept (sErrorMsg);
       return null;
     }
 
@@ -322,23 +334,34 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
     }
     catch (final IOException ex)
     {
-      if ((ex instanceof HttpResponseException aHREx &&
-          aHREx.getStatusCode () == CHttp.HTTP_NOT_FOUND) || ex instanceof UnknownHostException)
+      if ((ex instanceof final HttpResponseException aHREx && aHREx.getStatusCode () == CHttp.HTTP_NOT_FOUND) ||
+          ex instanceof UnknownHostException)
       {
-        LOGGER.warn ("No BusinessCard available for '" +
-                     aParticipantID.getURIEncoded () +
-                     "' - not in configured SMK/SML? - " +
-                     ex.getMessage ());
+        final String sErrorMsg = "No BusinessCard available for '" +
+                                 aParticipantID.getURIEncoded () +
+                                 "' - not in configured SML? Details: " +
+                                 ex.getMessage ();
+        LOGGER.warn (sErrorMsg);
+        aErrorMsgHandler.accept (sErrorMsg);
       }
       else
-        LOGGER.error ("Error querying SMP for BusinessCard of '" + aParticipantID.getURIEncoded () + "'", ex);
+      {
+        final String sErrorMsg = "Error querying SMP for BusinessCard of '" +
+                                 aParticipantID.getURIEncoded () +
+                                 "'. Details: " +
+                                 ex.getMessage ();
+        LOGGER.error (sErrorMsg, ex);
+        aErrorMsgHandler.accept (sErrorMsg);
+      }
       return null;
     }
 
     if (aBusinessCard == null)
     {
       // No extension present - no need to try again
-      LOGGER.warn ("Failed to get SMP BusinessCard of " + aParticipantID.getURIEncoded ());
+      final String sErrorMsg = "Failed to get SMP BusinessCard of '" + aParticipantID.getURIEncoded () + "'";
+      LOGGER.warn (sErrorMsg);
+      aErrorMsgHandler.accept (sErrorMsg);
       return null;
     }
 
@@ -376,140 +399,117 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
   }
 
   @Nullable
-  public PDExtendedBusinessCard getBusinessCard (@NonNull final IParticipantIdentifier aParticipantID)
+  public PDExtendedBusinessCard getBusinessCard (@NonNull final IParticipantIdentifier aParticipantID,
+                                                 @NonNull final Consumer <String> aErrorMsgHandler)
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
 
-    PDExtendedBusinessCard aBC;
+    final ICommonsList <? extends ISMLInfo> aSMLs = m_aSMLInfoProvider.get ();
 
-    if (m_aSMPURI != null)
+    LOGGER.info ("Trying to get BusinessCard of '" +
+                 aParticipantID.getURIEncoded () +
+                 "' from variable SMPs in mode " +
+                 m_eSMPMode +
+                 " trying " +
+                 aSMLs.size () +
+                 " SML(s)");
+
+    if (aSMLs.isEmpty ())
     {
-      LOGGER.info ("Trying to get BusinessCard of '" +
-                   aParticipantID.getURIEncoded () +
-                   "' from fixed SMP in mode " +
-                   m_eSMPMode);
+      final String sErrorMsg = "SMLInfoProvider returned an empty list!";
+      LOGGER.error (sErrorMsg);
+      aErrorMsgHandler.accept (sErrorMsg);
+    }
 
-      // Use a preselected SMP URI
+    // SML auto detect
+    PDExtendedBusinessCard aBC = null;
+    for (final ISMLInfo aSML : aSMLs)
+    {
+      if (LOGGER.isDebugEnabled ())
+        LOGGER.debug ("Now trying with SML " + aSML);
+
+      // Create SMP client and query SMP
       switch (m_eSMPMode)
       {
         case PEPPOL:
         {
-          final SMPClientReadOnly aSMPClient = new SMPClientReadOnly (m_aSMPURI);
-          _configureSMPClient (aSMPClient);
-          aBC = getBusinessCardPeppolSMP (aParticipantID, aSMPClient);
+          try
+          {
+            final SMPClientReadOnly aSMPClient = new SMPClientReadOnly (m_aURLProvider, aParticipantID, aSML);
+            _configureSMPClient (aSMPClient);
+            aBC = getBusinessCardPeppolSMP (aParticipantID, aSMPClient, aErrorMsgHandler);
+          }
+          catch (final SMPDNSResolutionException ex)
+          {
+            // Happens if a non-existing URL is queried
+            final String sErrorMsg = "Failed to resolve SMP DNS entry: " + ex.getMessage ();
+            LOGGER.error (sErrorMsg);
+            aErrorMsgHandler.accept (sErrorMsg);
+          }
+          catch (final Exception ex)
+          {
+            // Catch-all to be on the safe side
+            final String sErrorMsg = "Failed to query SMP. Details: " + ex.getMessage ();
+            LOGGER.error (sErrorMsg, ex);
+            aErrorMsgHandler.accept (sErrorMsg);
+          }
           break;
         }
         case OASIS_BDXR_V1:
         {
-          final BDXRClientReadOnly aSMPClient = new BDXRClientReadOnly (m_aSMPURI);
-          _configureSMPClient (aSMPClient);
-          aBC = getBusinessCardBDXR1 (aParticipantID, aSMPClient);
+          try
+          {
+            final BDXRClientReadOnly aSMPClient = new BDXRClientReadOnly (m_aURLProvider, aParticipantID, aSML);
+            _configureSMPClient (aSMPClient);
+            aBC = getBusinessCardBDXR1 (aParticipantID, aSMPClient, aErrorMsgHandler);
+          }
+          catch (final SMPDNSResolutionException ex)
+          {
+            // Happens if a non-existing URL is queried
+            final String sErrorMsg = "Failed to resolve SMP DNS entry: " + ex.getMessage ();
+            LOGGER.error (sErrorMsg);
+            aErrorMsgHandler.accept (sErrorMsg);
+          }
+          catch (final Exception ex)
+          {
+            // Catch-all to be on the safe side
+            final String sErrorMsg = "Failed to query SMP. Details: " + ex.getMessage ();
+            LOGGER.error (sErrorMsg, ex);
+            aErrorMsgHandler.accept (sErrorMsg);
+          }
           break;
         }
         case OASIS_BDXR_V2:
         {
-          final BDXR2ClientReadOnly aSMPClient = new BDXR2ClientReadOnly (m_aSMPURI);
-          _configureSMPClient (aSMPClient);
-          aBC = getBusinessCardBDXR2 (aParticipantID, aSMPClient);
+          try
+          {
+            final BDXR2ClientReadOnly aSMPClient = new BDXR2ClientReadOnly (m_aURLProvider, aParticipantID, aSML);
+            _configureSMPClient (aSMPClient);
+            aBC = getBusinessCardBDXR2 (aParticipantID, aSMPClient, aErrorMsgHandler);
+          }
+          catch (final SMPDNSResolutionException ex)
+          {
+            // Happens if a non-existing URL is queried
+            final String sErrorMsg = "Failed to resolve SMP DNS entry: " + ex.getMessage ();
+            LOGGER.error (sErrorMsg);
+            aErrorMsgHandler.accept (sErrorMsg);
+          }
+          catch (final Exception ex)
+          {
+            // Catch-all to be on the safe side
+            final String sErrorMsg = "Failed to query SMP. Details: " + ex.getMessage ();
+            LOGGER.error (sErrorMsg, ex);
+            aErrorMsgHandler.accept (sErrorMsg);
+          }
           break;
         }
         default:
           throw new IllegalStateException ("Unsupported SMP mode " + m_eSMPMode);
       }
-    }
-    else
-    {
-      final ICommonsList <? extends ISMLInfo> aSMLs = m_aSMLInfoProvider.get ();
 
-      LOGGER.info ("Trying to get BusinessCard of '" +
-                   aParticipantID.getURIEncoded () +
-                   "' from variable SMPs in mode " +
-                   m_eSMPMode +
-                   " trying " +
-                   aSMLs.size () +
-                   " SML(s)");
-
-      if (aSMLs.isEmpty ())
-        LOGGER.error ("SMLInfoProvider returned an empty list!");
-
-      // SML auto detect
-      aBC = null;
-      for (final ISMLInfo aSML : aSMLs)
-      {
-        if (LOGGER.isDebugEnabled ())
-          LOGGER.debug ("Now trying with SML " + aSML);
-
-        // Create SMP client and query SMP
-        switch (m_eSMPMode)
-        {
-          case PEPPOL:
-          {
-            try
-            {
-              final SMPClientReadOnly aSMPClient = new SMPClientReadOnly (m_aURLProvider, aParticipantID, aSML);
-              _configureSMPClient (aSMPClient);
-              aBC = getBusinessCardPeppolSMP (aParticipantID, aSMPClient);
-            }
-            catch (final SMPDNSResolutionException ex)
-            {
-              // Happens if a non-existing URL is queried
-              LOGGER.error ("Failed to resolve SMP DNS entry: " + ex.getMessage ());
-            }
-            catch (final Exception ex)
-            {
-              // Catch-all to be on the safe side
-              LOGGER.error ("Failed to query SMP", ex);
-            }
-            break;
-          }
-          case OASIS_BDXR_V1:
-          {
-            try
-            {
-              final BDXRClientReadOnly aSMPClient = new BDXRClientReadOnly (m_aURLProvider, aParticipantID, aSML);
-              _configureSMPClient (aSMPClient);
-              aBC = getBusinessCardBDXR1 (aParticipantID, aSMPClient);
-            }
-            catch (final SMPDNSResolutionException ex)
-            {
-              // Happens if a non-existing URL is queried
-              LOGGER.error ("Failed to resolve SMP DNS entry: " + ex.getMessage ());
-            }
-            catch (final Exception ex)
-            {
-              // Catch-all to be on the safe side
-              LOGGER.error ("Failed to query SMP", ex);
-            }
-            break;
-          }
-          case OASIS_BDXR_V2:
-          {
-            try
-            {
-              final BDXR2ClientReadOnly aSMPClient = new BDXR2ClientReadOnly (m_aURLProvider, aParticipantID, aSML);
-              _configureSMPClient (aSMPClient);
-              aBC = getBusinessCardBDXR2 (aParticipantID, aSMPClient);
-            }
-            catch (final SMPDNSResolutionException ex)
-            {
-              // Happens if a non-existing URL is queried
-              LOGGER.error ("Failed to resolve SMP DNS entry: " + ex.getMessage ());
-            }
-            catch (final Exception ex)
-            {
-              // Catch-all to be on the safe side
-              LOGGER.error ("Failed to query SMP", ex);
-            }
-            break;
-          }
-          default:
-            throw new IllegalStateException ("Unsupported SMP mode " + m_eSMPMode);
-        }
-
-        // Found one? Use the first one
-        if (aBC != null)
-          break;
-      }
+      // Found one? Use the first one
+      if (aBC != null)
+        break;
     }
 
     if (aBC != null)
@@ -538,15 +538,6 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
     ValueEnforcer.notNull (eSMPMode, "SMPMode");
     ValueEnforcer.notNull (aURLProvider, "URLProvider");
     ValueEnforcer.notNull (aSMLInfoProvider, "SMLInfoProvider");
-    return new SMPBusinessCardProvider (eSMPMode, null, aURLProvider, aSMLInfoProvider);
-  }
-
-  @NonNull
-  public static SMPBusinessCardProvider createForFixedSMP (@NonNull final ESMPAPIType eSMPMode,
-                                                           @NonNull final URI aSMPURI)
-  {
-    ValueEnforcer.notNull (eSMPMode, "SMPMode");
-    ValueEnforcer.notNull (aSMPURI, "SMP URI");
-    return new SMPBusinessCardProvider (eSMPMode, aSMPURI, null, null);
+    return new SMPBusinessCardProvider (eSMPMode, aURLProvider, aSMLInfoProvider);
   }
 }

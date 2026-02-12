@@ -16,8 +16,6 @@
  */
 package com.helger.pd.publisher.app;
 
-import java.net.URI;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,20 +56,10 @@ public final class PDPMetaManager extends AbstractGlobalSingleton
     {
       m_aSMLInfoMgr = new SMLInfoManager (SML_INFO_XML);
 
-      final URI aFixedSMPURI = PDServerConfiguration.getFixedSMPURI ();
-      if (aFixedSMPURI != null)
-      {
-        // Use only the configured SMP
-        PDMetaManager.setBusinessCardProvider (SMPBusinessCardProvider.createForFixedSMP (PDServerConfiguration.getSMPMode (),
-                                                                                          aFixedSMPURI));
-      }
-      else
-      {
-        // Auto detect SMLs
-        PDMetaManager.setBusinessCardProvider (SMPBusinessCardProvider.createWithSMLAutoDetect (PDServerConfiguration.getSMPMode (),
-                                                                                                PDServerConfiguration.getURLProvider (),
-                                                                                                m_aSMLInfoMgr::getAllSorted));
-      }
+      // Auto detect SMLs
+      PDMetaManager.setBusinessCardProvider (SMPBusinessCardProvider.createWithSMLAutoDetect (PDServerConfiguration.getSMPMode (),
+                                                                                              PDServerConfiguration.getURLProvider (),
+                                                                                              m_aSMLInfoMgr::getAllSorted));
 
       LOGGER.info (ClassHelper.getClassLocalName (this) + " was initialized");
     }

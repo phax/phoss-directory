@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,12 +98,13 @@ public final class PDIndexerManager implements Closeable
     m_aRWLock.writeLocked ( () -> m_aUniqueItems.remove (aWorkItem));
   }
 
-  private void _onIndexFailure (@NonNull final IIndexerWorkItem aWorkItem)
+  private void _onIndexFailure (@NonNull final IIndexerWorkItem aWorkItem,
+                                @Nullable final ICommonsList <String> aErrorMsgs)
   {
     // if (PDServerConfiguration.getConfig ().getAsBoolean ("reindex.enabled", true))
     // Initially add to re-index list
 
-    m_aReIndexList.addItem (new ReIndexWorkItem (aWorkItem), true);
+    m_aReIndexList.addItem (new ReIndexWorkItem (aWorkItem, aErrorMsgs), true);
     // Keep it in the "Unique items" list until re-indexing worked
   }
 
@@ -111,9 +113,10 @@ public final class PDIndexerManager implements Closeable
     _onIndexSuccess (aWorkItem);
   }
 
-  private void _onReIndexFailure (@NonNull final IReIndexWorkItem aReIndexItem)
+  private void _onReIndexFailure (@NonNull final IReIndexWorkItem aReIndexItem,
+                                  @Nullable final ICommonsList <String> aErrorMsgs)
   {
-    m_aReIndexList.incRetryCountAndAddItem (aReIndexItem);
+    m_aReIndexList.incRetryCountAndAddItem (aReIndexItem, aErrorMsgs);
   }
 
   /**
@@ -318,7 +321,7 @@ public final class PDIndexerManager implements Closeable
                                        aReIndexItem.getWorkItem (),
                                        1 + aReIndexItem.getRetryCount (),
                                        this::_onReIndexSuccess,
-                                       aFailureItem -> _onReIndexFailure (aReIndexItem));
+                                       (aFailureItem, aErrorMsgs) -> _onReIndexFailure (aReIndexItem, aErrorMsgs));
     }
   }
 

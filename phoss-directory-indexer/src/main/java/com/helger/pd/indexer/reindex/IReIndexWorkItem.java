@@ -23,16 +23,17 @@ import org.jspecify.annotations.NonNull;
 
 import com.helger.annotation.Nonempty;
 import com.helger.annotation.Nonnegative;
+import com.helger.annotation.style.ReturnsMutableObject;
 import com.helger.base.name.IHasDisplayName;
 import com.helger.base.type.ITypedObject;
+import com.helger.collection.commons.ICommonsList;
 import com.helger.datetime.helper.PDTFactory;
 import com.helger.pd.indexer.index.IIndexerWorkItem;
 
 import jakarta.annotation.Nullable;
 
 /**
- * This class holds a single item to be re-indexed. It is only invoked if
- * regular indexing failed.
+ * This class holds a single item to be re-indexed. It is only invoked if regular indexing failed.
  *
  * @author Philip Helger
  */
@@ -45,15 +46,15 @@ public interface IReIndexWorkItem extends ITypedObject <String>, IHasDisplayName
   IIndexerWorkItem getWorkItem ();
 
   /**
-   * @return The maximum date and time until which the retry of this item
-   *         occurs. Never <code>null</code>.
+   * @return The maximum date and time until which the retry of this item occurs. Never
+   *         <code>null</code>.
    */
   @NonNull
   LocalDateTime getMaxRetryDT ();
 
   /**
-   * @return <code>true</code> if this item is to be expired, because the
-   *         retry-time has been exceeded, <code>false</code> otherwise.
+   * @return <code>true</code> if this item is to be expired, because the retry-time has been
+   *         exceeded, <code>false</code> otherwise.
    */
   default boolean isExpired ()
   {
@@ -61,22 +62,21 @@ public interface IReIndexWorkItem extends ITypedObject <String>, IHasDisplayName
   }
 
   /**
-   * @return The number of retries performed so far. This counter does NOT
-   *         include the original try! Always &ge; 0.
+   * @return The number of retries performed so far. This counter does NOT include the original try!
+   *         Always &ge; 0.
    */
   @Nonnegative
   int getRetryCount ();
 
   /**
-   * @return The previous retry date time. If no retry happened so far, this
-   *         will be <code>null</code>.
+   * @return The previous retry date time. If no retry happened so far, this will be
+   *         <code>null</code>.
    */
   @Nullable
   LocalDateTime getPreviousRetryDT ();
 
   /**
-   * @return <code>true</code> if a retry has already happened,
-   *         <code>false</code> otherwise.
+   * @return <code>true</code> if a retry has already happened, <code>false</code> otherwise.
    */
   default boolean hasPreviousRetryDT ()
   {
@@ -110,4 +110,8 @@ public interface IReIndexWorkItem extends ITypedObject <String>, IHasDisplayName
   {
     return getWorkItem ().getParticipantID ().getURIEncoded ();
   }
+
+  @NonNull
+  @ReturnsMutableObject
+  ICommonsList <String> errorMessages ();
 }

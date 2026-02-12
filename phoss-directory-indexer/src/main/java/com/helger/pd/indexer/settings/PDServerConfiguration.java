@@ -16,7 +16,6 @@
  */
 package com.helger.pd.indexer.settings;
 
-import java.net.URI;
 import java.net.URL;
 
 import org.jspecify.annotations.NonNull;
@@ -386,18 +385,6 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   public static char [] getProxyPassword ()
   {
     return getConfig ().getAsCharArray ("http.proxyPassword");
-  }
-
-  /**
-   * @return The fixed SMP URI to be used to retrieve business cards. This document should only be
-   *         used when setting up a new network and SML/DNS are not (yet) available in the system.
-   *         Because it is special, it is not documented.
-   */
-  @Nullable
-  public static URI getFixedSMPURI ()
-  {
-    final String sSMPURI = getConfig ().getAsString ("smp.uri");
-    return URLHelper.getAsURI (sSMPURI);
   }
 
   /**

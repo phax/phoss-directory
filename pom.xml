@@ -66,7 +66,7 @@
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
 
-    <awssdk.version>2.41.20</awssdk.version>
+    <awssdk.version>2.41.27</awssdk.version>
     <!-- Peppol Directory runs on Lucene v8 -->
     <lucene.version>8.11.2</lucene.version>
     <jersey.version>3.1.11</jersey.version>

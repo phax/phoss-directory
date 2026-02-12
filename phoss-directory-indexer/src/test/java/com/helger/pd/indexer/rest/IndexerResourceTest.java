@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -82,8 +83,16 @@ public final class IndexerResourceTest
   private HttpServer m_aServer;
   private WebTarget m_aTarget;
 
+  /**
+   * @param aParticipantID
+   *        PID
+   * @param aErrorHdl
+   *        Required for interface compatibility
+   * @return Mock BC
+   */
   @NonNull
-  private static PDExtendedBusinessCard _createMockBC (@NonNull final IParticipantIdentifier aParticipantID)
+  private static PDExtendedBusinessCard _createMockBC (@NonNull final IParticipantIdentifier aParticipantID,
+                                                       @NonNull final Consumer <String> aErrorHdl)
   {
     final PDBusinessCard aBI = new PDBusinessCard ();
     aBI.setParticipantIdentifier (new PDIdentifier (PeppolIdentifierHelper.DEFAULT_PARTICIPANT_SCHEME, "9915:mock"));

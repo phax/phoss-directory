@@ -16,6 +16,7 @@
  */
 package com.helger.pd.indexer.mgr;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import org.jspecify.annotations.NonNull;
@@ -24,14 +25,15 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.annotation.Nonnegative;
 import com.helger.base.state.ESuccess;
+import com.helger.collection.commons.CommonsArrayList;
+import com.helger.collection.commons.ICommonsList;
 import com.helger.pd.indexer.businesscard.IPDBusinessCardProvider;
 import com.helger.pd.indexer.businesscard.PDExtendedBusinessCard;
 import com.helger.pd.indexer.index.IIndexerWorkItem;
 import com.helger.peppolid.IParticipantIdentifier;
 
 /**
- * Internal class to execute a single work item. It is invoked by the
- * {@link PDIndexerManager}.
+ * Internal class to execute a single work item. It is invoked by the {@link PDIndexerManager}.
  *
  * @author Philip Helger
  */
@@ -43,16 +45,14 @@ final class PDIndexExecutor
   {}
 
   /**
-   * This method is responsible for executing the specified work item depending
-   * on its type.
+   * This method is responsible for executing the specified work item depending on its type.
    *
    * @param aStorageMgr
    *        Storage manager.
    * @param aWorkItem
    *        The work item to be executed. May not be <code>null</code>.
    * @param nRetryCount
-   *        The retry count. For the initial indexing it is 0, for the first
-   *        retry 1 etc.
+   *        The retry count. For the initial indexing it is 0, for the first retry 1 etc.
    * @param aSuccessHandler
    *        A callback that is invoked upon success only.
    * @param aFailureHandler
@@ -64,18 +64,21 @@ final class PDIndexExecutor
                                           @NonNull final IIndexerWorkItem aWorkItem,
                                           @Nonnegative final int nRetryCount,
                                           @NonNull final Consumer <? super IIndexerWorkItem> aSuccessHandler,
-                                          @NonNull final Consumer <? super IIndexerWorkItem> aFailureHandler)
+                                          @NonNull final BiConsumer <? super IIndexerWorkItem, ? super ICommonsList <String>> aFailureHandler)
   {
     LOGGER.info ("Execute work item " +
                  aWorkItem.getLogText () +
                  " - " +
                  (nRetryCount > 0 ? "retry #" + nRetryCount : "initial try"));
 
+    final ICommonsList <String> aErrorMsgs = new CommonsArrayList <> ();
     final IPDBusinessCardProvider aBCProvider = PDMetaManager.getBusinessCardProviderOrNull ();
     if (aBCProvider == null)
     {
+      final String sErrorMsg = "No BusinessCard Provider is present.";
       // Maybe null upon shutdown - in that case ignore it and don't reindex
-      LOGGER.error ("No BusinessCard Provider is present.");
+      LOGGER.error (sErrorMsg);
+      aErrorMsgs.add (sErrorMsg);
     }
     else
     {
@@ -89,42 +92,62 @@ final class PDIndexExecutor
           case CREATE_UPDATE:
           {
             // Get BI from participant (e.g. from SMP)
-            final PDExtendedBusinessCard aBI = aBCProvider.getBusinessCard (aParticipantID);
+            final PDExtendedBusinessCard aBI = aBCProvider.getBusinessCard (aParticipantID, aErrorMsgs::add);
             if (aBI == null)
             {
               // No/invalid extension present - no need to try again
               eSuccess = ESuccess.FAILURE;
+              final String sErrorMsg = "Failed to retrieve BusinessCard from SMP";
+              aErrorMsgs.add (sErrorMsg);
             }
             else
             {
               // Got data - put in storage
               eSuccess = aStorageMgr.createOrUpdateEntry (aParticipantID, aBI, aWorkItem.getAsMetaData ());
+              if (eSuccess.isFailure ())
+              {
+                final String sErrorMsg = "Successfully retrieved BusinessCard but failed to store the data.";
+                aErrorMsgs.add (sErrorMsg);
+              }
             }
             break;
           }
           case DELETE:
           {
             // Really delete it
-            eSuccess = ESuccess.valueOf (aStorageMgr.deleteEntry (aParticipantID,
-                                                                  aWorkItem.getAsMetaData (),
-                                                                  true) >= 0);
+            eSuccess = ESuccess.valueOf (aStorageMgr.deleteEntry (aParticipantID, aWorkItem.getAsMetaData (), true) >=
+                                         0);
+            if (eSuccess.isFailure ())
+            {
+              final String sErrorMsg = "Failed to delete the BusinessCard from the index";
+              aErrorMsgs.add (sErrorMsg);
+            }
             break;
           }
           case SYNC:
           {
             // Get BI from participant (e.g. from SMP)
-            final PDExtendedBusinessCard aBI = aBCProvider.getBusinessCard (aParticipantID);
+            final PDExtendedBusinessCard aBI = aBCProvider.getBusinessCard (aParticipantID, aErrorMsgs::add);
             if (aBI == null)
             {
               // No/invalid extension present - delete from index
-              eSuccess = ESuccess.valueOf (aStorageMgr.deleteEntry (aParticipantID,
-                                                                    aWorkItem.getAsMetaData (),
-                                                                    true) >= 0);
+              eSuccess = ESuccess.valueOf (aStorageMgr.deleteEntry (aParticipantID, aWorkItem.getAsMetaData (), true) >=
+                                           0);
+              if (eSuccess.isFailure ())
+              {
+                final String sErrorMsg = "Failed to retrieve the BusinessCard and failed to remove the data from the index.";
+                aErrorMsgs.add (sErrorMsg);
+              }
             }
             else
             {
               // Got data - put in storage
               eSuccess = aStorageMgr.createOrUpdateEntry (aParticipantID, aBI, aWorkItem.getAsMetaData ());
+              if (eSuccess.isFailure ())
+              {
+                final String sErrorMsg = "Successfully retrieved BusinessCard but failed to store the data.";
+                aErrorMsgs.add (sErrorMsg);
+              }
             }
             break;
           }
@@ -147,13 +170,15 @@ final class PDIndexExecutor
       }
       catch (final Exception ex)
       {
-        LOGGER.error ("Error in executing work item " + aWorkItem.getLogText (), ex);
+        final String sErrorMsg = "Error in executing work item " + aWorkItem.getLogText () + " - " + ex.getMessage ();
+        LOGGER.error (sErrorMsg, ex);
+        aErrorMsgs.add (sErrorMsg);
         // Fall through
       }
     }
 
     // Invoke failure handler
-    aFailureHandler.accept (aWorkItem);
+    aFailureHandler.accept (aWorkItem, aErrorMsgs);
 
     LOGGER.warn ("Failure processing executing work item " + aWorkItem.getLogText ());
 

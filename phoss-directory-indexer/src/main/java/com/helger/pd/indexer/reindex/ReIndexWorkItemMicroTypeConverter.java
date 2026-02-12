@@ -21,10 +21,14 @@ import java.time.LocalDateTime;
 import org.jspecify.annotations.NonNull;
 
 import com.helger.base.string.StringParser;
+import com.helger.collection.commons.CommonsArrayList;
+import com.helger.collection.commons.ICommonsList;
 import com.helger.pd.indexer.index.IIndexerWorkItem;
 import com.helger.pd.indexer.index.IndexerWorkItem;
 import com.helger.xml.microdom.IMicroElement;
+import com.helger.xml.microdom.IMicroQName;
 import com.helger.xml.microdom.MicroElement;
+import com.helger.xml.microdom.MicroQName;
 import com.helger.xml.microdom.convert.IMicroTypeConverter;
 import com.helger.xml.microdom.convert.MicroTypeConverter;
 
@@ -38,10 +42,11 @@ import jakarta.annotation.Nullable;
 public final class ReIndexWorkItemMicroTypeConverter implements IMicroTypeConverter <ReIndexWorkItem>
 {
   private static final String ELEMENT_WORK_ITEM = "workitem";
-  private static final String ATTR_MAX_RETRY_DT = "maxretrydt";
-  private static final String ATTR_RETRY_COUNT = "retries";
-  private static final String ATTR_PREVIOUS_RETRY_DT = "prevretrydt";
-  private static final String ATTR_NEXT_RETRY_DT = "nextretrydt";
+  private static final IMicroQName ATTR_MAX_RETRY_DT = new MicroQName ("maxretrydt");
+  private static final IMicroQName ATTR_RETRY_COUNT = new MicroQName ("retries");
+  private static final IMicroQName ATTR_PREVIOUS_RETRY_DT = new MicroQName ("prevretrydt");
+  private static final IMicroQName ATTR_NEXT_RETRY_DT = new MicroQName ("nextretrydt");
+  private static final String ELEMENT_ERROR = "error";
 
   @Nullable
   public IMicroElement convertToMicroElement (@NonNull final ReIndexWorkItem aValue,
@@ -56,6 +61,8 @@ public final class ReIndexWorkItemMicroTypeConverter implements IMicroTypeConver
     aElement.setAttribute (ATTR_RETRY_COUNT, aValue.getRetryCount ());
     aElement.setAttributeWithConversion (ATTR_PREVIOUS_RETRY_DT, aValue.getPreviousRetryDT ());
     aElement.setAttributeWithConversion (ATTR_NEXT_RETRY_DT, aValue.getNextRetryDT ());
+    for (final String sError : aValue.errorMessages ())
+      aElement.addElementNS (sNamespaceURI, ELEMENT_ERROR).addText (sError);
     return aElement;
   }
 
@@ -78,7 +85,11 @@ public final class ReIndexWorkItemMicroTypeConverter implements IMicroTypeConver
     final LocalDateTime aNextRetryDT = aElement.getAttributeValueWithConversion (ATTR_NEXT_RETRY_DT,
                                                                                  LocalDateTime.class);
 
-    return new ReIndexWorkItem (aWorkItem, aMaxRetryDT, nRetryCount, aPreviousRetryDT, aNextRetryDT);
+    final ICommonsList <String> aErrorMsgs = new CommonsArrayList <> ();
+    for (final IMicroElement e : aElement.getAllChildElements (aElement.getNamespaceURI (), ELEMENT_ERROR))
+      aErrorMsgs.add (e.getTextContentTrimmed ());
+
+    return new ReIndexWorkItem (aWorkItem, aMaxRetryDT, nRetryCount, aPreviousRetryDT, aNextRetryDT, aErrorMsgs);
   }
 
 }

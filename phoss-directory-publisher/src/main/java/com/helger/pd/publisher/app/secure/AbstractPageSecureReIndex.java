@@ -24,6 +24,7 @@ import com.helger.annotation.Nonempty;
 import com.helger.base.compare.ESortOrder;
 import com.helger.datetime.format.PDTToString;
 import com.helger.datetime.helper.PDTFactory;
+import com.helger.html.hc.ext.HCExtHelper;
 import com.helger.html.hc.html.HC_Target;
 import com.helger.html.hc.html.tabular.HCRow;
 import com.helger.html.hc.html.tabular.HCTable;
@@ -248,6 +249,8 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
     aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Last retry")
                                                      .setCtrl (PDTToString.getAsString (aSelectedObject.getMaxRetryDT (),
                                                                                         aDisplayLocale)));
+    aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Error details")
+                                                     .setCtrl (HCExtHelper.list2divList (aSelectedObject.errorMessages ())));
   }
 
   @Override

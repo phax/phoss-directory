@@ -23,10 +23,13 @@ import org.jspecify.annotations.NonNull;
 import com.helger.annotation.Nonempty;
 import com.helger.annotation.Nonnegative;
 import com.helger.annotation.concurrent.NotThreadSafe;
+import com.helger.annotation.style.ReturnsMutableObject;
 import com.helger.base.enforce.ValueEnforcer;
 import com.helger.base.hashcode.HashCodeGenerator;
 import com.helger.base.tostring.ToStringGenerator;
 import com.helger.base.type.ObjectType;
+import com.helger.collection.commons.CommonsArrayList;
+import com.helger.collection.commons.ICommonsList;
 import com.helger.datetime.helper.PDTFactory;
 import com.helger.pd.indexer.index.IIndexerWorkItem;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
@@ -48,15 +51,17 @@ public class ReIndexWorkItem implements IReIndexWorkItem
   private int m_nRetries;
   private LocalDateTime m_aPreviousRetryDT;
   private LocalDateTime m_aNextRetryDT;
+  private final ICommonsList <String> m_aErrorMsgs = new CommonsArrayList <> ();
 
-  public ReIndexWorkItem (@NonNull final IIndexerWorkItem aWorkItem)
+  public ReIndexWorkItem (@NonNull final IIndexerWorkItem aWorkItem, @NonNull final ICommonsList <String> aErrorMsgs)
   {
     // The next retry happens from now in the configured number of minutes
     this (aWorkItem,
           aWorkItem.getCreationDateTime ().plusHours (PDServerConfiguration.getReIndexMaxRetryHours ()),
           0,
           (LocalDateTime) null,
-          PDTFactory.getCurrentLocalDateTime ().plusMinutes (PDServerConfiguration.getReIndexRetryMinutes ()));
+          PDTFactory.getCurrentLocalDateTime ().plusMinutes (PDServerConfiguration.getReIndexRetryMinutes ()),
+          aErrorMsgs);
   }
 
   /**
@@ -72,12 +77,15 @@ public class ReIndexWorkItem implements IReIndexWorkItem
    *        The last retry time. May be <code>null</code> if no retry happened so far.
    * @param aNextRetryDT
    *        The next retry time. Must be &ge; now.
+   * @param aErrorMsgs
+   *        Error messages received
    */
   ReIndexWorkItem (@NonNull final IIndexerWorkItem aWorkItem,
                    @NonNull final LocalDateTime aMaxRetryDT,
                    final int nRetries,
                    @Nullable final LocalDateTime aPreviousRetryDT,
-                   @NonNull final LocalDateTime aNextRetryDT)
+                   @NonNull final LocalDateTime aNextRetryDT,
+                   @NonNull final ICommonsList <String> aErrorMsgs)
   {
     m_aWorkItem = ValueEnforcer.notNull (aWorkItem, "WorkItem");
     m_aMaxRetryDT = ValueEnforcer.notNull (aMaxRetryDT, "MaxRetryDT");
@@ -86,6 +94,7 @@ public class ReIndexWorkItem implements IReIndexWorkItem
     if (nRetries > 0)
       ValueEnforcer.notNull (aPreviousRetryDT, "PreviousRetryDT");
     m_aNextRetryDT = ValueEnforcer.notNull (aNextRetryDT, "NextRetryDT");
+    m_aErrorMsgs.addAll (aErrorMsgs);
   }
 
   @NonNull
@@ -148,6 +157,18 @@ public class ReIndexWorkItem implements IReIndexWorkItem
     return m_aWorkItem.getLogText () + " " + m_nRetries + " retries so far";
   }
 
+  @NonNull
+  @ReturnsMutableObject
+  public ICommonsList <String> errorMessages ()
+  {
+    return m_aErrorMsgs;
+  }
+
+  public void addErrorMessages (@NonNull final ICommonsList <String> aRealErrorMsgs)
+  {
+    m_aErrorMsgs.addAll (aRealErrorMsgs);
+  }
+
   @Override
   public boolean equals (final Object o)
   {
@@ -173,6 +194,7 @@ public class ReIndexWorkItem implements IReIndexWorkItem
                                        .append ("Retries", m_nRetries)
                                        .append ("PreviousRetryDT", m_aPreviousRetryDT)
                                        .append ("NextRetryDT", m_aNextRetryDT)
+                                       .append ("ErrorMessages", m_aErrorMsgs)
                                        .getToString ();
   }
 }
