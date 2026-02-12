@@ -201,7 +201,7 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
     aViewForm.addFormGroup (new BootstrapFormGroup ().setLabel ("Participant ID")
                                                      .setCtrl (code (aParticipantID.getURIEncoded ())));
 
-    final String sBCSuffix = "/businesscard/" + aParticipantID.getURIPercentEncoded ();
+    final String sBCSuffix = "businesscard/" + aParticipantID.getURIPercentEncoded ();
     {
       final HCNodeList aURLs = new HCNodeList ();
       for (final ISMLInfo aSMLInfo : PDPMetaManager.getSMLInfoMgr ().getAll ())
@@ -211,8 +211,10 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
 
         try
         {
-          aURLs.addChild (div (HCA.createLinkedWebsite (aURLProvider.getSMPURIOfParticipant (aParticipantID, aSMLInfo)
-                                                                    .toString () + sBCSuffix, HC_Target.BLANK)));
+          String sHost = aURLProvider.getSMPURIOfParticipant (aParticipantID, aSMLInfo).toString ();
+          if (!sHost.endsWith ("/"))
+            sHost += '/';
+          aURLs.addChild (div (HCA.createLinkedWebsite (sHost + sBCSuffix, HC_Target.BLANK)));
         }
         catch (final SMPDNSResolutionException ex)
         {
