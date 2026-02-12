@@ -77,10 +77,10 @@ public final class ReIndexWorkItemList extends AbstractPhotonMapBasedWALDAO <IRe
     // Item is not in the list anymore, therefore we need to cast it :(
     final ReIndexWorkItem aRealItem = (ReIndexWorkItem) aItem;
     m_aRWLock.writeLocked ( () -> {
-      final int nRetryIdx = aRealItem.getRetryCount ();
-      final ICommonsList <String> aRealErrorMsgs = aErrorMsg.getAllMapped (x -> "[Retry " + nRetryIdx + "] " + x);
       aRealItem.incRetryCount ();
-      aRealItem.addErrorMessages (aRealErrorMsgs);
+      // Now it is 1-based
+      final int nRetryIdx = aRealItem.getRetryCount ();
+      aRealItem.addErrorMessages (aErrorMsg.getAllMapped (x -> "[Retry " + nRetryIdx + "] " + x));
     });
     addItem (aRealItem, true);
   }

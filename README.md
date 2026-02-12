@@ -104,6 +104,9 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
+v0.15.3 - 2026-02-13
+* Showing the errors found during indexation on the UI for better support
+
 v0.15.2 - 2026-01-23
 * S3 buckets get a max-age of 6 hours to improve cachability
 * The check for Peppol Participant Identifier Value syntax was improved to follow the rules from the Peppol Policy for use of Identifiers 4.4.0
