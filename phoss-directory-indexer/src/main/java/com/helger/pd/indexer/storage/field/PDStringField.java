@@ -95,7 +95,9 @@ public class PDStringField <NATIVE_TYPE> extends AbstractPDField <NATIVE_TYPE, S
       }
       catch (final PDFieldSerializeException e)
       {
-        LOGGER.warn ("Failed to convert value '" + sValue + "' to native value");
+        // Less logging in production
+        if (LOGGER.isDebugEnabled ())
+          LOGGER.debug ("Failed to convert value '" + sValue + "' to native value");
         // Fall through
       }
     return null;
