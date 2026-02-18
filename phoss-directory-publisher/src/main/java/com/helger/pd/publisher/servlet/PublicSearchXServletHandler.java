@@ -44,13 +44,16 @@ import com.helger.datetime.web.PDTWebDateHelper;
 import com.helger.diagnostics.error.IError;
 import com.helger.http.CHttp;
 import com.helger.http.CHttpHeader;
+import com.helger.http.header.specific.AcceptMimeTypeList;
 import com.helger.io.resource.ClassPathResource;
 import com.helger.json.IJsonArray;
 import com.helger.json.IJsonObject;
 import com.helger.json.JsonArray;
 import com.helger.json.JsonObject;
+import com.helger.json.JsonValue;
 import com.helger.json.serialize.JsonWriterSettings;
 import com.helger.mime.CMimeType;
+import com.helger.mime.IMimeType;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.pd.indexer.storage.PDStorageManager;
@@ -67,6 +70,7 @@ import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 import com.helger.xml.microdom.IMicroDocument;
 import com.helger.xml.microdom.IMicroElement;
 import com.helger.xml.microdom.MicroDocument;
+import com.helger.xml.microdom.MicroElement;
 import com.helger.xml.microdom.serialize.MicroWriter;
 import com.helger.xml.sax.CollectingSAXErrorHandler;
 import com.helger.xml.schema.XMLSchemaCache;
@@ -146,9 +150,27 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
     // Never cache result, except explicitly stated otherwise
     aUnifiedResponse.disableCaching ();
 
-    final BiConsumer <UnifiedResponse, String> applyError = (ur, msg) -> ur.setContentAndCharset (msg,
-                                                                                                  StandardCharsets.UTF_8)
-                                                                           .setMimeType (CMimeType.TEXT_PLAIN);
+    // Figure out the best suitable response mime type
+    final AcceptMimeTypeList aList = RequestHelper.getAcceptMimeTypes (aRequestScope.getRequest ());
+    IMimeType aResponseMimeType = aList.getPreferredMimeType (CMimeType.TEXT_PLAIN,
+                                                              CMimeType.APPLICATION_JSON,
+                                                              CMimeType.APPLICATION_XML,
+                                                              CMimeType.TEXT_XML);
+    if (aResponseMimeType == null)
+      aResponseMimeType = CMimeType.TEXT_PLAIN;
+    final IMimeType aFinalResponseMimeType = aResponseMimeType;
+
+    final BiConsumer <UnifiedResponse, String> applyError = (ur, msg) -> {
+      final String sContent;
+      if (aFinalResponseMimeType == CMimeType.TEXT_PLAIN)
+        sContent = msg;
+      else
+        if (aFinalResponseMimeType == CMimeType.APPLICATION_JSON)
+          sContent = JsonValue.create (msg).getAsJsonString ();
+        else
+          sContent = MicroWriter.getNodeAsString (new MicroElement ("error").addText (msg));
+      ur.setContentAndCharset (sContent, StandardCharsets.UTF_8).setMimeType (aFinalResponseMimeType);
+    };
 
     if (SearchRateLimit.INSTANCE.rateLimiter () != null)
     {
@@ -331,8 +353,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
 
       // Filter by index/count
       final int nEffectiveLastIndex = Math.min (nLastResultIndex, aResultDocs.size () - 1);
-      final List <PDStoredBusinessEntity> aResultView = nFirstResultIndex >= aResultDocs.size () ? Collections
-                                                                                                              .emptyList ()
+      final List <PDStoredBusinessEntity> aResultView = nFirstResultIndex >= aResultDocs.size () ? Collections.emptyList ()
                                                                                                  : aResultDocs.subList (nFirstResultIndex,
                                                                                                                         nEffectiveLastIndex +
                                                                                                                                            1);
