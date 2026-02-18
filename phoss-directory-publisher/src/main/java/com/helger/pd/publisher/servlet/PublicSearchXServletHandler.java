@@ -44,8 +44,8 @@ import com.helger.datetime.web.PDTWebDateHelper;
 import com.helger.diagnostics.error.IError;
 import com.helger.http.CHttp;
 import com.helger.http.CHttpHeader;
+import com.helger.http.header.specific.AcceptMimeTypeList;
 import com.helger.io.resource.ClassPathResource;
-import com.helger.json.IJson;
 import com.helger.json.IJsonArray;
 import com.helger.json.IJsonObject;
 import com.helger.json.JsonArray;
@@ -53,6 +53,7 @@ import com.helger.json.JsonObject;
 import com.helger.json.JsonValue;
 import com.helger.json.serialize.JsonWriterSettings;
 import com.helger.mime.CMimeType;
+import com.helger.mime.IMimeType;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.pd.indexer.storage.PDStorageManager;
@@ -69,6 +70,7 @@ import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 import com.helger.xml.microdom.IMicroDocument;
 import com.helger.xml.microdom.IMicroElement;
 import com.helger.xml.microdom.MicroDocument;
+import com.helger.xml.microdom.MicroElement;
 import com.helger.xml.microdom.serialize.MicroWriter;
 import com.helger.xml.sax.CollectingSAXErrorHandler;
 import com.helger.xml.schema.XMLSchemaCache;
@@ -148,10 +150,27 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
     // Never cache result, except explicitly stated otherwise
     aUnifiedResponse.disableCaching ();
 
-    final BiConsumer <UnifiedResponse, IJson> applyError = (ur,
-                                                            json) -> ur.setContentAndCharset (json.getAsJsonString (JsonWriterSettings.DEFAULT_SETTINGS_FORMATTED),
-                                                                                              StandardCharsets.UTF_8)
-                                                                       .setMimeType (CMimeType.APPLICATION_JSON);
+    // Figure out the best suitable response mime type
+    final AcceptMimeTypeList aList = RequestHelper.getAcceptMimeTypes (aRequestScope.getRequest ());
+    IMimeType aResponseMimeType = aList.getPreferredMimeType (CMimeType.TEXT_PLAIN,
+                                                              CMimeType.APPLICATION_JSON,
+                                                              CMimeType.APPLICATION_XML,
+                                                              CMimeType.TEXT_XML);
+    if (aResponseMimeType == null)
+      aResponseMimeType = CMimeType.TEXT_PLAIN;
+    final IMimeType aFinalResponseMimeType = aResponseMimeType;
+
+    final BiConsumer <UnifiedResponse, String> applyError = (ur, msg) -> {
+      final String sContent;
+      if (aFinalResponseMimeType == CMimeType.TEXT_PLAIN)
+        sContent = msg;
+      else
+        if (aFinalResponseMimeType == CMimeType.APPLICATION_JSON)
+          sContent = JsonValue.create (msg).getAsJsonString ();
+        else
+          sContent = MicroWriter.getNodeAsString (new MicroElement ("error").addText (msg));
+      ur.setContentAndCharset (sContent, StandardCharsets.UTF_8).setMimeType (aFinalResponseMimeType);
+    };
 
     if (SearchRateLimit.INSTANCE.rateLimiter () != null)
     {
@@ -165,7 +184,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
 
         aUnifiedResponse.setStatus (CHttp.HTTP_TOO_MANY_REQUESTS)
                         .addCustomResponseHeader (CHttpHeader.RETRY_AFTER, "2");
-        applyError.accept (aUnifiedResponse, JsonValue.create ("REST search rate limit exceeded"));
+        applyError.accept (aUnifiedResponse, "REST search rate limit exceeded");
         return;
       }
     }
@@ -203,7 +222,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
         final String sErrorMsg = "ResultPageIndex " + nResultPageIndex + " is invalid. It must be >= 0.";
         LOGGER.error (sErrorMsg);
         aUnifiedResponse.setStatus (CHttp.HTTP_BAD_REQUEST);
-        applyError.accept (aUnifiedResponse, JsonValue.create (sErrorMsg));
+        applyError.accept (aUnifiedResponse, sErrorMsg);
         return;
       }
       final int nResultPageCount = aParams.getAsInt (PARAM_RESULT_PAGE_COUNT,
@@ -213,7 +232,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
         final String sErrorMsg = "ResultPageCount " + nResultPageCount + " is invalid. It must be > 0.";
         LOGGER.error (sErrorMsg);
         aUnifiedResponse.setStatus (CHttp.HTTP_BAD_REQUEST);
-        applyError.accept (aUnifiedResponse, JsonValue.create (sErrorMsg));
+        applyError.accept (aUnifiedResponse, sErrorMsg);
         return;
       }
       final int nFirstResultIndex = nResultPageIndex * nResultPageCount;
@@ -227,7 +246,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
                                  ".";
         LOGGER.error (sErrorMsg);
         aUnifiedResponse.setStatus (CHttp.HTTP_BAD_REQUEST);
-        applyError.accept (aUnifiedResponse, JsonValue.create (sErrorMsg));
+        applyError.accept (aUnifiedResponse, sErrorMsg);
         return;
       }
       if (nLastResultIndex > MAX_RESULTS)
@@ -239,7 +258,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
                                  ".";
         LOGGER.error (sErrorMsg);
         aUnifiedResponse.setStatus (CHttp.HTTP_BAD_REQUEST);
-        applyError.accept (aUnifiedResponse, JsonValue.create (sErrorMsg));
+        applyError.accept (aUnifiedResponse, sErrorMsg);
         return;
       }
       // Format output?
@@ -270,7 +289,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
         final String sErrorMsg = "No valid query term provided!";
         LOGGER.error (sErrorMsg);
         aUnifiedResponse.setStatus (CHttp.HTTP_BAD_REQUEST);
-        applyError.accept (aUnifiedResponse, JsonValue.create (sErrorMsg));
+        applyError.accept (aUnifiedResponse, sErrorMsg);
         return;
       }
       if (LOGGER.isDebugEnabled ())
@@ -296,7 +315,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
         final String sErrorMsg = "No valid queries could be created!";
         LOGGER.error (sErrorMsg);
         aUnifiedResponse.setStatus (CHttp.HTTP_BAD_REQUEST);
-        applyError.accept (aUnifiedResponse, JsonValue.create (sErrorMsg));
+        applyError.accept (aUnifiedResponse, sErrorMsg);
         return;
       }
       // Build final query term
@@ -421,7 +440,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
       final String sErrorMsg = "Unsupported search version API provided (" + sPathInfo + ")";
       LOGGER.error (sErrorMsg);
       aUnifiedResponse.setStatus (CHttp.HTTP_NOT_FOUND);
-      applyError.accept (aUnifiedResponse, JsonValue.create (sErrorMsg));
+      applyError.accept (aUnifiedResponse, sErrorMsg);
     }
   }
 }

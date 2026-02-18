@@ -105,7 +105,7 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 # News and noteworthy
 
 v0.15.4 - work in progress
-* REST API returns errors as valid application/json and no longer as text/plain
+* REST API returns errors as valid `application/json` or `application/xml` and no longer as `text/plain`
 
 v0.15.3 - 2026-02-13
 * Showing the errors found during indexation on the UI for better support
