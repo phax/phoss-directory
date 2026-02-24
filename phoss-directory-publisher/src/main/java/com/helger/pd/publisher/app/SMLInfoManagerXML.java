@@ -32,9 +32,9 @@ import com.helger.photon.io.dao.AbstractPhotonMapBasedWALDAO;
 
 import jakarta.annotation.Nullable;
 
-public final class SMLInfoManager extends AbstractPhotonMapBasedWALDAO <ISMLInfo, SMLInfo> implements ISMLInfoManager
+public final class SMLInfoManagerXML extends AbstractPhotonMapBasedWALDAO <ISMLInfo, SMLInfo> implements ISMLInfoManager
 {
-  public SMLInfoManager (@NonNull @Nonempty final String sFilename) throws DAOException
+  public SMLInfoManagerXML (@NonNull @Nonempty final String sFilename) throws DAOException
   {
     super (SMLInfo.class, sFilename);
   }

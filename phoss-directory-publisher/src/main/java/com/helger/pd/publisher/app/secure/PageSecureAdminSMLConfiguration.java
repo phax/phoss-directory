@@ -169,7 +169,7 @@ public class PageSecureAdminSMLConfiguration extends AbstractAppWebPageForm <ISM
                                                                                                                  : null)))
                                                  .setHelpText (new HCTextNode ("The name of the DNS Zone that this SML is working upon (e.g. "),
                                                                code ("acc.edelivery.tech.ec.europa.eu."),
-                                                               new HCTextNode ("). The value will automatically converted to all-lowercase!"))
+                                                               new HCTextNode ("). Should end with a dot. The value will automatically converted to all-lowercase."))
                                                  .setErrorList (aFormErrors.getListOfField (FIELD_DNS_ZONE)));
 
     aForm.addFormGroup (new BootstrapFormGroup ().setLabelMandatory ("Management Service URL")

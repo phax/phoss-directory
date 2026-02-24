@@ -42,7 +42,7 @@ public final class PDPMetaManager extends AbstractGlobalSingleton
 
   private static final String SML_INFO_XML = "sml-info.xml";
 
-  private SMLInfoManager m_aSMLInfoMgr;
+  private SMLInfoManagerXML m_aSMLInfoMgr;
 
   @Deprecated (forRemoval = false)
   @UsedViaReflection
@@ -54,7 +54,7 @@ public final class PDPMetaManager extends AbstractGlobalSingleton
   {
     try
     {
-      m_aSMLInfoMgr = new SMLInfoManager (SML_INFO_XML);
+      m_aSMLInfoMgr = new SMLInfoManagerXML (SML_INFO_XML);
 
       // Auto detect SMLs
       PDMetaManager.setBusinessCardProvider (SMPBusinessCardProvider.createWithSMLAutoDetect (PDServerConfiguration.getSMPMode (),
