@@ -48,6 +48,7 @@ import com.helger.smpclient.bdxr1.BDXRClientReadOnly;
 import com.helger.smpclient.bdxr2.BDXR2ClientReadOnly;
 import com.helger.smpclient.exception.SMPClientException;
 import com.helger.smpclient.httpclient.AbstractGenericSMPClient;
+import com.helger.smpclient.peppol.CachingSMPClientReadOnly;
 import com.helger.smpclient.peppol.SMPClientReadOnly;
 import com.helger.smpclient.url.ISMPURLProvider;
 import com.helger.smpclient.url.SMPDNSResolutionException;
@@ -435,7 +436,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
         {
           try
           {
-            final SMPClientReadOnly aSMPClient = new SMPClientReadOnly (m_aURLProvider, aParticipantID, aSML);
+            final SMPClientReadOnly aSMPClient = new CachingSMPClientReadOnly (m_aURLProvider, aParticipantID, aSML);
             _configureSMPClient (aSMPClient);
             aBC = getBusinessCardPeppolSMP (aParticipantID, aSMPClient, aErrorMsgHandler);
           }
