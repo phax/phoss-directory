@@ -56,6 +56,7 @@
 <ul>
   <li>The Directory CSV data can be downloaded via the URL <a href="../../export/businesscards-csv">/export/businesscards-csv</a>.</li>
   <li>The response MIME type is always <code>text/csv</code>.</li>
+  <li>The CSV file is encoded in ISO-8859-1 character set.</li>
   <li>Responses should be cached up to 24 hours.</li>
   <li>The data is updated once a day. Exports start at 02:00 a.m. UTC.</li>
 </ul>
