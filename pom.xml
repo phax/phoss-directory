@@ -82,7 +82,7 @@
       <dependency>
         <groupId>com.helger.peppol</groupId>
         <artifactId>peppol-commons-parent-pom</artifactId>
-        <version>12.3.11</version>
+        <version>12.3.12</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
