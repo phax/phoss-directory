@@ -153,6 +153,13 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
                .addChild ("Issue tracker (external)")
                .setHref (new SimpleURL ("https://github.com/phax/phoss-directory/issues"))
                .setTargetBlank ();
+      if (PDServerConfiguration.isPeppolLookupEnabled ())
+      {
+        aDropDown.createAndAddItem ()
+                 .addChild ("OpenPeppol SMP & Business Card Lookup (external)")
+                 .setHref (new SimpleURL ("https://lookup.peppol.org"))
+                 .setTargetBlank ();
+      }
       aNav.addItem ().addNavDropDown ("Support", aDropDown);
     }
 

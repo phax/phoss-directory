@@ -104,10 +104,11 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
-v0.15.4 - work in progress
+v0.15.4 - 2026-03-17
 * REST API returns errors as valid `application/json` or `application/xml` and no longer as `text/plain`
-* Added link to Peppol Lookup service if the search term is a participant ID (If enabled)
 * Added new configuration property `peppol.lookup.enabled`
+* Added link to Peppol Lookup service if the search term is a participant ID (if enabled)
+* Added link to lookup service also in the "Support" menu
 
 v0.15.3 - 2026-02-13
 * Showing the errors found during indexation on the UI for better support
