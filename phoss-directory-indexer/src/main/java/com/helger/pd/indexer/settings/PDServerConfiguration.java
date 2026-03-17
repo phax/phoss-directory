@@ -26,9 +26,7 @@ import com.helger.annotation.Nonnegative;
 import com.helger.annotation.concurrent.Immutable;
 import com.helger.annotation.style.UsedViaReflection;
 import com.helger.base.debug.GlobalDebug;
-import com.helger.base.exception.InitializationException;
 import com.helger.base.string.StringHelper;
-import com.helger.base.system.SystemProperties;
 import com.helger.base.url.URLHelper;
 import com.helger.collection.commons.CommonsArrayList;
 import com.helger.collection.commons.ICommonsList;
@@ -66,23 +64,6 @@ import jakarta.annotation.Nullable;
 @Immutable
 public final class PDServerConfiguration extends AbstractGlobalSingleton
 {
-  static
-  {
-    // Since 0.9.0
-    if (StringHelper.isNotEmpty (SystemProperties.getPropertyValueOrNull ("peppol.directory.server.properties.path")))
-      throw new InitializationException ("The system property 'peppol.directory.server.properties.path' is no longer supported." +
-                                         " See https://github.com/phax/ph-commons#ph-config for alternatives." +
-                                         " Consider using the system property 'config.file' instead.");
-    if (StringHelper.isNotEmpty (SystemProperties.getPropertyValueOrNull ("directory.server.properties.path")))
-      throw new InitializationException ("The system property 'directory.server.properties.path' is no longer supported." +
-                                         " See https://github.com/phax/ph-commons#ph-config for alternatives." +
-                                         " Consider using the system property 'config.file' instead.");
-    if (StringHelper.isNotEmpty (System.getenv ().get ("DIRECTORY_SERVER_CONFIG")))
-      throw new InitializationException ("The environment variable 'DIRECTORY_SERVER_CONFIG' is no longer supported." +
-                                         " See https://github.com/phax/ph-commons#ph-config for alternatives." +
-                                         " Consider using the environment variable 'CONFIG_FILE' instead.");
-  }
-
   /**
    * @return The configuration value provider for phase4 that contains backward compatibility
    *         support.
@@ -444,6 +425,11 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   public static boolean isSyncAllBusinessCards ()
   {
     return getConfig ().getAsBoolean ("sync.businesscards", false);
+  }
+
+  public static boolean isPeppolLookupEnabled ()
+  {
+    return getConfig ().getAsBoolean ("peppol.lookup.enabled", false);
   }
 
   @Nullable

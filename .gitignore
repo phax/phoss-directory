@@ -1,7 +1,8 @@
-target/
+.claude/
 .settings/ 
-generated/
 data/
+generated/
+target/
 
 *.iml
 *.jks

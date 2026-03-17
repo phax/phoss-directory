@@ -44,6 +44,7 @@ import com.helger.html.hc.html.grouping.HCOL;
 import com.helger.html.hc.html.grouping.HCUL;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.mgr.PDMetaManager;
+import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.pd.indexer.storage.CPDStorage;
 import com.helger.pd.indexer.storage.PDQueryManager;
 import com.helger.pd.indexer.storage.PDStorageManager;
@@ -56,11 +57,14 @@ import com.helger.pd.publisher.search.EPDSearchField;
 import com.helger.pd.publisher.ui.PDCommonUI;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.factory.IIdentifierFactory;
+import com.helger.peppolid.peppol.PeppolIdentifierHelper;
+import com.helger.peppolid.peppol.participant.PeppolParticipantIdentifier;
 import com.helger.peppolid.peppol.pidscheme.IPeppolParticipantIdentifierScheme;
 import com.helger.peppolid.peppol.pidscheme.PeppolParticipantIdentifierSchemeManager;
 import com.helger.photon.ajax.decl.AjaxFunctionDeclaration;
 import com.helger.photon.bootstrap4.CBootstrapCSS;
 import com.helger.photon.bootstrap4.button.BootstrapButton;
+import com.helger.photon.bootstrap4.button.BootstrapLinkButton;
 import com.helger.photon.bootstrap4.button.BootstrapSubmitButton;
 import com.helger.photon.bootstrap4.button.EBootstrapButtonType;
 import com.helger.photon.bootstrap4.grid.BootstrapCol;
@@ -191,6 +195,55 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
 
     // Group by participant ID
     final ICommonsMap <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> aGroupedBEs = PDStorageManager.getGroupedByParticipantID (aResultBEs);
+
+    // Check if the query looks like a Peppol Participant Identifier for external lookup
+    if (PDServerConfiguration.isPeppolLookupEnabled ())
+    {
+      final String sLookupScheme;
+      final String sLookupValue;
+
+      // Try parsing as full identifier (scheme::value)
+      final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
+      final IParticipantIdentifier aParsedPI = aIdentifierFactory.parseParticipantIdentifier (sQuery);
+      if (aParsedPI != null)
+      {
+        sLookupScheme = aParsedPI.getScheme ();
+        sLookupValue = aParsedPI.getValue ();
+      }
+      else
+        if (PeppolParticipantIdentifier.isValidValueWithDefaultScheme (sQuery))
+        {
+          // Value only (e.g., "9915:b")
+          sLookupScheme = PeppolIdentifierHelper.DEFAULT_PARTICIPANT_SCHEME;
+          sLookupValue = sQuery;
+        }
+        else
+        {
+          sLookupScheme = null;
+          sLookupValue = null;
+        }
+
+      if (sLookupScheme != null && sLookupValue != null)
+      {
+        // Split value into ICD and local ID (e.g., "9915:b" -> "9915" + "b")
+        final int nColonIdx = sLookupValue.indexOf (':');
+        if (nColonIdx > 0)
+        {
+          final String sICD = sLookupValue.substring (0, nColonIdx);
+          final String sLocalID = sLookupValue.substring (nColonIdx + 1);
+          final SimpleURL aLookupURL = new SimpleURL ("https://lookup.peppol.org/" +
+                                                      sLookupScheme +
+                                                      "/" +
+                                                      sICD +
+                                                      "/" +
+                                                      sLocalID);
+          aNodeList.addChild (div (new BootstrapLinkButton (EBootstrapButtonType.INFO).setHref (aLookupURL)
+                                                                                      .setTargetBlank ()
+                                                                                      .addChild ("Lookup on OpenPeppol SMP & Business Card Lookup")
+                                                                                      .setIcon (EDefaultIcon.MAGNIFIER)).addClass (CBootstrapCSS.MY_2));
+        }
+      }
+    }
 
     // Display results
     if (aGroupedBEs.isEmpty ())
