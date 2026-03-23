@@ -47,7 +47,7 @@ public final class SMPBusinessCardProviderTest
 {
   private static final Logger LOGGER = LoggerFactory.getLogger (SMPBusinessCardProviderTest.class);
   private static final Supplier <ICommonsList <ESML>> SML_SUPPLIER_ALL = () -> new CommonsArrayList <> (ESML.values ());
-  private static final Supplier <ICommonsList <ESML>> SML_SUPPLIER_TEST_ONLY = () -> new CommonsArrayList <> (ESML.DIGIT_TEST);
+  private static final Supplier <ICommonsList <ESML>> SML_SUPPLIER_TEST_ONLY = () -> new CommonsArrayList <> (ESML.PEPPOL_TEST);
 
   @Rule
   public final TestRule m_aRule = new PhotonAppWebTestRule ();

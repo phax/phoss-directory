@@ -184,6 +184,7 @@ public class SMPBusinessCardProvider implements IPDBusinessCardProvider
       }
       else
       {
+        // Include full stack trace
         final String sErrorMsg = "Error querying SMP for BusinessCard of '" +
                                  aParticipantID.getURIEncoded () +
                                  "'. Details: " +
