@@ -28,6 +28,7 @@ import com.helger.pd.indexer.clientcert.ClientCertificateValidationResult;
 import com.helger.pd.indexer.clientcert.ClientCertificateValidator;
 import com.helger.pd.indexer.index.EIndexerWorkItemType;
 import com.helger.pd.indexer.mgr.PDMetaManager;
+import com.helger.pd.indexer.shadow.ShadowEventCreator;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.factory.IIdentifierFactory;
 import com.helger.url.codec.URLCoder;
@@ -131,6 +132,13 @@ public class IndexerResource
     {
       LOGGER.info (sLogPrefix + "Ignoring duplicate CREATE/UPDATE request for '" + aPI.getURIEncoded () + "'");
     }
+
+    // Create shadow event for downstream replication (after processing is queued)
+    ShadowEventCreator.createShadowEvent (aHttpServletRequest,
+                                          aPI,
+                                          EIndexerWorkItemType.CREATE_UPDATE,
+                                          _getRequestingHost (aHttpServletRequest));
+
     // And done
     return Response.noContent ().build ();
   }
@@ -171,6 +179,13 @@ public class IndexerResource
     {
       LOGGER.info (sLogPrefix + "Ignoring duplicate DELETE request for '" + aPI.getURIEncoded () + "'");
     }
+
+    // Create shadow event for downstream replication (after legacy processing is queued)
+    ShadowEventCreator.createShadowEvent (aHttpServletRequest,
+                                          aPI,
+                                          EIndexerWorkItemType.DELETE,
+                                          _getRequestingHost (aHttpServletRequest));
+
     // And done
     return Response.noContent ().build ();
   }

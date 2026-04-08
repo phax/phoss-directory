@@ -427,6 +427,59 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
     return getConfig ().getAsBoolean ("sync.businesscards", false);
   }
 
+  /**
+   * @return <code>true</code> if indexer request shadowing is enabled,
+   *         <code>false</code> otherwise. Defaults to <code>false</code>.
+   */
+  public static boolean isIndexerShadowingEnabled ()
+  {
+    return getConfig ().getAsBoolean ("indexer.shadowing.enabled", false);
+  }
+
+  /**
+   * @return The downstream URL for shadowing indexer requests. May be
+   *         <code>null</code> or empty.
+   */
+  @Nullable
+  public static String getIndexerShadowingURL ()
+  {
+    return getConfig ().getAsString ("indexer.shadowing.url");
+  }
+
+  /**
+   * @return Timeout in milliseconds for shadowing HTTP requests. Defaults to
+   *         5000ms.
+   */
+  @Nonnegative
+  public static int getIndexerShadowingTimeoutMS ()
+  {
+    return getConfig ().getAsInt ("indexer.shadowing.timeout.ms", 5000);
+  }
+
+  /**
+   * @return The interval in seconds for the shadow event dispatcher job.
+   *         Defaults to 60 seconds (1 minute).
+   */
+  @Nonnegative
+  public static int getIndexerShadowingIntervalSeconds ()
+  {
+    final int ret = getConfig ().getAsInt ("indexer.shadowing.interval.seconds", 60);
+    if (ret <= 0)
+      throw new IllegalStateException ("The indexer.shadowing.interval.seconds property must be > 0!");
+    return ret;
+  }
+
+  /**
+   * @return The secret string to be included in the X-Shadow-Secret header
+   *         when sending shadow events. May be <code>null</code> if not
+   *         configured (no authentication).
+   */
+  @Nullable
+  public static String getIndexerShadowingSecret ()
+  {
+    return getConfig ().getAsString ("indexer.shadowing.secret");
+  }
+
   public static boolean isPeppolLookupEnabled ()
   {
     return getConfig ().getAsBoolean ("peppol.lookup.enabled", false);

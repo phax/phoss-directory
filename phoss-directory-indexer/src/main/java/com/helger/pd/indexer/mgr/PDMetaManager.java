@@ -16,6 +16,7 @@
  */
 package com.helger.pd.indexer.mgr;
 
+import com.helger.base.string.StringHelper;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +32,12 @@ import com.helger.base.lang.clazz.ClassHelper;
 import com.helger.pd.indexer.businesscard.IPDBusinessCardProvider;
 import com.helger.pd.indexer.lucene.PDLucene;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
+import com.helger.pd.indexer.shadow.FailedShadowEventList;
+import com.helger.pd.indexer.shadow.ShadowEventCreator;
+import com.helger.pd.indexer.shadow.ShadowEventDispatcherJob;
+import com.helger.pd.indexer.shadow.ShadowEventList;
 import com.helger.pd.indexer.storage.PDStorageManager;
+import com.helger.quartz.SimpleScheduleBuilder;
 import com.helger.peppolid.factory.IIdentifierFactory;
 import com.helger.photon.core.interror.InternalErrorBuilder;
 import com.helger.scope.IScope;
@@ -58,6 +64,8 @@ public final class PDMetaManager extends AbstractGlobalSingleton
   private PDLucene m_aLucene;
   private PDStorageManager m_aStorageMgr;
   private PDIndexerManager m_aIndexerMgr;
+  private ShadowEventList m_aShadowEventList;
+  private FailedShadowEventList m_aFailedShadowEventList;
 
   @Deprecated (forRemoval = false)
   @UsedViaReflection
@@ -72,6 +80,37 @@ public final class PDMetaManager extends AbstractGlobalSingleton
       m_aLucene = new PDLucene ();
       m_aStorageMgr = new PDStorageManager (m_aLucene);
       m_aIndexerMgr = new PDIndexerManager (m_aStorageMgr);
+
+      // Initialize shadow event configuration cache (must be called before any shadow event creation)
+      ShadowEventCreator.initializeConfiguration ();
+
+      // Initialize shadow event infrastructure if enabled
+      if (PDServerConfiguration.isIndexerShadowingEnabled ())
+      {
+        LOGGER.info ("Indexer shadowing is ENABLED");
+        final String sShadowURL = PDServerConfiguration.getIndexerShadowingURL ();
+        if (StringHelper.isEmpty (sShadowURL))
+        {
+          LOGGER.error ("Indexer shadowing is enabled but URL is not configured - shadowing will be DISABLED");
+        }
+        else
+        {
+          LOGGER.info ("Shadow target URL: " + sShadowURL);
+          LOGGER.info ("Shadow timeout: " + PDServerConfiguration.getIndexerShadowingTimeoutMS () + "ms");
+
+          m_aShadowEventList = new ShadowEventList ();
+          m_aFailedShadowEventList = new FailedShadowEventList ();
+
+          final int nIntervalSeconds = PDServerConfiguration.getIndexerShadowingIntervalSeconds ();
+          ShadowEventDispatcherJob.schedule (SimpleScheduleBuilder.repeatSecondlyForever (nIntervalSeconds));
+
+          LOGGER.info ("Shadow event dispatcher scheduled (every " + nIntervalSeconds + " second(s))");
+        }
+      }
+      else
+      {
+        LOGGER.info ("Indexer shadowing is DISABLED");
+      }
 
       LOGGER.info (ClassHelper.getClassLocalName (this) + " was initialized");
     }
@@ -157,5 +196,25 @@ public final class PDMetaManager extends AbstractGlobalSingleton
   public static IIdentifierFactory getIdentifierFactory ()
   {
     return IF;
+  }
+
+  /**
+   * @return The shadow event list (live queue), or <code>null</code> if
+   *         shadowing is not enabled.
+   */
+  @Nullable
+  public static ShadowEventList getShadowEventList ()
+  {
+    return getInstance ().m_aShadowEventList;
+  }
+
+  /**
+   * @return The failed shadow event list (DLQ), or <code>null</code> if
+   *         shadowing is not enabled.
+   */
+  @Nullable
+  public static FailedShadowEventList getFailedShadowEventList ()
+  {
+    return getInstance ().m_aFailedShadowEventList;
   }
 }
