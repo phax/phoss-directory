@@ -83,6 +83,7 @@ public final class S3Helper
                            .endpointOverride (aEndpointOverride);
       aS3AsyncBuilder = S3AsyncClient.builder ()
                                      .region (Region.US_EAST_1)
+                                     .multipartEnabled (Boolean.TRUE)
                                      .credentialsProvider (StaticCredentialsProvider.create (AwsBasicCredentials.create ("test",
                                                                                                                          "test")))
                                      .endpointOverride (aEndpointOverride);
@@ -93,7 +94,7 @@ public final class S3Helper
     {
       LOGGER.info ("Configuring S3 for AWS mode");
       aS3Builder = S3Client.builder ().region (Region.EU_WEST_1);
-      aS3AsyncBuilder = S3AsyncClient.builder ().region (Region.EU_WEST_1);
+      aS3AsyncBuilder = S3AsyncClient.builder ().region (Region.EU_WEST_1).multipartEnabled (Boolean.TRUE);
       // Constant URL for local stuff
       S3_PUBLIC_URL = PDServerConfiguration.getS3WebsiteURLWithTrailingSlash ();
     }
