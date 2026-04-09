@@ -12,5 +12,7 @@ private-*.properties
 .classpath
 .DS_Store
 .factorypath
-.project 
+.project
+.idea
+.tool-versions
 zz

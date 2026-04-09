@@ -51,4 +51,11 @@ public final class PDServerConfigurationTest
     final ICommonsList <PDConfiguredTrustStore> aList = PDServerConfiguration.getAllTrustStores ();
     assertEquals (4, aList.size ());
   }
+
+  @Test
+  public void testShadowingDefaults ()
+  {
+    assertEquals (60, PDServerConfiguration.getIndexerShadowingIntervalSeconds ());
+    assertEquals (5000, PDServerConfiguration.getIndexerShadowingTimeoutMS ());
+  }
 }

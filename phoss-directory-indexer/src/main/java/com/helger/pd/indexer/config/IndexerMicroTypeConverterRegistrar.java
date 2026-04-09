@@ -24,6 +24,8 @@ import com.helger.pd.indexer.index.IndexerWorkItem;
 import com.helger.pd.indexer.index.IndexerWorkItemMicroTypeConverter;
 import com.helger.pd.indexer.reindex.ReIndexWorkItem;
 import com.helger.pd.indexer.reindex.ReIndexWorkItemMicroTypeConverter;
+import com.helger.pd.indexer.shadow.ShadowEvent;
+import com.helger.pd.indexer.shadow.ShadowEventMicroTypeConverter;
 import com.helger.xml.microdom.convert.IMicroTypeConverterRegistrarSPI;
 import com.helger.xml.microdom.convert.IMicroTypeConverterRegistry;
 
@@ -41,5 +43,6 @@ public final class IndexerMicroTypeConverterRegistrar implements IMicroTypeConve
   {
     aRegistry.registerMicroElementTypeConverter (IndexerWorkItem.class, new IndexerWorkItemMicroTypeConverter ());
     aRegistry.registerMicroElementTypeConverter (ReIndexWorkItem.class, new ReIndexWorkItemMicroTypeConverter ());
+    aRegistry.registerMicroElementTypeConverter (ShadowEvent.class, new ShadowEventMicroTypeConverter ());
   }
 }

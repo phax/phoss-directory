@@ -97,6 +97,53 @@ Therefore the respective SMP must have the appropriate `Extension` element of th
 Please see the [PD specification](https://docs.peppol.eu/edelivery/directory/PEPPOL-EDN-Directory-1.1.1-2020-10-15.pdf) 
   for a detailed description of the required data format as well as for the REST interface.
 
+## Indexer Shadowing Configuration
+
+The PD Indexer supports shadowing of indexing requests to a downstream replicator service for migration purposes (e.g., PD2 migration). 
+When enabled, successful indexing requests are replicated asynchronously as custom JSON events to a configured downstream URL.
+
+**Configuration properties:**
+
+* **`indexer.shadowing.enabled`** - Enable or disable indexer request shadowing. Defaults to `false`.
+* **`indexer.shadowing.url`** - The downstream URL to send shadow events to. Required if shadowing is enabled.
+* **`indexer.shadowing.timeout.ms`** - HTTP timeout in milliseconds for shadow requests. Defaults to `5000` (5 seconds).
+* **`indexer.shadowing.interval.seconds`** - Interval in seconds for the dispatcher job to process queued events. Defaults to `60` seconds (1 minute).
+* **`indexer.shadowing.secret`** - Optional secret string included in the `X-Shadow-Secret` HTTP header for authentication. If not set, no authentication header is sent.
+
+**Shadow event format:**
+
+Shadow events are sent as HTTP POST requests with JSON payload containing:
+- `eventId` - Unique UUID for idempotency
+- `createdAt` - ISO 8601 timestamp
+- `operation` - Operation type (`CREATE_UPDATE` or `DELETE`)
+- `participantId` - The participant identifier
+- `requestingHost` - The requesting host
+- `clientCertificate` - Object containing:
+  - `sha256Fingerprint` - SHA-256 fingerprint of the client certificate (primary identity)
+  - `subjectDN` - Certificate subject distinguished name
+  - `issuerDN` - Certificate issuer distinguished name
+
+**Operational notes:**
+
+- Shadow events are persisted to disk (`shadow-events.xml`) before dispatch for crash safety
+- A background job dispatches events at the configured interval (default: every 60 seconds)
+- Failed events with non-retryable errors (HTTP 4xx) are moved to a dead-letter queue (`failed-shadow-events.xml`)
+- Failed events with retryable errors (network issues, HTTP 5xx) remain in the queue for automatic retry
+- Shadow failures never affect the original indexing request
+- Assumes single application instance per data directory
+- Optional authentication via `X-Shadow-Secret` header for securing the downstream endpoint
+
+Example configuration:
+
+```ini
+# Indexer shadowing (disabled by default)
+indexer.shadowing.enabled=false
+indexer.shadowing.url=https://pd2-replicator.example.com/shadow-events
+indexer.shadowing.timeout.ms=5000
+indexer.shadowing.interval.seconds=60
+indexer.shadowing.secret=your-secret-token-here
+```
+
 
 # PD Publisher
 
