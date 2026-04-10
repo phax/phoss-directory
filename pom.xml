@@ -66,15 +66,16 @@
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
 
+    <jaxb-plugin.group>org.jvnet.jaxb</jaxb-plugin.group>
+    <jaxb-plugin.artifact>jaxb-maven-plugin</jaxb-plugin.artifact>
+    <jaxb-plugin.version>4.0.12</jaxb-plugin.version>
+    <ph-jaxb-plugin.version>5.1.2</ph-jaxb-plugin.version>
+
     <awssdk.version>2.42.25</awssdk.version>
     <!-- Peppol Directory runs on Lucene v8 -->
     <lucene.version>8.11.2</lucene.version>
     <jersey.version>3.1.11</jersey.version>
     <log4j.version>2.25.4</log4j.version>
-    <jaxb-plugin.group>org.jvnet.jaxb</jaxb-plugin.group>
-    <jaxb-plugin.artifact>jaxb-maven-plugin</jaxb-plugin.artifact>
-    <jaxb-plugin.version>4.0.12</jaxb-plugin.version>
-    <ph-jaxb-plugin.version>5.1.1</ph-jaxb-plugin.version>
   </properties>
   
   <dependencyManagement>
@@ -82,7 +83,7 @@
       <dependency>
         <groupId>com.helger.peppol</groupId>
         <artifactId>peppol-commons-parent-pom</artifactId>
-        <version>12.4.0</version>
+        <version>12.4.1</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>

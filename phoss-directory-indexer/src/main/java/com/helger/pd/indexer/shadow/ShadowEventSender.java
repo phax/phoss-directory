@@ -37,8 +37,7 @@ import com.helger.pd.indexer.settings.PDServerConfiguration;
 import jakarta.annotation.Nonnull;
 
 /**
- * Sends shadow events to the downstream replicator service via HTTP POST with
- * JSON payload.
+ * Sends shadow events to the downstream replicator service via HTTP POST with JSON payload.
  *
  * @author Mikael Aksamit
  */
@@ -86,8 +85,8 @@ public final class ShadowEventSender
    * @throws IOException
    *         If the HTTP request fails
    */
-  public static int sendEvent (@Nonnull @Nonempty final String sDownstreamURL,
-                               @Nonnull final IShadowEvent aEvent) throws IOException
+  public static int sendEvent (@Nonnull @Nonempty final String sDownstreamURL, @Nonnull final IShadowEvent aEvent)
+                                                                                                                   throws IOException
   {
     final IJsonObject aPayload = _buildEventPayload (aEvent);
     final String sJsonPayload = aPayload.getAsJsonString ();
@@ -96,7 +95,8 @@ public final class ShadowEventSender
       LOGGER.debug ("Sending shadow event " + aEvent.getEventID () + " to " + sDownstreamURL);
 
     final HttpPost aPost = new HttpPost (sDownstreamURL);
-    aPost.setEntity (new StringEntity (sJsonPayload, ContentType.APPLICATION_JSON.withCharset (StandardCharsets.UTF_8)));
+    aPost.setEntity (new StringEntity (sJsonPayload,
+                                       ContentType.APPLICATION_JSON.withCharset (StandardCharsets.UTF_8)));
 
     final String sSecret = PDServerConfiguration.getIndexerShadowingSecret ();
     if (sSecret != null)
@@ -109,25 +109,25 @@ public final class ShadowEventSender
     try (final HttpClientManager aHttpClientMgr = HttpClientManager.create (aSettings))
     {
       final Integer aStatusCode = aHttpClientMgr.execute (aPost, aResponse -> {
-        final int nCode = aResponse.getCode ();
+        final int nStatusCode = aResponse.getCode ();
 
-        if (nCode >= CHttp.HTTP_OK && nCode < CHttp.HTTP_MULTIPLE_CHOICES)
+        if (nStatusCode >= CHttp.HTTP_OK && nStatusCode < CHttp.HTTP_MULTIPLE_CHOICES)
         {
           if (LOGGER.isDebugEnabled ())
-            LOGGER.debug ("Successfully sent shadow event " + aEvent.getEventID () + " (HTTP " + nCode + ")");
+            LOGGER.debug ("Successfully sent shadow event " + aEvent.getEventID () + " (HTTP " + nStatusCode + ")");
         }
         else
         {
-          LOGGER.warn ("Downstream returned HTTP " + nCode + " for shadow event " + aEvent.getEventID ());
+          LOGGER.warn ("Downstream returned HTTP " + nStatusCode + " for shadow event " + aEvent.getEventID ());
         }
 
-        return nCode;
+        return Integer.valueOf (nStatusCode);
       });
 
       if (aStatusCode == null)
         throw new IOException ("HTTP client returned null status code for shadow event " + aEvent.getEventID ());
 
-      return aStatusCode;
+      return aStatusCode.intValue ();
     }
   }
 }

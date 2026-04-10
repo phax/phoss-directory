@@ -25,8 +25,8 @@ import com.helger.pd.indexer.index.EIndexerWorkItemType;
 import jakarta.annotation.Nonnull;
 
 /**
- * Interface for a shadow event that represents an indexer operation to be
- * replicated to a downstream service during PD2 migration.
+ * Interface for a shadow event that represents an indexer operation to be replicated to a
+ * downstream service during PD2 migration.
  *
  * @author Mikael Aksamit (mikael@aksamit.se)
  */
@@ -66,8 +66,7 @@ public interface IShadowEvent extends IHasID <String>
   String getRequestingHost ();
 
   /**
-   * @return The SHA-256 fingerprint of the client certificate. Never
-   *         <code>null</code>.
+   * @return The SHA-256 fingerprint of the client certificate. Never <code>null</code>.
    */
   @Nonnull
   @Nonempty

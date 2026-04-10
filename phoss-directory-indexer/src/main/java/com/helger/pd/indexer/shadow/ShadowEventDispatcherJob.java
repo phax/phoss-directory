@@ -16,6 +16,9 @@
  */
 package com.helger.pd.indexer.shadow;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.helger.annotation.style.OverrideOnDemand;
 import com.helger.base.enforce.ValueEnforcer;
 import com.helger.base.string.StringHelper;
@@ -26,25 +29,29 @@ import com.helger.datetime.helper.PDTFactory;
 import com.helger.http.CHttp;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
-import com.helger.quartz.*;
+import com.helger.quartz.DisallowConcurrentExecution;
+import com.helger.quartz.IJobExecutionContext;
+import com.helger.quartz.JobDataMap;
+import com.helger.quartz.JobExecutionException;
+import com.helger.quartz.SimpleScheduleBuilder;
+import com.helger.quartz.TriggerKey;
 import com.helger.schedule.quartz.GlobalQuartzScheduler;
 import com.helger.schedule.quartz.trigger.JDK8TriggerBuilder;
 import com.helger.servlet.mock.MockHttpServletRequest;
 import com.helger.servlet.mock.OfflineHttpServletRequest;
 import com.helger.web.scope.mgr.WebScopeManager;
 import com.helger.web.scope.util.AbstractScopeAwareJob;
+
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.ServletContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
- * Quartz job that dispatches pending shadow events from the outbox to the
- * downstream replicator service. Runs every minute.
+ * Quartz job that dispatches pending shadow events from the outbox to the downstream replicator
+ * service. Runs every minute.
  * <p>
- * Events that fail with retryable errors (network issues, 5xx) remain in the
- * queue for retry. Events that fail with non-retryable errors (4xx) are moved
- * to the dead-letter queue for manual investigation.
+ * Events that fail with retryable errors (network issues, 5xx) remain in the queue for retry.
+ * Events that fail with non-retryable errors (4xx) are moved to the dead-letter queue for manual
+ * investigation.
  * </p>
  *
  * @author Mikael Aksamit
@@ -69,8 +76,8 @@ public class ShadowEventDispatcherJob extends AbstractScopeAwareJob
   }
 
   @Override
-  protected void onExecute (@Nonnull final JobDataMap aJobDataMap,
-                            @Nonnull final IJobExecutionContext aContext) throws JobExecutionException
+  protected void onExecute (@Nonnull final JobDataMap aJobDataMap, @Nonnull final IJobExecutionContext aContext)
+                                                                                                                 throws JobExecutionException
   {
     if (!PDServerConfiguration.isIndexerShadowingEnabled ())
     {
@@ -122,6 +129,7 @@ public class ShadowEventDispatcherJob extends AbstractScopeAwareJob
 
         if (nStatusCode >= CHttp.HTTP_OK && nStatusCode < CHttp.HTTP_MULTIPLE_CHOICES)
         {
+          // 2xx
           aEventList.removeEvent (aEvent.getEventID ());
           nSuccessCount++;
           LOGGER.info ("Successfully dispatched shadow event " + aEvent.getEventID ());
@@ -129,6 +137,7 @@ public class ShadowEventDispatcherJob extends AbstractScopeAwareJob
         else
           if (nStatusCode >= CHttp.HTTP_BAD_REQUEST && nStatusCode < CHttp.HTTP_INTERNAL_SERVER_ERROR)
           {
+            // 4xx
             aEventList.removeEvent (aEvent.getEventID ());
             aFailedEventList.addFailedEvent ((ShadowEvent) aEvent);
             nNonRetryableFailureCount++;
@@ -141,11 +150,7 @@ public class ShadowEventDispatcherJob extends AbstractScopeAwareJob
           else
           {
             nRetryableFailureCount++;
-            LOGGER.warn ("Shadow event " +
-                         aEvent.getEventID () +
-                         " failed with HTTP " +
-                         nStatusCode +
-                         " - will retry");
+            LOGGER.warn ("Shadow event " + aEvent.getEventID () + " failed with HTTP " + nStatusCode + " - will retry");
           }
       }
       catch (final Exception ex)
