@@ -25,12 +25,11 @@
     <version>0.15.5-SNAPSHOT</version>
   </parent>
   <artifactId>phoss-directory-indexer</artifactId>
-  <packaging>bundle</packaging>
+  <packaging>jar</packaging>
   <name>phoss-directory-indexer</name>
   <description>The indexer web application of the PEPPOL Yellow Pages</description>
   <url>https://github.com/phax/phoss-directory/phoss-directory-indexer</url>
   <inceptionYear>2015</inceptionYear>
-
   <licenses>
     <license>
       <name>Apache 2</name>
@@ -38,12 +37,10 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
-
   <organization>
     <name>Philip Helger</name>
     <url>https://www.helger.com</url>
   </organization>
-
   <developers>
     <developer>
       <id>philip</id>
@@ -52,7 +49,6 @@
       <url>https://www.helger.com</url>
     </developer>
   </developers>
-
   <dependencies>
     <dependency>
       <groupId>com.helger.photon</groupId>
@@ -70,7 +66,6 @@
       <groupId>com.helger.peppol</groupId>
       <artifactId>peppol-smp-client</artifactId>
     </dependency>
-    
     <dependency>
       <groupId>org.glassfish.jersey.containers</groupId>
       <artifactId>jersey-container-servlet</artifactId>
@@ -91,13 +86,11 @@
       <groupId>org.apache.lucene</groupId>
       <artifactId>lucene-backward-codecs</artifactId>
     </dependency>
-    
     <dependency>
       <groupId>jakarta.servlet</groupId>
       <artifactId>jakarta.servlet-api</artifactId>
       <scope>provided</scope>
     </dependency>
-    
     <dependency>
       <groupId>org.apache.lucene</groupId>
       <artifactId>lucene-queryparser</artifactId>
@@ -129,7 +122,6 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
   <build>
     <resources>
       <resource>
@@ -147,24 +139,5 @@
         </excludes>
       </resource>
     </resources>
-
-    <plugins>
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <configuration>
-          <instructions>
-            <!-- To use the filtered resources -->
-            <Automatic-Module-Name>com.helger.pd.indexer</Automatic-Module-Name>
-            <Export-Package>com.helger.pd.indexer.*</Export-Package>
-            <Import-Package>!org.jspecify.annotations.*,*</Import-Package>
-            <Require-Capability>osgi.extender; filter:="(osgi.extender=osgi.serviceloader.registrar)"</Require-Capability>
-            <Provide-Capability>osgi.serviceloader; osgi.serviceloader=com.helger.xml.microdom.convert.IMicroTypeConverterRegistrarSPI</Provide-Capability>
-            <!-- The latter one has precedence -->
-            <Include-Resource>{maven-resources},phoss-directory-version.properties=target/classes/phoss-directory-version.properties</Include-Resource>
-          </instructions>
-        </configuration>
-      </plugin>
-    </plugins>
   </build>
 </project>
