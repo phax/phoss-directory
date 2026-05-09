@@ -312,7 +312,7 @@ public final class PDClientConfiguration
    */
   public static int getHttpProxyPort ()
   {
-    return getConfig ().getAsIntOrFallback ("http.proxy.port", -1, 0, "http.proxyPort");
+    return getConfig ().getAsIntOrFallback ("http.proxy.port", -1, "http.proxyPort");
   }
 
   /**
@@ -346,7 +346,7 @@ public final class PDClientConfiguration
   @NonNull
   public static Timeout getConnectTimeout ()
   {
-    final long nMillis = getConfig ().getAsLongOrFallback ("http.connect.timeout.ms", -1, -1, "connect.timeout.ms");
+    final long nMillis = getConfig ().getAsLongOrFallback ("http.connect.timeout.ms", -1, "connect.timeout.ms");
     if (nMillis >= 0)
       return Timeout.ofMilliseconds (nMillis);
     return HttpClientSettings.DEFAULT_CONNECT_TIMEOUT;
@@ -361,7 +361,6 @@ public final class PDClientConfiguration
   public static Timeout getResponseTimeout ()
   {
     final long nMillis = getConfig ().getAsLongOrFallback ("http.response.timeout.ms",
-                                                           -1,
                                                            -1,
                                                            "http.request.timeout.ms",
                                                            "request.timeout.ms");

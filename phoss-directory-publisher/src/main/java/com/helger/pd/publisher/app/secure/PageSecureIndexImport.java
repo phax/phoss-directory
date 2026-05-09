@@ -92,7 +92,7 @@ public final class PageSecureIndexImport extends AbstractAppWebPage
     if (bIsFormSubmitted)
     {
       final IFileItem aFile = aWPEC.params ().getAsFileItem (FIELD_FILE);
-      if (aFile == null || StringHelper.isEmpty (aFile.getName ()))
+      if (aFile == null || StringHelper.isEmpty (aFile.getNameSecure ()))
         aFormErrors.addFieldError (FIELD_FILE, "No file was selected");
 
       if (aFormErrors.isEmpty ())
