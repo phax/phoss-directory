@@ -422,6 +422,12 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
     return getConfig ().getAsLong ("rest.limit.requestspersecond", -1);
   }
 
+  @Nonnegative
+  public static long getExportMaxRequestsPerDay ()
+  {
+    return getConfig ().getAsLong ("export.limit.requestsperday", 3);
+  }
+
   public static boolean isSyncAllBusinessCards ()
   {
     return getConfig ().getAsBoolean ("sync.businesscards", false);

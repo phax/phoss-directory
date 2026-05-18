@@ -27,9 +27,12 @@ import com.helger.annotation.OverridingMethodsMustInvokeSuper;
 import com.helger.base.state.EContinue;
 import com.helger.collection.commons.CommonsHashMap;
 import com.helger.collection.commons.ICommonsMap;
+import com.helger.http.CHttp;
+import com.helger.http.CHttpHeader;
 import com.helger.io.file.FilenameHelper;
 import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.exportall.ExportAllManager;
+import com.helger.pd.publisher.exportall.ExportRateLimit;
 import com.helger.photon.core.servlet.AbstractObjectDeliveryHttpHandler;
 import com.helger.servlet.response.UnifiedResponse;
 import com.helger.web.scope.IRequestWebScopeWithoutResponse;
@@ -160,6 +163,16 @@ public class ExportDeliveryHttpHandler extends AbstractObjectDeliveryHttpHandler
                                     @NonNull final UnifiedResponse aUnifiedResponse,
                                     @NonNull final String sFilename) throws IOException
   {
+    final String sRateLimitKey = "export:" + aRequestScope.getRemoteAddr () + ":" + sFilename;
+    if (ExportRateLimit.INSTANCE.isOverLimit (sRateLimitKey))
+    {
+      if (LOGGER.isDebugEnabled ())
+        LOGGER.debug ("Export rate limit exceeded for " + sRateLimitKey);
+      aUnifiedResponse.setStatus (CHttp.HTTP_TOO_MANY_REQUESTS)
+                      .addCustomResponseHeader (CHttpHeader.RETRY_AFTER, "86400");
+      return;
+    }
+
     final Consumer <UnifiedResponse> aHandler = HANDLERS.get (sFilename);
     if (aHandler == null)
     {
