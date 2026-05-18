@@ -151,6 +151,13 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
+v0.15.5 - 2026-05-18
+* Added indexer shadowing support to replicate successful indexing requests to a downstream service (e.g. for PD2 migration). See the "Indexer Shadowing Configuration" section above for details
+* Added `Cache-Control: max-age=86400` header on all `/export/*` redirect responses to improve cacheability
+* Added per-IP per-file rate limiting on export redirects (sliding 24h window, configurable via `export.limit.requestsperday`, default 3 requests)
+* Enabled S3 multipart uploads in `S3Helper`
+* Removed OSGI bundling from `phoss-directory-client`, `phoss-directory-indexer` and `phoss-directory-searchapi`
+
 v0.15.4 - 2026-03-17
 * REST API returns errors as valid `application/json` or `application/xml` and no longer as `text/plain`
 * Added new configuration property `peppol.lookup.enabled`
