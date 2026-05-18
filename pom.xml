@@ -81,16 +81,9 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>com.helger.schedule</groupId>
-        <artifactId>ph-schedule-parent-pom</artifactId>
-        <version>6.1.1</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
         <groupId>com.helger.peppol.ui</groupId>
         <artifactId>peppol-shared-ui-parent-pom</artifactId>
-        <version>0.9.15</version>
+        <version>0.9.16</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>

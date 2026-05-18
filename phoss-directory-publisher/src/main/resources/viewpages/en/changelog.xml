@@ -22,6 +22,14 @@
   This date is not necessarily identical to the date when the solution was deployed.
 </p>
 
+<h4>2026-05-18</h4>
+
+<ul>
+  <li>Updated to Peppol eDEC Code Lists v9.6</li>
+  <li>Export download redirects now include a <code>Cache-Control: max-age=86400</code> header to encourage clients to cache them for 24 hours</li>
+  <li>Added per-IP per-file rate limiting on export downloads (default 3 requests per 24 hours)</li>
+</ul>
+
 <h4>2026-03-17</h4>
 
 <ul>

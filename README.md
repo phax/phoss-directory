@@ -151,6 +151,9 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
+v0.15.6 - 2026-05-18
+* Improved the verbosity and high-load handling of the internal scheduler - hoping we're capturing the underlying issue
+
 v0.15.5 - 2026-05-18
 * Added indexer shadowing support to replicate successful indexing requests to a downstream service (e.g. for PD2 migration). See the "Indexer Shadowing Configuration" section above for details
 * Added `Cache-Control: max-age=86400` header on all `/export/*` redirect responses to improve cacheability
