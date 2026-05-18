@@ -53,6 +53,7 @@ import com.helger.collection.commons.ICommonsSortedSet;
 import com.helger.csv.CSVWriter;
 import com.helger.datetime.helper.PDTFactory;
 import com.helger.datetime.web.PDTWebDateHelper;
+import com.helger.http.CHttpHeader;
 import com.helger.io.file.FileHelper;
 import com.helger.io.file.FilenameHelper;
 import com.helger.mime.CMimeType;
@@ -101,6 +102,8 @@ public final class ExportAllManager
   private static final String INTERNAL_PARTICIPANTS_XML = S3_FOLDER_NAME + "export-all-participants.xml";
   private static final String INTERNAL_PARTICIPANTS_JSON = S3_FOLDER_NAME + "export-all-participants.json";
   private static final String INTERNAL_PARTICIPANTS_CSV = S3_FOLDER_NAME + "export-all-participants.csv";
+
+  private static final String MAX_AGE_24H = "max-age=86400";
 
   // Rest
   private static final Logger LOGGER = LoggerFactory.getLogger (ExportAllManager.class);
@@ -296,7 +299,7 @@ public final class ExportAllManager
   {
     // Get data directly from S3
     aUR.setRedirect (S3Helper.S3_PUBLIC_URL + INTERNAL_BUSINESSCARDS_XML_FULL);
-    aUR.addCustomResponseHeader ("Cache-Control", "max-age=86400");
+    aUR.addCustomResponseHeader (CHttpHeader.CACHE_CONTROL, MAX_AGE_24H);
   }
 
   @NonNull
@@ -317,7 +320,7 @@ public final class ExportAllManager
   {
     // Get data directly from S3
     aUR.setRedirect (S3Helper.S3_PUBLIC_URL + INTERNAL_BUSINESSCARDS_XML_NO_DOC_TYPES);
-    aUR.addCustomResponseHeader ("Cache-Control", "max-age=86400");
+    aUR.addCustomResponseHeader (CHttpHeader.CACHE_CONTROL, MAX_AGE_24H);
   }
 
   @NonNull
@@ -465,7 +468,7 @@ public final class ExportAllManager
   {
     // Get data directly from S3
     aUR.setRedirect (S3Helper.S3_PUBLIC_URL + INTERNAL_BUSINESSCARDS_JSON);
-    aUR.addCustomResponseHeader ("Cache-Control", "max-age=86400");
+    aUR.addCustomResponseHeader (CHttpHeader.CACHE_CONTROL, MAX_AGE_24H);
   }
 
   private static void _unify (@NonNull @WillNotClose final CSVWriter aCSVWriter)
@@ -571,7 +574,7 @@ public final class ExportAllManager
   {
     // Get data directly from S3
     aUR.setRedirect (S3Helper.S3_PUBLIC_URL + INTERNAL_BUSINESSCARDS_CSV);
-    aUR.addCustomResponseHeader ("Cache-Control", "max-age=86400");
+    aUR.addCustomResponseHeader (CHttpHeader.CACHE_CONTROL, MAX_AGE_24H);
   }
 
   @NonNull
@@ -635,7 +638,7 @@ public final class ExportAllManager
   {
     // Get data directly from S3
     aUR.setRedirect (S3Helper.S3_PUBLIC_URL + INTERNAL_PARTICIPANTS_XML);
-    aUR.addCustomResponseHeader ("Cache-Control", "max-age=86400");
+    aUR.addCustomResponseHeader (CHttpHeader.CACHE_CONTROL, MAX_AGE_24H);
   }
 
   @NonNull
@@ -678,7 +681,7 @@ public final class ExportAllManager
   {
     // Get data directly from S3
     aUR.setRedirect (S3Helper.S3_PUBLIC_URL + INTERNAL_PARTICIPANTS_JSON);
-    aUR.addCustomResponseHeader ("Cache-Control", "max-age=86400");
+    aUR.addCustomResponseHeader (CHttpHeader.CACHE_CONTROL, MAX_AGE_24H);
   }
 
   @NonNull
@@ -713,6 +716,6 @@ public final class ExportAllManager
   {
     // Get data directly from S3
     aUR.setRedirect (S3Helper.S3_PUBLIC_URL + INTERNAL_PARTICIPANTS_CSV);
-    aUR.addCustomResponseHeader ("Cache-Control", "max-age=86400");
+    aUR.addCustomResponseHeader (CHttpHeader.CACHE_CONTROL, MAX_AGE_24H);
   }
 }
