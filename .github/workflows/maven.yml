@@ -43,7 +43,7 @@ jobs:
     - name: Start LocalStack
       uses: LocalStack/setup-localstack@v0.2.3
       with:
-        image-tag: latest
+        image-tag: '3.8.1'
         use-pro: 'false'
       env:
         SERVICES: s3
