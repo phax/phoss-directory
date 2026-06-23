@@ -44,9 +44,9 @@ jobs:
       uses: LocalStack/setup-localstack@v0.2.3
       with:
         image-tag: latest
+        use-pro: 'false'
       env:
         SERVICES: s3
-        LOCALSTACK_ACKNOWLEDGE_ACCOUNT_REQUIREMENT: 1
         
     - name: Create S3 Bucket
       run: |
