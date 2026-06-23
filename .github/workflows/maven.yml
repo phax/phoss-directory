@@ -46,6 +46,7 @@ jobs:
         image-tag: latest
       env:
         SERVICES: s3
+        LOCALSTACK_ACKNOWLEDGE_ACCOUNT_REQUIREMENT: 1
         
     - name: Create S3 Bucket
       run: |
