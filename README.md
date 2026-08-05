@@ -153,6 +153,27 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
+v0.15.7 - 2026-08-05
+* Updated to parent-pom 3.1.0, enabling Reproducible Builds
+* Updated to ph-commons 12.3.3
+    * Updated to BouncyCastle 1.85, fixing a myriad of CVEs
+    * JSON writing now escapes all control characters (`U+0000`-`U+001F`) as `\u00XX` per RFC 8259 - relevant for the JSON export
+    * External XML resource resolution no longer resolves remote URL schemes by default, to prevent Server Side Request Forgery (SSRF)
+    * The internal soft maps used for caching are now thread-safe - previously concurrent reads could corrupt them and let cache eviction hang while holding the cache write lock
+* Updated to ph-web 11.4.3
+    * Incoming requests are now wrapped in a `SafeHttpServletRequest`, avoiding "The request object has been recycled" errors e.g. from the long running request monitor
+    * The HTTP proxy configuration is now activated by the presence of `http.proxy.host` and `http.proxy.port` alone; `http.proxy.enabled` only acts as an explicit kill-switch when set to `false`
+* Updated to ph-oton 10.3.0 and ph-oton-bootstrap4 10.2.0
+    * Added throttling on login, if unknown user names are used
+    * Updated to Jetty 12.1.10
+* Updated to peppol-commons 12.6.1
+    * Updated to Peppol eDEC Code Lists v9.7
+    * The SMP client now verifies that the participant and document type identifiers contained in the SMP response match the requested ones, so SMPs that resolve identifiers case insensitively are detected during indexing
+    * Removed the EC SML fallback in `EPeppolNetwork`
+    * `peppol-smp-client` no longer requires a JAX-WS (Metro) runtime
+* Updated to peppol-ui 0.9.19
+* `PDClient` now logs the absolute URL of each invoked indexer request
+
 v0.15.6 - 2026-05-18
 * Improved the verbosity and high-load handling of the internal scheduler - hoping we're capturing the underlying issue
 
