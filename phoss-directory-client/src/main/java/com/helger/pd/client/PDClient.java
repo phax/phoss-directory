@@ -226,6 +226,9 @@ public class PDClient implements Closeable
     final HttpGet aGet = new HttpGet (m_sPDIndexerURI + aParticipantID.getURIPercentEncoded ());
     try
     {
+      aGet.setAbsoluteRequestUri (true);
+      LOGGER.info ("PD isServiceGroupRegistered@" + aGet.getRequestUri ());
+
       return executeRequest (aGet, new PDClientResponseHandler ()).isSuccess ();
     }
     catch (final Exception ex)
@@ -246,6 +249,9 @@ public class PDClient implements Closeable
 
     try
     {
+      aPut.setAbsoluteRequestUri (true);
+      LOGGER.info ("PD addServiceGroupToIndex@" + aPut.getRequestUri ());
+
       if (executeRequest (aPut, new PDClientResponseHandler ()).isSuccess ())
       {
         LOGGER.info ("Added service group '" +
@@ -269,6 +275,9 @@ public class PDClient implements Closeable
     final HttpDelete aDelete = new HttpDelete (m_sPDIndexerURI + aParticipantID.getURIPercentEncoded ());
     try
     {
+      aDelete.setAbsoluteRequestUri (true);
+      LOGGER.info ("PD deleteServiceGroupFromIndex@" + aDelete.getRequestUri ());
+
       if (executeRequest (aDelete, new PDClientResponseHandler ()).isSuccess ())
       {
         final String sParticipantID = aParticipantID.getURIEncoded ();
