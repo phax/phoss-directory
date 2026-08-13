@@ -30,7 +30,7 @@ import com.helger.peppol.businesscard.generic.PDName;
 import jakarta.annotation.Nullable;
 
 /**
- * This class represents a single multilingual name as stored by Lucene consisting of a name and a
+ * This class represents a single multilingual name as stored in the search index consisting of a name and a
  * language.
  *
  * @author Philip Helger

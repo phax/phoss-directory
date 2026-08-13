@@ -28,10 +28,6 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.apache.lucene.index.Term;
-import org.apache.lucene.search.MatchAllDocsQuery;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.TermQuery;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,6 +55,9 @@ import com.helger.io.file.FilenameHelper;
 import com.helger.mime.CMimeType;
 import com.helger.mime.IMimeType;
 import com.helger.pd.indexer.mgr.PDMetaManager;
+import com.helger.pd.indexer.searchindex.query.IPDIndexQuery;
+import com.helger.pd.indexer.searchindex.query.PDIndexQueryMatchAll;
+import com.helger.pd.indexer.searchindex.query.PDIndexQueryTerm;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
@@ -190,7 +189,7 @@ public final class ExportAllManager
   static ICommonsSortedSet <String> getAllStoredParticipantIDs () throws IOException
   {
     final ICommonsSortedSet <String> ret = new CommonsTreeSet <> ();
-    PDMetaManager.getStorageMgr ().searchAll (new MatchAllDocsQuery (), -1, doc -> {
+    PDMetaManager.getStorageMgr ().searchAll (PDIndexQueryMatchAll.INSTANCE, -1, doc -> {
       final IParticipantIdentifier aPID = PDField.PARTICIPANT_ID.getDocValue (doc);
       if (aPID != null)
       {
@@ -204,7 +203,7 @@ public final class ExportAllManager
 
   // This is only used for the on-demand export of UI search results
   @NonNull
-  public static IMicroDocument queryAllContainedBusinessCardsAsXML (@NonNull final Query aQuery,
+  public static IMicroDocument queryAllContainedBusinessCardsAsXML (@NonNull final IPDIndexQuery aQuery,
                                                                     final boolean bIncludeDocTypes) throws IOException
   {
     final PDStorageManager aStorageMgr = PDMetaManager.getStorageMgr ();
@@ -255,9 +254,7 @@ public final class ExportAllManager
         {
           // Search all entities of the current participant ID
           final ICommonsList <PDStoredBusinessEntity> aEntitiesPerPI = new CommonsArrayList <> ();
-          aStorageMgr.searchAllDocuments (new TermQuery (new Term (sSearchTerm, sParticipantID)),
-                                          -1,
-                                          aEntitiesPerPI::add);
+          aStorageMgr.searchAllDocuments (new PDIndexQueryTerm (sSearchTerm, sParticipantID), -1, aEntitiesPerPI::add);
 
           // Otherwise, the PI might have been deleted in the meantime
           if (aEntitiesPerPI.isNotEmpty ())
@@ -347,9 +344,7 @@ public final class ExportAllManager
         {
           // Search all entities of the current participant ID
           final ICommonsList <PDStoredBusinessEntity> aEntitiesPerPI = new CommonsArrayList <> ();
-          aStorageMgr.searchAllDocuments (new TermQuery (new Term (sSearchTerm, sParticipantID)),
-                                          -1,
-                                          aEntitiesPerPI::add);
+          aStorageMgr.searchAllDocuments (new PDIndexQueryTerm (sSearchTerm, sParticipantID), -1, aEntitiesPerPI::add);
 
           // Otherwise, the PI might have been deleted in the meantime
           if (aEntitiesPerPI.isEmpty ())
@@ -551,7 +546,7 @@ public final class ExportAllManager
         for (final String sParticipantID : aAllParticipantIDs)
         {
           // If the participant was deleted in the meantime, the consumer is simply not called
-          aStorageMgr.searchAllDocuments (new TermQuery (new Term (sSearchTerm, sParticipantID)), -1, aCSVConsumer);
+          aStorageMgr.searchAllDocuments (new PDIndexQueryTerm (sSearchTerm, sParticipantID), -1, aCSVConsumer);
         }
 
         aCSVWriter.flush ();

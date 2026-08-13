@@ -18,7 +18,6 @@ package com.helger.pd.indexer.storage;
 
 import java.time.LocalDate;
 
-import org.apache.lucene.document.Document;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +37,7 @@ import com.helger.json.IJsonArray;
 import com.helger.json.IJsonObject;
 import com.helger.json.JsonArray;
 import com.helger.json.JsonObject;
+import com.helger.pd.indexer.searchindex.PDIndexDocument;
 import com.helger.pd.indexer.storage.field.PDField;
 import com.helger.peppol.businesscard.generic.PDBusinessCard;
 import com.helger.peppol.businesscard.generic.PDBusinessEntity;
@@ -50,10 +50,10 @@ import com.helger.xml.microdom.MicroElement;
 import jakarta.annotation.Nullable;
 
 /**
- * This class represents a document stored in the Lucene index but with a nicer API to not work on a
+ * This class represents a document stored in the search index but with a nicer API to not work on a
  * field basis. It contains the data at a certain point of time and this might not necessarily be
- * the most current data. Modifications to this object have no impact on the underlying Lucene
- * document. This is a like a temporary "view" on a Lucene document at a single point of time.
+ * the most current data. Modifications to this object have no impact on the underlying index
+ * document. This is a like a temporary "view" on an index document at a single point of time.
  *
  * @author Philip Helger
  */
@@ -397,16 +397,16 @@ public final class PDStoredBusinessEntity
   }
 
   /**
-   * Convert a stored Lucene {@link Document} to a {@link PDStoredBusinessEntity}. This method
-   * resolves all Lucene fields to Java fields.
+   * Convert a stored {@link PDIndexDocument} to a {@link PDStoredBusinessEntity}. This method
+   * resolves all index fields to Java fields.
    *
    * @param aDoc
-   *        Source Lucene document. May not be <code>null</code>.
+   *        Source index document. May not be <code>null</code>.
    * @return The new {@link PDStoredBusinessEntity}.
    */
   @NonNull
   @ReturnsMutableCopy
-  public static PDStoredBusinessEntity create (@NonNull final Document aDoc)
+  public static PDStoredBusinessEntity create (@NonNull final PDIndexDocument aDoc)
   {
     if (LOGGER.isDebugEnabled ())
       LOGGER.debug ("Creating PDStoredDocument from " + aDoc);

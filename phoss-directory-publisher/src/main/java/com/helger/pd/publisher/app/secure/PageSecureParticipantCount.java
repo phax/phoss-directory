@@ -18,16 +18,14 @@ package com.helger.pd.publisher.app.secure;
 
 import java.io.IOException;
 
-import org.apache.lucene.index.IndexableField;
-import org.apache.lucene.search.Collector;
-import org.apache.lucene.search.MatchAllDocsQuery;
 import org.jspecify.annotations.NonNull;
 
 import com.helger.annotation.Nonempty;
 import com.helger.html.hc.html.grouping.HCHR;
 import com.helger.html.hc.impl.HCNodeList;
-import com.helger.pd.indexer.lucene.AllDocumentsCollector;
 import com.helger.pd.indexer.mgr.PDMetaManager;
+import com.helger.pd.indexer.searchindex.PDIndexField;
+import com.helger.pd.indexer.searchindex.query.PDIndexQueryMatchAll;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.photon.bootstrap4.buttongroup.BootstrapButtonToolbar;
 import com.helger.photon.bootstrap4.table.BootstrapTable;
@@ -67,14 +65,13 @@ public final class PageSecureParticipantCount extends AbstractAppWebPage
     if (false)
       try
       {
-        final Collector aCollector = new AllDocumentsCollector (PDMetaManager.getLucene (), (aDoc, nIdx) -> {
+        PDMetaManager.getStorageMgr ().searchAll (PDIndexQueryMatchAll.INSTANCE, -1, aDoc -> {
           final BootstrapTable aTable = new BootstrapTable ();
-          for (final IndexableField f : aDoc.getFields ())
-            aTable.addBodyRow ().addCells (f.name (), f.fieldType ().toString (), f.stringValue ());
+          for (final PDIndexField f : aDoc.fields ())
+            aTable.addBodyRow ().addCells (f.getName (), f.getStore ().toString (), f.getValueAsString ());
           aNodeList.addChild (aTable);
           aNodeList.addChild (new HCHR ());
         });
-        PDMetaManager.getStorageMgr ().searchAtomic (new MatchAllDocsQuery (), aCollector);
       }
       catch (final IOException ex)
       {}

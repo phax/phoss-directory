@@ -17,15 +17,14 @@
 package com.helger.pd.publisher.app.secure;
 
 import java.io.IOException;
+import java.util.Map;
 
-import org.apache.lucene.index.DirectoryReader;
 import org.jspecify.annotations.NonNull;
 
 import com.helger.annotation.Nonempty;
 import com.helger.base.rt.StackTraceHelper;
 import com.helger.html.hc.ext.HCExtHelper;
 import com.helger.html.hc.impl.HCNodeList;
-import com.helger.pd.indexer.lucene.PDLucene;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.photon.bootstrap4.table.BootstrapTable;
@@ -48,20 +47,17 @@ public final class PageSecureAdminLuceneInformation extends AbstractAppWebPage
   protected void fillContent (final WebPageExecutionContext aWPEC)
   {
     final HCNodeList aNodeList = aWPEC.getNodeList ();
-    final PDLucene aLucene = PDMetaManager.getLucene ();
 
     final BootstrapTable aTable = new BootstrapTable ();
-    aTable.addBodyRow ().addCells ("Lucene index directory", PDLucene.getLuceneIndexDir ().getAbsolutePath ());
     try
     {
-      final DirectoryReader aReader = aLucene.getDirectoryReader ();
-      if (aReader != null)
-        aTable.addBodyRow ().addCells ("Directory information", aReader.toString ());
+      for (final Map.Entry <String, String> aEntry : PDMetaManager.getIndex ().getIndexInformation ().entrySet ())
+        aTable.addBodyRow ().addCells (aEntry.getKey (), aEntry.getValue ());
     }
     catch (final IOException ex)
     {
       aTable.addBodyRow ()
-            .addCell ("Directory information")
+            .addCell ("Index information")
             .addCell (HCExtHelper.nl2divList (ex.getClass ().getName () + "\n" + StackTraceHelper.getStackAsString (ex)));
     }
     aNodeList.addChild (aTable);

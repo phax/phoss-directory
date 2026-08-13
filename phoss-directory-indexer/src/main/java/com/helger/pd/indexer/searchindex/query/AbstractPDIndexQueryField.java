@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.helger.pd.indexer.storage;
+package com.helger.pd.indexer.searchindex.query;
 
 import org.jspecify.annotations.NonNull;
 
@@ -22,52 +22,41 @@ import com.helger.annotation.Nonempty;
 import com.helger.annotation.concurrent.Immutable;
 import com.helger.base.enforce.ValueEnforcer;
 import com.helger.base.hashcode.HashCodeGenerator;
-import com.helger.base.tostring.ToStringGenerator;
-import com.helger.peppol.businesscard.generic.PDIdentifier;
 
 /**
- * This class represents a single identifier as stored in the search index consisting of a
- * type and a value.
+ * Abstract base class for all queries that match a single value in a single field.
  *
  * @author Philip Helger
  */
 @Immutable
-public final class PDStoredIdentifier
+public abstract class AbstractPDIndexQueryField implements IPDIndexQuery
 {
-  private final String m_sScheme;
+  private final String m_sFieldName;
   private final String m_sValue;
 
-  public PDStoredIdentifier (@NonNull @Nonempty final String sScheme, @NonNull @Nonempty final String sValue)
+  protected AbstractPDIndexQueryField (@NonNull @Nonempty final String sFieldName, @NonNull final String sValue)
   {
-    m_sScheme = ValueEnforcer.notEmpty (sScheme, "Scheme");
-    m_sValue = ValueEnforcer.notEmpty (sValue, "Value");
+    m_sFieldName = ValueEnforcer.notEmpty (sFieldName, "FieldName");
+    m_sValue = ValueEnforcer.notNull (sValue, "Value");
   }
 
+  /**
+   * @return The name of the field to be queried. Neither <code>null</code> nor empty.
+   */
   @NonNull
   @Nonempty
-  public String getScheme ()
+  public final String getFieldName ()
   {
-    return m_sScheme;
+    return m_sFieldName;
   }
 
+  /**
+   * @return The value to be searched for. Never <code>null</code> but maybe empty.
+   */
   @NonNull
-  @Nonempty
-  public String getValue ()
+  public final String getValue ()
   {
     return m_sValue;
-  }
-
-  @NonNull
-  public PDIdentifier getAsGenericObject ()
-  {
-    return new PDIdentifier (m_sScheme, m_sValue);
-  }
-
-  @NonNull
-  @Nonempty
-  public String getSchemeAndValue ()
-  {
-    return m_sScheme + "::" + m_sValue;
   }
 
   @Override
@@ -77,19 +66,13 @@ public final class PDStoredIdentifier
       return true;
     if (o == null || !getClass ().equals (o.getClass ()))
       return false;
-    final PDStoredIdentifier rhs = (PDStoredIdentifier) o;
-    return m_sScheme.equals (rhs.m_sScheme) && m_sValue.equals (rhs.m_sValue);
+    final AbstractPDIndexQueryField rhs = (AbstractPDIndexQueryField) o;
+    return m_sFieldName.equals (rhs.m_sFieldName) && m_sValue.equals (rhs.m_sValue);
   }
 
   @Override
   public int hashCode ()
   {
-    return new HashCodeGenerator (this).append (m_sScheme).append (m_sValue).getHashCode ();
-  }
-
-  @Override
-  public String toString ()
-  {
-    return new ToStringGenerator (null).append ("Scheme", m_sScheme).append ("Value", m_sValue).getToString ();
+    return new HashCodeGenerator (this).append (m_sFieldName).append (m_sValue).getHashCode ();
   }
 }

@@ -18,20 +18,20 @@ package com.helger.pd.indexer.storage.field;
 
 import java.util.function.Function;
 
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.index.IndexableField;
 import org.jspecify.annotations.NonNull;
 
 import com.helger.annotation.Nonempty;
 import com.helger.base.enforce.ValueEnforcer;
 import com.helger.collection.commons.CommonsArrayList;
 import com.helger.collection.commons.ICommonsList;
+import com.helger.pd.indexer.searchindex.EPDIndexFieldStore;
+import com.helger.pd.indexer.searchindex.PDIndexDocument;
+import com.helger.pd.indexer.searchindex.PDIndexField;
 
 import jakarta.annotation.Nullable;
 
 /**
- * Abstract Directory Lucene field.
+ * Abstract Directory index field.
  *
  * @author Philip Helger
  * @param <NATIVE_TYPE>
@@ -44,12 +44,12 @@ public abstract class AbstractPDField <NATIVE_TYPE, STORAGE_TYPE>
   private final String m_sFieldName;
   private final Function <? super NATIVE_TYPE, ? extends STORAGE_TYPE> m_aConverterToStorage;
   private final Function <? super STORAGE_TYPE, ? extends NATIVE_TYPE> m_aConverterFromStorage;
-  private final Field.Store m_eStore;
+  private final EPDIndexFieldStore m_eStore;
 
   protected AbstractPDField (@NonNull @Nonempty final String sFieldName,
                              @NonNull final Function <? super NATIVE_TYPE, ? extends STORAGE_TYPE> aConverterToStorage,
                              @NonNull final Function <? super STORAGE_TYPE, ? extends NATIVE_TYPE> aConverterFromStorage,
-                             final Field.@NonNull Store eStore)
+                             @NonNull final EPDIndexFieldStore eStore)
   {
     m_sFieldName = ValueEnforcer.notEmpty (sFieldName, "FieldName");
     m_aConverterToStorage = ValueEnforcer.notNull (aConverterToStorage, "ConverterToStorage");
@@ -76,13 +76,14 @@ public abstract class AbstractPDField <NATIVE_TYPE, STORAGE_TYPE>
     return m_aConverterFromStorage;
   }
 
-  protected final Field.@NonNull Store getStore ()
+  @NonNull
+  protected final EPDIndexFieldStore getStore ()
   {
     return m_eStore;
   }
 
   @NonNull
-  public abstract Field getAsField (@NonNull NATIVE_TYPE aValue);
+  public abstract PDIndexField getAsField (@NonNull NATIVE_TYPE aValue);
 
   @NonNull
   public STORAGE_TYPE getAsStorageValue (@NonNull final NATIVE_TYPE aValue) throws IllegalStateException
@@ -115,49 +116,40 @@ public abstract class AbstractPDField <NATIVE_TYPE, STORAGE_TYPE>
   }
 
   @Nullable
-  public final IndexableField getDocField (@NonNull final Document aDoc)
+  public final PDIndexField getDocField (@NonNull final PDIndexDocument aDoc)
   {
-    return aDoc.getField (m_sFieldName);
+    return aDoc.getFieldOfName (m_sFieldName);
   }
 
   @NonNull
-  public final ICommonsList <IndexableField> getDocFields (@NonNull final Document aDoc)
+  public final ICommonsList <PDIndexField> getDocFields (@NonNull final PDIndexDocument aDoc)
   {
-    final ICommonsList <IndexableField> ret = new CommonsArrayList <> ();
-    for (final IndexableField aField : aDoc)
-      if (aField.name ().equals (m_sFieldName))
-        ret.add (aField);
-    return ret;
+    return aDoc.getAllFieldsOfName (m_sFieldName);
   }
 
   @Nullable
-  protected abstract NATIVE_TYPE getFieldNativeValue (@NonNull IndexableField aField);
+  protected abstract NATIVE_TYPE getFieldNativeValue (@NonNull PDIndexField aField);
 
   /**
    * Get the value of this field in the provided document
    *
    * @param aDoc
-   *        The Lucene result document
+   *        The index result document
    * @return <code>null</code> if no such field is present, the stored value otherwise.
    */
   @Nullable
-  public final NATIVE_TYPE getDocValue (@NonNull final Document aDoc)
+  public final NATIVE_TYPE getDocValue (@NonNull final PDIndexDocument aDoc)
   {
-    final IndexableField aField = getDocField (aDoc);
+    final PDIndexField aField = getDocField (aDoc);
     if (aField != null)
       return getFieldNativeValue (aField);
     return null;
   }
 
   @NonNull
-  public final ICommonsList <NATIVE_TYPE> getDocValues (@NonNull final Document aDoc)
+  public final ICommonsList <NATIVE_TYPE> getDocValues (@NonNull final PDIndexDocument aDoc)
   {
-    final ICommonsList <NATIVE_TYPE> ret = new CommonsArrayList <> ();
-    for (final IndexableField aField : getDocFields (aDoc))
-    {
-      // List may contain null values!
-      ret.add (getFieldNativeValue (aField));
-    }
-    return ret;
+    // List may contain null values!
+    return new CommonsArrayList <> (getDocFields (aDoc), this::getFieldNativeValue);
   }
 }

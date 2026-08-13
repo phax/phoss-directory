@@ -23,9 +23,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import org.apache.lucene.document.Document;
-import org.apache.lucene.search.MatchAllDocsQuery;
-import org.apache.lucene.search.Query;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,12 +45,15 @@ import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.index.EIndexerWorkItemType;
 import com.helger.pd.indexer.mgr.PDIndexerManager;
 import com.helger.pd.indexer.mgr.PDMetaManager;
+import com.helger.pd.indexer.searchindex.PDIndexDocument;
+import com.helger.pd.indexer.searchindex.query.IPDIndexQuery;
+import com.helger.pd.indexer.searchindex.query.PDIndexQueryMatchAll;
 import com.helger.pd.indexer.storage.CPDStorage;
 import com.helger.pd.indexer.storage.PDStoredMetaData;
 import com.helger.pd.indexer.storage.field.PDField;
 import com.helger.pd.publisher.CPDPublisher;
-import com.helger.pd.publisher.exportall.ExportAllDataJob;
 import com.helger.pd.publisher.exportall.ExportAllDataJob.ExportAllStatus;
+import com.helger.pd.publisher.exportall.ExportAllDataJob;
 import com.helger.pd.publisher.servlet.ExportDeliveryHttpHandler;
 import com.helger.pd.publisher.servlet.ExportServlet;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
@@ -117,7 +117,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
       final IMicroElement aRoot = aDoc.addElement ("root");
       final MutableInt aCount = new MutableInt (0);
       final ICommonsSet <IParticipantIdentifier> aUniquePIDs = new CommonsHashSet <> ();
-      PDMetaManager.getStorageMgr ().searchAll (new MatchAllDocsQuery (), -1, doc -> {
+      PDMetaManager.getStorageMgr ().searchAll (PDIndexQueryMatchAll.INSTANCE, -1, doc -> {
         final int n = aCount.inc ();
         if ((n % 1000) == 0)
           LOGGER.info ("Exporting #" + n);
@@ -154,13 +154,13 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
   {
     LOGGER.info ("_getDuplicateSourceMap () start");
     final ICommonsMap <IParticipantIdentifier, ICommonsSortedSet <String>> aMap = new CommonsHashMap <> ();
-    final Query aQuery = new MatchAllDocsQuery ();
+    final IPDIndexQuery aQuery = PDIndexQueryMatchAll.INSTANCE;
     try
     {
-      final Consumer <Document> aConsumer = aDoc -> {
+      final Consumer <PDIndexDocument> aConsumer = aDoc -> {
         final IParticipantIdentifier aResolvedParticipantID = PDField.PARTICIPANT_ID.getDocValue (aDoc);
         // Get the unparsed value
-        final String sParticipantID = PDField.PARTICIPANT_ID.getDocField (aDoc).stringValue ();
+        final String sParticipantID = PDField.PARTICIPANT_ID.getDocField (aDoc).getStringValue ();
         aMap.computeIfAbsent (aResolvedParticipantID, k -> new CommonsTreeSet <> ()).add (sParticipantID);
       };
       PDMetaManager.getStorageMgr ().searchAll (aQuery, -1, aConsumer);

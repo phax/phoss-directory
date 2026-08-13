@@ -28,7 +28,8 @@ import com.helger.peppol.businesscard.generic.PDContact;
 import jakarta.annotation.Nullable;
 
 /**
- * This class represents a single business contact as stored by Lucene consisting of several fields.
+ * This class represents a single business contact as stored in the search index consisting of
+ * several fields.
  *
  * @author Philip Helger
  */

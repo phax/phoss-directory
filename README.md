@@ -153,6 +153,17 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
+v0.15.8 - work in progress
+* All search index access is now performed via the new search engine independent interface `IPDIndex` (package `com.helger.pd.indexer.searchindex`), so that a different search engine can be plugged in later
+    * Added the search engine independent document model `PDIndexDocument` / `PDIndexField` replacing the usage of the Lucene `Document` and `Field` classes
+    * Added the search engine independent query model `IPDIndexQuery` (package `com.helger.pd.indexer.searchindex.query`) replacing the usage of the Lucene `Query` and `Term` classes
+    * Added `PDLuceneIndex` as the single implementation of `IPDIndex`, that continues to use Apache Lucene as before - all Lucene usage is now limited to the package `com.helger.pd.indexer.lucene`
+    * The `PDQueryManager` methods `getXYZLuceneQuery` were renamed to `getXYZQuery` and return `IPDIndexQuery` instead of the Lucene `Query`
+    * The `PDStringField` methods `getExactMatchTerm` and `getContainsTerm` were replaced by `getExactMatchQuery`, `getPrefixQuery` and `getContainsQuery`
+    * `PDMetaManager.getLucene ()` was replaced by `PDMetaManager.getIndex ()`
+    * `PDStorageManager.searchAtomic (Query, Collector)` was removed, because it was Lucene specific - use `searchAll` instead
+    * No functional change - the index content and all search results stay the same
+
 v0.15.7 - 2026-08-05
 * Updated to parent-pom 3.1.0, enabling Reproducible Builds
 * Updated to ph-commons 12.3.3

@@ -19,7 +19,6 @@ package com.helger.pd.publisher.app.pub;
 import java.util.Locale;
 import java.util.Map;
 
-import org.apache.lucene.search.Query;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +43,7 @@ import com.helger.html.hc.html.grouping.HCOL;
 import com.helger.html.hc.html.grouping.HCUL;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.mgr.PDMetaManager;
+import com.helger.pd.indexer.searchindex.query.IPDIndexQuery;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.pd.indexer.storage.CPDStorage;
 import com.helger.pd.indexer.storage.PDQueryManager;
@@ -96,7 +96,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
   static
   {
     AJAX_EXPORT_LAST = addAjax ("export", (aRequestScope, aAjaxResponse) -> {
-      final Query aLastQuery = PDSessionSingleton.getInstance ().getLastQuery ();
+      final IPDIndexQuery aLastQuery = PDSessionSingleton.getInstance ().getLastQuery ();
       if (aLastQuery == null)
         aAjaxResponse.createNotFound ();
       else
@@ -170,22 +170,22 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     // Search all documents
     LOGGER.info ("Searching generically for '" + sQuery + "'");
 
-    // Build Lucene query
-    final Query aLuceneQuery = PDQueryManager.convertQueryStringToLuceneQuery (PDMetaManager.getLucene (),
-                                                                               CPDStorage.FIELD_ALL_FIELDS,
-                                                                               sQuery);
+    // Build index query
+    final IPDIndexQuery aIndexQuery = PDQueryManager.convertQueryStringToQuery (PDMetaManager.getIndex (),
+                                                                                CPDStorage.FIELD_ALL_FIELDS,
+                                                                                sQuery);
     if (LOGGER.isDebugEnabled ())
-      LOGGER.debug ("Created query for '" + sQuery + "' is <" + aLuceneQuery + ">");
+      LOGGER.debug ("Created query for '" + sQuery + "' is <" + aIndexQuery + ">");
 
-    PDSessionSingleton.getInstance ().setLastQuery (aLuceneQuery);
+    PDSessionSingleton.getInstance ().setLastQuery (aIndexQuery);
 
     // Search all documents
-    final ICommonsList <PDStoredBusinessEntity> aResultBEs = aStorageMgr.getAllDocuments (aLuceneQuery, nMaxResults);
+    final ICommonsList <PDStoredBusinessEntity> aResultBEs = aStorageMgr.getAllDocuments (aIndexQuery, nMaxResults);
     // Also get the total hit count for UI display. May be < 0 in case of
     // error
-    final int nTotalBEs = aStorageMgr.getCount (aLuceneQuery);
+    final int nTotalBEs = aStorageMgr.getCount (aIndexQuery);
     LOGGER.info ("  Result for <" +
-                 aLuceneQuery +
+                 aIndexQuery +
                  "> (max=" +
                  nMaxResults +
                  ") " +
