@@ -24,12 +24,12 @@
     <artifactId>phoss-directory-parent-pom</artifactId>
     <version>0.16.0-SNAPSHOT</version>
   </parent>
-  <artifactId>phoss-directory-indexer</artifactId>
+  <artifactId>phoss-directory-indexer-conformance</artifactId>
   <packaging>jar</packaging>
-  <name>phoss-directory-indexer</name>
-  <description>The indexer web application of the PEPPOL Yellow Pages</description>
-  <url>https://github.com/phax/phoss-directory/phoss-directory-indexer</url>
-  <inceptionYear>2015</inceptionYear>
+  <name>phoss-directory-indexer-conformance</name>
+  <description>The engine independent conformance test suite for implementations of the Peppol Directory search index</description>
+  <url>https://github.com/phax/phoss-directory/phoss-directory-indexer-conformance</url>
+  <inceptionYear>2026</inceptionYear>
   
   <licenses>
     <license>
@@ -55,50 +55,31 @@
   
   <dependencies>
     <dependency>
-      <groupId>com.helger.photon</groupId>
-      <artifactId>ph-oton-core</artifactId>
+      <groupId>com.helger</groupId>
+      <artifactId>phoss-directory-indexer</artifactId>
     </dependency>
+    <!--
+      This module contains test base classes only, so JUnit is a regular compile scope dependency
+      and not a test scope dependency
+    -->
     <dependency>
-      <groupId>com.helger.photon</groupId>
-      <artifactId>ph-oton-security</artifactId>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>compile</scope>
     </dependency>
+    <!-- Required by PDIndexerTestRule to route the JUL logging of the tests to SLF4J -->
     <dependency>
-      <groupId>com.helger.peppol</groupId>
-      <artifactId>peppol-directory-businesscard</artifactId>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jul-to-slf4j</artifactId>
     </dependency>
-    <dependency>
-      <groupId>com.helger.peppol</groupId>
-      <artifactId>peppol-smp-client</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.glassfish.jersey.containers</groupId>
-      <artifactId>jersey-container-servlet</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.glassfish.jersey.inject</groupId>
-      <artifactId>jersey-hk2</artifactId>
-    </dependency>
+    <!--
+      PDIndexerTestRule creates a mock web scope, so the Servlet API is needed at runtime. Unlike
+      in the other modules this is not a "provided" dependency, because this module is only ever
+      used in the test scope, where nobody else provides it.
+    -->
     <dependency>
       <groupId>jakarta.servlet</groupId>
       <artifactId>jakarta.servlet-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-simple</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <!-- The JAXB runtime is required to unmarshal the SMP responses in the tests -->
-    <dependency>
-      <groupId>com.sun.xml.bind</groupId>
-      <artifactId>jaxb-impl</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.helger.commons</groupId>
-      <artifactId>ph-unittest-support-ext</artifactId>
-      <scope>test</scope>
     </dependency>
   </dependencies>
   

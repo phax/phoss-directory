@@ -164,6 +164,17 @@ v0.16.0 - work in progress
     * `PDMetaManager.getLucene ()` was replaced by `PDMetaManager.getIndex ()`
     * `PDStorageManager.searchAtomic (Query, Collector)` was removed, because it was Lucene specific - use `searchAll` instead
     * No functional change - the index content and all search results stay the same
+* The search index implementation is now pluggable and is selected via the new configuration property `searchindex.type` - see [docs/opensearch.md](docs/opensearch.md)
+    * Each implementation registers itself via the new SPI interface `IPDIndexProviderSPI` and is resolved by the new class `PDIndexFactory`
+    * **Backwards incompatible change**: the Apache Lucene implementation was moved from `phoss-directory-indexer` to the new submodule `phoss-directory-indexer-lucene` (`searchindex.type=lucene`, still the default). The module `phoss-directory-indexer` contains no search index implementation anymore, so exactly one implementation submodule must be added to the classpath. `phoss-directory-publisher` depends on `phoss-directory-indexer-lucene`, so the default deployment is unchanged
+* Added the new submodule `phoss-directory-indexer-opensearch` containing `PDOpenSearchIndex`, an implementation of `IPDIndex` for AWS OpenSearch (`searchindex.type=opensearch`)
+    * The OpenSearch endpoint is configured via the new properties starting with `opensearch.`
+    * Supported authentication types are AWS Signature Version 4 (for managed AWS OpenSearch Service domains) and no authentication (for local testing) - HTTP basic authentication is not supported
+    * Unlike Apache Lucene, OpenSearch cannot delete and add documents atomically, and it does not guarantee the order in which the business entities of a participant are returned
+* Added the new submodule `phoss-directory-indexer-conformance` containing the search engine independent conformance test suite that every implementation of `IPDIndex` must pass
+    * `AbstractPDIndexConformanceTest` asserts the `IPDIndex` contract, `AbstractPDStorageManagerConformanceTest` asserts `PDStorageManager` on top of it
+    * The previous `PDStorageManagerTest` and `PDLuceneIndexTest` were folded into these classes, so the very same assertions now run against Apache Lucene and AWS OpenSearch
+    * The OpenSearch conformance tests skip themselves if no OpenSearch is reachable at `http://localhost:9200`
 
 v0.15.7 - 2026-08-05
 * Updated to parent-pom 3.1.0, enabling Reproducible Builds

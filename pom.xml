@@ -72,10 +72,12 @@
     <ph-jaxb-plugin.version>5.1.2</ph-jaxb-plugin.version>
 
     <awssdk.version>2.52.0</awssdk.version>
+    <opensearch.version>3.9.0</opensearch.version>
     <!-- Peppol Directory runs on Lucene v8 -->
     <lucene.version>8.11.4</lucene.version>
     <jersey.version>3.1.11</jersey.version>
     <log4j.version>2.26.1</log4j.version>
+    <ratelimitj.version>0.7.0</ratelimitj.version>
   </properties>
   
   <dependencyManagement>
@@ -110,51 +112,31 @@
       </dependency>
       
       <dependency>
-        <groupId>org.apache.lucene</groupId>
-        <artifactId>lucene-core</artifactId>
-        <version>${lucene.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.lucene</groupId>
-        <artifactId>lucene-analyzers-common</artifactId>
-        <version>${lucene.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.lucene</groupId>
-        <artifactId>lucene-queryparser</artifactId>
-        <version>${lucene.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.lucene</groupId>
-        <artifactId>lucene-grouping</artifactId>
-        <version>${lucene.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.lucene</groupId>
-        <artifactId>lucene-demo</artifactId>
-        <version>${lucene.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.lucene</groupId>
-        <artifactId>lucene-backward-codecs</artifactId>
-        <version>${lucene.version}</version>
-      </dependency>
-      <dependency>
         <groupId>org.glassfish.jersey</groupId>
         <artifactId>jersey-bom</artifactId>
         <version>${jersey.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
-      <dependency>
-        <groupId>es.moki.ratelimitj</groupId>
-        <artifactId>ratelimitj-inmemory</artifactId>
-        <version>0.7.0</version>
-      </dependency>
-  
+
       <dependency>
         <groupId>com.helger</groupId>
         <artifactId>phoss-directory-indexer</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.helger</groupId>
+        <artifactId>phoss-directory-indexer-conformance</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.helger</groupId>
+        <artifactId>phoss-directory-indexer-lucene</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.helger</groupId>
+        <artifactId>phoss-directory-indexer-opensearch</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -185,6 +167,9 @@
   
   <modules>
     <module>phoss-directory-indexer</module>
+    <module>phoss-directory-indexer-conformance</module>
+    <module>phoss-directory-indexer-lucene</module>
+    <module>phoss-directory-indexer-opensearch</module>
     <module>phoss-directory-publisher</module>
     <module>phoss-directory-client</module>
     <module>phoss-directory-searchapi</module>

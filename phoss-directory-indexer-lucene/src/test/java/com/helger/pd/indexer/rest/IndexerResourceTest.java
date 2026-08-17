@@ -19,20 +19,23 @@ package com.helger.pd.indexer.rest;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 
+import org.glassfish.grizzly.http.server.HttpServer;
 import org.jspecify.annotations.NonNull;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -43,11 +46,10 @@ import com.helger.base.concurrent.ThreadHelper;
 import com.helger.collection.commons.CommonsArrayList;
 import com.helger.http.security.HostnameVerifierVerifyAll;
 import com.helger.http.security.TrustManagerTrustAll;
-import com.helger.pd.indexer.PDIndexerTestRule;
+import com.helger.pd.indexer.lucene.PDLuceneIndexerTestRule;
 import com.helger.pd.indexer.businesscard.PDExtendedBusinessCard;
 import com.helger.pd.indexer.clientcert.ClientCertificateValidator;
 import com.helger.pd.indexer.mgr.PDMetaManager;
-import com.helger.pd.indexer.storage.field.PDField;
 import com.helger.peppol.businesscard.generic.PDBusinessCard;
 import com.helger.peppol.businesscard.generic.PDBusinessEntity;
 import com.helger.peppol.businesscard.generic.PDIdentifier;
@@ -60,6 +62,7 @@ import com.helger.security.keystore.EKeyStoreType;
 import com.helger.security.keystore.KeyStoreHelper;
 import com.helger.unittest.support.TestHelper;
 
+import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
@@ -70,18 +73,26 @@ import jakarta.ws.rs.client.WebTarget;
  *
  * @author Philip Helger
  */
-@Ignore ("Requires a running server at localhost:8080")
-public final class LocalHost8080FuncTest
+public final class IndexerResourceTest
 {
-  private static final Logger LOGGER = LoggerFactory.getLogger (LocalHost8080FuncTest.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger (IndexerResourceTest.class);
 
   @Rule
-  public final TestRule m_aRule = new PDIndexerTestRule ();
+  public final TestRule m_aRule = new PDLuceneIndexerTestRule ();
 
+  private HttpServer m_aServer;
   private WebTarget m_aTarget;
 
+  /**
+   * @param aParticipantID
+   *        PID
+   * @param aErrorHdl
+   *        Required for interface compatibility
+   * @return Mock BC
+   */
   @NonNull
-  private static PDExtendedBusinessCard _createMockBC (@NonNull final IParticipantIdentifier aParticipantID)
+  private static PDExtendedBusinessCard _createMockBC (@NonNull final IParticipantIdentifier aParticipantID,
+                                                       @NonNull final Consumer <String> aErrorHdl)
   {
     final PDBusinessCard aBI = new PDBusinessCard ();
     aBI.setParticipantIdentifier (new PDIdentifier (PeppolIdentifierHelper.DEFAULT_PARTICIPANT_SCHEME, "9915:mock"));
@@ -110,13 +121,15 @@ public final class LocalHost8080FuncTest
   public void setUp () throws GeneralSecurityException, IOException
   {
     // Set test BC provider first!
-    PDMetaManager.setBusinessCardProvider ( (pid, errs) -> LocalHost8080FuncTest._createMockBC (pid));
+    PDMetaManager.setBusinessCardProvider (IndexerResourceTest::_createMockBC);
     PDMetaManager.getInstance ();
 
     final File aTestClientCertificateKeyStore = new File ("src/test/resources/smp.pilot.jks");
     if (aTestClientCertificateKeyStore.exists ())
     {
       // https
+      m_aServer = MockServer.startSecureServer ();
+
       final KeyStore aKeyStore = KeyStoreHelper.loadKeyStoreDirect (EKeyStoreType.JKS,
                                                                     aTestClientCertificateKeyStore.getAbsolutePath (),
                                                                     "peppol".toCharArray ());
@@ -132,7 +145,7 @@ public final class LocalHost8080FuncTest
                                           .sslContext (aSSLContext)
                                           .hostnameVerifier (new HostnameVerifierVerifyAll (false))
                                           .build ();
-      m_aTarget = aClient.target ("https://localhost:8080");
+      m_aTarget = aClient.target (MockServer.BASE_URI_HTTPS);
     }
     else
     {
@@ -140,52 +153,79 @@ public final class LocalHost8080FuncTest
       LOGGER.warn ("The SMP pilot keystore is missing for the tests! Client certificate handling will not be tested!");
       ClientCertificateValidator.allowAllForTests (true);
 
+      m_aServer = MockServer.startRegularServer ();
+
       final Client aClient = ClientBuilder.newClient ();
-      m_aTarget = aClient.target ("http://localhost:8080");
+      m_aTarget = aClient.target (MockServer.BASE_URI_HTTP);
     }
+  }
+
+  @After
+  public void tearDown ()
+  {
+    if (m_aServer != null)
+      m_aServer.shutdownNow ();
   }
 
   @Test
   public void testCreateAndDeleteParticipant () throws IOException
   {
     final AtomicInteger aIndex = new AtomicInteger (0);
-    final IParticipantIdentifier aPI_0 = PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9915:test0");
+    final PeppolIdentifierFactory aIF = PeppolIdentifierFactory.INSTANCE;
 
+    // Create
     final int nCount = 4;
     TestHelper.testInParallel (nCount, () -> {
-      // Create
-      final IParticipantIdentifier aPI = PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9915:test" +
-                                                                                                                        aIndex.getAndIncrement ());
+      final IParticipantIdentifier aPI = aIF.createParticipantIdentifierWithDefaultScheme ("9915:test" +
+                                                                                           aIndex.getAndIncrement ());
 
-      LOGGER.info ("PUT " + aPI.getURIEncoded ());
-      final String sResponseMsg = m_aTarget.path ("1.0")
-                                           .request ()
-                                           .put (Entity.text (aPI.getURIEncoded ()), String.class);
+      final String sPayload = aPI.getURIPercentEncoded ();
+      LOGGER.info ("PUT " + sPayload);
+      final String sResponseMsg = m_aTarget.path ("1.0").request ().put (Entity.text (sPayload), String.class);
       assertEquals ("", sResponseMsg);
     });
 
+    LOGGER.info ("waiting");
     ThreadHelper.sleep (2000);
-    assertTrue (PDMetaManager.getStorageMgr ().containsEntry (aPI_0));
-    assertTrue (PDMetaManager.getStorageMgr ()
-                             .getCount (PDField.PARTICIPANT_ID.getExactMatchQuery (aPI_0)) > 0);
+    for (int i = 0; i < nCount; ++i)
+    {
+      final IParticipantIdentifier aPI = aIF.createParticipantIdentifierWithDefaultScheme ("9915:test" + i);
+      assertTrue (PDMetaManager.getStorageMgr ().containsEntry (aPI));
+    }
 
+    // Delete
     aIndex.set (0);
     TestHelper.testInParallel (nCount, () -> {
-      // Delete
-      final IParticipantIdentifier aPI = PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9915:test" +
-                                                                                                                        aIndex.getAndIncrement ());
+      final IParticipantIdentifier aPI = aIF.createParticipantIdentifierWithDefaultScheme ("9915:test" +
+                                                                                           aIndex.getAndIncrement ());
 
-      LOGGER.info ("DELETE " + aPI.getURIEncoded ());
-      final String sResponseMsg = m_aTarget.path ("1.0").path (aPI.getURIEncoded ()).request ().delete (String.class);
+      final String sPI = aPI.getURIEncoded ();
+      LOGGER.info ("DELETE " + sPI);
+      final String sResponseMsg = m_aTarget.path ("1.0").path (sPI).request ().delete (String.class);
       assertEquals ("", sResponseMsg);
     });
 
+    LOGGER.info ("waiting");
     ThreadHelper.sleep (2000);
-    assertFalse (PDMetaManager.getStorageMgr ().containsEntry (aPI_0));
-    assertEquals (0,
-                  PDMetaManager.getStorageMgr ()
-                               .getCount (PDField.PARTICIPANT_ID.getExactMatchQuery (aPI_0)));
-    assertTrue (PDMetaManager.getStorageMgr ()
-                             .getCount (PDField.PARTICIPANT_ID.getExactMatchQuery (aPI_0)) > 0);
+    for (int i = 0; i < nCount; ++i)
+    {
+      final IParticipantIdentifier aPI = aIF.createParticipantIdentifierWithDefaultScheme ("9915:test" + i);
+      assertFalse (PDMetaManager.getStorageMgr ().containsEntry (aPI));
+    }
+
+    // Test with invalid URL encoded ID
+    {
+      final String sPayload = "iso6523-actorid-upis%3a%3a9915%3atest0%%%abc";
+      LOGGER.info ("CREATE " + sPayload);
+      try
+      {
+        m_aTarget.path ("1.0").request ().put (Entity.text (sPayload), String.class);
+        fail ();
+      }
+      catch (final BadRequestException ex)
+      {
+        // Expected
+      }
+    }
   }
 }
