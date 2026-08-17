@@ -22,6 +22,7 @@ import org.jspecify.annotations.NonNull;
 
 import com.helger.annotation.concurrent.Immutable;
 import com.helger.annotation.concurrent.NotThreadSafe;
+import com.helger.annotation.concurrent.ThreadSafe;
 import com.helger.annotation.style.ReturnsMutableCopy;
 import com.helger.base.enforce.ValueEnforcer;
 import com.helger.base.hashcode.HashCodeGenerator;
@@ -34,8 +35,8 @@ import com.helger.collection.commons.ICommonsList;
  *
  * @author Philip Helger
  */
-@Immutable
-public class PDIndexQueryBool implements IPDIndexQuery
+@ThreadSafe
+public class PDIndexQueryBool extends AbstractPDIndexQuery
 {
   /**
    * A single clause of a {@link PDIndexQueryBool}.

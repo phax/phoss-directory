@@ -268,11 +268,25 @@ public class PDLuceneIndex implements IPDIndex
   @NonNull
   private static Query _toLuceneQuery (@NonNull final IPDIndexQuery aQuery)
   {
+    // Reuse the previously translated query - creating e.g. a WildcardQuery requires the
+    // compilation of an automaton
+    final Object aNativeQuery = aQuery.getNativeQuery ();
+    if (aNativeQuery instanceof final Query aLuceneQuery)
+      return aLuceneQuery;
+
+    final Query ret = _recursiveCreateLuceneQuery (aQuery);
+    aQuery.setNativeQuery (ret);
+    return ret;
+  }
+
+  @NonNull
+  private static Query _recursiveCreateLuceneQuery (@NonNull final IPDIndexQuery aQuery)
+  {
     if (aQuery instanceof PDIndexQueryMatchAll)
       return new MatchAllDocsQuery ();
 
-    if (aQuery instanceof PDIndexQueryTerm)
-      return new TermQuery (_toLuceneTerm ((PDIndexQueryTerm) aQuery));
+    if (aQuery instanceof final PDIndexQueryTerm aIndexQueryTerm)
+      return new TermQuery (_toLuceneTerm (aIndexQueryTerm));
 
     if (aQuery instanceof final PDIndexQueryPrefix aPrefixQuery)
     {
@@ -286,10 +300,10 @@ public class PDLuceneIndex implements IPDIndex
       return new WildcardQuery (new Term (aContainsQuery.getFieldName (), "*" + aContainsQuery.getValue () + "*"));
     }
 
-    if (aQuery instanceof PDIndexQueryBool)
+    if (aQuery instanceof final PDIndexQueryBool aBoolQuery)
     {
       final BooleanQuery.Builder aBuilder = new BooleanQuery.Builder ();
-      for (final PDIndexQueryBool.Clause aClause : ((PDIndexQueryBool) aQuery).getAllClauses ())
+      for (final PDIndexQueryBool.Clause aClause : aBoolQuery.getAllClauses ())
         aBuilder.add (_toLuceneQuery (aClause.getQuery ()), _toLuceneOccur (aClause.getOccur ()));
       return aBuilder.build ();
     }
@@ -324,7 +338,7 @@ public class PDLuceneIndex implements IPDIndex
   @NonNull
   private static PDIndexDocument _toIndexDocument (@NonNull final Document aDoc)
   {
-    final PDIndexDocument ret = new PDIndexDocument ();
+    final PDIndexDocument ret = new PDIndexDocument (aDoc.getFields ().size ());
     for (final IndexableField aField : aDoc)
     {
       // A Document read from the index contains the stored fields only

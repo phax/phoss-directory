@@ -17,39 +17,31 @@
 package com.helger.pd.indexer.searchindex.query;
 
 import com.helger.annotation.concurrent.ThreadSafe;
-import com.helger.base.hashcode.HashCodeGenerator;
+
+import jakarta.annotation.Nullable;
 
 /**
- * A query that matches all documents of the index.
+ * Abstract base class for all queries. It only provides the cache for the search engine specific
+ * representation of the query. The cached value is a derived value only - it is not part of the
+ * identity of a query and therefore not considered in <code>equals</code> and
+ * <code>hashCode</code>.
  *
  * @author Philip Helger
  */
 @ThreadSafe
-public final class PDIndexQueryMatchAll extends AbstractPDIndexQuery
+public abstract class AbstractPDIndexQuery implements IPDIndexQuery
 {
-  /** The single instance of this query */
-  public static final PDIndexQueryMatchAll INSTANCE = new PDIndexQueryMatchAll ();
+  // Only a derived value - concurrently creating it twice is harmless
+  private volatile Object m_aNativeQuery;
 
-  private PDIndexQueryMatchAll ()
-  {}
-
-  @Override
-  public boolean equals (final Object o)
+  @Nullable
+  public final Object getNativeQuery ()
   {
-    if (o == this)
-      return true;
-    return o != null && getClass ().equals (o.getClass ());
+    return m_aNativeQuery;
   }
 
-  @Override
-  public int hashCode ()
+  public final void setNativeQuery (@Nullable final Object aNativeQuery)
   {
-    return new HashCodeGenerator (this).getHashCode ();
-  }
-
-  @Override
-  public String toString ()
-  {
-    return "*:*";
+    m_aNativeQuery = aNativeQuery;
   }
 }

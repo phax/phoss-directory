@@ -158,6 +158,7 @@ v0.15.8 - work in progress
     * Added the search engine independent document model `PDIndexDocument` / `PDIndexField` replacing the usage of the Lucene `Document` and `Field` classes
     * Added the search engine independent query model `IPDIndexQuery` (package `com.helger.pd.indexer.searchindex.query`) replacing the usage of the Lucene `Query` and `Term` classes
     * Added `PDLuceneIndex` as the single implementation of `IPDIndex`, that continues to use Apache Lucene as before - all Lucene usage is now limited to the package `com.helger.pd.indexer.lucene`
+    * Each `IPDIndexQuery` caches the search engine specific query created from it, so that executing the same query object twice (as the UI and the REST API do, to get the results and the total hit count) does not translate it twice - creating the Lucene `WildcardQuery` objects of a generic search costs roughly 0.5 milliseconds
     * The `PDQueryManager` methods `getXYZLuceneQuery` were renamed to `getXYZQuery` and return `IPDIndexQuery` instead of the Lucene `Query`
     * The `PDStringField` methods `getExactMatchTerm` and `getContainsTerm` were replaced by `getExactMatchQuery`, `getPrefixQuery` and `getContainsQuery`
     * `PDMetaManager.getLucene ()` was replaced by `PDMetaManager.getIndex ()`

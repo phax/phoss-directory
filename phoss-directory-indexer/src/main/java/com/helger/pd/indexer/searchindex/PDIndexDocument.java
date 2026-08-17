@@ -19,6 +19,7 @@ package com.helger.pd.indexer.searchindex;
 import org.jspecify.annotations.NonNull;
 
 import com.helger.annotation.Nonempty;
+import com.helger.annotation.Nonnegative;
 import com.helger.annotation.concurrent.NotThreadSafe;
 import com.helger.annotation.style.ReturnsMutableCopy;
 import com.helger.annotation.style.ReturnsMutableObject;
@@ -39,7 +40,23 @@ import jakarta.annotation.Nullable;
 @NotThreadSafe
 public class PDIndexDocument
 {
-  private final ICommonsList <PDIndexField> m_aFields = new CommonsArrayList <> ();
+  private final ICommonsList <PDIndexField> m_aFields;
+
+  public PDIndexDocument ()
+  {
+    m_aFields = new CommonsArrayList <> ();
+  }
+
+  /**
+   * Constructor for the case, that the number of fields to be added is already known.
+   *
+   * @param nFieldCount
+   *        The number of fields this document will contain. Must be &ge; 0.
+   */
+  public PDIndexDocument (@Nonnegative final int nFieldCount)
+  {
+    m_aFields = new CommonsArrayList <> (nFieldCount);
+  }
 
   /**
    * Add a new field at the end of this document.

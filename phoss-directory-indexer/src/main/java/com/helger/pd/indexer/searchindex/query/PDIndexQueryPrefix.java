@@ -19,14 +19,14 @@ package com.helger.pd.indexer.searchindex.query;
 import org.jspecify.annotations.NonNull;
 
 import com.helger.annotation.Nonempty;
-import com.helger.annotation.concurrent.Immutable;
+import com.helger.annotation.concurrent.ThreadSafe;
 
 /**
  * A query that matches all documents in which the provided field starts with the provided value.
  *
  * @author Philip Helger
  */
-@Immutable
+@ThreadSafe
 public class PDIndexQueryPrefix extends AbstractPDIndexQueryField
 {
   public PDIndexQueryPrefix (@NonNull @Nonempty final String sFieldName, @NonNull final String sValue)

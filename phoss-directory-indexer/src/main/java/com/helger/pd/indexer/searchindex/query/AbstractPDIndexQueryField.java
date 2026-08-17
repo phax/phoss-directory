@@ -19,7 +19,7 @@ package com.helger.pd.indexer.searchindex.query;
 import org.jspecify.annotations.NonNull;
 
 import com.helger.annotation.Nonempty;
-import com.helger.annotation.concurrent.Immutable;
+import com.helger.annotation.concurrent.ThreadSafe;
 import com.helger.base.enforce.ValueEnforcer;
 import com.helger.base.hashcode.HashCodeGenerator;
 
@@ -28,8 +28,8 @@ import com.helger.base.hashcode.HashCodeGenerator;
  *
  * @author Philip Helger
  */
-@Immutable
-public abstract class AbstractPDIndexQueryField implements IPDIndexQuery
+@ThreadSafe
+public abstract class AbstractPDIndexQueryField extends AbstractPDIndexQuery
 {
   private final String m_sFieldName;
   private final String m_sValue;

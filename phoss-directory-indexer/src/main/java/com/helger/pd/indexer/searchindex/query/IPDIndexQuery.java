@@ -16,6 +16,8 @@
  */
 package com.helger.pd.indexer.searchindex.query;
 
+import jakarta.annotation.Nullable;
+
 /**
  * Base interface for all search index queries. All queries are independent of the underlying search
  * engine - it is up to the respective implementation of
@@ -36,5 +38,27 @@ package com.helger.pd.indexer.searchindex.query;
  */
 public interface IPDIndexQuery
 {
-  /* Marker interface only */
+  /**
+   * Get the cached search engine specific representation of this query. This method is reserved for
+   * the implementations of {@link com.helger.pd.indexer.searchindex.IPDIndex} - they are the only
+   * ones that know how to interpret the returned object.
+   *
+   * @return <code>null</code> if this query was not yet translated.
+   * @see #setNativeQuery(Object)
+   */
+  @Nullable
+  Object getNativeQuery ();
+
+  /**
+   * Remember the search engine specific representation of this query, so that repeated executions
+   * of the same query object don't need to translate it again. This method is reserved for the
+   * implementations of {@link com.helger.pd.indexer.searchindex.IPDIndex}. Implementations that use
+   * this cache must check the type of the cached object, because in theory more than one search
+   * engine can be active at the same time.
+   *
+   * @param aNativeQuery
+   *        The translated query to be cached. May be <code>null</code> to clear the cache.
+   * @see #getNativeQuery()
+   */
+  void setNativeQuery (@Nullable Object aNativeQuery);
 }
