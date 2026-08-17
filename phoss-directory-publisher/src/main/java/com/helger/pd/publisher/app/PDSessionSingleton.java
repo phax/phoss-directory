@@ -16,17 +16,17 @@
  */
 package com.helger.pd.publisher.app;
 
-import org.apache.lucene.search.Query;
 import org.jspecify.annotations.NonNull;
 
 import com.helger.annotation.style.UsedViaReflection;
+import com.helger.pd.indexer.searchindex.query.IPDIndexQuery;
 import com.helger.web.scope.singleton.AbstractSessionWebSingleton;
 
 import jakarta.annotation.Nullable;
 
 public final class PDSessionSingleton extends AbstractSessionWebSingleton
 {
-  private Query m_aLastQuery;
+  private IPDIndexQuery m_aLastQuery;
 
   @Deprecated (forRemoval = false)
   @UsedViaReflection
@@ -40,12 +40,12 @@ public final class PDSessionSingleton extends AbstractSessionWebSingleton
   }
 
   @Nullable
-  public Query getLastQuery ()
+  public IPDIndexQuery getLastQuery ()
   {
     return m_aLastQuery;
   }
 
-  public void setLastQuery (@Nullable final Query aLastQuery)
+  public void setLastQuery (@Nullable final IPDIndexQuery aLastQuery)
   {
     m_aLastQuery = aLastQuery;
   }

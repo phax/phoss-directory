@@ -23,7 +23,6 @@ import static org.junit.Assert.assertNull;
 import java.io.IOException;
 import java.time.Month;
 
-import org.apache.lucene.search.TermQuery;
 import org.jspecify.annotations.NonNull;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,7 +33,7 @@ import com.helger.collection.commons.ICommonsList;
 import com.helger.datetime.helper.PDTFactory;
 import com.helger.pd.indexer.PDIndexerTestRule;
 import com.helger.pd.indexer.businesscard.PDExtendedBusinessCard;
-import com.helger.pd.indexer.lucene.PDLucene;
+import com.helger.pd.indexer.lucene.PDLuceneIndex;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.field.PDField;
 import com.helger.peppol.businesscard.generic.PDBusinessCard;
@@ -103,7 +102,7 @@ public final class PDStorageManagerTest
                                                                                              "0088:test");
     assertNotNull (aParticipantID);
 
-    try (final PDStorageManager aMgr = new PDStorageManager (new PDLucene ()))
+    try (final PDStorageManager aMgr = new PDStorageManager (new PDLuceneIndex ()))
     {
       final PDStoredMetaData aMetaData = _createMockMetaData ();
       aMgr.createOrUpdateEntry (aParticipantID, _createMockBI (aParticipantID), aMetaData);
@@ -178,19 +177,19 @@ public final class PDStorageManagerTest
                                                                                              "0088:test");
     assertNotNull (aParticipantID);
 
-    try (final PDStorageManager aMgr = new PDStorageManager (new PDLucene ()))
+    try (final PDStorageManager aMgr = new PDStorageManager (new PDLuceneIndex ()))
     {
       final PDStoredMetaData aMetaData = _createMockMetaData ();
       aMgr.createOrUpdateEntry (aParticipantID, _createMockBI (aParticipantID), aMetaData);
       try
       {
         // No country - no docs
-        ICommonsList <PDStoredBusinessEntity> aDocs = aMgr.getAllDocuments (new TermQuery (PDField.COUNTRY_CODE.getExactMatchTerm ("")),
+        ICommonsList <PDStoredBusinessEntity> aDocs = aMgr.getAllDocuments (PDField.COUNTRY_CODE.getExactMatchQuery (""),
                                                                             -1);
         assertEquals (0, aDocs.size ());
 
         // Search for NO
-        aDocs = aMgr.getAllDocuments (new TermQuery (PDField.COUNTRY_CODE.getExactMatchTerm ("NO")), -1);
+        aDocs = aMgr.getAllDocuments (PDField.COUNTRY_CODE.getExactMatchQuery ("NO"), -1);
         assertEquals (1, aDocs.size ());
 
         final PDStoredBusinessEntity aSingleDoc = aDocs.get (0);

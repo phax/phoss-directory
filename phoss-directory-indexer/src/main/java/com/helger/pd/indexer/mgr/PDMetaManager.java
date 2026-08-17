@@ -30,16 +30,17 @@ import com.helger.base.exception.InitializationException;
 import com.helger.base.io.stream.StreamHelper;
 import com.helger.base.lang.clazz.ClassHelper;
 import com.helger.pd.indexer.businesscard.IPDBusinessCardProvider;
-import com.helger.pd.indexer.lucene.PDLucene;
+import com.helger.pd.indexer.lucene.PDLuceneIndex;
+import com.helger.pd.indexer.searchindex.IPDIndex;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.pd.indexer.shadow.FailedShadowEventList;
 import com.helger.pd.indexer.shadow.ShadowEventCreator;
 import com.helger.pd.indexer.shadow.ShadowEventDispatcherJob;
 import com.helger.pd.indexer.shadow.ShadowEventList;
 import com.helger.pd.indexer.storage.PDStorageManager;
-import com.helger.quartz.SimpleScheduleBuilder;
 import com.helger.peppolid.factory.IIdentifierFactory;
 import com.helger.photon.core.interror.InternalErrorBuilder;
+import com.helger.quartz.SimpleScheduleBuilder;
 import com.helger.scope.IScope;
 import com.helger.scope.singleton.AbstractGlobalSingleton;
 
@@ -61,7 +62,7 @@ public final class PDMetaManager extends AbstractGlobalSingleton
   @GuardedBy ("s_aRWLock")
   private static IPDBusinessCardProvider s_aBCProvider;
 
-  private PDLucene m_aLucene;
+  private IPDIndex m_aIndex;
   private PDStorageManager m_aStorageMgr;
   private PDIndexerManager m_aIndexerMgr;
   private ShadowEventList m_aShadowEventList;
@@ -77,8 +78,8 @@ public final class PDMetaManager extends AbstractGlobalSingleton
   {
     try
     {
-      m_aLucene = new PDLucene ();
-      m_aStorageMgr = new PDStorageManager (m_aLucene);
+      m_aIndex = new PDLuceneIndex ();
+      m_aStorageMgr = new PDStorageManager (m_aIndex);
       m_aIndexerMgr = new PDIndexerManager (m_aStorageMgr);
 
       // Initialize shadow event configuration cache (must be called before any shadow event creation)
@@ -130,7 +131,7 @@ public final class PDMetaManager extends AbstractGlobalSingleton
   @Override
   protected void onDestroy (@NonNull final IScope aScopeInDestruction)
   {
-    StreamHelper.close (m_aLucene);
+    StreamHelper.close (m_aIndex);
     StreamHelper.close (m_aStorageMgr);
     StreamHelper.close (m_aIndexerMgr);
   }
@@ -174,10 +175,13 @@ public final class PDMetaManager extends AbstractGlobalSingleton
     RW_LOCK.writeLockedGet ( () -> s_aBCProvider = aBCProvider);
   }
 
+  /**
+   * @return The global search index. Never <code>null</code>.
+   */
   @NonNull
-  public static PDLucene getLucene ()
+  public static IPDIndex getIndex ()
   {
-    return getInstance ().m_aLucene;
+    return getInstance ().m_aIndex;
   }
 
   @NonNull

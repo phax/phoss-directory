@@ -30,7 +30,6 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 
-import org.apache.lucene.search.TermQuery;
 import org.jspecify.annotations.NonNull;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -168,7 +167,7 @@ public final class LocalHost8080FuncTest
     ThreadHelper.sleep (2000);
     assertTrue (PDMetaManager.getStorageMgr ().containsEntry (aPI_0));
     assertTrue (PDMetaManager.getStorageMgr ()
-                             .getCount (new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aPI_0))) > 0);
+                             .getCount (PDField.PARTICIPANT_ID.getExactMatchQuery (aPI_0)) > 0);
 
     aIndex.set (0);
     TestHelper.testInParallel (nCount, () -> {
@@ -185,8 +184,8 @@ public final class LocalHost8080FuncTest
     assertFalse (PDMetaManager.getStorageMgr ().containsEntry (aPI_0));
     assertEquals (0,
                   PDMetaManager.getStorageMgr ()
-                               .getCount (new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aPI_0))));
+                               .getCount (PDField.PARTICIPANT_ID.getExactMatchQuery (aPI_0)));
     assertTrue (PDMetaManager.getStorageMgr ()
-                             .getCount (new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aPI_0))) > 0);
+                             .getCount (PDField.PARTICIPANT_ID.getExactMatchQuery (aPI_0)) > 0);
   }
 }

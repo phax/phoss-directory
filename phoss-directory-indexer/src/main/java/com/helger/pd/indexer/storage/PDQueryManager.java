@@ -20,14 +20,6 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Locale;
 
-import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.search.BooleanClause.Occur;
-import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.WildcardQuery;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,11 +28,15 @@ import com.helger.annotation.Nonempty;
 import com.helger.annotation.concurrent.Immutable;
 import com.helger.base.enforce.ValueEnforcer;
 import com.helger.cache.regex.RegExHelper;
-import com.helger.collection.commons.CommonsArrayList;
 import com.helger.collection.commons.ICommonsList;
 import com.helger.datetime.web.PDTWebDateHelper;
-import com.helger.pd.indexer.lucene.ILuceneAnalyzerProvider;
 import com.helger.pd.indexer.mgr.PDMetaManager;
+import com.helger.pd.indexer.searchindex.IPDIndex;
+import com.helger.pd.indexer.searchindex.query.EPDIndexQueryOccur;
+import com.helger.pd.indexer.searchindex.query.IPDIndexQuery;
+import com.helger.pd.indexer.searchindex.query.PDIndexQueryBool;
+import com.helger.pd.indexer.searchindex.query.PDIndexQueryContains;
+import com.helger.pd.indexer.searchindex.query.PDIndexQueryTerm;
 import com.helger.pd.indexer.storage.field.PDField;
 import com.helger.peppolid.IDocumentTypeIdentifier;
 import com.helger.peppolid.IParticipantIdentifier;
@@ -49,7 +45,7 @@ import com.helger.peppolid.factory.IIdentifierFactory;
 import jakarta.annotation.Nullable;
 
 /**
- * Peppol Directory Lucene Query manager
+ * Peppol Directory search index query manager
  *
  * @author Philip Helger
  */
@@ -63,37 +59,26 @@ public final class PDQueryManager
 
   /**
    * Split a user provided query string into the terms relevant for querying
-   * using the provided Lucene Analyzer. This will e.g. remove ":" from a word
-   * etc.
+   * using the rules of the provided index. This will e.g. remove ":" from a
+   * word etc.
    *
-   * @param aAnalyzerProvider
-   *        Analyzer provider. E.g. instance of
-   *        {@link com.helger.pd.indexer.lucene.PDLucene}.
+   * @param aIndex
+   *        The search index to be used. May not be <code>null</code>.
    * @param sFieldName
-   *        Lucene field name to get split into terms.
+   *        Index field name to get split into terms.
    * @param sQueryString
    *        The user provided query string. Must neither be <code>null</code>
    *        nor empty.
    * @return The non-<code>null</code> list of all terms.
    */
   @NonNull
-  public static ICommonsList <String> getSplitIntoTerms (@NonNull final ILuceneAnalyzerProvider aAnalyzerProvider,
+  public static ICommonsList <String> getSplitIntoTerms (@NonNull final IPDIndex aIndex,
                                                          @NonNull @Nonempty final String sFieldName,
                                                          @NonNull @Nonempty final String sQueryString)
   {
-    // Use the default analyzer to split the query string into fields
-    try (final TokenStream aTokenStream = aAnalyzerProvider.getAnalyzer ().tokenStream (sFieldName, sQueryString))
+    try
     {
-      final ICommonsList <String> ret = new CommonsArrayList <> ();
-      final CharTermAttribute aCharTermAttribute = aTokenStream.addAttribute (CharTermAttribute.class);
-      aTokenStream.reset ();
-      while (aTokenStream.incrementToken ())
-      {
-        final String sTerm = aCharTermAttribute.toString ();
-        ret.add (sTerm);
-      }
-      aTokenStream.end ();
-      return ret;
+      return aIndex.getSplitIntoTerms (sFieldName, sQueryString);
     }
     catch (final IOException ex)
     {
@@ -104,47 +89,47 @@ public final class PDQueryManager
   }
 
   @NonNull
-  private static Query _createSimpleAllFieldsQuery (@NonNull final String sFieldName, @NonNull final String sQueryText)
+  private static IPDIndexQuery _createSimpleAllFieldsQuery (@NonNull final String sFieldName,
+                                                            @NonNull final String sQueryText)
   {
     if (false)
-      return new TermQuery (new Term (sFieldName, sQueryText));
+      return new PDIndexQueryTerm (sFieldName, sQueryText);
 
     // This works -> text ==> *text*
-    return new WildcardQuery (new Term (sFieldName, "*" + sQueryText + "*"));
+    return new PDIndexQueryContains (sFieldName, sQueryText);
   }
 
   /**
-   * Convert a query string as entered by the used into a Lucene query. This
-   * methods uses
-   * {@link #getSplitIntoTerms(ILuceneAnalyzerProvider, String, String)} to
-   * split the provided string into pieces and returns a boolean query that
-   * includes all terms (like an AND query).
+   * Convert a query string as entered by the used into an index query. This
+   * methods uses {@link #getSplitIntoTerms(IPDIndex, String, String)} to split
+   * the provided string into pieces and returns a boolean query that includes
+   * all terms (like an AND query).
    *
-   * @param aAnalyzerProvider
-   *        Lucene Analyzer provider
+   * @param aIndex
+   *        The search index to be used. May not be <code>null</code>.
    * @param sFieldName
    *        The field name to query. May neither be <code>null</code> nor empty.
    * @param sQueryString
    *        The query string. May not be <code>null</code> and not be empty and
    *        may not be whitespace only.
-   * @return The created Lucene {@link Query}
+   * @return The created {@link IPDIndexQuery}
    */
   @NonNull
-  public static Query convertQueryStringToLuceneQuery (@NonNull final ILuceneAnalyzerProvider aAnalyzerProvider,
-                                                       @NonNull final String sFieldName,
-                                                       @NonNull @Nonempty final String sQueryString)
+  public static IPDIndexQuery convertQueryStringToQuery (@NonNull final IPDIndex aIndex,
+                                                         @NonNull final String sFieldName,
+                                                         @NonNull @Nonempty final String sQueryString)
   {
     ValueEnforcer.notEmpty (sQueryString, "QueryString");
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
 
     // Split into terms
-    final ICommonsList <String> aParts = getSplitIntoTerms (aAnalyzerProvider, sFieldName, sQueryString);
+    final ICommonsList <String> aParts = getSplitIntoTerms (aIndex, sFieldName, sQueryString);
     assert aParts.isNotEmpty ();
 
     if (LOGGER.isDebugEnabled ())
       LOGGER.debug ("Split query string: '" + sQueryString + "' for field '" + sFieldName + "' ==> " + aParts);
 
-    final Query aQuery;
+    final IPDIndexQuery aQuery;
     if (aParts.size () == 1)
     {
       // Single term - simple query
@@ -153,9 +138,9 @@ public final class PDQueryManager
     else
     {
       // All parts must be matched
-      final BooleanQuery.Builder aBuilder = new BooleanQuery.Builder ();
+      final PDIndexQueryBool.Builder aBuilder = new PDIndexQueryBool.Builder ();
       for (final String sPart : aParts)
-        aBuilder.add (_createSimpleAllFieldsQuery (sFieldName, sPart), Occur.FILTER);
+        aBuilder.add (_createSimpleAllFieldsQuery (sFieldName, sPart), EPDIndexQueryOccur.FILTER);
       aQuery = aBuilder.build ();
     }
     return aQuery;
@@ -174,7 +159,7 @@ public final class PDQueryManager
   }
 
   @Nullable
-  public static Query getParticipantIDLuceneQuery (@NonNull @Nonempty final String sQueryString)
+  public static IPDIndexQuery getParticipantIDQuery (@NonNull @Nonempty final String sQueryString)
   {
     ValueEnforcer.notEmpty (sQueryString, "QueryString");
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
@@ -186,12 +171,12 @@ public final class PDQueryManager
       LOGGER.warn ("Failed to convert '" + sQueryString + "' to participant ID!");
       return null;
     }
-    return new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aPI));
+    return PDField.PARTICIPANT_ID.getExactMatchQuery (aPI);
   }
 
   @Nullable
-  public static Query getNameLuceneQuery (@NonNull final ILuceneAnalyzerProvider aAnalyzerProvider,
-                                          @NonNull @Nonempty final String sQueryString)
+  public static IPDIndexQuery getNameQuery (@NonNull final IPDIndex aIndex,
+                                            @NonNull @Nonempty final String sQueryString)
   {
     ValueEnforcer.notEmpty (sQueryString, "QueryString");
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
@@ -202,28 +187,28 @@ public final class PDQueryManager
     }
     
     // Query both fields in parallel
-    final Query q1 = convertQueryStringToLuceneQuery (aAnalyzerProvider, PDField.NAME.getFieldName (), sQueryString);
-    final Query q2 = convertQueryStringToLuceneQuery (aAnalyzerProvider, PDField.ML_NAME.getFieldName (), sQueryString);
+    final IPDIndexQuery q1 = convertQueryStringToQuery (aIndex, PDField.NAME.getFieldName (), sQueryString);
+    final IPDIndexQuery q2 = convertQueryStringToQuery (aIndex, PDField.ML_NAME.getFieldName (), sQueryString);
 
     // One of both must match
-    final BooleanQuery.Builder aBuilder = new BooleanQuery.Builder ();
-    aBuilder.add (q1, Occur.SHOULD);
-    aBuilder.add (q2, Occur.SHOULD);
+    final PDIndexQueryBool.Builder aBuilder = new PDIndexQueryBool.Builder ();
+    aBuilder.add (q1, EPDIndexQueryOccur.SHOULD);
+    aBuilder.add (q2, EPDIndexQueryOccur.SHOULD);
     return aBuilder.build ();
   }
 
   @Nullable
-  public static Query getCountryCodeLuceneQuery (@NonNull @Nonempty final String sQueryString)
+  public static IPDIndexQuery getCountryCodeQuery (@NonNull @Nonempty final String sQueryString)
   {
     ValueEnforcer.notEmpty (sQueryString, "QueryString");
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
 
-    return new TermQuery (PDField.COUNTRY_CODE.getExactMatchTerm (_upperCase (sQueryString)));
+    return PDField.COUNTRY_CODE.getExactMatchQuery (_upperCase (sQueryString));
   }
 
   @Nullable
-  public static Query getGeoInfoLuceneQuery (@NonNull final ILuceneAnalyzerProvider aAnalyzerProvider,
-                                             @NonNull @Nonempty final String sQueryString)
+  public static IPDIndexQuery getGeoInfoQuery (@NonNull final IPDIndex aIndex,
+                                               @NonNull @Nonempty final String sQueryString)
   {
     ValueEnforcer.notEmpty (sQueryString, "QueryString");
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
@@ -234,29 +219,29 @@ public final class PDQueryManager
     }
     
     // Split into pieces
-    return convertQueryStringToLuceneQuery (aAnalyzerProvider, PDField.GEO_INFO.getFieldName (), sQueryString);
+    return convertQueryStringToQuery (aIndex, PDField.GEO_INFO.getFieldName (), sQueryString);
   }
 
   @Nullable
-  public static Query getIdentifierSchemeLuceneQuery (@NonNull @Nonempty final String sQueryString)
+  public static IPDIndexQuery getIdentifierSchemeQuery (@NonNull @Nonempty final String sQueryString)
   {
     ValueEnforcer.notEmpty (sQueryString, "QueryString");
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
 
-    return new TermQuery (PDField.IDENTIFIER_SCHEME.getExactMatchTerm (_lowerCase (sQueryString)));
+    return PDField.IDENTIFIER_SCHEME.getExactMatchQuery (_lowerCase (sQueryString));
   }
 
   @Nullable
-  public static Query getIdentifierValueLuceneQuery (@NonNull @Nonempty final String sQueryString)
+  public static IPDIndexQuery getIdentifierValueQuery (@NonNull @Nonempty final String sQueryString)
   {
     ValueEnforcer.notEmpty (sQueryString, "QueryString");
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
 
-    return new TermQuery (PDField.IDENTIFIER_VALUE.getExactMatchTerm (_lowerCase (sQueryString)));
+    return PDField.IDENTIFIER_VALUE.getExactMatchQuery (_lowerCase (sQueryString));
   }
 
   @Nullable
-  public static Query getWebsiteLuceneQuery (@NonNull @Nonempty final String sQueryString)
+  public static IPDIndexQuery getWebsiteQuery (@NonNull @Nonempty final String sQueryString)
   {
     ValueEnforcer.notEmpty (sQueryString, "QueryString");
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
@@ -265,11 +250,11 @@ public final class PDQueryManager
       LOGGER.warn ("Website query string '" + sQueryString + "' is too short!");
       return null;
     }
-    return new WildcardQuery (PDField.WEBSITE_URI.getContainsTerm (_lowerCase (sQueryString)));
+    return PDField.WEBSITE_URI.getContainsQuery (_lowerCase (sQueryString));
   }
 
   @Nullable
-  public static Query getContactLuceneQuery (@NonNull @Nonempty final String sQueryString)
+  public static IPDIndexQuery getContactQuery (@NonNull @Nonempty final String sQueryString)
   {
     ValueEnforcer.notEmpty (sQueryString, "QueryString");
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
@@ -279,20 +264,20 @@ public final class PDQueryManager
       return null;
     }
     
-    final Query aQuery1 = new WildcardQuery (PDField.CONTACT_TYPE.getContainsTerm (_lowerCase (sQueryString)));
-    final Query aQuery2 = new WildcardQuery (PDField.CONTACT_NAME.getContainsTerm (_lowerCase (sQueryString)));
-    final Query aQuery3 = new WildcardQuery (PDField.CONTACT_PHONE.getContainsTerm (_lowerCase (sQueryString)));
-    final Query aQuery4 = new WildcardQuery (PDField.CONTACT_EMAIL.getContainsTerm (_lowerCase (sQueryString)));
-    return new BooleanQuery.Builder ().add (aQuery1, Occur.SHOULD)
-                                      .add (aQuery2, Occur.SHOULD)
-                                      .add (aQuery3, Occur.SHOULD)
-                                      .add (aQuery4, Occur.SHOULD)
-                                      .build ();
+    final IPDIndexQuery aQuery1 = PDField.CONTACT_TYPE.getContainsQuery (_lowerCase (sQueryString));
+    final IPDIndexQuery aQuery2 = PDField.CONTACT_NAME.getContainsQuery (_lowerCase (sQueryString));
+    final IPDIndexQuery aQuery3 = PDField.CONTACT_PHONE.getContainsQuery (_lowerCase (sQueryString));
+    final IPDIndexQuery aQuery4 = PDField.CONTACT_EMAIL.getContainsQuery (_lowerCase (sQueryString));
+    return new PDIndexQueryBool.Builder ().add (aQuery1, EPDIndexQueryOccur.SHOULD)
+                                          .add (aQuery2, EPDIndexQueryOccur.SHOULD)
+                                          .add (aQuery3, EPDIndexQueryOccur.SHOULD)
+                                          .add (aQuery4, EPDIndexQueryOccur.SHOULD)
+                                          .build ();
   }
 
   @Nullable
-  public static Query getAdditionalInformationLuceneQuery (@NonNull final ILuceneAnalyzerProvider aAnalyzerProvider,
-                                                           @NonNull @Nonempty final String sQueryString)
+  public static IPDIndexQuery getAdditionalInformationQuery (@NonNull final IPDIndex aIndex,
+                                                             @NonNull @Nonempty final String sQueryString)
   {
     ValueEnforcer.notEmpty (sQueryString, "QueryString");
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
@@ -302,11 +287,11 @@ public final class PDQueryManager
       return null;
     }
     // Split into pieces
-    return convertQueryStringToLuceneQuery (aAnalyzerProvider, PDField.ADDITIONAL_INFO.getFieldName (), sQueryString);
+    return convertQueryStringToQuery (aIndex, PDField.ADDITIONAL_INFO.getFieldName (), sQueryString);
   }
 
   @Nullable
-  public static Query getRegistrationDateLuceneQuery (@NonNull @Nonempty final String sQueryString)
+  public static IPDIndexQuery getRegistrationDateQuery (@NonNull @Nonempty final String sQueryString)
   {
     ValueEnforcer.notEmpty (sQueryString, "QueryString");
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
@@ -318,11 +303,11 @@ public final class PDQueryManager
       return null;
     }
     
-    return new TermQuery (PDField.REGISTRATION_DATE.getExactMatchTerm (sQueryString));
+    return PDField.REGISTRATION_DATE.getExactMatchQuery (sQueryString);
   }
 
   @Nullable
-  public static Query getDocumentTypeIDLuceneQuery (@NonNull @Nonempty final String sQueryString)
+  public static IPDIndexQuery getDocumentTypeIDQuery (@NonNull @Nonempty final String sQueryString)
   {
     ValueEnforcer.notEmpty (sQueryString, "QueryString");
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
@@ -336,6 +321,6 @@ public final class PDQueryManager
       return null;
     }
     
-    return new TermQuery (PDField.DOCTYPE_ID.getExactMatchTerm (aDTI));
+    return PDField.DOCTYPE_ID.getExactMatchQuery (aDTI);
   }
 }

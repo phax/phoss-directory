@@ -143,7 +143,7 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
       try
       {
         aSW.restart ();
-        LOGGER.info (sLogPrefix + "Starting to gather all participant IDs from Lucene");
+        LOGGER.info (sLogPrefix + "Starting to gather all participant IDs from the index");
         ICommonsSortedSet <String> aAllParticipantIDs = new CommonsTreeSet <> ();
         try
         {
@@ -152,7 +152,7 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
         }
         catch (final IOException ex)
         {
-          LOGGER.error (sLogPrefix + "Error gathering all participant IDs from Lucene", ex);
+          LOGGER.error (sLogPrefix + "Error gathering all participant IDs from the index", ex);
           EXPORT_STATUS.rememberFailedStatus ();
 
           // We can't continue
@@ -164,7 +164,7 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
           LOGGER.info (sLogPrefix +
                        "Finished gathering all participant IDs (" +
                        aAllParticipantIDs.size () +
-                       ") from Lucene after " +
+                       ") from the index after " +
                        aSW.getDuration () +
                        " milliseconds");
         }

@@ -21,7 +21,7 @@ import com.helger.annotation.concurrent.Immutable;
 import jakarta.annotation.Nullable;
 
 /**
- * Constants Lucene field names
+ * Constant search index field names
  *
  * @author Philip Helger
  */

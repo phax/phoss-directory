@@ -25,9 +25,6 @@ import java.util.function.BiConsumer;
 
 import javax.xml.validation.Validator;
 
-import org.apache.lucene.search.BooleanClause.Occur;
-import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.Query;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,6 +52,9 @@ import com.helger.json.serialize.JsonWriterSettings;
 import com.helger.mime.CMimeType;
 import com.helger.mime.IMimeType;
 import com.helger.pd.indexer.mgr.PDMetaManager;
+import com.helger.pd.indexer.searchindex.query.EPDIndexQueryOccur;
+import com.helger.pd.indexer.searchindex.query.IPDIndexQuery;
+import com.helger.pd.indexer.searchindex.query.PDIndexQueryBool;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
@@ -295,13 +295,13 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
       if (LOGGER.isDebugEnabled ())
         LOGGER.debug ("Using the following query terms: " + aQueryValues);
 
-      final ICommonsList <Query> aQueries = new CommonsArrayList <> ();
+      final ICommonsList <IPDIndexQuery> aQueries = new CommonsArrayList <> ();
       for (final Map.Entry <EPDSearchField, ICommonsList <String>> aEntry : aQueryValues.entrySet ())
       {
         final EPDSearchField eField = aEntry.getKey ();
         for (final String sQuery : aEntry.getValue ())
         {
-          final Query aQuery = eField.getQuery (sQuery);
+          final IPDIndexQuery aQuery = eField.getQuery (sQuery);
           if (aQuery != null)
             aQueries.add (aQuery);
           else
@@ -319,33 +319,33 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
         return;
       }
       // Build final query term
-      final Query aLuceneQuery;
+      final IPDIndexQuery aIndexQuery;
       if (aQueries.size () == 1)
       {
-        aLuceneQuery = aQueries.getFirstOrNull ();
+        aIndexQuery = aQueries.getFirstOrNull ();
       }
       else
       {
         // Connect all with "AND"
-        final BooleanQuery.Builder aBuilder = new BooleanQuery.Builder ();
-        for (final Query aQuery : aQueries)
-          aBuilder.add (aQuery, Occur.MUST);
-        aLuceneQuery = aBuilder.build ();
+        final PDIndexQueryBool.Builder aBuilder = new PDIndexQueryBool.Builder ();
+        for (final IPDIndexQuery aQuery : aQueries)
+          aBuilder.add (aQuery, EPDIndexQueryOccur.MUST);
+        aIndexQuery = aBuilder.build ();
       }
       // How many results to deliver at most
       final int nMaxResults = nLastResultIndex + 1;
 
       // Search all documents
       final PDStorageManager aStorageMgr = PDMetaManager.getStorageMgr ();
-      final ICommonsList <PDStoredBusinessEntity> aResultDocs = aStorageMgr.getAllDocuments (aLuceneQuery, nMaxResults);
+      final ICommonsList <PDStoredBusinessEntity> aResultDocs = aStorageMgr.getAllDocuments (aIndexQuery, nMaxResults);
 
       // Also get the total hit count for UI display. May be < 0 in case of
       // error
-      final int nTotalBEs = aStorageMgr.getCount (aLuceneQuery);
+      final int nTotalBEs = aStorageMgr.getCount (aIndexQuery);
 
       if (LOGGER.isDebugEnabled ())
         LOGGER.debug ("  Result for <" +
-                      aLuceneQuery +
+                      aIndexQuery +
                       "> (max=" +
                       nMaxResults +
                       ") " +

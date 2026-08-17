@@ -18,9 +18,6 @@ package com.helger.pd.indexer.storage.field;
 
 import java.util.function.Function;
 
-import org.apache.lucene.document.Field;
-import org.apache.lucene.index.IndexableField;
-import org.apache.lucene.index.Term;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,13 +25,19 @@ import org.slf4j.LoggerFactory;
 import com.helger.annotation.Nonempty;
 import com.helger.base.enforce.ValueEnforcer;
 import com.helger.pd.indexer.mgr.PDMetaManager;
+import com.helger.pd.indexer.searchindex.EPDIndexFieldStore;
+import com.helger.pd.indexer.searchindex.EPDIndexFieldTokenize;
+import com.helger.pd.indexer.searchindex.PDIndexField;
+import com.helger.pd.indexer.searchindex.query.PDIndexQueryContains;
+import com.helger.pd.indexer.searchindex.query.PDIndexQueryPrefix;
+import com.helger.pd.indexer.searchindex.query.PDIndexQueryTerm;
 import com.helger.peppolid.IDocumentTypeIdentifier;
 import com.helger.peppolid.IParticipantIdentifier;
 
 import jakarta.annotation.Nullable;
 
 /**
- * A Lucene field that can be mapped to a {@link String} and back.
+ * An index field that can be mapped to a {@link String} and back.
  *
  * @author Philip Helger
  * @param <NATIVE_TYPE>
@@ -44,13 +47,13 @@ public class PDStringField <NATIVE_TYPE> extends AbstractPDField <NATIVE_TYPE, S
 {
   private static final Logger LOGGER = LoggerFactory.getLogger (PDStringField.class);
 
-  private final EPDStringFieldTokenize m_eTokenize;
+  private final EPDIndexFieldTokenize m_eTokenize;
 
   private PDStringField (@NonNull @Nonempty final String sFieldName,
                          @NonNull final Function <? super NATIVE_TYPE, ? extends String> aConverterToStorage,
                          @NonNull final Function <? super String, ? extends NATIVE_TYPE> aConverterFromStorage,
-                         final Field.@NonNull Store eStore,
-                         @NonNull final EPDStringFieldTokenize eTokenize)
+                         @NonNull final EPDIndexFieldStore eStore,
+                         @NonNull final EPDIndexFieldTokenize eTokenize)
   {
     super (sFieldName, aConverterToStorage, aConverterFromStorage, eStore);
     m_eTokenize = ValueEnforcer.notNull (eTokenize, "Tokenize");
@@ -58,10 +61,10 @@ public class PDStringField <NATIVE_TYPE> extends AbstractPDField <NATIVE_TYPE, S
 
   @Override
   @NonNull
-  public Field getAsField (@NonNull final NATIVE_TYPE aValue)
+  public PDIndexField getAsField (@NonNull final NATIVE_TYPE aValue)
   {
     final String sStringValue = getAsStorageValue (aValue);
-    return m_eTokenize.createField (getFieldName (), sStringValue, getStore ());
+    return PDIndexField.createString (getFieldName (), sStringValue, getStore (), m_eTokenize);
   }
 
   private String _getSafeStorageValue (@NonNull final NATIVE_TYPE aValue)
@@ -72,22 +75,28 @@ public class PDStringField <NATIVE_TYPE> extends AbstractPDField <NATIVE_TYPE, S
   }
 
   @NonNull
-  public Term getExactMatchTerm (@NonNull final NATIVE_TYPE aValue)
+  public PDIndexQueryTerm getExactMatchQuery (@NonNull final NATIVE_TYPE aValue)
   {
-    return new Term (getFieldName (), _getSafeStorageValue (aValue));
+    return new PDIndexQueryTerm (getFieldName (), _getSafeStorageValue (aValue));
   }
 
   @NonNull
-  public Term getContainsTerm (@NonNull final NATIVE_TYPE aValue)
+  public PDIndexQueryPrefix getPrefixQuery (@NonNull final NATIVE_TYPE aValue)
   {
-    return new Term (getFieldName (), "*" + _getSafeStorageValue (aValue) + "*");
+    return new PDIndexQueryPrefix (getFieldName (), _getSafeStorageValue (aValue));
+  }
+
+  @NonNull
+  public PDIndexQueryContains getContainsQuery (@NonNull final NATIVE_TYPE aValue)
+  {
+    return new PDIndexQueryContains (getFieldName (), _getSafeStorageValue (aValue));
   }
 
   @Override
   @Nullable
-  protected NATIVE_TYPE getFieldNativeValue (@NonNull final IndexableField aField)
+  protected NATIVE_TYPE getFieldNativeValue (@NonNull final PDIndexField aField)
   {
-    final String sValue = aField.stringValue ();
+    final String sValue = aField.getStringValue ();
     if (sValue != null)
       try
       {
@@ -105,16 +114,16 @@ public class PDStringField <NATIVE_TYPE> extends AbstractPDField <NATIVE_TYPE, S
 
   @NonNull
   public static PDStringField <String> createString (@NonNull @Nonempty final String sFieldName,
-                                                     final Field.@NonNull Store eStore,
-                                                     @NonNull final EPDStringFieldTokenize eTokenize)
+                                                     @NonNull final EPDIndexFieldStore eStore,
+                                                     @NonNull final EPDIndexFieldTokenize eTokenize)
   {
     return new PDStringField <> (sFieldName, Function.identity (), Function.identity (), eStore, eTokenize);
   }
 
   @NonNull
   public static PDStringField <IParticipantIdentifier> createParticipantIdentifier (@NonNull @Nonempty final String sFieldName,
-                                                                                    final Field.@NonNull Store eStore,
-                                                                                    @NonNull final EPDStringFieldTokenize eTokenize)
+                                                                                    @NonNull final EPDIndexFieldStore eStore,
+                                                                                    @NonNull final EPDIndexFieldTokenize eTokenize)
   {
     return new PDStringField <> (sFieldName,
                                  IParticipantIdentifier::getURIEncoded,
@@ -125,8 +134,8 @@ public class PDStringField <NATIVE_TYPE> extends AbstractPDField <NATIVE_TYPE, S
 
   @NonNull
   public static PDStringField <IDocumentTypeIdentifier> createDocumentTypeIdentifier (@NonNull @Nonempty final String sFieldName,
-                                                                                      final Field.@NonNull Store eStore,
-                                                                                      @NonNull final EPDStringFieldTokenize eTokenize)
+                                                                                      @NonNull final EPDIndexFieldStore eStore,
+                                                                                      @NonNull final EPDIndexFieldTokenize eTokenize)
   {
     return new PDStringField <> (sFieldName,
                                  IDocumentTypeIdentifier::getURIEncoded,

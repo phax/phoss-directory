@@ -20,26 +20,7 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.ObjIntConsumer;
 
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.Field.Store;
-import org.apache.lucene.document.FieldType;
-import org.apache.lucene.document.TextField;
-import org.apache.lucene.index.IndexOptions;
-import org.apache.lucene.search.BooleanClause.Occur;
-import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.Collector;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.MatchAllDocsQuery;
-import org.apache.lucene.search.PrefixQuery;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.search.TopScoreDocCollector;
-import org.apache.lucene.search.TotalHitCountCollector;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,9 +44,16 @@ import com.helger.collection.commons.ICommonsMap;
 import com.helger.collection.commons.ICommonsSortedMap;
 import com.helger.datetime.web.PDTWebDateHelper;
 import com.helger.pd.indexer.businesscard.PDExtendedBusinessCard;
-import com.helger.pd.indexer.lucene.AllDocumentsCollector;
-import com.helger.pd.indexer.lucene.PDLucene;
 import com.helger.pd.indexer.mgr.IPDStorageManager;
+import com.helger.pd.indexer.searchindex.EPDIndexFieldStore;
+import com.helger.pd.indexer.searchindex.EPDIndexFieldTokenize;
+import com.helger.pd.indexer.searchindex.IPDIndex;
+import com.helger.pd.indexer.searchindex.PDIndexDocument;
+import com.helger.pd.indexer.searchindex.PDIndexField;
+import com.helger.pd.indexer.searchindex.query.EPDIndexQueryOccur;
+import com.helger.pd.indexer.searchindex.query.IPDIndexQuery;
+import com.helger.pd.indexer.searchindex.query.PDIndexQueryBool;
+import com.helger.pd.indexer.searchindex.query.PDIndexQueryMatchAll;
 import com.helger.pd.indexer.storage.field.PDField;
 import com.helger.peppol.businesscard.generic.PDBusinessCard;
 import com.helger.peppol.businesscard.generic.PDBusinessEntity;
@@ -82,7 +70,7 @@ import com.helger.statistics.impl.StatisticsManager;
 import jakarta.annotation.Nullable;
 
 /**
- * The global storage manager that wraps the used Lucene index.
+ * The global storage manager that wraps the used search index.
  *
  * @author Philip Helger
  */
@@ -90,34 +78,23 @@ import jakarta.annotation.Nullable;
 public final class PDStorageManager implements IPDStorageManager
 {
   private static final Logger LOGGER = LoggerFactory.getLogger (PDStorageManager.class);
-  private static final String FIELD_GROUP_END = "groupend";
-  private static final FieldType TYPE_GROUP_END = new FieldType ();
-  private static final String VALUE_GROUP_END = "x";
   private static final IMutableStatisticsHandlerKeyedTimer STATS_QUERY_TIMER = StatisticsManager.getKeyedTimerHandler (PDStorageManager.class.getName () +
                                                                                                                        "$query");
 
-  static
-  {
-    TYPE_GROUP_END.setStored (false);
-    TYPE_GROUP_END.setIndexOptions (IndexOptions.DOCS);
-    TYPE_GROUP_END.setOmitNorms (true);
-    TYPE_GROUP_END.freeze ();
-  }
+  private final IPDIndex m_aIndex;
 
-  private final PDLucene m_aLucene;
-
-  public PDStorageManager (@NonNull final PDLucene aLucene)
+  public PDStorageManager (@NonNull final IPDIndex aIndex)
   {
-    m_aLucene = ValueEnforcer.notNull (aLucene, "Lucene");
+    m_aIndex = ValueEnforcer.notNull (aIndex, "Index");
   }
 
   public void close () throws IOException
   {
-    m_aLucene.close ();
+    m_aIndex.close ();
   }
 
   private static void _timedSearch (@NonNull final IThrowingRunnable <IOException> aRunnable,
-                                    @NonNull final Query aQuery) throws IOException
+                                    @NonNull final IPDIndexQuery aQuery) throws IOException
   {
     _timedSearch ( () -> {
       aRunnable.run ();
@@ -126,7 +103,7 @@ public final class PDStorageManager implements IPDStorageManager
   }
 
   private static <T> T _timedSearch (@NonNull final IThrowingSupplier <T, IOException> aRunnable,
-                                     @NonNull final Query aQuery) throws IOException
+                                     @NonNull final IPDIndexQuery aQuery) throws IOException
   {
     final StopWatch aSW = StopWatch.createdStarted ();
     try
@@ -140,7 +117,7 @@ public final class PDStorageManager implements IPDStorageManager
 
       // 1 seconds bloats the log - use 2 seconds
       if (nMillis > 2 * CGlobal.MILLISECONDS_PER_SECOND)
-        LOGGER.warn ("Lucene Query " + aQuery + " took too long: " + nMillis + "ms");
+        LOGGER.warn ("Index Query " + aQuery + " took too long: " + nMillis + "ms");
     }
   }
 
@@ -149,17 +126,10 @@ public final class PDStorageManager implements IPDStorageManager
     if (aParticipantID == null)
       return false;
 
-    final IndexSearcher aSearcher = m_aLucene.getSearcher ();
-    if (aSearcher != null)
-    {
-      // Search only documents that do not have the deleted field
-      final Query aQuery = new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID));
-      final TopDocs aTopDocs = _timedSearch ( () -> aSearcher.search (aQuery, 1), aQuery);
-      // Lucene 8
-      if (aTopDocs.totalHits.value > 0)
-        return true;
-    }
-    return false;
+    // Search only documents that do not have the deleted field
+    final IPDIndexQuery aQuery = PDField.PARTICIPANT_ID.getExactMatchQuery (aParticipantID);
+    final int nCount = _timedSearch ( () -> Integer.valueOf (m_aIndex.getCount (aQuery)), aQuery).intValue ();
+    return nCount > 0;
   }
 
   @NonNull
@@ -179,13 +149,13 @@ public final class PDStorageManager implements IPDStorageManager
 
     try
     {
-      final ICommonsList <Document> aDocs = new CommonsArrayList <> ();
+      final ICommonsList <PDIndexDocument> aDocs = new CommonsArrayList <> ();
 
       final PDBusinessCard aBI = aExtBI.getBusinessCard ();
       for (final PDBusinessEntity aBusinessEntity : aBI.businessEntities ())
       {
-        // Convert entity to Lucene document
-        final Document aDoc = new Document ();
+        // Convert entity to index document
+        final PDIndexDocument aDoc = new PDIndexDocument ();
         final StringBuilder aSBAllFields = new StringBuilder ();
 
         aDoc.add (PDField.PARTICIPANT_ID.getAsField (aParticipantID));
@@ -282,27 +252,23 @@ public final class PDStorageManager implements IPDStorageManager
         }
 
         // Add the "all" field - no need to store
-        aDoc.add (new TextField (CPDStorage.FIELD_ALL_FIELDS, aSBAllFields.toString (), Store.NO));
+        aDoc.add (PDIndexField.createString (CPDStorage.FIELD_ALL_FIELDS,
+                                             aSBAllFields.toString (),
+                                             EPDIndexFieldStore.NO,
+                                             EPDIndexFieldTokenize.TOKENIZE));
 
         // Add meta data (not part of the "all field" field!)
-        // Lucene6: cannot yet use a LongPoint because it has no way to create a
-        // stored one
         aDoc.add (PDField.METADATA_CREATIONDT.getAsField (aMetaData.getCreationDT ()));
         aDoc.add (PDField.METADATA_OWNERID.getAsField (aMetaData.getOwnerID ()));
         aDoc.add (PDField.METADATA_REQUESTING_HOST.getAsField (aMetaData.getRequestingHost ()));
 
         aDocs.add (aDoc);
       }
-      if (aDocs.isNotEmpty ())
-      {
-        // Add "group end" marker
-        aDocs.getLastOrNull ().add (new Field (FIELD_GROUP_END, VALUE_GROUP_END, TYPE_GROUP_END));
-      }
       // Delete all existing documents of the participant ID
       // and add the new ones to the index
-      m_aLucene.updateDocuments (PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID), aDocs);
+      m_aIndex.updateDocuments (PDField.PARTICIPANT_ID.getExactMatchQuery (aParticipantID), aDocs);
 
-      LOGGER.info ("Added " + aDocs.size () + " Lucene documents");
+      LOGGER.info ("Added " + aDocs.size () + " index documents");
       AuditHelper.onAuditExecuteSuccess ("pd-indexer-create",
                                          aParticipantID.getURIEncoded (),
                                          Integer.valueOf (aDocs.size ()),
@@ -328,7 +294,7 @@ public final class PDStorageManager implements IPDStorageManager
                  "'" +
                  (bVerifyOwner && aMetaData != null ? " with owner ID '" + aMetaData.getOwnerID () + "'" : ""));
 
-    Query aParticipantQuery = new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID));
+    IPDIndexQuery aParticipantQuery = PDField.PARTICIPANT_ID.getExactMatchQuery (aParticipantID);
     if (getCount (aParticipantQuery) == 0)
     {
       // Hack e.g. for 9925:everbinding
@@ -340,7 +306,7 @@ public final class PDStorageManager implements IPDStorageManager
         // Force case sensitivity
         final IParticipantIdentifier aNewPID = new SimpleParticipantIdentifier (aParticipantID.getScheme (),
                                                                                 sUpperCaseValue);
-        final Query aOtherQuery = new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aNewPID));
+        final IPDIndexQuery aOtherQuery = PDField.PARTICIPANT_ID.getExactMatchQuery (aNewPID);
         if (getCount (aOtherQuery) > 0)
         {
           LOGGER.info ("Found something with '" + sUpperCaseValue + "' instead of '" + sOrigValue + "'");
@@ -349,36 +315,34 @@ public final class PDStorageManager implements IPDStorageManager
       }
     }
 
-    final Query aDeleteQuery;
+    final IPDIndexQuery aDeleteQuery;
     if (bVerifyOwner && aMetaData != null)
     {
       // Special handling for predefined owners
-      final BooleanQuery.Builder aBuilderOr = new BooleanQuery.Builder ();
+      final PDIndexQueryBool.Builder aBuilderOr = new PDIndexQueryBool.Builder ();
 
       if (false)
       {
         // TODO the equals-check on deletion is to strict for Peppol
         // If the below Prefix Query works, this check should be ignored
-        aBuilderOr.add (new TermQuery (PDField.METADATA_OWNERID.getExactMatchTerm (aMetaData.getOwnerID ())),
-                        Occur.SHOULD);
+        aBuilderOr.add (PDField.METADATA_OWNERID.getExactMatchQuery (aMetaData.getOwnerID ()),
+                        EPDIndexQueryOccur.SHOULD);
       }
-      // Since 2025-11-03 use PrefixQuery instead of TermQuery, because the stored OwnerID is longer
-      // (incl. serial number) then the provided OwnerID (without serial number)
-      // Note: PrefixQuery is supposed to work with the exact term, without a trailing "*"
-      aBuilderOr.add (new PrefixQuery (PDField.METADATA_OWNERID.getExactMatchTerm (aMetaData.getOwnerID ())),
-                      Occur.SHOULD);
-      aBuilderOr.add (new TermQuery (PDField.METADATA_OWNERID.getExactMatchTerm (CPDStorage.OWNER_DUPLICATE_ELIMINATION)),
-                      Occur.SHOULD);
-      aBuilderOr.add (new TermQuery (PDField.METADATA_OWNERID.getExactMatchTerm (CPDStorage.OWNER_IMPORT_TRIGGERED)),
-                      Occur.SHOULD);
-      aBuilderOr.add (new TermQuery (PDField.METADATA_OWNERID.getExactMatchTerm (CPDStorage.OWNER_MANUALLY_TRIGGERED)),
-                      Occur.SHOULD);
-      aBuilderOr.add (new TermQuery (PDField.METADATA_OWNERID.getExactMatchTerm (CPDStorage.OWNER_SYNC_JOB)),
-                      Occur.SHOULD);
+      // Since 2025-11-03 use a prefix query instead of an exact match query, because the stored
+      // OwnerID is longer (incl. serial number) then the provided OwnerID (without serial number)
+      aBuilderOr.add (PDField.METADATA_OWNERID.getPrefixQuery (aMetaData.getOwnerID ()), EPDIndexQueryOccur.SHOULD);
+      aBuilderOr.add (PDField.METADATA_OWNERID.getExactMatchQuery (CPDStorage.OWNER_DUPLICATE_ELIMINATION),
+                      EPDIndexQueryOccur.SHOULD);
+      aBuilderOr.add (PDField.METADATA_OWNERID.getExactMatchQuery (CPDStorage.OWNER_IMPORT_TRIGGERED),
+                      EPDIndexQueryOccur.SHOULD);
+      aBuilderOr.add (PDField.METADATA_OWNERID.getExactMatchQuery (CPDStorage.OWNER_MANUALLY_TRIGGERED),
+                      EPDIndexQueryOccur.SHOULD);
+      aBuilderOr.add (PDField.METADATA_OWNERID.getExactMatchQuery (CPDStorage.OWNER_SYNC_JOB),
+                      EPDIndexQueryOccur.SHOULD);
 
-      aDeleteQuery = new BooleanQuery.Builder ().add (aParticipantQuery, Occur.MUST)
-                                                .add (aBuilderOr.build (), Occur.MUST)
-                                                .build ();
+      aDeleteQuery = new PDIndexQueryBool.Builder ().add (aParticipantQuery, EPDIndexQueryOccur.MUST)
+                                                    .add (aBuilderOr.build (), EPDIndexQueryOccur.MUST)
+                                                    .build ();
     }
     else
       aDeleteQuery = aParticipantQuery;
@@ -387,11 +351,11 @@ public final class PDStorageManager implements IPDStorageManager
     try
     {
       // Delete
-      m_aLucene.deleteDocuments (aDeleteQuery);
+      m_aIndex.deleteDocuments (aDeleteQuery);
     }
     catch (final Exception ex)
     {
-      // E.g. Lucene is closing
+      // E.g. the index is closing
       LOGGER.error ("Failed to delete docs from the index using the query '" + aDeleteQuery + "'");
       AuditHelper.onAuditExecuteFailure ("pd-indexer-delete",
                                          aParticipantID.getURIEncoded (),
@@ -411,45 +375,13 @@ public final class PDStorageManager implements IPDStorageManager
     return nCount;
   }
 
-  /**
-   * Search all documents matching the passed query and pass the result on to the provided
-   * {@link Consumer}.
-   *
-   * @param aQuery
-   *        Query to execute. May not be <code>null</code>-
-   * @param aCollector
-   *        The Lucene collector to be used. May not be <code>null</code>.
-   * @throws IOException
-   *         On Lucene error
-   * @see #getAllDocuments(Query,int)
-   */
-  public void searchAtomic (@NonNull final Query aQuery, @NonNull final Collector aCollector) throws IOException
-  {
-    ValueEnforcer.notNull (aQuery, "Query");
-    ValueEnforcer.notNull (aCollector, "Collector");
-
-    final IndexSearcher aSearcher = m_aLucene.getSearcher ();
-    if (aSearcher != null)
-    {
-      if (LOGGER.isDebugEnabled ())
-        LOGGER.debug ("Searching Lucene: " + aQuery);
-
-      // Search all documents, collect them
-      _timedSearch ( () -> aSearcher.search (aQuery, aCollector), aQuery);
-    }
-    else
-      LOGGER.error ("Failed to obtain IndexSearcher for " + aQuery);
-  }
-
   @CheckForSigned
-  public int getCount (@NonNull final Query aQuery)
+  public int getCount (@NonNull final IPDIndexQuery aQuery)
   {
     ValueEnforcer.notNull (aQuery, "Query");
     try
     {
-      final TotalHitCountCollector aCollector = new TotalHitCountCollector ();
-      searchAtomic (aQuery, aCollector);
-      return aCollector.getTotalHits ();
+      return _timedSearch ( () -> Integer.valueOf (m_aIndex.getCount (aQuery)), aQuery).intValue ();
     }
     catch (final IOException ex)
     {
@@ -467,17 +399,16 @@ public final class PDStorageManager implements IPDStorageManager
    * @param nMaxResultCount
    *        Maximum number of results. Values &le; 0 mean all.
    * @param aFromDocumentConverter
-   *        The function to extract data from the Lucene Document. May not be <code>null</code>.
+   *        The function to extract data from the index document. May not be <code>null</code>.
    * @param aConsumer
    *        The consumer of the mapped objects. May not be <code>null</code>.
    * @throws IOException
-   *         On Lucene error
-   * @see #searchAtomic(Query, Collector)
-   * @see #getAllDocuments(Query,int)
+   *         On index error
+   * @see #getAllDocuments(IPDIndexQuery,int)
    */
-  public <T> void searchAll (@NonNull final Query aQuery,
+  public <T> void searchAll (@NonNull final IPDIndexQuery aQuery,
                              @CheckForSigned final int nMaxResultCount,
-                             @NonNull final Function <Document, T> aFromDocumentConverter,
+                             @NonNull final Function <PDIndexDocument, T> aFromDocumentConverter,
                              @NonNull final Consumer <? super T> aConsumer) throws IOException
   {
     ValueEnforcer.notNull (aQuery, "Query");
@@ -487,35 +418,14 @@ public final class PDStorageManager implements IPDStorageManager
     searchAll (aQuery, nMaxResultCount, aDoc -> aConsumer.accept (aFromDocumentConverter.apply (aDoc)));
   }
 
-  public void searchAll (@NonNull final Query aQuery,
+  public void searchAll (@NonNull final IPDIndexQuery aQuery,
                          @CheckForSigned final int nMaxResultCount,
-                         @NonNull final Consumer <Document> aConsumer) throws IOException
+                         @NonNull final Consumer <PDIndexDocument> aConsumer) throws IOException
   {
     ValueEnforcer.notNull (aQuery, "Query");
     ValueEnforcer.notNull (aConsumer, "Consumer");
 
-    if (nMaxResultCount <= 0)
-    {
-      // Search all
-      final ObjIntConsumer <Document> aConverter = (aDoc, nDocID) -> aConsumer.accept (aDoc);
-      final Collector aCollector = new AllDocumentsCollector (m_aLucene, aConverter);
-      searchAtomic (aQuery, aCollector);
-    }
-    else
-    {
-      // Search top docs only
-      // Lucene 8
-      final TopScoreDocCollector aCollector = TopScoreDocCollector.create (nMaxResultCount, Integer.MAX_VALUE);
-      searchAtomic (aQuery, aCollector);
-      for (final ScoreDoc aScoreDoc : aCollector.topDocs ().scoreDocs)
-      {
-        final Document aDoc = m_aLucene.getDocument (aScoreDoc.doc);
-        if (aDoc == null)
-          throw new IllegalStateException ("Failed to resolve Lucene Document with ID " + aScoreDoc.doc);
-        // Pass to Consumer
-        aConsumer.accept (aDoc);
-      }
-    }
+    _timedSearch ( () -> m_aIndex.searchAll (aQuery, nMaxResultCount, aConsumer), aQuery);
   }
 
   /**
@@ -531,11 +441,10 @@ public final class PDStorageManager implements IPDStorageManager
    *        The consumer of the {@link PDStoredBusinessEntity} objects. May not be
    *        <code>null</code>.
    * @throws IOException
-   *         On Lucene error
-   * @see #searchAtomic(Query, Collector)
-   * @see #getAllDocuments(Query,int)
+   *         On index error
+   * @see #getAllDocuments(IPDIndexQuery,int)
    */
-  public void searchAllDocuments (@NonNull final Query aQuery,
+  public void searchAllDocuments (@NonNull final IPDIndexQuery aQuery,
                                   @CheckForSigned final int nMaxResultCount,
                                   @NonNull final Consumer <? super PDStoredBusinessEntity> aConsumer) throws IOException
   {
@@ -544,18 +453,18 @@ public final class PDStorageManager implements IPDStorageManager
 
   /**
    * Get all {@link PDStoredBusinessEntity} objects matching the provided query. This is a
-   * specialization of {@link #searchAllDocuments(Query, int, Consumer)}.
+   * specialization of {@link #searchAllDocuments(IPDIndexQuery, int, Consumer)}.
    *
    * @param aQuery
    *        The query to be executed. May not be <code>null</code>.
    * @param nMaxResultCount
    *        Maximum number of results. Values &le; 0 mean all.
    * @return A non-<code>null</code> but maybe empty list of matching documents
-   * @see #searchAllDocuments(Query, int, Consumer)
+   * @see #searchAllDocuments(IPDIndexQuery, int, Consumer)
    */
   @NonNull
   @ReturnsMutableCopy
-  public ICommonsList <PDStoredBusinessEntity> getAllDocuments (@NonNull final Query aQuery,
+  public ICommonsList <PDStoredBusinessEntity> getAllDocuments (@NonNull final IPDIndexQuery aQuery,
                                                                 @CheckForSigned final int nMaxResultCount)
   {
     final ICommonsList <PDStoredBusinessEntity> aTargetList = new CommonsArrayList <> ();
@@ -574,7 +483,7 @@ public final class PDStorageManager implements IPDStorageManager
   public ICommonsList <PDStoredBusinessEntity> getAllDocumentsOfParticipant (@NonNull final IParticipantIdentifier aParticipantID)
   {
     ValueEnforcer.notNull (aParticipantID, "ParticipantID");
-    ICommonsList <PDStoredBusinessEntity> ret = getAllDocuments (new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aParticipantID)),
+    ICommonsList <PDStoredBusinessEntity> ret = getAllDocuments (PDField.PARTICIPANT_ID.getExactMatchQuery (aParticipantID),
                                                                  -1);
     if (ret.isEmpty ())
     {
@@ -587,7 +496,7 @@ public final class PDStorageManager implements IPDStorageManager
         // Force case sensitivity
         final IParticipantIdentifier aNewPID = new SimpleParticipantIdentifier (aParticipantID.getScheme (),
                                                                                 sUpperCaseValue);
-        ret = getAllDocuments (new TermQuery (PDField.PARTICIPANT_ID.getExactMatchTerm (aNewPID)), -1);
+        ret = getAllDocuments (PDField.PARTICIPANT_ID.getExactMatchQuery (aNewPID), -1);
         if (ret.isNotEmpty ())
         {
           LOGGER.info ("Found something with '" + sUpperCaseValue + "' instead of '" + sOrigValue + "'");
@@ -603,16 +512,14 @@ public final class PDStorageManager implements IPDStorageManager
   {
     // Map from ID to entity count
     final ICommonsSortedMap <IParticipantIdentifier, MutableInt> aTargetSet = new CommonsTreeMap <> ();
-    final Query aQuery = new MatchAllDocsQuery ();
+    final IPDIndexQuery aQuery = PDIndexQueryMatchAll.INSTANCE;
     try
     {
-      final ObjIntConsumer <Document> aConsumer = (aDoc, nDocID) -> {
+      searchAll (aQuery, -1, aDoc -> {
         final IParticipantIdentifier aResolvedParticipantID = PDField.PARTICIPANT_ID.getDocValue (aDoc);
         if (aResolvedParticipantID != null)
           aTargetSet.computeIfAbsent (aResolvedParticipantID, k -> new MutableInt (0)).inc ();
-      };
-      final Collector aCollector = new AllDocumentsCollector (m_aLucene, aConsumer);
-      searchAtomic (aQuery, aCollector);
+      });
     }
     catch (final IOException ex)
     {
@@ -624,7 +531,7 @@ public final class PDStorageManager implements IPDStorageManager
   @CheckForSigned
   public int getContainedParticipantCount ()
   {
-    return getCount (new MatchAllDocsQuery ());
+    return getCount (PDIndexQueryMatchAll.INSTANCE);
   }
 
   /**

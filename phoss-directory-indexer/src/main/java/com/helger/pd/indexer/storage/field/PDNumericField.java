@@ -18,15 +18,14 @@ package com.helger.pd.indexer.storage.field;
 
 import java.util.function.Function;
 
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.StoredField;
-import org.apache.lucene.index.IndexableField;
 import org.jspecify.annotations.NonNull;
 
 import com.helger.annotation.Nonempty;
+import com.helger.pd.indexer.searchindex.EPDIndexFieldStore;
+import com.helger.pd.indexer.searchindex.PDIndexField;
 
 /**
- * A Lucene field that can be mapped to a {@link Number} and back.
+ * An index field that can be mapped to a {@link Number} and back.
  *
  * @author Philip Helger
  * @param <NATIVE_TYPE>
@@ -37,31 +36,31 @@ public class PDNumericField <NATIVE_TYPE> extends AbstractPDField <NATIVE_TYPE, 
   public PDNumericField (@NonNull @Nonempty final String sFieldName,
                          @NonNull final Function <? super NATIVE_TYPE, ? extends Number> aConverterToStorage,
                          @NonNull final Function <? super Number, ? extends NATIVE_TYPE> aConverterFromStorage,
-                         final Field.@NonNull Store eStore)
+                         @NonNull final EPDIndexFieldStore eStore)
   {
     super (sFieldName, aConverterToStorage, aConverterFromStorage, eStore);
   }
 
   @Override
   @NonNull
-  public Field getAsField (@NonNull final NATIVE_TYPE aValue)
+  public PDIndexField getAsField (@NonNull final NATIVE_TYPE aValue)
   {
     final Number aLongValue = getAsStorageValue (aValue);
-    return new StoredField (getFieldName (), aLongValue.longValue ());
+    return PDIndexField.createNumeric (getFieldName (), aLongValue);
   }
 
   @Override
   @NonNull
-  protected NATIVE_TYPE getFieldNativeValue (@NonNull final IndexableField aField)
+  protected NATIVE_TYPE getFieldNativeValue (@NonNull final PDIndexField aField)
   {
     try
     {
-      return getAsNativeValue (aField.numericValue ());
+      return getAsNativeValue (aField.getNumericValue ());
     }
     catch (final PDFieldSerializeException ex)
     {
       // Parsing a numerical value should never fail
-      throw new IllegalStateException ("Failed to convert numerical value (" + aField.numericValue () + ") - weird",
+      throw new IllegalStateException ("Failed to convert numerical value (" + aField.getNumericValue () + ") - weird",
                                        ex);
     }
   }

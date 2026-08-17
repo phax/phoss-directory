@@ -53,8 +53,12 @@ jobs:
         
     - name: Create S3 Bucket
       run: |
-        awslocal s3 mb s3://pd-export-1 --region us-east-1
-        awslocal s3 ls
+        aws --endpoint-url=http://localhost:4566 s3 mb s3://pd-export-1 --region us-east-1
+        aws --endpoint-url=http://localhost:4566 s3 ls
+      env:
+        AWS_ACCESS_KEY_ID: test
+        AWS_SECRET_ACCESS_KEY: test
+        AWS_DEFAULT_REGION: us-east-1
                     
     - name: Cache local Maven repository
       uses: actions/cache@v5
