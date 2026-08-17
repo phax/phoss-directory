@@ -35,6 +35,7 @@ import jakarta.annotation.Nullable;
  * used for logging and as the key of the query runtime statistics.
  *
  * @author Philip Helger
+ * @since 0.16.0
  */
 public interface IPDIndexQuery
 {

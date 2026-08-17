@@ -23,6 +23,7 @@ import com.helger.base.hashcode.HashCodeGenerator;
  * A query that matches all documents of the index.
  *
  * @author Philip Helger
+ * @since 0.16.0
  */
 @ThreadSafe
 public final class PDIndexQueryMatchAll extends AbstractPDIndexQuery

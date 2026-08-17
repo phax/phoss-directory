@@ -38,6 +38,7 @@ import jakarta.annotation.Nullable;
  * search engine independent types from this package.
  *
  * @author Philip Helger
+ * @since 0.16.0
  */
 public interface IPDIndex extends Closeable
 {

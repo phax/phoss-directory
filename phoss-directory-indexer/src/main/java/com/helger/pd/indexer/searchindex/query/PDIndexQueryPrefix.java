@@ -25,6 +25,7 @@ import com.helger.annotation.concurrent.ThreadSafe;
  * A query that matches all documents in which the provided field starts with the provided value.
  *
  * @author Philip Helger
+ * @since 0.16.0
  */
 @ThreadSafe
 public class PDIndexQueryPrefix extends AbstractPDIndexQueryField

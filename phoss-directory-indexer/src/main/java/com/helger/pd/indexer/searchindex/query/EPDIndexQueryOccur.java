@@ -22,6 +22,7 @@ import org.jspecify.annotations.NonNull;
  * Determines how a single clause of a {@link PDIndexQueryBool} contributes to the overall result.
  *
  * @author Philip Helger
+ * @since 0.16.0
  */
 public enum EPDIndexQueryOccur
 {

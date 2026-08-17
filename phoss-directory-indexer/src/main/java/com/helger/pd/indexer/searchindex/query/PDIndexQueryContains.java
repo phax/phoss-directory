@@ -26,6 +26,7 @@ import com.helger.annotation.concurrent.ThreadSafe;
  * arbitrary position.
  *
  * @author Philip Helger
+ * @since 0.16.0
  */
 @ThreadSafe
 public class PDIndexQueryContains extends AbstractPDIndexQueryField

@@ -34,6 +34,7 @@ import jakarta.annotation.Nullable;
  * used when the value was written is not available anymore in that case.
  *
  * @author Philip Helger
+ * @since 0.16.0
  */
 @Immutable
 public final class PDIndexField

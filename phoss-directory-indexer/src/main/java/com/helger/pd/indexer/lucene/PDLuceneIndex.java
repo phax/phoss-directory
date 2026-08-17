@@ -75,6 +75,7 @@ import jakarta.annotation.Nullable;
  * via {@link PDLucene}.
  *
  * @author Philip Helger
+ * @since 0.16.0
  */
 public class PDLuceneIndex implements IPDIndex
 {

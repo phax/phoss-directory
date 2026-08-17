@@ -27,6 +27,7 @@ import com.helger.base.hashcode.HashCodeGenerator;
  * Abstract base class for all queries that match a single value in a single field.
  *
  * @author Philip Helger
+ * @since 0.16.0
  */
 @ThreadSafe
 public abstract class AbstractPDIndexQueryField extends AbstractPDIndexQuery

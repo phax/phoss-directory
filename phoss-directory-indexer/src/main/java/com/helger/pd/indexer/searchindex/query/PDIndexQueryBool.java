@@ -34,6 +34,7 @@ import com.helger.collection.commons.ICommonsList;
  * to create instances of this class.
  *
  * @author Philip Helger
+ * @since 0.16.0
  */
 @ThreadSafe
 public class PDIndexQueryBool extends AbstractPDIndexQuery
@@ -42,6 +43,7 @@ public class PDIndexQueryBool extends AbstractPDIndexQuery
    * A single clause of a {@link PDIndexQueryBool}.
    *
    * @author Philip Helger
+   * @since 0.16.0
    */
   @Immutable
   public static class Clause
@@ -95,6 +97,7 @@ public class PDIndexQueryBool extends AbstractPDIndexQuery
    * The builder for {@link PDIndexQueryBool} objects.
    *
    * @author Philip Helger
+   * @since 0.16.0
    */
   @NotThreadSafe
   public static class Builder

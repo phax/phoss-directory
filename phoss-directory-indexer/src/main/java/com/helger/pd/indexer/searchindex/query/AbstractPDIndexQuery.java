@@ -27,6 +27,7 @@ import jakarta.annotation.Nullable;
  * <code>hashCode</code>.
  *
  * @author Philip Helger
+ * @since 0.16.0
  */
 @ThreadSafe
 public abstract class AbstractPDIndexQuery implements IPDIndexQuery

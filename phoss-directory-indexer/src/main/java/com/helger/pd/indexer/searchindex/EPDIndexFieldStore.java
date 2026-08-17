@@ -21,6 +21,7 @@ package com.helger.pd.indexer.searchindex;
  * values can be read back from a search result document.
  *
  * @author Philip Helger
+ * @since 0.16.0
  */
 public enum EPDIndexFieldStore
 {

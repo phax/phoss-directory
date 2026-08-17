@@ -153,7 +153,7 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
-v0.15.8 - work in progress
+v0.16.0 - work in progress
 * All search index access is now performed via the new search engine independent interface `IPDIndex` (package `com.helger.pd.indexer.searchindex`), so that a different search engine can be plugged in later
     * Added the search engine independent document model `PDIndexDocument` / `PDIndexField` replacing the usage of the Lucene `Document` and `Field` classes
     * Added the search engine independent query model `IPDIndexQuery` (package `com.helger.pd.indexer.searchindex.query`) replacing the usage of the Lucene `Query` and `Term` classes

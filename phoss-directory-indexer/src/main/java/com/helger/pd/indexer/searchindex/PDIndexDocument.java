@@ -36,6 +36,7 @@ import jakarta.annotation.Nullable;
  * certain name were added is retained.
  *
  * @author Philip Helger
+ * @since 0.16.0
  */
 @NotThreadSafe
 public class PDIndexDocument

@@ -21,6 +21,7 @@ package com.helger.pd.indexer.searchindex;
  * it is indexed as a single term.
  *
  * @author Philip Helger
+ * @since 0.16.0
  */
 public enum EPDIndexFieldTokenize
 {
