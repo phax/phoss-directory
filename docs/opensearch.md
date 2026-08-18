@@ -99,7 +99,7 @@ docker run -d -p 9200:9200 -p 9600:9600 \
   -e "DISABLE_SECURITY_PLUGIN=true" \
   -e "OPENSEARCH_JAVA_OPTS=-Xms1g -Xmx1g" \
   --name pd-opensearch \
-  opensearchproject/opensearch:2.19.3
+  opensearchproject/opensearch:3.8.0
 ```
 
 Verify that it is up and running:

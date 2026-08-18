@@ -41,12 +41,15 @@ public final class PDOpenSearchTestHelper
 {
   /** The host of the local test OpenSearch */
   public static final String HOST = "localhost";
+
   /** The port of the local test OpenSearch */
   public static final int PORT = 9200;
+
   /** The endpoint of the local test OpenSearch */
   public static final String ENDPOINT_URL = "http://" + HOST + ":" + PORT;
+
   /** The dedicated index name of the tests - never the production one */
-  public static final String INDEX_NAME = "peppol-directory-test";
+  public static final String INDEX_NAME = "phoss-directory-test";
 
   private static final Logger LOGGER = LoggerFactory.getLogger (PDOpenSearchTestHelper.class);
   private static final int CONNECT_TIMEOUT_MS = 1_000;
@@ -86,7 +89,7 @@ public final class PDOpenSearchTestHelper
   public static PDOpenSearchIndex createTestIndex () throws IOException
   {
     final OpenSearchTransport aTransport = ApacheHttpClient5TransportBuilder.builder (HttpHost.create (URI.create (ENDPOINT_URL)))
-                                                                           .build ();
+                                                                            .build ();
     return new PDOpenSearchIndex (aTransport, INDEX_NAME, ENDPOINT_URL);
   }
 }

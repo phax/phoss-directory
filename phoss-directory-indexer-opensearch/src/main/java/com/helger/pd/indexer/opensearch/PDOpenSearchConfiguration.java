@@ -37,15 +37,20 @@ import jakarta.annotation.Nullable;
 public final class PDOpenSearchConfiguration
 {
   /** The default name of the OpenSearch index to be used */
-  public static final String DEFAULT_INDEX_NAME = "peppol-directory";
+  public static final String DEFAULT_INDEX_NAME = "phoss-directory";
+
   /** The default AWS signing service name - "es" is a managed OpenSearch Service domain */
   public static final String DEFAULT_AWS_SERVICE_NAME = "es";
+
   /** The default number of primary shards of a newly created index */
   public static final int DEFAULT_INDEX_SHARDS = 1;
+
   /** The default number of replicas of a newly created index */
   public static final int DEFAULT_INDEX_REPLICAS = 1;
+
   /** The default number of documents read per scroll request */
   public static final int DEFAULT_SCROLL_PAGE_SIZE = 1_000;
+
   /** The default number of minutes a scroll context is kept alive */
   public static final int DEFAULT_SCROLL_TIMEOUT_MINUTES = 5;
 
@@ -145,8 +150,8 @@ public final class PDOpenSearchConfiguration
   }
 
   /**
-   * Read value of <code>opensearch.index.shards</code>. Defaults to
-   * {@link #DEFAULT_INDEX_SHARDS}. Only relevant if the index is created by this application.
+   * Read value of <code>opensearch.index.shards</code>. Defaults to {@link #DEFAULT_INDEX_SHARDS}.
+   * Only relevant if the index is created by this application.
    *
    * @return The number of primary shards of a newly created index. Always &gt; 0.
    */
