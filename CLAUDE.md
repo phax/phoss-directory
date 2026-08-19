@@ -30,7 +30,7 @@ Four Maven modules under the parent POM (`com.helger:phoss-directory-parent-pom`
 
 - **phoss-directory-indexer** — REST service that receives indexing requests from SMPs (requires Peppol SMP client certificate). Queries SMP data directly and stores it in a **Lucene 8.x** index. Core classes: `PDLucene`, `PDStorageManager`, `PDStoredBusinessEntity`.
 
-- **phoss-directory-publisher** — WAR web application providing search UI and REST API. Built on **ph-oton** (web framework) with Bootstrap 4. Handles bulk exports (XML/JSON/CSV) streamed to **AWS S3**. Deployed to Tomcat 10.x or Jetty 11.x (Jakarta EE 9 / Servlet 5.0).
+- **phoss-directory-publisher** — WAR web application providing search UI and REST API. Built on **ph-oton** (web framework) with Bootstrap 5. Handles bulk exports (XML/JSON/CSV) streamed to **AWS S3**. Deployed to Tomcat 10.x or Jetty 11.x (Jakarta EE 9 / Servlet 5.0).
 
 - **phoss-directory-client** — Java client library for SMP servers to push indexing requests to the PD indexer. Uses Apache HttpClient with client certificate auth. Configured via `ph-config` resolution.
 
