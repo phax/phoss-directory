@@ -66,7 +66,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
 {
   /**
    * The ID of the search index implementation that is used if nothing else is configured. It must
-   * match the ID of {@link com.helger.pd.indexer.lucene.PDLuceneIndexProviderSPI} - it is
+   * match the ID of <code>com.helger.pd.indexer.lucene.PDLuceneIndexProviderSPI</code> - it is
    * deliberately not referenced, so that the Apache Lucene implementation can be moved to a
    * separate submodule without touching this class.
    *
@@ -235,8 +235,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   }
 
   /**
-   * Read value of <code>searchindex.type</code>. Defaults to
-   * {@link #DEFAULT_SEARCHINDEX_TYPE}.
+   * Read value of <code>searchindex.type</code>. Defaults to {@link #DEFAULT_SEARCHINDEX_TYPE}.
    *
    * @return The ID of the {@link com.helger.pd.indexer.searchindex.IPDIndexProviderSPI} that
    *         creates the search index to be used. Never <code>null</code> nor empty.
@@ -459,8 +458,8 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   }
 
   /**
-   * @return <code>true</code> if indexer request shadowing is enabled,
-   *         <code>false</code> otherwise. Defaults to <code>false</code>.
+   * @return <code>true</code> if indexer request shadowing is enabled, <code>false</code>
+   *         otherwise. Defaults to <code>false</code>.
    */
   public static boolean isIndexerShadowingEnabled ()
   {
@@ -468,8 +467,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   }
 
   /**
-   * @return The downstream URL for shadowing indexer requests. May be
-   *         <code>null</code> or empty.
+   * @return The downstream URL for shadowing indexer requests. May be <code>null</code> or empty.
    */
   @Nullable
   public static String getIndexerShadowingURL ()
@@ -478,8 +476,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   }
 
   /**
-   * @return Timeout in milliseconds for shadowing HTTP requests. Defaults to
-   *         5000ms.
+   * @return Timeout in milliseconds for shadowing HTTP requests. Defaults to 5000ms.
    */
   @Nonnegative
   public static int getIndexerShadowingTimeoutMS ()
@@ -488,8 +485,8 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   }
 
   /**
-   * @return The interval in seconds for the shadow event dispatcher job.
-   *         Defaults to 60 seconds (1 minute).
+   * @return The interval in seconds for the shadow event dispatcher job. Defaults to 60 seconds (1
+   *         minute).
    */
   @Nonnegative
   public static int getIndexerShadowingIntervalSeconds ()
@@ -501,9 +498,8 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   }
 
   /**
-   * @return The secret string to be included in the X-Shadow-Secret header
-   *         when sending shadow events. May be <code>null</code> if not
-   *         configured (no authentication).
+   * @return The secret string to be included in the X-Shadow-Secret header when sending shadow
+   *         events. May be <code>null</code> if not configured (no authentication).
    */
   @Nullable
   public static String getIndexerShadowingSecret ()
