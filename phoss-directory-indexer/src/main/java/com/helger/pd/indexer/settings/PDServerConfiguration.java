@@ -65,6 +65,16 @@ import jakarta.annotation.Nullable;
 public final class PDServerConfiguration extends AbstractGlobalSingleton
 {
   /**
+   * The ID of the search index implementation that is used if nothing else is configured. It must
+   * match the ID of {@link com.helger.pd.indexer.lucene.PDLuceneIndexProviderSPI} - it is
+   * deliberately not referenced, so that the Apache Lucene implementation can be moved to a
+   * separate submodule without touching this class.
+   *
+   * @since 0.16.0
+   */
+  public static final String DEFAULT_SEARCHINDEX_TYPE = "lucene";
+
+  /**
    * @return The configuration value provider for phase4 that contains backward compatibility
    *         support.
    */
@@ -222,6 +232,21 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   public static String getWebAppAPIAllowOrigin ()
   {
     return getConfig ().getAsString ("webapp.api.allow.origin");
+  }
+
+  /**
+   * Read value of <code>searchindex.type</code>. Defaults to
+   * {@link #DEFAULT_SEARCHINDEX_TYPE}.
+   *
+   * @return The ID of the {@link com.helger.pd.indexer.searchindex.IPDIndexProviderSPI} that
+   *         creates the search index to be used. Never <code>null</code> nor empty.
+   * @since 0.16.0
+   */
+  @NonNull
+  @Nonempty
+  public static String getSearchIndexType ()
+  {
+    return getConfig ().getAsString ("searchindex.type", DEFAULT_SEARCHINDEX_TYPE);
   }
 
   /**

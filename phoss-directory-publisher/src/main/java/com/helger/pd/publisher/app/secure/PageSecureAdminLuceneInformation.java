@@ -31,7 +31,7 @@ import com.helger.photon.bootstrap5.table.BootstrapTable;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 
 /**
- * Information on the Lucene Index.
+ * Information on the search index. The content depends on the search index implementation in use.
  *
  * @author Philip Helger
  * @since 0.7.1
@@ -40,7 +40,7 @@ public final class PageSecureAdminLuceneInformation extends AbstractAppWebPage
 {
   public PageSecureAdminLuceneInformation (@NonNull @Nonempty final String sID)
   {
-    super (sID, "Lucene information");
+    super (sID, "Search index information");
   }
 
   @Override

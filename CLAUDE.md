@@ -26,9 +26,15 @@ mvn test -pl phoss-directory-client -Dtest=PDClientTest#testTestServer
 
 ## Module Architecture
 
-Four Maven modules under the parent POM (`com.helger:phoss-directory-parent-pom`):
+Six Maven modules under the parent POM (`com.helger:phoss-directory-parent-pom`):
 
-- **phoss-directory-indexer** — REST service that receives indexing requests from SMPs (requires Peppol SMP client certificate). Queries SMP data directly and stores it in a **Lucene 8.x** index. Core classes: `PDLucene`, `PDStorageManager`, `PDStoredBusinessEntity`.
+- **phoss-directory-indexer** — REST service that receives indexing requests from SMPs (requires Peppol SMP client certificate). Queries SMP data directly and stores it in a search index. Contains **no** search index implementation itself — it defines the search engine independent `IPDIndex` abstraction (package `com.helger.pd.indexer.searchindex`) and resolves the implementation via the SPI `IPDIndexProviderSPI` and the configuration property `searchindex.type`. Core classes: `PDStorageManager`, `PDStoredBusinessEntity`, `PDIndexFactory`.
+
+- **phoss-directory-indexer-lucene** — the **Apache Lucene 8.x** implementation of `IPDIndex` (`searchindex.type=lucene`, the default). Core classes: `PDLucene`, `PDLuceneIndex`.
+
+- **phoss-directory-indexer-opensearch** — the **AWS OpenSearch** implementation of `IPDIndex` (`searchindex.type=opensearch`), based on the official `opensearch-java` client. See `docs/opensearch.md`.
+
+- **phoss-directory-indexer-conformance** — the engine independent conformance test suite (`AbstractPDIndexConformanceTest`, `AbstractPDStorageManagerConformanceTest`) that every `IPDIndex` implementation must pass. Its test base classes live in `src/main/java`, so they can be reused.
 
 - **phoss-directory-publisher** — WAR web application providing search UI and REST API. Built on **ph-oton** (web framework) with Bootstrap 5. Handles bulk exports (XML/JSON/CSV) streamed to **AWS S3**. Deployed to Tomcat 10.x or Jetty 11.x (Jakarta EE 9 / Servlet 5.0).
 
@@ -54,7 +60,7 @@ Four Maven modules under the parent POM (`com.helger:phoss-directory-parent-pom`
 ## Package Structure
 
 All modules use the `com.helger.pd` base package:
-- `com.helger.pd.indexer.*` — indexer (clientcert, lucene, storage, rest, mgr, reindex, job)
+- `com.helger.pd.indexer.*` — indexer (clientcert, searchindex, storage, rest, mgr, reindex, job) plus the separate modules `com.helger.pd.indexer.lucene`, `com.helger.pd.indexer.opensearch` and `com.helger.pd.indexer.conformance`
 - `com.helger.pd.publisher.*` — publisher (servlet, ui, app, search, exportall, aws)
 - `com.helger.pd.client.*` — client (PDClient, PDClientConfiguration)
 - `com.helger.pd.searchapi.*` — search API data types

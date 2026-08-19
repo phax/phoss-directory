@@ -68,6 +68,15 @@
       <groupId>com.helger</groupId>
       <artifactId>phoss-directory-indexer</artifactId>
     </dependency>
+    <!--
+      The Apache Lucene based search index is the default of the Peppol Directory. To run on AWS
+      OpenSearch instead, replace this with phoss-directory-indexer-opensearch and set the
+      configuration property searchindex.type=opensearch - see docs/opensearch.md
+    -->
+    <dependency>
+      <groupId>com.helger</groupId>
+      <artifactId>phoss-directory-indexer-lucene</artifactId>
+    </dependency>
     <dependency>
       <groupId>com.helger.photon</groupId>
       <artifactId>ph-oton-bootstrap5-stub</artifactId>

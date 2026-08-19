@@ -30,8 +30,8 @@ import com.helger.base.exception.InitializationException;
 import com.helger.base.io.stream.StreamHelper;
 import com.helger.base.lang.clazz.ClassHelper;
 import com.helger.pd.indexer.businesscard.IPDBusinessCardProvider;
-import com.helger.pd.indexer.lucene.PDLuceneIndex;
 import com.helger.pd.indexer.searchindex.IPDIndex;
+import com.helger.pd.indexer.searchindex.PDIndexFactory;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.pd.indexer.shadow.FailedShadowEventList;
 import com.helger.pd.indexer.shadow.ShadowEventCreator;
@@ -78,7 +78,7 @@ public final class PDMetaManager extends AbstractGlobalSingleton
   {
     try
     {
-      m_aIndex = new PDLuceneIndex ();
+      m_aIndex = PDIndexFactory.createIndex (PDServerConfiguration.getSearchIndexType ());
       m_aStorageMgr = new PDStorageManager (m_aIndex);
       m_aIndexerMgr = new PDIndexerManager (m_aStorageMgr);
 
