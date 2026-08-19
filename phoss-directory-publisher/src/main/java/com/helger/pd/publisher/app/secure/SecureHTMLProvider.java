@@ -36,15 +36,15 @@ import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.app.AppCommonUI;
 import com.helger.photon.app.url.LinkHelper;
-import com.helger.photon.bootstrap4.CBootstrapCSS;
-import com.helger.photon.bootstrap4.breadcrumb.BootstrapBreadcrumb;
-import com.helger.photon.bootstrap4.breadcrumb.BootstrapBreadcrumbProvider;
-import com.helger.photon.bootstrap4.button.BootstrapButton;
-import com.helger.photon.bootstrap4.layout.BootstrapContainer;
-import com.helger.photon.bootstrap4.navbar.BootstrapNavbar;
-import com.helger.photon.bootstrap4.navbar.BootstrapNavbarToggleable;
-import com.helger.photon.bootstrap4.uictrls.ext.BootstrapMenuItemRenderer;
-import com.helger.photon.bootstrap4.uictrls.ext.BootstrapPageRenderer;
+import com.helger.photon.bootstrap5.CBootstrapCSS;
+import com.helger.photon.bootstrap5.breadcrumb.BootstrapBreadcrumb;
+import com.helger.photon.bootstrap5.breadcrumb.BootstrapBreadcrumbProvider;
+import com.helger.photon.bootstrap5.button.BootstrapButton;
+import com.helger.photon.bootstrap5.layout.BootstrapContainer;
+import com.helger.photon.bootstrap5.navbar.BootstrapNavbar;
+import com.helger.photon.bootstrap5.navbar.BootstrapNavbarToggleable;
+import com.helger.photon.bootstrap5.uictrls.ext.BootstrapMenuItemRenderer;
+import com.helger.photon.bootstrap5.uictrls.ext.BootstrapPageRenderer;
 import com.helger.photon.core.EPhotonCoreText;
 import com.helger.photon.core.appid.RequestSettings;
 import com.helger.photon.core.execcontext.ISimpleWebExecutionContext;
@@ -94,7 +94,7 @@ public class SecureHTMLProvider extends AbstractSWECHTMLProvider
     {
       final IUser aUser = LoggedInUserManager.getInstance ().getCurrentUser ();
       aToggleable.addAndReturnText ()
-                 .addClass (CBootstrapCSS.ML_AUTO)
+                 .addClass (CBootstrapCSS.MS_AUTO)
                  .addClass (CBootstrapCSS.MX_2)
                  .addChild ("Welcome ")
                  .addChild (new HCStrong ().addChild (SecurityHelper.getUserDisplayName (aUser, aDisplayLocale)));
@@ -139,7 +139,7 @@ public class SecureHTMLProvider extends AbstractSWECHTMLProvider
     {
       final HCDiv aRow = aOuterContainer.addAndReturnChild (new HCDiv ().addClass (CBootstrapCSS.D_MD_FLEX));
       final HCDiv aCol1 = aRow.addAndReturnChild (new HCDiv ().addClass (CBootstrapCSS.D_MD_FLEX)
-                                                              .addClass (CBootstrapCSS.MR_2));
+                                                              .addClass (CBootstrapCSS.ME_2));
       final HCDiv aCol2 = aRow.addAndReturnChild (new HCDiv ().addClass (CBootstrapCSS.FLEX_FILL));
 
       // left

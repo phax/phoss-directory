@@ -62,15 +62,15 @@ import com.helger.peppolid.peppol.participant.PeppolParticipantIdentifier;
 import com.helger.peppolid.peppol.pidscheme.IPeppolParticipantIdentifierScheme;
 import com.helger.peppolid.peppol.pidscheme.PeppolParticipantIdentifierSchemeManager;
 import com.helger.photon.ajax.decl.AjaxFunctionDeclaration;
-import com.helger.photon.bootstrap4.CBootstrapCSS;
-import com.helger.photon.bootstrap4.button.BootstrapButton;
-import com.helger.photon.bootstrap4.button.BootstrapLinkButton;
-import com.helger.photon.bootstrap4.button.BootstrapSubmitButton;
-import com.helger.photon.bootstrap4.button.EBootstrapButtonType;
-import com.helger.photon.bootstrap4.grid.BootstrapCol;
-import com.helger.photon.bootstrap4.grid.BootstrapGridSpec;
-import com.helger.photon.bootstrap4.grid.BootstrapRow;
-import com.helger.photon.bootstrap4.nav.BootstrapTabBox;
+import com.helger.photon.bootstrap5.CBootstrapCSS;
+import com.helger.photon.bootstrap5.button.BootstrapButton;
+import com.helger.photon.bootstrap5.button.BootstrapLinkButton;
+import com.helger.photon.bootstrap5.button.BootstrapSubmitButton;
+import com.helger.photon.bootstrap5.button.EBootstrapButtonType;
+import com.helger.photon.bootstrap5.grid.BootstrapCol;
+import com.helger.photon.bootstrap5.grid.BootstrapGridSpec;
+import com.helger.photon.bootstrap5.grid.BootstrapRow;
+import com.helger.photon.bootstrap5.nav.BootstrapTabBox;
 import com.helger.photon.core.form.RequestField;
 import com.helger.photon.uicore.css.CPageParam;
 import com.helger.photon.uicore.icon.EDefaultIcon;
@@ -152,9 +152,12 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     }
 
     final BootstrapRow aBodyRow = new BootstrapRow ();
-    aBodyRow.createColumn (-1, -1, 1, 2, 3).addClasses (CBootstrapCSS.D_NONE, CBootstrapCSS.D_MD_BLOCK);
-    aBodyRow.createColumn (12, 12, 10, 8, 6).addChild (aBigQueryBox);
-    aBodyRow.createColumn (-1, -1, 1, 2, 3).addClasses (CBootstrapCSS.D_NONE, CBootstrapCSS.D_MD_BLOCK);
+    aBodyRow.createColumn (BootstrapGridSpec.builder ().md (1).lg (2).xl (3).build ())
+            .addClasses (CBootstrapCSS.D_NONE, CBootstrapCSS.D_MD_BLOCK);
+    aBodyRow.createColumn (BootstrapGridSpec.builder ().xs (12).md (10).lg (8).xl (6).build ())
+            .addChild (aBigQueryBox);
+    aBodyRow.createColumn (BootstrapGridSpec.builder ().md (1).lg (2).xl (3).build ())
+            .addClasses (CBootstrapCSS.D_NONE, CBootstrapCSS.D_MD_BLOCK);
     return aBodyRow;
   }
 
@@ -298,8 +301,8 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
         final HCUL aUL = aResultItem.addAndReturnChild (new HCUL ());
 
         // Must be 12 in total
-        final BootstrapGridSpec aLeft = BootstrapGridSpec.create (3, 3, 3, 2, 2);
-        final BootstrapGridSpec aRight = BootstrapGridSpec.create (9, 9, 9, 10, 10);
+        final BootstrapGridSpec aLeft = BootstrapGridSpec.builder ().xs (3).lg (2).build ();
+        final BootstrapGridSpec aRight = BootstrapGridSpec.builder ().xs (9).lg (10).build ();
 
         boolean bFirstEntity = true;
         for (final PDStoredBusinessEntity aStoredDoc : aEntry.getValue ())
@@ -364,7 +367,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
         final BootstrapButton aShowDetailsBtn = new BootstrapButton (EBootstrapButtonType.SUCCESS).addChild ("Show details")
                                                                                                   .setIcon (EDefaultIcon.MAGNIFIER)
                                                                                                   .addClasses (CBootstrapCSS.MT_1,
-                                                                                                               CBootstrapCSS.ML_1)
+                                                                                                               CBootstrapCSS.MS_1)
                                                                                                   .setOnClick (aWPEC.getSelfHref ()
                                                                                                                     .add (FIELD_QUERY,
                                                                                                                           sQuery)

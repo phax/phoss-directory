@@ -25,7 +25,6 @@ import com.helger.base.string.StringHelper;
 import com.helger.collection.commons.CommonsArrayList;
 import com.helger.collection.commons.ICommonsList;
 import com.helger.css.property.CCSSProperties;
-import com.helger.css.propertyvalue.CCSSValue;
 import com.helger.html.css.DefaultCSSClassProvider;
 import com.helger.html.css.ICSSClassProvider;
 import com.helger.html.hc.html.embedded.HCImg;
@@ -39,8 +38,8 @@ import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.ajax.CAjax;
 import com.helger.photon.app.url.LinkHelper;
-import com.helger.photon.bootstrap4.ext.BootstrapSystemMessage;
-import com.helger.photon.bootstrap4.uictrls.datatables.BootstrapDataTables;
+import com.helger.photon.bootstrap5.ext.BootstrapSystemMessage;
+import com.helger.photon.bootstrap5.uictrls.datatables.BootstrapDataTables;
 import com.helger.photon.uictrls.datatables.DataTablesLengthMenu;
 import com.helger.photon.uictrls.datatables.EDataTablesFilterType;
 import com.helger.photon.uictrls.datatables.ajax.AjaxExecutorDataTables;
@@ -97,7 +96,7 @@ public final class AppCommonUI
 
   public static void init ()
   {
-    BootstrapDataTables.setConfigurator ( (aLEC, aTable, aDataTables) -> {
+    BootstrapDataTables.setConfigurator ((aLEC, aTable, aDataTables) -> {
       final IRequestWebScopeWithoutResponse aRequestScope = aLEC.getRequestScope ();
       aDataTables.setAutoWidth (false)
                  .setLengthMenu (LENGTH_MENU)
@@ -131,8 +130,6 @@ public final class AppCommonUI
     if (StringHelper.isEmpty (sSrc))
       return null;
     return new HCImg ().setSrc (LinkHelper.getURLWithContext (sSrc))
-                       .addStyle (CCSSProperties.MARGIN.newValue ("-15px"))
-                       .addStyle (CCSSProperties.VERTICAL_ALIGN.newValue (CCSSValue.TOP))
                        .addStyle (CCSSProperties.PADDING.newValue ("0 15px 0 6px"));
   }
 }

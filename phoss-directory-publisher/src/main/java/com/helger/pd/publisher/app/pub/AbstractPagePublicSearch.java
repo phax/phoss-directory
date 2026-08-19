@@ -55,12 +55,12 @@ import com.helger.peppolid.IDocumentTypeIdentifier;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.peppol.pidscheme.IPeppolParticipantIdentifierScheme;
 import com.helger.peppolid.peppol.pidscheme.PeppolParticipantIdentifierSchemeManager;
-import com.helger.photon.bootstrap4.card.BootstrapCard;
-import com.helger.photon.bootstrap4.form.BootstrapFormGroup;
-import com.helger.photon.bootstrap4.form.BootstrapViewForm;
-import com.helger.photon.bootstrap4.nav.BootstrapTabBox;
-import com.helger.photon.bootstrap4.pages.BootstrapWebPageUIHandler;
-import com.helger.photon.bootstrap4.utils.BootstrapPageHeader;
+import com.helger.photon.bootstrap5.card.BootstrapCard;
+import com.helger.photon.bootstrap5.form.BootstrapFormGroup;
+import com.helger.photon.bootstrap5.form.BootstrapViewForm;
+import com.helger.photon.bootstrap5.nav.BootstrapTabBox;
+import com.helger.photon.bootstrap5.pages.BootstrapWebPageUIHandler;
+import com.helger.photon.bootstrap5.utils.BootstrapPageHeader;
 
 import jakarta.annotation.Nullable;
 

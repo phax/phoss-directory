@@ -117,11 +117,11 @@ div.result-doc ul li{
   list-style-type: none; 
 }
 
-.result-panel .form-group {
-  margin-bottom: 0;
+.result-panel .mb-3 {
+  margin-bottom: 0 !important;
 }
 
-.result-panel .form-group table {
+.result-panel .mb-3 table {
   margin-bottom: 0;
 }
 
@@ -142,6 +142,12 @@ div.result-doc ul li{
   background-color: #ddd;
   padding: 2px 4px;
   border-radius: 4px;
+}
+
+/* No longer contained in Bootstrap 5 */
+.pre-scrollable {
+  max-height: 340px;
+  overflow-y: scroll;
 }
 
 /* As defined in Bootstrap for e.g. .input-group-text */

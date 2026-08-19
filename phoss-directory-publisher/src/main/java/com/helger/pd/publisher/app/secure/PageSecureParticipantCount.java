@@ -27,8 +27,8 @@ import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.searchindex.PDIndexField;
 import com.helger.pd.indexer.searchindex.query.PDIndexQueryMatchAll;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
-import com.helger.photon.bootstrap4.buttongroup.BootstrapButtonToolbar;
-import com.helger.photon.bootstrap4.table.BootstrapTable;
+import com.helger.photon.bootstrap5.buttongroup.BootstrapButtonToolbar;
+import com.helger.photon.bootstrap5.table.BootstrapTable;
 import com.helger.photon.uicore.icon.EDefaultIcon;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 

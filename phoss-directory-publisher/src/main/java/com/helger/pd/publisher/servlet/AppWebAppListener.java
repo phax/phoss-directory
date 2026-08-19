@@ -43,7 +43,7 @@ import com.helger.pd.publisher.nicename.NiceNameHandler;
 import com.helger.pd.publisher.updater.SyncAllBusinessCardsJob;
 import com.helger.photon.ajax.IAjaxRegistry;
 import com.helger.photon.app.html.PhotonMetaElements;
-import com.helger.photon.bootstrap4.servlet.WebAppListenerBootstrap;
+import com.helger.photon.bootstrap5.servlet.WebAppListenerBootstrap;
 import com.helger.photon.core.appid.CApplicationID;
 import com.helger.photon.core.appid.PhotonGlobalState;
 import com.helger.photon.core.configfile.ConfigurationFile;

@@ -21,7 +21,7 @@ import org.jspecify.annotations.NonNull;
 import com.helger.annotation.Nonempty;
 import com.helger.base.id.IHasID;
 import com.helger.base.name.IHasDisplayName;
-import com.helger.photon.bootstrap4.pages.AbstractBootstrapWebPageForm;
+import com.helger.photon.bootstrap5.pages.AbstractBootstrapWebPageForm;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 
 import jakarta.annotation.Nullable;

@@ -26,9 +26,9 @@ import com.helger.html.hc.html.textlevel.HCSmall;
 import com.helger.pd.indexer.CDirectoryVersion;
 import com.helger.pd.publisher.CPDPublisher;
 import com.helger.photon.app.html.IHTMLProvider;
-import com.helger.photon.bootstrap4.CBootstrapCSS;
-import com.helger.photon.bootstrap4.uictrls.ext.BootstrapLoginHTMLProvider;
-import com.helger.photon.bootstrap4.uictrls.ext.BootstrapLoginManager;
+import com.helger.photon.bootstrap5.CBootstrapCSS;
+import com.helger.photon.bootstrap5.uictrls.ext.BootstrapLoginHTMLProvider;
+import com.helger.photon.bootstrap5.uictrls.ext.BootstrapLoginManager;
 import com.helger.photon.core.execcontext.ISimpleWebExecutionContext;
 import com.helger.security.authentication.credentials.ICredentialValidationResult;
 
