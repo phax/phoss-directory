@@ -23,7 +23,7 @@ RUN apt-get update \
   && apt-get install -y wget unzip \
   && rm -rf /var/lib/apt/lists/*
 
-ARG VERSION="0.15.0"
+ARG VERSION="0.16.0"
 ARG WAR_NAME=phoss-directory-publisher-${VERSION}.war
 
 # Download the PD from GitHub releases
@@ -36,7 +36,7 @@ RUN echo Downloading phoss Directory $VERSION \
 
 
 # Use an official Tomcat runtime as a base image
-FROM tomcat:10.1-jdk21
+FROM tomcat:10.1-jre25
 
 # Remove unused Tomcat web applications
 RUN rm -rf $CATALINA_HOME/webapps/manager \
