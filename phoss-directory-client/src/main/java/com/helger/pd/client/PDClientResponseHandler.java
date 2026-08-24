@@ -54,7 +54,7 @@ public class PDClientResponseHandler implements HttpClientResponseHandler <ESucc
     if (aHttpResponse.getCode () == 404)
       return ESuccess.FAILURE;
 
-    // Unexpected
+    // Unexpected response code
     final HttpEntity aEntity = aHttpResponse.getEntity ();
     String sContent = null;
     if (aEntity != null)

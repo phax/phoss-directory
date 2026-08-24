@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.annotation.concurrent.GuardedBy;
 import com.helger.annotation.concurrent.ThreadSafe;
+import com.helger.annotation.misc.ChangeNextMajorRelease;
 import com.helger.base.concurrent.SimpleReadWriteLock;
 import com.helger.base.enforce.ValueEnforcer;
 import com.helger.base.equals.EqualsHelper;
@@ -60,6 +61,7 @@ public final class PDClientConfiguration
    *         support.
    */
   @NonNull
+  @ChangeNextMajorRelease ("Remove fallback to extra files")
   public static MultiConfigurationValueProvider createPDClientValueProvider ()
   {
     // Start with default setup
@@ -168,6 +170,7 @@ public final class PDClientConfiguration
    * @return The type to the keystore. This is usually JKS. Property <code>keystore.type</code>.
    */
   @NonNull
+  @ChangeNextMajorRelease ("remove default")
   public static EKeyStoreType getKeyStoreType ()
   {
     final String sType = getConfig ().getAsStringOrFallback ("pdclient.keystore.type", "keystore.type");
@@ -243,6 +246,7 @@ public final class PDClientConfiguration
    * @since 0.6.0
    */
   @NonNull
+  @ChangeNextMajorRelease ("remove default")
   public static EKeyStoreType getTrustStoreType ()
   {
     final String sType = getConfig ().getAsStringOrFallback ("pdclient.truststore.type", "truststore.type");
