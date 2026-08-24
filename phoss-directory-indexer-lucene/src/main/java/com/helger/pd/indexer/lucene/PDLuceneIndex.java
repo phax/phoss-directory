@@ -257,12 +257,12 @@ public class PDLuceneIndex implements IPDIndex
   @NonNull
   private static Occur _toLuceneOccur (@NonNull final EPDIndexQueryOccur eOccur)
   {
+    // Deliberately no "default" case, so that adding a new occurrence is a compile error here
     return switch (eOccur)
     {
       case MUST -> Occur.MUST;
       case SHOULD -> Occur.SHOULD;
       case FILTER -> Occur.FILTER;
-      default -> throw new IllegalArgumentException ("Unsupported occurrence " + eOccur);
     };
   }
 
@@ -283,33 +283,30 @@ public class PDLuceneIndex implements IPDIndex
   @NonNull
   private static Query _recursiveCreateLuceneQuery (@NonNull final IPDIndexQuery aQuery)
   {
-    if (aQuery instanceof PDIndexQueryMatchAll)
-      return new MatchAllDocsQuery ();
-
-    if (aQuery instanceof final PDIndexQueryTerm aIndexQueryTerm)
-      return new TermQuery (_toLuceneTerm (aIndexQueryTerm));
-
-    if (aQuery instanceof final PDIndexQueryPrefix aPrefixQuery)
+    // IPDIndexQuery is sealed and this switch has deliberately no "default" case, so that adding a
+    // new query type is a compile error here
+    return switch (aQuery)
     {
-      // Note: PrefixQuery is supposed to work with the exact term, without a trailing "*"
-      return new PrefixQuery (new Term (aPrefixQuery.getFieldName (), aPrefixQuery.getValue ()));
-    }
-
-    if (aQuery instanceof final PDIndexQueryContains aContainsQuery)
-    {
-      // This works -> text ==> *text*
-      return new WildcardQuery (new Term (aContainsQuery.getFieldName (), "*" + aContainsQuery.getValue () + "*"));
-    }
-
-    if (aQuery instanceof final PDIndexQueryBool aBoolQuery)
-    {
-      final BooleanQuery.Builder aBuilder = new BooleanQuery.Builder ();
-      for (final PDIndexQueryBool.Clause aClause : aBoolQuery.getAllClauses ())
-        aBuilder.add (_toLuceneQuery (aClause.getQuery ()), _toLuceneOccur (aClause.getOccur ()));
-      return aBuilder.build ();
-    }
-
-    throw new IllegalArgumentException ("Unsupported query type " + aQuery.getClass ().getName ());
+      case final PDIndexQueryMatchAll _ -> new MatchAllDocsQuery ();
+      case final PDIndexQueryTerm aIndexQueryTerm -> new TermQuery (_toLuceneTerm (aIndexQueryTerm));
+      case final PDIndexQueryPrefix aPrefixQuery ->
+      {
+        // Note: PrefixQuery is supposed to work with the exact term, without a trailing "*"
+        yield new PrefixQuery (new Term (aPrefixQuery.getFieldName (), aPrefixQuery.getValue ()));
+      }
+      case final PDIndexQueryContains aContainsQuery ->
+      {
+        // This works -> text ==> *text*
+        yield new WildcardQuery (new Term (aContainsQuery.getFieldName (), "*" + aContainsQuery.getValue () + "*"));
+      }
+      case final PDIndexQueryBool aBoolQuery ->
+      {
+        final BooleanQuery.Builder aBuilder = new BooleanQuery.Builder ();
+        for (final PDIndexQueryBool.Clause aClause : aBoolQuery.getAllClauses ())
+          aBuilder.add (_toLuceneQuery (aClause.getQuery ()), _toLuceneOccur (aClause.getOccur ()));
+        yield aBuilder.build ();
+      }
+    };
   }
 
   @NonNull

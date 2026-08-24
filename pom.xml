@@ -62,7 +62,11 @@
   </developers>
   
   <properties>
+    <!-- The baseline of the artifacts that are consumed by third parties (SMP servers embed
+         phoss-directory-client) - do not raise this without a good reason -->
     <java.version>17</java.version>
+    <!-- The baseline of the modules that only ever run inside the Directory server itself -->
+    <java.version.server>25</java.version.server>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
 

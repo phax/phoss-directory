@@ -31,13 +31,15 @@ import jakarta.annotation.Nullable;
  * <li>{@link PDIndexQueryContains} - "contains" match of a single field value</li>
  * <li>{@link PDIndexQueryBool} - boolean combination of other queries</li>
  * </ul>
+ * This interface is sealed, so that the compiler can prove that an implementation of
+ * {@link com.helger.pd.indexer.searchindex.IPDIndex} handles all of them.<br>
  * Every implementation must provide a stable <code>toString</code> representation, because it is
  * used for logging and as the key of the query runtime statistics.
  *
  * @author Philip Helger
  * @since 0.16.0
  */
-public interface IPDIndexQuery
+public sealed interface IPDIndexQuery permits AbstractPDIndexQuery
 {
   /**
    * Get the cached search engine specific representation of this query. This method is reserved for

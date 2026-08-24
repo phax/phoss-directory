@@ -30,6 +30,10 @@
   <description>The Apache Lucene based search index implementation of the Peppol Directory</description>
   <url>https://github.com/phax/phoss-directory/phoss-directory-indexer-lucene</url>
   <inceptionYear>2015</inceptionYear>
+
+  <properties>
+    <java.version>${java.version.server}</java.version>
+  </properties>
   
   <licenses>
     <license>

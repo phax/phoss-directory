@@ -66,7 +66,6 @@ import com.helger.pd.indexer.searchindex.EPDIndexFieldTokenize;
 import com.helger.pd.indexer.searchindex.IPDIndex;
 import com.helger.pd.indexer.searchindex.PDIndexDocument;
 import com.helger.pd.indexer.searchindex.PDIndexField;
-import com.helger.pd.indexer.searchindex.query.EPDIndexQueryOccur;
 import com.helger.pd.indexer.searchindex.query.IPDIndexQuery;
 import com.helger.pd.indexer.searchindex.query.PDIndexQueryBool;
 import com.helger.pd.indexer.searchindex.query.PDIndexQueryContains;
@@ -569,54 +568,43 @@ public class PDOpenSearchIndex implements IPDIndex
   @NonNull
   private static Query _recursiveCreateOpenSearchQuery (@NonNull final IPDIndexQuery aQuery)
   {
-    if (aQuery instanceof PDIndexQueryMatchAll)
-      return Query.of (q -> q.matchAll (m -> m));
-
-    if (aQuery instanceof final PDIndexQueryTerm aTermQuery)
+    // IPDIndexQuery is sealed and this switch has deliberately no "default" case, so that adding a
+    // new query type is a compile error here
+    return switch (aQuery)
     {
-      return Query.of (q -> q.term (t -> t.field (aTermQuery.getFieldName ())
-                                          .value (FieldValue.of (aTermQuery.getValue ()))));
-    }
-
-    if (aQuery instanceof final PDIndexQueryPrefix aPrefixQuery)
-    {
-      // Note: the prefix query is supposed to work with the exact term, without a trailing "*"
-      return Query.of (q -> q.prefix (p -> p.field (aPrefixQuery.getFieldName ()).value (aPrefixQuery.getValue ())));
-    }
-
-    if (aQuery instanceof final PDIndexQueryContains aContainsQuery)
-    {
-      // This works -> text ==> *text*
-      return Query.of (q -> q.wildcard (w -> w.field (aContainsQuery.getFieldName ())
-                                              .value ("*" + aContainsQuery.getValue () + "*")));
-    }
-
-    if (aQuery instanceof final PDIndexQueryBool aBoolQuery)
-    {
-      final BoolQuery.Builder aBuilder = new BoolQuery.Builder ();
-      for (final PDIndexQueryBool.Clause aClause : aBoolQuery.getAllClauses ())
+      case final PDIndexQueryMatchAll _ -> Query.of (q -> q.matchAll (m -> m));
+      case final PDIndexQueryTerm aTermQuery -> Query.of (q -> q.term (t -> t.field (aTermQuery.getFieldName ())
+                                                                             .value (FieldValue.of (aTermQuery.getValue ()))));
+      case final PDIndexQueryPrefix aPrefixQuery ->
       {
-        final Query aClauseQuery = _toOpenSearchQuery (aClause.getQuery ());
-        final EPDIndexQueryOccur eOccur = aClause.getOccur ();
-        switch (eOccur)
-        {
-          case MUST:
-            aBuilder.must (aClauseQuery);
-            break;
-          case SHOULD:
-            aBuilder.should (aClauseQuery);
-            break;
-          case FILTER:
-            aBuilder.filter (aClauseQuery);
-            break;
-          default:
-            throw new IllegalArgumentException ("Unsupported occurrence " + eOccur);
-        }
+        // Note: the prefix query is supposed to work with the exact term, without a trailing "*"
+        yield Query.of (q -> q.prefix (p -> p.field (aPrefixQuery.getFieldName ()).value (aPrefixQuery.getValue ())));
       }
-      return Query.of (q -> q.bool (aBuilder.build ()));
-    }
-
-    throw new IllegalArgumentException ("Unsupported query type " + aQuery.getClass ().getName ());
+      case final PDIndexQueryContains aContainsQuery ->
+      {
+        // This works -> text ==> *text*
+        yield Query.of (q -> q.wildcard (w -> w.field (aContainsQuery.getFieldName ())
+                                               .value ("*" + aContainsQuery.getValue () + "*")));
+      }
+      case final PDIndexQueryBool aBoolQuery ->
+      {
+        final BoolQuery.Builder aBuilder = new BoolQuery.Builder ();
+        for (final PDIndexQueryBool.Clause aClause : aBoolQuery.getAllClauses ())
+        {
+          final Query aClauseQuery = _toOpenSearchQuery (aClause.getQuery ());
+          // Deliberately no "default" case, so that adding a new occurrence is a compile error
+          // here. This must be a switch expression, because a switch statement over an enum is not
+          // checked for exhaustiveness. The result is the builder itself and is not needed
+          var _ = switch (aClause.getOccur ())
+          {
+            case MUST -> aBuilder.must (aClauseQuery);
+            case SHOULD -> aBuilder.should (aClauseQuery);
+            case FILTER -> aBuilder.filter (aClauseQuery);
+          };
+        }
+        yield Query.of (q -> q.bool (aBuilder.build ()));
+      }
+    };
   }
 
   @NonNull

@@ -73,6 +73,8 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
    * @since 0.16.0
    */
   public static final String DEFAULT_SEARCHINDEX_TYPE = "lucene";
+  /** The default number of work items that are indexed in parallel */
+  public static final int DEFAULT_INDEXER_MAX_PARALLEL = 4;
 
   /**
    * @return The configuration value provider for phase4 that contains backward compatibility
@@ -246,6 +248,25 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   public static String getSearchIndexType ()
   {
     return getConfig ().getAsString ("searchindex.type", DEFAULT_SEARCHINDEX_TYPE);
+  }
+
+  /**
+   * Read value of <code>indexer.maxparallel</code>. Defaults to
+   * {@value #DEFAULT_INDEXER_MAX_PARALLEL}. Because the indexing threads are virtual threads that
+   * spend most of their time waiting for the SMP to respond, this value may be raised way beyond
+   * the number of available cores. Be aware that this is the number of SMP queries that are
+   * performed in parallel.
+   *
+   * @return The number of work items to be indexed in parallel. Always &gt; 0.
+   * @since 0.16.1
+   */
+  @Nonnegative
+  public static int getIndexerMaxParallel ()
+  {
+    final int ret = getConfig ().getAsInt ("indexer.maxparallel", DEFAULT_INDEXER_MAX_PARALLEL);
+    if (ret <= 0)
+      throw new IllegalStateException ("The indexer.maxparallel property must be > 0!");
+    return ret;
   }
 
   /**

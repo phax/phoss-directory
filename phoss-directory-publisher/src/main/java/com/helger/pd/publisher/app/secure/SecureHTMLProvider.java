@@ -32,6 +32,7 @@ import com.helger.html.hc.html.textlevel.HCSpan;
 import com.helger.html.hc.html.textlevel.HCStrong;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.CDirectoryVersion;
+import com.helger.pd.indexer.index.IndexerWorkItemQueue;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.app.AppCommonUI;
@@ -85,8 +86,8 @@ public class SecureHTMLProvider extends AbstractSWECHTMLProvider
 
     // Index queue length
     {
-      final int nQueueLen = PDMetaManager.getIndexerMgr ().getIndexerWorkQueue ().getQueueLength ();
-      aNavbar.addAndReturnText ().addChild ("[Queue length: " + nQueueLen + "]");
+      final IndexerWorkItemQueue aQueue = PDMetaManager.getIndexerMgr ().getIndexerWorkQueue ();
+      aNavbar.addAndReturnText ().addChild ("[Queue length: " + aQueue.getQueueLength () + "]");
     }
 
     final BootstrapNavbarToggleable aToggleable = aNavbar.addAndReturnToggleable ();

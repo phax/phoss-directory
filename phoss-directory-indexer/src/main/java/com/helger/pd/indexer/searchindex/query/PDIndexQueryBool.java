@@ -37,7 +37,7 @@ import com.helger.collection.commons.ICommonsList;
  * @since 0.16.0
  */
 @ThreadSafe
-public class PDIndexQueryBool extends AbstractPDIndexQuery
+public final class PDIndexQueryBool extends AbstractPDIndexQuery
 {
   /**
    * A single clause of a {@link PDIndexQueryBool}.
