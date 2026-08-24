@@ -12,8 +12,8 @@ The official Peppol Directory (PD; https://directory.peppol.eu).
 This project is part of my Peppol solution stack. See https://github.com/phax/peppol for other components and libraries in that area.
  
 This project is split into the following sub-projects:
-* `phoss-directory-indexer` - the PD indexer part (requires Java 25 since v0.16.1)
-* `phoss-directory-publisher` - the PD publisher web application (requires Java 25 since v0.16.1)
+* `phoss-directory-indexer` - the PD indexer part (requires Java 25 since v0.17.0)
+* `phoss-directory-publisher` - the PD publisher web application (requires Java 25 since v0.17.0)
 * `phoss-directory-client` - a client library to be added to SMP servers to force indexing in the PD (requires Java 17)
 * `phoss-directory-searchapi` - a client library for easier use of the Directory search REST API (since v0.7.2; requires Java 17)
 
@@ -109,7 +109,7 @@ Please see the [PD specification](https://docs.peppol.eu/edelivery/directory/PEP
 
 * **`indexer.maxparallel`** - The number of work items that are indexed in parallel, and therefore the number of SMP queries that are performed in parallel. Defaults to `4`.
 
-Handling a single work item is dominated by waiting for the SMP to respond and not by CPU usage, and since v0.16.1 the
+Handling a single work item is dominated by waiting for the SMP to respond and not by CPU usage, and since v0.17.0 the
   indexing threads are virtual threads.
 This value may therefore be raised way beyond the number of available cores.
 Be aware that raising it directly increases the request rate that the Directory puts on the SMPs of the network.
@@ -168,7 +168,7 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
-v0.16.1 - work in progress
+v0.17.0 - work in progress
 * The modules that only ever run inside the Directory server itself are now compiled for Java 25: `phoss-directory-indexer`, `phoss-directory-indexer-lucene`, `phoss-directory-indexer-opensearch`, `phoss-directory-indexer-conformance` and `phoss-directory-publisher`
     * `phoss-directory-client` and `phoss-directory-searchapi` are still compiled for Java 17, so that SMP servers running on Java 17 can keep using them
     * Building the project therefore requires Java 25 - the new POM property `java.version.server` holds the version of the server side modules

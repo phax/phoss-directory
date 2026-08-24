@@ -258,7 +258,7 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
    * performed in parallel.
    *
    * @return The number of work items to be indexed in parallel. Always &gt; 0.
-   * @since 0.16.1
+   * @since 0.17.0
    */
   @Nonnegative
   public static int getIndexerMaxParallel ()

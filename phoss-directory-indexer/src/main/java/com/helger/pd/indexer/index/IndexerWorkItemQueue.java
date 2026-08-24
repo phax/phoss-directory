@@ -85,7 +85,7 @@ public final class IndexerWorkItemQueue
   /**
    * @return The number of work items that are handled in parallel, as provided in the constructor.
    *         Always &gt; 0.
-   * @since 0.16.1
+   * @since 0.17.0
    */
   @Nonnegative
   public int getMaxParallel ()
