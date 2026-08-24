@@ -30,9 +30,6 @@ import com.helger.annotation.concurrent.ThreadSafe;
 import com.helger.base.concurrent.SimpleReadWriteLock;
 import com.helger.base.enforce.ValueEnforcer;
 import com.helger.base.equals.EqualsHelper;
-import com.helger.base.exception.InitializationException;
-import com.helger.base.string.StringHelper;
-import com.helger.base.system.SystemProperties;
 import com.helger.config.ConfigFactory;
 import com.helger.config.IConfig;
 import com.helger.config.fallback.ConfigWithFallback;
@@ -57,23 +54,6 @@ import com.helger.security.keystore.LoadedKeyStore;
 public final class PDClientConfiguration
 {
   private static final Logger LOGGER = LoggerFactory.getLogger (PDClientConfiguration.class);
-
-  static
-  {
-    // Since 0.9.0
-    if (StringHelper.isNotEmpty (SystemProperties.getPropertyValueOrNull ("peppol.pd.client.properties.path")))
-      throw new InitializationException ("The system property 'peppol.pd.client.properties.path' is no longer supported." +
-                                         " See https://github.com/phax/ph-commons#ph-config for alternatives." +
-                                         " Consider using the system property 'config.file' instead.");
-    if (StringHelper.isNotEmpty (SystemProperties.getPropertyValueOrNull ("pd.client.properties.path")))
-      throw new InitializationException ("The system property 'pd.client.properties.path' is no longer supported." +
-                                         " See https://github.com/phax/ph-commons#ph-config for alternatives." +
-                                         " Consider using the system property 'config.file' instead.");
-    if (StringHelper.isNotEmpty (System.getenv ().get ("DIRECTORY_CLIENT_CONFIG")))
-      throw new InitializationException ("The environment variable 'DIRECTORY_CLIENT_CONFIG' is no longer supported." +
-                                         " See https://github.com/phax/ph-commons#ph-config for alternatives." +
-                                         " Consider using the environment variable 'CONFIG_FILE' instead.");
-  }
 
   /**
    * @return The configuration value provider for phase4 that contains backward compatibility
