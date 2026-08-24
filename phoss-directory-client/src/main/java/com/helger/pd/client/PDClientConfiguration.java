@@ -74,14 +74,16 @@ public final class PDClientConfiguration
     aRes = aResourceProvider.getReadableResourceIf ("private-pd-client.properties", IReadableResource::exists);
     if (aRes != null)
     {
-      LOGGER.warn ("The support for the properties file 'private-pd-client.properties' is deprecated. Place the properties in 'application.properties' instead.");
+      // 0.17.0 changed from warn to error
+      LOGGER.error ("The support for the properties file 'private-pd-client.properties' is deprecated. Place the properties in 'application.properties' instead.");
       ret.addConfigurationSource (new ConfigurationSourceProperties (aRes, StandardCharsets.UTF_8), nBasePrio - 1);
     }
 
     aRes = aResourceProvider.getReadableResourceIf ("pd-client.properties", IReadableResource::exists);
     if (aRes != null)
     {
-      LOGGER.warn ("The support for the properties file 'pd-client.properties' is deprecated. Place the properties in 'application.properties' instead.");
+      // 0.17.0 changed from warn to error
+      LOGGER.error ("The support for the properties file 'pd-client.properties' is deprecated. Place the properties in 'application.properties' instead.");
       ret.addConfigurationSource (new ConfigurationSourceProperties (aRes, StandardCharsets.UTF_8), nBasePrio - 2);
     }
 
