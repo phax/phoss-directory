@@ -8,7 +8,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Build Commands
 
-Requires Java 17+ and Apache Maven 3.x. May also need the latest SNAPSHOT of [ph-oton](https://github.com/phax/ph-oton).
+Requires Java 25 and Apache Maven 3.x. May also need the latest SNAPSHOT of [ph-oton](https://github.com/phax/ph-oton).
+
+The baseline is split per module: `phoss-directory-client` and `phoss-directory-searchapi` are compiled for Java 17
+(third parties compile against them), every other module for Java 25 (POM property `java.version.server`).
 
 ```bash
 # Build entire project
@@ -67,4 +70,4 @@ All modules use the `com.helger.pd` base package:
 
 ## CI/CD
 
-GitHub Actions workflow (`.github/workflows/maven.yml`) tests on Java 17, 21, and 25. LocalStack is used for S3 integration testing.
+GitHub Actions workflow (`.github/workflows/maven.yml`) tests on Java 25 and 26; snapshots are deployed from the Java 25 job. LocalStack is used for S3 integration testing.

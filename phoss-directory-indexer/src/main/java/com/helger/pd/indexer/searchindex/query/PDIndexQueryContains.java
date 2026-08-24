@@ -29,7 +29,7 @@ import com.helger.annotation.concurrent.ThreadSafe;
  * @since 0.16.0
  */
 @ThreadSafe
-public class PDIndexQueryContains extends AbstractPDIndexQueryField
+public final class PDIndexQueryContains extends AbstractPDIndexQueryField
 {
   public PDIndexQueryContains (@NonNull @Nonempty final String sFieldName, @NonNull final String sValue)
   {

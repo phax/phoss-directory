@@ -11,11 +11,11 @@ The official Peppol Directory (PD; https://directory.peppol.eu).
 
 This project is part of my Peppol solution stack. See https://github.com/phax/peppol for other components and libraries in that area.
  
-This project is split into the following sub-projects (all require Java 11 or newer):
-* `phoss-directory-indexer` - the PD indexer part
-* `phoss-directory-publisher` - the PD publisher web application
-* `phoss-directory-client` - a client library to be added to SMP servers to force indexing in the PD
-* `phoss-directory-searchapi` - a client library for easier use of the Directory search REST API (since v0.7.2)
+This project is split into the following sub-projects:
+* `phoss-directory-indexer` - the PD indexer part (requires Java 25 since v0.16.1)
+* `phoss-directory-publisher` - the PD publisher web application (requires Java 25 since v0.16.1)
+* `phoss-directory-client` - a client library to be added to SMP servers to force indexing in the PD (requires Java 17)
+* `phoss-directory-searchapi` - a client library for easier use of the Directory search REST API (since v0.7.2; requires Java 17)
 
 Previous modules:
 * `phoss-directory-businesscard` - the common Business Card API - until v0.12.3; then moved to com.helger.peppol:peppol-directory-businesscard in https://github.com/phax/peppol-commons 
@@ -29,7 +29,11 @@ Previous modules:
 
 # Building requirements
 
-To build the PD software you need at least Java 17 and Apache Maven 3.x.
+To build the PD software you need at least Java 25 and Apache Maven 3.x.
+
+The two artifacts that are consumed by third parties - `phoss-directory-client` and `phoss-directory-searchapi` -
+  are compiled for Java 17, so that SMP servers running on Java 17 can keep using them.
+All other modules only ever run inside the Directory server itself and are compiled for Java 25.
 
 Additionally to the contained projects you *MAY* need the latest SNAPSHOT of [ph-oton](https://github.com/phax/ph-oton) as part of your build environment.
 
@@ -99,6 +103,17 @@ Therefore the respective SMP must have the appropriate `Extension` element of th
 Please see the [PD specification](https://docs.peppol.eu/edelivery/directory/PEPPOL-EDN-Directory-1.1.1-2020-10-15.pdf) 
   for a detailed description of the required data format as well as for the REST interface.
 
+## Indexer Parallelism Configuration
+
+**Configuration properties:**
+
+* **`indexer.maxparallel`** - The number of work items that are indexed in parallel, and therefore the number of SMP queries that are performed in parallel. Defaults to `4`.
+
+Handling a single work item is dominated by waiting for the SMP to respond and not by CPU usage, and since v0.16.1 the
+  indexing threads are virtual threads.
+This value may therefore be raised way beyond the number of available cores.
+Be aware that raising it directly increases the request rate that the Directory puts on the SMPs of the network.
+
 ## Indexer Shadowing Configuration
 
 The PD Indexer supports shadowing of indexing requests to a downstream replicator service for migration purposes (e.g., PD2 migration). 
@@ -152,6 +167,25 @@ indexer.shadowing.secret=your-secret-token-here
 The PD Publisher is the publicly accessible web site with listing and search functionality for certain participants.
 
 # News and noteworthy
+
+v0.16.1 - work in progress
+* The modules that only ever run inside the Directory server itself are now compiled for Java 25: `phoss-directory-indexer`, `phoss-directory-indexer-lucene`, `phoss-directory-indexer-opensearch`, `phoss-directory-indexer-conformance` and `phoss-directory-publisher`
+    * `phoss-directory-client` and `phoss-directory-searchapi` are still compiled for Java 17, so that SMP servers running on Java 17 can keep using them
+    * Building the project therefore requires Java 25 - the new POM property `java.version.server` holds the version of the server side modules
+* **Backwards incompatible change**: `IPDIndexQuery` is now a `sealed` interface that only permits the contained implementations, and `PDIndexQueryBool`, `PDIndexQueryContains`, `PDIndexQueryPrefix` and `PDIndexQueryTerm` are now `final`.
+  The set of queries was documented as being closed since v0.16.0 - it is now enforced by the compiler
+    * As a result `PDLuceneIndex` and `PDOpenSearchIndex` translate the queries with an exhaustive `switch` instead of a chain of `instanceof` checks, so that adding a new query type is a compile error in every implementation of `IPDIndex` instead of a runtime error in the one that was forgotten
+    * The same applies to `EPDIndexQueryOccur` - adding a new occurrence is now a compile error in both implementations
+* The indexer work items are now handled by virtual threads instead of a fixed pool of 4 platform threads
+    * Added the new configuration property `indexer.maxparallel` to configure the number of work items that are handled in parallel. It defaults to `4`, so the load that the Directory puts on the SMPs of the network is unchanged unless the property is raised deliberately
+    * **Backwards incompatible change**: the constructor of `IndexerWorkItemQueue` takes the number of parallel work items as the second parameter
+    * Added `IndexerWorkItemQueue.getMaxParallel ()`
+    * Added `PDServerConfiguration.getIndexerMaxParallel ()` and the constant `PDServerConfiguration.DEFAULT_INDEXER_MAX_PARALLEL`
+    * Note: virtual threads are always daemon threads, whereas the previous indexer threads were not. `PDIndexerManager.close ()` stops the queue explicitly on shutdown, so the remaining work items are still persisted
+    * The administration navbar shows the configured parallelism next to the index queue length
+* `PDIndexExecutor` translates `EIndexerWorkItemType` with an exhaustive `switch` expression, so that adding a new work item type is a compile error
+* Note: when running on Java 25, Apache Lucene 8.11.4 logs a warning that `sun.misc.Unsafe::invokeCleaner` is terminally deprecated, because that is how `MMapDirectory` unmaps index files.
+  This is harmless today but the method will be removed in a future JRE - the OpenSearch based search index is not affected
 
 v0.16.0 - 2026-08-19
 * The publisher web UI was switched from Bootstrap 4 to Bootstrap 5, using `ph-oton-bootstrap5` instead of `ph-oton-bootstrap4`

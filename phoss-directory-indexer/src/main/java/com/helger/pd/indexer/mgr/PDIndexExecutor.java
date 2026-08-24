@@ -86,74 +86,72 @@ final class PDIndexExecutor
       {
         final IParticipantIdentifier aParticipantID = aWorkItem.getParticipantID ();
 
-        final ESuccess eSuccess;
-        switch (aWorkItem.getType ())
+        // Deliberately no "default" case, so that adding a new work item type is a compile error
+        // here
+        final ESuccess eSuccess = switch (aWorkItem.getType ())
         {
-          case CREATE_UPDATE:
+          case CREATE_UPDATE ->
           {
             // Get BI from participant (e.g. from SMP)
             final PDExtendedBusinessCard aBI = aBCProvider.getBusinessCard (aParticipantID, aErrorMsgs::add);
             if (aBI == null)
             {
               // No/invalid extension present - no need to try again
-              eSuccess = ESuccess.FAILURE;
               final String sErrorMsg = "Failed to retrieve BusinessCard from SMP";
               aErrorMsgs.add (sErrorMsg);
+              yield ESuccess.FAILURE;
             }
-            else
+
+            // Got data - put in storage
+            final ESuccess eStored = aStorageMgr.createOrUpdateEntry (aParticipantID, aBI, aWorkItem.getAsMetaData ());
+            if (eStored.isFailure ())
             {
-              // Got data - put in storage
-              eSuccess = aStorageMgr.createOrUpdateEntry (aParticipantID, aBI, aWorkItem.getAsMetaData ());
-              if (eSuccess.isFailure ())
-              {
-                final String sErrorMsg = "Successfully retrieved BusinessCard but failed to store the data.";
-                aErrorMsgs.add (sErrorMsg);
-              }
+              final String sErrorMsg = "Successfully retrieved BusinessCard but failed to store the data.";
+              aErrorMsgs.add (sErrorMsg);
             }
-            break;
+            yield eStored;
           }
-          case DELETE:
+          case DELETE ->
           {
             // Really delete it
-            eSuccess = ESuccess.valueOf (aStorageMgr.deleteEntry (aParticipantID, aWorkItem.getAsMetaData (), true) >=
-                                         0);
-            if (eSuccess.isFailure ())
+            final ESuccess eDeleted = ESuccess.valueOf (aStorageMgr.deleteEntry (aParticipantID,
+                                                                                 aWorkItem.getAsMetaData (),
+                                                                                 true) >= 0);
+            if (eDeleted.isFailure ())
             {
               final String sErrorMsg = "Failed to delete the BusinessCard from the index";
               aErrorMsgs.add (sErrorMsg);
             }
-            break;
+            yield eDeleted;
           }
-          case SYNC:
+          case SYNC ->
           {
             // Get BI from participant (e.g. from SMP)
             final PDExtendedBusinessCard aBI = aBCProvider.getBusinessCard (aParticipantID, aErrorMsgs::add);
             if (aBI == null)
             {
               // No/invalid extension present - delete from index
-              eSuccess = ESuccess.valueOf (aStorageMgr.deleteEntry (aParticipantID, aWorkItem.getAsMetaData (), true) >=
-                                           0);
-              if (eSuccess.isFailure ())
+              final ESuccess eDeleted = ESuccess.valueOf (aStorageMgr.deleteEntry (aParticipantID,
+                                                                                   aWorkItem.getAsMetaData (),
+                                                                                   true) >= 0);
+              if (eDeleted.isFailure ())
               {
                 final String sErrorMsg = "Failed to retrieve the BusinessCard and failed to remove the data from the index.";
                 aErrorMsgs.add (sErrorMsg);
               }
+              yield eDeleted;
             }
-            else
+
+            // Got data - put in storage
+            final ESuccess eStored = aStorageMgr.createOrUpdateEntry (aParticipantID, aBI, aWorkItem.getAsMetaData ());
+            if (eStored.isFailure ())
             {
-              // Got data - put in storage
-              eSuccess = aStorageMgr.createOrUpdateEntry (aParticipantID, aBI, aWorkItem.getAsMetaData ());
-              if (eSuccess.isFailure ())
-              {
-                final String sErrorMsg = "Successfully retrieved BusinessCard but failed to store the data.";
-                aErrorMsgs.add (sErrorMsg);
-              }
+              final String sErrorMsg = "Successfully retrieved BusinessCard but failed to store the data.";
+              aErrorMsgs.add (sErrorMsg);
             }
-            break;
+            yield eStored;
           }
-          default:
-            throw new IllegalStateException ("Unsupported work item type: " + aWorkItem);
-        }
+        };
 
         if (eSuccess.isSuccess ())
         {

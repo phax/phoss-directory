@@ -30,7 +30,9 @@ import com.helger.base.hashcode.HashCodeGenerator;
  * @since 0.16.0
  */
 @ThreadSafe
-public abstract class AbstractPDIndexQueryField extends AbstractPDIndexQuery
+public abstract sealed class AbstractPDIndexQueryField extends AbstractPDIndexQuery permits PDIndexQueryContains,
+                                                                                    PDIndexQueryPrefix,
+                                                                                    PDIndexQueryTerm
 {
   private final String m_sFieldName;
   private final String m_sValue;

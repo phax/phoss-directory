@@ -30,7 +30,9 @@ import jakarta.annotation.Nullable;
  * @since 0.16.0
  */
 @ThreadSafe
-public abstract class AbstractPDIndexQuery implements IPDIndexQuery
+public abstract sealed class AbstractPDIndexQuery implements IPDIndexQuery permits AbstractPDIndexQueryField,
+                                                                            PDIndexQueryBool,
+                                                                            PDIndexQueryMatchAll
 {
   // Only a derived value - concurrently creating it twice is harmless
   private volatile Object m_aNativeQuery;

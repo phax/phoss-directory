@@ -30,6 +30,10 @@
   <description>The engine independent conformance test suite for implementations of the Peppol Directory search index</description>
   <url>https://github.com/phax/phoss-directory/phoss-directory-indexer-conformance</url>
   <inceptionYear>2026</inceptionYear>
+
+  <properties>
+    <java.version>${java.version.server}</java.version>
+  </properties>
   
   <licenses>
     <license>

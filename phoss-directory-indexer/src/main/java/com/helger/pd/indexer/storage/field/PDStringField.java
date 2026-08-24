@@ -55,8 +55,10 @@ public class PDStringField <NATIVE_TYPE> extends AbstractPDField <NATIVE_TYPE, S
                          @NonNull final EPDIndexFieldStore eStore,
                          @NonNull final EPDIndexFieldTokenize eTokenize)
   {
+    // Flexible constructor body - check before the superclass constructor is invoked
+    ValueEnforcer.notNull (eTokenize, "Tokenize");
     super (sFieldName, aConverterToStorage, aConverterFromStorage, eStore);
-    m_eTokenize = ValueEnforcer.notNull (eTokenize, "Tokenize");
+    m_eTokenize = eTokenize;
   }
 
   @Override

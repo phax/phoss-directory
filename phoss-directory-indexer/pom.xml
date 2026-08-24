@@ -30,6 +30,10 @@
   <description>The indexer web application of the PEPPOL Yellow Pages</description>
   <url>https://github.com/phax/phoss-directory/phoss-directory-indexer</url>
   <inceptionYear>2015</inceptionYear>
+
+  <properties>
+    <java.version>${java.version.server}</java.version>
+  </properties>
   
   <licenses>
     <license>

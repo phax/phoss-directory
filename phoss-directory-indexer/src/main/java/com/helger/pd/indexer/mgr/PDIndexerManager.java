@@ -48,6 +48,7 @@ import com.helger.pd.indexer.reindex.IReIndexWorkItem;
 import com.helger.pd.indexer.reindex.IReIndexWorkItemList;
 import com.helger.pd.indexer.reindex.ReIndexWorkItem;
 import com.helger.pd.indexer.reindex.ReIndexWorkItemList;
+import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.photon.io.WebFileIO;
 import com.helger.quartz.SimpleScheduleBuilder;
@@ -153,7 +154,8 @@ public final class PDIndexerManager implements Closeable
                                                                                                    aQueueItem,
                                                                                                    0,
                                                                                                    this::_onIndexSuccess,
-                                                                                                   this::_onIndexFailure));
+                                                                                                   this::_onIndexFailure),
+                                                    PDServerConfiguration.getIndexerMaxParallel ());
 
     // Schedule re-index job
     m_aTriggerKey = ReIndexJob.schedule (SimpleScheduleBuilder.repeatMinutelyForever (1));

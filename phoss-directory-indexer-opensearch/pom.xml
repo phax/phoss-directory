@@ -30,6 +30,10 @@
   <description>The AWS OpenSearch based search index implementation of the Peppol Directory</description>
   <url>https://github.com/phax/phoss-directory/phoss-directory-indexer-opensearch</url>
   <inceptionYear>2026</inceptionYear>
+
+  <properties>
+    <java.version>${java.version.server}</java.version>
+  </properties>
   
   <licenses>
     <license>
