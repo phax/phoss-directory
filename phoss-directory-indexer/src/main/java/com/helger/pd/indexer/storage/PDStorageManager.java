@@ -96,7 +96,7 @@ public final class PDStorageManager implements IPDStorageManager
   private static void _timedSearch (@NonNull final IThrowingRunnable <IOException> aRunnable,
                                     @NonNull final IPDIndexQuery aQuery) throws IOException
   {
-    _timedSearch ( () -> {
+    _timedSearch (() -> {
       aRunnable.run ();
       return null;
     }, aQuery);
@@ -128,7 +128,7 @@ public final class PDStorageManager implements IPDStorageManager
 
     // Search only documents that do not have the deleted field
     final IPDIndexQuery aQuery = PDField.PARTICIPANT_ID.getExactMatchQuery (aParticipantID);
-    final int nCount = _timedSearch ( () -> Integer.valueOf (m_aIndex.getCount (aQuery)), aQuery).intValue ();
+    final int nCount = _timedSearch (() -> Integer.valueOf (m_aIndex.getCount (aQuery)), aQuery).intValue ();
     return nCount > 0;
   }
 
@@ -381,7 +381,7 @@ public final class PDStorageManager implements IPDStorageManager
     ValueEnforcer.notNull (aQuery, "Query");
     try
     {
-      return _timedSearch ( () -> Integer.valueOf (m_aIndex.getCount (aQuery)), aQuery).intValue ();
+      return _timedSearch (() -> Integer.valueOf (m_aIndex.getCount (aQuery)), aQuery).intValue ();
     }
     catch (final IOException ex)
     {
@@ -425,7 +425,7 @@ public final class PDStorageManager implements IPDStorageManager
     ValueEnforcer.notNull (aQuery, "Query");
     ValueEnforcer.notNull (aConsumer, "Consumer");
 
-    _timedSearch ( () -> m_aIndex.searchAll (aQuery, nMaxResultCount, aConsumer), aQuery);
+    _timedSearch (() -> m_aIndex.searchAll (aQuery, nMaxResultCount, aConsumer), aQuery);
   }
 
   /**
@@ -518,7 +518,7 @@ public final class PDStorageManager implements IPDStorageManager
       searchAll (aQuery, -1, aDoc -> {
         final IParticipantIdentifier aResolvedParticipantID = PDField.PARTICIPANT_ID.getDocValue (aDoc);
         if (aResolvedParticipantID != null)
-          aTargetSet.computeIfAbsent (aResolvedParticipantID, k -> new MutableInt (0)).inc ();
+          aTargetSet.computeIfAbsent (aResolvedParticipantID, _ -> new MutableInt (0)).inc ();
       });
     }
     catch (final IOException ex)
@@ -551,7 +551,7 @@ public final class PDStorageManager implements IPDStorageManager
     {
       final IParticipantIdentifier aPID = aDoc.getParticipantID ();
       if (aPID != null)
-        ret.computeIfAbsent (aPID, k -> new CommonsArrayList <> ()).add (aDoc);
+        ret.computeIfAbsent (aPID, _ -> new CommonsArrayList <> ()).add (aDoc);
     }
     return ret;
   }

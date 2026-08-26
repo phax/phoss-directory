@@ -52,8 +52,8 @@ import com.helger.pd.indexer.storage.CPDStorage;
 import com.helger.pd.indexer.storage.PDStoredMetaData;
 import com.helger.pd.indexer.storage.field.PDField;
 import com.helger.pd.publisher.CPDPublisher;
-import com.helger.pd.publisher.exportall.ExportAllDataJob.ExportAllStatus;
 import com.helger.pd.publisher.exportall.ExportAllDataJob;
+import com.helger.pd.publisher.exportall.ExportAllDataJob.ExportAllStatus;
 import com.helger.pd.publisher.servlet.ExportDeliveryHttpHandler;
 import com.helger.pd.publisher.servlet.ExportServlet;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
@@ -92,7 +92,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
 
   static
   {
-    AJAX_DOWNLOAD_ALL_IDS_XML = addAjax ( (req, res) -> {
+    AJAX_DOWNLOAD_ALL_IDS_XML = addAjax ((_, res) -> {
       LOGGER.info ("Starting AJAX_DOWNLOAD_ALL_IDS_XML");
       final IMicroDocument aDoc = new MicroDocument ();
       final IMicroElement aRoot = aDoc.addElement ("root");
@@ -111,7 +111,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
       res.attachment ("directory-participant-list.xml");
       LOGGER.info ("Finished AJAX_DOWNLOAD_ALL_IDS_XML");
     });
-    AJAX_DOWNLOAD_ALL_IDS_AND_METADATA_XML = addAjax ( (req, res) -> {
+    AJAX_DOWNLOAD_ALL_IDS_AND_METADATA_XML = addAjax ((_, res) -> {
       LOGGER.info ("Starting AJAX_DOWNLOAD_ALL_IDS_AND_METADATA_XML");
       final IMicroDocument aDoc = new MicroDocument ();
       final IMicroElement aRoot = aDoc.addElement ("root");
@@ -161,7 +161,7 @@ public final class PageSecureParticipantActions extends AbstractAppWebPage
         final IParticipantIdentifier aResolvedParticipantID = PDField.PARTICIPANT_ID.getDocValue (aDoc);
         // Get the unparsed value
         final String sParticipantID = PDField.PARTICIPANT_ID.getDocField (aDoc).getStringValue ();
-        aMap.computeIfAbsent (aResolvedParticipantID, k -> new CommonsTreeSet <> ()).add (sParticipantID);
+        aMap.computeIfAbsent (aResolvedParticipantID, _ -> new CommonsTreeSet <> ()).add (sParticipantID);
       };
       PDMetaManager.getStorageMgr ().searchAll (aQuery, -1, aConsumer);
     }

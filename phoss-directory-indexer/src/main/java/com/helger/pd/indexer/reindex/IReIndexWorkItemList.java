@@ -35,8 +35,8 @@ import jakarta.annotation.Nullable;
 public interface IReIndexWorkItemList
 {
   /**
-   * @return A list of all re-index items currently in the list. Never
-   *         <code>null</code> but maybe empty.
+   * @return A list of all re-index items currently in the list. Never <code>null</code> but maybe
+   *         empty.
    */
   @NonNull
   @ReturnsMutableCopy
@@ -88,6 +88,6 @@ public interface IReIndexWorkItemList
   @NonNull
   default EChange deleteAllItems ()
   {
-    return EChange.valueOf (getAndRemoveAllEntries (x -> true).isNotEmpty ());
+    return EChange.valueOf (getAndRemoveAllEntries (_ -> true).isNotEmpty ());
   }
 }

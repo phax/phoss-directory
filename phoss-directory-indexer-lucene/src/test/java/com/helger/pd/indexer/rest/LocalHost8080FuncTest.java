@@ -43,9 +43,9 @@ import com.helger.base.concurrent.ThreadHelper;
 import com.helger.collection.commons.CommonsArrayList;
 import com.helger.http.security.HostnameVerifierVerifyAll;
 import com.helger.http.security.TrustManagerTrustAll;
-import com.helger.pd.indexer.lucene.PDLuceneIndexerTestRule;
 import com.helger.pd.indexer.businesscard.PDExtendedBusinessCard;
 import com.helger.pd.indexer.clientcert.ClientCertificateValidator;
+import com.helger.pd.indexer.lucene.PDLuceneIndexerTestRule;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.storage.field.PDField;
 import com.helger.peppol.businesscard.generic.PDBusinessCard;
@@ -110,7 +110,7 @@ public final class LocalHost8080FuncTest
   public void setUp () throws GeneralSecurityException, IOException
   {
     // Set test BC provider first!
-    PDMetaManager.setBusinessCardProvider ( (pid, errs) -> LocalHost8080FuncTest._createMockBC (pid));
+    PDMetaManager.setBusinessCardProvider ((pid, _) -> LocalHost8080FuncTest._createMockBC (pid));
     PDMetaManager.getInstance ();
 
     final File aTestClientCertificateKeyStore = new File ("src/test/resources/smp.pilot.jks");
@@ -166,8 +166,7 @@ public final class LocalHost8080FuncTest
 
     ThreadHelper.sleep (2000);
     assertTrue (PDMetaManager.getStorageMgr ().containsEntry (aPI_0));
-    assertTrue (PDMetaManager.getStorageMgr ()
-                             .getCount (PDField.PARTICIPANT_ID.getExactMatchQuery (aPI_0)) > 0);
+    assertTrue (PDMetaManager.getStorageMgr ().getCount (PDField.PARTICIPANT_ID.getExactMatchQuery (aPI_0)) > 0);
 
     aIndex.set (0);
     TestHelper.testInParallel (nCount, () -> {
@@ -182,10 +181,7 @@ public final class LocalHost8080FuncTest
 
     ThreadHelper.sleep (2000);
     assertFalse (PDMetaManager.getStorageMgr ().containsEntry (aPI_0));
-    assertEquals (0,
-                  PDMetaManager.getStorageMgr ()
-                               .getCount (PDField.PARTICIPANT_ID.getExactMatchQuery (aPI_0)));
-    assertTrue (PDMetaManager.getStorageMgr ()
-                             .getCount (PDField.PARTICIPANT_ID.getExactMatchQuery (aPI_0)) > 0);
+    assertEquals (0, PDMetaManager.getStorageMgr ().getCount (PDField.PARTICIPANT_ID.getExactMatchQuery (aPI_0)));
+    assertTrue (PDMetaManager.getStorageMgr ().getCount (PDField.PARTICIPANT_ID.getExactMatchQuery (aPI_0)) > 0);
   }
 }

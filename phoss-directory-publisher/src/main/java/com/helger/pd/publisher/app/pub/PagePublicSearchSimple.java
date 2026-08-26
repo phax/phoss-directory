@@ -95,7 +95,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
 
   static
   {
-    AJAX_EXPORT_LAST = addAjax ("export", (aRequestScope, aAjaxResponse) -> {
+    AJAX_EXPORT_LAST = addAjax ("export", (_, aAjaxResponse) -> {
       final IPDIndexQuery aLastQuery = PDSessionSingleton.getInstance ().getLastQuery ();
       if (aLastQuery == null)
         aAjaxResponse.createNotFound ();
@@ -154,8 +154,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     final BootstrapRow aBodyRow = new BootstrapRow ();
     aBodyRow.createColumn (BootstrapGridSpec.builder ().md (1).lg (2).xl (3).build ())
             .addClasses (CBootstrapCSS.D_NONE, CBootstrapCSS.D_MD_BLOCK);
-    aBodyRow.createColumn (BootstrapGridSpec.builder ().xs (12).md (10).lg (8).xl (6).build ())
-            .addChild (aBigQueryBox);
+    aBodyRow.createColumn (BootstrapGridSpec.builder ().xs (12).md (10).lg (8).xl (6).build ()).addChild (aBigQueryBox);
     aBodyRow.createColumn (BootstrapGridSpec.builder ().md (1).lg (2).xl (3).build ())
             .addClasses (CBootstrapCSS.D_NONE, CBootstrapCSS.D_MD_BLOCK);
     return aBodyRow;
@@ -256,8 +255,8 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     else
     {
       aNodeList.addChild (div (badgeSuccess ("Found " +
-                                             (aGroupedBEs.size () == 1 ? "1 entity" : aGroupedBEs.size () +
-                                                                                      " entities") +
+                                             (aGroupedBEs.size () == 1 ? "1 entity"
+                                                                       : aGroupedBEs.size () + " entities") +
                                              " matching '" +
                                              sQuery +
                                              "'")));

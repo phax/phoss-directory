@@ -201,7 +201,7 @@ public class PDLuceneIndex implements IPDIndex
     if (nMaxResultCount <= 0)
     {
       // Search all
-      final ObjIntConsumer <Document> aConverter = (aDoc, nDocID) -> aConsumer.accept (_toIndexDocument (aDoc));
+      final ObjIntConsumer <Document> aConverter = (aDoc, _) -> aConsumer.accept (_toIndexDocument (aDoc));
       final Collector aCollector = new AllDocumentsCollector (m_aLucene, aConverter);
       _searchAtomic (aLuceneQuery, aCollector);
     }

@@ -96,7 +96,7 @@ public final class PDIndexerManager implements Closeable
 
   private void _onIndexSuccess (@NonNull final IIndexerWorkItem aWorkItem)
   {
-    m_aRWLock.writeLocked ( () -> m_aUniqueItems.remove (aWorkItem));
+    m_aRWLock.writeLocked (() -> m_aUniqueItems.remove (aWorkItem));
   }
 
   private void _onIndexFailure (@NonNull final IIndexerWorkItem aWorkItem,
@@ -292,7 +292,7 @@ public final class PDIndexerManager implements Closeable
       for (final IReIndexWorkItem aItem : aExpiredItems)
       {
         // remove them from the overall list but move to dead item list
-        m_aRWLock.writeLocked ( () -> m_aUniqueItems.remove (aItem.getWorkItem ()));
+        m_aRWLock.writeLocked (() -> m_aUniqueItems.remove (aItem.getWorkItem ()));
 
         // move all to the dead item list
         m_aDeadList.addItem ((ReIndexWorkItem) aItem, false);
@@ -323,7 +323,7 @@ public final class PDIndexerManager implements Closeable
                                        aReIndexItem.getWorkItem (),
                                        1 + aReIndexItem.getRetryCount (),
                                        this::_onReIndexSuccess,
-                                       (aFailureItem, aErrorMsgs) -> _onReIndexFailure (aReIndexItem, aErrorMsgs));
+                                       (_, aErrorMsgs) -> _onReIndexFailure (aReIndexItem, aErrorMsgs));
     }
   }
 

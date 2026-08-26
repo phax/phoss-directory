@@ -595,7 +595,7 @@ public class PDOpenSearchIndex implements IPDIndex
           // Deliberately no "default" case, so that adding a new occurrence is a compile error
           // here. This must be a switch expression, because a switch statement over an enum is not
           // checked for exhaustiveness. The result is the builder itself and is not needed
-          var _ = switch (aClause.getOccur ())
+          final var _ = switch (aClause.getOccur ())
           {
             case MUST -> aBuilder.must (aClauseQuery);
             case SHOULD -> aBuilder.should (aClauseQuery);
@@ -613,7 +613,7 @@ public class PDOpenSearchIndex implements IPDIndex
     // Group all values by field name, retaining the order in which they were added
     final ICommonsOrderedMap <String, ICommonsList <PDIndexField>> aGrouped = new CommonsLinkedHashMap <> ();
     for (final PDIndexField aField : aDoc.fields ())
-      aGrouped.computeIfAbsent (aField.getName (), k -> new CommonsArrayList <> ()).add (aField);
+      aGrouped.computeIfAbsent (aField.getName (), _ -> new CommonsArrayList <> ()).add (aField);
 
     final JsonObjectBuilder aObjBuilder = Json.createObjectBuilder ();
     for (final Map.Entry <String, ICommonsList <PDIndexField>> aEntry : aGrouped.entrySet ())

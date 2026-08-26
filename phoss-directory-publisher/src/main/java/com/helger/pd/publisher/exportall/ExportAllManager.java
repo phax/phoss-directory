@@ -214,7 +214,7 @@ public final class ExportAllManager
       if (!aEntity.hasParticipantID ())
         return;
 
-      aMap.computeIfAbsent (aEntity.getParticipantID (), k -> new CommonsArrayList <> ()).add (aEntity);
+      aMap.computeIfAbsent (aEntity.getParticipantID (), _ -> new CommonsArrayList <> ()).add (aEntity);
     });
 
     return ExportHelper.getAllBusinessCardsAsUIXML (aMap, bIncludeDocTypes);
@@ -533,8 +533,8 @@ public final class ExportAllManager
                                              .separator ('\n')
                                              .build (),
                                 aEntity.getAdditionalInformation (),
-                                aEntity.getRegistrationDate () == null ? "" : aEntity.getRegistrationDate ()
-                                                                                     .toString (),
+                                aEntity.getRegistrationDate () == null ? ""
+                                                                       : aEntity.getRegistrationDate ().toString (),
                                 StringImplode.imploder ()
                                              .source (aEntity.documentTypeIDs (),
                                                       IDocumentTypeIdentifier::getURIEncoded)
