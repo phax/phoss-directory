@@ -168,7 +168,7 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
-v0.17.0 - work in progress
+v0.17.0 - 2026-08-30
 * The modules that only ever run inside the Directory server itself are now compiled for Java 25: `phoss-directory-indexer`, `phoss-directory-indexer-lucene`, `phoss-directory-indexer-opensearch`, `phoss-directory-indexer-conformance` and `phoss-directory-publisher`
     * `phoss-directory-client` and `phoss-directory-searchapi` are still compiled for Java 17, so that SMP servers running on Java 17 can keep using them
     * Building the project therefore requires Java 25 - the new POM property `java.version.server` holds the version of the server side modules
