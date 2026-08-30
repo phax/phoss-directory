@@ -22,6 +22,12 @@
   This date is not necessarily identical to the date when the solution was deployed.
 </p>
 
+<h4>2026-08-30</h4>
+
+<ul>
+  <li>Fixed that "Download results as XML" on the search page exported all matching Business Cards instead of only the ones that were shown (by default the first 50 - see the <code>max</code> query parameter)</li>
+</ul>
+
 <h4>2026-08-19</h4>
 
 <ul>
