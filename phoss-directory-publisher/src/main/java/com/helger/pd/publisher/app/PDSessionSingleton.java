@@ -18,6 +18,7 @@ package com.helger.pd.publisher.app;
 
 import org.jspecify.annotations.NonNull;
 
+import com.helger.annotation.CheckForSigned;
 import com.helger.annotation.style.UsedViaReflection;
 import com.helger.pd.indexer.searchindex.query.IPDIndexQuery;
 import com.helger.web.scope.singleton.AbstractSessionWebSingleton;
@@ -27,6 +28,7 @@ import jakarta.annotation.Nullable;
 public final class PDSessionSingleton extends AbstractSessionWebSingleton
 {
   private IPDIndexQuery m_aLastQuery;
+  private int m_nLastQueryMaxResultCount;
 
   @Deprecated (forRemoval = false)
   @UsedViaReflection
@@ -45,8 +47,28 @@ public final class PDSessionSingleton extends AbstractSessionWebSingleton
     return m_aLastQuery;
   }
 
-  public void setLastQuery (@Nullable final IPDIndexQuery aLastQuery)
+  /**
+   * @return The maximum number of results of the last query. Values &le; 0 mean all. Only
+   *         meaningful if {@link #getLastQuery()} is not <code>null</code>.
+   */
+  @CheckForSigned
+  public int getLastQueryMaxResultCount ()
+  {
+    return m_nLastQueryMaxResultCount;
+  }
+
+  /**
+   * Remember the last executed query together with the maximum number of results it was executed
+   * with, so that a follow-up export delivers exactly what was displayed.
+   *
+   * @param aLastQuery
+   *        The last query. May be <code>null</code>.
+   * @param nMaxResultCount
+   *        The maximum number of results of the last query. Values &le; 0 mean all.
+   */
+  public void setLastQuery (@Nullable final IPDIndexQuery aLastQuery, @CheckForSigned final int nMaxResultCount)
   {
     m_aLastQuery = aLastQuery;
+    m_nLastQueryMaxResultCount = nMaxResultCount;
   }
 }

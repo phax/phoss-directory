@@ -184,6 +184,10 @@ v0.17.0 - work in progress
     * Note: virtual threads are always daemon threads, whereas the previous indexer threads were not. `PDIndexerManager.close ()` stops the queue explicitly on shutdown, so the remaining work items are still persisted
     * The administration navbar shows the configured parallelism next to the index queue length
 * `PDIndexExecutor` translates `EIndexerWorkItemType` with an exhaustive `switch` expression, so that adding a new work item type is a compile error
+* Fixed that "Download results as XML" on the public search page ignored the maximum result count of the search (default 50, see the `max` query parameter) and exported all matching Business Cards instead
+    * **Backwards incompatible change**: `ExportAllManager.queryAllContainedBusinessCardsAsXML` takes the maximum result count as the second parameter
+    * **Backwards incompatible change**: `PDSessionSingleton.setLastQuery` takes the maximum result count as the second parameter
+    * Added `PDSessionSingleton.getLastQueryMaxResultCount ()`
 * Note: when running on Java 25, Apache Lucene 8.11.4 logs a warning that `sun.misc.Unsafe::invokeCleaner` is terminally deprecated, because that is how `MMapDirectory` unmaps index files.
   This is harmless today but the method will be removed in a future JRE - the OpenSearch based search index is not affected
 

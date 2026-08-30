@@ -32,6 +32,7 @@ import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.helger.annotation.CheckForSigned;
 import com.helger.annotation.Nonempty;
 import com.helger.annotation.WillNotClose;
 import com.helger.annotation.concurrent.ThreadSafe;
@@ -204,13 +205,14 @@ public final class ExportAllManager
   // This is only used for the on-demand export of UI search results
   @NonNull
   public static IMicroDocument queryAllContainedBusinessCardsAsXML (@NonNull final IPDIndexQuery aQuery,
+                                                                    @CheckForSigned final int nMaxResultCount,
                                                                     final boolean bIncludeDocTypes) throws IOException
   {
     final PDStorageManager aStorageMgr = PDMetaManager.getStorageMgr ();
 
     // Query all and group by participant ID
     final ICommonsOrderedMap <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> aMap = new CommonsLinkedHashMap <> ();
-    aStorageMgr.searchAllDocuments (aQuery, -1, aEntity -> {
+    aStorageMgr.searchAllDocuments (aQuery, nMaxResultCount, aEntity -> {
       if (!aEntity.hasParticipantID ())
         return;
 

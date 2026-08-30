@@ -96,12 +96,16 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
   static
   {
     AJAX_EXPORT_LAST = addAjax ("export", (_, aAjaxResponse) -> {
-      final IPDIndexQuery aLastQuery = PDSessionSingleton.getInstance ().getLastQuery ();
+      final PDSessionSingleton aSession = PDSessionSingleton.getInstance ();
+      final IPDIndexQuery aLastQuery = aSession.getLastQuery ();
       if (aLastQuery == null)
         aAjaxResponse.createNotFound ();
       else
       {
-        final IMicroDocument aDoc = ExportAllManager.queryAllContainedBusinessCardsAsXML (aLastQuery, true);
+        // Export exactly what was displayed - honour the maximum result count of the last query
+        final IMicroDocument aDoc = ExportAllManager.queryAllContainedBusinessCardsAsXML (aLastQuery,
+                                                                                          aSession.getLastQueryMaxResultCount (),
+                                                                                          true);
         aAjaxResponse.xml (aDoc);
         aAjaxResponse.attachment ("last-query-export.xml");
       }
@@ -179,7 +183,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     if (LOGGER.isDebugEnabled ())
       LOGGER.debug ("Created query for '" + sQuery + "' is <" + aIndexQuery + ">");
 
-    PDSessionSingleton.getInstance ().setLastQuery (aIndexQuery);
+    PDSessionSingleton.getInstance ().setLastQuery (aIndexQuery, nMaxResults);
 
     // Search all documents
     final ICommonsList <PDStoredBusinessEntity> aResultBEs = aStorageMgr.getAllDocuments (aIndexQuery, nMaxResults);
