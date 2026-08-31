@@ -168,6 +168,16 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
+v0.17.1 - work in progress
+* Fixed a concurrency issue in the Apache Lucene search index that could return the Business Card of an unrelated participant, if the index was modified while a search was running (security advisory [GHSA-8qhv-6p5x-2437](https://github.com/phax/phoss-directory/security/advisories/GHSA-8qhv-6p5x-2437))
+    * The internal Lucene document IDs of a search result are only valid for the index reader that created them, but they were resolved via an independently obtained index reader that may have been reopened in the meantime
+    * `PDLucene` now uses a Lucene `SearcherManager`, so that all the documents of a search result are resolved with exactly the searcher that was used for searching, and so that an index reader that is in use is neither replaced nor closed underneath the caller
+    * This also fixes that the previously used `DirectoryReader` was never closed when the index changed
+    * **Backwards incompatible change**: `PDLucene.getDirectoryReader ()`, `PDLucene.getSearcher ()` and `PDLucene.getDocument (int)` were replaced by `PDLucene.acquireSearcher ()` and `PDLucene.releaseSearcher (IndexSearcher)` - the previous API could not be used in a thread-safe way
+    * **Backwards incompatible change**: the interface `ILuceneDocumentProvider` was removed and the constructor of `AllDocumentsCollector` takes the document consumer only - the documents are now resolved from the leaf reader that is currently being searched
+    * The `phoss-directory-indexer-opensearch` implementation was not affected
+    * Added the test `PDLuceneIndexConcurrentSearchFuncTest` that searches in parallel to index modifications and verifies that every result belongs to the queried participant
+
 v0.17.0 - 2026-08-30
 * The modules that only ever run inside the Directory server itself are now compiled for Java 25: `phoss-directory-indexer`, `phoss-directory-indexer-lucene`, `phoss-directory-indexer-opensearch`, `phoss-directory-indexer-conformance` and `phoss-directory-publisher`
     * `phoss-directory-client` and `phoss-directory-searchapi` are still compiled for Java 17, so that SMP servers running on Java 17 can keep using them

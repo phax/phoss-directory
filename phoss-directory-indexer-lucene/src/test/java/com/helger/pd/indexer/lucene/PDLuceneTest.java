@@ -32,6 +32,7 @@ import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.PrefixQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
@@ -117,25 +118,34 @@ public final class PDLuceneTest
   {
     try (final PDLucene aLucene = new PDLucene ())
     {
-      // Find top 5 hits
-      final TopDocs results = aLucene.getSearcher ().search (aQuery, 5);
+      final IndexSearcher aSearcher = aLucene.acquireSearcher ();
+      try
+      {
+        // Find top 5 hits
+        final TopDocs results = aSearcher.search (aQuery, 5);
 
-      // Get results
-      final ScoreDoc [] aHits = results.scoreDocs;
-      if (aHits.length == 0)
-        return null;
+        // Get results
+        final ScoreDoc [] aHits = results.scoreDocs;
+        if (aHits.length == 0)
+          return null;
 
-      // Lucene 8
-      final long numTotalHits = results.totalHits.value;
-      assertEquals (1, numTotalHits);
+        // Lucene 8
+        final long numTotalHits = results.totalHits.value;
+        assertEquals (1, numTotalHits);
 
-      /*
-       * Matching score for the first document
-       */
-      assertTrue (aHits[0].score > 0);
+        /*
+         * Matching score for the first document
+         */
+        assertTrue (aHits[0].score > 0);
 
-      final Document doc = aLucene.getDocument (aHits[0].doc);
-      return doc;
+        // Must use the same searcher that was used for searching
+        final Document doc = aSearcher.doc (aHits[0].doc);
+        return doc;
+      }
+      finally
+      {
+        aLucene.releaseSearcher (aSearcher);
+      }
     }
   }
 

@@ -27,11 +27,7 @@ import java.util.function.Supplier;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.core.SimpleAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.document.Document;
 import org.apache.lucene.index.CorruptIndexException;
-import org.apache.lucene.index.DirectoryReader;
-import org.apache.lucene.index.IndexNotFoundException;
-import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
@@ -39,6 +35,8 @@ import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.SearcherFactory;
+import org.apache.lucene.search.SearcherManager;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.jspecify.annotations.NonNull;
@@ -56,7 +54,7 @@ import jakarta.annotation.Nullable;
  *
  * @author Philip Helger
  */
-public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuceneAnalyzerProvider
+public final class PDLucene implements Closeable, ILuceneAnalyzerProvider
 {
   private static final Logger LOGGER = LoggerFactory.getLogger (PDLucene.class);
 
@@ -64,9 +62,8 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
   private final Analyzer m_aAnalyzer;
   // IndexWriter is thread-safe
   private final IndexWriter m_aIndexWriter;
-  private DirectoryReader m_aDirectoryReader;
-  private IndexReader m_aSearchReader;
-  private IndexSearcher m_aSearcher;
+  // SearcherManager is thread-safe
+  private final SearcherManager m_aSearcherManager;
   private final AtomicBoolean m_aClosing = new AtomicBoolean (false);
   private final AtomicInteger m_aWriterChanges = new AtomicInteger (0);
 
@@ -122,7 +119,12 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
     aWriterConfig.setOpenMode (OpenMode.CREATE_OR_APPEND);
     m_aIndexWriter = new IndexWriter (m_aDir, aWriterConfig);
 
-    // Reader and searcher are opened on demand
+    /*
+     * Create the searcher manager. It ensures that a searcher that is in use is not closed
+     * underneath the user, so that the internal Lucene document IDs of a search result stay valid
+     * until the searcher is released again.
+     */
+    m_aSearcherManager = new SearcherManager (m_aIndexWriter, new SearcherFactory ());
 
     LOGGER.info ("Lucene index operating on " + aPath);
   }
@@ -133,7 +135,7 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
     if (!m_aClosing.getAndSet (true))
     {
       // Start closing
-      StreamHelper.close (m_aDirectoryReader);
+      StreamHelper.close (m_aSearcherManager);
 
       // Ensure to commit the writer in case of pending changes
       if (m_aIndexWriter != null && m_aIndexWriter.isOpen ())
@@ -146,7 +148,7 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
       StreamHelper.close (m_aIndexWriter);
       StreamHelper.close (m_aDir);
       StreamHelper.close (m_aAnalyzer);
-      LOGGER.info ("Closed Lucene reader/writer/directory");
+      LOGGER.info ("Closed Lucene searcher/writer/directory");
     }
   }
 
@@ -180,113 +182,67 @@ public final class PDLucene implements Closeable, ILuceneDocumentProvider, ILuce
     return m_aIndexWriter;
   }
 
-  @Nullable
-  public DirectoryReader getDirectoryReader () throws IOException
+  /**
+   * Commit all pending writer changes and reopen the searcher, if the index changed in the
+   * meantime.
+   *
+   * @throws IOException
+   *         On IO error
+   */
+  private void _commitAndRefresh () throws IOException
   {
-    _checkClosing ();
-
-    try
+    // Commit the writer changes only if a searcher is requested
+    final int nChanges = m_aWriterChanges.intValue ();
+    if (nChanges > 0)
     {
-      // Commit the writer changes only if a reader is requested
-      if (m_aWriterChanges.intValue () > 0)
-      {
-        LOGGER.info ("Lazily committing " + m_aWriterChanges.intValue () + " changes to the Lucene index");
-        final long nSeqNum = _getWriter ().commit ();
-        if (LOGGER.isDebugEnabled ())
-          LOGGER.debug ("Committed up to seq# " + nSeqNum);
-        m_aWriterChanges.set (0);
-      }
-
-      // Is a new reader required because the index changed?
-      final DirectoryReader aNewReader = m_aDirectoryReader != null ? DirectoryReader.openIfChanged (m_aDirectoryReader)
-                                                                    : DirectoryReader.open (m_aDir);
-      if (aNewReader != null)
-      {
-        // Something changed in the index
-        m_aDirectoryReader = aNewReader;
-        m_aSearcher = null;
-
-        if (LOGGER.isDebugEnabled ())
-        {
-          LOGGER.debug ("Contents of index changed. Creating new index reader");
-          LOGGER.debug ("Using DirectoryReader " + aNewReader.toString ());
-        }
-      }
-      return m_aDirectoryReader;
-    }
-    catch (final IndexNotFoundException ex)
-    {
-      // No such index
+      LOGGER.info ("Lazily committing " + nChanges + " changes to the Lucene index");
+      final long nSeqNum = _getWriter ().commit ();
       if (LOGGER.isDebugEnabled ())
-        LOGGER.debug ("No such index", ex);
-      return null;
+        LOGGER.debug ("Committed up to seq# " + nSeqNum);
+      // Only subtract what was committed - don't lose changes made in parallel
+      m_aWriterChanges.addAndGet (-nChanges);
     }
+
+    // Is a new searcher required because the index changed?
+    if (m_aSearcherManager.maybeRefresh ())
+      if (LOGGER.isDebugEnabled ())
+        LOGGER.debug ("Contents of index changed. Created a new index searcher");
   }
 
   /**
-   * Get the Lucene {@link Document} matching the specified ID
+   * Acquire the {@link IndexSearcher} for a single search operation. All the Lucene documents of a
+   * single search result must be resolved with exactly this searcher, because the internal Lucene
+   * document IDs are only valid for the index reader that created them. The returned searcher must
+   * be released with {@link #releaseSearcher(IndexSearcher)} in a <code>finally</code> block.
    *
-   * @param nDocID
-   *        Document ID
-   * @return <code>null</code> if no reader could be obtained or no such document exists.
+   * @return The searcher to be used. Never <code>null</code>.
    * @throws IOException
    *         On IO error
+   * @see #releaseSearcher(IndexSearcher)
    */
-  @Nullable
-  public Document getDocument (final int nDocID) throws IOException
+  @NonNull
+  public IndexSearcher acquireSearcher () throws IOException
   {
     _checkClosing ();
 
-    if (LOGGER.isDebugEnabled ())
-      LOGGER.debug ("getDocument(" + nDocID + ")");
-
-    final DirectoryReader aReader = getDirectoryReader ();
-    if (aReader == null)
-      return null;
-
-    try
-    {
-      return aReader.document (nDocID);
-    }
-    catch (final IllegalArgumentException ex)
-    {
-      // Happens in the wild
-      LOGGER.error ("Failed to retrieve document with ID " + nDocID + ": " + ex.getMessage ());
-      return null;
-    }
+    _commitAndRefresh ();
+    return m_aSearcherManager.acquire ();
   }
 
   /**
-   * Get a searcher on this index.
+   * Release a searcher previously acquired with {@link #acquireSearcher()}.
    *
-   * @return <code>null</code> if no reader or no searcher could be obtained
+   * @param aSearcher
+   *        The searcher to be released. May be <code>null</code>.
    * @throws IOException
    *         On IO error
+   * @see #acquireSearcher()
    */
-  @Nullable
-  public IndexSearcher getSearcher () throws IOException
+  public void releaseSearcher (@Nullable final IndexSearcher aSearcher) throws IOException
   {
-    _checkClosing ();
-
-    final DirectoryReader aReader = getDirectoryReader ();
-    if (aReader == null)
-    {
-      // Index not readable
-      LOGGER.warn ("Index not readable");
-      return null;
-    }
-
-    if (m_aSearchReader == aReader)
-    {
-      // Reader did not change - use cached searcher
-    }
-    else
-    {
-      // Create new searcher only if necessary
-      m_aSearchReader = aReader;
-      m_aSearcher = new IndexSearcher (aReader);
-    }
-    return m_aSearcher;
+    // Note: no closing check, because a searcher must be released in all cases
+    if (aSearcher != null)
+      m_aSearcherManager.release (aSearcher);
   }
 
   /**

@@ -20,13 +20,12 @@ import java.io.IOException;
 import java.util.function.ObjIntConsumer;
 
 import org.apache.lucene.document.Document;
+import org.apache.lucene.index.LeafReader;
 import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.search.Collector;
 import org.apache.lucene.search.ScoreMode;
 import org.apache.lucene.search.SimpleCollector;
 import org.jspecify.annotations.NonNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.helger.base.enforce.ValueEnforcer;
 import com.helger.base.tostring.ToStringGenerator;
@@ -38,25 +37,19 @@ import com.helger.base.tostring.ToStringGenerator;
  */
 public class AllDocumentsCollector extends SimpleCollector
 {
-  private static final Logger LOGGER = LoggerFactory.getLogger (AllDocumentsCollector.class);
-
-  private final ILuceneDocumentProvider m_aDocumentProvider;
   private final ObjIntConsumer <Document> m_aConsumer;
+  private LeafReader m_aLeafReader;
   private int m_nDocBase = 0;
 
   /**
    * Constructor
    *
-   * @param aDocumentProvider
-   *        The overall Document provider. May not be <code>null</code>.
    * @param aConsumer
    *        The consumer that will take the Lucene {@link Document} objects. May
    *        not be <code>null</code>.
    */
-  public AllDocumentsCollector (@NonNull final ILuceneDocumentProvider aDocumentProvider,
-                                @NonNull final ObjIntConsumer <Document> aConsumer)
+  public AllDocumentsCollector (@NonNull final ObjIntConsumer <Document> aConsumer)
   {
-    m_aDocumentProvider = ValueEnforcer.notNull (aDocumentProvider, "DocumentProvider");
     m_aConsumer = ValueEnforcer.notNull (aConsumer, "Consumer");
   }
 
@@ -68,29 +61,23 @@ public class AllDocumentsCollector extends SimpleCollector
   @Override
   protected void doSetNextReader (@NonNull final LeafReaderContext aCtx)
   {
-    // Important to remember the current document base
+    /*
+     * Important to remember the current leaf reader and the current document base. The document
+     * must be resolved from exactly this reader, because the document ID is only valid for it (see
+     * security advisory GHSA-8qhv-6p5x-2437).
+     */
+    m_aLeafReader = aCtx.reader ();
     m_nDocBase = aCtx.docBase;
   }
 
   @Override
   public void collect (final int nDocID) throws IOException
   {
-    final int nAbsoluteDocID = m_nDocBase + nDocID;
-    // Resolve document
-    final Document aDoc = m_aDocumentProvider.getDocument (nAbsoluteDocID);
-    if (aDoc == null)
-    {
-      // This may happen, if a document was deleted between searching and
-      // details retrieval
-      LOGGER.warn ("Failed to resolve Lucene Document with ID " +
-                   nAbsoluteDocID +
-                   " - eventually it was deleted in the meantime?");
-    }
-    else
-    {
-      // Pass to Consumer
-      m_aConsumer.accept (aDoc, nAbsoluteDocID);
-    }
+    // Resolve document relative to the leaf reader currently being searched
+    final Document aDoc = m_aLeafReader.document (nDocID);
+
+    // Pass to Consumer, using the absolute document ID
+    m_aConsumer.accept (aDoc, m_nDocBase + nDocID);
   }
 
   // Lucene 8

@@ -29,7 +29,6 @@ import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
-import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.Term;
@@ -132,9 +131,15 @@ public class PDLuceneIndex implements IPDIndex
     final ICommonsOrderedMap <String, String> ret = new CommonsLinkedHashMap <> ();
     ret.put ("Lucene index directory", PDLucene.getLuceneIndexDir ().getAbsolutePath ());
 
-    final DirectoryReader aReader = m_aLucene.getDirectoryReader ();
-    if (aReader != null)
-      ret.put ("Directory information", aReader.toString ());
+    final IndexSearcher aSearcher = m_aLucene.acquireSearcher ();
+    try
+    {
+      ret.put ("Directory information", aSearcher.getIndexReader ().toString ());
+    }
+    finally
+    {
+      m_aLucene.releaseSearcher (aSearcher);
+    }
     return ret;
   }
 
@@ -202,22 +207,37 @@ public class PDLuceneIndex implements IPDIndex
     {
       // Search all
       final ObjIntConsumer <Document> aConverter = (aDoc, _) -> aConsumer.accept (_toIndexDocument (aDoc));
-      final Collector aCollector = new AllDocumentsCollector (m_aLucene, aConverter);
+      final Collector aCollector = new AllDocumentsCollector (aConverter);
       _searchAtomic (aLuceneQuery, aCollector);
     }
     else
     {
-      // Search top docs only
-      // Lucene 8
-      final TopScoreDocCollector aCollector = TopScoreDocCollector.create (nMaxResultCount, Integer.MAX_VALUE);
-      _searchAtomic (aLuceneQuery, aCollector);
-      for (final ScoreDoc aScoreDoc : aCollector.topDocs ().scoreDocs)
+      /*
+       * Search top docs only. Important: the resulting documents must be resolved with exactly the
+       * searcher that was used for searching, because the Lucene document IDs are only valid for
+       * the index reader that created them (see security advisory GHSA-8qhv-6p5x-2437).
+       */
+      final IndexSearcher aSearcher = m_aLucene.acquireSearcher ();
+      try
       {
-        final Document aDoc = m_aLucene.getDocument (aScoreDoc.doc);
-        if (aDoc == null)
-          throw new IllegalStateException ("Failed to resolve Lucene Document with ID " + aScoreDoc.doc);
-        // Pass to Consumer
-        aConsumer.accept (_toIndexDocument (aDoc));
+        if (LOGGER.isDebugEnabled ())
+          LOGGER.debug ("Searching Lucene: " + aLuceneQuery);
+
+        // Lucene 8
+        final TopScoreDocCollector aCollector = TopScoreDocCollector.create (nMaxResultCount, Integer.MAX_VALUE);
+        aSearcher.search (aLuceneQuery, aCollector);
+        for (final ScoreDoc aScoreDoc : aCollector.topDocs ().scoreDocs)
+        {
+          final Document aDoc = aSearcher.doc (aScoreDoc.doc);
+          if (aDoc == null)
+            throw new IllegalStateException ("Failed to resolve Lucene Document with ID " + aScoreDoc.doc);
+          // Pass to Consumer
+          aConsumer.accept (_toIndexDocument (aDoc));
+        }
+      }
+      finally
+      {
+        m_aLucene.releaseSearcher (aSearcher);
       }
     }
   }
@@ -235,8 +255,8 @@ public class PDLuceneIndex implements IPDIndex
    */
   private void _searchAtomic (@NonNull final Query aQuery, @NonNull final Collector aCollector) throws IOException
   {
-    final IndexSearcher aSearcher = m_aLucene.getSearcher ();
-    if (aSearcher != null)
+    final IndexSearcher aSearcher = m_aLucene.acquireSearcher ();
+    try
     {
       if (LOGGER.isDebugEnabled ())
         LOGGER.debug ("Searching Lucene: " + aQuery);
@@ -244,8 +264,10 @@ public class PDLuceneIndex implements IPDIndex
       // Search all documents, collect them
       aSearcher.search (aQuery, aCollector);
     }
-    else
-      LOGGER.error ("Failed to obtain IndexSearcher for " + aQuery);
+    finally
+    {
+      m_aLucene.releaseSearcher (aSearcher);
+    }
   }
 
   @NonNull
