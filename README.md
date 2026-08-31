@@ -168,7 +168,7 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
-v0.17.1 - work in progress
+v0.17.1 - 2026-08-31
 * Fixed a concurrency issue in the Apache Lucene search index that could return the Business Card of an unrelated participant, if the index was modified while a search was running (security advisory [GHSA-8qhv-6p5x-2437](https://github.com/phax/phoss-directory/security/advisories/GHSA-8qhv-6p5x-2437))
     * The internal Lucene document IDs of a search result are only valid for the index reader that created them, but they were resolved via an independently obtained index reader that may have been reopened in the meantime
     * `PDLucene` now uses a Lucene `SearcherManager`, so that all the documents of a search result are resolved with exactly the searcher that was used for searching, and so that an index reader that is in use is neither replaced nor closed underneath the caller
