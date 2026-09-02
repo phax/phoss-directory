@@ -204,7 +204,12 @@ public final class AppWebAppListener extends WebAppListenerBootstrap
   {
     // Load managers
     PDMetaManager.getInstance ();
+    // This sets the BusinessCard provider in the PDMetaManager
     PDPMetaManager.getInstance ();
+
+    // Start the indexing only now, because it needs the BusinessCard provider that is set by the
+    // PDPMetaManager
+    PDMetaManager.getIndexerMgr ().startIndexing ();
     // Ensure this is loaded as well, to identify configuration errors as soon
     // as possible. Ignore the result. It's just about the static class
     // initialization

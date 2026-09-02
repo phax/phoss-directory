@@ -123,6 +123,7 @@ public final class IndexerResourceTest
     // Set test BC provider first!
     PDMetaManager.setBusinessCardProvider (IndexerResourceTest::_createMockBC);
     PDMetaManager.getInstance ();
+    PDMetaManager.getIndexerMgr ().startIndexing ();
 
     final File aTestClientCertificateKeyStore = new File ("src/test/resources/smp.pilot.jks");
     if (aTestClientCertificateKeyStore.exists ())

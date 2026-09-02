@@ -20,6 +20,7 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -81,7 +82,7 @@ public final class PDIndexerManager implements Closeable
   private final ReIndexWorkItemList m_aReIndexList;
   private final ReIndexWorkItemList m_aDeadList;
   private final IndexerWorkItemQueue m_aIndexerWorkQueue;
-  private final TriggerKey m_aTriggerKey;
+  private final AtomicBoolean m_aIndexingStarted = new AtomicBoolean (false);
 
   /**
    * This set contains all work items that are not yet finished. It contains all items in the
@@ -93,6 +94,7 @@ public final class PDIndexerManager implements Closeable
 
   // Status vars
   private final GlobalQuartzScheduler m_aScheduler;
+  private volatile TriggerKey m_aTriggerKey;
 
   private void _onIndexSuccess (@NonNull final IIndexerWorkItem aWorkItem)
   {
@@ -123,13 +125,8 @@ public final class PDIndexerManager implements Closeable
   /**
    * Constructor.<br>
    * Initialized the work item queue, the re-index queue and the dead-queue.<br>
-   * Schedules the re-index job.<br>
-   * Read all work items persisted to disk. This happens when the application is shutdown while
-   * elements are still in the queue.<br>
-   * Please note that the queuing of the items might directly trigger the usage of the
-   * {@link PDMetaManager#getBusinessCardProvider()} so make sure to call
-   * {@link PDMetaManager#setBusinessCardProvider(IPDBusinessCardProvider)} before calling this
-   * method.
+   * This constructor deliberately performs no indexing at all - call {@link #startIndexing()} for
+   * that, as soon as all the prerequisites for indexing are fulfilled.
    *
    * @param aStorageMgr
    *        Storage manager to used. May not be <code>null</code>.
@@ -157,11 +154,38 @@ public final class PDIndexerManager implements Closeable
                                                                                                    this::_onIndexFailure),
                                                     PDServerConfiguration.getIndexerMaxParallel ());
 
-    // Schedule re-index job
-    m_aTriggerKey = ReIndexJob.schedule (SimpleScheduleBuilder.repeatMinutelyForever (1));
-
     // remember here
     m_aScheduler = GlobalQuartzScheduler.getInstance ();
+  }
+
+  /**
+   * Start all the indexing activities.<br>
+   * Schedules the re-index job.<br>
+   * Reads all work items persisted to disk and queues them again. This happens when the application
+   * is shutdown while elements are still in the queue.<br>
+   * Please note that the queuing of the items directly triggers the usage of the
+   * {@link PDMetaManager#getBusinessCardProvider()} so make sure to call
+   * {@link PDMetaManager#setBusinessCardProvider(IPDBusinessCardProvider)} before calling this
+   * method. Calling this method more than once has no effect.
+   *
+   * @throws IllegalStateException
+   *         If no {@link IPDBusinessCardProvider} is present.
+   */
+  public void startIndexing ()
+  {
+    // The queued work items are executed immediately, so the Business Card provider must already be
+    // present
+    if (PDMetaManager.getBusinessCardProviderOrNull () == null)
+      throw new IllegalStateException ("The BusinessCard provider must be set before the indexing can be started");
+
+    if (m_aIndexingStarted.getAndSet (true))
+    {
+      LOGGER.warn ("The indexing was already started - not starting it again");
+      return;
+    }
+
+    // Schedule re-index job
+    m_aTriggerKey = ReIndexJob.schedule (SimpleScheduleBuilder.repeatMinutelyForever (1));
 
     // Read the file - may not be existing
     final IMicroDocument aDoc = MicroReader.readMicroXML (m_aIndexerWorkItemFile);
@@ -199,7 +223,10 @@ public final class PDIndexerManager implements Closeable
     // Unschedule the job to avoid problems on shutdown. Use the saved instance
     // because GlobalQuartzScheduler.getInstance() would fail because the global
     // scope is already in destruction.
-    m_aScheduler.unscheduleJob (m_aTriggerKey);
+    // The trigger key is only present if the indexing was started
+    final TriggerKey aTriggerKey = m_aTriggerKey;
+    if (aTriggerKey != null)
+      m_aScheduler.unscheduleJob (aTriggerKey);
 
     // Close Lucene index etc.
     m_aStorageMgr.close ();

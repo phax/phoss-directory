@@ -112,6 +112,7 @@ public final class LocalHost8080FuncTest
     // Set test BC provider first!
     PDMetaManager.setBusinessCardProvider ((pid, _) -> LocalHost8080FuncTest._createMockBC (pid));
     PDMetaManager.getInstance ();
+    PDMetaManager.getIndexerMgr ().startIndexing ();
 
     final File aTestClientCertificateKeyStore = new File ("src/test/resources/smp.pilot.jks");
     if (aTestClientCertificateKeyStore.exists ())
