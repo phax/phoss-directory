@@ -31,7 +31,6 @@ import com.helger.html.hc.html.tabular.HCTable;
 import com.helger.html.hc.html.tabular.IHCCell;
 import com.helger.html.hc.html.textlevel.HCA;
 import com.helger.html.hc.impl.HCNodeList;
-import com.helger.pd.indexer.index.EIndexerWorkItemType;
 import com.helger.pd.indexer.index.IIndexerWorkItem;
 import com.helger.pd.indexer.mgr.PDIndexerManager;
 import com.helger.pd.indexer.mgr.PDMetaManager;
@@ -72,6 +71,7 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
 {
   private static final String ACTION_DELETE_ALL = "deleteall";
   private static final String ACTION_REINDEX_NOW = "reindexnow";
+  private static final String ACTION_REINDEX_ALL_NOW = "reindexallnow";
 
   private final boolean m_bDeadIndex;
 
@@ -138,11 +138,11 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
                         public EShowList handleAction (@NonNull final WebPageExecutionContext aWPEC,
                                                        @NonNull final IReIndexWorkItem aSelectedObject)
                         {
-                          final IParticipantIdentifier aParticipantID = aSelectedObject.getWorkItem ()
-                                                                                       .getParticipantID ();
+                          final var aWI = aSelectedObject.getWorkItem ();
+                          final IParticipantIdentifier aParticipantID = aWI.getParticipantID ();
                           if (PDMetaManager.getIndexerMgr ()
                                            .queueWorkItem (aParticipantID,
-                                                           EIndexerWorkItemType.CREATE_UPDATE,
+                                                           aWI.getType (),
                                                            CPDStorage.OWNER_MANUALLY_TRIGGERED,
                                                            PDIndexerManager.HOST_LOCALHOST)
                                            .isChanged ())
@@ -158,6 +158,54 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
                                                                  "' is already in the indexing queue!"));
                           }
                           return EShowList.SHOW_LIST;
+                        }
+                      });
+    addCustomHandler (ACTION_REINDEX_ALL_NOW,
+                      new AbstractBootstrapWebPageActionHandlerWithQuery <IReIndexWorkItem, WebPageExecutionContext> (false,
+                                                                                                                      ACTION_REINDEX_ALL_NOW,
+                                                                                                                      "reindexallnow")
+                      {
+                        @Override
+                        protected void showQuery (@NonNull final WebPageExecutionContext aWPEC,
+                                                  @NonNull final BootstrapForm aForm,
+                                                  @Nullable final IReIndexWorkItem aSelectedObject)
+                        {
+                          aForm.addChild (question ("Are you sure to move all items back to the indexing queue?"));
+                        }
+
+                        @Override
+                        protected void performAction (final WebPageExecutionContext aWPEC,
+                                                      final IReIndexWorkItem aSelectedObject)
+                        {
+                          final PDIndexerManager aIndexerMgr = PDMetaManager.getIndexerMgr ();
+                          int nQueued = 0;
+                          int nAlreadyQueued = 0;
+                          for (final IReIndexWorkItem aItem : getReIndexWorkItemList ().getAllItems ())
+                          {
+                            final IIndexerWorkItem aWorkItem = aItem.getWorkItem ();
+                            if (aIndexerMgr.queueWorkItem (aWorkItem.getParticipantID (),
+                                                           aWorkItem.getType (),
+                                                           CPDStorage.OWNER_MANUALLY_TRIGGERED,
+                                                           PDIndexerManager.HOST_LOCALHOST).isChanged ())
+                              nQueued++;
+                            else
+                              nAlreadyQueued++;
+                          }
+
+                          if (nQueued == 0 && nAlreadyQueued == 0)
+                            aWPEC.postRedirectGetInternal (warn ("Seems like there is no item to be re-indexed."));
+                          else
+                          {
+                            final HCNodeList aMessages = new HCNodeList ();
+                            if (nQueued > 0)
+                              aMessages.addChild (success ("The re-indexing of " +
+                                                           nQueued +
+                                                           " item(s) was successfully triggered!"));
+                            if (nAlreadyQueued > 0)
+                              aMessages.addChild (warn (nAlreadyQueued +
+                                                        " item(s) are already in the indexing queue!"));
+                            aWPEC.postRedirectGetInternal (aMessages);
+                          }
                         }
                       });
   }
@@ -285,6 +333,11 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
       aToolbar.addChild (new BootstrapButton ().addChild ("Refresh")
                                                .setIcon (EDefaultIcon.REFRESH)
                                                .setOnClick (aWPEC.getSelfHref ()));
+      aToolbar.addChild (new BootstrapButton ().addChild ("Re-index all entries now")
+                                               .setIcon (EDefaultIcon.NEXT)
+                                               .setOnClick (aWPEC.getSelfHref ()
+                                                                 .add (CPageParam.PARAM_ACTION,
+                                                                       ACTION_REINDEX_ALL_NOW)));
       aToolbar.addChild (new BootstrapButton ().addChild ("Delete all entries")
                                                .setIcon (EDefaultIcon.DELETE)
                                                .setOnClick (aWPEC.getSelfHref ()

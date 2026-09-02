@@ -168,6 +168,10 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
+v0.17.2 - work in progress
+* Added the button "Re-index all entries now" to the "Dead Index List" page, to move all dead entries back into the indexing queue. See [#89](https://github.com/phax/phoss-directory/issues/89)
+    * Each entry is queued with its original action type, so that the respective entry is also removed from the dead list
+
 v0.17.1 - 2026-08-31
 * Fixed a concurrency issue in the Apache Lucene search index that could return the Business Card of an unrelated participant, if the index was modified while a search was running (security advisory [GHSA-8qhv-6p5x-2437](https://github.com/phax/phoss-directory/security/advisories/GHSA-8qhv-6p5x-2437))
     * The internal Lucene document IDs of a search result are only valid for the index reader that created them, but they were resolved via an independently obtained index reader that may have been reopened in the meantime
