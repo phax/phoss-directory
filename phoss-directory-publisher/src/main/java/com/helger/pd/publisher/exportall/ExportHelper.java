@@ -16,13 +16,20 @@
  */
 package com.helger.pd.publisher.exportall;
 
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.jspecify.annotations.NonNull;
 
+import com.helger.annotation.WillNotClose;
+import com.helger.base.io.stream.NonClosingOutputStream;
+import com.helger.base.io.stream.StreamHelper;
 import com.helger.collection.commons.ICommonsList;
 import com.helger.collection.commons.ICommonsOrderedMap;
+import com.helger.csv.CSVWriter;
 import com.helger.datetime.helper.PDTFactory;
 import com.helger.datetime.web.PDTWebDateHelper;
 import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
@@ -45,8 +52,27 @@ final class ExportHelper
   // XML_EXPORT_NS_URI_V2 = "http://www.peppol.eu/schema/pd/businesscard-generic/201907/";
   public static final String XML_EXPORT_NS_URI_V3 = "urn:peppol:schema:pd:businesscard-generic:2025:03";
 
+  private static final char CSV_SEPARATOR = ';';
+
   private ExportHelper ()
   {}
+
+  /**
+   * Create the {@link CSVWriter} to be used for all CSV exports.
+   *
+   * @param aOS
+   *        The output stream to write to. The stream is not closed by the created writer. May not
+   *        be <code>null</code>.
+   * @return The created {@link CSVWriter}. Never <code>null</code>.
+   */
+  @NonNull
+  static CSVWriter createCSVWriter (@NonNull @WillNotClose final OutputStream aOS)
+  {
+    final CSVWriter ret = new CSVWriter (StreamHelper.createWriter (new NonClosingOutputStream (aOS),
+                                                                    StandardCharsets.ISO_8859_1));
+    ret.setSeparatorChar (CSV_SEPARATOR);
+    return ret;
+  }
 
   @NonNull
   static IMicroDocument getAllBusinessCardsAsUIXML (@NonNull final ICommonsOrderedMap <IParticipantIdentifier, ICommonsList <PDStoredBusinessEntity>> aMap,

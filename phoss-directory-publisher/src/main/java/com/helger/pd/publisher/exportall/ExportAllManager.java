@@ -20,13 +20,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.Writer;
-import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.function.Consumer;
-
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
 
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
@@ -34,26 +29,22 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.annotation.CheckForSigned;
 import com.helger.annotation.Nonempty;
-import com.helger.annotation.WillNotClose;
 import com.helger.annotation.concurrent.ThreadSafe;
+import com.helger.annotation.style.ReturnsMutableCopy;
 import com.helger.annotation.style.VisibleForTesting;
-import com.helger.base.io.stream.NonClosingOutputStream;
+import com.helger.base.enforce.ValueEnforcer;
+import com.helger.base.functional.IThrowingConsumer;
 import com.helger.base.io.stream.StreamHelper;
 import com.helger.base.state.ESuccess;
-import com.helger.base.string.StringImplode;
 import com.helger.collection.commons.CommonsArrayList;
 import com.helger.collection.commons.CommonsLinkedHashMap;
 import com.helger.collection.commons.CommonsTreeSet;
 import com.helger.collection.commons.ICommonsList;
 import com.helger.collection.commons.ICommonsOrderedMap;
 import com.helger.collection.commons.ICommonsSortedSet;
-import com.helger.csv.CSVWriter;
-import com.helger.datetime.helper.PDTFactory;
-import com.helger.datetime.web.PDTWebDateHelper;
 import com.helger.http.CHttpHeader;
 import com.helger.io.file.FileHelper;
 import com.helger.io.file.FilenameHelper;
-import com.helger.mime.CMimeType;
 import com.helger.mime.IMimeType;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.searchindex.query.IPDIndexQuery;
@@ -62,23 +53,13 @@ import com.helger.pd.indexer.searchindex.query.PDIndexQueryTerm;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
-import com.helger.pd.indexer.storage.PDStoredContact;
-import com.helger.pd.indexer.storage.PDStoredIdentifier;
-import com.helger.pd.indexer.storage.PDStoredMLName;
 import com.helger.pd.indexer.storage.field.PDField;
+import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.aws.S3Helper;
-import com.helger.peppol.ui.types.nicename.NiceNameEntry;
-import com.helger.peppol.ui.types.nicename.NiceNameManager;
-import com.helger.peppolid.IDocumentTypeIdentifier;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.factory.IIdentifierFactory;
-import com.helger.peppolid.peppol.doctype.EPredefinedDocumentTypeIdentifier;
 import com.helger.servlet.response.UnifiedResponse;
 import com.helger.xml.microdom.IMicroDocument;
-import com.helger.xml.serialize.write.XMLWriterSettings;
-
-import jakarta.json.Json;
-import jakarta.json.stream.JsonGenerator;
 
 @ThreadSafe
 public final class ExportAllManager
@@ -105,68 +86,273 @@ public final class ExportAllManager
 
   private static final String MAX_AGE_24H = "max-age=86400";
 
+  // Number of participants after which the export progress is reported
+  private static final int PROGRESS_STEP = 25_000;
+
   // Rest
   private static final Logger LOGGER = LoggerFactory.getLogger (ExportAllManager.class);
 
   private ExportAllManager ()
   {}
 
-  @NonNull
-  private static ESuccess _runWithTempFileOnS3 (@NonNull final String sS3Filename,
-                                                @NonNull final IMimeType aContentType,
-                                                @NonNull final Consumer <OutputStream> aByteProducer) throws IOException
+  /**
+   * The runtime data of a single export format: the temporary file it is written to, plus the
+   * information whether it failed or not.
+   *
+   * @author Philip Helger
+   */
+  private static final class ExportTarget
   {
-    // 1. Create a temp file
-    final File fTemp = File.createTempFile ("pd-", ".xml");
+    private final IExportAllHandler m_aHandler;
+    private final File m_aTempFile;
+    private final OutputStream m_aOS;
+    private boolean m_bFailed = false;
+
+    ExportTarget (@NonNull final IExportAllHandler aHandler) throws IOException
+    {
+      m_aHandler = aHandler;
+      m_aTempFile = File.createTempFile ("pd-export-", ".tmp");
+      m_aOS = FileHelper.getBufferedOutputStream (m_aTempFile);
+      if (m_aOS == null)
+        throw new IOException ("Failed to open the temporary file '" +
+                               m_aTempFile.getAbsolutePath () +
+                               "' for writing");
+    }
+  }
+
+  @NonNull
+  private static ESuccess _uploadToS3 (@NonNull final String sS3Filename,
+                                       @NonNull final IMimeType aContentType,
+                                       @NonNull final File aTempFile)
+  {
+    LOGGER.info ("Finished writing temp file '" + aTempFile.getAbsolutePath () + "' - now upload to S3");
+
+    final String sBucketName = PDServerConfiguration.getS3BucketName ();
+    final String sTempFilename = sS3Filename + ".temp";
+    final String sContentDisposition = "attachment; filename=\"" + FilenameHelper.getWithoutPath (sS3Filename) + "\"";
 
     try
     {
-      // 2. Write data to temp file
-      try (final OutputStream aFOS = FileHelper.getBufferedOutputStream (fTemp))
+      // Upload the temp file
+      // Throws a runtime exception in case of error
+      S3Helper.putS3Object (sBucketName, sTempFilename, aTempFile, aContentType, sContentDisposition);
+    }
+    catch (final Throwable ex)
+    {
+      LOGGER.error ("Failed to initially upload to S3", ex);
+      return ESuccess.FAILURE;
+    }
+
+    // As S3 has no rename, we need to do copy and delete
+    // 1. Delete the original file, if it exists
+    S3Helper.deleteS3Object (sBucketName, sS3Filename);
+
+    // 2. copy the temp file to the new file
+    if (S3Helper.copyS3Object (sBucketName, sTempFilename, sS3Filename, aContentType, sContentDisposition).isFailure ())
+    {
+      LOGGER.error ("Failed to copy on S3 '" + sBucketName + "' / '" + sTempFilename + "' to '" + sS3Filename + "'");
+      return ESuccess.FAILURE;
+    }
+
+    // 3. Delete the temp file
+    S3Helper.deleteS3Object (sBucketName, sTempFilename);
+    LOGGER.info ("Finished S3 uploading");
+    return ESuccess.SUCCESS;
+  }
+
+  /**
+   * Invoke the provided action on a single export target. If the action fails, the target is marked
+   * as failed and no further action is invoked on it, so that the other export formats are not
+   * affected by a single failing one.
+   *
+   * @param aTarget
+   *        The target to work on. May not be <code>null</code>.
+   * @param aAction
+   *        The action to be invoked. May not be <code>null</code>.
+   */
+  private static void _invoke (@NonNull final ExportTarget aTarget,
+                               @NonNull final IThrowingConsumer <IExportAllHandler, Exception> aAction)
+  {
+    if (aTarget.m_bFailed)
+      return;
+
+    try
+    {
+      aAction.accept (aTarget.m_aHandler);
+    }
+    catch (final Exception ex)
+    {
+      LOGGER.error ("Failed to export '" + aTarget.m_aHandler.getDisplayName () + "'", ex);
+      aTarget.m_bFailed = true;
+    }
+  }
+
+  /**
+   * @return A list with all export formats that are enabled in this build. Never <code>null</code>
+   *         but maybe empty.
+   */
+  @NonNull
+  @ReturnsMutableCopy
+  static ICommonsList <IExportAllHandler> createAllEnabledExportHandlers ()
+  {
+    final ICommonsList <IExportAllHandler> ret = new CommonsArrayList <> ();
+    if (CPDPublisher.EXPORT_BUSINESS_CARDS_XML)
+    {
+      ret.add (new ExportAllHandlerBusinessCardXML ("Business Cards as XML (full)",
+                                                    INTERNAL_BUSINESSCARDS_XML_FULL,
+                                                    true));
+      ret.add (new ExportAllHandlerBusinessCardXML ("Business Cards as XML (no doc types)",
+                                                    INTERNAL_BUSINESSCARDS_XML_NO_DOC_TYPES,
+                                                    false));
+    }
+    if (CPDPublisher.EXPORT_BUSINESS_CARDS_JSON)
+      ret.add (new ExportAllHandlerBusinessCardJSON ("Business Cards as JSON", INTERNAL_BUSINESSCARDS_JSON));
+    if (CPDPublisher.EXPORT_BUSINESS_CARDS_CSV)
+      ret.add (new ExportAllHandlerBusinessCardCSV ("Business Cards as CSV", INTERNAL_BUSINESSCARDS_CSV));
+    if (CPDPublisher.EXPORT_PARTICIPANTS_XML)
+      ret.add (new ExportAllHandlerParticipantXML ("Participants as XML", INTERNAL_PARTICIPANTS_XML));
+    if (CPDPublisher.EXPORT_PARTICIPANTS_JSON)
+      ret.add (new ExportAllHandlerParticipantJSON ("Participants as JSON", INTERNAL_PARTICIPANTS_JSON));
+    if (CPDPublisher.EXPORT_PARTICIPANTS_CSV)
+      ret.add (new ExportAllHandlerParticipantCSV ("Participants as CSV", INTERNAL_PARTICIPANTS_CSV));
+    return ret;
+  }
+
+  /**
+   * Export all the provided participants into all the provided export formats. The search index is
+   * queried only once per participant - independent of the number of export formats - and the
+   * resulting data is passed to all the export formats. Each export format is written to a
+   * temporary file first and is only uploaded to S3, if it was created successfully.
+   *
+   * @param aAllParticipantIDs
+   *        The URI encoded IDs of all participants to be exported, in ascending order. May not be
+   *        <code>null</code>.
+   * @param aHandlers
+   *        All the export formats to be created. May not be <code>null</code> but maybe empty.
+   * @param aStatusConsumer
+   *        Consumer for the current export status, for display in the UI. May not be
+   *        <code>null</code>.
+   * @return A list with the display names of all export formats that failed. Never
+   *         <code>null</code> but maybe empty.
+   * @throws IOException
+   *         If the search index could not be queried or if no temporary file could be created. In
+   *         that case nothing is uploaded to S3 at all.
+   */
+  @NonNull
+  @ReturnsMutableCopy
+  static ICommonsList <String> exportAll (@NonNull final ICommonsSortedSet <String> aAllParticipantIDs,
+                                          @NonNull final List <IExportAllHandler> aHandlers,
+                                          @NonNull final Consumer <? super String> aStatusConsumer) throws IOException
+  {
+    ValueEnforcer.notNull (aAllParticipantIDs, "AllParticipantIDs");
+    ValueEnforcer.notNull (aHandlers, "Handlers");
+    ValueEnforcer.notNull (aStatusConsumer, "StatusConsumer");
+
+    final ICommonsList <String> aFailedHandlerNames = new CommonsArrayList <> ();
+    if (aHandlers.isEmpty ())
+    {
+      LOGGER.warn ("No export format is enabled - nothing to export");
+      return aFailedHandlerNames;
+    }
+
+    // Query the Business Entities only if at least one export format needs them
+    boolean bNeedEntities = false;
+    for (final IExportAllHandler aHandler : aHandlers)
+      if (aHandler.isBusinessEntityDataNeeded ())
       {
-        aByteProducer.accept (aFOS);
+        bNeedEntities = true;
+        break;
       }
 
-      LOGGER.info ("Finished writing temp file '" + fTemp.getAbsolutePath () + "' - now upload to S3");
+    final IIdentifierFactory aIF = PDMetaManager.getIdentifierFactory ();
+    final PDStorageManager aStorageMgr = PDMetaManager.getStorageMgr ();
+    final String sSearchFieldName = PDField.PARTICIPANT_ID.getFieldName ();
+    final int nParticipantCount = aAllParticipantIDs.size ();
+    final ICommonsList <PDStoredBusinessEntity> aEntities = new CommonsArrayList <> ();
 
-      // 3. Now upload the temp file to S3
-      final String sBucketName = PDServerConfiguration.getS3BucketName ();
-      final String sTempFilename = sS3Filename + ".temp";
-      final String sContentDisposition = "attachment; filename=\"" + FilenameHelper.getWithoutPath (sS3Filename) + "\"";
+    final ICommonsList <ExportTarget> aTargets = new CommonsArrayList <> ();
+    try
+    {
+      // Create one temporary file per export format
+      for (final IExportAllHandler aHandler : aHandlers)
+        aTargets.add (new ExportTarget (aHandler));
 
       try
       {
-        // Upload; this call reads from the PipedInputStream while producer writes
-        // Throws a runtime exception in case of error
-        S3Helper.putS3Object (sBucketName, sTempFilename, fTemp, aContentType, sContentDisposition);
+        for (final ExportTarget aTarget : aTargets)
+          _invoke (aTarget, x -> x.onStart (aTarget.m_aOS, nParticipantCount));
+
+        int nParticipantIndex = 0;
+        for (final String sParticipantID : aAllParticipantIDs)
+        {
+          final IParticipantIdentifier aParticipantID = aIF.parseParticipantIdentifier (sParticipantID);
+
+          // Should never happen, because the IDs were parsed before they were added to the set
+          if (aParticipantID == null)
+            LOGGER.warn ("Failed to parse the participant ID '" + sParticipantID + "' - ignoring it");
+          else
+          {
+            // Query the search index only once for all export formats
+            aEntities.clear ();
+            if (bNeedEntities)
+              aStorageMgr.searchAllDocuments (new PDIndexQueryTerm (sSearchFieldName, sParticipantID),
+                                              -1,
+                                              aEntities::add);
+
+            for (final ExportTarget aTarget : aTargets)
+              _invoke (aTarget, x -> x.onParticipant (sParticipantID, aParticipantID, aEntities));
+          }
+
+          ++nParticipantIndex;
+          if ((nParticipantIndex % PROGRESS_STEP) == 0)
+          {
+            final String sStatus = "Exported " + nParticipantIndex + " of " + nParticipantCount + " participants";
+            LOGGER.info (sStatus);
+            aStatusConsumer.accept (sStatus);
+          }
+        }
+
+        for (final ExportTarget aTarget : aTargets)
+          _invoke (aTarget, x -> x.onEnd ());
       }
-      catch (final Throwable ex)
+      finally
       {
-        LOGGER.error ("Failed to initially upload to S3", ex);
-        return ESuccess.FAILURE;
+        // Ensure all the data is on disk, also in case of an error
+        for (final ExportTarget aTarget : aTargets)
+          StreamHelper.close (aTarget.m_aOS);
       }
 
-      // As S3 has no rename, we need to do copy and delete
-      // 4. Delete the original file, if it exists
-      S3Helper.deleteS3Object (sBucketName, sS3Filename);
-
-      // 5. copy the temp file to the new file
-      if (S3Helper.copyS3Object (sBucketName, sTempFilename, sS3Filename, aContentType, sContentDisposition)
-                  .isFailure ())
+      // Only now upload the successfully created files
+      for (final ExportTarget aTarget : aTargets)
       {
-        LOGGER.error ("Failed to copy on S3 '" + sBucketName + "' / '" + sTempFilename + "' to '" + sS3Filename + "'");
-        return ESuccess.FAILURE;
+        final String sDisplayName = aTarget.m_aHandler.getDisplayName ();
+        if (aTarget.m_bFailed)
+        {
+          LOGGER.error ("Not uploading '" + sDisplayName + "' because the export failed");
+          aFailedHandlerNames.add (sDisplayName);
+        }
+        else
+        {
+          aStatusConsumer.accept ("Uploading '" + sDisplayName + "'");
+          if (_uploadToS3 (aTarget.m_aHandler.getS3Filename (),
+                           aTarget.m_aHandler.getContentType (),
+                           aTarget.m_aTempFile).isFailure ())
+          {
+            aFailedHandlerNames.add (sDisplayName);
+          }
+        }
       }
-
-      // 6. Delete the temp file
-      S3Helper.deleteS3Object (sBucketName, sTempFilename);
-      LOGGER.info ("Finished S3 uploading");
-      return ESuccess.SUCCESS;
     }
     finally
     {
-      fTemp.delete ();
+      for (final ExportTarget aTarget : aTargets)
+      {
+        StreamHelper.close (aTarget.m_aOS);
+        aTarget.m_aTempFile.delete ();
+      }
     }
+
+    return aFailedHandlerNames;
   }
 
   @NonNull
@@ -222,72 +408,6 @@ public final class ExportAllManager
     return ExportHelper.getAllBusinessCardsAsUIXML (aMap, bIncludeDocTypes);
   }
 
-  @NonNull
-  private static ESuccess _writeFileBusinessCardXML (@NonNull final ICommonsSortedSet <String> aAllParticipantIDs,
-                                                     @NonNull @WillNotClose final OutputStream aOS,
-                                                     final boolean bIncludeDocTypes)
-  {
-    final IIdentifierFactory aIF = PDMetaManager.getIdentifierFactory ();
-    final PDStorageManager aStorageMgr = PDMetaManager.getStorageMgr ();
-    final XMLOutputFactory aXmlOutputFactory = XMLOutputFactory.newInstance ();
-    try
-    {
-      final XMLStreamWriter aXmlWriter = aXmlOutputFactory.createXMLStreamWriter (aOS);
-
-      aXmlWriter.setDefaultNamespace (ExportHelper.XML_EXPORT_NS_URI_V3);
-
-      // XML root
-      aXmlWriter.writeStartDocument (XMLWriterSettings.DEFAULT_XML_CHARSET, "1.0");
-
-      aXmlWriter.writeStartElement (ExportHelper.XML_EXPORT_NS_URI_V3, "root");
-      aXmlWriter.writeAttribute ("xmlns", ExportHelper.XML_EXPORT_NS_URI_V3);
-      aXmlWriter.writeAttribute ("version", "3");
-      aXmlWriter.writeAttribute ("creationdt",
-                                 PDTWebDateHelper.getAsStringXSD (PDTFactory.getCurrentZonedDateTimeUTC ()));
-      aXmlWriter.writeAttribute ("codeListSupported", EPredefinedDocumentTypeIdentifier.CODE_LIST_VERSION);
-
-      final String sSearchTerm = PDField.PARTICIPANT_ID.getFieldName ();
-      for (final String sParticipantID : aAllParticipantIDs)
-      {
-        final IParticipantIdentifier aParticipantID = aIF.parseParticipantIdentifier (sParticipantID);
-
-        // Should never happen because PIs are parsed before added into the source set
-        if (aParticipantID != null)
-        {
-          // Search all entities of the current participant ID
-          final ICommonsList <PDStoredBusinessEntity> aEntitiesPerPI = new CommonsArrayList <> ();
-          aStorageMgr.searchAllDocuments (new PDIndexQueryTerm (sSearchTerm, sParticipantID), -1, aEntitiesPerPI::add);
-
-          // Otherwise, the PI might have been deleted in the meantime
-          if (aEntitiesPerPI.isNotEmpty ())
-          {
-            ExportHelper.exportSingleBusinessCard (aParticipantID, aEntitiesPerPI, bIncludeDocTypes, aXmlWriter);
-          }
-        }
-      }
-
-      // root
-      aXmlWriter.writeEndElement ();
-      aXmlWriter.writeEndDocument ();
-
-      LOGGER.info ("Successfully wrote all BCs as XML (" + (bIncludeDocTypes ? "full" : "no doctypes") + ")");
-      return ESuccess.SUCCESS;
-    }
-    catch (final IOException | XMLStreamException ex)
-    {
-      LOGGER.error ("Failed to export all BCs as XML (" + (bIncludeDocTypes ? "full" : "no doctypes") + ")", ex);
-      return ESuccess.FAILURE;
-    }
-  }
-
-  @NonNull
-  static ESuccess writeFileBusinessCardXMLFull (@NonNull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
-  {
-    return _runWithTempFileOnS3 (INTERNAL_BUSINESSCARDS_XML_FULL,
-                                 CMimeType.APPLICATION_XML,
-                                 aOS -> _writeFileBusinessCardXML (aAllParticipantIDs, aOS, true));
-  }
-
   /**
    * Stream the stored XML file to the provided HTTP response
    *
@@ -299,14 +419,6 @@ public final class ExportAllManager
     // Get data directly from S3
     aUR.setRedirect (S3Helper.S3_PUBLIC_URL + INTERNAL_BUSINESSCARDS_XML_FULL);
     aUR.addCustomResponseHeader (CHttpHeader.CACHE_CONTROL, MAX_AGE_24H);
-  }
-
-  @NonNull
-  static ESuccess writeFileBusinessCardXMLNoDocTypes (@NonNull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
-  {
-    return _runWithTempFileOnS3 (INTERNAL_BUSINESSCARDS_XML_NO_DOC_TYPES,
-                                 CMimeType.APPLICATION_XML,
-                                 aOS -> _writeFileBusinessCardXML (aAllParticipantIDs, aOS, false));
   }
 
   /**
@@ -322,139 +434,6 @@ public final class ExportAllManager
     aUR.addCustomResponseHeader (CHttpHeader.CACHE_CONTROL, MAX_AGE_24H);
   }
 
-  @NonNull
-  static ESuccess writeFileBusinessCardJSON (@NonNull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
-  {
-    return _runWithTempFileOnS3 (INTERNAL_BUSINESSCARDS_JSON, CMimeType.APPLICATION_JSON, aOS -> {
-      final PDStorageManager aStorageMgr = PDMetaManager.getStorageMgr ();
-      final boolean bIncludeDocTypes = true;
-
-      try (final Writer aWriter = StreamHelper.createWriter (new NonClosingOutputStream (aOS), StandardCharsets.UTF_8);
-           final JsonGenerator aJsonGen = Json.createGenerator (aWriter))
-      {
-        final String sSearchTerm = PDField.PARTICIPANT_ID.getFieldName ();
-
-        // JSON root
-        aJsonGen.writeStartObject ()
-                .write ("version", 2)
-                .write ("creationdt", PDTWebDateHelper.getAsStringXSD (PDTFactory.getCurrentZonedDateTimeUTC ()))
-                .write ("participantCount", aAllParticipantIDs.size ())
-                .write ("codeListSupported", EPredefinedDocumentTypeIdentifier.CODE_LIST_VERSION)
-                .writeStartArray ("bc");
-
-        for (final String sParticipantID : aAllParticipantIDs)
-        {
-          // Search all entities of the current participant ID
-          final ICommonsList <PDStoredBusinessEntity> aEntitiesPerPI = new CommonsArrayList <> ();
-          aStorageMgr.searchAllDocuments (new PDIndexQueryTerm (sSearchTerm, sParticipantID), -1, aEntitiesPerPI::add);
-
-          // Otherwise, the PI might have been deleted in the meantime
-          if (aEntitiesPerPI.isEmpty ())
-            continue;
-
-          aJsonGen.writeStartObject ().write ("pid", sParticipantID).writeStartArray ("entities");
-
-          for (final PDStoredBusinessEntity aSBE : aEntitiesPerPI)
-          {
-            aJsonGen.writeStartObject ();
-            {
-              aJsonGen.writeStartArray ("names");
-              for (final PDStoredMLName aName : aSBE.names ())
-              {
-                aJsonGen.writeStartObject ().write ("name", aName.getName ());
-                if (aName.hasLanguageCode ())
-                  aJsonGen.write ("lang", aName.getLanguageCode ());
-                aJsonGen.writeEnd ();
-              }
-              aJsonGen.writeEnd ();
-            }
-            if (aSBE.hasCountryCode ())
-              aJsonGen.write ("countryCode", aSBE.getCountryCode ());
-            if (aSBE.hasGeoInfo ())
-              aJsonGen.write ("geoinfo", aSBE.getGeoInfo ());
-            if (aSBE.identifiers ().isNotEmpty ())
-            {
-              aJsonGen.writeStartArray ("identifiers");
-              for (final PDStoredIdentifier aID : aSBE.identifiers ())
-              {
-                aJsonGen.writeStartObject ()
-                        .write ("scheme", aID.getScheme ())
-                        .write ("value", aID.getValue ())
-                        .writeEnd ();
-              }
-              aJsonGen.writeEnd ();
-            }
-            if (aSBE.websiteURIs ().isNotEmpty ())
-            {
-              aJsonGen.writeStartArray ("websiteURIs");
-              for (final String sWebsite : aSBE.websiteURIs ())
-                aJsonGen.write (sWebsite);
-              aJsonGen.writeEnd ();
-            }
-            if (aSBE.contacts ().isNotEmpty ())
-            {
-              aJsonGen.writeStartArray ("contacts");
-              for (final PDStoredContact aContact : aSBE.contacts ())
-              {
-                aJsonGen.writeStartObject ();
-                if (aContact.hasType ())
-                  aJsonGen.write ("type", aContact.getType ());
-                if (aContact.hasName ())
-                  aJsonGen.write ("name", aContact.getName ());
-                if (aContact.hasPhone ())
-                  aJsonGen.write ("phone", aContact.getPhone ());
-                if (aContact.hasEmail ())
-                  aJsonGen.write ("email", aContact.getEmail ());
-                aJsonGen.writeEnd ();
-              }
-              aJsonGen.writeEnd ();
-            }
-            if (aSBE.hasAdditionalInformation ())
-              aJsonGen.write ("additionalInfo", aSBE.getAdditionalInformation ());
-            if (aSBE.hasRegistrationDate ())
-              aJsonGen.write ("regdate", PDTWebDateHelper.getAsStringXSD (aSBE.getRegistrationDate ()));
-            aJsonGen.writeEnd ();
-          }
-          aJsonGen.writeEnd ();
-
-          // Add all Document types (if wanted)
-          if (bIncludeDocTypes)
-          {
-            aJsonGen.writeStartArray ("docTypes");
-            if (aEntitiesPerPI.isNotEmpty ())
-              for (final IDocumentTypeIdentifier aDocTypeID : aEntitiesPerPI.getFirstOrNull ().documentTypeIDs ())
-              {
-                aJsonGen.writeStartObject ()
-                        .write ("scheme", aDocTypeID.getScheme ())
-                        .write ("value", aDocTypeID.getValue ());
-                final NiceNameEntry aNiceName = NiceNameManager.getDocTypeNiceName (aDocTypeID.getURIEncoded ());
-                if (aNiceName == null)
-                  aJsonGen.write ("nonStandard", true);
-                else
-                {
-                  aJsonGen.write ("displayName", aNiceName.getName ());
-                  // New in JSON v2: use "state" instead of "deprecated"
-                  aJsonGen.write ("state", aNiceName.getState ().getID ());
-                }
-                aJsonGen.writeEnd ();
-              }
-            aJsonGen.writeEnd ();
-          }
-
-          aJsonGen.writeEnd ();
-        }
-
-        aJsonGen.writeEnd ().writeEnd ();
-
-        LOGGER.info ("Successfully wrote all BusinessCards as JSON");
-      }
-      catch (final IOException ex)
-      {
-        LOGGER.error ("Failed to export all BusinessCards as JSON", ex);
-      }
-    });
-  }
-
   /**
    * Stream the stored JSON file to the provided HTTP response
    *
@@ -466,99 +445,6 @@ public final class ExportAllManager
     // Get data directly from S3
     aUR.setRedirect (S3Helper.S3_PUBLIC_URL + INTERNAL_BUSINESSCARDS_JSON);
     aUR.addCustomResponseHeader (CHttpHeader.CACHE_CONTROL, MAX_AGE_24H);
-  }
-
-  private static void _unify (@NonNull @WillNotClose final CSVWriter aCSVWriter)
-  {
-    aCSVWriter.setSeparatorChar (';');
-  }
-
-  @NonNull
-  static ESuccess writeFileBusinessCardCSV (@NonNull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
-  {
-    return _runWithTempFileOnS3 (INTERNAL_BUSINESSCARDS_CSV, CMimeType.TEXT_CSV, aOS -> {
-      final PDStorageManager aStorageMgr = PDMetaManager.getStorageMgr ();
-
-      try (final CSVWriter aCSVWriter = new CSVWriter (StreamHelper.createWriter (new NonClosingOutputStream (aOS),
-                                                                                  StandardCharsets.ISO_8859_1)))
-      {
-        _unify (aCSVWriter);
-        aCSVWriter.writeNext ("Participant ID",
-                              "Names (per-row)",
-                              "Country code",
-                              "Geo info",
-                              "Identifier schemes",
-                              "Identifier values",
-                              "Websites",
-                              "Contact type",
-                              "Contact name",
-                              "Contact phone",
-                              "Contact email",
-                              "Additional info",
-                              "Registration date",
-                              "Document types");
-
-        final Consumer <? super PDStoredBusinessEntity> aCSVConsumer = aEntity -> {
-          if (!aEntity.hasParticipantID ())
-            return;
-
-          aCSVWriter.writeNext (aEntity.getParticipantID ().getURIEncoded (),
-                                StringImplode.imploder ()
-                                             .source (aEntity.names (), PDStoredMLName::getNameAndLanguageCode)
-                                             .separator ('\n')
-                                             .build (),
-                                aEntity.getCountryCode (),
-                                aEntity.getGeoInfo (),
-                                StringImplode.imploder ()
-                                             .source (aEntity.identifiers (), PDStoredIdentifier::getScheme)
-                                             .separator ('\n')
-                                             .build (),
-                                StringImplode.imploder ()
-                                             .source (aEntity.identifiers (), PDStoredIdentifier::getValue)
-                                             .separator ('\n')
-                                             .build (),
-                                StringImplode.imploder ().source (aEntity.websiteURIs ()).separator ('\n').build (),
-                                StringImplode.imploder ()
-                                             .source (aEntity.contacts (), PDStoredContact::getType)
-                                             .separator ('\n')
-                                             .build (),
-                                StringImplode.imploder ()
-                                             .source (aEntity.contacts (), PDStoredContact::getName)
-                                             .separator ('\n')
-                                             .build (),
-                                StringImplode.imploder ()
-                                             .source (aEntity.contacts (), PDStoredContact::getPhone)
-                                             .separator ('\n')
-                                             .build (),
-                                StringImplode.imploder ()
-                                             .source (aEntity.contacts (), PDStoredContact::getEmail)
-                                             .separator ('\n')
-                                             .build (),
-                                aEntity.getAdditionalInformation (),
-                                aEntity.getRegistrationDate () == null ? ""
-                                                                       : aEntity.getRegistrationDate ().toString (),
-                                StringImplode.imploder ()
-                                             .source (aEntity.documentTypeIDs (),
-                                                      IDocumentTypeIdentifier::getURIEncoded)
-                                             .separator ('\n')
-                                             .build ());
-        };
-
-        final String sSearchTerm = PDField.PARTICIPANT_ID.getFieldName ();
-        for (final String sParticipantID : aAllParticipantIDs)
-        {
-          // If the participant was deleted in the meantime, the consumer is simply not called
-          aStorageMgr.searchAllDocuments (new PDIndexQueryTerm (sSearchTerm, sParticipantID), -1, aCSVConsumer);
-        }
-
-        aCSVWriter.flush ();
-        LOGGER.info ("Successfully exported all BCs as CSV");
-      }
-      catch (final IOException ex)
-      {
-        LOGGER.error ("Failed to export all BCs as CSV", ex);
-      }
-    });
   }
 
   /**
@@ -574,57 +460,6 @@ public final class ExportAllManager
     aUR.addCustomResponseHeader (CHttpHeader.CACHE_CONTROL, MAX_AGE_24H);
   }
 
-  @NonNull
-  static ESuccess writeFileParticipantXML (@NonNull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
-  {
-    return _runWithTempFileOnS3 (INTERNAL_PARTICIPANTS_XML, CMimeType.APPLICATION_XML, aOS -> {
-      final IIdentifierFactory aIF = PDMetaManager.getIdentifierFactory ();
-      final XMLOutputFactory aXmlOutputFactory = XMLOutputFactory.newInstance ();
-      try
-      {
-        final XMLStreamWriter aXmlWriter = aXmlOutputFactory.createXMLStreamWriter (aOS);
-
-        final String sNamespaceURI = "http://www.peppol.eu/schema/pd/participant-generic/201910/";
-        aXmlWriter.setDefaultNamespace (sNamespaceURI);
-
-        // XML root
-        aXmlWriter.writeStartDocument (XMLWriterSettings.DEFAULT_XML_CHARSET, "1.0");
-
-        aXmlWriter.writeStartElement (sNamespaceURI, "root");
-        aXmlWriter.writeAttribute ("xmlns", sNamespaceURI);
-        aXmlWriter.writeAttribute ("version", "1");
-        aXmlWriter.writeAttribute ("creationdt",
-                                   PDTWebDateHelper.getAsStringXSD (PDTFactory.getCurrentZonedDateTimeUTC ()));
-        aXmlWriter.writeAttribute ("count", Integer.toString (aAllParticipantIDs.size ()));
-
-        // For all participants
-        for (final String sParticipantID : aAllParticipantIDs)
-        {
-          final IParticipantIdentifier aPI = aIF.parseParticipantIdentifier (sParticipantID);
-
-          aXmlWriter.writeEmptyElement (sNamespaceURI, "participantID");
-          // Should never happen because PIs are parsed before added into the source set
-          if (aPI != null)
-          {
-            aXmlWriter.writeAttribute ("scheme", aPI.getScheme ());
-            aXmlWriter.writeAttribute ("value", aPI.getValue ());
-          }
-        }
-
-        // root
-        aXmlWriter.writeEndElement ();
-
-        aXmlWriter.writeEndDocument ();
-
-        LOGGER.info ("Successfully wrote all Participants as XML");
-      }
-      catch (final Exception ex)
-      {
-        LOGGER.error ("Failed to export all Participants as XML", ex);
-      }
-    });
-  }
-
   /**
    * Stream the stored XML file to the provided HTTP response
    *
@@ -638,36 +473,6 @@ public final class ExportAllManager
     aUR.addCustomResponseHeader (CHttpHeader.CACHE_CONTROL, MAX_AGE_24H);
   }
 
-  @NonNull
-  static ESuccess writeFileParticipantJSON (@NonNull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
-  {
-    return _runWithTempFileOnS3 (INTERNAL_PARTICIPANTS_JSON, CMimeType.APPLICATION_JSON, aOS -> {
-      try (final Writer aWriter = StreamHelper.createWriter (new NonClosingOutputStream (aOS), StandardCharsets.UTF_8);
-           final JsonGenerator aJsonGen = Json.createGenerator (aWriter))
-      {
-        // JSON root
-        aJsonGen.writeStartObject ()
-                .write ("version", 1)
-                .write ("creationdt", PDTWebDateHelper.getAsStringXSD (PDTFactory.getCurrentZonedDateTimeUTC ()))
-                .write ("count", aAllParticipantIDs.size ())
-                .writeStartArray ("participants");
-
-        // For all participants
-        for (final String sParticipantID : aAllParticipantIDs)
-          aJsonGen.write (sParticipantID);
-
-        aJsonGen.writeEnd ().writeEnd ();
-
-        // Safe space - no indent
-        LOGGER.info ("Successfully wrote all Participants as JSON");
-      }
-      catch (final IOException ex)
-      {
-        LOGGER.error ("Failed to export all Participants as JSON", ex);
-      }
-    });
-  }
-
   /**
    * Stream the stored JSON file to the provided HTTP response
    *
@@ -679,28 +484,6 @@ public final class ExportAllManager
     // Get data directly from S3
     aUR.setRedirect (S3Helper.S3_PUBLIC_URL + INTERNAL_PARTICIPANTS_JSON);
     aUR.addCustomResponseHeader (CHttpHeader.CACHE_CONTROL, MAX_AGE_24H);
-  }
-
-  @NonNull
-  static ESuccess writeFileParticipantCSV (@NonNull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
-  {
-    return _runWithTempFileOnS3 (INTERNAL_PARTICIPANTS_CSV, CMimeType.TEXT_CSV, aOS -> {
-      try (final CSVWriter aCSVWriter = new CSVWriter (StreamHelper.createWriter (new NonClosingOutputStream (aOS),
-                                                                                  StandardCharsets.ISO_8859_1)))
-      {
-        _unify (aCSVWriter);
-        aCSVWriter.writeNext ("Participant ID");
-        for (final String sParticipantID : aAllParticipantIDs)
-          aCSVWriter.writeNext (sParticipantID);
-
-        aCSVWriter.flush ();
-        LOGGER.info ("Successfully wrote all Participants as CSV");
-      }
-      catch (final IOException ex)
-      {
-        LOGGER.error ("Failed to export all Participants as CSV", ex);
-      }
-    });
   }
 
   /**
