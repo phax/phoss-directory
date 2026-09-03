@@ -22,7 +22,15 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -39,6 +47,7 @@ import com.helger.annotation.concurrent.ThreadSafe;
 import com.helger.annotation.style.VisibleForTesting;
 import com.helger.base.io.stream.NonClosingOutputStream;
 import com.helger.base.io.stream.StreamHelper;
+import com.helger.base.functional.IThrowingFunction;
 import com.helger.base.state.ESuccess;
 import com.helger.base.string.StringImplode;
 import com.helger.collection.commons.CommonsArrayList;
@@ -108,13 +117,125 @@ public final class ExportAllManager
   // Rest
   private static final Logger LOGGER = LoggerFactory.getLogger (ExportAllManager.class);
 
+  private sealed interface IBusinessCardExportItem permits BusinessCardExportData, EBusinessCardExportMarker
+  {}
+
+  private record BusinessCardExportData (@NonNull String participantID,
+                                         @NonNull IParticipantIdentifier parsedParticipantID,
+                                         @NonNull ICommonsList <PDStoredBusinessEntity> entities) implements IBusinessCardExportItem
+  {}
+
+  private enum EBusinessCardExportMarker implements IBusinessCardExportItem
+  {
+    FINISHED,
+    ABORTED
+  }
+
+  private record ExportFuture (@NonNull String status, @NonNull Future <ESuccess> future)
+  {}
+
+  private static final class BusinessCardExportTask
+  {
+    private final String m_sStatus;
+    private final ArrayBlockingQueue <IBusinessCardExportItem> m_aQueue = new ArrayBlockingQueue <> (2);
+    private final Future <ESuccess> m_aFuture;
+
+    BusinessCardExportTask (@NonNull final ExecutorService aExecutor,
+                            @NonNull final String sStatus,
+                            @NonNull final String sS3Filename,
+                            @NonNull final IMimeType aContentType,
+                            @NonNull final BiFunction <ArrayBlockingQueue <IBusinessCardExportItem>, OutputStream, ESuccess> aWriter)
+    {
+      m_sStatus = sStatus;
+      m_aFuture = aExecutor.submit ( () -> _runWithTempFileOnS3 (sS3Filename,
+                                                                 aContentType,
+                                                                 aOS -> aWriter.apply (m_aQueue, aOS)));
+    }
+
+    boolean offer (@NonNull final IBusinessCardExportItem aItem) throws InterruptedException
+    {
+      while (!m_aFuture.isDone ())
+        if (m_aQueue.offer (aItem, 100, TimeUnit.MILLISECONDS))
+          return true;
+      return false;
+    }
+
+    void finish ()
+    {
+      try
+      {
+        offer (EBusinessCardExportMarker.FINISHED);
+      }
+      catch (final InterruptedException ex)
+      {
+        Thread.currentThread ().interrupt ();
+        abort ();
+      }
+    }
+
+    void abort ()
+    {
+      m_aQueue.clear ();
+      m_aQueue.offer (EBusinessCardExportMarker.ABORTED);
+    }
+
+    @NonNull
+    String getStatus ()
+    {
+      return m_sStatus;
+    }
+
+    boolean isDone ()
+    {
+      return m_aFuture.isDone ();
+    }
+
+    @NonNull
+    ESuccess getResult ()
+    {
+      try
+      {
+        return m_aFuture.get ();
+      }
+      catch (final InterruptedException ex)
+      {
+        Thread.currentThread ().interrupt ();
+        LOGGER.error ("Interrupted while waiting for export task '" + m_sStatus + "'", ex);
+      }
+      catch (final ExecutionException ex)
+      {
+        LOGGER.error ("Export task '" + m_sStatus + "' failed", ex.getCause ());
+      }
+      return ESuccess.FAILURE;
+    }
+  }
+
   private ExportAllManager ()
   {}
 
   @NonNull
+  private static ESuccess _getFutureResult (@NonNull final ExportFuture aFuture)
+  {
+    try
+    {
+      return aFuture.future ().get ();
+    }
+    catch (final InterruptedException ex)
+    {
+      Thread.currentThread ().interrupt ();
+      LOGGER.error ("Interrupted while waiting for export task '" + aFuture.status () + "'", ex);
+    }
+    catch (final ExecutionException ex)
+    {
+      LOGGER.error ("Export task '" + aFuture.status () + "' failed", ex.getCause ());
+    }
+    return ESuccess.FAILURE;
+  }
+
+  @NonNull
   private static ESuccess _runWithTempFileOnS3 (@NonNull final String sS3Filename,
                                                 @NonNull final IMimeType aContentType,
-                                                @NonNull final Consumer <OutputStream> aByteProducer) throws IOException
+                                                @NonNull final Function <OutputStream, ESuccess> aByteProducer) throws IOException
   {
     // 1. Create a temp file
     final File fTemp = File.createTempFile ("pd-", ".xml");
@@ -124,7 +245,8 @@ public final class ExportAllManager
       // 2. Write data to temp file
       try (final OutputStream aFOS = FileHelper.getBufferedOutputStream (fTemp))
       {
-        aByteProducer.accept (aFOS);
+        if (aByteProducer.apply (aFOS).isFailure ())
+          return ESuccess.FAILURE;
       }
 
       LOGGER.info ("Finished writing temp file '" + fTemp.getAbsolutePath () + "' - now upload to S3");
@@ -223,12 +345,10 @@ public final class ExportAllManager
   }
 
   @NonNull
-  private static ESuccess _writeFileBusinessCardXML (@NonNull final ICommonsSortedSet <String> aAllParticipantIDs,
+  private static ESuccess _writeFileBusinessCardXML (@NonNull final ArrayBlockingQueue <IBusinessCardExportItem> aQueue,
                                                      @NonNull @WillNotClose final OutputStream aOS,
                                                      final boolean bIncludeDocTypes)
   {
-    final IIdentifierFactory aIF = PDMetaManager.getIdentifierFactory ();
-    final PDStorageManager aStorageMgr = PDMetaManager.getStorageMgr ();
     final XMLOutputFactory aXmlOutputFactory = XMLOutputFactory.newInstance ();
     try
     {
@@ -246,24 +366,19 @@ public final class ExportAllManager
                                  PDTWebDateHelper.getAsStringXSD (PDTFactory.getCurrentZonedDateTimeUTC ()));
       aXmlWriter.writeAttribute ("codeListSupported", EPredefinedDocumentTypeIdentifier.CODE_LIST_VERSION);
 
-      final String sSearchTerm = PDField.PARTICIPANT_ID.getFieldName ();
-      for (final String sParticipantID : aAllParticipantIDs)
+      for (;;)
       {
-        final IParticipantIdentifier aParticipantID = aIF.parseParticipantIdentifier (sParticipantID);
+        final IBusinessCardExportItem aItem = aQueue.take ();
+        if (aItem == EBusinessCardExportMarker.FINISHED)
+          break;
+        if (aItem == EBusinessCardExportMarker.ABORTED)
+          return ESuccess.FAILURE;
 
-        // Should never happen because PIs are parsed before added into the source set
-        if (aParticipantID != null)
-        {
-          // Search all entities of the current participant ID
-          final ICommonsList <PDStoredBusinessEntity> aEntitiesPerPI = new CommonsArrayList <> ();
-          aStorageMgr.searchAllDocuments (new PDIndexQueryTerm (sSearchTerm, sParticipantID), -1, aEntitiesPerPI::add);
-
-          // Otherwise, the PI might have been deleted in the meantime
-          if (aEntitiesPerPI.isNotEmpty ())
-          {
-            ExportHelper.exportSingleBusinessCard (aParticipantID, aEntitiesPerPI, bIncludeDocTypes, aXmlWriter);
-          }
-        }
+        final BusinessCardExportData aData = (BusinessCardExportData) aItem;
+        ExportHelper.exportSingleBusinessCard (aData.parsedParticipantID (),
+                                               aData.entities (),
+                                               bIncludeDocTypes,
+                                               aXmlWriter);
       }
 
       // root
@@ -273,19 +388,20 @@ public final class ExportAllManager
       LOGGER.info ("Successfully wrote all BCs as XML (" + (bIncludeDocTypes ? "full" : "no doctypes") + ")");
       return ESuccess.SUCCESS;
     }
-    catch (final IOException | XMLStreamException ex)
+    catch (final InterruptedException ex)
+    {
+      Thread.currentThread ().interrupt ();
+      LOGGER.error ("Interrupted while exporting all BCs as XML (" +
+                    (bIncludeDocTypes ? "full" : "no doctypes") +
+                    ")",
+                    ex);
+      return ESuccess.FAILURE;
+    }
+    catch (final XMLStreamException ex)
     {
       LOGGER.error ("Failed to export all BCs as XML (" + (bIncludeDocTypes ? "full" : "no doctypes") + ")", ex);
       return ESuccess.FAILURE;
     }
-  }
-
-  @NonNull
-  static ESuccess writeFileBusinessCardXMLFull (@NonNull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
-  {
-    return _runWithTempFileOnS3 (INTERNAL_BUSINESSCARDS_XML_FULL,
-                                 CMimeType.APPLICATION_XML,
-                                 aOS -> _writeFileBusinessCardXML (aAllParticipantIDs, aOS, true));
   }
 
   /**
@@ -299,14 +415,6 @@ public final class ExportAllManager
     // Get data directly from S3
     aUR.setRedirect (S3Helper.S3_PUBLIC_URL + INTERNAL_BUSINESSCARDS_XML_FULL);
     aUR.addCustomResponseHeader (CHttpHeader.CACHE_CONTROL, MAX_AGE_24H);
-  }
-
-  @NonNull
-  static ESuccess writeFileBusinessCardXMLNoDocTypes (@NonNull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
-  {
-    return _runWithTempFileOnS3 (INTERNAL_BUSINESSCARDS_XML_NO_DOC_TYPES,
-                                 CMimeType.APPLICATION_XML,
-                                 aOS -> _writeFileBusinessCardXML (aAllParticipantIDs, aOS, false));
   }
 
   /**
@@ -323,136 +431,143 @@ public final class ExportAllManager
   }
 
   @NonNull
-  static ESuccess writeFileBusinessCardJSON (@NonNull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
+  private static ESuccess _writeFileBusinessCardJSON (@NonNull final ArrayBlockingQueue <IBusinessCardExportItem> aQueue,
+                                                      final int nParticipantCount,
+                                                      @NonNull @WillNotClose final OutputStream aOS)
   {
-    return _runWithTempFileOnS3 (INTERNAL_BUSINESSCARDS_JSON, CMimeType.APPLICATION_JSON, aOS -> {
-      final PDStorageManager aStorageMgr = PDMetaManager.getStorageMgr ();
-      final boolean bIncludeDocTypes = true;
+    final boolean bIncludeDocTypes = true;
 
-      try (final Writer aWriter = StreamHelper.createWriter (new NonClosingOutputStream (aOS), StandardCharsets.UTF_8);
-           final JsonGenerator aJsonGen = Json.createGenerator (aWriter))
+    try (final Writer aWriter = StreamHelper.createWriter (new NonClosingOutputStream (aOS), StandardCharsets.UTF_8);
+         final JsonGenerator aJsonGen = Json.createGenerator (aWriter))
+    {
+      // JSON root
+      aJsonGen.writeStartObject ()
+              .write ("version", 2)
+              .write ("creationdt", PDTWebDateHelper.getAsStringXSD (PDTFactory.getCurrentZonedDateTimeUTC ()))
+              .write ("participantCount", nParticipantCount)
+              .write ("codeListSupported", EPredefinedDocumentTypeIdentifier.CODE_LIST_VERSION)
+              .writeStartArray ("bc");
+
+      for (;;)
       {
-        final String sSearchTerm = PDField.PARTICIPANT_ID.getFieldName ();
+        final IBusinessCardExportItem aItem = aQueue.take ();
+        if (aItem == EBusinessCardExportMarker.FINISHED)
+          break;
+        if (aItem == EBusinessCardExportMarker.ABORTED)
+          return ESuccess.FAILURE;
 
-        // JSON root
-        aJsonGen.writeStartObject ()
-                .write ("version", 2)
-                .write ("creationdt", PDTWebDateHelper.getAsStringXSD (PDTFactory.getCurrentZonedDateTimeUTC ()))
-                .write ("participantCount", aAllParticipantIDs.size ())
-                .write ("codeListSupported", EPredefinedDocumentTypeIdentifier.CODE_LIST_VERSION)
-                .writeStartArray ("bc");
+        final BusinessCardExportData aData = (BusinessCardExportData) aItem;
+        final String sParticipantID = aData.participantID ();
+        final ICommonsList <PDStoredBusinessEntity> aEntitiesPerPI = aData.entities ();
 
-        for (final String sParticipantID : aAllParticipantIDs)
+        aJsonGen.writeStartObject ().write ("pid", sParticipantID).writeStartArray ("entities");
+
+        for (final PDStoredBusinessEntity aSBE : aEntitiesPerPI)
         {
-          // Search all entities of the current participant ID
-          final ICommonsList <PDStoredBusinessEntity> aEntitiesPerPI = new CommonsArrayList <> ();
-          aStorageMgr.searchAllDocuments (new PDIndexQueryTerm (sSearchTerm, sParticipantID), -1, aEntitiesPerPI::add);
-
-          // Otherwise, the PI might have been deleted in the meantime
-          if (aEntitiesPerPI.isEmpty ())
-            continue;
-
-          aJsonGen.writeStartObject ().write ("pid", sParticipantID).writeStartArray ("entities");
-
-          for (final PDStoredBusinessEntity aSBE : aEntitiesPerPI)
+          aJsonGen.writeStartObject ();
           {
-            aJsonGen.writeStartObject ();
+            aJsonGen.writeStartArray ("names");
+            for (final PDStoredMLName aName : aSBE.names ())
             {
-              aJsonGen.writeStartArray ("names");
-              for (final PDStoredMLName aName : aSBE.names ())
-              {
-                aJsonGen.writeStartObject ().write ("name", aName.getName ());
-                if (aName.hasLanguageCode ())
-                  aJsonGen.write ("lang", aName.getLanguageCode ());
-                aJsonGen.writeEnd ();
-              }
+              aJsonGen.writeStartObject ().write ("name", aName.getName ());
+              if (aName.hasLanguageCode ())
+                aJsonGen.write ("lang", aName.getLanguageCode ());
               aJsonGen.writeEnd ();
             }
-            if (aSBE.hasCountryCode ())
-              aJsonGen.write ("countryCode", aSBE.getCountryCode ());
-            if (aSBE.hasGeoInfo ())
-              aJsonGen.write ("geoinfo", aSBE.getGeoInfo ());
-            if (aSBE.identifiers ().isNotEmpty ())
-            {
-              aJsonGen.writeStartArray ("identifiers");
-              for (final PDStoredIdentifier aID : aSBE.identifiers ())
-              {
-                aJsonGen.writeStartObject ()
-                        .write ("scheme", aID.getScheme ())
-                        .write ("value", aID.getValue ())
-                        .writeEnd ();
-              }
-              aJsonGen.writeEnd ();
-            }
-            if (aSBE.websiteURIs ().isNotEmpty ())
-            {
-              aJsonGen.writeStartArray ("websiteURIs");
-              for (final String sWebsite : aSBE.websiteURIs ())
-                aJsonGen.write (sWebsite);
-              aJsonGen.writeEnd ();
-            }
-            if (aSBE.contacts ().isNotEmpty ())
-            {
-              aJsonGen.writeStartArray ("contacts");
-              for (final PDStoredContact aContact : aSBE.contacts ())
-              {
-                aJsonGen.writeStartObject ();
-                if (aContact.hasType ())
-                  aJsonGen.write ("type", aContact.getType ());
-                if (aContact.hasName ())
-                  aJsonGen.write ("name", aContact.getName ());
-                if (aContact.hasPhone ())
-                  aJsonGen.write ("phone", aContact.getPhone ());
-                if (aContact.hasEmail ())
-                  aJsonGen.write ("email", aContact.getEmail ());
-                aJsonGen.writeEnd ();
-              }
-              aJsonGen.writeEnd ();
-            }
-            if (aSBE.hasAdditionalInformation ())
-              aJsonGen.write ("additionalInfo", aSBE.getAdditionalInformation ());
-            if (aSBE.hasRegistrationDate ())
-              aJsonGen.write ("regdate", PDTWebDateHelper.getAsStringXSD (aSBE.getRegistrationDate ()));
             aJsonGen.writeEnd ();
           }
+          if (aSBE.hasCountryCode ())
+            aJsonGen.write ("countryCode", aSBE.getCountryCode ());
+          if (aSBE.hasGeoInfo ())
+            aJsonGen.write ("geoinfo", aSBE.getGeoInfo ());
+          if (aSBE.identifiers ().isNotEmpty ())
+          {
+            aJsonGen.writeStartArray ("identifiers");
+            for (final PDStoredIdentifier aID : aSBE.identifiers ())
+            {
+              aJsonGen.writeStartObject ()
+                      .write ("scheme", aID.getScheme ())
+                      .write ("value", aID.getValue ())
+                      .writeEnd ();
+            }
+            aJsonGen.writeEnd ();
+          }
+          if (aSBE.websiteURIs ().isNotEmpty ())
+          {
+            aJsonGen.writeStartArray ("websiteURIs");
+            for (final String sWebsite : aSBE.websiteURIs ())
+              aJsonGen.write (sWebsite);
+            aJsonGen.writeEnd ();
+          }
+          if (aSBE.contacts ().isNotEmpty ())
+          {
+            aJsonGen.writeStartArray ("contacts");
+            for (final PDStoredContact aContact : aSBE.contacts ())
+            {
+              aJsonGen.writeStartObject ();
+              if (aContact.hasType ())
+                aJsonGen.write ("type", aContact.getType ());
+              if (aContact.hasName ())
+                aJsonGen.write ("name", aContact.getName ());
+              if (aContact.hasPhone ())
+                aJsonGen.write ("phone", aContact.getPhone ());
+              if (aContact.hasEmail ())
+                aJsonGen.write ("email", aContact.getEmail ());
+              aJsonGen.writeEnd ();
+            }
+            aJsonGen.writeEnd ();
+          }
+          if (aSBE.hasAdditionalInformation ())
+            aJsonGen.write ("additionalInfo", aSBE.getAdditionalInformation ());
+          if (aSBE.hasRegistrationDate ())
+            aJsonGen.write ("regdate", PDTWebDateHelper.getAsStringXSD (aSBE.getRegistrationDate ()));
           aJsonGen.writeEnd ();
+        }
+        aJsonGen.writeEnd ();
 
-          // Add all Document types (if wanted)
-          if (bIncludeDocTypes)
-          {
-            aJsonGen.writeStartArray ("docTypes");
-            if (aEntitiesPerPI.isNotEmpty ())
-              for (final IDocumentTypeIdentifier aDocTypeID : aEntitiesPerPI.getFirstOrNull ().documentTypeIDs ())
+        // Add all Document types (if wanted)
+        if (bIncludeDocTypes)
+        {
+          aJsonGen.writeStartArray ("docTypes");
+          if (aEntitiesPerPI.isNotEmpty ())
+            for (final IDocumentTypeIdentifier aDocTypeID : aEntitiesPerPI.getFirstOrNull ().documentTypeIDs ())
+            {
+              aJsonGen.writeStartObject ()
+                      .write ("scheme", aDocTypeID.getScheme ())
+                      .write ("value", aDocTypeID.getValue ());
+              final NiceNameEntry aNiceName = NiceNameManager.getDocTypeNiceName (aDocTypeID.getURIEncoded ());
+              if (aNiceName == null)
+                aJsonGen.write ("nonStandard", true);
+              else
               {
-                aJsonGen.writeStartObject ()
-                        .write ("scheme", aDocTypeID.getScheme ())
-                        .write ("value", aDocTypeID.getValue ());
-                final NiceNameEntry aNiceName = NiceNameManager.getDocTypeNiceName (aDocTypeID.getURIEncoded ());
-                if (aNiceName == null)
-                  aJsonGen.write ("nonStandard", true);
-                else
-                {
-                  aJsonGen.write ("displayName", aNiceName.getName ());
-                  // New in JSON v2: use "state" instead of "deprecated"
-                  aJsonGen.write ("state", aNiceName.getState ().getID ());
-                }
-                aJsonGen.writeEnd ();
+                aJsonGen.write ("displayName", aNiceName.getName ());
+                // New in JSON v2: use "state" instead of "deprecated"
+                aJsonGen.write ("state", aNiceName.getState ().getID ());
               }
-            aJsonGen.writeEnd ();
-          }
-
+              aJsonGen.writeEnd ();
+            }
           aJsonGen.writeEnd ();
         }
 
-        aJsonGen.writeEnd ().writeEnd ();
+        aJsonGen.writeEnd ();
+      }
 
-        LOGGER.info ("Successfully wrote all BusinessCards as JSON");
-      }
-      catch (final IOException ex)
-      {
-        LOGGER.error ("Failed to export all BusinessCards as JSON", ex);
-      }
-    });
+      aJsonGen.writeEnd ().writeEnd ();
+
+      LOGGER.info ("Successfully wrote all BusinessCards as JSON");
+      return ESuccess.SUCCESS;
+    }
+    catch (final InterruptedException ex)
+    {
+      Thread.currentThread ().interrupt ();
+      LOGGER.error ("Interrupted while exporting all BusinessCards as JSON", ex);
+      return ESuccess.FAILURE;
+    }
+    catch (final IOException ex)
+    {
+      LOGGER.error ("Failed to export all BusinessCards as JSON", ex);
+      return ESuccess.FAILURE;
+    }
   }
 
   /**
@@ -474,91 +589,226 @@ public final class ExportAllManager
   }
 
   @NonNull
-  static ESuccess writeFileBusinessCardCSV (@NonNull final ICommonsSortedSet <String> aAllParticipantIDs) throws IOException
+  private static ESuccess _writeFileBusinessCardCSV (@NonNull final ArrayBlockingQueue <IBusinessCardExportItem> aQueue,
+                                                     @NonNull @WillNotClose final OutputStream aOS)
   {
-    return _runWithTempFileOnS3 (INTERNAL_BUSINESSCARDS_CSV, CMimeType.TEXT_CSV, aOS -> {
-      final PDStorageManager aStorageMgr = PDMetaManager.getStorageMgr ();
+    try (final CSVWriter aCSVWriter = new CSVWriter (StreamHelper.createWriter (new NonClosingOutputStream (aOS),
+                                                                                StandardCharsets.ISO_8859_1)))
+    {
+      _unify (aCSVWriter);
+      aCSVWriter.writeNext ("Participant ID",
+                            "Names (per-row)",
+                            "Country code",
+                            "Geo info",
+                            "Identifier schemes",
+                            "Identifier values",
+                            "Websites",
+                            "Contact type",
+                            "Contact name",
+                            "Contact phone",
+                            "Contact email",
+                            "Additional info",
+                            "Registration date",
+                            "Document types");
 
-      try (final CSVWriter aCSVWriter = new CSVWriter (StreamHelper.createWriter (new NonClosingOutputStream (aOS),
-                                                                                  StandardCharsets.ISO_8859_1)))
+      final Consumer <? super PDStoredBusinessEntity> aCSVConsumer = aEntity -> {
+        if (!aEntity.hasParticipantID ())
+          return;
+
+        aCSVWriter.writeNext (aEntity.getParticipantID ().getURIEncoded (),
+                              StringImplode.imploder ()
+                                           .source (aEntity.names (), PDStoredMLName::getNameAndLanguageCode)
+                                           .separator ('\n')
+                                           .build (),
+                              aEntity.getCountryCode (),
+                              aEntity.getGeoInfo (),
+                              StringImplode.imploder ()
+                                           .source (aEntity.identifiers (), PDStoredIdentifier::getScheme)
+                                           .separator ('\n')
+                                           .build (),
+                              StringImplode.imploder ()
+                                           .source (aEntity.identifiers (), PDStoredIdentifier::getValue)
+                                           .separator ('\n')
+                                           .build (),
+                              StringImplode.imploder ().source (aEntity.websiteURIs ()).separator ('\n').build (),
+                              StringImplode.imploder ()
+                                           .source (aEntity.contacts (), PDStoredContact::getType)
+                                           .separator ('\n')
+                                           .build (),
+                              StringImplode.imploder ()
+                                           .source (aEntity.contacts (), PDStoredContact::getName)
+                                           .separator ('\n')
+                                           .build (),
+                              StringImplode.imploder ()
+                                           .source (aEntity.contacts (), PDStoredContact::getPhone)
+                                           .separator ('\n')
+                                           .build (),
+                              StringImplode.imploder ()
+                                           .source (aEntity.contacts (), PDStoredContact::getEmail)
+                                           .separator ('\n')
+                                           .build (),
+                              aEntity.getAdditionalInformation (),
+                              aEntity.getRegistrationDate () == null ? "" : aEntity.getRegistrationDate ().toString (),
+                              StringImplode.imploder ()
+                                           .source (aEntity.documentTypeIDs (), IDocumentTypeIdentifier::getURIEncoded)
+                                           .separator ('\n')
+                                           .build ());
+      };
+
+      for (;;)
       {
-        _unify (aCSVWriter);
-        aCSVWriter.writeNext ("Participant ID",
-                              "Names (per-row)",
-                              "Country code",
-                              "Geo info",
-                              "Identifier schemes",
-                              "Identifier values",
-                              "Websites",
-                              "Contact type",
-                              "Contact name",
-                              "Contact phone",
-                              "Contact email",
-                              "Additional info",
-                              "Registration date",
-                              "Document types");
+        final IBusinessCardExportItem aItem = aQueue.take ();
+        if (aItem == EBusinessCardExportMarker.FINISHED)
+          break;
+        if (aItem == EBusinessCardExportMarker.ABORTED)
+          return ESuccess.FAILURE;
 
-        final Consumer <? super PDStoredBusinessEntity> aCSVConsumer = aEntity -> {
-          if (!aEntity.hasParticipantID ())
-            return;
+        final BusinessCardExportData aData = (BusinessCardExportData) aItem;
+        aData.entities ().forEach (aCSVConsumer);
+      }
 
-          aCSVWriter.writeNext (aEntity.getParticipantID ().getURIEncoded (),
-                                StringImplode.imploder ()
-                                             .source (aEntity.names (), PDStoredMLName::getNameAndLanguageCode)
-                                             .separator ('\n')
-                                             .build (),
-                                aEntity.getCountryCode (),
-                                aEntity.getGeoInfo (),
-                                StringImplode.imploder ()
-                                             .source (aEntity.identifiers (), PDStoredIdentifier::getScheme)
-                                             .separator ('\n')
-                                             .build (),
-                                StringImplode.imploder ()
-                                             .source (aEntity.identifiers (), PDStoredIdentifier::getValue)
-                                             .separator ('\n')
-                                             .build (),
-                                StringImplode.imploder ().source (aEntity.websiteURIs ()).separator ('\n').build (),
-                                StringImplode.imploder ()
-                                             .source (aEntity.contacts (), PDStoredContact::getType)
-                                             .separator ('\n')
-                                             .build (),
-                                StringImplode.imploder ()
-                                             .source (aEntity.contacts (), PDStoredContact::getName)
-                                             .separator ('\n')
-                                             .build (),
-                                StringImplode.imploder ()
-                                             .source (aEntity.contacts (), PDStoredContact::getPhone)
-                                             .separator ('\n')
-                                             .build (),
-                                StringImplode.imploder ()
-                                             .source (aEntity.contacts (), PDStoredContact::getEmail)
-                                             .separator ('\n')
-                                             .build (),
-                                aEntity.getAdditionalInformation (),
-                                aEntity.getRegistrationDate () == null ? ""
-                                                                       : aEntity.getRegistrationDate ().toString (),
-                                StringImplode.imploder ()
-                                             .source (aEntity.documentTypeIDs (),
-                                                      IDocumentTypeIdentifier::getURIEncoded)
-                                             .separator ('\n')
-                                             .build ());
-        };
+      aCSVWriter.flush ();
+      LOGGER.info ("Successfully exported all BCs as CSV");
+      return ESuccess.SUCCESS;
+    }
+    catch (final InterruptedException ex)
+    {
+      Thread.currentThread ().interrupt ();
+      LOGGER.error ("Interrupted while exporting all BCs as CSV", ex);
+      return ESuccess.FAILURE;
+    }
+    catch (final IOException ex)
+    {
+      LOGGER.error ("Failed to export all BCs as CSV", ex);
+      return ESuccess.FAILURE;
+    }
+  }
 
-        final String sSearchTerm = PDField.PARTICIPANT_ID.getFieldName ();
-        for (final String sParticipantID : aAllParticipantIDs)
+  /**
+   * Write all enabled Business Card exports in parallel. Every participant is queried exactly once
+   * and the resulting entity list is shared by all active format writers. The queues are deliberately
+   * small so that this method does not retain the complete Directory in memory.
+   *
+   * @param aAllParticipantIDs
+   *        All participant IDs to export. May not be <code>null</code>.
+   * @param bWriteXML
+   *        Whether both XML variants should be written.
+   * @param bWriteJSON
+   *        Whether JSON should be written.
+   * @param bWriteCSV
+   *        Whether CSV should be written.
+   * @return The non-<code>null</code> list of failed export status names.
+   * @throws IOException
+   *         If the index cannot be queried.
+   */
+  @NonNull
+  static ICommonsList <String> writeAllBusinessCardFiles (@NonNull final ICommonsSortedSet <String> aAllParticipantIDs,
+                                                         final boolean bWriteXML,
+                                                         final boolean bWriteJSON,
+                                                         final boolean bWriteCSV) throws IOException
+  {
+    final PDStorageManager aStorageMgr = PDMetaManager.getStorageMgr ();
+    final String sSearchTerm = PDField.PARTICIPANT_ID.getFieldName ();
+    return writeAllBusinessCardFiles (aAllParticipantIDs, bWriteXML, bWriteJSON, bWriteCSV, sParticipantID -> {
+      final ICommonsList <PDStoredBusinessEntity> ret = new CommonsArrayList <> ();
+      aStorageMgr.searchAllDocuments (new PDIndexQueryTerm (sSearchTerm, sParticipantID), -1, ret::add);
+      return ret;
+    });
+  }
+
+  @NonNull
+  @VisibleForTesting
+  static ICommonsList <String> writeAllBusinessCardFiles (@NonNull final ICommonsSortedSet <String> aAllParticipantIDs,
+                                                         final boolean bWriteXML,
+                                                         final boolean bWriteJSON,
+                                                         final boolean bWriteCSV,
+                                                         @NonNull final IThrowingFunction <String, ICommonsList <PDStoredBusinessEntity>, IOException> aEntityProvider) throws IOException
+  {
+    final ICommonsList <String> ret = new CommonsArrayList <> ();
+
+    try (final ExecutorService aExecutor = Executors.newVirtualThreadPerTaskExecutor ())
+    {
+      final ICommonsList <BusinessCardExportTask> aTasks = new CommonsArrayList <> ();
+      if (bWriteXML)
+      {
+        aTasks.add (new BusinessCardExportTask (aExecutor,
+                                                "writeFileBusinessCardXMLFull",
+                                                INTERNAL_BUSINESSCARDS_XML_FULL,
+                                                CMimeType.APPLICATION_XML,
+                                                (aQueue, aOS) -> _writeFileBusinessCardXML (aQueue, aOS, true)));
+        aTasks.add (new BusinessCardExportTask (aExecutor,
+                                                "writeFileBusinessCardXMLNoDocTypes",
+                                                INTERNAL_BUSINESSCARDS_XML_NO_DOC_TYPES,
+                                                CMimeType.APPLICATION_XML,
+                                                (aQueue, aOS) -> _writeFileBusinessCardXML (aQueue, aOS, false)));
+      }
+      if (bWriteJSON)
+        aTasks.add (new BusinessCardExportTask (aExecutor,
+                                                "writeFileBusinessCardJSON",
+                                                INTERNAL_BUSINESSCARDS_JSON,
+                                                CMimeType.APPLICATION_JSON,
+                                                (aQueue, aOS) -> _writeFileBusinessCardJSON (aQueue,
+                                                                                             aAllParticipantIDs.size (),
+                                                                                             aOS)));
+      if (bWriteCSV)
+        aTasks.add (new BusinessCardExportTask (aExecutor,
+                                                "writeFileBusinessCardCSV",
+                                                INTERNAL_BUSINESSCARDS_CSV,
+                                                CMimeType.TEXT_CSV,
+                                                ExportAllManager::_writeFileBusinessCardCSV));
+
+      if (aTasks.isNotEmpty ())
+      {
+        final IIdentifierFactory aIF = PDMetaManager.getIdentifierFactory ();
+        boolean bCompleted = false;
+        try
         {
-          // If the participant was deleted in the meantime, the consumer is simply not called
-          aStorageMgr.searchAllDocuments (new PDIndexQueryTerm (sSearchTerm, sParticipantID), -1, aCSVConsumer);
+          for (final String sParticipantID : aAllParticipantIDs)
+          {
+            if (aTasks.stream ().allMatch (BusinessCardExportTask::isDone))
+              break;
+
+            final IParticipantIdentifier aParticipantID = aIF.parseParticipantIdentifier (sParticipantID);
+
+            // Should never happen because PIs are parsed before being added to the source set
+            if (aParticipantID != null)
+            {
+              final ICommonsList <PDStoredBusinessEntity> aEntitiesPerPI = aEntityProvider.apply (sParticipantID);
+
+              // The participant may have been deleted since the initial ID scan
+              if (aEntitiesPerPI.isNotEmpty ())
+              {
+                final BusinessCardExportData aData = new BusinessCardExportData (sParticipantID,
+                                                                                 aParticipantID,
+                                                                                 aEntitiesPerPI);
+                for (final BusinessCardExportTask aTask : aTasks)
+                  aTask.offer (aData);
+              }
+            }
+          }
+          bCompleted = true;
+        }
+        catch (final InterruptedException ex)
+        {
+          Thread.currentThread ().interrupt ();
+          throw new IOException ("Interrupted while distributing Business Card export data", ex);
+        }
+        finally
+        {
+          for (final BusinessCardExportTask aTask : aTasks)
+            if (bCompleted)
+              aTask.finish ();
+            else
+              aTask.abort ();
         }
 
-        aCSVWriter.flush ();
-        LOGGER.info ("Successfully exported all BCs as CSV");
+        for (final BusinessCardExportTask aTask : aTasks)
+          if (aTask.getResult ().isFailure ())
+            ret.add (aTask.getStatus ());
       }
-      catch (final IOException ex)
-      {
-        LOGGER.error ("Failed to export all BCs as CSV", ex);
-      }
-    });
+    }
+
+    return ret;
   }
 
   /**
@@ -617,10 +867,12 @@ public final class ExportAllManager
         aXmlWriter.writeEndDocument ();
 
         LOGGER.info ("Successfully wrote all Participants as XML");
+        return ESuccess.SUCCESS;
       }
       catch (final Exception ex)
       {
         LOGGER.error ("Failed to export all Participants as XML", ex);
+        return ESuccess.FAILURE;
       }
     });
   }
@@ -660,10 +912,12 @@ public final class ExportAllManager
 
         // Safe space - no indent
         LOGGER.info ("Successfully wrote all Participants as JSON");
+        return ESuccess.SUCCESS;
       }
       catch (final IOException ex)
       {
         LOGGER.error ("Failed to export all Participants as JSON", ex);
+        return ESuccess.FAILURE;
       }
     });
   }
@@ -695,12 +949,56 @@ public final class ExportAllManager
 
         aCSVWriter.flush ();
         LOGGER.info ("Successfully wrote all Participants as CSV");
+        return ESuccess.SUCCESS;
       }
       catch (final IOException ex)
       {
         LOGGER.error ("Failed to export all Participants as CSV", ex);
+        return ESuccess.FAILURE;
       }
     });
+  }
+
+  /**
+   * Write all enabled participant-only exports in parallel.
+   *
+   * @param aAllParticipantIDs
+   *        All participant IDs to export. May not be <code>null</code>.
+   * @param bWriteXML
+   *        Whether XML should be written.
+   * @param bWriteJSON
+   *        Whether JSON should be written.
+   * @param bWriteCSV
+   *        Whether CSV should be written.
+   * @return The non-<code>null</code> list of failed export status names.
+   */
+  @NonNull
+  static ICommonsList <String> writeAllParticipantFiles (@NonNull final ICommonsSortedSet <String> aAllParticipantIDs,
+                                                        final boolean bWriteXML,
+                                                        final boolean bWriteJSON,
+                                                        final boolean bWriteCSV)
+  {
+    final ICommonsList <String> ret = new CommonsArrayList <> ();
+
+    try (final ExecutorService aExecutor = Executors.newVirtualThreadPerTaskExecutor ())
+    {
+      final ICommonsList <ExportFuture> aFutures = new CommonsArrayList <> ();
+      if (bWriteXML)
+        aFutures.add (new ExportFuture ("writeFileParticipantXML",
+                                        aExecutor.submit ( () -> writeFileParticipantXML (aAllParticipantIDs))));
+      if (bWriteJSON)
+        aFutures.add (new ExportFuture ("writeFileParticipantJSON",
+                                        aExecutor.submit ( () -> writeFileParticipantJSON (aAllParticipantIDs))));
+      if (bWriteCSV)
+        aFutures.add (new ExportFuture ("writeFileParticipantCSV",
+                                        aExecutor.submit ( () -> writeFileParticipantCSV (aAllParticipantIDs))));
+
+      for (final ExportFuture aFuture : aFutures)
+        if (_getFutureResult (aFuture).isFailure ())
+          ret.add (aFuture.status ());
+    }
+
+    return ret;
   }
 
   /**

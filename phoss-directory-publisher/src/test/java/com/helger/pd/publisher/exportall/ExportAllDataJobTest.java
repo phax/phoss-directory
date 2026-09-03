@@ -16,8 +16,11 @@
  */
 package com.helger.pd.publisher.exportall;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.xml.validation.Validator;
 
@@ -25,9 +28,17 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 
+import com.helger.collection.commons.CommonsArrayList;
+import com.helger.collection.commons.CommonsTreeSet;
+import com.helger.datetime.helper.PDTFactory;
 import com.helger.io.resource.FileSystemResource;
 import com.helger.io.resource.IReadableResource;
+import com.helger.pd.indexer.searchindex.PDIndexDocument;
+import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
+import com.helger.pd.indexer.storage.field.PDField;
 import com.helger.pd.publisher.PDPublisherTestRule;
+import com.helger.peppolid.IParticipantIdentifier;
+import com.helger.peppolid.factory.PeppolIdentifierFactory;
 import com.helger.xml.sax.CollectingSAXErrorHandler;
 import com.helger.xml.schema.XMLSchemaCache;
 import com.helger.xml.transform.TransformSourceFactory;
@@ -62,5 +73,34 @@ public final class ExportAllDataJobTest
     aHdl.clearResourceErrors ();
     aValidator.validate (TransformSourceFactory.create (ExportAllManager.streamBusinessCardXMLNoDocTypes ()));
     assertTrue (aHdl.getErrorList ().toString (), aHdl.getErrorList ().containsNoError ());
+  }
+
+  @Test
+  public void testBusinessCardFormatsShareParticipantQueries () throws Exception
+  {
+    final var aParticipantIDs = new CommonsTreeSet <String> ();
+    aParticipantIDs.add (PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9915:test1")
+                                                          .getURIEncoded ());
+    aParticipantIDs.add (PeppolIdentifierFactory.INSTANCE.createParticipantIdentifierWithDefaultScheme ("9915:test2")
+                                                          .getURIEncoded ());
+
+    final AtomicInteger aQueryCount = new AtomicInteger ();
+    assertTrue (ExportAllManager.writeAllBusinessCardFiles (aParticipantIDs, true, true, true, sParticipantID -> {
+      aQueryCount.incrementAndGet ();
+
+      final IParticipantIdentifier aParticipantID = PeppolIdentifierFactory.INSTANCE.parseParticipantIdentifier (sParticipantID);
+      assertNotNull (aParticipantID);
+      final PDIndexDocument aDoc = new PDIndexDocument ();
+      aDoc.add (PDField.PARTICIPANT_ID.getAsField (aParticipantID));
+      aDoc.add (PDField.NAME.getAsField ("Test entity"));
+      aDoc.add (PDField.COUNTRY_CODE.getAsField ("AT"));
+      aDoc.add (PDField.METADATA_CREATIONDT.getAsField (PDTFactory.getCurrentLocalDateTime ()));
+      aDoc.add (PDField.METADATA_OWNERID.getAsField ("unit-test"));
+      aDoc.add (PDField.METADATA_REQUESTING_HOST.getAsField ("localhost"));
+      return new CommonsArrayList <> (PDStoredBusinessEntity.create (aDoc));
+    }).isEmpty ());
+
+    // Two participants and four output files must result in two, not eight, index queries
+    assertEquals (aParticipantIDs.size (), aQueryCount.get ());
   }
 }
