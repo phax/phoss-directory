@@ -68,8 +68,8 @@ public final class ExportAllManagerTest
       return false;
     }
 
-    public void onStart (@NonNull @WillNotClose final OutputStream aOS,
-                         @Nonnegative final int nParticipantCount) throws Exception
+    public void onStart (@NonNull @WillNotClose final OutputStream aOS, @Nonnegative final int nParticipantCount)
+                                                                                                                  throws Exception
     {
       m_aOS = aOS;
       m_aOS.write (("Count: " + nParticipantCount + "\n").getBytes (StandardCharsets.UTF_8));
@@ -111,7 +111,7 @@ public final class ExportAllManagerTest
     final MockExportAllHandler aFailure = new MockExportAllHandler ("failure", true);
     final ICommonsList <IExportAllHandler> aHandlers = new CommonsArrayList <> (aFailure, aSuccess);
 
-    final ICommonsList <String> aFailedNames = ExportAllManager.exportAll (aAllParticipantIDs, aHandlers, x -> {});
+    final ICommonsList <String> aFailedNames = ExportAllManager.exportAll (aAllParticipantIDs, aHandlers, _ -> {});
 
     // Only the failing format is reported as failure - and it is not uploaded
     assertEquals (new CommonsArrayList <> ("failure"), aFailedNames);
