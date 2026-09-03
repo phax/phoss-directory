@@ -104,11 +104,17 @@ public final class AppSecurity
 
     // Create all roles
     if (!aRoleMgr.containsWithID (ROLE_CONFIG_ID))
-      aRoleMgr.createPredefinedRole (ROLE_CONFIG_ID, ROLE_CONFIG_NAME, ROLE_CONFIG_DESCRIPTION, ROLE_CONFIG_CUSTOMATTRS);
+      aRoleMgr.createPredefinedRole (ROLE_CONFIG_ID,
+                                     ROLE_CONFIG_NAME,
+                                     ROLE_CONFIG_DESCRIPTION,
+                                     ROLE_CONFIG_CUSTOMATTRS);
     if (!aRoleMgr.containsWithID (ROLE_VIEW_ID))
       aRoleMgr.createPredefinedRole (ROLE_VIEW_ID, ROLE_VIEW_NAME, ROLE_VIEW_DESCRIPTION, ROLE_VIEW_CUSTOMATTRS);
     if (!aRoleMgr.containsWithID (ROLE_SG_OWNER_ID))
-      aRoleMgr.createPredefinedRole (ROLE_SG_OWNER_ID, ROLE_SG_OWNER_NAME, ROLE_SG_OWNER_DESCRIPTION, ROLE_SG_OWNER_CUSTOMATTRS);
+      aRoleMgr.createPredefinedRole (ROLE_SG_OWNER_ID,
+                                     ROLE_SG_OWNER_NAME,
+                                     ROLE_SG_OWNER_DESCRIPTION,
+                                     ROLE_SG_OWNER_CUSTOMATTRS);
 
     // User group Administrators
     if (!aUserGroupMgr.containsWithID (USERGROUP_ADMINISTRATORS_ID))

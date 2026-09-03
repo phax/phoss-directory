@@ -352,9 +352,9 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
                                         new DTCol ("Participant"),
                                         new DTCol ("Action"),
                                         new DTCol ("Retries").setDisplayType (EDTColType.INT, aDisplayLocale),
-                                        m_bDeadIndex ? null : new DTCol ("Next retry").setDisplayType (
-                                                                                                       EDTColType.DATETIME,
-                                                                                                       aDisplayLocale),
+                                        m_bDeadIndex ? null
+                                                     : new DTCol ("Next retry").setDisplayType (EDTColType.DATETIME,
+                                                                                                aDisplayLocale),
                                         new DTCol ("Last retry").setDisplayType (EDTColType.DATETIME, aDisplayLocale),
                                         new BootstrapDTColAction (aDisplayLocale)).setID (getID ());
 

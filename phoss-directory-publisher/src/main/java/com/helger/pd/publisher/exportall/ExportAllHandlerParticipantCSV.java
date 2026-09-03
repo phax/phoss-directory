@@ -49,8 +49,8 @@ public class ExportAllHandlerParticipantCSV extends AbstractExportAllHandler
     return false;
   }
 
-  public void onStart (@NonNull @WillNotClose final OutputStream aOS,
-                       @Nonnegative final int nParticipantCount) throws Exception
+  public void onStart (@NonNull @WillNotClose final OutputStream aOS, @Nonnegative final int nParticipantCount)
+                                                                                                                throws Exception
   {
     m_aCSVWriter = ExportHelper.createCSVWriter (aOS);
     m_aCSVWriter.writeNext ("Participant ID");

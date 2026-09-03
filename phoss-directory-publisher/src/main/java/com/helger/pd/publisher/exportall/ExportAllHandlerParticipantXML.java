@@ -56,8 +56,8 @@ public class ExportAllHandlerParticipantXML extends AbstractExportAllHandler
     return false;
   }
 
-  public void onStart (@NonNull @WillNotClose final OutputStream aOS,
-                       @Nonnegative final int nParticipantCount) throws Exception
+  public void onStart (@NonNull @WillNotClose final OutputStream aOS, @Nonnegative final int nParticipantCount)
+                                                                                                                throws Exception
   {
     m_aXmlWriter = XMLOutputFactory.newInstance ().createXMLStreamWriter (aOS);
     m_aXmlWriter.setDefaultNamespace (XML_NS_URI);

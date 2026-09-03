@@ -179,8 +179,8 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
         {
           EXPORT_STATUS.setCurrentStatus ("exportAll");
           for (final String sFailedHandlerName : ExportAllManager.exportAll (aAllParticipantIDs,
-                                                                            aHandlers,
-                                                                            EXPORT_STATUS::setCurrentStatus))
+                                                                             aHandlers,
+                                                                             EXPORT_STATUS::setCurrentStatus))
           {
             EXPORT_STATUS.rememberFailedStatus (sFailedHandlerName);
           }

@@ -31,8 +31,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * A special servlet filter that checks that a user can only access the config
- * application after authenticating.
+ * A special servlet filter that checks that a user can only access the config application after
+ * authenticating.
  *
  * @author Philip Helger
  */

@@ -27,12 +27,7 @@ public final class IndefiniteArticleHelper
   // Add known exceptions where pronunciation doesn't match the first letter
   private static final String [] AN_EXCEPTIONS = { "honest", "hour", "honor", "honour", "heir" };
 
-  private static final String [] A_EXCEPTIONS = { "eulogy",
-                                                  "euphemism",
-                                                  "european",
-                                                  "one",
-                                                  "unicorn",
-                                                  "ubiquitous",
+  private static final String [] A_EXCEPTIONS = { "eulogy", "euphemism", "european", "one", "unicorn", "ubiquitous",
                                                   "university" };
 
   private IndefiniteArticleHelper ()

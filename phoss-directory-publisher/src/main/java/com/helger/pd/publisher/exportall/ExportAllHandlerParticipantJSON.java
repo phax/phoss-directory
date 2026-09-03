@@ -58,8 +58,8 @@ public class ExportAllHandlerParticipantJSON extends AbstractExportAllHandler
     return false;
   }
 
-  public void onStart (@NonNull @WillNotClose final OutputStream aOS,
-                       @Nonnegative final int nParticipantCount) throws Exception
+  public void onStart (@NonNull @WillNotClose final OutputStream aOS, @Nonnegative final int nParticipantCount)
+                                                                                                                throws Exception
   {
     m_aWriter = StreamHelper.createWriter (new NonClosingOutputStream (aOS), StandardCharsets.UTF_8);
     m_aJsonGen = Json.createGenerator (m_aWriter);

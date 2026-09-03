@@ -63,7 +63,7 @@ public final class SMLInfoManagerXML extends AbstractPhotonMapBasedWALDAO <ISMLI
                                     .clientCertificateRequired (bClientCertificateRequired)
                                     .build ();
 
-    m_aRWLock.writeLocked ( () -> { internalCreateItem (aSMLInfo); });
+    m_aRWLock.writeLocked (() -> { internalCreateItem (aSMLInfo); });
     AuditHelper.onAuditCreateSuccess (SMLInfo.OT,
                                       aSMLInfo.getID (),
                                       sDisplayName,
@@ -143,7 +143,7 @@ public final class SMLInfoManagerXML extends AbstractPhotonMapBasedWALDAO <ISMLI
   @ReturnsMutableCopy
   public ICommonsList <ISMLInfo> getAllSorted ()
   {
-    return getAll ().getSortedInline ( (c1, c2) -> {
+    return getAll ().getSortedInline ((c1, c2) -> {
       int ret = c1.getDNSZone ().length () - c2.getDNSZone ().length ();
       if (ret == 0)
         ret = c1.getDNSZone ().compareTo (c2.getDNSZone ());

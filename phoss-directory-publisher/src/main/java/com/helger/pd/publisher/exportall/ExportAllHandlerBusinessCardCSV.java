@@ -54,8 +54,8 @@ public class ExportAllHandlerBusinessCardCSV extends AbstractExportAllHandler
     return true;
   }
 
-  public void onStart (@NonNull @WillNotClose final OutputStream aOS,
-                       @Nonnegative final int nParticipantCount) throws Exception
+  public void onStart (@NonNull @WillNotClose final OutputStream aOS, @Nonnegative final int nParticipantCount)
+                                                                                                                throws Exception
   {
     m_aCSVWriter = ExportHelper.createCSVWriter (aOS);
     m_aCSVWriter.writeNext ("Participant ID",

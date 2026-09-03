@@ -313,7 +313,7 @@ public final class ExportAllManager
         }
 
         for (final ExportTarget aTarget : aTargets)
-          _invoke (aTarget, x -> x.onEnd ());
+          _invoke (aTarget, IExportAllHandler::onEnd);
       }
       finally
       {

@@ -58,8 +58,8 @@ public class ExportAllHandlerBusinessCardXML extends AbstractExportAllHandler
     return true;
   }
 
-  public void onStart (@NonNull @WillNotClose final OutputStream aOS,
-                       @Nonnegative final int nParticipantCount) throws Exception
+  public void onStart (@NonNull @WillNotClose final OutputStream aOS, @Nonnegative final int nParticipantCount)
+                                                                                                                throws Exception
   {
     m_aXmlWriter = XMLOutputFactory.newInstance ().createXMLStreamWriter (aOS);
     m_aXmlWriter.setDefaultNamespace (ExportHelper.XML_EXPORT_NS_URI_V3);

@@ -25,7 +25,8 @@ public class AppRootServlet extends AbstractXServlet
 {
   public AppRootServlet ()
   {
-    handlerRegistry ().registerHandler (EHttpMethod.GET, new RootXServletHandler (AbstractPublicApplicationServlet.SERVLET_DEFAULT_PATH));
+    handlerRegistry ().registerHandler (EHttpMethod.GET,
+                                        new RootXServletHandler (AbstractPublicApplicationServlet.SERVLET_DEFAULT_PATH));
     handlerRegistry ().copyHandlerToAll (EHttpMethod.GET);
   }
 }

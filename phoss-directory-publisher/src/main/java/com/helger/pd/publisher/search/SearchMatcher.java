@@ -84,22 +84,22 @@ public final class SearchMatcher
       case STRING_CONTAINS:
         // Different semantics than StringHelper.contains for empty values!
         return StringHelper.isNotEmpty (sReferenceValue) &&
-               StringHelper.isNotEmpty (sSearchValue) &&
-               sReferenceValue.contains (sSearchValue);
+          StringHelper.isNotEmpty (sSearchValue) &&
+          sReferenceValue.contains (sSearchValue);
       case STRING_STARTS_WITH:
         // Different semantics than StringHelper.startsWith for empty values!
         return StringHelper.isNotEmpty (sReferenceValue) &&
-               StringHelper.isNotEmpty (sSearchValue) &&
-               sReferenceValue.startsWith (sSearchValue);
+          StringHelper.isNotEmpty (sSearchValue) &&
+          sReferenceValue.startsWith (sSearchValue);
       case STRING_ENDS_WITH:
         // Different semantics than StringHelper.endsWith for empty values!
         return StringHelper.isNotEmpty (sReferenceValue) &&
-               StringHelper.isNotEmpty (sSearchValue) &&
-               sReferenceValue.endsWith (sSearchValue);
+          StringHelper.isNotEmpty (sSearchValue) &&
+          sReferenceValue.endsWith (sSearchValue);
       case STRING_REGEX:
         return StringHelper.isNotEmpty (sReferenceValue) &&
-               StringHelper.isNotEmpty (sSearchValue) &&
-               RegExHelper.stringMatchesPattern (sSearchValue, sReferenceValue);
+          StringHelper.isNotEmpty (sSearchValue) &&
+          RegExHelper.stringMatchesPattern (sSearchValue, sReferenceValue);
       default:
         throw new IllegalArgumentException ("Unsupported String search operator " + eOperator);
     }
@@ -209,10 +209,10 @@ public final class SearchMatcher
         return aReferenceValue != null && aReferenceValue.getDayOfMonth () == TypeConverter.convertToInt (aSearchValue);
       case DATE_YEAR_MONTH:
         return aReferenceValue != null &&
-               YearMonth.from (aReferenceValue).equals (TypeConverter.convert (aSearchValue, YearMonth.class));
+          YearMonth.from (aReferenceValue).equals (TypeConverter.convert (aSearchValue, YearMonth.class));
       case DATE_MONTH_DAY:
         return aReferenceValue != null &&
-               MonthDay.from (aReferenceValue).equals (TypeConverter.convert (aSearchValue, MonthDay.class));
+          MonthDay.from (aReferenceValue).equals (TypeConverter.convert (aSearchValue, MonthDay.class));
       default:
         throw new IllegalArgumentException ("Unsupported LocalDate search operator " + eOperator);
     }

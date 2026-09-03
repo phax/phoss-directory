@@ -101,8 +101,7 @@ public interface IExportAllHandler
 
   /**
    * End the export. This is called once after the last participant. All buffered data must be
-   * written to the output stream provided in
-   * {@link #onStart(OutputStream, int)}.
+   * written to the output stream provided in {@link #onStart(OutputStream, int)}.
    *
    * @throws Exception
    *         On error

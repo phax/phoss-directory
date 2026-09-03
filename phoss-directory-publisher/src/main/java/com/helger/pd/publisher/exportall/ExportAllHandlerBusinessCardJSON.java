@@ -67,8 +67,8 @@ public class ExportAllHandlerBusinessCardJSON extends AbstractExportAllHandler
     return true;
   }
 
-  public void onStart (@NonNull @WillNotClose final OutputStream aOS,
-                       @Nonnegative final int nParticipantCount) throws Exception
+  public void onStart (@NonNull @WillNotClose final OutputStream aOS, @Nonnegative final int nParticipantCount)
+                                                                                                                throws Exception
   {
     m_aWriter = StreamHelper.createWriter (new NonClosingOutputStream (aOS), StandardCharsets.UTF_8);
     m_aJsonGen = Json.createGenerator (m_aWriter);
@@ -115,7 +115,10 @@ public class ExportAllHandlerBusinessCardJSON extends AbstractExportAllHandler
         m_aJsonGen.writeStartArray ("identifiers");
         for (final PDStoredIdentifier aID : aSBE.identifiers ())
         {
-          m_aJsonGen.writeStartObject ().write ("scheme", aID.getScheme ()).write ("value", aID.getValue ()).writeEnd ();
+          m_aJsonGen.writeStartObject ()
+                    .write ("scheme", aID.getScheme ())
+                    .write ("value", aID.getValue ())
+                    .writeEnd ();
         }
         m_aJsonGen.writeEnd ();
       }
@@ -158,7 +161,9 @@ public class ExportAllHandlerBusinessCardJSON extends AbstractExportAllHandler
       m_aJsonGen.writeStartArray ("docTypes");
       for (final IDocumentTypeIdentifier aDocTypeID : aEntities.getFirstOrNull ().documentTypeIDs ())
       {
-        m_aJsonGen.writeStartObject ().write ("scheme", aDocTypeID.getScheme ()).write ("value", aDocTypeID.getValue ());
+        m_aJsonGen.writeStartObject ()
+                  .write ("scheme", aDocTypeID.getScheme ())
+                  .write ("value", aDocTypeID.getValue ());
         final NiceNameEntry aNiceName = NiceNameManager.getDocTypeNiceName (aDocTypeID.getURIEncoded ());
         if (aNiceName == null)
           m_aJsonGen.write ("nonStandard", true);

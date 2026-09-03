@@ -66,7 +66,8 @@ public final class SyncAllBusinessCardsJob extends AbstractScopeAwareJob
   public static LocalDateTime getLastSync ()
   {
     final String sPayload = SimpleFileIO.getFileAsString (_getLastSyncFile (), StandardCharsets.ISO_8859_1);
-    final LocalDateTime ret = PDTFromString.getLocalDateTimeFromString (sPayload, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+    final LocalDateTime ret = PDTFromString.getLocalDateTimeFromString (sPayload,
+                                                                        DateTimeFormatter.ISO_LOCAL_DATE_TIME);
     return ret == null ? INITIAL_SYNC : ret;
   }
 
@@ -95,18 +96,24 @@ public final class SyncAllBusinessCardsJob extends AbstractScopeAwareJob
     final Set <IParticipantIdentifier> aAll = PDMetaManager.getStorageMgr ().getAllContainedParticipantIDs ().keySet ();
     for (final IParticipantIdentifier aParticipantID : aAll)
     {
-      aIndexerMgr.queueWorkItem (aParticipantID, EIndexerWorkItemType.SYNC, CPDStorage.OWNER_SYNC_JOB, PDIndexerManager.HOST_LOCALHOST);
+      aIndexerMgr.queueWorkItem (aParticipantID,
+                                 EIndexerWorkItemType.SYNC,
+                                 CPDStorage.OWNER_SYNC_JOB,
+                                 PDIndexerManager.HOST_LOCALHOST);
     }
     LOGGER.info ("Finished synchronizing of " + aAll.size () + " business cards");
-    AuditHelper.onAuditExecuteSuccess ("sync-bc-started", Integer.valueOf (aAll.size ()), aNow, Boolean.valueOf (bForceSync));
+    AuditHelper.onAuditExecuteSuccess ("sync-bc-started",
+                                       Integer.valueOf (aAll.size ()),
+                                       aNow,
+                                       Boolean.valueOf (bForceSync));
     _setLastSync (aNow);
 
     return EChange.CHANGED;
   }
 
   @Override
-  protected void onExecute (@NonNull final JobDataMap aJobDataMap,
-                            @NonNull final IJobExecutionContext aContext) throws JobExecutionException
+  protected void onExecute (@NonNull final JobDataMap aJobDataMap, @NonNull final IJobExecutionContext aContext)
+                                                                                                                 throws JobExecutionException
   {
     // Ignore result - not forced
     syncAllBusinessCards (false);
