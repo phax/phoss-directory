@@ -174,6 +174,12 @@ v0.17.2 - work in progress
 * Fixed that on startup the persisted indexer work items were read and executed before the Business Card provider was set, so that all of them failed with "No BusinessCard Provider is present." and were moved to the re-index list. See [#90](https://github.com/phax/phoss-directory/issues/90)
     * The `PDIndexerManager` constructor no longer starts any indexing activity - the new method `PDIndexerManager.startIndexing ()` schedules the re-index job and reads the persisted work items, and it must be called after the Business Card provider was set
     * `startIndexing ()` throws an `IllegalStateException` if no Business Card provider is present, so that a wrong startup order cannot happen unnoticed
+* The export of all Business Cards and participants queries the search index only once per participant instead of once per participant and export format, reducing the number of index queries of a full export run by 75%. See [#88](https://github.com/phax/phoss-directory/issues/88)
+    * All the export formats are now created in a single pass over the participants, so that each participant is read, parsed and converted to `PDStoredBusinessEntity` objects only once
+    * **Backwards incompatible change**: the `ExportAllManager.writeFile*` methods were replaced by `ExportAllManager.exportAll (...)` that takes the export formats to be created
+    * Added the interface `IExportAllHandler` and the base class `AbstractExportAllHandler` - one implementation per export format, all fed with the data of every participant
+    * Fixed that an export format that failed to be created was nevertheless uploaded to S3, overwriting the previously good file with a truncated one. Now only successfully created files are uploaded
+    * The export status shown in the administration UI now contains the export progress and the name of the export format that is currently uploaded
 
 v0.17.1 - 2026-08-31
 * Fixed a concurrency issue in the Apache Lucene search index that could return the Business Card of an unrelated participant, if the index was modified while a search was running (security advisory [GHSA-8qhv-6p5x-2437](https://github.com/phax/phoss-directory/security/advisories/GHSA-8qhv-6p5x-2437))

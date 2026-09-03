@@ -31,7 +31,6 @@ import com.helger.collection.commons.CommonsTreeSet;
 import com.helger.collection.commons.ICommonsList;
 import com.helger.collection.commons.ICommonsSortedSet;
 import com.helger.datetime.helper.PDTFactory;
-import com.helger.pd.publisher.CPDPublisher;
 import com.helger.photon.io.PhotonWorkerPool;
 import com.helger.quartz.DisallowConcurrentExecution;
 import com.helger.quartz.IJobExecutionContext;
@@ -97,9 +96,9 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
       return m_aLastStatusChangeDT;
     }
 
-    void rememberFailedStatus ()
+    void rememberFailedStatus (@NonNull final String sStatus)
     {
-      m_aFailedStatus.add (m_sCurrentStatus);
+      m_aFailedStatus.add (sStatus);
     }
 
     @NonNull
@@ -142,6 +141,7 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
 
       try
       {
+        // Step 1: gather all participant IDs with a single index query
         aSW.restart ();
         LOGGER.info (sLogPrefix + "Starting to gather all participant IDs from the index");
         ICommonsSortedSet <String> aAllParticipantIDs = new CommonsTreeSet <> ();
@@ -153,7 +153,7 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
         catch (final IOException ex)
         {
           LOGGER.error (sLogPrefix + "Error gathering all participant IDs from the index", ex);
-          EXPORT_STATUS.rememberFailedStatus ();
+          EXPORT_STATUS.rememberFailedStatus ("getAllStoredParticipantIDs");
 
           // We can't continue
           throw new UncheckedIOException (ex);
@@ -169,169 +169,34 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
                        " milliseconds");
         }
 
-        if (CPDPublisher.EXPORT_BUSINESS_CARDS_XML)
-        {
-          aSW.restart ();
-          LOGGER.info (sLogPrefix + "Start exporting business cards as XML (full)");
-          try
-          {
-            EXPORT_STATUS.setCurrentStatus ("writeFileBusinessCardXMLFull");
-            ExportAllManager.writeFileBusinessCardXMLFull (aAllParticipantIDs);
-          }
-          catch (final Throwable t)
-          {
-            LOGGER.error (sLogPrefix + "Error exporting business cards as XML (full)", t);
-            EXPORT_STATUS.rememberFailedStatus ();
-          }
-          finally
-          {
-            aSW.stop ();
-            LOGGER.info (sLogPrefix +
-                         "Finished exporting business cards as XML (full) after " +
-                         aSW.getDuration () +
-                         " milliseconds");
-          }
+        // Step 2: create all export formats in a single pass, so that the index needs to be
+        // queried only once per participant
+        final ICommonsList <IExportAllHandler> aHandlers = ExportAllManager.createAllEnabledExportHandlers ();
 
-          aSW.restart ();
-          LOGGER.info (sLogPrefix + "Start exporting business cards as XML (no doc types)");
-          try
+        aSW.restart ();
+        LOGGER.info (sLogPrefix + "Start exporting " + aHandlers.size () + " export format(s)");
+        try
+        {
+          EXPORT_STATUS.setCurrentStatus ("exportAll");
+          for (final String sFailedHandlerName : ExportAllManager.exportAll (aAllParticipantIDs,
+                                                                            aHandlers,
+                                                                            EXPORT_STATUS::setCurrentStatus))
           {
-            EXPORT_STATUS.setCurrentStatus ("writeFileBusinessCardXMLNoDocTypes");
-            ExportAllManager.writeFileBusinessCardXMLNoDocTypes (aAllParticipantIDs);
-          }
-          catch (final Throwable t)
-          {
-            LOGGER.error (sLogPrefix + "Error exporting business cards as XML (no doc types)", t);
-            EXPORT_STATUS.rememberFailedStatus ();
-          }
-          finally
-          {
-            aSW.stop ();
-            LOGGER.info (sLogPrefix +
-                         "Finished exporting business cards as XML (no doc types) after " +
-                         aSW.getDuration () +
-                         " milliseconds");
+            EXPORT_STATUS.rememberFailedStatus (sFailedHandlerName);
           }
         }
-
-        if (CPDPublisher.EXPORT_BUSINESS_CARDS_JSON)
+        catch (final Throwable t)
         {
-          aSW.restart ();
-          LOGGER.info (sLogPrefix + "Start exporting business cards as JSON");
-          try
-          {
-            EXPORT_STATUS.setCurrentStatus ("writeFileBusinessCardJSON");
-            ExportAllManager.writeFileBusinessCardJSON (aAllParticipantIDs);
-          }
-          catch (final Throwable t)
-          {
-            LOGGER.error (sLogPrefix + "Error exporting business cards as JSON", t);
-            EXPORT_STATUS.rememberFailedStatus ();
-          }
-          finally
-          {
-            aSW.stop ();
-            LOGGER.info (sLogPrefix +
-                         "Finished exporting business cards as JSON after " +
-                         aSW.getDuration () +
-                         " milliseconds");
-          }
+          LOGGER.error (sLogPrefix + "Error creating the export formats", t);
+          EXPORT_STATUS.rememberFailedStatus ("exportAll");
         }
-
-        if (CPDPublisher.EXPORT_BUSINESS_CARDS_CSV)
+        finally
         {
-          aSW.restart ();
-          LOGGER.info (sLogPrefix + "Start exporting business cards as CSV");
-          try
-          {
-            EXPORT_STATUS.setCurrentStatus ("writeFileBusinessCardCSV");
-            ExportAllManager.writeFileBusinessCardCSV (aAllParticipantIDs);
-          }
-          catch (final Throwable t)
-          {
-            LOGGER.error (sLogPrefix + "Error exporting business cards as CSV", t);
-            EXPORT_STATUS.rememberFailedStatus ();
-          }
-          finally
-          {
-            aSW.stop ();
-            LOGGER.info (sLogPrefix +
-                         "Finished exporting business cards as CSV after " +
-                         aSW.getDuration () +
-                         " milliseconds");
-          }
-        }
-
-        if (CPDPublisher.EXPORT_PARTICIPANTS_XML)
-        {
-          aSW.restart ();
-          LOGGER.info (sLogPrefix + "Start exporting participants as XML");
-          try
-          {
-            EXPORT_STATUS.setCurrentStatus ("writeFileParticipantXML");
-            ExportAllManager.writeFileParticipantXML (aAllParticipantIDs);
-          }
-          catch (final Throwable t)
-          {
-            LOGGER.error (sLogPrefix + "Error exporting participants cards as XML", t);
-            EXPORT_STATUS.rememberFailedStatus ();
-          }
-          finally
-          {
-            aSW.stop ();
-            LOGGER.info (sLogPrefix +
-                         "Finished exporting participants as XML after " +
-                         aSW.getDuration () +
-                         " milliseconds");
-          }
-        }
-
-        if (CPDPublisher.EXPORT_PARTICIPANTS_JSON)
-        {
-          aSW.restart ();
-          LOGGER.info (sLogPrefix + "Start exporting participants as JSON");
-          try
-          {
-            EXPORT_STATUS.setCurrentStatus ("writeFileParticipantJSON");
-            ExportAllManager.writeFileParticipantJSON (aAllParticipantIDs);
-          }
-          catch (final Throwable t)
-          {
-            LOGGER.error (sLogPrefix + "Error exporting participants cards as JSON", t);
-            EXPORT_STATUS.rememberFailedStatus ();
-          }
-          finally
-          {
-            aSW.stop ();
-            LOGGER.info (sLogPrefix +
-                         "Finished exporting participants as JSON after " +
-                         aSW.getDuration () +
-                         " milliseconds");
-          }
-        }
-
-        if (CPDPublisher.EXPORT_PARTICIPANTS_CSV)
-        {
-          aSW.restart ();
-          LOGGER.info (sLogPrefix + "Start exporting participants as CSV");
-          try
-          {
-            EXPORT_STATUS.setCurrentStatus ("writeFileParticipantCSV");
-            ExportAllManager.writeFileParticipantCSV (aAllParticipantIDs);
-          }
-          catch (final Throwable t)
-          {
-            LOGGER.error (sLogPrefix + "Error exporting participants cards as CSV", t);
-            EXPORT_STATUS.rememberFailedStatus ();
-          }
-          finally
-          {
-            aSW.stop ();
-            LOGGER.info (sLogPrefix +
-                         "Finished exporting participants as CSV after " +
-                         aSW.getDuration () +
-                         " milliseconds");
-          }
+          aSW.stop ();
+          LOGGER.info (sLogPrefix +
+                       "Finished exporting all export format(s) after " +
+                       aSW.getDuration () +
+                       " milliseconds");
         }
       }
       finally
