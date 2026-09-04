@@ -168,7 +168,7 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
-v0.17.2 - work in progress
+v0.17.2 - 2026-09-04
 * Added the page "Bulk delete participants" to delete participants from the search index from an uploaded file
     * The entries are deleted without verifying the owner, exactly like on the "Manually delete participant" page, so that entries owned by an SMP can be removed as well
     * All pending indexer work items of the deleted participants are withdrawn as well, because an already queued create/update work item would otherwise put the participant right back into the index
