@@ -16,48 +16,34 @@
  */
 package com.helger.pd.publisher.app.secure;
 
+import java.io.File;
 import java.util.Locale;
 
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
 
 import com.helger.annotation.Nonempty;
-import com.helger.base.state.ESuccess;
 import com.helger.base.string.StringHelper;
 import com.helger.base.string.StringImplode;
-import com.helger.collection.commons.CommonsArrayList;
-import com.helger.collection.commons.ICommonsList;
-import com.helger.diagnostics.error.IError;
-import com.helger.html.hc.html.grouping.HCUL;
 import com.helger.html.hc.impl.HCNodeList;
+import com.helger.io.file.FileOperationManager;
 import com.helger.pd.indexer.businesscard.IPDBusinessCardProvider;
 import com.helger.pd.indexer.businesscard.SMPBusinessCardProvider;
-import com.helger.pd.indexer.index.EIndexerWorkItemType;
-import com.helger.pd.indexer.mgr.PDIndexerManager;
 import com.helger.pd.indexer.mgr.PDMetaManager;
-import com.helger.pd.indexer.storage.CPDStorage;
-import com.helger.pd.publisher.app.AppCommonUI;
+import com.helger.pd.publisher.job.PDIndexImportJob;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.peppol.sml.ISMLInfo;
-import com.helger.peppolid.IParticipantIdentifier;
-import com.helger.peppolid.factory.IIdentifierFactory;
 import com.helger.photon.bootstrap5.buttongroup.BootstrapButtonToolbar;
 import com.helger.photon.bootstrap5.form.BootstrapForm;
 import com.helger.photon.bootstrap5.form.BootstrapFormGroup;
 import com.helger.photon.bootstrap5.uictrls.ext.BootstrapFileUpload;
 import com.helger.photon.core.form.FormErrorList;
+import com.helger.photon.io.PhotonWorkerPool;
 import com.helger.photon.uicore.css.CPageParam;
 import com.helger.photon.uicore.icon.EDefaultIcon;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
-import com.helger.web.fileupload.FileItemResource;
 import com.helger.web.fileupload.IFileItem;
-import com.helger.xml.sax.CollectingSAXErrorHandler;
-import com.helger.xml.serialize.read.SAXReader;
-import com.helger.xml.serialize.read.SAXReaderSettings;
 
 public final class PageSecureIndexImport extends AbstractAppWebPage
 {
@@ -69,12 +55,58 @@ public final class PageSecureIndexImport extends AbstractAppWebPage
     super (sID, "Import participants");
   }
 
+  /**
+   * Store the uploaded file below the data path and start the import job for it. Reading the file
+   * and queueing tens of thousands of participants must not happen in an HTTP thread.
+   *
+   * @param aWPEC
+   *        The current execution context. May not be <code>null</code>.
+   * @param aFile
+   *        The uploaded file. May not be <code>null</code>.
+   */
+  private void _startImport (@NonNull final WebPageExecutionContext aWPEC, @NonNull final IFileItem aFile)
+  {
+    File aImportFile = null;
+    try
+    {
+      aImportFile = PDIndexImportJob.createImportFile ();
+      if (aFile.write (aImportFile).isFailure ())
+        throw new IllegalStateException ("Failed to store the uploaded file in '" +
+                                         aImportFile.getAbsolutePath () +
+                                         "'");
+
+      LOGGER.info ("Stored the uploaded file '" +
+                   aFile.getNameSecure () +
+                   "' with " +
+                   aImportFile.length () +
+                   " bytes in '" +
+                   aImportFile.getAbsolutePath () +
+                   "'");
+
+      PhotonWorkerPool.getInstance ()
+                      .run (PDIndexImportJob.JOB_TYPE,
+                            new PDIndexImportJob (aImportFile, aWPEC.getLoggedInUserID ()));
+    }
+    catch (final Exception ex)
+    {
+      // The job was never started, so it can neither delete the file nor release the lock
+      if (aImportFile != null)
+        FileOperationManager.INSTANCE.deleteFileIfExisting (aImportFile);
+      PDIndexImportJob.LOCK.release ();
+
+      LOGGER.error ("Failed to start the participant import", ex);
+      aWPEC.postRedirectGetInternal (error ("Failed to start the participant import: " + ex.getMessage ()));
+    }
+
+    aWPEC.postRedirectGetInternal (success ("The import of the participants is now running in the background. " +
+                                            "The result is shown on the \"Long running jobs\" page as soon as it is finished."));
+  }
+
   @Override
   protected void fillContent (final WebPageExecutionContext aWPEC)
   {
     final HCNodeList aNodeList = aWPEC.getNodeList ();
     final Locale aDisplayLocale = aWPEC.getDisplayLocale ();
-    final IIdentifierFactory aIdentifierFactory = PDMetaManager.getIdentifierFactory ();
     final FormErrorList aFormErrors = new FormErrorList ();
 
     {
@@ -88,6 +120,11 @@ public final class PageSecureIndexImport extends AbstractAppWebPage
                                                .build ()));
       }
     }
+
+    if (PDIndexImportJob.LOCK.isRunning ())
+      aNodeList.addChild (warn ("An import is currently running in the background. " +
+                                "The result is shown on the \"Long running jobs\" page as soon as it is finished."));
+
     final boolean bIsFormSubmitted = aWPEC.hasAction (CPageParam.ACTION_PERFORM);
     if (bIsFormSubmitted)
     {
@@ -97,95 +134,19 @@ public final class PageSecureIndexImport extends AbstractAppWebPage
 
       if (aFormErrors.isEmpty ())
       {
-        final HCNodeList aResultNL = new HCNodeList ();
-        final SAXReaderSettings aSettings = new SAXReaderSettings ();
-
-        final CollectingSAXErrorHandler aErrorHandler = new CollectingSAXErrorHandler ();
-        aSettings.setErrorHandler (aErrorHandler);
-
-        final ICommonsList <IParticipantIdentifier> aQueued = new CommonsArrayList <> ();
-        final ICommonsList <IParticipantIdentifier> aNotQueued = new CommonsArrayList <> ();
-        aSettings.setContentHandler (new DefaultHandler ()
-        {
-          @Override
-          public void startElement (final String sURI,
-                                    final String sLocalName,
-                                    final String sQName,
-                                    final Attributes aAttributes) throws SAXException
-          {
-            if (sQName.equals ("participant"))
-            {
-              final String sScheme = aAttributes.getValue ("scheme");
-              final String sValue = aAttributes.getValue ("value");
-              final IParticipantIdentifier aParticipantID = aIdentifierFactory.createParticipantIdentifier (sScheme,
-                                                                                                            sValue);
-              if (aParticipantID != null)
-              {
-                if (PDMetaManager.getIndexerMgr ()
-                                 .queueWorkItem (aParticipantID,
-                                                 EIndexerWorkItemType.CREATE_UPDATE,
-                                                 CPDStorage.OWNER_IMPORT_TRIGGERED,
-                                                 PDIndexerManager.HOST_LOCALHOST)
-                                 .isChanged ())
-                {
-                  aQueued.add (aParticipantID);
-                }
-                else
-                {
-                  aNotQueued.add (aParticipantID);
-                }
-              }
-              else
-                LOGGER.error ("Failed to convert '" + sScheme + "' and '" + sValue + "' to a participant identifier");
-            }
-          }
-        });
-
-        LOGGER.info ("Importing participant IDs from '" + aFile.getNameSecure () + "'");
-
-        final ESuccess eSuccess = SAXReader.readXMLSAX (new FileItemResource (aFile), aSettings);
-
-        LOGGER.info ("Finished reading XML file. Queued " +
-                     aQueued.size () +
-                     "; not queued: " +
-                     aNotQueued.size () +
-                     "; errors: " +
-                     aErrorHandler.getErrorList ().size ());
-
-        // Some things may have been queued even in case of error
-        if (aQueued.isNotEmpty ())
-        {
-          final HCUL aUL = new HCUL ();
-          for (final IParticipantIdentifier aPI : aQueued)
-            aUL.addItem (aPI.getURIEncoded ());
-          aResultNL.addChild (success (div ("The following identifiers were successfully queued for indexing:")).addChild (aUL));
-        }
-        if (aNotQueued.isNotEmpty ())
-        {
-          final HCUL aUL = new HCUL ();
-          for (final IParticipantIdentifier aPI : aNotQueued)
-            aUL.addItem (aPI.getURIEncoded ());
-          aResultNL.addChild (warn (div ("The following identifiers could not be queued (because they are already in the queue):")).addChild (aUL));
-        }
-        if (eSuccess.isFailure ())
-        {
-          final HCUL aUL = new HCUL ();
-          for (final IError aError : aErrorHandler.getErrorList ())
-          {
-            final String sMsg = aError.getAsString (AppCommonUI.DEFAULT_LOCALE);
-            LOGGER.error ("  " + sMsg);
-            aUL.addItem (sMsg);
-          }
-          aResultNL.addChild (error (div ("Error parsing provided XML:")).addChild (aUL));
-        }
-        aWPEC.postRedirectGetInternal (aResultNL);
+        // Only a single import may run at a time, because it queues a lot of work items
+        if (PDIndexImportJob.LOCK.tryAcquire (aWPEC.getLoggedInUserID ()))
+          _startImport (aWPEC, aFile);
+        else
+          aWPEC.postRedirectGetInternal (warn ("Another import is already running in the background. Please wait until it is finished."));
       }
     }
     final BootstrapForm aForm = aNodeList.addAndReturnChild (getUIHandler ().createFormFileUploadSelf (aWPEC,
                                                                                                        bIsFormSubmitted));
     aForm.addFormGroup (new BootstrapFormGroup ().setLabelMandatory ("Import file")
                                                  .setCtrl (new BootstrapFileUpload (FIELD_FILE, aDisplayLocale))
-                                                 .setHelpText ("Select a file that was created from a full XML export to index of all them manually.")
+                                                 .setHelpText ("Select a file that was created from a full XML export to index of all them manually. " +
+                                                               "The import runs in the background - the result is shown on the \"Long running jobs\" page.")
                                                  .setErrorList (aFormErrors.getListOfField (FIELD_FILE)));
 
     final BootstrapButtonToolbar aToolbar = aForm.addAndReturnChild (new BootstrapButtonToolbar (aWPEC));

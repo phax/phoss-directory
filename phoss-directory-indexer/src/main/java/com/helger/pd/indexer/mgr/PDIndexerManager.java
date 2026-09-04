@@ -20,6 +20,8 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.jspecify.annotations.NonNull;
@@ -28,11 +30,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.helger.annotation.Nonempty;
+import com.helger.annotation.Nonnegative;
 import com.helger.annotation.concurrent.GuardedBy;
+import com.helger.annotation.style.ReturnsMutableCopy;
 import com.helger.base.concurrent.SimpleReadWriteLock;
 import com.helger.base.enforce.ValueEnforcer;
 import com.helger.base.state.EChange;
 import com.helger.base.tostring.ToStringGenerator;
+import com.helger.collection.commons.CommonsArrayList;
 import com.helger.collection.commons.CommonsHashSet;
 import com.helger.collection.commons.ICommonsList;
 import com.helger.collection.commons.ICommonsSet;
@@ -233,14 +238,100 @@ public final class PDIndexerManager implements Closeable
   }
 
   /**
-   * Queue a single work item of any type. If the item is already in the queue, it is ignored.
+   * The outcome of a bulk queueing operation - see
+   * {@link PDIndexerManager#queueWorkItems(Collection, EIndexerWorkItemType, String, String)}.
+   *
+   * @author Philip Helger
+   * @since 0.17.2
+   */
+  public static final class BulkQueueResult
+  {
+    private final ICommonsList <IParticipantIdentifier> m_aQueued;
+    private final ICommonsList <IParticipantIdentifier> m_aNotQueued;
+
+    BulkQueueResult (@NonNull final ICommonsList <IParticipantIdentifier> aQueued,
+                     @NonNull final ICommonsList <IParticipantIdentifier> aNotQueued)
+    {
+      m_aQueued = aQueued;
+      m_aNotQueued = aNotQueued;
+    }
+
+    /**
+     * @return All participant IDs that were newly queued for indexing. Never <code>null</code>.
+     */
+    @NonNull
+    @ReturnsMutableCopy
+    public ICommonsList <IParticipantIdentifier> getAllQueued ()
+    {
+      return m_aQueued.getClone ();
+    }
+
+    /**
+     * @return All participant IDs that were not queued, because they already were in the
+     *         queue/re-index list. Never <code>null</code>.
+     */
+    @NonNull
+    @ReturnsMutableCopy
+    public ICommonsList <IParticipantIdentifier> getAllNotQueued ()
+    {
+      return m_aNotQueued.getClone ();
+    }
+
+    @Nonnegative
+    public int getQueuedCount ()
+    {
+      return m_aQueued.size ();
+    }
+
+    @Nonnegative
+    public int getNotQueuedCount ()
+    {
+      return m_aNotQueued.size ();
+    }
+
+    @Override
+    public String toString ()
+    {
+      return new ToStringGenerator (this).append ("Queued", m_aQueued.size ())
+                                         .append ("NotQueued", m_aNotQueued.size ())
+                                         .getToString ();
+    }
+  }
+
+  /**
+   * Remove all the provided work items from the re-index and the dead list, so that the new items
+   * don't spam the dead list. Both lists are scanned exactly once, no matter how many work items
+   * are provided - a per-item lookup would scan each list from the start for every single item and
+   * is therefore unusable for bulk operations.
+   *
+   * @param aWorkItems
+   *        The work items that were newly queued. May not be <code>null</code>.
+   */
+  private void _removeFromOtherLists (@NonNull final Set <IIndexerWorkItem> aWorkItems)
+  {
+    final int nReIndex = m_aReIndexList.getAndRemoveAllEntries (x -> aWorkItems.contains (x.getWorkItem ())).size ();
+    if (nReIndex > 0)
+      LOGGER.info ("Removed " + nReIndex + " of the new work items from the re-index list");
+
+    final int nDead = m_aDeadList.getAndRemoveAllEntries (x -> aWorkItems.contains (x.getWorkItem ())).size ();
+    if (nDead > 0)
+      LOGGER.info ("Removed " + nDead + " of the new work items from the dead list");
+  }
+
+  /**
+   * Queue a single work item of any type, without touching the re-index and the dead list. If the
+   * item is already in the queue, it is ignored.
    *
    * @param aWorkItem
    *        Work item to be queued. May not be <code>null</code>.
+   * @param bLogSingleItems
+   *        <code>true</code> to log every single item, <code>false</code> to stay silent. Bulk
+   *        callers should pass <code>false</code> and log an aggregate instead.
    * @return {@link EChange#CHANGED} if it was queued
    */
   @NonNull
-  private EChange _queueUniqueWorkItem (@NonNull final IIndexerWorkItem aWorkItem)
+  private EChange _queueUniqueWorkItemNoCleanup (@NonNull final IIndexerWorkItem aWorkItem,
+                                                 final boolean bLogSingleItems)
   {
     ValueEnforcer.notNull (aWorkItem, "WorkItem");
 
@@ -250,9 +341,10 @@ public final class PDIndexerManager implements Closeable
     {
       if (!m_aUniqueItems.add (aWorkItem))
       {
-        LOGGER.info ("Ignoring work item " +
-                     aWorkItem.getLogText () +
-                     " because it is already in the queue/re-index list!");
+        if (bLogSingleItems)
+          LOGGER.info ("Ignoring work item " +
+                       aWorkItem.getLogText () +
+                       " because it is already in the queue/re-index list!");
         return EChange.UNCHANGED;
       }
     }
@@ -267,15 +359,29 @@ public final class PDIndexerManager implements Closeable
       LOGGER.error ("Failed to queue work item " + aWorkItem.getLogText ());
       return EChange.UNCHANGED;
     }
-    LOGGER.info ("Queued work item " + aWorkItem.getLogText ());
-
-    // Remove the entry from the other lists to avoid spamming the dead list
-    if (m_aReIndexList.getAndRemoveEntry (x -> x.getWorkItem ().equals (aWorkItem)) != null)
-      LOGGER.info ("Removed the new work item " + aWorkItem.getLogText () + " from the re-index list");
-    if (m_aDeadList.getAndRemoveEntry (x -> x.getWorkItem ().equals (aWorkItem)) != null)
-      LOGGER.info ("Removed the new work item " + aWorkItem.getLogText () + " from the dead list");
+    if (bLogSingleItems)
+      LOGGER.info ("Queued work item " + aWorkItem.getLogText ());
 
     return EChange.CHANGED;
+  }
+
+  /**
+   * Queue a single work item of any type. If the item is already in the queue, it is ignored.
+   *
+   * @param aWorkItem
+   *        Work item to be queued. May not be <code>null</code>.
+   * @return {@link EChange#CHANGED} if it was queued
+   */
+  @NonNull
+  private EChange _queueUniqueWorkItem (@NonNull final IIndexerWorkItem aWorkItem)
+  {
+    final EChange ret = _queueUniqueWorkItemNoCleanup (aWorkItem, true);
+    if (ret.isChanged ())
+    {
+      // Remove the entry from the other lists to avoid spamming the dead list
+      _removeFromOtherLists (new CommonsHashSet <> (aWorkItem));
+    }
+    return ret;
   }
 
   /**
@@ -302,6 +408,73 @@ public final class PDIndexerManager implements Closeable
     final IIndexerWorkItem aWorkItem = new IndexerWorkItem (aParticipantID, eType, sOwnerID, sRequestingHost);
     // And queue it
     return _queueUniqueWorkItem (aWorkItem);
+  }
+
+  /**
+   * Queue a lot of work items of the same type at once. Contrary to calling
+   * {@link #queueWorkItem(IParticipantIdentifier, EIndexerWorkItemType, String, String)} in a loop,
+   * the re-index and the dead list are cleaned up in a single pass at the end, and only an
+   * aggregate is logged. That makes this method usable for tens of thousands of participants.
+   *
+   * @param aParticipantIDs
+   *        The participant IDs to be queued. May not be <code>null</code>. Duplicates in here are
+   *        reported as "not queued".
+   * @param eType
+   *        Action type.
+   * @param sOwnerID
+   *        Owner of this action
+   * @param sRequestingHost
+   *        Requesting host (IP address)
+   * @return Never <code>null</code>.
+   * @since 0.17.2
+   */
+  @NonNull
+  public BulkQueueResult queueWorkItems (@NonNull final Collection <? extends IParticipantIdentifier> aParticipantIDs,
+                                         @NonNull final EIndexerWorkItemType eType,
+                                         @NonNull @Nonempty final String sOwnerID,
+                                         @NonNull @Nonempty final String sRequestingHost)
+  {
+    ValueEnforcer.notNull (aParticipantIDs, "ParticipantIDs");
+    ValueEnforcer.notNull (eType, "Type");
+    ValueEnforcer.notEmpty (sOwnerID, "OwnerID");
+    ValueEnforcer.notEmpty (sRequestingHost, "RequestingHost");
+
+    LOGGER.info ("Bulk queueing " +
+                 aParticipantIDs.size () +
+                 " work items of type " +
+                 eType.getID () +
+                 " for owner '" +
+                 sOwnerID +
+                 "'");
+
+    final ICommonsList <IParticipantIdentifier> aQueued = new CommonsArrayList <> ();
+    final ICommonsList <IParticipantIdentifier> aNotQueued = new CommonsArrayList <> ();
+    final ICommonsSet <IIndexerWorkItem> aQueuedItems = new CommonsHashSet <> ();
+
+    for (final IParticipantIdentifier aParticipantID : aParticipantIDs)
+    {
+      final IIndexerWorkItem aWorkItem = new IndexerWorkItem (aParticipantID, eType, sOwnerID, sRequestingHost);
+      if (_queueUniqueWorkItemNoCleanup (aWorkItem, false).isChanged ())
+      {
+        aQueued.add (aParticipantID);
+        aQueuedItems.add (aWorkItem);
+      }
+      else
+        aNotQueued.add (aParticipantID);
+    }
+
+    if (aQueuedItems.isNotEmpty ())
+    {
+      // Remove the new entries from the other lists to avoid spamming the dead list
+      _removeFromOtherLists (aQueuedItems);
+    }
+
+    LOGGER.info ("Finished bulk queueing. Queued " +
+                 aQueued.size () +
+                 "; already in the queue: " +
+                 aNotQueued.size ());
+
+    return new BulkQueueResult (aQueued, aNotQueued);
   }
 
   /**

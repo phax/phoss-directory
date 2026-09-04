@@ -169,6 +169,12 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 # News and noteworthy
 
 v0.17.2 - work in progress
+* The "Import participants" page no longer performs the import in the HTTP thread, so that importing tens of thousands of participants does not block the browser anymore
+    * The uploaded file is stored below the data path and the new long running job `PDIndexImportJob` reads it and queues the participants in the background. The outcome is shown on the "Long running jobs" page
+    * Only a single import may run at a time, and the page indicates whether one is currently running
+    * The result no longer lists every single participant, but the number of queued, duplicate, already queued and syntactically invalid participant IDs, plus the first 100 entries of the problematic ones
+    * Duplicate participant IDs within the import file are now detected and reported separately from those that already are in the indexing queue
+* Added `PDIndexerManager.queueWorkItems (...)` to queue many participants at once. Queueing n participants scanned the re-index list and the dead list n times each and wrote one log line per participant, which made bulk imports unusable. Both lists are now scanned exactly once per bulk call
 * Added the button "Re-index all entries now" to the "Dead Index List" page, to move all dead entries back into the indexing queue. See [#89](https://github.com/phax/phoss-directory/issues/89)
     * Each entry is queued with its original action type, so that the respective entry is also removed from the dead list
 * Fixed that on startup the persisted indexer work items were read and executed before the Business Card provider was set, so that all of them failed with "No BusinessCard Provider is present." and were moved to the re-index list. See [#90](https://github.com/phax/phoss-directory/issues/90)
