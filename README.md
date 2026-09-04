@@ -169,11 +169,18 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 # News and noteworthy
 
 v0.17.2 - work in progress
+* Added the page "Delete participants" to bulk delete participants from the search index from an uploaded file
+    * The entries are deleted without verifying the owner, exactly like on the "Manually delete participant" page, so that entries owned by an SMP can be removed as well
+    * All pending indexer work items of the deleted participants are withdrawn as well, because an already queued create/update work item would otherwise put the participant right back into the index
+    * Added `PDIndexerManager.removeWorkItems (...)` that removes all work items of a set of participants from the work queue, the re-index list and the dead list
 * The "Import participants" page no longer performs the import in the HTTP thread, so that importing tens of thousands of participants does not block the browser anymore
     * The uploaded file is stored below the data path and the new long running job `PDIndexImportJob` reads it and queues the participants in the background. The outcome is shown on the "Long running jobs" page
     * Only a single import may run at a time, and the page indicates whether one is currently running
     * The result no longer lists every single participant, but the number of queued, duplicate, already queued and syntactically invalid participant IDs, plus the first 100 entries of the problematic ones
     * Duplicate participant IDs within the import file are now detected and reported separately from those that already are in the indexing queue
+* Both participant file pages accept the same two file formats, and the format is detected from the content of the file
+    * XML - every element called `participant` with the attributes `scheme` and `value`, no matter where in the document it appears. That covers the participant list export as well as the full Business Card export
+    * Text - one URI encoded participant ID per line (e.g. `iso6523-actorid-upis::9915:test`). Lines are trimmed, empty lines and lines starting with `#` are ignored
 * Added `PDIndexerManager.queueWorkItems (...)` to queue many participants at once. Queueing n participants scanned the re-index list and the dead list n times each and wrote one log line per participant, which made bulk imports unusable. Both lists are now scanned exactly once per bulk call
 * Added the button "Re-index all entries now" to the "Dead Index List" page, to move all dead entries back into the indexing queue. See [#89](https://github.com/phax/phoss-directory/issues/89)
     * Each entry is queued with its original action type, so that the respective entry is also removed from the dead list

@@ -21,28 +21,23 @@ import java.io.File;
 import org.jspecify.annotations.NonNull;
 
 import com.helger.annotation.Nonempty;
-import com.helger.base.string.StringImplode;
 import com.helger.html.hc.impl.HCNodeList;
-import com.helger.pd.indexer.businesscard.IPDBusinessCardProvider;
-import com.helger.pd.indexer.businesscard.SMPBusinessCardProvider;
-import com.helger.pd.indexer.mgr.PDMetaManager;
-import com.helger.pd.publisher.job.PDIndexImportJob;
-import com.helger.peppol.sml.ISMLInfo;
+import com.helger.pd.publisher.job.PDIndexDeleteJob;
 import com.helger.photon.security.lock.SingleRunLock;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 
-public final class PageSecureIndexImport extends AbstractPageSecureParticipantUpload
+public final class PageSecureDeleteImport extends AbstractPageSecureParticipantUpload
 {
-  public PageSecureIndexImport (@NonNull @Nonempty final String sID)
+  public PageSecureDeleteImport (@NonNull @Nonempty final String sID)
   {
-    super (sID, "Import participants");
+    super (sID, "Delete participants");
   }
 
   @Override
   @NonNull
   protected SingleRunLock getLock ()
   {
-    return PDIndexImportJob.LOCK;
+    return PDIndexDeleteJob.LOCK;
   }
 
   @Override
@@ -50,7 +45,7 @@ public final class PageSecureIndexImport extends AbstractPageSecureParticipantUp
   @Nonempty
   protected String getJobType ()
   {
-    return PDIndexImportJob.JOB_TYPE;
+    return PDIndexDeleteJob.JOB_TYPE;
   }
 
   @Override
@@ -58,7 +53,7 @@ public final class PageSecureIndexImport extends AbstractPageSecureParticipantUp
   @Nonempty
   protected String getActivityName ()
   {
-    return "participant import";
+    return "participant deletion";
   }
 
   @Override
@@ -66,10 +61,10 @@ public final class PageSecureIndexImport extends AbstractPageSecureParticipantUp
   @Nonempty
   protected String getFileHelpText ()
   {
-    return "Select the file with the participants to be indexed. " +
+    return "Select the file with the participants to be deleted. " +
            "Either an XML file that was created from a full XML export, or a text file with one participant ID per line " +
            "(e.g. iso6523-actorid-upis::9915:test) - empty lines and lines starting with '#' are ignored. " +
-           "The import runs in the background - the result is shown on the \"Long running jobs\" page.";
+           "The deletion runs in the background - the result is shown on the \"Long running jobs\" page.";
   }
 
   @Override
@@ -77,34 +72,29 @@ public final class PageSecureIndexImport extends AbstractPageSecureParticipantUp
   @Nonempty
   protected String getSubmitButtonText ()
   {
-    return "Import all";
+    return "Delete all";
   }
 
   @Override
   @NonNull
   protected File createUploadFile ()
   {
-    return PDIndexImportJob.createUploadFile ();
+    return PDIndexDeleteJob.createUploadFile ();
   }
 
   @Override
   @NonNull
-  protected PDIndexImportJob createJob (@NonNull final File aUploadedFile, @NonNull @Nonempty final String sUserID)
+  protected PDIndexDeleteJob createJob (@NonNull final File aUploadedFile, @NonNull @Nonempty final String sUserID)
   {
-    return new PDIndexImportJob (aUploadedFile, sUserID);
+    return new PDIndexDeleteJob (aUploadedFile, sUserID);
   }
 
   @Override
   protected void addAdditionalInfo (@NonNull final WebPageExecutionContext aWPEC, @NonNull final HCNodeList aNodeList)
   {
-    final IPDBusinessCardProvider aBCProv = PDMetaManager.getBusinessCardProvider ();
-    if (aBCProv instanceof final SMPBusinessCardProvider aSMPBCProv)
-    {
-      aNodeList.addChild (info ("The following SMLs are crawled for entries: " +
-                                StringImplode.imploder ()
-                                             .source (aSMPBCProv.getAllSMLsToUse (), ISMLInfo::getDisplayName)
-                                             .separator (", ")
-                                             .build ()));
-    }
+    aNodeList.addChild (warn ("The listed participants are removed from the search index no matter who owns them, " +
+                              "exactly like on the \"Manually delete participant\" page. " +
+                              "All their pending indexer work items are withdrawn as well, so that a queued " +
+                              "create/update does not put them back into the index."));
   }
 }

@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Set;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.jspecify.annotations.NonNull;
@@ -475,6 +476,135 @@ public final class PDIndexerManager implements Closeable
                  aNotQueued.size ());
 
     return new BulkQueueResult (aQueued, aNotQueued);
+  }
+
+  /**
+   * The outcome of removing all the pending work items of a set of participants - see
+   * {@link PDIndexerManager#removeWorkItems(Collection)}.
+   *
+   * @author Philip Helger
+   * @since 0.17.2
+   */
+  public static final class RemoveWorkItemsResult
+  {
+    private final int m_nQueue;
+    private final int m_nReIndexList;
+    private final int m_nDeadList;
+
+    RemoveWorkItemsResult (@Nonnegative final int nQueue,
+                           @Nonnegative final int nReIndexList,
+                           @Nonnegative final int nDeadList)
+    {
+      m_nQueue = nQueue;
+      m_nReIndexList = nReIndexList;
+      m_nDeadList = nDeadList;
+    }
+
+    /**
+     * @return The number of work items that were removed from the indexer work queue.
+     */
+    @Nonnegative
+    public int getQueueCount ()
+    {
+      return m_nQueue;
+    }
+
+    /**
+     * @return The number of work items that were removed from the re-index list.
+     */
+    @Nonnegative
+    public int getReIndexListCount ()
+    {
+      return m_nReIndexList;
+    }
+
+    /**
+     * @return The number of work items that were removed from the dead list.
+     */
+    @Nonnegative
+    public int getDeadListCount ()
+    {
+      return m_nDeadList;
+    }
+
+    /**
+     * @return The total number of removed work items.
+     */
+    @Nonnegative
+    public int getTotalCount ()
+    {
+      return m_nQueue + m_nReIndexList + m_nDeadList;
+    }
+
+    @Override
+    public String toString ()
+    {
+      return new ToStringGenerator (this).append ("Queue", m_nQueue)
+                                         .append ("ReIndexList", m_nReIndexList)
+                                         .append ("DeadList", m_nDeadList)
+                                         .getToString ();
+    }
+  }
+
+  /**
+   * Remove all pending work items of the provided participants - from the indexer work queue, from
+   * the re-index list and from the dead list. This is needed before participants are deleted from
+   * the index, because an already queued create/update work item would otherwise simply put the
+   * deleted participant back into the index.<br>
+   * Note: work items that a collector already took off the queue cannot be withdrawn anymore, so
+   * this must be called <em>before</em> the participants are deleted, and even then up to
+   * {@link IndexerWorkItemQueue#getMaxParallel()} items may still be in flight.
+   *
+   * @param aParticipantIDs
+   *        The participants whose work items are to be removed. May not be <code>null</code>.
+   * @return Never <code>null</code>.
+   * @since 0.17.2
+   */
+  @NonNull
+  public RemoveWorkItemsResult removeWorkItems (@NonNull final Collection <? extends IParticipantIdentifier> aParticipantIDs)
+  {
+    ValueEnforcer.notNull (aParticipantIDs, "ParticipantIDs");
+
+    // Match on the URI encoded representation and not on the identifier objects: a work item stores
+    // its participant ID as SimpleParticipantIdentifier, which never equals the
+    // PeppolParticipantIdentifier that the identifier factory creates
+    final ICommonsSet <String> aPIDs = new CommonsHashSet <> ();
+    for (final IParticipantIdentifier aParticipantID : aParticipantIDs)
+      aPIDs.add (aParticipantID.getURIEncoded ());
+    if (aPIDs.isEmpty ())
+      return new RemoveWorkItemsResult (0, 0, 0);
+
+    LOGGER.info ("Removing all pending work items of " + aPIDs.size () + " participants");
+
+    // Take them off the queue first, so that no collector picks them up anymore.
+    // Only IIndexerWorkItem objects may be touched - the queue also holds the "stop" marker object
+    // of the concurrent collectors
+    final LinkedBlockingQueue <Object> aQueue = m_aIndexerWorkQueue.internalGetQueue ();
+    final int nQueueBefore = aQueue.size ();
+    aQueue.removeIf (x -> x instanceof final IIndexerWorkItem aWorkItem &&
+                          aPIDs.contains (aWorkItem.getParticipantID ().getURIEncoded ()));
+    final int nQueue = nQueueBefore - aQueue.size ();
+
+    // They are no longer "in progress"
+    m_aRWLock.writeLocked ( () -> m_aUniqueItems.removeIf (x -> aPIDs.contains (x.getParticipantID ()
+                                                                                .getURIEncoded ())));
+
+    final int nReIndex = m_aReIndexList.getAndRemoveAllEntries (x -> aPIDs.contains (x.getWorkItem ()
+                                                                                      .getParticipantID ()
+                                                                                      .getURIEncoded ())).size ();
+    final int nDead = m_aDeadList.getAndRemoveAllEntries (x -> aPIDs.contains (x.getWorkItem ()
+                                                                               .getParticipantID ()
+                                                                               .getURIEncoded ())).size ();
+
+    LOGGER.info ("Removed " +
+                 nQueue +
+                 " work items from the queue, " +
+                 nReIndex +
+                 " from the re-index list and " +
+                 nDead +
+                 " from the dead list");
+
+    return new RemoveWorkItemsResult (nQueue, nReIndex, nDead);
   }
 
   /**
