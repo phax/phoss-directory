@@ -169,11 +169,13 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 # News and noteworthy
 
 v0.17.2 - work in progress
-* Added the page "Delete participants" to bulk delete participants from the search index from an uploaded file
+* Added the page "Bulk delete participants" to delete participants from the search index from an uploaded file
     * The entries are deleted without verifying the owner, exactly like on the "Manually delete participant" page, so that entries owned by an SMP can be removed as well
     * All pending indexer work items of the deleted participants are withdrawn as well, because an already queued create/update work item would otherwise put the participant right back into the index
     * Added `PDIndexerManager.removeWorkItems (...)` that removes all work items of a set of participants from the work queue, the re-index list and the dead list
-* The "Import participants" page no longer performs the import in the HTTP thread, so that importing tens of thousands of participants does not block the browser anymore
+* Renamed the page "Import participants" to "Bulk import participants". Its menu item ID is unchanged, so existing bookmarks keep working
+* Both bulk pages show a toolbar that links to the "Long running jobs" page, if that page is visible to the logged in user
+* The "Bulk import participants" page no longer performs the import in the HTTP thread, so that importing tens of thousands of participants does not block the browser anymore
     * The uploaded file is stored below the data path and the new long running job `PDIndexImportJob` reads it and queues the participants in the background. The outcome is shown on the "Long running jobs" page
     * Only a single import may run at a time, and the page indicates whether one is currently running
     * The result no longer lists every single participant, but the number of queued, duplicate, already queued and syntactically invalid participant IDs, plus the first 100 entries of the problematic ones

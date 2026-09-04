@@ -33,7 +33,8 @@ import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.factory.PeppolIdentifierFactory;
 
 /**
- * Test class for {@link PDIndexerManager#queueWorkItems(java.util.Collection, EIndexerWorkItemType, String, String)}.
+ * Test class for
+ * {@link PDIndexerManager#queueWorkItems(java.util.Collection, EIndexerWorkItemType, String, String)}.
  * <br>
  * A Business Card provider that never finds anything is installed on purpose, so that no work item
  * can ever be indexed successfully. That keeps every queued item in the "unique items" set for the
@@ -53,7 +54,7 @@ public final class PDIndexerManagerBulkQueueTest
   @Before
   public void setUpBusinessCardProvider ()
   {
-    PDMetaManager.setBusinessCardProvider ( (aParticipantID, aErrorMsgHandler) -> null);
+    PDMetaManager.setBusinessCardProvider ((_, _) -> null);
   }
 
   @Test

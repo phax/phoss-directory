@@ -20,6 +20,7 @@ import java.io.File;
 import java.util.Locale;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,12 +33,15 @@ import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.photon.bootstrap5.buttongroup.BootstrapButtonToolbar;
 import com.helger.photon.bootstrap5.form.BootstrapForm;
 import com.helger.photon.bootstrap5.form.BootstrapFormGroup;
+import com.helger.photon.bootstrap5.pages.BootstrapPagesMenuConfigurator;
 import com.helger.photon.bootstrap5.uictrls.ext.BootstrapFileUpload;
 import com.helger.photon.core.form.FormErrorList;
+import com.helger.photon.core.menu.IMenuObject;
 import com.helger.photon.io.PhotonWorkerPool;
 import com.helger.photon.security.lock.SingleRunLock;
 import com.helger.photon.uicore.css.CPageParam;
 import com.helger.photon.uicore.icon.EDefaultIcon;
+import com.helger.photon.uicore.icon.IIcon;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 import com.helger.web.fileupload.IFileItem;
 
@@ -97,6 +101,12 @@ public abstract class AbstractPageSecureParticipantUpload extends AbstractAppWeb
   @Nonempty
   protected abstract String getSubmitButtonText ();
 
+  @Nullable
+  protected IIcon getSubmitButtonIcon ()
+  {
+    return EDefaultIcon.YES;
+  }
+
   /**
    * @return A new unique file to which the uploaded data can be written. Never <code>null</code>.
    */
@@ -128,6 +138,27 @@ public abstract class AbstractPageSecureParticipantUpload extends AbstractAppWeb
   {}
 
   /**
+   * Add a toolbar that links to the "Long running jobs" page, on which the outcome of the started
+   * job is shown. The toolbar is only added if that page is visible to the logged in user, because
+   * it is reserved for administrators.
+   *
+   * @param aWPEC
+   *        The current execution context. May not be <code>null</code>.
+   */
+  private static void _addLongRunningJobsToolbar (@NonNull final WebPageExecutionContext aWPEC)
+  {
+    final IMenuObject aMenuObject = aWPEC.getMenuTree ()
+                                         .getMenuObjectOfID (BootstrapPagesMenuConfigurator.MENU_ADMIN_APPINFO_LONG_RUNNING_JOBS);
+    if (aMenuObject == null || !aMenuObject.matchesDisplayFilter ())
+      return;
+
+    final BootstrapButtonToolbar aToolbar = aWPEC.getNodeList ().addAndReturnChild (new BootstrapButtonToolbar (aWPEC));
+    aToolbar.addButton ("Show long running jobs",
+                        aWPEC.getLinkToMenuItem (BootstrapPagesMenuConfigurator.MENU_ADMIN_APPINFO_LONG_RUNNING_JOBS),
+                        EDefaultIcon.NEXT);
+  }
+
+  /**
    * Store the uploaded file below the data path and start the job for it.
    *
    * @param aWPEC
@@ -154,8 +185,7 @@ public abstract class AbstractPageSecureParticipantUpload extends AbstractAppWeb
                    aUploadedFile.getAbsolutePath () +
                    "'");
 
-      PhotonWorkerPool.getInstance ()
-                      .run (getJobType (), createJob (aUploadedFile, aWPEC.getLoggedInUserID ()));
+      PhotonWorkerPool.getInstance ().run (getJobType (), createJob (aUploadedFile, aWPEC.getLoggedInUserID ()));
     }
     catch (final Exception ex)
     {
@@ -220,6 +250,8 @@ public abstract class AbstractPageSecureParticipantUpload extends AbstractAppWeb
 
     final BootstrapButtonToolbar aToolbar = aForm.addAndReturnChild (new BootstrapButtonToolbar (aWPEC));
     aToolbar.addHiddenField (CPageParam.PARAM_ACTION, CPageParam.ACTION_PERFORM);
-    aToolbar.addSubmitButton (getSubmitButtonText (), EDefaultIcon.YES);
+    aToolbar.addSubmitButton (getSubmitButtonText (), getSubmitButtonIcon ());
+
+    _addLongRunningJobsToolbar (aWPEC);
   }
 }

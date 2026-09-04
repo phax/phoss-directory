@@ -21,23 +21,28 @@ import java.io.File;
 import org.jspecify.annotations.NonNull;
 
 import com.helger.annotation.Nonempty;
+import com.helger.base.string.StringImplode;
 import com.helger.html.hc.impl.HCNodeList;
-import com.helger.pd.publisher.job.PDIndexDeleteJob;
+import com.helger.pd.indexer.businesscard.IPDBusinessCardProvider;
+import com.helger.pd.indexer.businesscard.SMPBusinessCardProvider;
+import com.helger.pd.indexer.mgr.PDMetaManager;
+import com.helger.pd.publisher.job.PDIndexImportJob;
+import com.helger.peppol.sml.ISMLInfo;
 import com.helger.photon.security.lock.SingleRunLock;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 
-public final class PageSecureDeleteImport extends AbstractPageSecureParticipantUpload
+public final class PageSecureBulkImport extends AbstractPageSecureParticipantUpload
 {
-  public PageSecureDeleteImport (@NonNull @Nonempty final String sID)
+  public PageSecureBulkImport (@NonNull @Nonempty final String sID)
   {
-    super (sID, "Delete participants");
+    super (sID, "Bulk import participants");
   }
 
   @Override
   @NonNull
   protected SingleRunLock getLock ()
   {
-    return PDIndexDeleteJob.LOCK;
+    return PDIndexImportJob.LOCK;
   }
 
   @Override
@@ -45,7 +50,7 @@ public final class PageSecureDeleteImport extends AbstractPageSecureParticipantU
   @Nonempty
   protected String getJobType ()
   {
-    return PDIndexDeleteJob.JOB_TYPE;
+    return PDIndexImportJob.JOB_TYPE;
   }
 
   @Override
@@ -53,7 +58,7 @@ public final class PageSecureDeleteImport extends AbstractPageSecureParticipantU
   @Nonempty
   protected String getActivityName ()
   {
-    return "participant deletion";
+    return "participant import";
   }
 
   @Override
@@ -61,10 +66,10 @@ public final class PageSecureDeleteImport extends AbstractPageSecureParticipantU
   @Nonempty
   protected String getFileHelpText ()
   {
-    return "Select the file with the participants to be deleted. " +
+    return "Select the file with the participants to be indexed. " +
            "Either an XML file that was created from a full XML export, or a text file with one participant ID per line " +
            "(e.g. iso6523-actorid-upis::9915:test) - empty lines and lines starting with '#' are ignored. " +
-           "The deletion runs in the background - the result is shown on the \"Long running jobs\" page.";
+           "The import runs in the background - the result is shown on the \"Long running jobs\" page.";
   }
 
   @Override
@@ -72,29 +77,34 @@ public final class PageSecureDeleteImport extends AbstractPageSecureParticipantU
   @Nonempty
   protected String getSubmitButtonText ()
   {
-    return "Delete all";
+    return "Import all";
   }
 
   @Override
   @NonNull
   protected File createUploadFile ()
   {
-    return PDIndexDeleteJob.createUploadFile ();
+    return PDIndexImportJob.createUploadFile ();
   }
 
   @Override
   @NonNull
-  protected PDIndexDeleteJob createJob (@NonNull final File aUploadedFile, @NonNull @Nonempty final String sUserID)
+  protected PDIndexImportJob createJob (@NonNull final File aUploadedFile, @NonNull @Nonempty final String sUserID)
   {
-    return new PDIndexDeleteJob (aUploadedFile, sUserID);
+    return new PDIndexImportJob (aUploadedFile, sUserID);
   }
 
   @Override
   protected void addAdditionalInfo (@NonNull final WebPageExecutionContext aWPEC, @NonNull final HCNodeList aNodeList)
   {
-    aNodeList.addChild (warn ("The listed participants are removed from the search index no matter who owns them, " +
-                              "exactly like on the \"Manually delete participant\" page. " +
-                              "All their pending indexer work items are withdrawn as well, so that a queued " +
-                              "create/update does not put them back into the index."));
+    final IPDBusinessCardProvider aBCProv = PDMetaManager.getBusinessCardProvider ();
+    if (aBCProv instanceof final SMPBusinessCardProvider aSMPBCProv)
+    {
+      aNodeList.addChild (info ("The following SMLs are crawled for entries: " +
+                                StringImplode.imploder ()
+                                             .source (aSMPBCProv.getAllSMLsToUse (), ISMLInfo::getDisplayName)
+                                             .separator (", ")
+                                             .build ()));
+    }
   }
 }

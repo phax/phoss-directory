@@ -51,7 +51,7 @@ public final class PDIndexerManagerRemoveWorkItemsTest
   @Before
   public void setUpBusinessCardProvider ()
   {
-    PDMetaManager.setBusinessCardProvider ( (aParticipantID, aErrorMsgHandler) -> null);
+    PDMetaManager.setBusinessCardProvider ((_, _) -> null);
   }
 
   @Test
