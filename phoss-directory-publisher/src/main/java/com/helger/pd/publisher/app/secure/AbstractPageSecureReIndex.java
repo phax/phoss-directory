@@ -21,7 +21,8 @@ import java.util.Locale;
 import org.jspecify.annotations.NonNull;
 
 import com.helger.annotation.Nonempty;
-import com.helger.base.compare.ESortOrder;
+import com.helger.collection.commons.CommonsArrayList;
+import com.helger.collection.commons.ICommonsList;
 import com.helger.datetime.format.PDTToString;
 import com.helger.datetime.helper.PDTFactory;
 import com.helger.html.hc.ext.HCExtHelper;
@@ -41,8 +42,11 @@ import com.helger.pd.indexer.storage.CPDStorage;
 import com.helger.pd.publisher.app.PDPMetaManager;
 import com.helger.pd.publisher.ui.AbstractAppWebPageForm;
 import com.helger.pd.publisher.ui.PDCommonUI;
+import com.helger.pd.publisher.ui.PDDataTablesOnDemand;
+import com.helger.pd.publisher.ui.PDTableColumnHelper;
 import com.helger.peppol.sml.ISMLInfo;
 import com.helger.peppolid.IParticipantIdentifier;
+import com.helger.photon.ajax.decl.IAjaxFunctionDeclaration;
 import com.helger.photon.bootstrap5.button.BootstrapButton;
 import com.helger.photon.bootstrap5.buttongroup.BootstrapButtonToolbar;
 import com.helger.photon.bootstrap5.form.BootstrapForm;
@@ -52,18 +56,21 @@ import com.helger.photon.bootstrap5.pages.handler.AbstractBootstrapWebPageAction
 import com.helger.photon.bootstrap5.pages.handler.AbstractBootstrapWebPageActionHandlerDelete;
 import com.helger.photon.bootstrap5.pages.handler.AbstractBootstrapWebPageActionHandlerWithQuery;
 import com.helger.photon.bootstrap5.uictrls.datatables.BootstrapDTColAction;
-import com.helger.photon.bootstrap5.uictrls.datatables.BootstrapDataTables;
+import com.helger.photon.core.execcontext.LayoutExecutionContext;
 import com.helger.photon.core.form.FormErrorList;
 import com.helger.photon.uicore.css.CPageParam;
 import com.helger.photon.uicore.icon.EDefaultIcon;
 import com.helger.photon.uicore.page.EShowList;
 import com.helger.photon.uicore.page.EWebPageFormAction;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
+import com.helger.photon.uictrls.datatables.ajax.DataTablesOnDemandRequest;
+import com.helger.photon.uictrls.datatables.ajax.DataTablesOnDemandResult;
 import com.helger.photon.uictrls.datatables.column.DTCol;
 import com.helger.photon.uictrls.datatables.column.EDTColType;
 import com.helger.smpclient.url.ISMPURLProvider;
 import com.helger.smpclient.url.SMPDNSResolutionException;
 import com.helger.url.ISimpleURL;
+import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 
 import jakarta.annotation.Nullable;
 
@@ -72,8 +79,11 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
   private static final String ACTION_DELETE_ALL = "deleteall";
   private static final String ACTION_REINDEX_NOW = "reindexnow";
   private static final String ACTION_REINDEX_ALL_NOW = "reindexallnow";
+  private static final EReIndexWorkItemColumn [] COLUMNS = EReIndexWorkItemColumn.values ();
 
   private final boolean m_bDeadIndex;
+  /** Provides the rows of a single page - see {@link #_getOnDemandData(DataTablesOnDemandRequest, IRequestWebScopeWithoutResponse)} */
+  private final IAjaxFunctionDeclaration m_aAjaxOnDemand = PDDataTablesOnDemand.registerSecure (this::_getOnDemandData);
 
   public AbstractPageSecureReIndex (@NonNull @Nonempty final String sID,
                                     @NonNull final String sName,
@@ -321,6 +331,99 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
     throw new UnsupportedOperationException ();
   }
 
+  /**
+   * Create the table with the columns only. The rows are added by the "on demand" AJAX function,
+   * because only the rows of the currently displayed page are ever queried and rendered.
+   *
+   * @param aWPEC
+   *        The current context. May not be <code>null</code>.
+   * @return Never <code>null</code>.
+   */
+  @NonNull
+  private HCTable _createTable (@NonNull final WebPageExecutionContext aWPEC)
+  {
+    final Locale aDisplayLocale = aWPEC.getDisplayLocale ();
+    // The column names are the IDs of EReIndexWorkItemColumn, so that the sort order requested by
+    // the client can be resolved onto the respective comparator
+    return new HCTable (new DTCol ("Reg date").setDisplayType (EDTColType.DATETIME, aDisplayLocale)
+                                              .setName (EReIndexWorkItemColumn.REG_DATE.getID ()),
+                        new DTCol ("Participant").setName (EReIndexWorkItemColumn.PARTICIPANT.getID ()),
+                        new DTCol ("Action").setName (EReIndexWorkItemColumn.ACTION.getID ()),
+                        new DTCol ("Retries").setDisplayType (EDTColType.INT, aDisplayLocale)
+                                             .setName (EReIndexWorkItemColumn.RETRIES.getID ()),
+                        m_bDeadIndex ? null
+                                     : new DTCol ("Next retry").setDisplayType (EDTColType.DATETIME, aDisplayLocale)
+                                                               .setName (EReIndexWorkItemColumn.NEXT_RETRY.getID ()),
+                        new DTCol ("Last retry").setDisplayType (EDTColType.DATETIME, aDisplayLocale)
+                                                .setName (EReIndexWorkItemColumn.LAST_RETRY.getID ()),
+                        new BootstrapDTColAction (aDisplayLocale).setOrderable (false)).setID (getID ());
+  }
+
+  private void _addRow (@NonNull final WebPageExecutionContext aWPEC,
+                        @NonNull final HCRow aRow,
+                        @NonNull final IReIndexWorkItem aItem)
+  {
+    final Locale aDisplayLocale = aWPEC.getDisplayLocale ();
+    final ISimpleURL aViewLink = createViewURL (aWPEC, aItem);
+    final IIndexerWorkItem aWorkItem = aItem.getWorkItem ();
+
+    aRow.addCell (new HCA (aViewLink).addChild (PDTToString.getAsString (aWorkItem.getCreationDateTime (),
+                                                                         aDisplayLocale)));
+    aRow.addCell (aWorkItem.getParticipantID ().getURIEncoded ());
+    aRow.addCell (aWorkItem.getType ().getDisplayName ());
+    aRow.addCell (Integer.toString (aItem.getRetryCount ()));
+    if (!m_bDeadIndex)
+      aRow.addCell (PDTToString.getAsString (aItem.getNextRetryDT (), aDisplayLocale));
+    aRow.addCell (PDTToString.getAsString (aItem.getMaxRetryDT (), aDisplayLocale));
+
+    final IHCCell <?> aActionCell = aRow.addCell ();
+    if (m_bDeadIndex)
+    {
+      aActionCell.addChild (new HCA (aWPEC.getSelfHref ()
+                                          .add (CPageParam.PARAM_ACTION, ACTION_REINDEX_NOW)
+                                          .add (CPageParam.PARAM_OBJECT, aItem.getID ())).setTitle (
+                                                                                                    "Re-index the entry now")
+                                                                                         .addChild (EDefaultIcon.NEXT.getAsNode ()));
+      aActionCell.addChild (" ");
+    }
+    aActionCell.addChild (createDeleteLink (aWPEC, aItem));
+  }
+
+  /**
+   * Provide the rows of a single page. Only the entries of the requested page are rendered -
+   * nothing is kept in the session.
+   *
+   * @param aRequest
+   *        The DataTables request. May not be <code>null</code>.
+   * @param aRequestScope
+   *        The current request scope. May not be <code>null</code>.
+   * @return Never <code>null</code>.
+   */
+  @NonNull
+  private DataTablesOnDemandResult _getOnDemandData (@NonNull final DataTablesOnDemandRequest aRequest,
+                                                     @NonNull final IRequestWebScopeWithoutResponse aRequestScope)
+  {
+    final WebPageExecutionContext aWPEC = new WebPageExecutionContext (LayoutExecutionContext.createForAjaxOrAction (aRequestScope),
+                                                                      this);
+    // The list is a copy already, so it may be filtered and sorted in place
+    final ICommonsList <IReIndexWorkItem> aAllItems = new CommonsArrayList <> (getReIndexWorkItemList ().getAllItems ());
+    final String [] aSearchTexts = aRequest.getSearchTexts ();
+    final long nTotalCount = aAllItems.size ();
+    final long nFilteredCount = PDTableColumnHelper.getCount (COLUMNS, aAllItems, aSearchTexts);
+
+    final ICommonsList <HCRow> aRows = new CommonsArrayList <> ();
+    for (final IReIndexWorkItem aItem : PDTableColumnHelper.getPage (COLUMNS,
+                                                                     aAllItems,
+                                                                     aRequest.getPagingSpec (),
+                                                                     aSearchTexts))
+    {
+      final HCRow aRow = new HCRow ();
+      _addRow (aWPEC, aRow, aItem);
+      aRows.add (aRow);
+    }
+    return new DataTablesOnDemandResult (nTotalCount, nFilteredCount, aRows);
+  }
+
   @Override
   protected void showListOfExistingObjects (@NonNull final WebPageExecutionContext aWPEC)
   {
@@ -347,46 +450,9 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
                                                                                                                       PDCommonUI.CSS_CLASS_VERTICAL_PADDED_TEXT));
     }
 
-    final HCTable aTable = new HCTable (new DTCol ("Reg date").setDisplayType (EDTColType.DATETIME, aDisplayLocale)
-                                                              .setInitialSorting (ESortOrder.DESCENDING),
-                                        new DTCol ("Participant"),
-                                        new DTCol ("Action"),
-                                        new DTCol ("Retries").setDisplayType (EDTColType.INT, aDisplayLocale),
-                                        m_bDeadIndex ? null
-                                                     : new DTCol ("Next retry").setDisplayType (EDTColType.DATETIME,
-                                                                                                aDisplayLocale),
-                                        new DTCol ("Last retry").setDisplayType (EDTColType.DATETIME, aDisplayLocale),
-                                        new BootstrapDTColAction (aDisplayLocale)).setID (getID ());
-
-    for (final IReIndexWorkItem aItem : getReIndexWorkItemList ().getAllItems ())
-    {
-      final ISimpleURL aViewLink = createViewURL (aWPEC, aItem);
-      final IIndexerWorkItem aWorkItem = aItem.getWorkItem ();
-
-      final HCRow aRow = aTable.addBodyRow ();
-      aRow.addCell (new HCA (aViewLink).addChild (PDTToString.getAsString (aWorkItem.getCreationDateTime (),
-                                                                           aDisplayLocale)));
-      aRow.addCell (aWorkItem.getParticipantID ().getURIEncoded ());
-      aRow.addCell (aWorkItem.getType ().getDisplayName ());
-      aRow.addCell (Integer.toString (aItem.getRetryCount ()));
-      if (!m_bDeadIndex)
-        aRow.addCell (PDTToString.getAsString (aItem.getNextRetryDT (), aDisplayLocale));
-      aRow.addCell (PDTToString.getAsString (aItem.getMaxRetryDT (), aDisplayLocale));
-
-      final IHCCell <?> aActionCell = aRow.addCell ();
-      if (m_bDeadIndex)
-      {
-        aActionCell.addChild (new HCA (aWPEC.getSelfHref ()
-                                            .add (CPageParam.PARAM_ACTION, ACTION_REINDEX_NOW)
-                                            .add (CPageParam.PARAM_OBJECT, aItem.getID ())).setTitle (
-                                                                                                      "Re-index the entry now")
-                                                                                           .addChild (EDefaultIcon.NEXT.getAsNode ()));
-        aActionCell.addChild (" ");
-      }
-      aActionCell.addChild (createDeleteLink (aWPEC, aItem));
-    }
-
+    // The rows are filled by the AJAX function only
+    final HCTable aTable = _createTable (aWPEC);
     aNodeList.addChild (aTable);
-    aNodeList.addChild (BootstrapDataTables.createDefaultDataTables (aWPEC, aTable));
+    aNodeList.addChild (PDDataTablesOnDemand.createDataTables (aWPEC, aTable, m_aAjaxOnDemand, COLUMNS));
   }
 }

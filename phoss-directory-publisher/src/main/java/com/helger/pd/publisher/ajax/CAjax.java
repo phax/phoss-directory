@@ -16,15 +16,21 @@
  */
 package com.helger.pd.publisher.ajax;
 
+import java.util.function.Predicate;
+
 import org.jspecify.annotations.NonNull;
 
 import com.helger.annotation.concurrent.Immutable;
 import com.helger.pd.publisher.app.AppCommonUI;
+import com.helger.photon.ajax.GlobalAjaxInvoker;
 import com.helger.photon.ajax.IAjaxRegistry;
 import com.helger.photon.ajax.decl.AjaxFunctionDeclaration;
 import com.helger.photon.ajax.decl.IAjaxFunctionDeclaration;
+import com.helger.photon.ajax.executor.IAjaxExecutor;
+import com.helger.photon.security.login.LoggedInUserManager;
 import com.helger.photon.uictrls.datatables.ajax.AjaxExecutorDataTables;
 import com.helger.photon.uictrls.datatables.ajax.AjaxExecutorDataTablesI18N;
+import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 
 /**
  * This class defines the available ajax functions for the application.
@@ -34,6 +40,9 @@ import com.helger.photon.uictrls.datatables.ajax.AjaxExecutorDataTablesI18N;
 @Immutable
 public final class CAjax
 {
+  public static final Predicate <? super IRequestWebScopeWithoutResponse> FILTER_IS_USER_LOGGED_IN = x -> LoggedInUserManager.getInstance ()
+                                                                                                                             .isUserLoggedInInCurrentSession ();
+
   public static final IAjaxFunctionDeclaration DATATABLES = AjaxFunctionDeclaration.builder ("dataTables")
                                                                                    .executor (AjaxExecutorDataTables.class)
                                                                                    .build ();
@@ -48,5 +57,26 @@ public final class CAjax
   {
     aAjaxRegistry.registerFunction (DATATABLES);
     aAjaxRegistry.registerFunction (DATATABLES_I18N);
+  }
+
+  /**
+   * Register an additional AJAX function that may only be invoked by a logged in user. It is used
+   * for the AJAX functions that are created per page instance, and therefore cannot be declared as
+   * a constant of this class.
+   *
+   * @param aExecutor
+   *        The executor to be invoked. May not be <code>null</code>.
+   * @return The created function declaration with a random name. Never <code>null</code>.
+   */
+  @NonNull
+  public static AjaxFunctionDeclaration addAjaxWithLogin (@NonNull final IAjaxExecutor aExecutor)
+  {
+    // Random name
+    final AjaxFunctionDeclaration aFunction = AjaxFunctionDeclaration.builder ()
+                                                                     .executor (aExecutor)
+                                                                     .filter (FILTER_IS_USER_LOGGED_IN)
+                                                                     .build ();
+    GlobalAjaxInvoker.getInstance ().getRegistry ().registerFunction (aFunction);
+    return aFunction;
   }
 }

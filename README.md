@@ -168,6 +168,12 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
+v0.17.3 - work in progress
+* The DataTables of the pages "Index Queue", "Re-Index List" and "Dead Index List" use server side pagination, so that only the rows of the currently displayed page are rendered
+    * Previously every one of these tables was rendered as a whole and the result was kept in the session, which means the memory consumption was proportional to the number of entries times the number of logged in users
+    * Paging, sorting and searching are performed on the work items themselves. The new enums `EIndexerWorkItemColumn` and `EReIndexWorkItemColumn` tie each shown column to the respective comparator and to the value the global search is performed on
+    * The date and the number columns are sortable but no longer searchable, because the global search would have to match the localized text shown in the respective cell
+
 v0.17.2 - 2026-09-04
 * Added the page "Bulk delete participants" to delete participants from the search index from an uploaded file
     * The entries are deleted without verifying the owner, exactly like on the "Manually delete participant" page, so that entries owned by an SMP can be removed as well
