@@ -16,6 +16,8 @@
  */
 package com.helger.pd.indexer.shadow;
 
+import java.time.Duration;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +27,7 @@ import com.helger.annotation.style.ReturnsMutableCopy;
 import com.helger.base.enforce.ValueEnforcer;
 import com.helger.collection.commons.ICommonsList;
 import com.helger.dao.DAOException;
+import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.photon.io.dao.AbstractPhotonMapBasedWALDAO;
 
 import jakarta.annotation.Nonnull;
@@ -50,6 +53,7 @@ public final class ShadowEventList extends AbstractPhotonMapBasedWALDAO <IShadow
   public ShadowEventList () throws DAOException
   {
     super (ShadowEvent.class, "shadow-events.xml");
+    setWaitingTime (Duration.ofSeconds (PDServerConfiguration.getIndexerShadowingCheckpointSeconds ()));
   }
 
   public void addEvent (@Nonnull final ShadowEvent aEvent)
