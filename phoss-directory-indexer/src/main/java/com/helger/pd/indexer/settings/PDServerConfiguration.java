@@ -17,8 +17,13 @@
 package com.helger.pd.indexer.settings;
 
 import java.net.URL;
+import java.time.Duration;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.jspecify.annotations.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.helger.annotation.CheckForSigned;
 import com.helger.annotation.Nonempty;
@@ -75,6 +80,41 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   public static final String DEFAULT_SEARCHINDEX_TYPE = "lucene";
   /** The default number of work items that are indexed in parallel */
   public static final int DEFAULT_INDEXER_MAX_PARALLEL = 4;
+  /**
+   * The configuration key of the shadow event dispatcher interval
+   *
+   * @since 0.17.3
+   */
+  public static final String KEY_INDEXER_SHADOWING_INTERVAL = "indexer.shadowing.interval";
+  /**
+   * @deprecated Since 0.17.3; use {@link #KEY_INDEXER_SHADOWING_INTERVAL} with the duration grammar
+   *             (e.g. <code>30s</code>, <code>1m 30s</code>) instead.
+   */
+  @Deprecated (forRemoval = true, since = "0.17.3")
+  public static final String KEY_INDEXER_SHADOWING_INTERVAL_SECONDS = "indexer.shadowing.interval.seconds";
+  /**
+   * The default interval in which the shadow event dispatcher processes the queued events
+   *
+   * @since 0.17.3
+   */
+  public static final Duration DEFAULT_INDEXER_SHADOWING_INTERVAL = Duration.ofMinutes (1);
+  /**
+   * The configuration key of the shadow event list checkpoint interval
+   *
+   * @since 0.17.3
+   */
+  public static final String KEY_INDEXER_SHADOWING_CHECKPOINT = "indexer.shadowing.checkpoint";
+  /**
+   * The default interval after which the complete shadow event list is written to disk
+   *
+   * @since 0.17.3
+   */
+  public static final Duration DEFAULT_INDEXER_SHADOWING_CHECKPOINT = Duration.ofMinutes (5);
+
+  private static final Logger LOGGER = LoggerFactory.getLogger (PDServerConfiguration.class);
+  // Remember the deprecated keys for which a warning was already logged, so it is emitted only once
+  // per key
+  private static final Set <String> WARNED_DEPRECATED_KEYS = ConcurrentHashMap.newKeySet ();
 
   /**
    * @return The configuration value provider for phase4 that contains backward compatibility
@@ -506,29 +546,64 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   }
 
   /**
-   * @return The interval in seconds for the shadow event dispatcher job. Defaults to 60 seconds (1
-   *         minute).
+   * Resolve a duration typed configuration property. The value uses the duration grammar (e.g.
+   * <code>30s</code>, <code>5m</code>, <code>1h 30m</code>).
+   *
+   * @param sDurationKey
+   *        The configuration key to resolve. May not be <code>null</code>.
+   * @return <code>null</code> if the property is not configured, empty or cannot be parsed.
    */
-  @Nonnegative
-  public static int getIndexerShadowingIntervalSeconds ()
+  @Nullable
+  private static Duration _getConfigDuration (@NonNull final String sDurationKey)
   {
-    final int ret = getConfig ().getAsInt ("indexer.shadowing.interval.seconds", 60);
-    if (ret <= 0)
-      throw new IllegalStateException ("The indexer.shadowing.interval.seconds property must be > 0!");
+    return getConfig ().getAsConfigDuration (sDurationKey,
+                                             sErrMsg -> LOGGER.warn ("Failed to parse the configuration property '" +
+                                                                     sDurationKey +
+                                                                     "' as a duration: " +
+                                                                     sErrMsg));
+  }
+
+  /**
+   * @return The interval in which the shadow event dispatcher processes the queued shadow events.
+   *         Defaults to 1 minute. Never <code>null</code>.
+   */
+  @NonNull
+  public static Duration getIndexerShadowingIntervalDuration ()
+  {
+    Duration ret = _getConfigDuration (KEY_INDEXER_SHADOWING_INTERVAL);
+    if (ret == null && getConfig ().containsConfiguredValue (KEY_INDEXER_SHADOWING_INTERVAL_SECONDS))
+    {
+      if (WARNED_DEPRECATED_KEYS.add (KEY_INDEXER_SHADOWING_INTERVAL_SECONDS))
+        LOGGER.warn ("The configuration property '" +
+                     KEY_INDEXER_SHADOWING_INTERVAL_SECONDS +
+                     "' is deprecated; please use '" +
+                     KEY_INDEXER_SHADOWING_INTERVAL +
+                     "' with the duration grammar (e.g. '30s', '1m 30s') instead.");
+      final int nSeconds = getConfig ().getAsInt (KEY_INDEXER_SHADOWING_INTERVAL_SECONDS, -1);
+      if (nSeconds <= 0)
+        throw new IllegalStateException ("The " + KEY_INDEXER_SHADOWING_INTERVAL_SECONDS + " property must be > 0!");
+      ret = Duration.ofSeconds (nSeconds);
+    }
+    if (ret == null)
+      return DEFAULT_INDEXER_SHADOWING_INTERVAL;
+    if (ret.isZero () || ret.isNegative ())
+      throw new IllegalStateException ("The " + KEY_INDEXER_SHADOWING_INTERVAL + " property must be > 0!");
     return ret;
   }
 
   /**
-   * @return The interval in seconds after which the complete shadow event list is written to disk.
-   *         Defaults to 300 seconds (5 minutes). The write-ahead log provides durability in
-   *         between, so a larger value only results in a longer WAL replay on startup.
+   * @return The interval after which the complete shadow event list is written to disk. Defaults to
+   *         5 minutes. The write-ahead log provides durability in between, so a larger value only
+   *         results in a longer WAL replay on startup. Never <code>null</code>.
    */
-  @Nonnegative
-  public static int getIndexerShadowingCheckpointSeconds ()
+  @NonNull
+  public static Duration getIndexerShadowingCheckpointDuration ()
   {
-    final int ret = getConfig ().getAsInt ("indexer.shadowing.checkpoint.seconds", 300);
-    if (ret <= 0)
-      throw new IllegalStateException ("The indexer.shadowing.checkpoint.seconds property must be > 0!");
+    final Duration ret = _getConfigDuration (KEY_INDEXER_SHADOWING_CHECKPOINT);
+    if (ret == null)
+      return DEFAULT_INDEXER_SHADOWING_CHECKPOINT;
+    if (ret.isZero () || ret.isNegative ())
+      throw new IllegalStateException ("The " + KEY_INDEXER_SHADOWING_CHECKPOINT + " property must be > 0!");
     return ret;
   }
 

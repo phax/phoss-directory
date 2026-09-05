@@ -16,8 +16,6 @@
  */
 package com.helger.pd.indexer.shadow;
 
-import java.time.Duration;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +51,7 @@ public final class ShadowEventList extends AbstractPhotonMapBasedWALDAO <IShadow
   public ShadowEventList () throws DAOException
   {
     super (ShadowEvent.class, "shadow-events.xml");
-    setWaitingTime (Duration.ofSeconds (PDServerConfiguration.getIndexerShadowingCheckpointSeconds ()));
+    setWaitingTime (PDServerConfiguration.getIndexerShadowingCheckpointDuration ());
   }
 
   public void addEvent (@Nonnull final ShadowEvent aEvent)

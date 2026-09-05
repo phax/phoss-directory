@@ -16,6 +16,8 @@
  */
 package com.helger.pd.indexer.mgr;
 
+import java.time.Duration;
+
 import com.helger.base.string.StringHelper;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
@@ -102,10 +104,12 @@ public final class PDMetaManager extends AbstractGlobalSingleton
           m_aShadowEventList = new ShadowEventList ();
           m_aFailedShadowEventList = new FailedShadowEventList ();
 
-          final int nIntervalSeconds = PDServerConfiguration.getIndexerShadowingIntervalSeconds ();
-          ShadowEventDispatcherJob.schedule (SimpleScheduleBuilder.repeatSecondlyForever (nIntervalSeconds));
+          final Duration aInterval = PDServerConfiguration.getIndexerShadowingIntervalDuration ();
+          ShadowEventDispatcherJob.schedule (SimpleScheduleBuilder.simpleSchedule ()
+                                                                  .withIntervalInMilliseconds (aInterval.toMillis ())
+                                                                  .repeatForever ());
 
-          LOGGER.info ("Shadow event dispatcher scheduled (every " + nIntervalSeconds + " second(s))");
+          LOGGER.info ("Shadow event dispatcher scheduled (every " + aInterval + ")");
         }
       }
       else

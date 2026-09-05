@@ -124,7 +124,8 @@ When enabled, successful indexing requests are replicated asynchronously as cust
 * **`indexer.shadowing.enabled`** - Enable or disable indexer request shadowing. Defaults to `false`.
 * **`indexer.shadowing.url`** - The downstream URL to send shadow events to. Required if shadowing is enabled.
 * **`indexer.shadowing.timeout.ms`** - HTTP timeout in milliseconds for shadow requests. Defaults to `5000` (5 seconds).
-* **`indexer.shadowing.interval.seconds`** - Interval in seconds for the dispatcher job to process queued events. Defaults to `60` seconds (1 minute).
+* **`indexer.shadowing.interval`** - Interval in which the dispatcher job processes the queued events. Defaults to `1m` (1 minute). The value uses the duration grammar (e.g. `30s`, `5m`, `1h 30m`). The deprecated property `indexer.shadowing.interval.seconds` is still evaluated as a fallback.
+* **`indexer.shadowing.checkpoint`** - Interval after which the complete shadow event list is written to disk. Defaults to `5m` (5 minutes). The value uses the duration grammar (e.g. `30s`, `5m`, `1h 30m`). The write-ahead log provides durability in between, so a larger value only results in a longer WAL replay on startup.
 * **`indexer.shadowing.secret`** - Optional secret string included in the `X-Shadow-Secret` HTTP header for authentication. If not set, no authentication header is sent.
 
 **Shadow event format:**
@@ -143,7 +144,7 @@ Shadow events are sent as HTTP POST requests with JSON payload containing:
 **Operational notes:**
 
 - Shadow events are persisted to disk (`shadow-events.xml`) before dispatch for crash safety
-- A background job dispatches events at the configured interval (default: every 60 seconds)
+- A background job dispatches events at the configured interval (default: every minute)
 - Failed events with non-retryable errors (HTTP 4xx) are moved to a dead-letter queue (`failed-shadow-events.xml`)
 - Failed events with retryable errors (network issues, HTTP 5xx) remain in the queue for automatic retry
 - Shadow failures never affect the original indexing request
@@ -157,7 +158,8 @@ Example configuration:
 indexer.shadowing.enabled=false
 indexer.shadowing.url=https://pd2-replicator.example.com/shadow-events
 indexer.shadowing.timeout.ms=5000
-indexer.shadowing.interval.seconds=60
+indexer.shadowing.interval=1m
+indexer.shadowing.checkpoint=5m
 indexer.shadowing.secret=your-secret-token-here
 ```
 
@@ -169,6 +171,10 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 # News and noteworthy
 
 v0.17.3 - work in progress
+* The interval after which the shadow event list is written to disk in total is configurable via the new property `indexer.shadowing.checkpoint`. It defaults to 5 minutes and uses the duration grammar (e.g. `30s`, `5m`, `1h 30m`), so `PDServerConfiguration.getIndexerShadowingCheckpointDuration ()` returns a `Duration`
+    * Previously each checkpoint rewrote the complete file every 10 seconds, which is heavily disproportionate to the amount of data that actually changed if the queue is large. The write-ahead log keeps the events durable in between
+* The interval of the shadow event dispatcher uses the duration grammar as well and is therefore configured via the new property `indexer.shadowing.interval` (e.g. `1m`) instead of `indexer.shadowing.interval.seconds`. The new method `PDServerConfiguration.getIndexerShadowingIntervalDuration ()` returns a `Duration` and replaces `getIndexerShadowingIntervalSeconds ()`
+    * The deprecated property `indexer.shadowing.interval.seconds` is still evaluated, if the new one is not present, and logs a warning once. It will be removed in a future version
 * The search results of the name search and of the generic search are now ordered by relevance (see [issue #49](https://github.com/phax/phoss-directory/issues/49))
     * An entry in which a word is exactly the search term is ranked highest, followed by the entries in which a word starts with the search term, followed by the entries that merely contain the search term inside a word
     * `PDQueryManager.getNameQuery (...)` therefore uses the previous "contains" query as a mandatory clause that does not contribute to the score, and adds a term query and a prefix query per search term as optional clauses that only influence the ordering

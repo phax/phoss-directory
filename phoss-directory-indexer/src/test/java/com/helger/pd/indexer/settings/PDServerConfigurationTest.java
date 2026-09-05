@@ -18,6 +18,8 @@ package com.helger.pd.indexer.settings;
 
 import static org.junit.Assert.assertEquals;
 
+import java.time.Duration;
+
 import org.junit.Test;
 
 import com.helger.collection.commons.CommonsHashSet;
@@ -55,7 +57,8 @@ public final class PDServerConfigurationTest
   @Test
   public void testShadowingDefaults ()
   {
-    assertEquals (60, PDServerConfiguration.getIndexerShadowingIntervalSeconds ());
+    assertEquals (Duration.ofMinutes (1), PDServerConfiguration.getIndexerShadowingIntervalDuration ());
+    assertEquals (Duration.ofMinutes (5), PDServerConfiguration.getIndexerShadowingCheckpointDuration ());
     assertEquals (5000, PDServerConfiguration.getIndexerShadowingTimeoutMS ());
   }
 }
