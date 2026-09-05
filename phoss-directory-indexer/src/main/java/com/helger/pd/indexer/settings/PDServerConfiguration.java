@@ -519,6 +519,20 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   }
 
   /**
+   * @return The interval in seconds after which the complete shadow event list is written to disk.
+   *         Defaults to 300 seconds (5 minutes). The write-ahead log provides durability in
+   *         between, so a larger value only results in a longer WAL replay on startup.
+   */
+  @Nonnegative
+  public static int getIndexerShadowingCheckpointSeconds ()
+  {
+    final int ret = getConfig ().getAsInt ("indexer.shadowing.checkpoint.seconds", 300);
+    if (ret <= 0)
+      throw new IllegalStateException ("The indexer.shadowing.checkpoint.seconds property must be > 0!");
+    return ret;
+  }
+
+  /**
    * @return The secret string to be included in the X-Shadow-Secret header when sending shadow
    *         events. May be <code>null</code> if not configured (no authentication).
    */
