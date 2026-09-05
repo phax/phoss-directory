@@ -100,8 +100,7 @@ public abstract class AbstractPDParticipantFileJob extends AbstractLongRunningJo
    */
   @NonNull
   @Nonempty
-  public static String getAuditAction (@NonNull @Nonempty final String sJobType,
-                                       @NonNull @Nonempty final String sPhase)
+  public static String getAuditAction (@NonNull @Nonempty final String sJobType, @NonNull @Nonempty final String sPhase)
   {
     return sJobType + "-" + sPhase;
   }
@@ -133,7 +132,10 @@ public abstract class AbstractPDParticipantFileJob extends AbstractLongRunningJo
     if (aError.isFailure ())
       throw new IllegalStateException ("Failed to create the upload directory: " + aError.toString ());
 
-    final String sFilename = sFilenamePrefix + PDTIOHelper.getCurrentLocalDateTimeForFilename () + "-" + UUID.randomUUID ().toString ();
+    final String sFilename = sFilenamePrefix +
+                             PDTIOHelper.getCurrentLocalDateTimeForFilename () +
+                             "-" +
+                             UUID.randomUUID ().toString ();
 
     // Ensure the resulting name is a valid filename on all platforms
     final String sSecureFilename = FilenameHelper.getAsSecureValidASCIIFilename (sFilename);

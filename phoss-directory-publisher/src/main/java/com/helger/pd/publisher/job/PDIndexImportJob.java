@@ -39,9 +39,9 @@ import com.helger.text.ReadOnlyMultilingualText;
 
 /**
  * A long running job that reads all participant IDs from a previously uploaded file and queues them
- * for indexing. Contrary to a synchronous import this does not block an HTTP thread, and it does not
- * build a UI list with one entry per participant - which is unusable for the tens of thousands of
- * participants such a file typically contains.
+ * for indexing. Contrary to a synchronous import this does not block an HTTP thread, and it does
+ * not build a UI list with one entry per participant - which is unusable for the tens of thousands
+ * of participants such a file typically contains.
  *
  * @author Philip Helger
  * @since 0.17.2
@@ -82,7 +82,7 @@ public class PDIndexImportJob extends AbstractPDParticipantFileJob
   protected LongRunningJobResult createParticipantJobResult ()
   {
     final ReadResult aReadResult = PDParticipantListReader.readParticipantList (getUploadedFile (),
-                                                                               PDMetaManager.getIdentifierFactory ());
+                                                                                PDMetaManager.getIdentifierFactory ());
     final ICommonsList <String> aInvalidEntries = aReadResult.getAllInvalidEntries ();
 
     // Some things may have been read even in case of a parsing error

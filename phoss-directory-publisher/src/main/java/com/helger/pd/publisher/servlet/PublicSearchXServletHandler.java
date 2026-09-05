@@ -360,7 +360,8 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
 
       // Filter by index/count
       final int nEffectiveLastIndex = Math.min (nLastResultIndex, aResultDocs.size () - 1);
-      final List <PDStoredBusinessEntity> aResultView = nFirstResultIndex >= aResultDocs.size () ? Collections.emptyList ()
+      final List <PDStoredBusinessEntity> aResultView = nFirstResultIndex >= aResultDocs.size () ? Collections
+                                                                                                              .emptyList ()
                                                                                                  : aResultDocs.subList (nFirstResultIndex,
                                                                                                                         nEffectiveLastIndex +
                                                                                                                                            1);

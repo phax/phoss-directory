@@ -38,8 +38,8 @@ import com.helger.photon.security.lock.SingleRunLock;
 import com.helger.text.ReadOnlyMultilingualText;
 
 /**
- * A long running job that reads all participant IDs from a previously uploaded file and deletes them
- * from the search index. Deleting a participant needs a couple of index queries, so deleting
+ * A long running job that reads all participant IDs from a previously uploaded file and deletes
+ * them from the search index. Deleting a participant needs a couple of index queries, so deleting
  * thousands of them must not happen in an HTTP thread.<br>
  * Exactly like the "Manually delete participant" page, the entries are deleted without verifying
  * the owner, so that entries owned by an SMP can be removed as well.
@@ -86,7 +86,7 @@ public class PDIndexDeleteJob extends AbstractPDParticipantFileJob
   protected LongRunningJobResult createParticipantJobResult ()
   {
     final ReadResult aReadResult = PDParticipantListReader.readParticipantList (getUploadedFile (),
-                                                                               PDMetaManager.getIdentifierFactory ());
+                                                                                PDMetaManager.getIdentifierFactory ());
     final ICommonsList <String> aInvalidEntries = aReadResult.getAllInvalidEntries ();
 
     // Withdraw all pending work items first - an already queued create/update work item would

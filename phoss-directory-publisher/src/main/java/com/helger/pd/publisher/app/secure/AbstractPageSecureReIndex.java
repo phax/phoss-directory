@@ -82,7 +82,10 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
   private static final EReIndexWorkItemColumn [] COLUMNS = EReIndexWorkItemColumn.values ();
 
   private final boolean m_bDeadIndex;
-  /** Provides the rows of a single page - see {@link #_getOnDemandData(DataTablesOnDemandRequest, IRequestWebScopeWithoutResponse)} */
+  /**
+   * Provides the rows of a single page - see
+   * {@link #_getOnDemandData(DataTablesOnDemandRequest, IRequestWebScopeWithoutResponse)}
+   */
   private final IAjaxFunctionDeclaration m_aAjaxOnDemand = PDDataTablesOnDemand.registerSecure (this::_getOnDemandData);
 
   public AbstractPageSecureReIndex (@NonNull @Nonempty final String sID,
@@ -351,9 +354,9 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
                         new DTCol ("Action").setName (EReIndexWorkItemColumn.ACTION.getID ()),
                         new DTCol ("Retries").setDisplayType (EDTColType.INT, aDisplayLocale)
                                              .setName (EReIndexWorkItemColumn.RETRIES.getID ()),
-                        m_bDeadIndex ? null
-                                     : new DTCol ("Next retry").setDisplayType (EDTColType.DATETIME, aDisplayLocale)
-                                                               .setName (EReIndexWorkItemColumn.NEXT_RETRY.getID ()),
+                        m_bDeadIndex ? null : new DTCol ("Next retry").setDisplayType (EDTColType.DATETIME,
+                                                                                       aDisplayLocale)
+                                                                      .setName (EReIndexWorkItemColumn.NEXT_RETRY.getID ()),
                         new DTCol ("Last retry").setDisplayType (EDTColType.DATETIME, aDisplayLocale)
                                                 .setName (EReIndexWorkItemColumn.LAST_RETRY.getID ()),
                         new BootstrapDTColAction (aDisplayLocale).setOrderable (false)).setID (getID ());
@@ -404,7 +407,7 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
                                                      @NonNull final IRequestWebScopeWithoutResponse aRequestScope)
   {
     final WebPageExecutionContext aWPEC = new WebPageExecutionContext (LayoutExecutionContext.createForAjaxOrAction (aRequestScope),
-                                                                      this);
+                                                                       this);
     // The list is a copy already, so it may be filtered and sorted in place
     final ICommonsList <IReIndexWorkItem> aAllItems = new CommonsArrayList <> (getReIndexWorkItemList ().getAllItems ());
     final String [] aSearchTexts = aRequest.getSearchTexts ();

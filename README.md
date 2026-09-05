@@ -170,7 +170,7 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
-v0.17.3 - work in progress
+v0.17.3 - 2026-09-05
 * The interval after which the shadow event list is written to disk in total is configurable via the new property `indexer.shadowing.checkpoint`. It defaults to 5 minutes and uses the duration grammar (e.g. `30s`, `5m`, `1h 30m`), so `PDServerConfiguration.getIndexerShadowingCheckpointDuration ()` returns a `Duration`
     * Previously each checkpoint rewrote the complete file every 10 seconds, which is heavily disproportionate to the amount of data that actually changed if the queue is large. The write-ahead log keeps the events durable in between
 * The interval of the shadow event dispatcher uses the duration grammar as well and is therefore configured via the new property `indexer.shadowing.interval` (e.g. `1m`) instead of `indexer.shadowing.interval.seconds`. The new method `PDServerConfiguration.getIndexerShadowingIntervalDuration ()` returns a `Duration` and replaces `getIndexerShadowingIntervalSeconds ()`

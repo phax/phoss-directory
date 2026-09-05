@@ -174,12 +174,7 @@ public enum EPDSearchField implements IHasID <String>, IHasDisplayText
     // Deliberately no "default" case, so that adding a new search field is a compile error here
     return switch (this)
     {
-      case PARTICIPANT_ID,
-           COUNTRY,
-           IDENTIFIER_SCHEME,
-           IDENTIFIER_VALUE,
-           REGISTRATION_DATE,
-           DOCUMENT_TYPE -> EPDIndexQueryOccur.FILTER;
+      case PARTICIPANT_ID, COUNTRY, IDENTIFIER_SCHEME, IDENTIFIER_VALUE, REGISTRATION_DATE, DOCUMENT_TYPE -> EPDIndexQueryOccur.FILTER;
       case GENERIC, NAME, GEO_INFO, WEBSITE, CONTACT, ADDITIONAL_INFORMATION -> EPDIndexQueryOccur.MUST;
     };
   }

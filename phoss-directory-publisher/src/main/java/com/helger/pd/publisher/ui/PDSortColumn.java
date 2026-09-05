@@ -33,7 +33,8 @@ import com.helger.base.tostring.ToStringGenerator;
  *        The domain object type this column belongs to
  * @since 0.17.3
  */
-// TODO replace with the ph-oton version com.helger.photon.core.paging.SortColumn (since ph-oton 10.6.0)
+// TODO replace with the ph-oton version com.helger.photon.core.paging.SortColumn (since ph-oton
+// 10.6.0)
 @Immutable
 public class PDSortColumn <DATATYPE>
 {

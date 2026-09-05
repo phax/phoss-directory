@@ -41,7 +41,8 @@ import com.helger.base.string.StringHelper;
  *        The domain object type this column belongs to
  * @since 0.17.3
  */
-// TODO replace with the ph-oton version com.helger.photon.core.paging.ITableColumn (since ph-oton 10.6.0)
+// TODO replace with the ph-oton version com.helger.photon.core.paging.ITableColumn (since ph-oton
+// 10.6.0)
 public interface IPDTableColumn <DATATYPE> extends IHasID <String>
 {
   /**

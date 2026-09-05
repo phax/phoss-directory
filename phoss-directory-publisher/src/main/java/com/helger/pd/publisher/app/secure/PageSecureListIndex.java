@@ -53,7 +53,10 @@ public final class PageSecureListIndex extends AbstractAppWebPage
   private static final String TABLE_ID = "indexqueue";
   private static final EIndexerWorkItemColumn [] COLUMNS = EIndexerWorkItemColumn.values ();
 
-  /** Provides the rows of a single page - see {@link #_getOnDemandData(DataTablesOnDemandRequest, IRequestWebScopeWithoutResponse)} */
+  /**
+   * Provides the rows of a single page - see
+   * {@link #_getOnDemandData(DataTablesOnDemandRequest, IRequestWebScopeWithoutResponse)}
+   */
   private final IAjaxFunctionDeclaration m_aAjaxOnDemand = PDDataTablesOnDemand.registerSecure (this::_getOnDemandData);
 
   public PageSecureListIndex (@NonNull @Nonempty final String sID)
@@ -133,7 +136,7 @@ public final class PageSecureListIndex extends AbstractAppWebPage
                                                      @NonNull final IRequestWebScopeWithoutResponse aRequestScope)
   {
     final WebPageExecutionContext aWPEC = new WebPageExecutionContext (LayoutExecutionContext.createForAjaxOrAction (aRequestScope),
-                                                                      this);
+                                                                       this);
     // The list is a snapshot already, so it may be filtered and sorted in place
     final ICommonsList <IIndexerWorkItem> aAllItems = _getAllQueuedWorkItems ();
     final String [] aSearchTexts = aRequest.getSearchTexts ();

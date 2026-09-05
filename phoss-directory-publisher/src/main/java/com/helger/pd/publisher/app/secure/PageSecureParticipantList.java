@@ -59,7 +59,10 @@ public final class PageSecureParticipantList extends AbstractAppWebPage
   private static final String FIELD_PARTICIPANT_ID = "partid";
   private static final EContainedParticipantColumn [] COLUMNS = EContainedParticipantColumn.values ();
 
-  /** Provides the rows of a single page - see {@link #_getOnDemandData(DataTablesOnDemandRequest, IRequestWebScopeWithoutResponse)} */
+  /**
+   * Provides the rows of a single page - see
+   * {@link #_getOnDemandData(DataTablesOnDemandRequest, IRequestWebScopeWithoutResponse)}
+   */
   private final IAjaxFunctionDeclaration m_aAjaxOnDemand = PDDataTablesOnDemand.registerSecure (this::_getOnDemandData);
 
   public PageSecureParticipantList (@NonNull @Nonempty final String sID)
@@ -147,7 +150,7 @@ public final class PageSecureParticipantList extends AbstractAppWebPage
                                                      @NonNull final IRequestWebScopeWithoutResponse aRequestScope)
   {
     final WebPageExecutionContext aWPEC = new WebPageExecutionContext (LayoutExecutionContext.createForAjaxOrAction (aRequestScope),
-                                                                      this);
+                                                                       this);
     // The list is a copy already, so it may be filtered and sorted in place
     final ICommonsList <ContainedParticipant> aAllItems = _getAllContainedParticipants ();
     final String [] aSearchTexts = aRequest.getSearchTexts ();

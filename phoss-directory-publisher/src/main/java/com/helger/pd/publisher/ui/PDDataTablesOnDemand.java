@@ -52,7 +52,8 @@ import com.helger.photon.uictrls.datatables.column.DTCol;
  * @author Philip Helger
  * @since 0.17.3
  */
-// TODO replace with the ph-oton version com.helger.photon.uictrls.datatables.ajax.DataTablesOnDemandHelper (since ph-oton 10.6.0)
+// TODO replace with the ph-oton version
+// com.helger.photon.uictrls.datatables.ajax.DataTablesOnDemandHelper (since ph-oton 10.6.0)
 @Immutable
 public final class PDDataTablesOnDemand
 {

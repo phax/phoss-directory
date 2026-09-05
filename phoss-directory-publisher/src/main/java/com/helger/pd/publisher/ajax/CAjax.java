@@ -40,7 +40,7 @@ import com.helger.web.scope.IRequestWebScopeWithoutResponse;
 @Immutable
 public final class CAjax
 {
-  public static final Predicate <? super IRequestWebScopeWithoutResponse> FILTER_IS_USER_LOGGED_IN = x -> LoggedInUserManager.getInstance ()
+  public static final Predicate <? super IRequestWebScopeWithoutResponse> FILTER_IS_USER_LOGGED_IN = _ -> LoggedInUserManager.getInstance ()
                                                                                                                              .isUserLoggedInInCurrentSession ();
 
   public static final IAjaxFunctionDeclaration DATATABLES = AjaxFunctionDeclaration.builder ("dataTables")
