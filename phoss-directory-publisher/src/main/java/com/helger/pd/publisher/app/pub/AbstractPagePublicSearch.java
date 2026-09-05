@@ -48,11 +48,11 @@ import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
 import com.helger.pd.indexer.storage.PDStoredMLName;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
-import com.helger.pd.publisher.ui.PACountryCodeHelper;
 import com.helger.pd.publisher.ui.PDCommonUI;
 import com.helger.peppol.ui.nicename.NiceNameUI;
 import com.helger.peppolid.IDocumentTypeIdentifier;
 import com.helger.peppolid.IParticipantIdentifier;
+import com.helger.peppolid.checks.country.PeppolParticipantCountryHelper;
 import com.helger.peppolid.peppol.pidscheme.IPeppolParticipantIdentifierScheme;
 import com.helger.peppolid.peppol.pidscheme.PeppolParticipantIdentifierSchemeManager;
 import com.helger.photon.bootstrap5.card.BootstrapCard;
@@ -211,8 +211,8 @@ public abstract class AbstractPagePublicSearch extends AbstractAppWebPage
         if (aPIScheme != null)
         {
           final String sParticipantIDValue = aParticipantID.getValue ().toUpperCase (Locale.ROOT);
-          final String sCountryCode = PACountryCodeHelper.getCountryCode (sParticipantIDValue);
-          if (PACountryCodeHelper.BE.equals (sCountryCode))
+          final String sCountryCode = PeppolParticipantCountryHelper.getCountryCode (sParticipantIDValue);
+          if (PeppolParticipantCountryHelper.BE.equals (sCountryCode))
           {
             // Belgium specifics
             String sCBENumber = null;
