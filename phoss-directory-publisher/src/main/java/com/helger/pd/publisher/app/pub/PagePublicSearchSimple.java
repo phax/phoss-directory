@@ -44,6 +44,7 @@ import com.helger.html.hc.html.grouping.HCUL;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.searchindex.query.IPDIndexQuery;
+import com.helger.pd.indexer.searchindex.query.PDIndexQueryBool;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.pd.indexer.storage.PDQueryManager;
 import com.helger.pd.indexer.storage.PDStorageManager;
@@ -53,6 +54,7 @@ import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.app.PDSessionSingleton;
 import com.helger.pd.publisher.exportall.ExportAllManager;
 import com.helger.pd.publisher.search.EPDSearchField;
+import com.helger.pd.publisher.ui.HCPeppolCountrySelect;
 import com.helger.pd.publisher.ui.PDCommonUI;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.factory.IIdentifierFactory;
@@ -85,6 +87,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
 {
   public static final String FIELD_QUERY = "q";
   public static final String FIELD_PARTICIPANT_ID = EPDSearchField.PARTICIPANT_ID.getFieldName ();
+  public static final String FIELD_COUNTRY = EPDSearchField.COUNTRY.getFieldName ();
   public static final String PARAM_MAX = "max";
   public static final int DEFAULT_MAX = 50;
   public static final int MAX_MAX = 1000;
@@ -131,12 +134,27 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
   }
 
   @NonNull
+  private static HCPeppolCountrySelect _createCountrySelect (@NonNull final Locale aDisplayLocale)
+  {
+    final HCPeppolCountrySelect ret = new HCPeppolCountrySelect (new RequestField (FIELD_COUNTRY), aDisplayLocale);
+    ret.addClass (CBootstrapCSS.FORM_SELECT);
+    return ret;
+  }
+
+  @NonNull
   private BootstrapRow _createInitialSearchForm (@NonNull final WebPageExecutionContext aWPEC)
   {
     final HCForm aBigQueryBox = new HCForm ().setAction (aWPEC.getSelfHref ()).setMethod (EHCFormMethod.GET);
 
     final HCEdit aQueryEdit = _createQueryEdit ();
-    aBigQueryBox.addChild (div (aQueryEdit).addClass (CSS_CLASS_BIG_QUERY_BOX));
+    {
+      // The country filter only limits the results of the query - it is therefore placed next to it
+      final BootstrapRow aQueryRow = new BootstrapRow ().addClass (CBootstrapCSS.GY_2);
+      aQueryRow.createColumn (BootstrapGridSpec.builder ().xs (12).sm (8).build ()).addChild (aQueryEdit);
+      aQueryRow.createColumn (BootstrapGridSpec.builder ().xs (12).sm (4).build ())
+               .addChild (_createCountrySelect (aWPEC.getDisplayLocale ()));
+      aBigQueryBox.addChild (div (aQueryRow).addClass (CSS_CLASS_BIG_QUERY_BOX));
+    }
 
     {
       final String sHelpText = "Enter the name, address, ID or any other keyword of the entity you are looking for.";
@@ -165,6 +183,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
 
   private void _showResultList (@NonNull final WebPageExecutionContext aWPEC,
                                 @NonNull @Nonempty final String sQuery,
+                                @Nullable final String sFilterCountryCode,
                                 @Nonnegative final int nMaxResults)
   {
     final HCNodeList aNodeList = aWPEC.getNodeList ();
@@ -173,10 +192,26 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     final PDStorageManager aStorageMgr = PDMetaManager.getStorageMgr ();
 
     // Search all documents
-    LOGGER.info ("Searching generically for '" + sQuery + "'");
+    LOGGER.info ("Searching generically for '" +
+                 sQuery +
+                 "'" +
+                 (StringHelper.isNotEmpty (sFilterCountryCode) ? " in country '" + sFilterCountryCode + "'" : ""));
 
     // Build index query
-    final IPDIndexQuery aIndexQuery = PDQueryManager.getGenericQuery (PDMetaManager.getIndex (), sQuery);
+    final IPDIndexQuery aGenericQuery = PDQueryManager.getGenericQuery (PDMetaManager.getIndex (), sQuery);
+    // The country is an optional filter that only limits the result set - it must not influence the
+    // relevance ordering of the results
+    final IPDIndexQuery aCountryQuery = StringHelper.isEmpty (sFilterCountryCode) ? null
+                                                                                  : EPDSearchField.COUNTRY.getQuery (sFilterCountryCode);
+    final IPDIndexQuery aIndexQuery;
+    if (aCountryQuery == null)
+      aIndexQuery = aGenericQuery;
+    else
+      aIndexQuery = new PDIndexQueryBool.Builder ().add (aGenericQuery,
+                                                         EPDSearchField.GENERIC.getCombinationOccurrence ())
+                                                   .add (aCountryQuery,
+                                                         EPDSearchField.COUNTRY.getCombinationOccurrence ())
+                                                   .build ();
     if (LOGGER.isDebugEnabled ())
       LOGGER.debug ("Created query for '" + sQuery + "' is <" + aIndexQuery + ">");
 
@@ -248,10 +283,21 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
       }
     }
 
+    // The suffix of the result texts, describing the country filter
+    final String sCountrySuffix;
+    if (aCountryQuery == null)
+      sCountrySuffix = "";
+    else
+    {
+      final Locale aCountry = CountryCache.getInstance ().getCountry (sFilterCountryCode);
+      sCountrySuffix = " in " +
+                       (aCountry != null ? aCountry.getDisplayCountry (aDisplayLocale) : sFilterCountryCode);
+    }
+
     // Display results
     if (aGroupedBEs.isEmpty ())
     {
-      aNodeList.addChild (info ("No search results found for query '" + sQuery + "'"));
+      aNodeList.addChild (info ("No search results found for query '" + sQuery + "'" + sCountrySuffix));
     }
     else
     {
@@ -260,7 +306,8 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
                                                                        : aGroupedBEs.size () + " entities") +
                                              " matching '" +
                                              sQuery +
-                                             "'")));
+                                             "'" +
+                                             sCountrySuffix)));
       if (nTotalBEs > nMaxResults)
       {
         aNodeList.addChild (div (badgeWarn ("Found more entities than displayed (" +
@@ -364,17 +411,19 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
           bFirstEntity = false;
         }
 
+        // Keep the country filter, so that it is still selected when returning to the result list
+        final SimpleURL aDetailsURL = aWPEC.getSelfHref ()
+                                           .add (FIELD_QUERY, sQuery)
+                                           .add (CPageParam.PARAM_ACTION, CPageParam.ACTION_VIEW)
+                                           .add (FIELD_PARTICIPANT_ID, aDocParticipantID.getURIEncoded ());
+        if (aCountryQuery != null)
+          aDetailsURL.add (FIELD_COUNTRY, sFilterCountryCode);
+
         final BootstrapButton aShowDetailsBtn = new BootstrapButton (EBootstrapButtonType.SUCCESS).addChild ("Show details")
                                                                                                   .setIcon (EDefaultIcon.MAGNIFIER)
                                                                                                   .addClasses (CBootstrapCSS.MT_1,
                                                                                                                CBootstrapCSS.MS_1)
-                                                                                                  .setOnClick (aWPEC.getSelfHref ()
-                                                                                                                    .add (FIELD_QUERY,
-                                                                                                                          sQuery)
-                                                                                                                    .add (CPageParam.PARAM_ACTION,
-                                                                                                                          CPageParam.ACTION_VIEW)
-                                                                                                                    .add (FIELD_PARTICIPANT_ID,
-                                                                                                                          aDocParticipantID.getURIEncoded ()));
+                                                                                                  .setOnClick (aDetailsURL);
         aResultItem.addChild (div (aShowDetailsBtn));
         aOL.addItem (aResultItem);
 
@@ -399,6 +448,8 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
 
     final String sQuery = aWPEC.params ().getAsStringTrimmed (FIELD_QUERY);
     final String sParticipantID = aWPEC.params ().getAsStringTrimmed (FIELD_PARTICIPANT_ID);
+    // An empty country code means "all countries"
+    final String sCountryCode = aWPEC.params ().getAsStringTrimmed (FIELD_COUNTRY);
     int nMaxResults = aWPEC.params ().getAsInt (PARAM_MAX, DEFAULT_MAX);
     if (nMaxResults < 1)
     {
@@ -482,7 +533,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
         aLogo.addChild (_createInitialSearchForm (aWPEC));
 
         // After Logo
-        _showResultList (aWPEC, sQuery, nMaxResults);
+        _showResultList (aWPEC, sQuery, sCountryCode, nMaxResults);
       }
       else
       {

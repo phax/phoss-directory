@@ -186,6 +186,16 @@ v0.17.3 - work in progress
     * Previously every one of these tables was rendered as a whole and the result was kept in the session, which means the memory consumption was proportional to the number of entries times the number of logged in users
     * Paging, sorting and searching are performed on the work items themselves. The new enums `EIndexerWorkItemColumn` and `EReIndexWorkItemColumn` tie each shown column to the respective comparator and to the value the global search is performed on
     * The date and the number columns are sortable but no longer searchable, because the global search would have to match the localized text shown in the respective cell
+* The search page offers a country selector next to the query field, that limits the results to a single country. The default selection is "All countries", meaning that no country filter is applied at all
+    * The selectable countries are the countries of all the country specific Peppol participant identifier schemes - see the new class `HCPeppolCountrySelect` that is based on `PeppolParticipantCountryHelper.getAllSchemeCountryCodes ()`
+    * The selected country is passed in the request parameter `country` - the same name the REST API search uses - and is applied on the country code of the business entity. Being an exact match, it is combined as a filter and therefore does not influence the relevance ordering of the results
+* The job that exports all data creates audit items for its start, for both of its intermediate steps and for its end - the audit actions are `export-all-start`, `export-all-participant-ids`, `export-all-formats` and `export-all-end` (see the constants in `ExportAllDataJob`)
+    * Every one of these audit items carries the overall duration of the job up to that point, so that the audit trail alone shows how long the export took. The two intermediate items carry the duration of their respective step as well
+    * A step that failed is audited as a failure, including the names of the export formats that could not be created or uploaded
+* The bulk import and the bulk delete of participants create an audit item when they start and when they end - `index-import-start`/`index-import-end` and `index-delete-start`/`index-delete-end`, built from the job type via the new method `AbstractPDParticipantFileJob.getAuditAction (...)`
+    * Both items carry the ID of the user that triggered the job - the job runs in a worker thread, so the audit item itself is not bound to that user - plus the name of the uploaded file and the overall duration
+    * The "end" item is audited as a failure if the job failed. If the job could not even be started, the "start" item is audited as a failure by the upload page
+    * `AbstractPDParticipantFileJob.createLongRunningJobResult ()` is final now and merely wraps the new abstract method `createParticipantJobResult ()`, so that the outcome of the job is known when the "end" audit item is created
 
 v0.17.2 - 2026-09-04
 * Added the page "Bulk delete participants" to delete participants from the search index from an uploaded file
