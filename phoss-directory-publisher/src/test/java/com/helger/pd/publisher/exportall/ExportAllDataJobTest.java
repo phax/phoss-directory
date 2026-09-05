@@ -16,18 +16,27 @@
  */
 package com.helger.pd.publisher.exportall;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import javax.xml.validation.Validator;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 
+import com.helger.collection.commons.CommonsArrayList;
+import com.helger.collection.commons.ICommonsList;
 import com.helger.io.resource.FileSystemResource;
 import com.helger.io.resource.IReadableResource;
 import com.helger.pd.publisher.PDPublisherTestRule;
+import com.helger.photon.audit.AbstractAuditor;
+import com.helger.photon.audit.AuditHelper;
+import com.helger.photon.audit.IAuditItem;
+import com.helger.photon.audit.IAuditor;
+import com.helger.photon.audit.mock.MockCurrentUserIDProvider;
 import com.helger.xml.sax.CollectingSAXErrorHandler;
 import com.helger.xml.schema.XMLSchemaCache;
 import com.helger.xml.transform.TransformSourceFactory;
@@ -39,8 +48,64 @@ import com.helger.xml.transform.TransformSourceFactory;
  */
 public final class ExportAllDataJobTest
 {
+  /**
+   * An auditor that simply remembers all created audit items.
+   *
+   * @author Philip Helger
+   */
+  private static final class CollectingAuditor extends AbstractAuditor
+  {
+    private final ICommonsList <IAuditItem> m_aItems = new CommonsArrayList <> ();
+
+    public CollectingAuditor ()
+    {
+      super (MockCurrentUserIDProvider.getInstance ());
+    }
+
+    @Override
+    protected void handleAuditItem (@NonNull final IAuditItem aAuditItem)
+    {
+      m_aItems.add (aAuditItem);
+    }
+
+    @NonNull
+    public ICommonsList <IAuditItem> getAllItems ()
+    {
+      return m_aItems.getClone ();
+    }
+  }
+
   @Rule
   public final TestRule m_aRule = new PDPublisherTestRule ();
+
+  @Test
+  public void testAuditItems ()
+  {
+    final CollectingAuditor aAuditor = new CollectingAuditor ();
+    final IAuditor aOldAuditor = AuditHelper.getAuditor ();
+    AuditHelper.setAuditor (aAuditor);
+    try
+    {
+      // Synchronously export
+      ExportAllDataJob.exportAllBusinessCards ();
+    }
+    finally
+    {
+      AuditHelper.setAuditor (aOldAuditor);
+    }
+
+    // Start, both intermediate steps and end - in that order
+    final ICommonsList <String> aActions = aAuditor.getAllItems ().getAllMapped (IAuditItem::getAction);
+    assertEquals (4, aActions.size ());
+    assertTrue (aActions.toString (), aActions.get (0).contains (ExportAllDataJob.AUDIT_ACTION_START));
+    assertTrue (aActions.toString (), aActions.get (1).contains (ExportAllDataJob.AUDIT_ACTION_PARTICIPANT_IDS));
+    assertTrue (aActions.toString (), aActions.get (2).contains (ExportAllDataJob.AUDIT_ACTION_FORMATS));
+    assertTrue (aActions.toString (), aActions.get (3).contains (ExportAllDataJob.AUDIT_ACTION_END));
+
+    // Every audit item contains the overall duration
+    for (final String sAction : aActions)
+      assertTrue (sAction, sAction.contains ("PT"));
+  }
 
   @Test
   public void testExportAndRead () throws Exception

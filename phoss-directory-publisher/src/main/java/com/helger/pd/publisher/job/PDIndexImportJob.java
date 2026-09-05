@@ -77,8 +77,9 @@ public class PDIndexImportJob extends AbstractPDParticipantFileJob
     return createUploadFile (UPLOAD_FILENAME_PREFIX);
   }
 
+  @Override
   @NonNull
-  public LongRunningJobResult createLongRunningJobResult ()
+  protected LongRunningJobResult createParticipantJobResult ()
   {
     final ReadResult aReadResult = PDParticipantListReader.readParticipantList (getUploadedFile (),
                                                                                PDMetaManager.getIdentifierFactory ());

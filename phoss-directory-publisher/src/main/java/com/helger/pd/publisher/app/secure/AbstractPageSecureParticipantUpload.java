@@ -30,6 +30,7 @@ import com.helger.html.hc.impl.HCNodeList;
 import com.helger.io.file.FileOperationManager;
 import com.helger.pd.publisher.job.AbstractPDParticipantFileJob;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
+import com.helger.photon.audit.AuditHelper;
 import com.helger.photon.bootstrap5.buttongroup.BootstrapButtonToolbar;
 import com.helger.photon.bootstrap5.form.BootstrapForm;
 import com.helger.photon.bootstrap5.form.BootstrapFormGroup;
@@ -193,6 +194,13 @@ public abstract class AbstractPageSecureParticipantUpload extends AbstractAppWeb
       if (aUploadedFile != null)
         FileOperationManager.INSTANCE.deleteFileIfExisting (aUploadedFile);
       getLock ().release ();
+
+      // The job never runs, so it cannot audit its own start
+      AuditHelper.onAuditExecuteFailure (AbstractPDParticipantFileJob.getAuditAction (getJobType (),
+                                                                                      AbstractPDParticipantFileJob.AUDIT_PHASE_START),
+                                         aWPEC.getLoggedInUserID (),
+                                         aFile.getNameSecure (),
+                                         ex.getMessage ());
 
       LOGGER.error ("Failed to start the participant " + getActivityName (), ex);
       aWPEC.postRedirectGetInternal (error ("Failed to start the participant " +

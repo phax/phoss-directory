@@ -18,6 +18,7 @@ package com.helger.pd.publisher.exportall;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -25,12 +26,14 @@ import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.helger.base.string.StringImplode;
 import com.helger.base.timing.StopWatch;
 import com.helger.collection.commons.CommonsArrayList;
 import com.helger.collection.commons.CommonsTreeSet;
 import com.helger.collection.commons.ICommonsList;
 import com.helger.collection.commons.ICommonsSortedSet;
 import com.helger.datetime.helper.PDTFactory;
+import com.helger.photon.audit.AuditHelper;
 import com.helger.photon.io.PhotonWorkerPool;
 import com.helger.quartz.DisallowConcurrentExecution;
 import com.helger.quartz.IJobExecutionContext;
@@ -48,6 +51,15 @@ import jakarta.annotation.Nullable;
 @DisallowConcurrentExecution
 public final class ExportAllDataJob extends AbstractScopeAwareJob
 {
+  /** The audit action logged when the export of all data starts */
+  public static final String AUDIT_ACTION_START = "export-all-start";
+  /** The audit action logged when all participant IDs were gathered from the search index */
+  public static final String AUDIT_ACTION_PARTICIPANT_IDS = "export-all-participant-ids";
+  /** The audit action logged when all export formats were created and uploaded */
+  public static final String AUDIT_ACTION_FORMATS = "export-all-formats";
+  /** The audit action logged when the export of all data is finished */
+  public static final String AUDIT_ACTION_END = "export-all-end";
+
   private static final Logger LOGGER = LoggerFactory.getLogger (ExportAllDataJob.class);
 
   public static final class ExportAllStatus
@@ -136,8 +148,14 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
     if (EXPORT_STATUS.start ())
     {
       final StopWatch aSW = StopWatch.createdStarted ();
+      // The overall duration is part of every audit item, so that the audit trail alone shows how
+      // long the export took up to that point
+      final StopWatch aSWTotal = StopWatch.createdStarted ();
 
-      final String sLogPrefix = "[EXPORT-ALL-JOB | " + EXPORT_STATUS.getExportAllBusinessCardsStartDT () + "] ";
+      final LocalDateTime aStartDT = EXPORT_STATUS.getExportAllBusinessCardsStartDT ();
+      final String sLogPrefix = "[EXPORT-ALL-JOB | " + aStartDT + "] ";
+
+      AuditHelper.onAuditExecuteSuccess (AUDIT_ACTION_START, aStartDT, aSWTotal.getDuration ());
 
       try
       {
@@ -154,6 +172,10 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
         {
           LOGGER.error (sLogPrefix + "Error gathering all participant IDs from the index", ex);
           EXPORT_STATUS.rememberFailedStatus ("getAllStoredParticipantIDs");
+          AuditHelper.onAuditExecuteFailure (AUDIT_ACTION_PARTICIPANT_IDS,
+                                             aSW.getDuration (),
+                                             aSWTotal.getDuration (),
+                                             ex.getMessage ());
 
           // We can't continue
           throw new UncheckedIOException (ex);
@@ -168,6 +190,10 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
                        aSW.getDuration () +
                        " milliseconds");
         }
+        AuditHelper.onAuditExecuteSuccess (AUDIT_ACTION_PARTICIPANT_IDS,
+                                           Integer.valueOf (aAllParticipantIDs.size ()),
+                                           aSW.getDuration (),
+                                           aSWTotal.getDuration ());
 
         // Step 2: create all export formats in a single pass, so that the index needs to be
         // queried only once per participant
@@ -198,9 +224,34 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
                        aSW.getDuration () +
                        " milliseconds");
         }
+
+        // Only step 2 can fail without throwing, so the remembered status is exactly what failed
+        // in this step
+        final ICommonsList <String> aFailed = EXPORT_STATUS.getAllFailedStatus ();
+        if (aFailed.isEmpty ())
+          AuditHelper.onAuditExecuteSuccess (AUDIT_ACTION_FORMATS,
+                                             Integer.valueOf (aHandlers.size ()),
+                                             aSW.getDuration (),
+                                             aSWTotal.getDuration ());
+        else
+          AuditHelper.onAuditExecuteFailure (AUDIT_ACTION_FORMATS,
+                                             Integer.valueOf (aHandlers.size ()),
+                                             aSW.getDuration (),
+                                             aSWTotal.getDuration (),
+                                             StringImplode.getImploded (", ", aFailed));
       }
       finally
       {
+        // The status is cleared by "end", so it must be evaluated before
+        final ICommonsList <String> aFailed = EXPORT_STATUS.getAllFailedStatus ();
+        final Duration aTotalDuration = aSWTotal.stopAndGetDuration ();
+        if (aFailed.isEmpty ())
+          AuditHelper.onAuditExecuteSuccess (AUDIT_ACTION_END, aTotalDuration);
+        else
+          AuditHelper.onAuditExecuteFailure (AUDIT_ACTION_END,
+                                             aTotalDuration,
+                                             StringImplode.getImploded (", ", aFailed));
+
         EXPORT_STATUS.end ();
       }
     }

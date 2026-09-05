@@ -17,6 +17,7 @@
 package com.helger.pd.publisher.job;
 
 import java.io.File;
+import java.time.Duration;
 import java.util.UUID;
 
 import org.jspecify.annotations.NonNull;
@@ -26,13 +27,17 @@ import org.slf4j.LoggerFactory;
 import com.helger.annotation.Nonempty;
 import com.helger.annotation.Nonnegative;
 import com.helger.base.enforce.ValueEnforcer;
+import com.helger.base.state.ESuccess;
+import com.helger.base.timing.StopWatch;
 import com.helger.collection.commons.ICommonsList;
 import com.helger.datetime.util.PDTIOHelper;
 import com.helger.io.file.FileIOError;
 import com.helger.io.file.FileOperationManager;
 import com.helger.io.file.FilenameHelper;
+import com.helger.photon.audit.AuditHelper;
 import com.helger.photon.io.WebFileIO;
 import com.helger.photon.mgrs.longrun.AbstractLongRunningJobRunnable;
+import com.helger.photon.mgrs.longrun.LongRunningJobResult;
 import com.helger.photon.security.lock.SingleRunLock;
 import com.helger.text.IMultilingualText;
 import com.helger.web.scope.mgr.WebScoped;
@@ -55,10 +60,17 @@ public abstract class AbstractPDParticipantFileJob extends AbstractLongRunningJo
   /** The maximum number of entries that are listed in a job result */
   public static final int MAX_RESULT_DETAILS = 100;
 
+  /** The phase that is appended to the job type to form the audit action of the job start */
+  public static final String AUDIT_PHASE_START = "start";
+  /** The phase that is appended to the job type to form the audit action of the job end */
+  public static final String AUDIT_PHASE_END = "end";
+
   private static final Logger LOGGER = LoggerFactory.getLogger (AbstractPDParticipantFileJob.class);
 
+  private final String m_sUserID;
   private final File m_aUploadedFile;
   private final SingleRunLock m_aLock;
+  private ESuccess m_eSuccess = ESuccess.FAILURE;
 
   protected AbstractPDParticipantFileJob (@NonNull @Nonempty final String sJobType,
                                           @NonNull final IMultilingualText aJobDesc,
@@ -70,8 +82,28 @@ public abstract class AbstractPDParticipantFileJob extends AbstractLongRunningJo
     ValueEnforcer.notEmpty (sUserID, "UserID");
     ValueEnforcer.notNull (aUploadedFile, "UploadedFile");
     ValueEnforcer.notNull (aLock, "Lock");
+    m_sUserID = sUserID;
     m_aUploadedFile = aUploadedFile;
     m_aLock = aLock;
+  }
+
+  /**
+   * Get the audit action of a participant file job.
+   *
+   * @param sJobType
+   *        The type of the job. Neither <code>null</code> nor empty.
+   * @param sPhase
+   *        The phase - either {@link #AUDIT_PHASE_START} or {@link #AUDIT_PHASE_END}. Neither
+   *        <code>null</code> nor empty.
+   * @return The audit action - e.g. <code>index-delete-start</code>. Neither <code>null</code> nor
+   *         empty.
+   */
+  @NonNull
+  @Nonempty
+  public static String getAuditAction (@NonNull @Nonempty final String sJobType,
+                                       @NonNull @Nonempty final String sPhase)
+  {
+    return sJobType + "-" + sPhase;
   }
 
   /**
@@ -155,9 +187,40 @@ public abstract class AbstractPDParticipantFileJob extends AbstractLongRunningJo
     return m_aUploadedFile;
   }
 
+  /**
+   * Create the result of this job. This is the method the derived classes have to implement -
+   * {@link #createLongRunningJobResult ()} only wraps it, so that the outcome becomes part of the
+   * audit trail.
+   *
+   * @return The results of this job for asynchronous retrieval by the user. Never
+   *         <code>null</code>.
+   */
+  @NonNull
+  protected abstract LongRunningJobResult createParticipantJobResult ();
+
+  @NonNull
+  public final LongRunningJobResult createLongRunningJobResult ()
+  {
+    // The base class swallows the exception, so the outcome must be remembered here
+    final LongRunningJobResult ret = createParticipantJobResult ();
+    m_eSuccess = ESuccess.SUCCESS;
+    return ret;
+  }
+
   @Override
   public void run ()
   {
+    // The overall duration is part of every audit item, so that the audit trail alone shows how
+    // long the job took
+    final StopWatch aSWTotal = StopWatch.createdStarted ();
+
+    // The job runs in a worker thread, so the user that triggered it is passed explicitly
+    AuditHelper.onAuditExecuteSuccess (getAuditAction (getJobType (), AUDIT_PHASE_START),
+                                       m_sUserID,
+                                       m_aUploadedFile.getName (),
+                                       Long.valueOf (m_aUploadedFile.length ()),
+                                       aSWTotal.getDuration ());
+
     // A Web Scope is needed for storing the job result
     try (final WebScoped w = new WebScoped ())
     {
@@ -165,6 +228,18 @@ public abstract class AbstractPDParticipantFileJob extends AbstractLongRunningJo
     }
     finally
     {
+      final Duration aTotalDuration = aSWTotal.stopAndGetDuration ();
+      if (m_eSuccess.isSuccess ())
+        AuditHelper.onAuditExecuteSuccess (getAuditAction (getJobType (), AUDIT_PHASE_END),
+                                           m_sUserID,
+                                           m_aUploadedFile.getName (),
+                                           aTotalDuration);
+      else
+        AuditHelper.onAuditExecuteFailure (getAuditAction (getJobType (), AUDIT_PHASE_END),
+                                           m_sUserID,
+                                           m_aUploadedFile.getName (),
+                                           aTotalDuration);
+
       // The uploaded file is of no use anymore
       if (FileOperationManager.INSTANCE.deleteFileIfExisting (m_aUploadedFile).isFailure ())
         LOGGER.warn ("Failed to delete the uploaded file '" + m_aUploadedFile.getAbsolutePath () + "'");
