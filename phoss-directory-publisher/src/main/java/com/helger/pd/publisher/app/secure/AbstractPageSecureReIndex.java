@@ -354,9 +354,9 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
                         new DTCol ("Action").setName (EReIndexWorkItemColumn.ACTION.getID ()),
                         new DTCol ("Retries").setDisplayType (EDTColType.INT, aDisplayLocale)
                                              .setName (EReIndexWorkItemColumn.RETRIES.getID ()),
-                        m_bDeadIndex ? null : new DTCol ("Next retry").setDisplayType (EDTColType.DATETIME,
-                                                                                       aDisplayLocale)
-                                                                      .setName (EReIndexWorkItemColumn.NEXT_RETRY.getID ()),
+                        m_bDeadIndex ? null
+                                     : new DTCol ("Next retry").setDisplayType (EDTColType.DATETIME, aDisplayLocale)
+                                                               .setName (EReIndexWorkItemColumn.NEXT_RETRY.getID ()),
                         new DTCol ("Last retry").setDisplayType (EDTColType.DATETIME, aDisplayLocale)
                                                 .setName (EReIndexWorkItemColumn.LAST_RETRY.getID ()),
                         new BootstrapDTColAction (aDisplayLocale).setOrderable (false)).setID (getID ());

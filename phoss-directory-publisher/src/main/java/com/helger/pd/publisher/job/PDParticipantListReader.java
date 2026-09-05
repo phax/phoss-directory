@@ -355,8 +355,8 @@ public final class PDParticipantListReader
     final EFormat eFormat = detectFormat (aFile);
     LOGGER.info ("Reading participant IDs from '" + aFile.getAbsolutePath () + "' as " + eFormat + " content");
 
-    final ReadResult ret = eFormat == EFormat.XML ? _readXML (aFile, aIdentifierFactory) : _readText (aFile,
-                                                                                                      aIdentifierFactory);
+    final ReadResult ret = eFormat == EFormat.XML ? _readXML (aFile, aIdentifierFactory)
+                                                  : _readText (aFile, aIdentifierFactory);
 
     LOGGER.info ("Finished reading the file. Found " +
                  ret.participantIDs ().size () +

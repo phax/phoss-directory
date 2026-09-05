@@ -201,8 +201,8 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     final IPDIndexQuery aGenericQuery = PDQueryManager.getGenericQuery (PDMetaManager.getIndex (), sQuery);
     // The country is an optional filter that only limits the result set - it must not influence the
     // relevance ordering of the results
-    final IPDIndexQuery aCountryQuery = StringHelper.isEmpty (sFilterCountryCode) ? null : EPDSearchField.COUNTRY
-                                                                                                                 .getQuery (sFilterCountryCode);
+    final IPDIndexQuery aCountryQuery = StringHelper.isEmpty (sFilterCountryCode) ? null
+                                                                                  : EPDSearchField.COUNTRY.getQuery (sFilterCountryCode);
     final IPDIndexQuery aIndexQuery;
     if (aCountryQuery == null)
       aIndexQuery = aGenericQuery;
@@ -301,8 +301,8 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     else
     {
       aNodeList.addChild (div (badgeSuccess ("Found " +
-                                             (aGroupedBEs.size () == 1 ? "1 entity" : aGroupedBEs.size () +
-                                                                                      " entities") +
+                                             (aGroupedBEs.size () == 1 ? "1 entity"
+                                                                       : aGroupedBEs.size () + " entities") +
                                              " matching '" +
                                              sQuery +
                                              "'" +
