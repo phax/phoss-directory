@@ -169,6 +169,13 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 # News and noteworthy
 
 v0.17.3 - work in progress
+* The search results of the name search and of the generic search are now ordered by relevance (see [issue #49](https://github.com/phax/phoss-directory/issues/49))
+    * An entry in which a word is exactly the search term is ranked highest, followed by the entries in which a word starts with the search term, followed by the entries that merely contain the search term inside a word
+    * `PDQueryManager.getNameQuery (...)` therefore uses the previous "contains" query as a mandatory clause that does not contribute to the score, and adds a term query and a prefix query per search term as optional clauses that only influence the ordering
+    * The new method `PDQueryManager.getGenericQuery (...)` does the same for the generic search field `q`. Additionally a match in the name of a business entity is ranked higher than a match in any other field
+    * The search fields that perform an exact match (participant ID, country, identifier scheme, identifier value, registration date and document type ID) are combined as filters, so that they only limit the result set but no longer influence the ordering. See the new method `EPDSearchField.getCombinationOccurrence ()`. If a query consists of such search fields only, all clauses are combined as before, so that the ordering of these queries is unchanged
+    * The set of matching entries is not affected by any of these changes - a mandatory clause selects the same documents no matter if it contributes to the score, and the added optional clauses can never add or remove a match. Both properties are asserted by the conformance test suite
+    * `IPDIndex.searchAll (...)` must now return the documents ordered by descending relevance, if a positive maximum result count is provided. Both the Apache Lucene and the AWS OpenSearch implementation already did that
 * The DataTables of the pages "Index Queue", "Re-Index List" and "Dead Index List" use server side pagination, so that only the rows of the currently displayed page are rendered
     * Previously every one of these tables was rendered as a whole and the result was kept in the session, which means the memory consumption was proportional to the number of entries times the number of logged in users
     * Paging, sorting and searching are performed on the work items themselves. The new enums `EIndexerWorkItemColumn` and `EReIndexWorkItemColumn` tie each shown column to the respective comparator and to the value the global search is performed on

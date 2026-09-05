@@ -45,7 +45,6 @@ import com.helger.html.hc.impl.HCNodeList;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.searchindex.query.IPDIndexQuery;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
-import com.helger.pd.indexer.storage.CPDStorage;
 import com.helger.pd.indexer.storage.PDQueryManager;
 import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
@@ -177,9 +176,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     LOGGER.info ("Searching generically for '" + sQuery + "'");
 
     // Build index query
-    final IPDIndexQuery aIndexQuery = PDQueryManager.convertQueryStringToQuery (PDMetaManager.getIndex (),
-                                                                                CPDStorage.FIELD_ALL_FIELDS,
-                                                                                sQuery);
+    final IPDIndexQuery aIndexQuery = PDQueryManager.getGenericQuery (PDMetaManager.getIndex (), sQuery);
     if (LOGGER.isDebugEnabled ())
       LOGGER.debug ("Created query for '" + sQuery + "' is <" + aIndexQuery + ">");
 

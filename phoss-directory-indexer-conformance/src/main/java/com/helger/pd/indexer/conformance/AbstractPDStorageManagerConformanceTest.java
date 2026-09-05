@@ -30,12 +30,16 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.helger.annotation.Nonempty;
 import com.helger.base.io.stream.StreamHelper;
 import com.helger.base.state.ESuccess;
 import com.helger.collection.commons.ICommonsList;
 import com.helger.datetime.helper.PDTFactory;
+import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.searchindex.IPDIndex;
+import com.helger.pd.indexer.searchindex.query.IPDIndexQuery;
 import com.helger.pd.indexer.searchindex.query.PDIndexQueryMatchAll;
+import com.helger.pd.indexer.storage.PDQueryManager;
 import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
 import com.helger.pd.indexer.storage.PDStoredMetaData;
@@ -54,6 +58,7 @@ import jakarta.annotation.Nullable;
  */
 public abstract class AbstractPDStorageManagerConformanceTest
 {
+  private IPDIndex m_aIndex;
   private PDStorageManager m_aStorageMgr;
   private IParticipantIdentifier m_aParticipantID;
 
@@ -82,12 +87,12 @@ public abstract class AbstractPDStorageManagerConformanceTest
     m_aParticipantID = PDConformanceTestData.createParticipantID ();
     assertNotNull (m_aParticipantID);
 
-    final IPDIndex aIndex = createIndex ();
-    assertNotNull (aIndex);
+    m_aIndex = createIndex ();
+    assertNotNull (m_aIndex);
 
     // Every test starts with an empty index
-    aIndex.deleteDocuments (PDIndexQueryMatchAll.INSTANCE);
-    m_aStorageMgr = new PDStorageManager (aIndex);
+    m_aIndex.deleteDocuments (PDIndexQueryMatchAll.INSTANCE);
+    m_aStorageMgr = new PDStorageManager (m_aIndex);
     assertEquals (0, m_aStorageMgr.getContainedParticipantCount ());
   }
 
@@ -96,6 +101,7 @@ public abstract class AbstractPDStorageManagerConformanceTest
   {
     StreamHelper.close (m_aStorageMgr);
     m_aStorageMgr = null;
+    m_aIndex = null;
   }
 
   @Nullable
@@ -249,5 +255,68 @@ public abstract class AbstractPDStorageManagerConformanceTest
     // One participant with two business entities
     assertEquals (1, m_aStorageMgr.getAllContainedParticipantIDs ().size ());
     assertEquals (2, m_aStorageMgr.getAllContainedParticipantIDs ().get (m_aParticipantID).intValue ());
+  }
+
+  private void _createEntryWithName (@NonNull @Nonempty final String sParticipantIDValue,
+                                     @NonNull @Nonempty final String sName,
+                                     @Nullable final String sAdditionalInfo) throws IOException
+  {
+    final IParticipantIdentifier aPI = PDMetaManager.getIdentifierFactory ()
+                                                    .createParticipantIdentifier ("iso6523-actorid-upis",
+                                                                                  sParticipantIDValue);
+    assertNotNull (aPI);
+    assertEquals (ESuccess.SUCCESS,
+                  m_aStorageMgr.createOrUpdateEntry (aPI,
+                                                     PDConformanceTestData.createBusinessCardWithName (aPI,
+                                                                                                       sName,
+                                                                                                       sAdditionalInfo),
+                                                     PDConformanceTestData.createMockMetaData ()));
+  }
+
+  @Test
+  public void testNameQueryRelevanceOrdering () throws IOException
+  {
+    // All three names contain "ica" - deliberately created in the least relevant order
+    _createEntryWithName ("9915:namecontains", "Medical Publications", null);
+    _createEntryWithName ("9915:nameprefix", "Icabanken AB", null);
+    _createEntryWithName ("9915:nameexact", "ICA AB", null);
+
+    final IPDIndexQuery aQuery = PDQueryManager.getNameQuery (m_aIndex, "ica");
+    assertNotNull (aQuery);
+    assertEquals (3, m_aStorageMgr.getCount (aQuery));
+
+    // A positive maximum result count is required to get the results ordered by relevance
+    final ICommonsList <PDStoredBusinessEntity> aDocs = m_aStorageMgr.getAllDocuments (aQuery, 10);
+    assertEquals (3, aDocs.size ());
+
+    // A word of the name is exactly the search term
+    assertEquals ("ICA AB", aDocs.get (0).names ().get (0).getName ());
+    // A word of the name starts with the search term
+    assertEquals ("Icabanken AB", aDocs.get (1).names ().get (0).getName ());
+    // The name only contains the search term inside a word
+    assertEquals ("Medical Publications", aDocs.get (2).names ().get (0).getName ());
+  }
+
+  @Test
+  public void testGenericQueryRelevanceOrdering () throws IOException
+  {
+    // All three entities contain "ica" - deliberately created in the least relevant order
+    _createEntryWithName ("9915:genericcontains", "Medical Publications", null);
+    _createEntryWithName ("9915:genericother", "Sample Company AB", "Contact ica for details");
+    _createEntryWithName ("9915:genericname", "ICA AB", null);
+
+    final IPDIndexQuery aQuery = PDQueryManager.getGenericQuery (m_aIndex, "ica");
+    assertEquals (3, m_aStorageMgr.getCount (aQuery));
+
+    // A positive maximum result count is required to get the results ordered by relevance
+    final ICommonsList <PDStoredBusinessEntity> aDocs = m_aStorageMgr.getAllDocuments (aQuery, 10);
+    assertEquals (3, aDocs.size ());
+
+    // A word of the name is exactly the search term
+    assertEquals ("ICA AB", aDocs.get (0).names ().get (0).getName ());
+    // A word of another field is exactly the search term
+    assertEquals ("Sample Company AB", aDocs.get (1).names ().get (0).getName ());
+    // The entity only contains the search term inside a word
+    assertEquals ("Medical Publications", aDocs.get (2).names ().get (0).getName ());
   }
 }

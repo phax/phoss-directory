@@ -295,7 +295,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
       if (LOGGER.isDebugEnabled ())
         LOGGER.debug ("Using the following query terms: " + aQueryValues);
 
-      final ICommonsList <IPDIndexQuery> aQueries = new CommonsArrayList <> ();
+      final ICommonsList <PDIndexQueryBool.Clause> aQueries = new CommonsArrayList <> ();
       for (final Map.Entry <EPDSearchField, ICommonsList <String>> aEntry : aQueryValues.entrySet ())
       {
         final EPDSearchField eField = aEntry.getKey ();
@@ -303,7 +303,7 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
         {
           final IPDIndexQuery aQuery = eField.getQuery (sQuery);
           if (aQuery != null)
-            aQueries.add (aQuery);
+            aQueries.add (new PDIndexQueryBool.Clause (aQuery, eField.getCombinationOccurrence ()));
           else
           {
             LOGGER.error ("Failed to create query '" + sQuery + "' of field " + eField + " - ignoring term!");
@@ -322,14 +322,21 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
       final IPDIndexQuery aIndexQuery;
       if (aQueries.size () == 1)
       {
-        aIndexQuery = aQueries.getFirstOrNull ();
+        aIndexQuery = aQueries.getFirstOrNull ().getQuery ();
       }
       else
       {
+        /*
+         * If not a single search field contributes to the score, all clauses are combined as
+         * mandatory ones, so that the result ordering of such queries is exactly the one of the
+         * previous releases
+         */
+        final boolean bNoRelevance = aQueries.containsNone (x -> x.getOccur () == EPDIndexQueryOccur.MUST);
+
         // Connect all with "AND"
         final PDIndexQueryBool.Builder aBuilder = new PDIndexQueryBool.Builder ();
-        for (final IPDIndexQuery aQuery : aQueries)
-          aBuilder.add (aQuery, EPDIndexQueryOccur.MUST);
+        for (final PDIndexQueryBool.Clause aClause : aQueries)
+          aBuilder.add (aClause.getQuery (), bNoRelevance ? EPDIndexQueryOccur.MUST : aClause.getOccur ());
         aIndexQuery = aBuilder.build ();
       }
       // How many results to deliver at most

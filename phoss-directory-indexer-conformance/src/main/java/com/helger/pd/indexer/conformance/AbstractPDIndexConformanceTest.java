@@ -50,8 +50,8 @@ import com.helger.peppolid.IParticipantIdentifier;
  * this class, implement {@link #createIndex()} and add the {@link org.junit.Rule} that the
  * implementation needs.<br>
  * Only behaviour that all implementations must agree on is asserted here. Especially the order in
- * which {@link IPDIndex#searchAll(IPDIndexQuery, int, java.util.function.Consumer)} returns the
- * matching documents is <b>not</b> part of the contract.
+ * which {@link IPDIndex#searchAll(IPDIndexQuery, int, java.util.function.Consumer)} returns
+ * documents of the same relevance is <b>not</b> part of the contract.
  *
  * @author Philip Helger
  * @since 0.16.0
@@ -338,6 +338,45 @@ public abstract class AbstractPDIndexConformanceTest
                   m_aIndex.getCount (new PDIndexQueryBool.Builder ().add (PDField.COUNTRY_CODE.getExactMatchQuery ("AT"),
                                                                           EPDIndexQueryOccur.FILTER)
                                                                     .add (aNested, EPDIndexQueryOccur.FILTER)
+                                                                    .build ()));
+  }
+
+  @Test
+  public void testBoolQueryOccurrencesSelectTheSameDocuments () throws IOException
+  {
+    addMockDocuments ();
+
+    final IPDIndexQuery aCountry = PDField.COUNTRY_CODE.getExactMatchQuery ("AT");
+    final IPDIndexQuery aLanguage = PDField.ML_LANGUAGE.getExactMatchQuery ("de");
+    final IPDIndexQuery aNoMatch = PDField.ML_LANGUAGE.getExactMatchQuery ("xyz");
+
+    // A mandatory clause selects the same documents, no matter if it contributes to the score
+    assertEquals (2,
+                  m_aIndex.getCount (new PDIndexQueryBool.Builder ().add (aCountry, EPDIndexQueryOccur.MUST).build ()));
+    assertEquals (2,
+                  m_aIndex.getCount (new PDIndexQueryBool.Builder ().add (aCountry, EPDIndexQueryOccur.FILTER)
+                                                                    .build ()));
+
+    // Optional clauses next to a mandatory clause never change the matching documents
+    assertEquals (2,
+                  m_aIndex.getCount (new PDIndexQueryBool.Builder ().add (aCountry, EPDIndexQueryOccur.FILTER)
+                                                                    .add (aLanguage, EPDIndexQueryOccur.SHOULD)
+                                                                    .build ()));
+    assertEquals (2,
+                  m_aIndex.getCount (new PDIndexQueryBool.Builder ().add (aCountry, EPDIndexQueryOccur.MUST)
+                                                                    .add (aLanguage, EPDIndexQueryOccur.SHOULD)
+                                                                    .build ()));
+
+    // This also applies to an optional clause that matches nothing at all
+    assertEquals (2,
+                  m_aIndex.getCount (new PDIndexQueryBool.Builder ().add (aCountry, EPDIndexQueryOccur.FILTER)
+                                                                    .add (aNoMatch, EPDIndexQueryOccur.SHOULD)
+                                                                    .build ()));
+
+    // Without a mandatory clause, at least one optional clause must match
+    assertEquals (1,
+                  m_aIndex.getCount (new PDIndexQueryBool.Builder ().add (aLanguage, EPDIndexQueryOccur.SHOULD)
+                                                                    .add (aNoMatch, EPDIndexQueryOccur.SHOULD)
                                                                     .build ()));
   }
 

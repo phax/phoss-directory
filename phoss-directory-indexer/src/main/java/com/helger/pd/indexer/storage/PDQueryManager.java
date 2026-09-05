@@ -18,6 +18,7 @@ package com.helger.pd.indexer.storage;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Locale;
 
 import org.jspecify.annotations.NonNull;
@@ -26,8 +27,10 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.annotation.Nonempty;
 import com.helger.annotation.concurrent.Immutable;
+import com.helger.annotation.style.ReturnsMutableCopy;
 import com.helger.base.enforce.ValueEnforcer;
 import com.helger.cache.regex.RegExHelper;
+import com.helger.collection.commons.CommonsArrayList;
 import com.helger.collection.commons.ICommonsList;
 import com.helger.datetime.web.PDTWebDateHelper;
 import com.helger.pd.indexer.mgr.PDMetaManager;
@@ -36,6 +39,7 @@ import com.helger.pd.indexer.searchindex.query.EPDIndexQueryOccur;
 import com.helger.pd.indexer.searchindex.query.IPDIndexQuery;
 import com.helger.pd.indexer.searchindex.query.PDIndexQueryBool;
 import com.helger.pd.indexer.searchindex.query.PDIndexQueryContains;
+import com.helger.pd.indexer.searchindex.query.PDIndexQueryPrefix;
 import com.helger.pd.indexer.searchindex.query.PDIndexQueryTerm;
 import com.helger.pd.indexer.storage.field.PDField;
 import com.helger.peppolid.IDocumentTypeIdentifier;
@@ -100,6 +104,33 @@ public final class PDQueryManager
   }
 
   /**
+   * Create the query that determines which documents match, based on the already split terms of the
+   * user query. All terms must be matched (like an AND query).
+   *
+   * @param sFieldName
+   *        The field name to query. May neither be <code>null</code> nor empty.
+   * @param aParts
+   *        The terms of the user query. May not be <code>null</code>.
+   * @return The created {@link IPDIndexQuery}
+   */
+  @NonNull
+  private static IPDIndexQuery _createContainsQuery (@NonNull @Nonempty final String sFieldName,
+                                                     @NonNull final List <String> aParts)
+  {
+    if (aParts.size () == 1)
+    {
+      // Single term - simple query
+      return _createSimpleAllFieldsQuery (sFieldName, aParts.get (0));
+    }
+
+    // All parts must be matched
+    final PDIndexQueryBool.Builder aBuilder = new PDIndexQueryBool.Builder ();
+    for (final String sPart : aParts)
+      aBuilder.add (_createSimpleAllFieldsQuery (sFieldName, sPart), EPDIndexQueryOccur.FILTER);
+    return aBuilder.build ();
+  }
+
+  /**
    * Convert a query string as entered by the used into an index query. This
    * methods uses {@link #getSplitIntoTerms(IPDIndex, String, String)} to split
    * the provided string into pieces and returns a boolean query that includes
@@ -129,21 +160,7 @@ public final class PDQueryManager
     if (LOGGER.isDebugEnabled ())
       LOGGER.debug ("Split query string: '" + sQueryString + "' for field '" + sFieldName + "' ==> " + aParts);
 
-    final IPDIndexQuery aQuery;
-    if (aParts.size () == 1)
-    {
-      // Single term - simple query
-      aQuery = _createSimpleAllFieldsQuery (sFieldName, aParts.get (0));
-    }
-    else
-    {
-      // All parts must be matched
-      final PDIndexQueryBool.Builder aBuilder = new PDIndexQueryBool.Builder ();
-      for (final String sPart : aParts)
-        aBuilder.add (_createSimpleAllFieldsQuery (sFieldName, sPart), EPDIndexQueryOccur.FILTER);
-      aQuery = aBuilder.build ();
-    }
-    return aQuery;
+    return _createContainsQuery (sFieldName, aParts);
   }
 
   @NonNull
@@ -174,6 +191,78 @@ public final class PDQueryManager
     return PDField.PARTICIPANT_ID.getExactMatchQuery (aPI);
   }
 
+  /**
+   * Create the queries that improve the relevance ordering of a search. They never change the set
+   * of matching documents, because they are only added as optional clauses next to a mandatory
+   * clause. A field in which a word is exactly the search term is ranked higher than a field in
+   * which a word only starts with the search term, which in turn is ranked higher than a field that
+   * merely contains the search term somewhere inside a word. See
+   * https://github.com/phax/phoss-directory/issues/49
+   *
+   * @param sFieldName
+   *        The field name to query. May neither be <code>null</code> nor empty.
+   * @param aParts
+   *        The terms of the user query. May not be <code>null</code>.
+   * @return A list with two queries per provided term. Never <code>null</code>.
+   */
+  @NonNull
+  @ReturnsMutableCopy
+  private static ICommonsList <IPDIndexQuery> _createRelevanceQueries (@NonNull @Nonempty final String sFieldName,
+                                                                      @NonNull final List <String> aParts)
+  {
+    final ICommonsList <IPDIndexQuery> ret = new CommonsArrayList <> ();
+    for (final String sPart : aParts)
+    {
+      // A word of the field is exactly the search term
+      ret.add (new PDIndexQueryTerm (sFieldName, sPart));
+      // A word of the field starts with the search term
+      ret.add (new PDIndexQueryPrefix (sFieldName, sPart));
+    }
+    return ret;
+  }
+
+  /**
+   * Create the query of the generic search field, that queries the "all fields" index field. The
+   * matching itself is unchanged, but a match of a whole word is ranked higher than a match inside
+   * a word, and a match in the name of the business entity is ranked higher than a match in any
+   * other field.
+   *
+   * @param aIndex
+   *        The search index to be used. May not be <code>null</code>.
+   * @param sQueryString
+   *        The query string. May not be <code>null</code> and not be empty and may not be
+   *        whitespace only.
+   * @return The created {@link IPDIndexQuery}
+   */
+  @NonNull
+  public static IPDIndexQuery getGenericQuery (@NonNull final IPDIndex aIndex,
+                                               @NonNull @Nonempty final String sQueryString)
+  {
+    ValueEnforcer.notEmpty (sQueryString, "QueryString");
+    ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
+
+    // Split into terms - once per field, because the splitting is field based by definition
+    final ICommonsList <String> aAllParts = getSplitIntoTerms (aIndex, CPDStorage.FIELD_ALL_FIELDS, sQueryString);
+    final ICommonsList <String> aNameParts = getSplitIntoTerms (aIndex, PDField.NAME.getFieldName (), sQueryString);
+    final ICommonsList <String> aMLNameParts = getSplitIntoTerms (aIndex,
+                                                                  PDField.ML_NAME.getFieldName (),
+                                                                  sQueryString);
+
+    final PDIndexQueryBool.Builder aBuilder = new PDIndexQueryBool.Builder ();
+    // This clause decides what matches, but it deliberately does not contribute to the score
+    aBuilder.add (_createContainsQuery (CPDStorage.FIELD_ALL_FIELDS, aAllParts), EPDIndexQueryOccur.FILTER);
+    // Because of the mandatory clause above, the following clauses are optional and only improve
+    // the relevance ordering of the results
+    for (final IPDIndexQuery aQuery : _createRelevanceQueries (CPDStorage.FIELD_ALL_FIELDS, aAllParts))
+      aBuilder.add (aQuery, EPDIndexQueryOccur.SHOULD);
+    // A match in the name of the business entity is more relevant than a match in any other field
+    for (final IPDIndexQuery aQuery : _createRelevanceQueries (PDField.NAME.getFieldName (), aNameParts))
+      aBuilder.add (aQuery, EPDIndexQueryOccur.SHOULD);
+    for (final IPDIndexQuery aQuery : _createRelevanceQueries (PDField.ML_NAME.getFieldName (), aMLNameParts))
+      aBuilder.add (aQuery, EPDIndexQueryOccur.SHOULD);
+    return aBuilder.build ();
+  }
+
   @Nullable
   public static IPDIndexQuery getNameQuery (@NonNull final IPDIndex aIndex,
                                             @NonNull @Nonempty final String sQueryString)
@@ -185,15 +274,28 @@ public final class PDQueryManager
       LOGGER.warn ("Name query string '" + sQueryString + "' is too short!");
       return null;
     }
-    
-    // Query both fields in parallel
-    final IPDIndexQuery q1 = convertQueryStringToQuery (aIndex, PDField.NAME.getFieldName (), sQueryString);
-    final IPDIndexQuery q2 = convertQueryStringToQuery (aIndex, PDField.ML_NAME.getFieldName (), sQueryString);
 
-    // One of both must match
+    // Split into terms - once per field, because the splitting is field based by definition
+    final ICommonsList <String> aNameParts = getSplitIntoTerms (aIndex, PDField.NAME.getFieldName (), sQueryString);
+    final ICommonsList <String> aMLNameParts = getSplitIntoTerms (aIndex,
+                                                                  PDField.ML_NAME.getFieldName (),
+                                                                  sQueryString);
+
+    // Query both fields in parallel - one of both must match
+    final PDIndexQueryBool.Builder aMatchBuilder = new PDIndexQueryBool.Builder ();
+    aMatchBuilder.add (_createContainsQuery (PDField.NAME.getFieldName (), aNameParts), EPDIndexQueryOccur.SHOULD);
+    aMatchBuilder.add (_createContainsQuery (PDField.ML_NAME.getFieldName (), aMLNameParts),
+                       EPDIndexQueryOccur.SHOULD);
+
     final PDIndexQueryBool.Builder aBuilder = new PDIndexQueryBool.Builder ();
-    aBuilder.add (q1, EPDIndexQueryOccur.SHOULD);
-    aBuilder.add (q2, EPDIndexQueryOccur.SHOULD);
+    // This clause decides what matches, but it deliberately does not contribute to the score
+    aBuilder.add (aMatchBuilder.build (), EPDIndexQueryOccur.FILTER);
+    // Because of the mandatory clause above, the following clauses are optional and only improve
+    // the relevance ordering of the results
+    for (final IPDIndexQuery aQuery : _createRelevanceQueries (PDField.NAME.getFieldName (), aNameParts))
+      aBuilder.add (aQuery, EPDIndexQueryOccur.SHOULD);
+    for (final IPDIndexQuery aQuery : _createRelevanceQueries (PDField.ML_NAME.getFieldName (), aMLNameParts))
+      aBuilder.add (aQuery, EPDIndexQueryOccur.SHOULD);
     return aBuilder.build ();
   }
 

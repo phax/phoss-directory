@@ -42,6 +42,8 @@ import com.helger.peppol.businesscard.generic.PDName;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.peppol.doctype.EPredefinedDocumentTypeIdentifier;
 
+import jakarta.annotation.Nullable;
+
 /**
  * The test data shared by all the conformance tests of the Peppol Directory search index.
  *
@@ -134,6 +136,35 @@ public final class PDConformanceTestData
   {
     return new CommonsArrayList <> (createMockIndexDocument (aParticipantID, "Test Company GmbH", "de"),
                                     createMockIndexDocument (aParticipantID, "Test Company Ltd", "en"));
+  }
+
+  /**
+   * Create a business card with a single business entity that has a single name without a language.
+   *
+   * @param aParticipantID
+   *        The participant ID to use. May not be <code>null</code>.
+   * @param sName
+   *        The name of the business entity. May neither be <code>null</code> nor empty.
+   * @param sAdditionalInfo
+   *        The additional information of the business entity. May be <code>null</code>.
+   * @return The created business card. Never <code>null</code>.
+   */
+  @NonNull
+  public static PDExtendedBusinessCard createBusinessCardWithName (@NonNull final IParticipantIdentifier aParticipantID,
+                                                                   @NonNull @Nonempty final String sName,
+                                                                   @Nullable final String sAdditionalInfo)
+  {
+    final PDBusinessCard aBI = new PDBusinessCard ();
+    aBI.setParticipantIdentifier (new PDIdentifier (aParticipantID.getScheme (), aParticipantID.getValue ()));
+
+    final PDBusinessEntity aEntity = new PDBusinessEntity ();
+    aEntity.setCountryCode ("AT");
+    aEntity.names ().add (new PDName (sName));
+    aEntity.setAdditionalInfo (sAdditionalInfo);
+    aBI.businessEntities ().add (aEntity);
+
+    return new PDExtendedBusinessCard (aBI,
+                                       new CommonsArrayList <> (EPredefinedDocumentTypeIdentifier.INVOICE_EN16931_PEPPOL_V30));
   }
 
   /**

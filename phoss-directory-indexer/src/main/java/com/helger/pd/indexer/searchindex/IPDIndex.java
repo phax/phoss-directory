@@ -118,7 +118,12 @@ public interface IPDIndex extends Closeable
 
   /**
    * Search all documents matching the provided query and pass each of them to the provided
-   * {@link Consumer}.
+   * {@link Consumer}.<br>
+   * If a positive maximum result count is provided, the documents must be passed on ordered by
+   * descending relevance, so that the queries built by
+   * {@link com.helger.pd.indexer.storage.PDQueryManager} can influence the result ordering.
+   * Documents with the same relevance as well as all documents of an unlimited search are passed on
+   * in an implementation defined order.
    *
    * @param aQuery
    *        Query to execute. May not be <code>null</code>.

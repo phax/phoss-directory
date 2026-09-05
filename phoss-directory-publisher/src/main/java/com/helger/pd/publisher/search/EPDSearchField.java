@@ -26,8 +26,8 @@ import com.helger.annotation.Nonempty;
 import com.helger.base.id.IHasID;
 import com.helger.base.lang.EnumHelper;
 import com.helger.pd.indexer.mgr.PDMetaManager;
+import com.helger.pd.indexer.searchindex.query.EPDIndexQueryOccur;
 import com.helger.pd.indexer.searchindex.query.IPDIndexQuery;
-import com.helger.pd.indexer.storage.CPDStorage;
 import com.helger.pd.indexer.storage.PDQueryManager;
 import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
 import com.helger.peppolid.IDocumentTypeIdentifier;
@@ -48,9 +48,7 @@ public enum EPDSearchField implements IHasID <String>, IHasDisplayText
            EPDSearchFieldName.GENERIC,
            ESearchDataType.STRING_CS,
            Object.class,
-           sQuery -> PDQueryManager.convertQueryStringToQuery (PDMetaManager.getIndex (),
-                                                               CPDStorage.FIELD_ALL_FIELDS,
-                                                               sQuery)),
+           sQuery -> PDQueryManager.getGenericQuery (PDMetaManager.getIndex (), sQuery)),
   PARTICIPANT_ID ("participant",
                   EPDSearchFieldName.PARTICIPANT_ID,
                   ESearchDataType.STRING_CS,
@@ -162,6 +160,28 @@ public enum EPDSearchField implements IHasID <String>, IHasDisplayText
   public IPDIndexQuery getQuery (@NonNull final String sQuery)
   {
     return m_aQueryProvider.apply (sQuery);
+  }
+
+  /**
+   * @return The occurrence to be used, if the query of this search field is combined with the
+   *         queries of other search fields. All search fields that perform an exact match only
+   *         limit the result set - they must not influence the relevance ordering of the results.
+   *         See https://github.com/phax/phoss-directory/issues/49
+   */
+  @NonNull
+  public EPDIndexQueryOccur getCombinationOccurrence ()
+  {
+    // Deliberately no "default" case, so that adding a new search field is a compile error here
+    return switch (this)
+    {
+      case PARTICIPANT_ID,
+           COUNTRY,
+           IDENTIFIER_SCHEME,
+           IDENTIFIER_VALUE,
+           REGISTRATION_DATE,
+           DOCUMENT_TYPE -> EPDIndexQueryOccur.FILTER;
+      case GENERIC, NAME, GEO_INFO, WEBSITE, CONTACT, ADDITIONAL_INFORMATION -> EPDIndexQueryOccur.MUST;
+    };
   }
 
   @Nullable
