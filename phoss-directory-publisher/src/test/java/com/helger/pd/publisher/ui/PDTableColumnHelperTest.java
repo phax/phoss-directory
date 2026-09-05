@@ -38,6 +38,7 @@ import com.helger.collection.commons.ICommonsList;
 import com.helger.collection.commons.ICommonsSet;
 import com.helger.collection.paging.PagingSpec;
 import com.helger.collection.paging.SortField;
+import com.helger.pd.publisher.app.secure.EContainedParticipantColumn;
 import com.helger.pd.publisher.app.secure.EIndexerWorkItemColumn;
 import com.helger.pd.publisher.app.secure.EReIndexWorkItemColumn;
 
@@ -242,5 +243,6 @@ public final class PDTableColumnHelperTest
   {
     _testRealColumns (EIndexerWorkItemColumn.values ());
     _testRealColumns (EReIndexWorkItemColumn.values ());
+    _testRealColumns (EContainedParticipantColumn.values ());
   }
 }

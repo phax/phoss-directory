@@ -196,6 +196,11 @@ v0.17.3 - work in progress
     * Both items carry the ID of the user that triggered the job - the job runs in a worker thread, so the audit item itself is not bound to that user - plus the name of the uploaded file and the overall duration
     * The "end" item is audited as a failure if the job failed. If the job could not even be started, the "start" item is audited as a failure by the upload page
     * `AbstractPDParticipantFileJob.createLongRunningJobResult ()` is final now and merely wraps the new abstract method `createParticipantJobResult ()`, so that the outcome of the job is known when the "end" audit item is created
+* The DataTables of the page "Participant list" uses server side pagination as well - exactly like the pages "Index Queue", "Re-Index List" and "Dead Index List" do
+    * The new class `ContainedParticipant` is the row type, and the new enum `EContainedParticipantColumn` ties each shown column to the respective comparator and to the value the global search is performed on. The participant ID is sortable and searchable, the entity count is sortable only
+    * The parameters `showall` and `maxentries` as well as the limit of 500 rendered participants were removed - every participant is reachable via paging now
+    * The heading with the number of participants was removed, because the DataTables shows the total number of entries anyway, and determining it needs a full query of the search index
+    * Note that every paging, sorting and searching operation queries all participants from the search index anew - the same query the previous rendering of the whole page performed once
 
 v0.17.2 - 2026-09-04
 * Added the page "Bulk delete participants" to delete participants from the search index from an uploaded file

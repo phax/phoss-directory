@@ -181,10 +181,10 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     return aBodyRow;
   }
 
-  private void _showResultList (@NonNull final WebPageExecutionContext aWPEC,
-                                @NonNull @Nonempty final String sQuery,
-                                @Nullable final String sFilterCountryCode,
-                                @Nonnegative final int nMaxResults)
+  private void _searchAndShowResultList (@NonNull final WebPageExecutionContext aWPEC,
+                                         @NonNull @Nonempty final String sQuery,
+                                         @Nullable final String sFilterCountryCode,
+                                         @Nonnegative final int nMaxResults)
   {
     final HCNodeList aNodeList = aWPEC.getNodeList ();
     final Locale aDisplayLocale = aWPEC.getDisplayLocale ();
@@ -201,8 +201,8 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     final IPDIndexQuery aGenericQuery = PDQueryManager.getGenericQuery (PDMetaManager.getIndex (), sQuery);
     // The country is an optional filter that only limits the result set - it must not influence the
     // relevance ordering of the results
-    final IPDIndexQuery aCountryQuery = StringHelper.isEmpty (sFilterCountryCode) ? null
-                                                                                  : EPDSearchField.COUNTRY.getQuery (sFilterCountryCode);
+    final IPDIndexQuery aCountryQuery = StringHelper.isEmpty (sFilterCountryCode) ? null : EPDSearchField.COUNTRY
+                                                                                                                 .getQuery (sFilterCountryCode);
     final IPDIndexQuery aIndexQuery;
     if (aCountryQuery == null)
       aIndexQuery = aGenericQuery;
@@ -290,8 +290,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     else
     {
       final Locale aCountry = CountryCache.getInstance ().getCountry (sFilterCountryCode);
-      sCountrySuffix = " in " +
-                       (aCountry != null ? aCountry.getDisplayCountry (aDisplayLocale) : sFilterCountryCode);
+      sCountrySuffix = " in " + (aCountry != null ? aCountry.getDisplayCountry (aDisplayLocale) : sFilterCountryCode);
     }
 
     // Display results
@@ -302,8 +301,8 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     else
     {
       aNodeList.addChild (div (badgeSuccess ("Found " +
-                                             (aGroupedBEs.size () == 1 ? "1 entity"
-                                                                       : aGroupedBEs.size () + " entities") +
+                                             (aGroupedBEs.size () == 1 ? "1 entity" : aGroupedBEs.size () +
+                                                                                      " entities") +
                                              " matching '" +
                                              sQuery +
                                              "'" +
@@ -533,7 +532,7 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
         aLogo.addChild (_createInitialSearchForm (aWPEC));
 
         // After Logo
-        _showResultList (aWPEC, sQuery, sCountryCode, nMaxResults);
+        _searchAndShowResultList (aWPEC, sQuery, sCountryCode, nMaxResults);
       }
       else
       {
