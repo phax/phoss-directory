@@ -28,8 +28,8 @@ import com.helger.collection.commons.CommonsArrayList;
 import com.helger.collection.commons.ICommonsList;
 import com.helger.collection.paging.PagingSpec;
 import com.helger.collection.paging.SortField;
-import com.helger.pd.publisher.ui.PDTableColumnHelper;
 import com.helger.peppolid.factory.PeppolIdentifierFactory;
+import com.helger.photon.core.paging.TableColumnHelper;
 
 /**
  * Test class for class {@link EContainedParticipantColumn}.
@@ -77,22 +77,22 @@ public final class EContainedParticipantColumnTest
   public void testDefaultOrder ()
   {
     // No sort field at all - the default order of the columns is used
-    final ICommonsList <ContainedParticipant> aPage = PDTableColumnHelper.getPage (COLUMNS,
-                                                                                   _list (),
-                                                                                   PagingSpec.createForPage (0, 10),
-                                                                                   null);
+    final ICommonsList <ContainedParticipant> aPage = TableColumnHelper.getPage (COLUMNS,
+                                                                                 _list (),
+                                                                                 PagingSpec.createForPage (0, 10),
+                                                                                 (String) null);
     assertEquals (new CommonsArrayList <> ("9915:aaa", "9915:bbb", "9915:ccc"), _getAllValues (aPage));
   }
 
   @Test
   public void testSortByEntityCount ()
   {
-    final ICommonsList <ContainedParticipant> aPage = PDTableColumnHelper.getPage (COLUMNS,
-                                                                                   _list (),
-                                                                                   PagingSpec.createForPage (0,
-                                                                                                             10,
-                                                                                                             SortField.descending (EContainedParticipantColumn.ENTITIES.getID ())),
-                                                                                   null);
+    final ICommonsList <ContainedParticipant> aPage = TableColumnHelper.getPage (COLUMNS,
+                                                                                 _list (),
+                                                                                 PagingSpec.createForPage (0,
+                                                                                                           10,
+                                                                                                           SortField.descending (EContainedParticipantColumn.ENTITIES.getID ())),
+                                                                                 (String) null);
     assertEquals (new CommonsArrayList <> ("9915:bbb", "9915:ccc", "9915:aaa"), _getAllValues (aPage));
   }
 
@@ -100,14 +100,14 @@ public final class EContainedParticipantColumnTest
   public void testSearch ()
   {
     // The participant ID is searched, the entity count is not
-    assertEquals (1, PDTableColumnHelper.getCount (COLUMNS, _list (), new String [] { "aaa" }));
-    assertEquals (3, PDTableColumnHelper.getCount (COLUMNS, _list (), new String [] { "9915" }));
-    assertEquals (0, PDTableColumnHelper.getCount (COLUMNS, _list (), new String [] { "9999" }));
+    assertEquals (1, TableColumnHelper.getCount (COLUMNS, _list (), new String [] { "aaa" }));
+    assertEquals (3, TableColumnHelper.getCount (COLUMNS, _list (), new String [] { "9915" }));
+    assertEquals (0, TableColumnHelper.getCount (COLUMNS, _list (), new String [] { "9999" }));
 
-    final ICommonsList <ContainedParticipant> aPage = PDTableColumnHelper.getPage (COLUMNS,
-                                                                                   _list (),
-                                                                                   PagingSpec.createForPage (0, 10),
-                                                                                   new String [] { "ccc" });
+    final ICommonsList <ContainedParticipant> aPage = TableColumnHelper.getPage (COLUMNS,
+                                                                                 _list (),
+                                                                                 PagingSpec.createForPage (0, 10),
+                                                                                 new String [] { "ccc" });
     assertEquals (new CommonsArrayList <> ("9915:ccc"), _getAllValues (aPage));
   }
 }

@@ -34,12 +34,12 @@ import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.pd.publisher.ui.PDCommonUI;
 import com.helger.pd.publisher.ui.PDDataTablesOnDemand;
-import com.helger.pd.publisher.ui.PDTableColumnHelper;
 import com.helger.photon.ajax.decl.IAjaxFunctionDeclaration;
 import com.helger.photon.bootstrap5.button.BootstrapButton;
 import com.helger.photon.bootstrap5.buttongroup.BootstrapButtonToolbar;
 import com.helger.photon.bootstrap5.table.BootstrapTable;
 import com.helger.photon.core.execcontext.LayoutExecutionContext;
+import com.helger.photon.core.paging.TableColumnHelper;
 import com.helger.photon.uicore.icon.EDefaultIcon;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 import com.helger.photon.uictrls.datatables.ajax.DataTablesOnDemandRequest;
@@ -141,13 +141,13 @@ public final class PageSecureListIndex extends AbstractAppWebPage
     final ICommonsList <IIndexerWorkItem> aAllItems = _getAllQueuedWorkItems ();
     final String [] aSearchTexts = aRequest.getSearchTexts ();
     final long nTotalCount = aAllItems.size ();
-    final long nFilteredCount = PDTableColumnHelper.getCount (COLUMNS, aAllItems, aSearchTexts);
+    final long nFilteredCount = TableColumnHelper.getCount (COLUMNS, aAllItems, aSearchTexts);
 
     final ICommonsList <HCRow> aRows = new CommonsArrayList <> ();
-    for (final IIndexerWorkItem aObj : PDTableColumnHelper.getPage (COLUMNS,
-                                                                    aAllItems,
-                                                                    aRequest.getPagingSpec (),
-                                                                    aSearchTexts))
+    for (final IIndexerWorkItem aObj : TableColumnHelper.getPage (COLUMNS,
+                                                                  aAllItems,
+                                                                  aRequest.getPagingSpec (),
+                                                                  aSearchTexts))
     {
       final HCRow aRow = new HCRow ();
       _addRow (aWPEC, aRow, aObj);

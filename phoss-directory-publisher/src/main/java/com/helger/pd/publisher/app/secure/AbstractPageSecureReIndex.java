@@ -43,7 +43,6 @@ import com.helger.pd.publisher.app.PDPMetaManager;
 import com.helger.pd.publisher.ui.AbstractAppWebPageForm;
 import com.helger.pd.publisher.ui.PDCommonUI;
 import com.helger.pd.publisher.ui.PDDataTablesOnDemand;
-import com.helger.pd.publisher.ui.PDTableColumnHelper;
 import com.helger.peppol.sml.ISMLInfo;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.photon.ajax.decl.IAjaxFunctionDeclaration;
@@ -58,6 +57,7 @@ import com.helger.photon.bootstrap5.pages.handler.AbstractBootstrapWebPageAction
 import com.helger.photon.bootstrap5.uictrls.datatables.BootstrapDTColAction;
 import com.helger.photon.core.execcontext.LayoutExecutionContext;
 import com.helger.photon.core.form.FormErrorList;
+import com.helger.photon.core.paging.TableColumnHelper;
 import com.helger.photon.uicore.css.CPageParam;
 import com.helger.photon.uicore.icon.EDefaultIcon;
 import com.helger.photon.uicore.page.EShowList;
@@ -412,13 +412,13 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
     final ICommonsList <IReIndexWorkItem> aAllItems = new CommonsArrayList <> (getReIndexWorkItemList ().getAllItems ());
     final String [] aSearchTexts = aRequest.getSearchTexts ();
     final long nTotalCount = aAllItems.size ();
-    final long nFilteredCount = PDTableColumnHelper.getCount (COLUMNS, aAllItems, aSearchTexts);
+    final long nFilteredCount = TableColumnHelper.getCount (COLUMNS, aAllItems, aSearchTexts);
 
     final ICommonsList <HCRow> aRows = new CommonsArrayList <> ();
-    for (final IReIndexWorkItem aItem : PDTableColumnHelper.getPage (COLUMNS,
-                                                                     aAllItems,
-                                                                     aRequest.getPagingSpec (),
-                                                                     aSearchTexts))
+    for (final IReIndexWorkItem aItem : TableColumnHelper.getPage (COLUMNS,
+                                                                   aAllItems,
+                                                                   aRequest.getPagingSpec (),
+                                                                   aSearchTexts))
     {
       final HCRow aRow = new HCRow ();
       _addRow (aWPEC, aRow, aItem);

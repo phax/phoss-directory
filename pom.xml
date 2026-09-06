@@ -94,6 +94,13 @@
         <scope>import</scope>
       </dependency>
       <dependency>
+        <groupId>com.helger.photon</groupId>
+        <artifactId>ph-oton-parent-pom</artifactId>
+        <version>10.6.0</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
         <groupId>com.helger.peppol.ui</groupId>
         <artifactId>peppol-shared-ui-parent-pom</artifactId>
         <version>0.10.2</version>

@@ -26,8 +26,8 @@ import com.helger.annotation.Nonempty;
 import com.helger.base.compare.CompareHelper;
 import com.helger.base.compare.ESortOrder;
 import com.helger.pd.indexer.reindex.IReIndexWorkItem;
-import com.helger.pd.publisher.ui.IPDTableColumn;
-import com.helger.pd.publisher.ui.PDTableColumnHelper;
+import com.helger.photon.core.paging.ITableColumn;
+import com.helger.photon.core.paging.TableColumnHelper;
 
 /**
  * The sortable and searchable columns of an {@link IReIndexWorkItem}, as shown on the "Re-Index
@@ -37,7 +37,7 @@ import com.helger.pd.publisher.ui.PDTableColumnHelper;
  * @author Philip Helger
  * @since 0.17.3
  */
-public enum EReIndexWorkItemColumn implements IPDTableColumn <IReIndexWorkItem>
+public enum EReIndexWorkItemColumn implements ITableColumn <IReIndexWorkItem>
 {
   /** The date and time the work item was created */
   REG_DATE ("regdate",
@@ -91,7 +91,7 @@ public enum EReIndexWorkItemColumn implements IPDTableColumn <IReIndexWorkItem>
                           @NonNull final Function <IReIndexWorkItem, String> aSearchValueProvider,
                           @Nullable final ESortOrder eDefaultSortOrder)
   {
-    this (sID, aSearchValueProvider, PDTableColumnHelper.createComparator (aSearchValueProvider), eDefaultSortOrder);
+    this (sID, aSearchValueProvider, TableColumnHelper.createComparator (aSearchValueProvider), eDefaultSortOrder);
   }
 
   @NonNull

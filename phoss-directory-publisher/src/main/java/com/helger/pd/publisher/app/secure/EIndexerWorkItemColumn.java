@@ -26,8 +26,8 @@ import com.helger.annotation.Nonempty;
 import com.helger.base.compare.CompareHelper;
 import com.helger.base.compare.ESortOrder;
 import com.helger.pd.indexer.index.IIndexerWorkItem;
-import com.helger.pd.publisher.ui.IPDTableColumn;
-import com.helger.pd.publisher.ui.PDTableColumnHelper;
+import com.helger.photon.core.paging.ITableColumn;
+import com.helger.photon.core.paging.TableColumnHelper;
 
 /**
  * The sortable and searchable columns of an {@link IIndexerWorkItem}, as shown on the "Index Queue"
@@ -37,7 +37,7 @@ import com.helger.pd.publisher.ui.PDTableColumnHelper;
  * @author Philip Helger
  * @since 0.17.3
  */
-public enum EIndexerWorkItemColumn implements IPDTableColumn <IIndexerWorkItem>
+public enum EIndexerWorkItemColumn implements ITableColumn <IIndexerWorkItem>
 {
   /** The date and time the work item was queued */
   QUEUE_DATE ("queuedate",
@@ -84,7 +84,7 @@ public enum EIndexerWorkItemColumn implements IPDTableColumn <IIndexerWorkItem>
                           @NonNull final Function <IIndexerWorkItem, String> aSearchValueProvider,
                           @Nullable final ESortOrder eDefaultSortOrder)
   {
-    this (sID, aSearchValueProvider, PDTableColumnHelper.createComparator (aSearchValueProvider), eDefaultSortOrder);
+    this (sID, aSearchValueProvider, TableColumnHelper.createComparator (aSearchValueProvider), eDefaultSortOrder);
   }
 
   @NonNull

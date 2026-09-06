@@ -38,13 +38,13 @@ import com.helger.pd.publisher.app.pub.CMenuPublic;
 import com.helger.pd.publisher.app.pub.PagePublicSearchSimple;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.pd.publisher.ui.PDDataTablesOnDemand;
-import com.helger.pd.publisher.ui.PDTableColumnHelper;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.factory.IIdentifierFactory;
 import com.helger.photon.ajax.decl.IAjaxFunctionDeclaration;
 import com.helger.photon.bootstrap5.uictrls.datatables.BootstrapDTColAction;
 import com.helger.photon.core.appid.CApplicationID;
 import com.helger.photon.core.execcontext.LayoutExecutionContext;
+import com.helger.photon.core.paging.TableColumnHelper;
 import com.helger.photon.uicore.css.CPageParam;
 import com.helger.photon.uicore.page.WebPageExecutionContext;
 import com.helger.photon.uictrls.datatables.ajax.DataTablesOnDemandRequest;
@@ -155,13 +155,13 @@ public final class PageSecureParticipantList extends AbstractAppWebPage
     final ICommonsList <ContainedParticipant> aAllItems = _getAllContainedParticipants ();
     final String [] aSearchTexts = aRequest.getSearchTexts ();
     final long nTotalCount = aAllItems.size ();
-    final long nFilteredCount = PDTableColumnHelper.getCount (COLUMNS, aAllItems, aSearchTexts);
+    final long nFilteredCount = TableColumnHelper.getCount (COLUMNS, aAllItems, aSearchTexts);
 
     final ICommonsList <HCRow> aRows = new CommonsArrayList <> ();
-    for (final ContainedParticipant aObj : PDTableColumnHelper.getPage (COLUMNS,
-                                                                        aAllItems,
-                                                                        aRequest.getPagingSpec (),
-                                                                        aSearchTexts))
+    for (final ContainedParticipant aObj : TableColumnHelper.getPage (COLUMNS,
+                                                                      aAllItems,
+                                                                      aRequest.getPagingSpec (),
+                                                                      aSearchTexts))
     {
       final HCRow aRow = new HCRow ();
       _addRow (aWPEC, aRow, aObj);

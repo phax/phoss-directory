@@ -17,29 +17,21 @@
 package com.helger.pd.publisher.ui;
 
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.helger.annotation.concurrent.Immutable;
 import com.helger.base.enforce.ValueEnforcer;
-import com.helger.collection.paging.SortField;
-import com.helger.html.hc.html.tabular.HCColGroup;
-import com.helger.html.hc.html.tabular.IHCCol;
 import com.helger.html.hc.html.tabular.IHCTable;
-import com.helger.html.jquery.JQueryAjaxBuilder;
-import com.helger.html.jscode.JSAssocArray;
 import com.helger.pd.publisher.ajax.CAjax;
 import com.helger.photon.ajax.decl.IAjaxFunctionDeclaration;
 import com.helger.photon.bootstrap5.uictrls.datatables.BootstrapDataTables;
+import com.helger.photon.core.paging.ITableColumn;
 import com.helger.photon.uicore.page.IWebPageExecutionContext;
 import com.helger.photon.uictrls.datatables.DataTables;
-import com.helger.photon.uictrls.datatables.DataTablesOrder;
 import com.helger.photon.uictrls.datatables.EDataTablesServerSideMode;
 import com.helger.photon.uictrls.datatables.ajax.AjaxExecutorDataTables;
 import com.helger.photon.uictrls.datatables.ajax.AjaxExecutorDataTablesOnDemand;
+import com.helger.photon.uictrls.datatables.ajax.DataTablesOnDemandHelper;
 import com.helger.photon.uictrls.datatables.ajax.IDataTablesOnDemandDataProvider;
-import com.helger.photon.uictrls.datatables.column.DTCol;
 
 /**
  * Helper to run a DataTables in the server side mode {@link EDataTablesServerSideMode#ON_DEMAND}:
@@ -52,31 +44,11 @@ import com.helger.photon.uictrls.datatables.column.DTCol;
  * @author Philip Helger
  * @since 0.17.3
  */
-// TODO replace with the ph-oton version
-// com.helger.photon.uictrls.datatables.ajax.DataTablesOnDemandHelper (since ph-oton 10.6.0)
 @Immutable
 public final class PDDataTablesOnDemand
 {
-  private static final Logger LOGGER = LoggerFactory.getLogger (PDDataTablesOnDemand.class);
-
   private PDDataTablesOnDemand ()
   {}
-
-  private static int _getColumnIndexOfName (@NonNull final IHCTable <?> aTable, @NonNull final String sName)
-  {
-    final HCColGroup aColGroup = aTable.getColGroup ();
-    if (aColGroup != null)
-    {
-      int nIndex = 0;
-      for (final IHCCol <?> aCol : aColGroup.getAllColumns ())
-      {
-        if (aCol instanceof final DTCol aDTCol && sName.equals (aDTCol.getName ()))
-          return nIndex;
-        ++nIndex;
-      }
-    }
-    return -1;
-  }
 
   /**
    * Register the AJAX function that provides the rows of a single page of a secure page. Call this
@@ -91,45 +63,6 @@ public final class PDDataTablesOnDemand
   {
     ValueEnforcer.notNull (aDataProvider, "DataProvider");
     return CAjax.addAjaxWithLogin (new AjaxExecutorDataTablesOnDemand (aDataProvider));
-  }
-
-  /**
-   * Map the default order declared by the provided columns onto the column indices of the provided
-   * table.
-   *
-   * @param aTable
-   *        The table to map onto. May not be <code>null</code>. Its sortable columns must be named
-   *        after the ID of the respective {@link IPDTableColumn}.
-   * @param aColumns
-   *        All available columns. May not be <code>null</code>.
-   * @return <code>null</code> if the table contains none of the default order columns.
-   * @see IPDTableColumn#getDefaultSortOrder()
-   */
-  @Nullable
-  public static DataTablesOrder createInitialOrder (@NonNull final IHCTable <?> aTable,
-                                                    @NonNull final IPDTableColumn <?> [] aColumns)
-  {
-    ValueEnforcer.notNull (aTable, "Table");
-    ValueEnforcer.notNull (aColumns, "Columns");
-
-    final DataTablesOrder ret = new DataTablesOrder ();
-    boolean bAny = false;
-    for (final SortField aSortField : PDTableColumnHelper.getAllDefaultSortFields (aColumns))
-    {
-      final int nColumnIndex = _getColumnIndexOfName (aTable, aSortField.getFieldName ());
-      if (nColumnIndex < 0)
-      {
-        LOGGER.warn ("The default sort column '" +
-                     aSortField.getFieldName () +
-                     "' is not part of the table '" +
-                     aTable.getID () +
-                     "' - the initial order of the UI and the default order of the backend may differ");
-        continue;
-      }
-      ret.addColumn (nColumnIndex, aSortField.getSortOrder ());
-      bAny = true;
-    }
-    return bAny ? ret : null;
   }
 
   /**
@@ -153,7 +86,7 @@ public final class PDDataTablesOnDemand
   public static DataTables createDataTables (@NonNull final IWebPageExecutionContext aWPEC,
                                              @NonNull final IHCTable <?> aTable,
                                              @NonNull final IAjaxFunctionDeclaration aAjaxFunction,
-                                             @NonNull final IPDTableColumn <?> [] aColumns)
+                                             @NonNull final ITableColumn <?> [] aColumns)
   {
     ValueEnforcer.notNull (aWPEC, "WPEC");
     ValueEnforcer.notNull (aTable, "Table");
@@ -162,19 +95,10 @@ public final class PDDataTablesOnDemand
 
     final DataTables aDataTables = BootstrapDataTables.createDefaultDataTables (aWPEC, aTable);
 
-    // Overwrite the default AJAX URL of AppCommonUI, that points to the shared executor keeping a
-    // copy of the whole table in the session
-    aDataTables.setServerSideMode (EDataTablesServerSideMode.ON_DEMAND)
-               .setAjaxBuilder (new JQueryAjaxBuilder ().url (aAjaxFunction.getInvocationURL (aWPEC.getRequestScope ()))
-                                                        .data (new JSAssocArray ().add (AjaxExecutorDataTables.OBJECT_ID,
-                                                                                        aTable.getID ())));
-
-    // The initial order of the table is the default order declared by the columns, so that the
-    // order shown in the UI and the order the data provider falls back to cannot drift apart
-    final DataTablesOrder aInitialOrder = createInitialOrder (aTable, aColumns);
-    if (aInitialOrder != null)
-      aDataTables.setInitialOrder (aInitialOrder);
-
-    return aDataTables;
+    return DataTablesOnDemandHelper.applyOnDemandMode (aDataTables,
+                                                       aTable,
+                                                       aAjaxFunction,
+                                                       aWPEC.getRequestScope (),
+                                                       aColumns);
   }
 }

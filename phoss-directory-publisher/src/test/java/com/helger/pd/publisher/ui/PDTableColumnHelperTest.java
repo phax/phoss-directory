@@ -41,9 +41,12 @@ import com.helger.collection.paging.SortField;
 import com.helger.pd.publisher.app.secure.EContainedParticipantColumn;
 import com.helger.pd.publisher.app.secure.EIndexerWorkItemColumn;
 import com.helger.pd.publisher.app.secure.EReIndexWorkItemColumn;
+import com.helger.photon.core.paging.ITableColumn;
+import com.helger.photon.core.paging.SortColumn;
+import com.helger.photon.core.paging.TableColumnHelper;
 
 /**
- * Test class for class {@link PDTableColumnHelper}.
+ * Test class for class {@link TableColumnHelper}.
  *
  * @author Philip Helger
  */
@@ -55,7 +58,7 @@ public final class PDTableColumnHelperTest
    *
    * @author Philip Helger
    */
-  private static final class MockColumn implements IPDTableColumn <String>
+  private static final class MockColumn implements ITableColumn <String>
   {
     private final String m_sID;
     private final Function <String, String> m_aSearchValueProvider;
@@ -100,7 +103,7 @@ public final class PDTableColumnHelperTest
   /** The whole String, sortable, searchable and the default order */
   private static final MockColumn COL_ALL = new MockColumn ("all",
                                                             Function.identity (),
-                                                            PDTableColumnHelper.createComparator (Function.identity ()),
+                                                            TableColumnHelper.createComparator (Function.identity ()),
                                                             ESortOrder.ASCENDING);
   /** The length of the String - sortable but not searchable */
   private static final MockColumn COL_LENGTH = new MockColumn ("length",
@@ -110,7 +113,7 @@ public final class PDTableColumnHelperTest
   /** The first character of the String - searchable but not sortable */
   private static final MockColumn COL_FIRST = new MockColumn ("first", x -> x.substring (0, 1), null, null);
 
-  private static final IPDTableColumn <String> [] COLUMNS = new MockColumn [] { COL_ALL, COL_LENGTH, COL_FIRST };
+  private static final ITableColumn <String> [] COLUMNS = new MockColumn [] { COL_ALL, COL_LENGTH, COL_FIRST };
 
   @NonNull
   private static ICommonsList <String> _list ()
@@ -121,17 +124,17 @@ public final class PDTableColumnHelperTest
   @Test
   public void testFindColumn ()
   {
-    assertSame (COL_ALL, PDTableColumnHelper.findColumn (COLUMNS, "all"));
-    assertSame (COL_LENGTH, PDTableColumnHelper.findColumn (COLUMNS, "length"));
-    assertNull (PDTableColumnHelper.findColumn (COLUMNS, "bla"));
-    assertNull (PDTableColumnHelper.findColumn (COLUMNS, ""));
-    assertNull (PDTableColumnHelper.findColumn (COLUMNS, null));
+    assertSame (COL_ALL, TableColumnHelper.findColumn (COLUMNS, "all"));
+    assertSame (COL_LENGTH, TableColumnHelper.findColumn (COLUMNS, "length"));
+    assertNull (TableColumnHelper.findColumn (COLUMNS, "bla"));
+    assertNull (TableColumnHelper.findColumn (COLUMNS, ""));
+    assertNull (TableColumnHelper.findColumn (COLUMNS, null));
   }
 
   @Test
   public void testDefaultSortFields ()
   {
-    final ICommonsList <SortField> aSortFields = PDTableColumnHelper.getAllDefaultSortFields (COLUMNS);
+    final ICommonsList <SortField> aSortFields = TableColumnHelper.getAllDefaultSortFields (COLUMNS);
     assertEquals (1, aSortFields.size ());
     assertEquals ("all", aSortFields.getFirstOrNull ().getFieldName ());
     assertEquals (ESortOrder.ASCENDING, aSortFields.getFirstOrNull ().getSortOrder ());
@@ -141,20 +144,20 @@ public final class PDTableColumnHelperTest
   public void testSortColumnsFallbackToDefault ()
   {
     // An unknown field falls back to the default order
-    ICommonsList <PDSortColumn <String>> aSortColumns = PDTableColumnHelper.getAllSortColumns (COLUMNS,
-                                                                                               PagingSpec.createUnlimited (SortField.ascending ("bla")));
+    ICommonsList <SortColumn <String>> aSortColumns = TableColumnHelper.getAllSortColumns (COLUMNS,
+                                                                                           PagingSpec.createUnlimited (SortField.ascending ("bla")));
     assertEquals (1, aSortColumns.size ());
     assertSame (COL_ALL, aSortColumns.getFirstOrNull ().getColumn ());
 
     // A non-sortable field falls back to the default order as well
-    aSortColumns = PDTableColumnHelper.getAllSortColumns (COLUMNS,
-                                                          PagingSpec.createUnlimited (SortField.ascending ("first")));
+    aSortColumns = TableColumnHelper.getAllSortColumns (COLUMNS,
+                                                        PagingSpec.createUnlimited (SortField.ascending ("first")));
     assertEquals (1, aSortColumns.size ());
     assertSame (COL_ALL, aSortColumns.getFirstOrNull ().getColumn ());
 
     // A known and sortable field is used
-    aSortColumns = PDTableColumnHelper.getAllSortColumns (COLUMNS,
-                                                          PagingSpec.createUnlimited (SortField.descending ("length")));
+    aSortColumns = TableColumnHelper.getAllSortColumns (COLUMNS,
+                                                        PagingSpec.createUnlimited (SortField.descending ("length")));
     assertEquals (1, aSortColumns.size ());
     assertSame (COL_LENGTH, aSortColumns.getFirstOrNull ().getColumn ());
     assertFalse (aSortColumns.getFirstOrNull ().isAscending ());
@@ -163,23 +166,23 @@ public final class PDTableColumnHelperTest
   @Test
   public void testSearchPredicate ()
   {
-    assertNull (PDTableColumnHelper.getSearchPredicate (COLUMNS, null));
-    assertNull (PDTableColumnHelper.getSearchPredicate (COLUMNS, new String [0]));
+    assertNull (TableColumnHelper.getSearchPredicate (COLUMNS, (String) null));
+    assertNull (TableColumnHelper.getSearchPredicate (COLUMNS, new String [0]));
 
     // Case insensitive "contains" on any searchable column
-    Predicate <String> aFilter = PDTableColumnHelper.getSearchPredicate (COLUMNS, new String [] { "BB" });
+    Predicate <String> aFilter = TableColumnHelper.getSearchPredicate (COLUMNS, new String [] { "BB" });
     assertNotNull (aFilter);
     assertTrue (aFilter.test ("bbb"));
     assertFalse (aFilter.test ("cc"));
 
     // All search terms must match - "b" via the whole value, "c" via nothing
-    aFilter = PDTableColumnHelper.getSearchPredicate (COLUMNS, new String [] { "b", "c" });
+    aFilter = TableColumnHelper.getSearchPredicate (COLUMNS, new String [] { "b", "c" });
     assertNotNull (aFilter);
     assertFalse (aFilter.test ("bbb"));
     assertTrue (aFilter.test ("bc"));
 
     // The first character is searchable, the length is not
-    aFilter = PDTableColumnHelper.getSearchPredicate (COLUMNS, new String [] { "d" });
+    aFilter = TableColumnHelper.getSearchPredicate (COLUMNS, new String [] { "d" });
     assertNotNull (aFilter);
     assertTrue (aFilter.test ("dddd"));
   }
@@ -188,45 +191,45 @@ public final class PDTableColumnHelperTest
   public void testGetPage ()
   {
     // Sorted by the default order, first page
-    ICommonsList <String> aPage = PDTableColumnHelper.getPage (COLUMNS, _list (), PagingSpec.createForPage (0, 2), null);
+    ICommonsList <String> aPage = TableColumnHelper.getPage (COLUMNS,
+                                                             _list (),
+                                                             PagingSpec.createForPage (0, 2),
+                                                             (String) null);
     assertEquals (new CommonsArrayList <> ("a", "bbb"), aPage);
 
     // Second page
-    aPage = PDTableColumnHelper.getPage (COLUMNS, _list (), PagingSpec.createForPage (1, 2), null);
+    aPage = TableColumnHelper.getPage (COLUMNS, _list (), PagingSpec.createForPage (1, 2), (String) null);
     assertEquals (new CommonsArrayList <> ("cc", "dddd"), aPage);
 
     // Sorted by the length, descending
-    aPage = PDTableColumnHelper.getPage (COLUMNS,
-                                         _list (),
-                                         PagingSpec.createForPage (0, 2, SortField.descending ("length")),
-                                         null);
+    aPage = TableColumnHelper.getPage (COLUMNS,
+                                       _list (),
+                                       PagingSpec.createForPage (0, 2, SortField.descending ("length")),
+                                       (String) null);
     assertEquals (new CommonsArrayList <> ("dddd", "bbb"), aPage);
 
     // Filtered and paged
-    aPage = PDTableColumnHelper.getPage (COLUMNS,
-                                         _list (),
-                                         PagingSpec.createForPage (0, 10),
-                                         new String [] { "c" });
+    aPage = TableColumnHelper.getPage (COLUMNS, _list (), PagingSpec.createForPage (0, 10), new String [] { "c" });
     assertEquals (new CommonsArrayList <> ("cc"), aPage);
 
     // Beyond the last page
-    aPage = PDTableColumnHelper.getPage (COLUMNS, _list (), PagingSpec.createForPage (10, 2), null);
+    aPage = TableColumnHelper.getPage (COLUMNS, _list (), PagingSpec.createForPage (10, 2), (String) null);
     assertTrue (aPage.isEmpty ());
   }
 
   @Test
   public void testGetCount ()
   {
-    assertEquals (4, PDTableColumnHelper.getCount (COLUMNS, _list (), null));
-    assertEquals (4, PDTableColumnHelper.getCount (COLUMNS, _list (), new String [0]));
-    assertEquals (1, PDTableColumnHelper.getCount (COLUMNS, _list (), new String [] { "c" }));
-    assertEquals (0, PDTableColumnHelper.getCount (COLUMNS, _list (), new String [] { "x" }));
+    assertEquals (4, TableColumnHelper.getCount (COLUMNS, _list (), (String) null));
+    assertEquals (4, TableColumnHelper.getCount (COLUMNS, _list (), new String [0]));
+    assertEquals (1, TableColumnHelper.getCount (COLUMNS, _list (), new String [] { "c" }));
+    assertEquals (0, TableColumnHelper.getCount (COLUMNS, _list (), new String [] { "x" }));
   }
 
-  private static void _testRealColumns (@NonNull final IPDTableColumn <?> [] aColumns)
+  private static void _testRealColumns (@NonNull final ITableColumn <?> [] aColumns)
   {
     final ICommonsSet <String> aIDs = new CommonsHashSet <> ();
-    for (final IPDTableColumn <?> aColumn : aColumns)
+    for (final ITableColumn <?> aColumn : aColumns)
     {
       assertTrue ("The column ID '" + aColumn.getID () + "' is contained more than once", aIDs.add (aColumn.getID ()));
       // A column of the default order must be sortable, because paging without a deterministic
@@ -235,7 +238,7 @@ public final class PDTableColumnHelperTest
         assertTrue ("The column '" + aColumn.getID () + "' is not sortable", aColumn.isSortable ());
     }
     assertFalse ("No column declares a default sort order",
-                 PDTableColumnHelper.getAllDefaultSortFields (aColumns).isEmpty ());
+                 TableColumnHelper.getAllDefaultSortFields (aColumns).isEmpty ());
   }
 
   @Test

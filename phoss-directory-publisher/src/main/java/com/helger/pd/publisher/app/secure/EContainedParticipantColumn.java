@@ -25,8 +25,8 @@ import org.jspecify.annotations.Nullable;
 import com.helger.annotation.Nonempty;
 import com.helger.base.compare.CompareHelper;
 import com.helger.base.compare.ESortOrder;
-import com.helger.pd.publisher.ui.IPDTableColumn;
-import com.helger.pd.publisher.ui.PDTableColumnHelper;
+import com.helger.photon.core.paging.ITableColumn;
+import com.helger.photon.core.paging.TableColumnHelper;
 
 /**
  * The sortable and searchable columns of a {@link ContainedParticipant}, as shown on the
@@ -36,7 +36,7 @@ import com.helger.pd.publisher.ui.PDTableColumnHelper;
  * @author Philip Helger
  * @since 0.17.3
  */
-public enum EContainedParticipantColumn implements IPDTableColumn <ContainedParticipant>
+public enum EContainedParticipantColumn implements ITableColumn <ContainedParticipant>
 {
   /** The participant identifier */
   PARTICIPANT ("participant", x -> x.getParticipantID ().getURIEncoded (), ESortOrder.ASCENDING),
@@ -74,7 +74,7 @@ public enum EContainedParticipantColumn implements IPDTableColumn <ContainedPart
                                @NonNull final Function <ContainedParticipant, String> aSearchValueProvider,
                                @Nullable final ESortOrder eDefaultSortOrder)
   {
-    this (sID, aSearchValueProvider, PDTableColumnHelper.createComparator (aSearchValueProvider), eDefaultSortOrder);
+    this (sID, aSearchValueProvider, TableColumnHelper.createComparator (aSearchValueProvider), eDefaultSortOrder);
   }
 
   @NonNull
