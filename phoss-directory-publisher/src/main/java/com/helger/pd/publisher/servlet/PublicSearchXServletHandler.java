@@ -56,6 +56,7 @@ import com.helger.pd.indexer.searchindex.query.EPDIndexQueryOccur;
 import com.helger.pd.indexer.searchindex.query.IPDIndexQuery;
 import com.helger.pd.indexer.searchindex.query.PDIndexQueryBool;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
+import com.helger.pd.indexer.storage.PDSearchResult;
 import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
 import com.helger.pd.publisher.app.AppCommonUI;
@@ -344,11 +345,12 @@ public final class PublicSearchXServletHandler implements IXServletSimpleHandler
 
       // Search all documents
       final PDStorageManager aStorageMgr = PDMetaManager.getStorageMgr ();
-      final ICommonsList <PDStoredBusinessEntity> aResultDocs = aStorageMgr.getAllDocuments (aIndexQuery, nMaxResults);
+      final PDSearchResult aSearchResult = aStorageMgr.search (aIndexQuery, nMaxResults);
+      final ICommonsList <PDStoredBusinessEntity> aResultDocs = aSearchResult.allEntities ();
 
-      // Also get the total hit count for UI display. May be < 0 in case of
-      // error
-      final int nTotalBEs = aStorageMgr.getCount (aIndexQuery);
+      // The total hit count for UI display is a by-product of the search. May
+      // be < 0 in case of error
+      final int nTotalBEs = aSearchResult.totalHitCount ();
 
       if (LOGGER.isDebugEnabled ())
         LOGGER.debug ("  Result for <" +

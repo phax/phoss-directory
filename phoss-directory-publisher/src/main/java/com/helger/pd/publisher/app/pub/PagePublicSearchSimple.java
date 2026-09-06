@@ -47,6 +47,7 @@ import com.helger.pd.indexer.searchindex.query.IPDIndexQuery;
 import com.helger.pd.indexer.searchindex.query.PDIndexQueryBool;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.pd.indexer.storage.PDQueryManager;
+import com.helger.pd.indexer.storage.PDSearchResult;
 import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
 import com.helger.pd.indexer.storage.PDStoredMLName;
@@ -218,10 +219,11 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
     PDSessionSingleton.getInstance ().setLastQuery (aIndexQuery, nMaxResults);
 
     // Search all documents
-    final ICommonsList <PDStoredBusinessEntity> aResultBEs = aStorageMgr.getAllDocuments (aIndexQuery, nMaxResults);
-    // Also get the total hit count for UI display. May be < 0 in case of
-    // error
-    final int nTotalBEs = aStorageMgr.getCount (aIndexQuery);
+    final PDSearchResult aSearchResult = aStorageMgr.search (aIndexQuery, nMaxResults);
+    final ICommonsList <PDStoredBusinessEntity> aResultBEs = aSearchResult.allEntities ();
+    // The total hit count for UI display is a by-product of the search. May be
+    // < 0 in case of error
+    final int nTotalBEs = aSearchResult.totalHitCount ();
     LOGGER.info ("  Result for <" +
                  aIndexQuery +
                  "> (max=" +

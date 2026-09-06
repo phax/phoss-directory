@@ -131,10 +131,15 @@ public interface IPDIndex extends Closeable
    *        Maximum number of results. Values &le; 0 mean all.
    * @param aConsumer
    *        The consumer of the matching documents. May not be <code>null</code>.
+   * @return The total number of documents matching the query, independent of the provided maximum
+   *         result count. Always &ge; 0. Every search engine determines this number as a side
+   *         effect of the search itself, so that no separate {@link #getCount(IPDIndexQuery)} call
+   *         is necessary.
    * @throws IOException
    *         On index error
    */
-  void searchAll (@NonNull IPDIndexQuery aQuery,
-                  @CheckForSigned int nMaxResultCount,
-                  @NonNull Consumer <? super PDIndexDocument> aConsumer) throws IOException;
+  @CheckForSigned
+  int searchAll (@NonNull IPDIndexQuery aQuery,
+                 @CheckForSigned int nMaxResultCount,
+                 @NonNull Consumer <? super PDIndexDocument> aConsumer) throws IOException;
 }

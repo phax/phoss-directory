@@ -44,6 +44,7 @@ import org.opensearch.client.opensearch.core.InfoResponse;
 import org.opensearch.client.opensearch.core.SearchResponse;
 import org.opensearch.client.opensearch.core.bulk.BulkResponseItem;
 import org.opensearch.client.opensearch.core.search.Hit;
+import org.opensearch.client.opensearch.core.search.TotalHits;
 import org.opensearch.client.opensearch.indices.AnalyzeResponse;
 import org.opensearch.client.opensearch.indices.IndexSettings;
 import org.opensearch.client.opensearch.indices.analyze.AnalyzeToken;
@@ -463,9 +464,10 @@ public class PDOpenSearchIndex implements IPDIndex
     return nCount > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) nCount;
   }
 
-  public void searchAll (@NonNull final IPDIndexQuery aQuery,
-                         @CheckForSigned final int nMaxResultCount,
-                         @NonNull final Consumer <? super PDIndexDocument> aConsumer) throws IOException
+  @CheckForSigned
+  public int searchAll (@NonNull final IPDIndexQuery aQuery,
+                        @CheckForSigned final int nMaxResultCount,
+                        @NonNull final Consumer <? super PDIndexDocument> aConsumer) throws IOException
   {
     ValueEnforcer.notNull (aQuery, "Query");
     ValueEnforcer.notNull (aConsumer, "Consumer");
@@ -477,58 +479,75 @@ public class PDOpenSearchIndex implements IPDIndex
 
     if (nMaxResultCount > 0)
     {
-      // Search top docs only
+      /*
+       * Search top docs only. By default the total hit count is only tracked up to 10.000
+       * documents, so it must be enabled explicitly to receive an exact number, that is the same a
+       * separate "getCount" call would deliver.
+       */
       final SearchResponse <JsonData> aResponse = m_aClient.search (s -> s.index (m_sIndexName)
                                                                           .query (aOSQuery)
+                                                                          .trackTotalHits (t -> t.enabled (Boolean.TRUE))
                                                                           .size (Integer.valueOf (nMaxResultCount)),
                                                                     JsonData.class);
       _consumeHits (aResponse, aConsumer);
+
+      final TotalHits aTotalHits = aResponse.hits ().total ();
+      if (aTotalHits == null)
+      {
+        // Should not happen, as the total hit count tracking is enabled above
+        LOGGER.warn ("The OpenSearch response of query " + aQuery + " contains no total hit count");
+        return aResponse.hits ().hits ().size ();
+      }
+      final long nTotalHits = aTotalHits.value ();
+      return nTotalHits > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) nTotalHits;
     }
-    else
+
+    // Search all - use the scroll API, because a single search is limited to
+    // "index.max_result_window" (10.000 by default) documents
+    final Time aScrollTime = Time.of (t -> t.time (PDOpenSearchConfiguration.getScrollTimeoutMinutes () + "m"));
+    final Integer aPageSize = Integer.valueOf (PDOpenSearchConfiguration.getScrollPageSize ());
+
+    SearchResponse <JsonData> aResponse = m_aClient.search (s -> s.index (m_sIndexName)
+                                                                  .query (aOSQuery)
+                                                                  .size (aPageSize)
+                                                                  .scroll (aScrollTime)
+                                                                  // Sorting by document order is
+                                                                  // the most efficient way to
+                                                                  // scroll
+                                                                  .sort (SortOptions.of (x -> x.doc (d -> d))),
+                                                            JsonData.class);
+    String sScrollID = aResponse.scrollId ();
+    // Every matching document is scrolled through, so counting them is the total hit count
+    int nTotalHitCount = 0;
+    try
     {
-      // Search all - use the scroll API, because a single search is limited to
-      // "index.max_result_window" (10.000 by default) documents
-      final Time aScrollTime = Time.of (t -> t.time (PDOpenSearchConfiguration.getScrollTimeoutMinutes () + "m"));
-      final Integer aPageSize = Integer.valueOf (PDOpenSearchConfiguration.getScrollPageSize ());
-
-      SearchResponse <JsonData> aResponse = m_aClient.search (s -> s.index (m_sIndexName)
-                                                                    .query (aOSQuery)
-                                                                    .size (aPageSize)
-                                                                    .scroll (aScrollTime)
-                                                                    // Sorting by document order is
-                                                                    // the most efficient way to
-                                                                    // scroll
-                                                                    .sort (SortOptions.of (x -> x.doc (d -> d))),
-                                                              JsonData.class);
-      String sScrollID = aResponse.scrollId ();
-      try
+      while (!aResponse.hits ().hits ().isEmpty ())
       {
-        while (!aResponse.hits ().hits ().isEmpty ())
-        {
-          _consumeHits (aResponse, aConsumer);
+        nTotalHitCount += aResponse.hits ().hits ().size ();
+        _consumeHits (aResponse, aConsumer);
 
-          final String sCurScrollID = sScrollID;
-          aResponse = m_aClient.scroll (s -> s.scrollId (sCurScrollID).scroll (aScrollTime), JsonData.class);
-          sScrollID = aResponse.scrollId ();
-        }
+        final String sCurScrollID = sScrollID;
+        aResponse = m_aClient.scroll (s -> s.scrollId (sCurScrollID).scroll (aScrollTime), JsonData.class);
+        sScrollID = aResponse.scrollId ();
       }
-      finally
+    }
+    finally
+    {
+      if (StringHelper.isNotEmpty (sScrollID))
       {
-        if (StringHelper.isNotEmpty (sScrollID))
+        final String sCurScrollID = sScrollID;
+        try
         {
-          final String sCurScrollID = sScrollID;
-          try
-          {
-            m_aClient.clearScroll (c -> c.scrollId (sCurScrollID));
-          }
-          catch (final IOException | RuntimeException ex)
-          {
-            // Not fatal - the scroll context times out anyway
-            LOGGER.warn ("Failed to clear the OpenSearch scroll context: " + ex.getMessage ());
-          }
+          m_aClient.clearScroll (c -> c.scrollId (sCurScrollID));
+        }
+        catch (final IOException | RuntimeException ex)
+        {
+          // Not fatal - the scroll context times out anyway
+          LOGGER.warn ("Failed to clear the OpenSearch scroll context: " + ex.getMessage ());
         }
       }
     }
+    return nTotalHitCount;
   }
 
   private static void _consumeHits (@NonNull final SearchResponse <JsonData> aResponse,

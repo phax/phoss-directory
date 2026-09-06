@@ -31,7 +31,6 @@ import com.helger.annotation.style.ReturnsMutableCopy;
 import com.helger.base.CGlobal;
 import com.helger.base.enforce.ValueEnforcer;
 import com.helger.base.functional.IThrowingSupplier;
-import com.helger.base.iface.IThrowingRunnable;
 import com.helger.base.numeric.mutable.MutableInt;
 import com.helger.base.state.ESuccess;
 import com.helger.base.string.StringHelper;
@@ -91,15 +90,6 @@ public final class PDStorageManager implements IPDStorageManager
   public void close () throws IOException
   {
     m_aIndex.close ();
-  }
-
-  private static void _timedSearch (@NonNull final IThrowingRunnable <IOException> aRunnable,
-                                    @NonNull final IPDIndexQuery aQuery) throws IOException
-  {
-    _timedSearch (() -> {
-      aRunnable.run ();
-      return null;
-    }, aQuery);
   }
 
   private static <T> T _timedSearch (@NonNull final IThrowingSupplier <T, IOException> aRunnable,
@@ -402,30 +392,38 @@ public final class PDStorageManager implements IPDStorageManager
    *        The function to extract data from the index document. May not be <code>null</code>.
    * @param aConsumer
    *        The consumer of the mapped objects. May not be <code>null</code>.
+   * @return The total number of documents matching the query, independent of the provided maximum
+   *         result count. Always &ge; 0.
    * @throws IOException
    *         On index error
    * @see #getAllDocuments(IPDIndexQuery,int)
    */
-  public <T> void searchAll (@NonNull final IPDIndexQuery aQuery,
-                             @CheckForSigned final int nMaxResultCount,
-                             @NonNull final Function <PDIndexDocument, T> aFromDocumentConverter,
-                             @NonNull final Consumer <? super T> aConsumer) throws IOException
+  @CheckForSigned
+  public <T> int searchAll (@NonNull final IPDIndexQuery aQuery,
+                            @CheckForSigned final int nMaxResultCount,
+                            @NonNull final Function <PDIndexDocument, T> aFromDocumentConverter,
+                            @NonNull final Consumer <? super T> aConsumer) throws IOException
   {
     ValueEnforcer.notNull (aQuery, "Query");
     ValueEnforcer.notNull (aFromDocumentConverter, "FromDocumentConverter");
     ValueEnforcer.notNull (aConsumer, "Consumer");
 
-    searchAll (aQuery, nMaxResultCount, aDoc -> aConsumer.accept (aFromDocumentConverter.apply (aDoc)));
+    return searchAll (aQuery, nMaxResultCount, aDoc -> aConsumer.accept (aFromDocumentConverter.apply (aDoc)));
   }
 
-  public void searchAll (@NonNull final IPDIndexQuery aQuery,
-                         @CheckForSigned final int nMaxResultCount,
-                         @NonNull final Consumer <PDIndexDocument> aConsumer) throws IOException
+  @CheckForSigned
+  public int searchAll (@NonNull final IPDIndexQuery aQuery,
+                        @CheckForSigned final int nMaxResultCount,
+                        @NonNull final Consumer <PDIndexDocument> aConsumer) throws IOException
   {
     ValueEnforcer.notNull (aQuery, "Query");
     ValueEnforcer.notNull (aConsumer, "Consumer");
 
-    _timedSearch (() -> m_aIndex.searchAll (aQuery, nMaxResultCount, aConsumer), aQuery);
+    final Integer aTotalHitCount = _timedSearch (() -> Integer.valueOf (m_aIndex.searchAll (aQuery,
+                                                                                            nMaxResultCount,
+                                                                                            aConsumer)),
+                                                 aQuery);
+    return aTotalHitCount.intValue ();
   }
 
   /**
@@ -440,15 +438,52 @@ public final class PDStorageManager implements IPDStorageManager
    * @param aConsumer
    *        The consumer of the {@link PDStoredBusinessEntity} objects. May not be
    *        <code>null</code>.
+   * @return The total number of business entities matching the query, independent of the provided
+   *         maximum result count. Always &ge; 0.
    * @throws IOException
    *         On index error
    * @see #getAllDocuments(IPDIndexQuery,int)
    */
-  public void searchAllDocuments (@NonNull final IPDIndexQuery aQuery,
-                                  @CheckForSigned final int nMaxResultCount,
-                                  @NonNull final Consumer <? super PDStoredBusinessEntity> aConsumer) throws IOException
+  @CheckForSigned
+  public int searchAllDocuments (@NonNull final IPDIndexQuery aQuery,
+                                 @CheckForSigned final int nMaxResultCount,
+                                 @NonNull final Consumer <? super PDStoredBusinessEntity> aConsumer) throws IOException
   {
-    searchAll (aQuery, nMaxResultCount, PDStoredBusinessEntity::create, aConsumer);
+    return searchAll (aQuery, nMaxResultCount, PDStoredBusinessEntity::create, aConsumer);
+  }
+
+  /**
+   * Get all {@link PDStoredBusinessEntity} objects matching the provided query, together with the
+   * total number of matching business entities. The total hit count is a by-product of the search
+   * itself, so this method requires a single index query only, compared to the combination of
+   * {@link #getAllDocuments(IPDIndexQuery, int)} and {@link #getCount(IPDIndexQuery)}. Because both
+   * numbers originate from the same query, they are always consistent with each other.
+   *
+   * @param aQuery
+   *        The query to be executed. May not be <code>null</code>.
+   * @param nMaxResultCount
+   *        Maximum number of results. Values &le; 0 mean all.
+   * @return Never <code>null</code>. In case of an error, the contained total hit count is -1 and
+   *         the contained list only holds the business entities that were found before the error
+   *         occurred.
+   * @see #searchAllDocuments(IPDIndexQuery, int, Consumer)
+   * @since 0.18.0
+   */
+  @NonNull
+  public PDSearchResult search (@NonNull final IPDIndexQuery aQuery, @CheckForSigned final int nMaxResultCount)
+  {
+    final ICommonsList <PDStoredBusinessEntity> aTargetList = new CommonsArrayList <> ();
+    int nTotalHitCount;
+    try
+    {
+      nTotalHitCount = searchAllDocuments (aQuery, nMaxResultCount, aTargetList::add);
+    }
+    catch (final IOException ex)
+    {
+      LOGGER.error ("Error searching for documents with query " + aQuery, ex);
+      nTotalHitCount = -1;
+    }
+    return new PDSearchResult (aTargetList, nTotalHitCount);
   }
 
   /**
@@ -461,22 +496,14 @@ public final class PDStorageManager implements IPDStorageManager
    *        Maximum number of results. Values &le; 0 mean all.
    * @return A non-<code>null</code> but maybe empty list of matching documents
    * @see #searchAllDocuments(IPDIndexQuery, int, Consumer)
+   * @see #search(IPDIndexQuery, int)
    */
   @NonNull
   @ReturnsMutableCopy
   public ICommonsList <PDStoredBusinessEntity> getAllDocuments (@NonNull final IPDIndexQuery aQuery,
                                                                 @CheckForSigned final int nMaxResultCount)
   {
-    final ICommonsList <PDStoredBusinessEntity> aTargetList = new CommonsArrayList <> ();
-    try
-    {
-      searchAllDocuments (aQuery, nMaxResultCount, aTargetList::add);
-    }
-    catch (final IOException ex)
-    {
-      LOGGER.error ("Error searching for documents with query " + aQuery, ex);
-    }
-    return aTargetList;
+    return search (aQuery, nMaxResultCount).allEntities ();
   }
 
   @NonNull

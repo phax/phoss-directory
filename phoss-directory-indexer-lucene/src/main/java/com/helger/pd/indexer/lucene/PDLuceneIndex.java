@@ -41,6 +41,7 @@ import org.apache.lucene.search.PrefixQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.search.TotalHitCountCollector;
 import org.apache.lucene.search.WildcardQuery;
@@ -51,6 +52,7 @@ import org.slf4j.LoggerFactory;
 import com.helger.annotation.CheckForSigned;
 import com.helger.annotation.Nonempty;
 import com.helger.base.enforce.ValueEnforcer;
+import com.helger.base.numeric.mutable.MutableInt;
 import com.helger.collection.commons.CommonsArrayList;
 import com.helger.collection.commons.CommonsLinkedHashMap;
 import com.helger.collection.commons.ICommonsList;
@@ -195,9 +197,10 @@ public class PDLuceneIndex implements IPDIndex
     return aCollector.getTotalHits ();
   }
 
-  public void searchAll (@NonNull final IPDIndexQuery aQuery,
-                         @CheckForSigned final int nMaxResultCount,
-                         @NonNull final Consumer <? super PDIndexDocument> aConsumer) throws IOException
+  @CheckForSigned
+  public int searchAll (@NonNull final IPDIndexQuery aQuery,
+                        @CheckForSigned final int nMaxResultCount,
+                        @NonNull final Consumer <? super PDIndexDocument> aConsumer) throws IOException
   {
     ValueEnforcer.notNull (aQuery, "Query");
     ValueEnforcer.notNull (aConsumer, "Consumer");
@@ -205,40 +208,54 @@ public class PDLuceneIndex implements IPDIndex
     final Query aLuceneQuery = _toLuceneQuery (aQuery);
     if (nMaxResultCount <= 0)
     {
-      // Search all
-      final ObjIntConsumer <Document> aConverter = (aDoc, _) -> aConsumer.accept (_toIndexDocument (aDoc));
+      // Search all - every matching document is collected, so counting them is the total hit count
+      final MutableInt aTotalHitCount = new MutableInt (0);
+      final ObjIntConsumer <Document> aConverter = (aDoc, _) -> {
+        aTotalHitCount.inc ();
+        aConsumer.accept (_toIndexDocument (aDoc));
+      };
       final Collector aCollector = new AllDocumentsCollector (aConverter);
       _searchAtomic (aLuceneQuery, aCollector);
+      return aTotalHitCount.intValue ();
     }
-    else
-    {
-      /*
-       * Search top docs only. Important: the resulting documents must be resolved with exactly the
-       * searcher that was used for searching, because the Lucene document IDs are only valid for
-       * the index reader that created them (see security advisory GHSA-8qhv-6p5x-2437).
-       */
-      final IndexSearcher aSearcher = m_aLucene.acquireSearcher ();
-      try
-      {
-        if (LOGGER.isDebugEnabled ())
-          LOGGER.debug ("Searching Lucene: " + aLuceneQuery);
 
-        // Lucene 8
-        final TopScoreDocCollector aCollector = TopScoreDocCollector.create (nMaxResultCount, Integer.MAX_VALUE);
-        aSearcher.search (aLuceneQuery, aCollector);
-        for (final ScoreDoc aScoreDoc : aCollector.topDocs ().scoreDocs)
-        {
-          final Document aDoc = aSearcher.doc (aScoreDoc.doc);
-          if (aDoc == null)
-            throw new IllegalStateException ("Failed to resolve Lucene Document with ID " + aScoreDoc.doc);
-          // Pass to Consumer
-          aConsumer.accept (_toIndexDocument (aDoc));
-        }
-      }
-      finally
+    /*
+     * Search top docs only. Important: the resulting documents must be resolved with exactly the
+     * searcher that was used for searching, because the Lucene document IDs are only valid for the
+     * index reader that created them (see security advisory GHSA-8qhv-6p5x-2437).
+     */
+    final IndexSearcher aSearcher = m_aLucene.acquireSearcher ();
+    try
+    {
+      if (LOGGER.isDebugEnabled ())
+        LOGGER.debug ("Searching Lucene: " + aLuceneQuery);
+
+      // Lucene 8
+      final TopScoreDocCollector aCollector = TopScoreDocCollector.create (nMaxResultCount, Integer.MAX_VALUE);
+      aSearcher.search (aLuceneQuery, aCollector);
+
+      final TopDocs aTopDocs = aCollector.topDocs ();
+      for (final ScoreDoc aScoreDoc : aTopDocs.scoreDocs)
       {
-        m_aLucene.releaseSearcher (aSearcher);
+        final Document aDoc = aSearcher.doc (aScoreDoc.doc);
+        if (aDoc == null)
+          throw new IllegalStateException ("Failed to resolve Lucene Document with ID " + aScoreDoc.doc);
+        // Pass to Consumer
+        aConsumer.accept (_toIndexDocument (aDoc));
       }
+
+      /*
+       * Because the total hit count threshold used above is Integer.MAX_VALUE, all matching
+       * documents are counted and the total hit count is therefore exact (the relation is always
+       * TotalHits.Relation.EQUAL_TO). It is the same number a separate "getCount" call would
+       * deliver.
+       */
+      final long nTotalHits = aTopDocs.totalHits.value;
+      return nTotalHits > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) nTotalHits;
+    }
+    finally
+    {
+      m_aLucene.releaseSearcher (aSearcher);
     }
   }
 

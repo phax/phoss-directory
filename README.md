@@ -170,6 +170,14 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
+v0.18.0 - work in progress
+* A search no longer queries the search index twice. `IPDIndex.searchAll (...)` returns the total number of matching documents, that every search engine determines as a side effect of the search itself, instead of `void`. The separate `getCount (...)` call that the search UI and the REST search API used to fill in the total result count is therefore gone
+    * `PDStorageManager.searchAll (...)` and `PDStorageManager.searchAllDocuments (...)` return the total hit count as well
+    * The new method `PDStorageManager.search (...)` returns the new record `PDSearchResult`, that contains the matching business entities as well as the total hit count. `PDStorageManager.getAllDocuments (...)` is unchanged and is now a shortcut for it
+    * Because both numbers now originate from the same query, the displayed total result count can no longer belong to a different state of the index than the returned entries
+    * **Incompatible change**: implementations of `IPDIndex` must change the return type of `searchAll (...)`. Callers that are not interested in the total hit count can ignore the return value and don't need to be changed
+* The OpenSearch implementation enables the exact total hit count tracking for searches with a maximum result count, because OpenSearch only counts up to `index.max_result_window` (10.000 by default) hits otherwise
+
 v0.17.3 - 2026-09-05
 * The interval after which the shadow event list is written to disk in total is configurable via the new property `indexer.shadowing.checkpoint`. It defaults to 5 minutes and uses the duration grammar (e.g. `30s`, `5m`, `1h 30m`), so `PDServerConfiguration.getIndexerShadowingCheckpointDuration ()` returns a `Duration`
     * Previously each checkpoint rewrote the complete file every 10 seconds, which is heavily disproportionate to the amount of data that actually changed if the queue is large. The write-ahead log keeps the events durable in between

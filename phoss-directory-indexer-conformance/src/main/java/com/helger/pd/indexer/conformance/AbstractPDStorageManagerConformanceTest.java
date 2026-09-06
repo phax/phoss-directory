@@ -40,6 +40,7 @@ import com.helger.pd.indexer.searchindex.IPDIndex;
 import com.helger.pd.indexer.searchindex.query.IPDIndexQuery;
 import com.helger.pd.indexer.searchindex.query.PDIndexQueryMatchAll;
 import com.helger.pd.indexer.storage.PDQueryManager;
+import com.helger.pd.indexer.storage.PDSearchResult;
 import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
 import com.helger.pd.indexer.storage.PDStoredMetaData;
@@ -295,6 +296,30 @@ public abstract class AbstractPDStorageManagerConformanceTest
     assertEquals ("Icabanken AB", aDocs.get (1).names ().get (0).getName ());
     // The name only contains the search term inside a word
     assertEquals ("Medical Publications", aDocs.get (2).names ().get (0).getName ());
+  }
+
+  @Test
+  public void testSearchReturnsEntitiesAndTotalHitCount () throws IOException
+  {
+    _createEntryWithName ("9915:total1", "Total Hit Count One", null);
+    _createEntryWithName ("9915:total2", "Total Hit Count Two", null);
+    _createEntryWithName ("9915:total3", "Total Hit Count Three", null);
+
+    final IPDIndexQuery aQuery = PDQueryManager.getNameQuery (m_aIndex, "total");
+    assertNotNull (aQuery);
+
+    // The number of entities is limited by the maximum result count, the total hit count is not
+    final PDSearchResult aLimitedResult = m_aStorageMgr.search (aQuery, 2);
+    assertEquals (2, aLimitedResult.allEntities ().size ());
+    assertEquals (3, aLimitedResult.totalHitCount ());
+
+    // The total hit count is always the same number a separate "getCount" call delivers
+    assertEquals (m_aStorageMgr.getCount (aQuery), aLimitedResult.totalHitCount ());
+
+    // Unlimited search
+    final PDSearchResult aFullResult = m_aStorageMgr.search (aQuery, -1);
+    assertEquals (3, aFullResult.allEntities ().size ());
+    assertEquals (3, aFullResult.totalHitCount ());
   }
 
   @Test

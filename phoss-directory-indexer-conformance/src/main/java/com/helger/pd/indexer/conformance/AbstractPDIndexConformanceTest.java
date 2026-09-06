@@ -220,6 +220,36 @@ public abstract class AbstractPDIndexConformanceTest
   }
 
   @Test
+  public void testSearchAllReturnsTotalHitCount () throws IOException
+  {
+    // Nothing indexed yet
+    assertEquals (0, m_aIndex.searchAll (PDIndexQueryMatchAll.INSTANCE, -1, _ -> {}));
+
+    addMockDocuments ();
+
+    // The total hit count is independent of the maximum result count
+    final ICommonsList <PDIndexDocument> aDocs = new CommonsArrayList <> ();
+    assertEquals (2, m_aIndex.searchAll (PDIndexQueryMatchAll.INSTANCE, 1, aDocs::add));
+    assertEquals (1, aDocs.size ());
+
+    assertEquals (2, m_aIndex.searchAll (PDIndexQueryMatchAll.INSTANCE, 2, _ -> {}));
+    // More than available
+    assertEquals (2, m_aIndex.searchAll (PDIndexQueryMatchAll.INSTANCE, 100, _ -> {}));
+    // All
+    assertEquals (2, m_aIndex.searchAll (PDIndexQueryMatchAll.INSTANCE, -1, _ -> {}));
+    assertEquals (2, m_aIndex.searchAll (PDIndexQueryMatchAll.INSTANCE, 0, _ -> {}));
+
+    // It is always the same number a separate "getCount" call delivers
+    assertEquals (m_aIndex.getCount (PDIndexQueryMatchAll.INSTANCE),
+                  m_aIndex.searchAll (PDIndexQueryMatchAll.INSTANCE, 1, _ -> {}));
+
+    // A query matching nothing
+    final IPDIndexQuery aNoMatchQuery = PDField.COUNTRY_CODE.getExactMatchQuery ("NO");
+    assertEquals (0, m_aIndex.searchAll (aNoMatchQuery, 10, _ -> {}));
+    assertEquals (0, m_aIndex.searchAll (aNoMatchQuery, -1, _ -> {}));
+  }
+
+  @Test
   public void testUpdateDocumentsDeletesTheOldOnes () throws IOException
   {
     addMockDocuments ();
