@@ -1,2 +1,9 @@
+# The search interface and bulk export paths are not intended for crawling.
+User-agent: *
+Disallow: /public/locale-en_US/menuitem-search
+Disallow: /search/
+Disallow: /export/
+Disallow: /export1/
+
 User-agent: GPTBot
 Disallow: /
