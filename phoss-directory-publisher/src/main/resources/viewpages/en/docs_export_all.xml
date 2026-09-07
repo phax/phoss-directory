@@ -29,15 +29,46 @@
 </p>
 
 <ul>
-  <li>Only <code>HTTP GET</code> requests are supported.</li>
+  <li>Only <code>HTTP GET</code> and <code>HTTP HEAD</code> requests are supported.</li>
   <li>
     The download URLs don't deliver the data themselves but respond with an HTTP redirect
     (HTTP status code 302) to the storage location of the respective file.
     Clients MUST follow the redirect to receive the data.
   </li>
+  <li>
+    The redirect is valid only for a short period and is issued for one specific request.
+    Clients MUST NOT store it and reuse it later.
+  </li>
   <li>Clients MUST support gzip compression.</li>
-  <li>Responses should be cached up to 24 hours.</li>
+  <li>The downloaded data may be cached up to 24 hours. The redirect itself MUST NOT be cached.</li>
   <li>The data is updated once a day. Exports start at 02:00 a.m. UTC.</li>
+</ul>
+
+<h3>Checking whether a new export is available</h3>
+
+<p>
+  An <code>HTTP HEAD</code> request on a download URL responds with the metadata of the currently
+  published file, without transferring it and without counting against your download limit.
+  Use it to find out whether there is anything new before downloading again.
+</p>
+
+<ul>
+  <li>
+    The <code>ETag</code> identifies the content of the current export and changes whenever a new
+    export replaces it. It is the most reliable way to tell whether you already hold the current
+    data. <code>Last-Modified</code> marks the point in time at which writing of the current
+    export was started, so for the larger files it is a few minutes earlier than the moment the
+    file actually became available. Either one is sufficient to detect that a new export has been
+    published, because a file only becomes downloadable once it is complete.
+  </li>
+  <li>
+    <code>X-Export-Content-Length</code> is the size of the export in bytes, so you can tell in
+    advance how much data you are about to transfer.
+  </li>
+  <li>
+    <code>HEAD</code> requests are rate limited as well, but far more generously than downloads.
+    Checking once an hour is more than sufficient for data that is updated once a day.
+  </li>
 </ul>
 
 <div class="alert alert-danger">

@@ -543,6 +543,33 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
     return getConfig ().getAsLong ("export.limit.requestsperday", 3);
   }
 
+  /**
+   * @return The maximum number of export HEAD (metadata) requests per IP per file per 24 hours.
+   *         Defaults to 100. These transfer no content, so the budget is far larger than for
+   *         downloads, but it remains bounded.
+   * @since 0.18.1
+   */
+  public static long getExportMaxHeadRequestsPerDay ()
+  {
+    return getConfig ().getAsLong ("export.limit.headrequestsperday", 100);
+  }
+
+  /**
+   * @return How long export object metadata is cached in memory before it is read from S3 again.
+   *         Defaults to 5 minutes; the exports themselves change once a day.
+   * @since 0.18.0
+   */
+  @NonNull
+  public static Duration getExportMetadataCacheDuration ()
+  {
+    final Duration ret = _getConfigDuration ("export.metadata.cache");
+    if (ret == null)
+      return Duration.ofMinutes (5);
+    if (ret.isNegative ())
+      throw new IllegalStateException ("The export.metadata.cache property must be >= 0!");
+    return ret;
+  }
+
   public static boolean isSyncAllBusinessCards ()
   {
     return getConfig ().getAsBoolean ("sync.businesscards", false);
