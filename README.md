@@ -171,6 +171,11 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 # News and noteworthy
 
 v0.18.0 - work in progress
+* The public documentation pages of the publisher were updated to the current state of the implementation
+    * The "Export data" page documents the participant identifier exports (`/export/participants-xml`, `/export/participants-json` and `/export/participants-csv`), the per IP and per file rate limiting of the downloads and that the download URLs respond with an HTTP redirect to the storage location
+    * The "How to use it" page no longer declares the REST API and the data download as "work in progress"
+    * The "REST API documentation" page describes that an invalid or too short search term is ignored instead of leading to an HTTP status code 400, that every request parameter may occur more than once, and uses current Peppol document type identifiers in all examples
+* The "export all" job now really starts at 02:00 a.m. UTC, as it is documented, instead of at 02:00 a.m. in the time zone of the server
 * A search no longer queries the search index twice. `IPDIndex.searchAll (...)` returns the total number of matching documents, that every search engine determines as a side effect of the search itself, instead of `void`. The separate `getCount (...)` call that the search UI and the REST search API used to fill in the total result count is therefore gone
     * `PDStorageManager.searchAll (...)` and `PDStorageManager.searchAllDocuments (...)` return the total hit count as well
     * The new method `PDStorageManager.search (...)` returns the new record `PDSearchResult`, that contains the matching business entities as well as the total hit count. `PDStorageManager.getAllDocuments (...)` is unchanged and is now a shortcut for it

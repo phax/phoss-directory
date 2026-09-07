@@ -18,6 +18,39 @@
 -->
 <p>
   The Directory allows you to download <strong>all data</strong> contained in different formats.
+  Both the full Business Card data as well as the plain list of all contained participant identifiers
+  are available.
+</p>
+
+<h2>General remarks</h2>
+
+<p>
+  The following rules apply to all the download URLs mentioned on this page:
+</p>
+
+<ul>
+  <li>Only <code>HTTP GET</code> requests are supported.</li>
+  <li>
+    The download URLs don't deliver the data themselves but respond with an HTTP redirect
+    (HTTP status code 302) to the storage location of the respective file.
+    Clients MUST follow the redirect to receive the data.
+  </li>
+  <li>Clients MUST support gzip compression.</li>
+  <li>Responses should be cached up to 24 hours.</li>
+  <li>The data is updated once a day. Exports start at 02:00 a.m. UTC.</li>
+</ul>
+
+<div class="alert alert-danger">
+  The usage of the download URLs is rate limited per IP address and per file.
+  By default you are only allowed to download each file 2 times per 24 hours.
+  If you are not following the instructions, the HTTP Status code 429 (Too Many Requests) is returned.
+  In this case you MUST lower your download rate.
+</div>
+
+<h2>Business Card data</h2>
+
+<p>
+  These exports contain all the indexed Business Card data.
 </p>
 
 <h3>XML</h3>
@@ -28,10 +61,7 @@
     <a href="../../export/businesscards">/export/businesscards</a> (including all document types)
     <a href="../../export/businesscards-xml-no-doc-types">/export/businesscards-xml-no-doc-types</a> (excluding all document types).
   </li>
-  <li>Clients MUST support gzip compression.</li>
   <li>The response MIME type is always <code>application/xml</code>.</li>
-  <li>Responses should be cached up to 24 hours.</li>
-  <li>The data is updated once a day. Exports start at 02:00 a.m. UTC.</li>
   <li>
     The XML Schema for the XML responses can be downloaded from
     <a href="../../files/directory-export-v3.xsd">/files/directory-export-v3.xsd</a>
@@ -42,19 +72,54 @@
 
 <ul>
   <li>The Directory JSON data can be downloaded via the URL <a href="../../export/businesscards-json">/export/businesscards-json</a>.</li>
-  <li>Clients MUST support gzip compression.</li>
   <li>The response MIME type is always <code>application/json</code>.</li>
-  <li>Responses should be cached up to 24 hours.</li>
-  <li>The data is updated once a day. Exports start at 02:00 a.m. UTC.</li>
 </ul>
 
 <h3>CSV</h3>
 
 <ul>
   <li>The Directory CSV data can be downloaded via the URL <a href="../../export/businesscards-csv">/export/businesscards-csv</a>.</li>
-  <li>Clients MUST support gzip compression.</li>
   <li>The response MIME type is always <code>text/csv</code>.</li>
   <li>The CSV file is encoded in ISO-8859-1 character set.</li>
-  <li>Responses should be cached up to 24 hours.</li>
-  <li>The data is updated once a day. Exports start at 02:00 a.m. UTC.</li>
+</ul>
+
+<h2>Participant identifiers</h2>
+
+<p>
+  These exports contain only the participant identifiers of all indexed participants and no
+  Business Card data at all.
+  All participant identifiers are contained in their URI encoded representation
+  (as in <code>iso6523-actorid-upis::9915:test</code>).
+</p>
+
+<h3>XML</h3>
+
+<ul>
+  <li>The participant identifier XML data can be downloaded via the URL <a href="../../export/participants-xml">/export/participants-xml</a>.</li>
+  <li>The response MIME type is always <code>application/xml</code>.</li>
+  <li>
+    The XML namespace URI is <code>http://www.peppol.eu/schema/pd/participant-generic/201910/</code>.
+    The root element carries the attributes <code>version</code>, <code>creationdt</code> and
+    <code>count</code> and contains one <code>participantID</code> element per participant with the
+    attributes <code>scheme</code> and <code>value</code>.
+  </li>
+</ul>
+
+<h3>JSON</h3>
+
+<ul>
+  <li>The participant identifier JSON data can be downloaded via the URL <a href="../../export/participants-json">/export/participants-json</a>.</li>
+  <li>The response MIME type is always <code>application/json</code>.</li>
+  <li>
+    The top-level object carries the fields <code>version</code>, <code>creationdt</code> and
+    <code>count</code> as well as the array <code>participants</code> with one string per participant.
+  </li>
+</ul>
+
+<h3>CSV</h3>
+
+<ul>
+  <li>The participant identifier CSV data can be downloaded via the URL <a href="../../export/participants-csv">/export/participants-csv</a>.</li>
+  <li>The response MIME type is always <code>text/csv</code>.</li>
+  <li>The CSV file is encoded in ISO-8859-1 character set.</li>
 </ul>

@@ -22,6 +22,13 @@
   This date is not necessarily identical to the date when the solution was deployed.
 </p>
 
+<h4>2026-09-07</h4>
+
+<ul>
+  <li>The "Export data" page now also documents the participant identifier exports, the rate limiting of the downloads and the fact that the download URLs answer with an HTTP redirect</li>
+  <li>Fixed several outdated statements in the "How to use it" and the "REST API documentation" pages</li>
+</ul>
+
 <h4>2026-09-06</h4>
 
 <ul>

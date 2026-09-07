@@ -25,14 +25,15 @@
 <ul>
   <li>
     <strong>Freetext search</strong> via a Webbrowser.
-    There is both a simple search interface (available)
-    as well as a more complex search interface to search for certain fields only (work in progress). 
+    The search term is matched against all indexed fields at once.
+    Additionally the results can be limited to a single country.
   </li>
   <li>
-    <strong>Automatic search</strong> via a REST API (work in progress).
-    Details can be found on a <a href="/public/menuitem-docs-rest-api">separate page</a>
+    <strong>Automatic search</strong> via a REST API.
+    Details can be found on a <a href="menuitem-docs-rest-api">separate page</a>.
   </li>
   <li>
-    <strong>Download information</strong> and evaluate the information externally (work in progress).
+    <strong>Download information</strong> and evaluate the information externally.
+    Details can be found on a <a href="menuitem-docs-export-all">separate page</a>.
   </li>
 </ul>
