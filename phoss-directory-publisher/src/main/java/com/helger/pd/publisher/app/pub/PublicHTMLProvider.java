@@ -49,6 +49,7 @@ import com.helger.pd.publisher.servlet.ExportServlet;
 import com.helger.pd.publisher.ui.IndefiniteArticleHelper;
 import com.helger.photon.app.url.LinkHelper;
 import com.helger.photon.bootstrap5.CBootstrapCSS;
+import com.helger.photon.bootstrap5.alert.BootstrapWarnBox;
 import com.helger.photon.bootstrap5.button.BootstrapButton;
 import com.helger.photon.bootstrap5.dropdown.BootstrapDropdownMenu;
 import com.helger.photon.bootstrap5.layout.BootstrapContainer;
@@ -272,6 +273,9 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
       aDiv.addChild (new HCP ().addChild (CPDPublisher.getApplication () + " - " + VENDOR_ARTICLE + " ")
                                .addChild (new HCA (new SimpleURL (VENDOR_URL)).addChild (VENDOR_NAME))
                                .addChild (" service"));
+      aDiv.addChild (new HCP ().addChild (new BootstrapWarnBox ().addChild ("Make sure your export data clients can handle gzip compressed content - we will mandate that very soon! See ")
+                                                                 .addChild (new HCA (aLEC.getLinkToMenuItem (CMenuPublic.MENU_DOCS_EXPORT_ALL)).addChild ("the export documentation"))
+                                                                 .addChild (" for details")));
       final HCP aP = new HCP ().addChild ("Download data [");
       if (CPDPublisher.EXPORT_BUSINESS_CARDS_XML)
       {
