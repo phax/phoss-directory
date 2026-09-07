@@ -110,6 +110,36 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
    * @since 0.17.3
    */
   public static final Duration DEFAULT_INDEXER_SHADOWING_CHECKPOINT = Duration.ofMinutes (5);
+  /**
+   * The configuration key enabling signed export redirect URLs
+   *
+   * @since 0.18.0
+   */
+  public static final String KEY_S3_SIGNING_ENABLED = "aws.export.s3.signing.enabled";
+  /**
+   * The configuration key of the CloudFront key pair ID used to sign export redirect URLs
+   *
+   * @since 0.18.0
+   */
+  public static final String KEY_S3_SIGNING_KEYPAIR_ID = "aws.export.s3.signing.keypairid";
+  /**
+   * The configuration key of the PEM encoded private key used to sign export redirect URLs
+   *
+   * @since 0.18.0
+   */
+  public static final String KEY_S3_SIGNING_PRIVATE_KEY = "aws.export.s3.signing.privatekey";
+  /**
+   * The configuration key of the validity of a signed export redirect URL
+   *
+   * @since 0.18.0
+   */
+  public static final String KEY_S3_SIGNING_VALIDITY = "aws.export.s3.signing.validity";
+  /**
+   * The default validity of a signed export redirect URL
+   *
+   * @since 0.18.0
+   */
+  public static final Duration DEFAULT_S3_SIGNING_VALIDITY = Duration.ofMinutes (5);
 
   private static final Logger LOGGER = LoggerFactory.getLogger (PDServerConfiguration.class);
   // Remember the deprecated keys for which a warning was already logged, so it is emitted only once
@@ -632,5 +662,54 @@ public final class PDServerConfiguration extends AbstractGlobalSingleton
   public static String getS3WebsiteURLWithTrailingSlash ()
   {
     return getConfig ().getAsString ("aws.export.s3.publicurl");
+  }
+
+  /**
+   * @return <code>true</code> if the export redirect URLs should be signed, so that the bulk export
+   *         files can only be retrieved through a redirect issued by this application. Defaults to
+   *         <code>false</code>, in which case plain unsigned URLs are used as before.
+   * @since 0.18.0
+   */
+  public static boolean isS3SigningEnabled ()
+  {
+    return getConfig ().getAsBoolean (KEY_S3_SIGNING_ENABLED, false);
+  }
+
+  /**
+   * @return The CloudFront key pair ID matching the private key below. Only relevant if
+   *         {@link #isS3SigningEnabled()} is <code>true</code>.
+   * @since 0.18.0
+   */
+  @Nullable
+  public static String getS3SigningKeyPairID ()
+  {
+    return getConfig ().getAsString (KEY_S3_SIGNING_KEYPAIR_ID);
+  }
+
+  /**
+   * @return The PEM encoded PKCS#8 private key used to sign the export redirect URLs. Only relevant
+   *         if {@link #isS3SigningEnabled()} is <code>true</code>.
+   * @since 0.18.0
+   */
+  @Nullable
+  public static String getS3SigningPrivateKey ()
+  {
+    return getConfig ().getAsString (KEY_S3_SIGNING_PRIVATE_KEY);
+  }
+
+  /**
+   * @return How long a signed export redirect URL stays valid. Defaults to 5 minutes. The signature
+   *         is only checked when the download starts, so this does not limit the transfer duration.
+   * @since 0.18.0
+   */
+  @NonNull
+  public static Duration getS3SigningValidity ()
+  {
+    final Duration ret = _getConfigDuration (KEY_S3_SIGNING_VALIDITY);
+    if (ret == null)
+      return DEFAULT_S3_SIGNING_VALIDITY;
+    if (ret.isZero () || ret.isNegative ())
+      throw new IllegalStateException ("The " + KEY_S3_SIGNING_VALIDITY + " property must be > 0!");
+    return ret;
   }
 }

@@ -18,6 +18,12 @@ package com.helger.pd.publisher.aws;
 
 import java.io.File;
 import java.net.URI;
+import java.security.GeneralSecurityException;
+import java.security.KeyFactory;
+import java.security.PrivateKey;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.time.Instant;
+import java.util.Base64;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -26,6 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.annotation.Nonempty;
 import com.helger.base.state.ESuccess;
+import com.helger.base.string.StringHelper;
 import com.helger.base.system.SystemProperties;
 import com.helger.mime.IMimeType;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
@@ -34,6 +41,8 @@ import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.cloudfront.CloudFrontUtilities;
+import software.amazon.awssdk.services.cloudfront.model.CustomSignerRequest;
 import software.amazon.awssdk.services.s3.S3AsyncClient;
 import software.amazon.awssdk.services.s3.S3AsyncClientBuilder;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -105,6 +114,75 @@ public final class S3Helper
     S3_ASYNC = aS3AsyncBuilder.serviceConfiguration (S3Configuration.builder ()
                                                                     .pathStyleAccessEnabled (Boolean.TRUE)
                                                                     .build ()).build ();
+  }
+
+  /**
+   * Build the publicly usable URL for an exported object. If
+   * {@link PDServerConfiguration#isS3SigningEnabled()} is enabled, a CloudFront signed URL with a
+   * limited validity is returned, so that the object can only be retrieved through a redirect
+   * issued by this application. Otherwise the plain public URL is returned, as before.
+   *
+   * @param sKey
+   *        The S3 key of the exported object. May neither be <code>null</code> nor empty.
+   * @return The URL to redirect the caller to. Never <code>null</code>.
+   * @since 0.18.0
+   */
+  @NonNull
+  @Nonempty
+  public static String getPublicURL (@NonNull @Nonempty final String sKey)
+  {
+    final String sPlainURL = S3_PUBLIC_URL + sKey;
+    if (!PDServerConfiguration.isS3SigningEnabled ())
+      return sPlainURL;
+
+    final String sKeyPairID = PDServerConfiguration.getS3SigningKeyPairID ();
+    final String sPrivateKey = PDServerConfiguration.getS3SigningPrivateKey ();
+    if (StringHelper.isEmpty (sKeyPairID) || StringHelper.isEmpty (sPrivateKey))
+      throw new IllegalStateException ("Export URL signing is enabled but " +
+                                       PDServerConfiguration.KEY_S3_SIGNING_KEYPAIR_ID +
+                                       " and/or " +
+                                       PDServerConfiguration.KEY_S3_SIGNING_PRIVATE_KEY +
+                                       " is not configured!");
+
+    try
+    {
+      final Instant aExpiry = Instant.now ().plus (PDServerConfiguration.getS3SigningValidity ());
+      final CustomSignerRequest aRequest = CustomSignerRequest.builder ()
+                                                              .resourceUrl (sPlainURL + "*")
+                                                              .privateKey (_parsePrivateKey (sPrivateKey))
+                                                              .keyPairId (sKeyPairID)
+                                                              .expirationDate (aExpiry)
+                                                              .build ();
+      final String sSignedURL = CloudFrontUtilities.create ().getSignedUrlWithCustomPolicy (aRequest).url ();
+
+      final int nQueryStart = sSignedURL.indexOf ('?');
+      if (nQueryStart < 0)
+        throw new IllegalStateException ("The signed URL for key '" + sKey + "' contains no query string");
+      return sPlainURL + sSignedURL.substring (nQueryStart);
+    }
+    catch (final RuntimeException ex)
+    {
+      throw new IllegalStateException ("Failed to sign the export URL for key '" + sKey + "'", ex);
+    }
+  }
+
+  @NonNull
+  private static PrivateKey _parsePrivateKey (@NonNull @Nonempty final String sPem)
+  {
+    try
+    {
+      final String sBase64 = sPem.replace ("-----BEGIN PRIVATE KEY-----", "")
+                                 .replace ("-----END PRIVATE KEY-----", "")
+                                 .replaceAll ("\\s", "");
+      final byte [] aDER = Base64.getDecoder ().decode (sBase64);
+      return KeyFactory.getInstance ("RSA").generatePrivate (new PKCS8EncodedKeySpec (aDER));
+    }
+    catch (final GeneralSecurityException | IllegalArgumentException ex)
+    {
+      throw new IllegalStateException ("The configured " +
+                                       PDServerConfiguration.KEY_S3_SIGNING_PRIVATE_KEY +
+                                       " is not a valid PEM encoded PKCS#8 RSA private key", ex);
+    }
   }
 
   @Nullable

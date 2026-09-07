@@ -417,7 +417,7 @@ public final class ExportAllManager
   public static void redirectToBusinessCardXMLFull (@NonNull final UnifiedResponse aUR)
   {
     // Get data directly from S3
-    aUR.setRedirect (S3Helper.S3_PUBLIC_URL + INTERNAL_BUSINESSCARDS_XML_FULL);
+    aUR.setRedirect (S3Helper.getPublicURL (INTERNAL_BUSINESSCARDS_XML_FULL));
     aUR.addCustomResponseHeader (CHttpHeader.CACHE_CONTROL, MAX_AGE_24H);
   }
 
@@ -430,7 +430,7 @@ public final class ExportAllManager
   public static void redirectToBusinessCardXMLNoDocTypes (@NonNull final UnifiedResponse aUR)
   {
     // Get data directly from S3
-    aUR.setRedirect (S3Helper.S3_PUBLIC_URL + INTERNAL_BUSINESSCARDS_XML_NO_DOC_TYPES);
+    aUR.setRedirect (S3Helper.getPublicURL (INTERNAL_BUSINESSCARDS_XML_NO_DOC_TYPES));
     aUR.addCustomResponseHeader (CHttpHeader.CACHE_CONTROL, MAX_AGE_24H);
   }
 
@@ -443,7 +443,7 @@ public final class ExportAllManager
   public static void redirectToBusinessCardJSON (@NonNull final UnifiedResponse aUR)
   {
     // Get data directly from S3
-    aUR.setRedirect (S3Helper.S3_PUBLIC_URL + INTERNAL_BUSINESSCARDS_JSON);
+    aUR.setRedirect (S3Helper.getPublicURL (INTERNAL_BUSINESSCARDS_JSON));
     aUR.addCustomResponseHeader (CHttpHeader.CACHE_CONTROL, MAX_AGE_24H);
   }
 
@@ -456,7 +456,7 @@ public final class ExportAllManager
   public static void redirectToBusinessCardCSV (@NonNull final UnifiedResponse aUR)
   {
     // Get data directly from S3
-    aUR.setRedirect (S3Helper.S3_PUBLIC_URL + INTERNAL_BUSINESSCARDS_CSV);
+    aUR.setRedirect (S3Helper.getPublicURL (INTERNAL_BUSINESSCARDS_CSV));
     aUR.addCustomResponseHeader (CHttpHeader.CACHE_CONTROL, MAX_AGE_24H);
   }
 
@@ -469,7 +469,7 @@ public final class ExportAllManager
   public static void redirectToParticipantXML (@NonNull final UnifiedResponse aUR)
   {
     // Get data directly from S3
-    aUR.setRedirect (S3Helper.S3_PUBLIC_URL + INTERNAL_PARTICIPANTS_XML);
+    aUR.setRedirect (S3Helper.getPublicURL (INTERNAL_PARTICIPANTS_XML));
     aUR.addCustomResponseHeader (CHttpHeader.CACHE_CONTROL, MAX_AGE_24H);
   }
 
@@ -482,7 +482,7 @@ public final class ExportAllManager
   public static void redirectToParticipantJSON (@NonNull final UnifiedResponse aUR)
   {
     // Get data directly from S3
-    aUR.setRedirect (S3Helper.S3_PUBLIC_URL + INTERNAL_PARTICIPANTS_JSON);
+    aUR.setRedirect (S3Helper.getPublicURL (INTERNAL_PARTICIPANTS_JSON));
     aUR.addCustomResponseHeader (CHttpHeader.CACHE_CONTROL, MAX_AGE_24H);
   }
 
@@ -495,7 +495,7 @@ public final class ExportAllManager
   public static void redirectToParticipantCSV (@NonNull final UnifiedResponse aUR)
   {
     // Get data directly from S3
-    aUR.setRedirect (S3Helper.S3_PUBLIC_URL + INTERNAL_PARTICIPANTS_CSV);
+    aUR.setRedirect (S3Helper.getPublicURL (INTERNAL_PARTICIPANTS_CSV));
     aUR.addCustomResponseHeader (CHttpHeader.CACHE_CONTROL, MAX_AGE_24H);
   }
 }
