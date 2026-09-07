@@ -170,7 +170,7 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
-v0.18.0 - work in progress
+v0.18.0 - 2026-09-07
 * The public documentation pages of the publisher were updated to the current state of the implementation
     * The "Export data" page documents the participant identifier exports (`/export/participants-xml`, `/export/participants-json` and `/export/participants-csv`), the per IP and per file rate limiting of the downloads and that the download URLs respond with an HTTP redirect to the storage location
     * The "How to use it" page no longer declares the REST API and the data download as "work in progress"
