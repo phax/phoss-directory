@@ -20,8 +20,6 @@ import org.jspecify.annotations.NonNull;
 
 import com.helger.annotation.Nonempty;
 import com.helger.annotation.concurrent.NotThreadSafe;
-import com.helger.base.email.EmailAddress;
-import com.helger.base.email.IEmailAddress;
 import com.helger.base.enforce.ValueEnforcer;
 import com.helger.pd.indexer.CDirectoryVersion;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
@@ -31,9 +29,6 @@ import com.helger.url.SimpleURL;
 @NotThreadSafe
 public final class CPDPublisher
 {
-  // Email sender - depends on the used SMTP server
-  public static final IEmailAddress EMAIL_SENDER = new EmailAddress ("no-reply@helger.com");
-
   public static final boolean EXPORT_BUSINESS_CARDS_XML = true;
   public static final boolean EXPORT_BUSINESS_CARDS_JSON = true;
   public static final boolean EXPORT_BUSINESS_CARDS_CSV = true;

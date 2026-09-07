@@ -68,8 +68,10 @@ public class ExportMetadataHttpHandler extends AbstractObjectDeliveryHttpHandler
   private static final ICommonsMap <String, String> KEYS = new CommonsHashMap <> ();
   static
   {
-    KEYS.put (ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_XML_FULL, ExportAllManager.INTERNAL_BUSINESSCARDS_XML_FULL);
-    KEYS.put (ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_XML_NO_DOC_TYPES, ExportAllManager.INTERNAL_BUSINESSCARDS_XML_NO_DOC_TYPES);
+    KEYS.put (ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_XML_FULL,
+              ExportAllManager.INTERNAL_BUSINESSCARDS_XML_FULL);
+    KEYS.put (ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_XML_NO_DOC_TYPES,
+              ExportAllManager.INTERNAL_BUSINESSCARDS_XML_NO_DOC_TYPES);
     KEYS.put (ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_JSON, ExportAllManager.INTERNAL_BUSINESSCARDS_JSON);
     KEYS.put (ExportDeliveryHttpHandler.SPECIAL_BUSINESS_CARDS_CSV, ExportAllManager.INTERNAL_BUSINESSCARDS_CSV);
     KEYS.put (ExportDeliveryHttpHandler.SPECIAL_PARTICIPANTS_XML, ExportAllManager.INTERNAL_PARTICIPANTS_XML);
@@ -155,9 +157,11 @@ public class ExportMetadataHttpHandler extends AbstractObjectDeliveryHttpHandler
 
     aUnifiedResponse.setStatus (HttpServletResponse.SC_OK);
 
-    // The base handler installs an ETag that is constant for every resource until the server is restarted,
-    // which would tell a consumer that the export never changes. Replace it with the ETag of the stored object,
-    // which changes whenever a new export is published.
+    /*
+     * The base handler installs an ETag that is constant for every resource until the server is
+     * restarted, which would tell a consumer that the export never changes. Replace it with the
+     * ETag of the stored object, which changes whenever a new export is published.
+     */
     aUnifiedResponse.removeETag ();
     if (aHead.eTag () != null)
       aUnifiedResponse.setETag (aHead.eTag ());
@@ -168,7 +172,8 @@ public class ExportMetadataHttpHandler extends AbstractObjectDeliveryHttpHandler
     // The response itself carries no content, so Content-Length must describe the export rather
     // than this response - it is sent under a distinct header to avoid contradicting the framework.
     aUnifiedResponse.setCustomResponseHeader (CHttpHeader.CACHE_CONTROL, "no-store");
-    aUnifiedResponse.setCustomResponseHeader ("X-Export-Content-Length", Long.toString (aHead.contentLength ()));
+    if (aHead.contentLength () != null)
+      aUnifiedResponse.setCustomResponseHeader ("X-Export-Content-Length", aHead.contentLength ().toString ());
     if (aHead.contentType () != null)
       aUnifiedResponse.setCustomResponseHeader ("X-Export-Content-Type", aHead.contentType ());
   }
