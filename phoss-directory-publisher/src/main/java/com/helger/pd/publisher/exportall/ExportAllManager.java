@@ -75,16 +75,28 @@ public final class ExportAllManager
 
   // Internal filenames
   private static final String S3_FOLDER_NAME = "export1/";
-  private static final String INTERNAL_BUSINESSCARDS_XML_FULL = S3_FOLDER_NAME + "export-all-businesscards.xml";
-  private static final String INTERNAL_BUSINESSCARDS_XML_NO_DOC_TYPES = S3_FOLDER_NAME +
+  public static final String INTERNAL_BUSINESSCARDS_XML_FULL = S3_FOLDER_NAME + "export-all-businesscards.xml";
+  public static final String INTERNAL_BUSINESSCARDS_XML_NO_DOC_TYPES = S3_FOLDER_NAME +
                                                                         "export-all-businesscards-no-doc-types.xml";
-  private static final String INTERNAL_BUSINESSCARDS_JSON = S3_FOLDER_NAME + "export-all-businesscards.json";
-  private static final String INTERNAL_BUSINESSCARDS_CSV = S3_FOLDER_NAME + "export-all-businesscards.csv";
-  private static final String INTERNAL_PARTICIPANTS_XML = S3_FOLDER_NAME + "export-all-participants.xml";
-  private static final String INTERNAL_PARTICIPANTS_JSON = S3_FOLDER_NAME + "export-all-participants.json";
-  private static final String INTERNAL_PARTICIPANTS_CSV = S3_FOLDER_NAME + "export-all-participants.csv";
+  public static final String INTERNAL_BUSINESSCARDS_JSON = S3_FOLDER_NAME + "export-all-businesscards.json";
+  public static final String INTERNAL_BUSINESSCARDS_CSV = S3_FOLDER_NAME + "export-all-businesscards.csv";
+  public static final String INTERNAL_PARTICIPANTS_XML = S3_FOLDER_NAME + "export-all-participants.xml";
+  public static final String INTERNAL_PARTICIPANTS_JSON = S3_FOLDER_NAME + "export-all-participants.json";
+  public static final String INTERNAL_PARTICIPANTS_CSV = S3_FOLDER_NAME + "export-all-participants.csv";
 
   private static final String MAX_AGE_24H = "max-age=86400";
+
+  /**
+   * @return The Cache-Control value for the export redirects. The redirect target is stable for a
+   *         day and may be cached - unless it is signed, in which case it carries a short lived
+   *         signature and caching it would hand the caller a URL that is rejected once the
+   *         signature expires.
+   */
+  @NonNull
+  private static String _getRedirectCacheControl ()
+  {
+    return PDServerConfiguration.isS3SigningEnabled () ? "no-store" : MAX_AGE_24H;
+  }
 
   // Number of participants after which the export progress is reported
   private static final int PROGRESS_STEP = 25_000;
@@ -418,7 +430,7 @@ public final class ExportAllManager
   {
     // Get data directly from S3
     aUR.setRedirect (S3Helper.getPublicURL (INTERNAL_BUSINESSCARDS_XML_FULL));
-    aUR.addCustomResponseHeader (CHttpHeader.CACHE_CONTROL, MAX_AGE_24H);
+    aUR.addCustomResponseHeader (CHttpHeader.CACHE_CONTROL, _getRedirectCacheControl ());
   }
 
   /**
@@ -431,7 +443,7 @@ public final class ExportAllManager
   {
     // Get data directly from S3
     aUR.setRedirect (S3Helper.getPublicURL (INTERNAL_BUSINESSCARDS_XML_NO_DOC_TYPES));
-    aUR.addCustomResponseHeader (CHttpHeader.CACHE_CONTROL, MAX_AGE_24H);
+    aUR.addCustomResponseHeader (CHttpHeader.CACHE_CONTROL, _getRedirectCacheControl ());
   }
 
   /**
@@ -444,7 +456,7 @@ public final class ExportAllManager
   {
     // Get data directly from S3
     aUR.setRedirect (S3Helper.getPublicURL (INTERNAL_BUSINESSCARDS_JSON));
-    aUR.addCustomResponseHeader (CHttpHeader.CACHE_CONTROL, MAX_AGE_24H);
+    aUR.addCustomResponseHeader (CHttpHeader.CACHE_CONTROL, _getRedirectCacheControl ());
   }
 
   /**
@@ -457,7 +469,7 @@ public final class ExportAllManager
   {
     // Get data directly from S3
     aUR.setRedirect (S3Helper.getPublicURL (INTERNAL_BUSINESSCARDS_CSV));
-    aUR.addCustomResponseHeader (CHttpHeader.CACHE_CONTROL, MAX_AGE_24H);
+    aUR.addCustomResponseHeader (CHttpHeader.CACHE_CONTROL, _getRedirectCacheControl ());
   }
 
   /**
@@ -470,7 +482,7 @@ public final class ExportAllManager
   {
     // Get data directly from S3
     aUR.setRedirect (S3Helper.getPublicURL (INTERNAL_PARTICIPANTS_XML));
-    aUR.addCustomResponseHeader (CHttpHeader.CACHE_CONTROL, MAX_AGE_24H);
+    aUR.addCustomResponseHeader (CHttpHeader.CACHE_CONTROL, _getRedirectCacheControl ());
   }
 
   /**
@@ -483,7 +495,7 @@ public final class ExportAllManager
   {
     // Get data directly from S3
     aUR.setRedirect (S3Helper.getPublicURL (INTERNAL_PARTICIPANTS_JSON));
-    aUR.addCustomResponseHeader (CHttpHeader.CACHE_CONTROL, MAX_AGE_24H);
+    aUR.addCustomResponseHeader (CHttpHeader.CACHE_CONTROL, _getRedirectCacheControl ());
   }
 
   /**
@@ -496,6 +508,6 @@ public final class ExportAllManager
   {
     // Get data directly from S3
     aUR.setRedirect (S3Helper.getPublicURL (INTERNAL_PARTICIPANTS_CSV));
-    aUR.addCustomResponseHeader (CHttpHeader.CACHE_CONTROL, MAX_AGE_24H);
+    aUR.addCustomResponseHeader (CHttpHeader.CACHE_CONTROL, _getRedirectCacheControl ());
   }
 }
