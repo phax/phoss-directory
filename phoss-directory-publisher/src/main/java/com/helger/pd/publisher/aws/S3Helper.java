@@ -185,6 +185,31 @@ public final class S3Helper
     }
   }
 
+  /**
+   * Read the metadata of an S3 object without transferring its content.
+   *
+   * @param sBucketName
+   *        Bucket name. May neither be <code>null</code> nor empty.
+   * @param sKey
+   *        Object key. May neither be <code>null</code> nor empty.
+   * @return <code>null</code> if the object does not exist or cannot be read.
+   * @since 0.18.1
+   */
+  @Nullable
+  public static HeadObjectResponse headS3Object (@NonNull @Nonempty final String sBucketName,
+                                                 @NonNull @Nonempty final String sKey)
+  {
+    try
+    {
+      return S3_SYNC.headObject (x -> x.bucket (sBucketName).key (sKey));
+    }
+    catch (final RuntimeException ex)
+    {
+      LOGGER.warn ("Failed to read metadata of S3 '" + sBucketName + "' / '" + sKey + "': " + ex.getMessage ());
+      return null;
+    }
+  }
+
   @Nullable
   public static ResponseInputStream <GetObjectResponse> getS3Object (@NonNull @Nonempty final String sBucketName,
                                                                      @NonNull @Nonempty final String sKey)

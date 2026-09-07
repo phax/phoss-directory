@@ -33,6 +33,7 @@ public final class ExportRateLimit
   public static final ExportRateLimit INSTANCE = new ExportRateLimit ();
 
   private final RequestRateLimiter m_aRateLimiter;
+  private final RequestRateLimiter m_aHeadRateLimiter;
 
   private ExportRateLimit ()
   {
@@ -40,10 +41,29 @@ public final class ExportRateLimit
     m_aRateLimiter = new InMemorySlidingWindowRequestRateLimiter (RequestLimitRule.of (Duration.ofHours (24),
                                                                                        nRequestsPerDay));
     LOGGER.info ("Installed export rate limiter: max " + nRequestsPerDay + " requests per IP per file per 24 hours");
+
+    // Metadata (HEAD) requests transfer no content and mint no signed URL, so they get a far more generous budget.
+    final long nHeadRequestsPerDay = PDServerConfiguration.getExportMaxHeadRequestsPerDay ();
+    m_aHeadRateLimiter = new InMemorySlidingWindowRequestRateLimiter (RequestLimitRule.of (Duration.ofHours (24),
+                                                                                           nHeadRequestsPerDay));
+    LOGGER.info ("Installed export metadata rate limiter: max " +
+                 nHeadRequestsPerDay +
+                 " HEAD requests per IP per file per 24 hours");
   }
 
   public boolean isOverLimit (final String sKey)
   {
     return m_aRateLimiter.overLimitWhenIncremented (sKey);
+  }
+
+  /**
+   * @param sKey
+   *        The rate limit key.
+   * @return <code>true</code> if the metadata (HEAD) limit for this key is exceeded.
+   * @since 0.18.0
+   */
+  public boolean isOverHeadLimit (final String sKey)
+  {
+    return m_aHeadRateLimiter.overLimitWhenIncremented (sKey);
   }
 }
