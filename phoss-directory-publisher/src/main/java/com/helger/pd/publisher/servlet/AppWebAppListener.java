@@ -16,6 +16,8 @@
  */
 package com.helger.pd.publisher.servlet;
 
+import java.time.LocalDateTime;
+
 import org.jspecify.annotations.NonNull;
 import org.xbill.DNS.DClass;
 import org.xbill.DNS.Lookup;
@@ -26,6 +28,7 @@ import com.helger.base.exception.InitializationException;
 import com.helger.base.string.StringHelper;
 import com.helger.commons.vendor.VendorInfo;
 import com.helger.datetime.helper.PDTFactory;
+import com.helger.datetime.zone.PDTConfig;
 import com.helger.html.meta.MetaElement;
 import com.helger.io.resource.ClassPathResource;
 import com.helger.pd.indexer.clientcert.ClientCertificateValidator;
@@ -216,6 +219,24 @@ public final class AppWebAppListener extends WebAppListenerBootstrap
     ClientCertificateValidator.getAllRootCerts ();
   }
 
+  /**
+   * @return The start date and time of the "export all" job. The exports start at 02:00 a.m. UTC,
+   *         as it is documented on the public "Export data" page. The trigger start time is
+   *         interpreted in the default time zone, so the UTC point in time is converted back to it,
+   *         to be independent of the time zone the server is running in.
+   */
+  @NonNull
+  private static LocalDateTime _getExportStartDT ()
+  {
+    return PDTFactory.getCurrentZonedDateTimeUTC ()
+                     .withHour (2)
+                     .withMinute (0)
+                     .withSecond (0)
+                     .withNano (0)
+                     .withZoneSameInstant (PDTConfig.getDefaultZoneId ())
+                     .toLocalDateTime ();
+  }
+
   @Override
   protected void initJobs ()
   {
@@ -225,11 +246,7 @@ public final class AppWebAppListener extends WebAppListenerBootstrap
                                                .scheduleJob (ExportAllDataJob.class.getName (),
                                                              JDK8TriggerBuilder.newTrigger ()
                                                                                .startAt (bDebug ? PDTFactory.getCurrentLocalDateTime ()
-                                                                                                : PDTFactory.getCurrentLocalDateTime ()
-                                                                                                            .withHour (2)
-                                                                                                            .withMinute (0)
-                                                                                                            .withSecond (0)
-                                                                                                            .withNano (0))
+                                                                                                : _getExportStartDT ())
                                                                                .withSchedule (bDebug ? SimpleScheduleBuilder.repeatMinutelyForever (2)
                                                                                                      : SimpleScheduleBuilder.repeatHourlyForever (24))
                                                                                .withMisfireInstruction (EMisfireInstruction.MISFIRE_INSTRUCTION_RESCHEDULE_NEXT_WITH_EXISTING_COUNT),
