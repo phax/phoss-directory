@@ -31,7 +31,9 @@ import com.helger.annotation.style.ReturnsMutableCopy;
 import com.helger.base.enforce.ValueEnforcer;
 import com.helger.cache.regex.RegExHelper;
 import com.helger.collection.commons.CommonsArrayList;
+import com.helger.collection.commons.CommonsHashMap;
 import com.helger.collection.commons.ICommonsList;
+import com.helger.collection.commons.ICommonsMap;
 import com.helger.datetime.web.PDTWebDateHelper;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.searchindex.IPDIndex;
@@ -57,6 +59,26 @@ import jakarta.annotation.Nullable;
 public final class PDQueryManager
 {
   private static final Logger LOGGER = LoggerFactory.getLogger (PDQueryManager.class);
+
+  /**
+   * Country codes that are used synonymously to each other, because a Business Card may use a
+   * country code that differs from the ISO 3166-1 alpha-2 code of the respective code list. Each
+   * contained country code is mapped onto all the country codes of its group - including itself.
+   */
+  private static final ICommonsMap <String, ICommonsList <String>> COUNTRY_CODE_SYNONYMS = new CommonsHashMap <> ();
+
+  static
+  {
+    // "UK" is frequently used instead of the ISO 3166-1 alpha-2 code "GB" of the United Kingdom
+    final ICommonsList <String> aUnitedKingdom = new CommonsArrayList <> ("GB", "UK");
+    COUNTRY_CODE_SYNONYMS.put ("GB", aUnitedKingdom);
+    COUNTRY_CODE_SYNONYMS.put ("UK", aUnitedKingdom);
+
+    // "EL" is the EU VAT prefix of Greece, whose ISO 3166-1 alpha-2 code is "GR"
+    final ICommonsList <String> aGreece = new CommonsArrayList <> ("GR", "EL");
+    COUNTRY_CODE_SYNONYMS.put ("GR", aGreece);
+    COUNTRY_CODE_SYNONYMS.put ("EL", aGreece);
+  }
 
   private PDQueryManager ()
   {}
@@ -299,13 +321,35 @@ public final class PDQueryManager
     return aBuilder.build ();
   }
 
+  /**
+   * Create the query of the country code search field. If the provided country code has synonyms,
+   * the entries of all the synonymous country codes are matched, because a Business Card may use
+   * any of them for the same country.
+   *
+   * @param sQueryString
+   *        The query string. May not be <code>null</code> and not be empty and may not be
+   *        whitespace only.
+   * @return The created {@link IPDIndexQuery}
+   */
   @Nullable
   public static IPDIndexQuery getCountryCodeQuery (@NonNull @Nonempty final String sQueryString)
   {
     ValueEnforcer.notEmpty (sQueryString, "QueryString");
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
 
-    return PDField.COUNTRY_CODE.getExactMatchQuery (_upperCase (sQueryString));
+    final String sCountryCode = _upperCase (sQueryString);
+    final ICommonsList <String> aSynonyms = COUNTRY_CODE_SYNONYMS.get (sCountryCode);
+    if (aSynonyms == null)
+    {
+      // The regular case - the country code has no synonyms
+      return PDField.COUNTRY_CODE.getExactMatchQuery (sCountryCode);
+    }
+
+    // Any of the synonymous country codes may match
+    final PDIndexQueryBool.Builder aBuilder = new PDIndexQueryBool.Builder ();
+    for (final String sSynonym : aSynonyms)
+      aBuilder.add (PDField.COUNTRY_CODE.getExactMatchQuery (sSynonym), EPDIndexQueryOccur.SHOULD);
+    return aBuilder.build ();
   }
 
   @Nullable

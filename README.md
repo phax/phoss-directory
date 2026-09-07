@@ -189,6 +189,10 @@ v0.18.0 - work in progress
     * The metadata read from S3 is cached in memory for the duration of the new property `export.metadata.cache` (default 5 minutes, duration grammar), so that only the first `HEAD` request per file and interval causes an S3 round trip - see the new method `S3Helper.headS3Object (...)`
 * The `Cache-Control` header of the export redirects is `no-store` instead of `max-age=86400`, if the signing of the export URLs is enabled. The redirect then carries a short lived signature, so caching it would hand out a URL that is rejected as soon as the signature expired
 * The "Export data" documentation page describes the `HEAD` requests, and that the redirect itself must not be cached and must not be reused, whereas the downloaded data may still be cached for up to 24 hours
+* A search for a country code now also finds the entries that use a synonymous country code, because a Business Card may use a country code that differs from the ISO 3166-1 alpha-2 code of the respective code list
+    * "GB" and "UK" are treated as synonyms of each other, as are "GR" and "EL" (the EU VAT prefix of Greece). Searching for any of them returns the entries of all the codes of the group
+    * `PDQueryManager.getCountryCodeQuery (...)` therefore creates a query that matches any of the synonymous country codes, instead of a single exact match. It is unchanged for every country code that has no synonyms
+    * This applies to the REST API search parameter `country` as well as to the country selector of the search page
 
 v0.17.3 - 2026-09-05
 * The interval after which the shadow event list is written to disk in total is configurable via the new property `indexer.shadowing.checkpoint`. It defaults to 5 minutes and uses the duration grammar (e.g. `30s`, `5m`, `1h 30m`), so `PDServerConfiguration.getIndexerShadowingCheckpointDuration ()` returns a `Duration`
