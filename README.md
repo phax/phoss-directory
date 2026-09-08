@@ -170,7 +170,7 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
-v0.18.1 - work in progress
+v0.18.1 - 2026-09-08
 * Fixed several paths that prevented entries of the re-index list from ever being retried
     * The retry period of a re-index work item is now anchored on the moment the item enters the re-index list, instead of on the creation date time of the underlying indexer work item. The time an item spent in the indexer work queue - which for a bulk indexing or across a server downtime may exceed `reindex.maxretryhours` - was previously deducted from the retry period, so that such items were moved to the dead list before their first retry was even due
     * `PDIndexerManager.reIndexParticipantDataSynchronously ()` takes all due items off the re-index list before it handles them one by one. An unexpected error in a single item aborted the loop, so that all the remaining items of that run were silently lost - neither in the re-index list nor in the dead list, but still in the internal "unique items" list, which blocked the affected participants from ever being indexed again. Each item is now handled separately and is put back into the re-index list if it could not be handled. The same applies to `PDIndexerManager.expireOldEntries ()` and the dead list
