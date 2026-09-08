@@ -64,7 +64,8 @@ public final class ReIndexWorkItemList extends AbstractPhotonMapBasedWALDAO <IRe
   public void addItem (@NonNull final ReIndexWorkItem aItem, final boolean bLog) throws IllegalStateException
   {
     ValueEnforcer.notNull (aItem, "Item");
-    m_aRWLock.writeLocked ( () -> { internalCreateItem (aItem); });
+
+    m_aRWLock.writeLocked (() -> { internalCreateItem (aItem); });
     if (bLog)
       LOGGER.info ("Added " + aItem.getLogText () + " to re-try list for retry #" + (aItem.getRetryCount () + 1));
   }
@@ -76,7 +77,7 @@ public final class ReIndexWorkItemList extends AbstractPhotonMapBasedWALDAO <IRe
 
     // Item is not in the list anymore, therefore we need to cast it :(
     final ReIndexWorkItem aRealItem = (ReIndexWorkItem) aItem;
-    m_aRWLock.writeLocked ( () -> {
+    m_aRWLock.writeLocked (() -> {
       aRealItem.incRetryCount ();
       // Now it is 1-based
       final int nRetryIdx = aRealItem.getRetryCount ();
@@ -88,11 +89,13 @@ public final class ReIndexWorkItemList extends AbstractPhotonMapBasedWALDAO <IRe
   @Nullable
   public IReIndexWorkItem getAndRemoveEntry (@NonNull final Predicate <? super IReIndexWorkItem> aPred)
   {
-    final IReIndexWorkItem aWorkItem = findFirst (aPred);
-    if (aWorkItem == null)
-      return null;
+    return m_aRWLock.writeLockedGet (() -> {
+      final IReIndexWorkItem aWorkItem = findFirst (aPred);
+      if (aWorkItem == null)
+        return null;
 
-    return m_aRWLock.writeLockedGet ( () -> internalDeleteItem (aWorkItem.getID ()));
+      return internalDeleteItem (aWorkItem.getID ());
+    });
   }
 
   @NonNull
@@ -100,15 +103,20 @@ public final class ReIndexWorkItemList extends AbstractPhotonMapBasedWALDAO <IRe
   public ICommonsList <IReIndexWorkItem> getAndRemoveAllEntries (@NonNull final Predicate <? super IReIndexWorkItem> aFilter)
   {
     ValueEnforcer.notNull (aFilter, "Filter");
-    final ICommonsList <IReIndexWorkItem> aCopyOfAll = getAll ();
+
     final ICommonsList <IReIndexWorkItem> ret = new CommonsArrayList <> ();
-    m_aRWLock.writeLocked ( () -> {
+    m_aRWLock.writeLocked (() -> {
+      // Take the snapshot inside the write lock - otherwise an item that somebody else removed in
+      // the meantime would still be returned here, and would be processed by both callers.
+      // getAll () takes the read lock of the very same lock, which a write lock owner is allowed to
+      // acquire (lock downgrading) - only the other way round would dead lock.
       // Operate on a copy for removal!
-      for (final IReIndexWorkItem aWorkItem : aCopyOfAll)
+      for (final IReIndexWorkItem aWorkItem : getAll ())
         if (aFilter.test (aWorkItem))
         {
-          ret.add (aWorkItem);
-          internalDeleteItem (aWorkItem.getID ());
+          // Only take ownership of the item if it was really removed here
+          if (internalDeleteItem (aWorkItem.getID ()) != null)
+            ret.add (aWorkItem);
         }
     });
     return ret;

@@ -190,9 +190,6 @@ public final class PDIndexerManager implements Closeable
       return;
     }
 
-    // Schedule re-index job
-    m_aTriggerKey = ReIndexJob.schedule (SimpleScheduleBuilder.repeatMinutelyForever (1));
-
     // Read the file - may not be existing
     final IMicroDocument aDoc = MicroReader.readMicroXML (m_aIndexerWorkItemFile);
     if (aDoc != null)
@@ -209,6 +206,26 @@ public final class PDIndexerManager implements Closeable
       // Delete the files to ensure it is not read again next startup time
       FileOperationManager.INSTANCE.deleteFile (m_aIndexerWorkItemFile);
     }
+
+    // The items of the re-index list count as "in progress" as well - see _onIndexFailure. As the
+    // set is in-memory only, it must be restored on every startup. Otherwise a new work item for a
+    // participant that is still in the re-index list would be queued in parallel to the pending
+    // retry, and the re-index list may end up with several entries for the same participant.
+    // This must happen after the persisted work items were queued, because those are the newer
+    // ones and they already removed their matching re-index entries.
+    final ICommonsList <? extends IReIndexWorkItem> aReIndexItems = m_aReIndexList.getAllItems ();
+    if (aReIndexItems.isNotEmpty ())
+    {
+      m_aRWLock.writeLocked ( () -> {
+        for (final IReIndexWorkItem aItem : aReIndexItems)
+          m_aUniqueItems.add (aItem.getWorkItem ());
+      });
+      LOGGER.info ("Restored " + aReIndexItems.size () + " work items of the re-index list as 'in progress'");
+    }
+
+    // Schedule re-index job as the last action, so that it does not start working on a partially
+    // restored state
+    m_aTriggerKey = ReIndexJob.schedule (SimpleScheduleBuilder.repeatMinutelyForever (1));
   }
 
   public void close () throws IOException
@@ -608,6 +625,35 @@ public final class PDIndexerManager implements Closeable
   }
 
   /**
+   * Put an item that could not be processed back into the re-index list. All the items to be
+   * processed are taken off the list before they are handled, so without this an unexpected error
+   * would silently drop the item: it would neither be in the re-index list nor in the dead list,
+   * but it would stay in the "unique items" list forever, and that blocks the participant from ever
+   * being indexed again.
+   *
+   * @param aItem
+   *        The item to be put back. May not be <code>null</code>.
+   */
+  private void _reAddToReIndexListAfterError (@NonNull final IReIndexWorkItem aItem)
+  {
+    // The failure handler may already have put it back
+    if (m_aReIndexList.getItemOfID (aItem.getID ()) != null)
+      return;
+
+    try
+    {
+      m_aReIndexList.addItem ((ReIndexWorkItem) aItem, false);
+      LOGGER.info ("Put " + aItem.getLogText () + " back into the re-index list");
+    }
+    catch (final RuntimeException ex)
+    {
+      // Last resort - the item is lost, so at least don't block the participant forever
+      LOGGER.error ("Failed to put " + aItem.getLogText () + " back into the re-index list - dropping it", ex);
+      m_aRWLock.writeLocked ( () -> m_aUniqueItems.remove (aItem.getWorkItem ()));
+    }
+  }
+
+  /**
    * Expire all re-index entries that are in the list for a too long time. This is called from a
    * scheduled job only. All respective items are move from the re-index list to the dead list.
    */
@@ -624,9 +670,17 @@ public final class PDIndexerManager implements Closeable
         // remove them from the overall list but move to dead item list
         m_aRWLock.writeLocked (() -> m_aUniqueItems.remove (aItem.getWorkItem ()));
 
-        // move all to the dead item list
-        m_aDeadList.addItem ((ReIndexWorkItem) aItem, false);
-        LOGGER.info ("Added " + aItem.getLogText () + " to the dead list");
+        try
+        {
+          // move all to the dead item list
+          m_aDeadList.addItem ((ReIndexWorkItem) aItem, false);
+          LOGGER.info ("Added " + aItem.getLogText () + " to the dead list");
+        }
+        catch (final RuntimeException ex)
+        {
+          // Never let a single item stop the expiration of all the other ones
+          LOGGER.error ("Failed to add " + aItem.getLogText () + " to the dead list", ex);
+        }
       }
     }
   }
@@ -649,11 +703,21 @@ public final class PDIndexerManager implements Closeable
     {
       LOGGER.info ("Try to re-index " + aReIndexItem.getLogText ());
 
-      PDIndexExecutor.executeWorkItem (m_aStorageMgr,
-                                       aReIndexItem.getWorkItem (),
-                                       1 + aReIndexItem.getRetryCount (),
-                                       this::_onReIndexSuccess,
-                                       (_, aErrorMsgs) -> _onReIndexFailure (aReIndexItem, aErrorMsgs));
+      try
+      {
+        PDIndexExecutor.executeWorkItem (m_aStorageMgr,
+                                         aReIndexItem.getWorkItem (),
+                                         1 + aReIndexItem.getRetryCount (),
+                                         this::_onReIndexSuccess,
+                                         (_, aErrorMsgs) -> _onReIndexFailure (aReIndexItem, aErrorMsgs));
+      }
+      catch (final RuntimeException ex)
+      {
+        // Never let a single item stop the retry of all the other ones - all of them were already
+        // taken off the re-index list and would be lost otherwise
+        LOGGER.error ("Failed to re-index " + aReIndexItem.getLogText (), ex);
+        _reAddToReIndexListAfterError (aReIndexItem);
+      }
     }
   }
 

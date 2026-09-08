@@ -55,12 +55,35 @@ public class ReIndexWorkItem implements IReIndexWorkItem
 
   public ReIndexWorkItem (@NonNull final IIndexerWorkItem aWorkItem, @NonNull final ICommonsList <String> aErrorMsgs)
   {
+    this (aWorkItem, PDTFactory.getCurrentLocalDateTime (), aErrorMsgs);
+  }
+
+  /**
+   * Constructor for an item that newly enters the re-index list.
+   *
+   * @param aWorkItem
+   *        The original work item to be handled.
+   * @param aEntryDT
+   *        The date time at which the item enters the re-index list. Both the maximum retry date
+   *        time and the next retry date time are relative to this date time.
+   * @param aErrorMsgs
+   *        Error messages received
+   */
+  ReIndexWorkItem (@NonNull final IIndexerWorkItem aWorkItem,
+                   @NonNull final LocalDateTime aEntryDT,
+                   @NonNull final ICommonsList <String> aErrorMsgs)
+  {
+    // Both date times are anchored on the moment the item enters the re-index list - and not on the
+    // creation date time of the work item. Otherwise the time the work item spent in the indexer
+    // work queue would be deducted from the retry period, and items of a long running bulk
+    // indexing (or items that were persisted across a long downtime) would be expired to the dead
+    // list before the first retry is even due.
     // The next retry happens from now in the configured number of minutes
     this (aWorkItem,
-          aWorkItem.getCreationDateTime ().plusHours (PDServerConfiguration.getReIndexMaxRetryHours ()),
+          aEntryDT.plusHours (PDServerConfiguration.getReIndexMaxRetryHours ()),
           0,
           (LocalDateTime) null,
-          PDTFactory.getCurrentLocalDateTime ().plusMinutes (PDServerConfiguration.getReIndexRetryMinutes ()),
+          aEntryDT.plusMinutes (PDServerConfiguration.getReIndexRetryMinutes ()),
           aErrorMsgs);
   }
 

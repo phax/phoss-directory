@@ -170,6 +170,14 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
+v0.18.1 - work in progress
+* Fixed several paths that prevented entries of the re-index list from ever being retried
+    * The retry period of a re-index work item is now anchored on the moment the item enters the re-index list, instead of on the creation date time of the underlying indexer work item. The time an item spent in the indexer work queue - which for a bulk indexing or across a server downtime may exceed `reindex.maxretryhours` - was previously deducted from the retry period, so that such items were moved to the dead list before their first retry was even due
+    * `PDIndexerManager.reIndexParticipantDataSynchronously ()` takes all due items off the re-index list before it handles them one by one. An unexpected error in a single item aborted the loop, so that all the remaining items of that run were silently lost - neither in the re-index list nor in the dead list, but still in the internal "unique items" list, which blocked the affected participants from ever being indexed again. Each item is now handled separately and is put back into the re-index list if it could not be handled. The same applies to `PDIndexerManager.expireOldEntries ()` and the dead list
+    * `ReIndexWorkItemList.getAndRemoveAllEntries (...)` and `ReIndexWorkItemList.getAndRemoveEntry (...)` searched the items outside of the write lock that removed them. A concurrent removal - e.g. from a newly queued work item or from deleting participants - therefore led to an item being handed out to two callers at once. The search and the removal now happen within a single write lock, and only items that were really removed are returned
+    * The work items of the re-index list are restored as "in progress" upon startup. The respective list is in memory only, so a re-index entry did not prevent a new work item for the same participant from being queued in parallel after a restart, and the re-index list could end up with several entries for the same participant
+* The re-index job is scheduled as the last action of `PDIndexerManager.startIndexing ()`, so that it cannot start working on a partially restored state
+
 v0.18.0 - 2026-09-07
 * The public documentation pages of the publisher were updated to the current state of the implementation
     * The "Export data" page documents the participant identifier exports (`/export/participants-xml`, `/export/participants-json` and `/export/participants-csv`), the per IP and per file rate limiting of the downloads and that the download URLs respond with an HTTP redirect to the storage location
