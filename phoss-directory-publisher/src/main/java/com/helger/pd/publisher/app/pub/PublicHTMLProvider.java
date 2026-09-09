@@ -273,7 +273,7 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
       aDiv.addChild (new HCP ().addChild (CPDPublisher.getApplication () + " - " + VENDOR_ARTICLE + " ")
                                .addChild (new HCA (new SimpleURL (VENDOR_URL)).addChild (VENDOR_NAME))
                                .addChild (" service"));
-      aDiv.addChild (new HCP ().addChild (new BootstrapWarnBox ().addChild ("Make sure your export data clients can handle gzip compressed content - we will mandate that very soon! See ")
+      aDiv.addChild (new HCP ().addChild (new BootstrapWarnBox ().addChild ("Make sure your export data clients can handle gzip compressed content. See ")
                                                                  .addChild (new HCA (aLEC.getLinkToMenuItem (CMenuPublic.MENU_DOCS_EXPORT_ALL)).addChild ("the export documentation"))
                                                                  .addChild (" for details")));
       final HCP aP = new HCP ().addChild ("Download data [");

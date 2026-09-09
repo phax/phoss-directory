@@ -174,6 +174,11 @@ v0.18.2 - work in progress
 * The country selector of the search page offers all countries known to the Java runtime, sorted alphabetically by their display name, instead of only the countries of the country specific Peppol participant identifier schemes. The country that is searched for is the country of a Business Card and is therefore not limited to those schemes
     * The class `HCPeppolCountrySelect` was renamed to `HCCountrySelect` and its method `getAllPeppolCountries ()` to `getAllCountries ()`
     * The list is based on `Locale.getISOCountries ()`. The country cache of ph-commons is not used, because it is filled from the available locales and therefore also contains the UN M.49 region codes like `419` (Latin America) that are no countries
+* The `GET` requests of the `/export` APIs are answered with HTTP 406 (Not Acceptable) if the client does not accept the GZIP content encoding. The export files are huge, so they are only handed out to clients that can take them compressed
+    * A request is rejected if its `Accept-Encoding` header is present and does not accept GZIP - like `identity`, `br`, `deflate`, `gzip;q=0`, `*;q=0` or an empty value. `gzip`, `x-gzip` and `*` with a quality above 0 are accepted
+    * A request without an `Accept-Encoding` header states no preference at all, so according to RFC 9110 section 12.5.3 the choice of the content coding is up to the server. Such a request is therefore served and not rejected
+    * The check happens before the rate limit is consumed, so a rejected request does not use up one of the few daily download slots
+    * The `HEAD` requests, that only deliver the export metadata, are not affected, because their responses carry no content anyway
 * The public documentation pages of the publisher now describe multilingual Business Entity names
     * The JSON example of the "REST API documentation" page uses the real structure of the `name` field of a Business Entity - an array of objects with the mandatory field `name` and the optional field `language` - instead of the plain string that was shown before. One Business Entity of the example carries its name in two languages, the other ones show the far more common case of a single name without a language
     * The XML example of the same page shows the optional `language` attribute of the `name` element as well

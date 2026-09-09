@@ -29,6 +29,7 @@ import com.helger.collection.commons.CommonsHashMap;
 import com.helger.collection.commons.ICommonsMap;
 import com.helger.http.CHttp;
 import com.helger.http.CHttpHeader;
+import com.helger.http.header.specific.AcceptEncodingHandler;
 import com.helger.io.file.FilenameHelper;
 import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.exportall.ExportAllManager;
@@ -153,6 +154,30 @@ public class ExportDeliveryHttpHandler extends AbstractObjectDeliveryHttpHandler
     {
       LOGGER.warn ("Cannot special stream the resource '" + sFilename + "'");
       aUnifiedResponse.setStatus (HttpServletResponse.SC_NOT_FOUND);
+      return EContinue.BREAK;
+    }
+
+    // The response depends on the Accept-Encoding of the request, so caches must not reuse it for
+    // a client with a different one
+    aUnifiedResponse.setCustomResponseHeader (CHttpHeader.VARY, CHttpHeader.ACCEPT_ENCODING);
+
+    /*
+     * The exports are huge, so they are only handed out to clients that can take them compressed. A
+     * request without an "Accept-Encoding" header states no preference at all, so RFC 9110 section
+     * 12.5.3 leaves the choice of the content coding to us - only a header that is present and does
+     * not accept GZIP is rejected. Note that this is not the same as an empty header value, which
+     * means "identity only" and is therefore rejected. Header values spread over several lines are
+     * combined, as they form a single list.
+     */
+    final String sAcceptEncoding = aRequestScope.headers ().getHeaderCombined (CHttpHeader.ACCEPT_ENCODING, ",");
+    if (sAcceptEncoding != null && !AcceptEncodingHandler.getAcceptEncodings (sAcceptEncoding).supportsGZIP ())
+    {
+      LOGGER.warn ("The export request for '" +
+                   sFilename +
+                   "' does not accept GZIP encoding ('" +
+                   sAcceptEncoding +
+                   "') and is therefore rejected");
+      aUnifiedResponse.setStatus (HttpServletResponse.SC_NOT_ACCEPTABLE);
       return EContinue.BREAK;
     }
     return EContinue.CONTINUE;

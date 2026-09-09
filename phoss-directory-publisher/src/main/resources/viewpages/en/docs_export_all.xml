@@ -39,7 +39,12 @@
     The redirect is valid only for a short period and is issued for one specific request.
     Clients MUST NOT store it and reuse it later.
   </li>
-  <li>Clients MUST support gzip compression.</li>
+  <li>
+    Clients MUST support gzip compression.
+    An <code>HTTP GET</code> request whose <code>Accept-Encoding</code> header does not accept
+    <code>gzip</code> is rejected with the HTTP status code 406 (Not Acceptable) and does not count
+    against your download limit.
+  </li>
   <li>The downloaded data may be cached up to 24 hours. The redirect itself MUST NOT be cached.</li>
   <li>The data is updated once a day. Exports start at 02:00 a.m. UTC.</li>
 </ul>
