@@ -172,12 +172,14 @@ public class ExportDeliveryHttpHandler extends AbstractObjectDeliveryHttpHandler
     final String sAcceptEncoding = aRequestScope.headers ().getHeaderCombined (CHttpHeader.ACCEPT_ENCODING, ",");
     if (sAcceptEncoding != null && !AcceptEncodingHandler.getAcceptEncodings (sAcceptEncoding).supportsGZIP ())
     {
-      LOGGER.warn ("The export request for '" +
-                   sFilename +
-                   "' does not accept GZIP encoding ('" +
-                   sAcceptEncoding +
-                   "') and is therefore rejected");
+      final String sMsg = "The export request for '" +
+                          sFilename +
+                          "' does not accept GZIP encoding ('" +
+                          sAcceptEncoding +
+                          "') and is therefore rejected";
+      LOGGER.warn (sMsg);
       aUnifiedResponse.setStatus (HttpServletResponse.SC_NOT_ACCEPTABLE);
+      aUnifiedResponse.setCustomResponseHeader ("x-export-error", sMsg);
       return EContinue.BREAK;
     }
     return EContinue.CONTINUE;
