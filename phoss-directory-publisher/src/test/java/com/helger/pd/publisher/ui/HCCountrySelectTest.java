@@ -24,46 +24,57 @@ import java.util.Locale;
 import org.junit.Rule;
 import org.junit.Test;
 
+import com.helger.collection.commons.CommonsArrayList;
 import com.helger.collection.commons.CommonsHashSet;
 import com.helger.collection.commons.ICommonsList;
 import com.helger.collection.commons.ICommonsSet;
+import com.helger.collection.helper.CollectionSort;
 import com.helger.html.hc.html.forms.HCOption;
 import com.helger.pd.publisher.PDPublisherTestRule;
 import com.helger.peppolid.checks.country.PeppolParticipantCountryHelper;
 import com.helger.photon.core.form.RequestField;
 import com.helger.photon.uicore.html.select.AbstractHCExtSelect;
+import com.helger.text.compare.ComparatorHelper;
+import com.helger.text.locale.LocaleCache;
 
 /**
- * Test class for class {@link HCPeppolCountrySelect}.
+ * Test class for class {@link HCCountrySelect}.
  *
  * @author Philip Helger
  */
-public final class HCPeppolCountrySelectTest
+public final class HCCountrySelectTest
 {
   @Rule
   public final PDPublisherTestRule m_aRule = new PDPublisherTestRule ();
 
   @Test
-  public void testGetAllPeppolCountries ()
+  public void testGetAllCountries ()
   {
-    final ICommonsList <Locale> aCountries = HCPeppolCountrySelect.getAllPeppolCountries ();
+    final ICommonsList <Locale> aCountries = HCCountrySelect.getAllCountries ();
     assertTrue (aCountries.isNotEmpty ());
 
-    // Every country of the helper must be resolvable and must be contained exactly once
-    final ICommonsSet <String> aExpected = new CommonsHashSet <> (PeppolParticipantCountryHelper.getAllSchemeCountryCodes ()
-                                                                                                .values ());
+    // Every country known to the Java runtime must be contained exactly once
+    final ICommonsSet <String> aExpected = new CommonsHashSet <> (Locale.getISOCountries ());
     assertEquals (aExpected.size (), aCountries.size ());
     assertEquals (aExpected, new CommonsHashSet <> (aCountries, Locale::getCountry));
+
+    // The searched country is the Business Card country and is therefore not limited to the
+    // countries of the country specific Peppol participant identifier schemes - but all of them
+    // must still be selectable
+    final ICommonsSet <String> aPeppolCountries = new CommonsHashSet <> (PeppolParticipantCountryHelper.getAllSchemeCountryCodes ()
+                                                                                                       .values ());
+    assertTrue (aExpected.size () > aPeppolCountries.size ());
+    assertTrue (aExpected.containsAll (aPeppolCountries));
   }
 
   @Test
   public void testSelect ()
   {
-    final HCPeppolCountrySelect aSelect = new HCPeppolCountrySelect (new RequestField ("country"), Locale.UK);
+    final HCCountrySelect aSelect = new HCCountrySelect (new RequestField ("country"), Locale.UK);
     final ICommonsList <HCOption> aOptions = aSelect.getAllOptions ();
 
     // All countries plus the "all countries" option
-    assertEquals (HCPeppolCountrySelect.getAllPeppolCountries ().size () + 1, aOptions.size ());
+    assertEquals (HCCountrySelect.getAllCountries ().size () + 1, aOptions.size ());
 
     // The default option applies no filter at all
     final HCOption aFirst = aOptions.getFirstOrNull ();
@@ -71,7 +82,17 @@ public final class HCPeppolCountrySelectTest
     assertTrue (aFirst.containsClass (AbstractHCExtSelect.CSS_CLASS_SPECIAL_OPTION));
 
     // All other options are ISO 3166-1 alpha-2 country codes
+    final ICommonsList <String> aDisplayNames = new CommonsArrayList <> ();
     for (final HCOption aOption : aOptions.subList (1, aOptions.size ()))
+    {
       assertEquals (2, aOption.getValue ().length ());
+      aDisplayNames.add (LocaleCache.getInstance ()
+                                    .getLocale ("", aOption.getValue (), "")
+                                    .getDisplayCountry (Locale.UK));
+    }
+
+    // And they are sorted alphabetically by their display name
+    assertEquals (CollectionSort.getSorted (aDisplayNames, ComparatorHelper.getComparatorCollating (Locale.UK)),
+                  aDisplayNames);
   }
 }

@@ -171,6 +171,9 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 # News and noteworthy
 
 v0.18.2 - work in progress
+* The country selector of the search page offers all countries known to the Java runtime, sorted alphabetically by their display name, instead of only the countries of the country specific Peppol participant identifier schemes. The country that is searched for is the country of a Business Card and is therefore not limited to those schemes
+    * The class `HCPeppolCountrySelect` was renamed to `HCCountrySelect` and its method `getAllPeppolCountries ()` to `getAllCountries ()`
+    * The list is based on `Locale.getISOCountries ()`. The country cache of ph-commons is not used, because it is filled from the available locales and therefore also contains the UN M.49 region codes like `419` (Latin America) that are no countries
 * The public documentation pages of the publisher now describe multilingual Business Entity names
     * The JSON example of the "REST API documentation" page uses the real structure of the `name` field of a Business Entity - an array of objects with the mandatory field `name` and the optional field `language` - instead of the plain string that was shown before. One Business Entity of the example carries its name in two languages, the other ones show the far more common case of a single name without a language
     * The XML example of the same page shows the optional `language` attribute of the `name` element as well

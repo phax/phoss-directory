@@ -55,7 +55,7 @@ import com.helger.pd.publisher.CPDPublisher;
 import com.helger.pd.publisher.app.PDSessionSingleton;
 import com.helger.pd.publisher.exportall.ExportAllManager;
 import com.helger.pd.publisher.search.EPDSearchField;
-import com.helger.pd.publisher.ui.HCPeppolCountrySelect;
+import com.helger.pd.publisher.ui.HCCountrySelect;
 import com.helger.pd.publisher.ui.PDCommonUI;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.factory.IIdentifierFactory;
@@ -135,9 +135,9 @@ public final class PagePublicSearchSimple extends AbstractPagePublicSearch
   }
 
   @NonNull
-  private static HCPeppolCountrySelect _createCountrySelect (@NonNull final Locale aDisplayLocale)
+  private static HCCountrySelect _createCountrySelect (@NonNull final Locale aDisplayLocale)
   {
-    final HCPeppolCountrySelect ret = new HCPeppolCountrySelect (new RequestField (FIELD_COUNTRY), aDisplayLocale);
+    final HCCountrySelect ret = new HCCountrySelect (new RequestField (FIELD_COUNTRY), aDisplayLocale);
     ret.addClass (CBootstrapCSS.FORM_SELECT);
     return ret;
   }

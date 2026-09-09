@@ -23,54 +23,51 @@ import org.jspecify.annotations.NonNull;
 import com.helger.annotation.Nonempty;
 import com.helger.annotation.style.ReturnsMutableCopy;
 import com.helger.collection.commons.CommonsArrayList;
-import com.helger.collection.commons.CommonsHashSet;
 import com.helger.collection.commons.ICommonsList;
 import com.helger.collection.helper.CollectionSort;
 import com.helger.html.request.IHCRequestField;
-import com.helger.peppolid.checks.country.PeppolParticipantCountryHelper;
 import com.helger.photon.uicore.html.select.HCExtSelect;
 import com.helger.text.compare.ComparatorHelper;
-import com.helger.text.locale.country.CountryCache;
+import com.helger.text.locale.LocaleCache;
 
 /**
- * A select box containing all the countries of the country specific Peppol participant identifier
+ * A select box containing all the countries known to the Java runtime, sorted alphabetically by
+ * their display name. The country that is searched for is the country of a Business Card and is
+ * therefore not limited to the countries of the country specific Peppol participant identifier
  * schemes. The first option has an empty value, meaning that no country filter is applied at all,
  * and is the default selection.
  *
  * @author Philip Helger
  */
-public class HCPeppolCountrySelect extends HCExtSelect
+public class HCCountrySelect extends HCExtSelect
 {
   /** The text of the special option that applies no country filter at all */
   public static final String TEXT_ALL_COUNTRIES = "All countries";
 
   /**
-   * @return A list with the countries of all the country specific Peppol participant identifier
-   *         schemes, in no particular order. Never <code>null</code> nor empty.
+   * @return A list with all the countries known to the Java runtime, in no particular order. Never
+   *         <code>null</code> nor empty.
    */
   @NonNull
   @Nonempty
   @ReturnsMutableCopy
-  public static ICommonsList <Locale> getAllPeppolCountries ()
+  public static ICommonsList <Locale> getAllCountries ()
   {
-    final CountryCache aCountryCache = CountryCache.getInstance ();
+    final LocaleCache aLocaleCache = LocaleCache.getInstance ();
     final ICommonsList <Locale> ret = new CommonsArrayList <> ();
-    // The same country is used by more than one identifier scheme, so the codes must be unified
-    for (final String sCountryCode : new CommonsHashSet <> (PeppolParticipantCountryHelper.getAllSchemeCountryCodes ()
-                                                                                          .values ()))
-    {
-      final Locale aCountry = aCountryCache.getCountry (sCountryCode);
-      if (aCountry != null)
-        ret.add (aCountry);
-    }
+    // All ISO 3166-1 alpha-2 country codes known to the Java runtime. The country cache is not
+    // used, because it is filled from the available locales and therefore also contains the UN
+    // M.49 region codes like "419" (Latin America) that are no countries
+    for (final String sCountryCode : Locale.getISOCountries ())
+      ret.add (aLocaleCache.getLocale ("", sCountryCode, ""));
     return ret;
   }
 
-  public HCPeppolCountrySelect (@NonNull final IHCRequestField aRF, @NonNull final Locale aDisplayLocale)
+  public HCCountrySelect (@NonNull final IHCRequestField aRF, @NonNull final Locale aDisplayLocale)
   {
     super (aRF);
 
-    for (final Locale aCountry : CollectionSort.getSorted (getAllPeppolCountries (),
+    for (final Locale aCountry : CollectionSort.getSorted (getAllCountries (),
                                                            ComparatorHelper.getComparatorCollating (x -> x.getDisplayCountry (aDisplayLocale),
                                                                                                     aDisplayLocale)))
       addOption (aCountry.getCountry (), aCountry.getDisplayCountry (aDisplayLocale));
