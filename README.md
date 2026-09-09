@@ -170,6 +170,12 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
+v0.18.2 - work in progress
+* The public documentation pages of the publisher now describe multilingual Business Entity names
+    * The JSON example of the "REST API documentation" page uses the real structure of the `name` field of a Business Entity - an array of objects with the mandatory field `name` and the optional field `language` - instead of the plain string that was shown before. One Business Entity of the example carries its name in two languages, the other ones show the far more common case of a single name without a language
+    * The XML example of the same page shows the optional `language` attribute of the `name` element as well
+    * The "Export data" page now contains an example of the Business Card JSON export, that includes a Business Entity with a multilingual name, and it documents the fields of the top-level object of that export
+
 v0.18.1 - 2026-09-08
 * Fixed several paths that prevented entries of the re-index list from ever being retried
     * The retry period of a re-index work item is now anchored on the moment the item enters the re-index list, instead of on the creation date time of the underlying indexer work item. The time an item spent in the indexer work queue - which for a bulk indexing or across a server downtime may exceed `reindex.maxretryhours` - was previously deducted from the retry period, so that such items were moved to the dead list before their first retry was even due

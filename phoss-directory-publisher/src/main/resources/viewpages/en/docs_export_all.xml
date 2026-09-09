@@ -104,7 +104,146 @@
 <ul>
   <li>The Directory JSON data can be downloaded via the URL <a href="../../export/businesscards-json">/export/businesscards-json</a>.</li>
   <li>The response MIME type is always <code>application/json</code>.</li>
+  <li>
+    The top-level object carries the fields <code>version</code> (the version of the JSON export
+    format - currently <code>2</code>), <code>creationdt</code>, <code>participantCount</code> and
+    <code>codeListSupported</code> (the version of the Peppol Code Lists used to resolve the
+    document type names) as well as the array <code>bc</code> with one object per participant.
+  </li>
 </ul>
+
+<h4>Business Entity names</h4>
+
+<p>
+  The field <code>names</code> of a Business Entity is always an <strong>array</strong>, because a
+  Business Entity may have its name in more than one language.
+  Each element of that array has the mandatory field <code>name</code> and the optional field
+  <code>lang</code> that contains the language code of this specific name:
+</p>
+
+<pre>
+"names":[
+  {
+    "name":"Austrian Government",
+    "lang":"en"
+  },
+  {
+    "name":"Österreichische Bundesregierung",
+    "lang":"de"
+  }
+]
+</pre>
+
+<p>
+  If a name has no language assigned - which is the most common case - the field <code>lang</code>
+  is not contained at all:
+</p>
+
+<pre>
+"names":[
+  {
+    "name":"DG DIGIT"
+  }
+]
+</pre>
+
+<div class="alert alert-warning">
+  Note: the JSON export uses the field names <code>names</code> and <code>lang</code>, whereas the
+  JSON of the REST search API uses <code>name</code> and <code>language</code> for the same data.
+</div>
+
+<h4>Example export:</h4>
+
+<pre class="pre-scrollable">
+{
+  "version":2,
+  "creationdt":"2026-09-08T02:00:11.529Z",
+  "participantCount":2,
+  "codeListSupported":"9.7",
+  "bc":[
+    {
+      "pid":"iso6523-actorid-upis::9915:test",
+      "entities":[
+        {
+          "names":[
+            {
+              "name":"Austrian Government",
+              "lang":"en"
+            },
+            {
+              "name":"Österreichische Bundesregierung",
+              "lang":"de"
+            }
+          ],
+          "countryCode":"AT",
+          "websiteURIs":[
+            "https://test.e-rechnung.gv.at"
+          ],
+          "contacts":[
+            {
+              "type":"support",
+              "name":"Peppol Support",
+              "email":"peppol-support@example.org"
+            }
+          ],
+          "additionalInfo":"This is the test endpoint for the whole Austrian Government",
+          "regdate":"2012-01-01"
+        }
+      ],
+      "docTypes":[
+        {
+          "scheme":"busdox-docid-qns",
+          "value":"urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0::2.1",
+          "displayName":"Peppol BIS Billing UBL Invoice V3",
+          "state":"act"
+        },
+        {
+          "scheme":"busdox-docid-qns",
+          "value":"urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2::CreditNote##urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0::2.1",
+          "displayName":"Peppol BIS Billing UBL Credit Note V3",
+          "state":"act"
+        }
+      ]
+    },
+    {
+      "pid":"iso6523-actorid-upis::9915:digit_test",
+      "entities":[
+        {
+          "names":[
+            {
+              "name":"DG DIGIT"
+            }
+          ],
+          "countryCode":"BE",
+          "geoinfo":"Brussels Rue Belliard 28"
+        },
+        {
+          "names":[
+            {
+              "name":"Second entity name"
+            }
+          ],
+          "countryCode":"AU",
+          "identifiers":[
+            {
+              "scheme":"GLN",
+              "value":"123454321"
+            }
+          ],
+          "additionalInfo":"Whatever it takes - Peppol Directory will index this"
+        }
+      ],
+      "docTypes":[
+        {
+          "scheme":"busdox-docid-qns",
+          "value":"urn:my:own:doctype::MyDocument##whatever::1.0",
+          "nonStandard":true
+        }
+      ]
+    }
+  ]
+}
+</pre>
 
 <h3>CSV</h3>
 

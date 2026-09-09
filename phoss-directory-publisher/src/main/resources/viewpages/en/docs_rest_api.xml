@@ -511,6 +511,11 @@
   <div>The response MIME type is always <code>application/xml</code>.</div>
   <div>Responses should not be cached.</div>
   <div>
+    A Business Entity may have its name in more than one language. Therefore the element
+    <code>name</code> may occur more than once, each one with the optional attribute
+    <code>language</code>.
+  </div>
+  <div>
     The XML Schema for the XML responses can be downloaded from
     <a href="../../files/directory-search-result-list-v1.xsd">/files/directory-search-result-list-v1.xsd</a>.
   </div>
@@ -534,7 +539,8 @@
     &lt;docTypeID scheme="busdox-docid-qns"&gt;urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0::2.1&lt;/docTypeID&gt;
     &lt;docTypeID scheme="busdox-docid-qns"&gt;urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2::CreditNote##urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0::2.1&lt;/docTypeID&gt;
     &lt;entity&gt;
-      &lt;name&gt;Austrian Government&lt;/name&gt;
+      &lt;name language="en"&gt;Austrian Government&lt;/name&gt;
+      &lt;name language="de"&gt;Österreichische Bundesregierung&lt;/name&gt;
       &lt;countryCode&gt;AT&lt;/countryCode&gt;
       &lt;website&gt;https://test.e-rechnung.gv.at&lt;/website&gt;
       &lt;additionalInfo&gt;This is the test endpoint for the whole Austrian Government&lt;/additionalInfo&gt;
@@ -573,6 +579,41 @@
   <div>Responses should not be cached.</div>
 </div>
 
+<h4>Business Entity names</h4>
+
+<p>
+  The field <code>name</code> of a Business Entity is always an <strong>array</strong>, because a
+  Business Entity may have its name in more than one language.
+  Each element of that array has the mandatory field <code>name</code> and the optional field
+  <code>language</code> that contains the language code of this specific name:
+</p>
+
+<pre>
+"name":[
+  {
+    "name":"Austrian Government",
+    "language":"en"
+  },
+  {
+    "name":"Österreichische Bundesregierung",
+    "language":"de"
+  }
+]
+</pre>
+
+<p>
+  If a name has no language assigned - which is the most common case - the field
+  <code>language</code> is not contained at all:
+</p>
+
+<pre>
+"name":[
+  {
+    "name":"DG DIGIT"
+  }
+]
+</pre>
+
 <h4>Example response:</h4>
 
 <pre class="pre-scrollable">
@@ -604,7 +645,16 @@
       ],
       "entities":[
         {
-          "name":"Austrian Government",
+          "name":[
+            {
+              "name":"Austrian Government",
+              "language":"en"
+            },
+            {
+              "name":"Österreichische Bundesregierung",
+              "language":"de"
+            }
+          ],
           "countryCode":"AT",
           "websites":[
             "https://test.e-rechnung.gv.at"
@@ -621,12 +671,20 @@
       },
       "entities":[
         {
-          "name":"DG DIGIT",
+          "name":[
+            {
+              "name":"DG DIGIT"
+            }
+          ],
           "countryCode":"BE",
           "geoInfo":"Brussels Rue Belliard 28"
         },
         {
-          "name":"Second entity name",
+          "name":[
+            {
+              "name":"Second entity name"
+            }
+          ],
           "countryCode":"AU",
           "identifiers":[
             {
@@ -637,7 +695,11 @@
           "additionalInfo":"Whatever it takes - Peppol Directory will index this"
         },
         {
-          "name":"Third entity - to the rescue",
+          "name":[
+            {
+              "name":"Third entity - to the rescue"
+            }
+          ],
           "countryCode":"DE",
           "geoInfo":"Germany, Baden-Württemberg",
           "identifiers":[
