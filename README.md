@@ -170,7 +170,7 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
-v0.18.2 - work in progress
+v0.18.2 - 2026-09-09
 * The country selector of the search page offers all countries known to the Java runtime, sorted alphabetically by their display name, instead of only the countries of the country specific Peppol participant identifier schemes. The country that is searched for is the country of a Business Card and is therefore not limited to those schemes
     * The class `HCPeppolCountrySelect` was renamed to `HCCountrySelect` and its method `getAllPeppolCountries ()` to `getAllCountries ()`
     * The list is based on `Locale.getISOCountries ()`. The country cache of ph-commons is not used, because it is filled from the available locales and therefore also contains the UN M.49 region codes like `419` (Latin America) that are no countries
