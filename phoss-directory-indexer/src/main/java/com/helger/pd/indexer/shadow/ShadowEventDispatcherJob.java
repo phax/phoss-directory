@@ -76,8 +76,8 @@ public class ShadowEventDispatcherJob extends AbstractScopeAwareJob
   }
 
   @Override
-  protected void onExecute (@Nonnull final JobDataMap aJobDataMap, @Nonnull final IJobExecutionContext aContext)
-                                                                                                                 throws JobExecutionException
+  protected void onExecute (@Nonnull final JobDataMap aJobDataMap,
+                            @Nonnull final IJobExecutionContext aContext) throws JobExecutionException
   {
     if (!PDServerConfiguration.isIndexerShadowingEnabled ())
     {

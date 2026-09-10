@@ -32,12 +32,11 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 /**
- * Persistent list of shadow events using Write-Ahead Log DAO pattern. This is
- * the live queue for events pending dispatch to the downstream service.
+ * Persistent list of shadow events using Write-Ahead Log DAO pattern. This is the live queue for
+ * events pending dispatch to the downstream service.
  * <p>
- * <strong>Important:</strong> This implementation assumes a single application
- * instance per data directory. If multiple instances share the same data
- * directory, file corruption may occur.
+ * <strong>Important:</strong> This implementation assumes a single application instance per data
+ * directory. If multiple instances share the same data directory, file corruption may occur.
  * </p>
  *
  * @author Mikael Aksamit
@@ -57,9 +56,7 @@ public final class ShadowEventList extends AbstractPhotonMapBasedWALDAO <IShadow
   public void addEvent (@Nonnull final ShadowEvent aEvent)
   {
     ValueEnforcer.notNull (aEvent, "Event");
-    m_aRWLock.writeLocked ( () -> {
-      internalCreateItem (aEvent);
-    });
+    m_aRWLock.writeLocked (() -> { internalCreateItem (aEvent); });
     if (LOGGER.isDebugEnabled ())
       LOGGER.debug ("Added shadow event to queue: " + aEvent.getEventID ());
   }
@@ -67,9 +64,7 @@ public final class ShadowEventList extends AbstractPhotonMapBasedWALDAO <IShadow
   public void removeEvent (@Nonnull final String sEventID)
   {
     ValueEnforcer.notNull (sEventID, "EventID");
-    m_aRWLock.writeLocked ( () -> {
-      internalDeleteItem (sEventID);
-    });
+    m_aRWLock.writeLocked (() -> { internalDeleteItem (sEventID); });
     if (LOGGER.isDebugEnabled ())
       LOGGER.debug ("Removed shadow event from queue: " + sEventID);
   }

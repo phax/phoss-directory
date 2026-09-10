@@ -34,16 +34,13 @@ import jakarta.annotation.Nonnull;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
- * Creates shadow events for indexer operations and persists them to the
- * durable outbox queue. This is called after the indexer has successfully
- * queued a work item.
+ * Creates shadow events for indexer operations and persists them to the durable outbox queue. This
+ * is called after the indexer has successfully queued a work item.
  * <p>
- * Shadow event creation failures are logged but never propagate to affect the
- * original request.
+ * Shadow event creation failures are logged but never propagate to affect the original request.
  * </p>
  * <p>
- * Configuration values are cached at startup to avoid repeated resolution on
- * the hot request path.
+ * Configuration values are cached at startup to avoid repeated resolution on the hot request path.
  * </p>
  *
  * @author Mikael Aksamit
@@ -59,8 +56,7 @@ public final class ShadowEventCreator
   {}
 
   /**
-   * Initialize the shadowing configuration cache. Called once at startup from
-   * PDMetaManager.
+   * Initialize the shadowing configuration cache. Called once at startup from PDMetaManager.
    */
   public static void initializeConfiguration ()
   {
@@ -77,16 +73,15 @@ public final class ShadowEventCreator
     s_bConfigInitialized = true;
 
     if (LOGGER.isDebugEnabled ())
-      LOGGER.debug ("Shadow event creator initialized: shadowing " +
-                    (s_bShadowingEnabled ? "ENABLED" : "DISABLED"));
+      LOGGER.debug ("Shadow event creator initialized: shadowing " + (s_bShadowingEnabled ? "ENABLED" : "DISABLED"));
   }
 
   /**
    * Create and persist a shadow event for an indexer operation.
    *
    * @param aHttpRequest
-   *        The HTTP servlet request containing the client certificate. May not
-   *        be <code>null</code>.
+   *        The HTTP servlet request containing the client certificate. May not be
+   *        <code>null</code>.
    * @param aParticipantID
    *        The participant identifier. May not be <code>null</code>.
    * @param eOperation

@@ -36,10 +36,11 @@ public interface IPDClientExceptionCallback extends ICallback
    * @param aParticipantID
    *        The participant for which the PD should be invoked.
    * @param sContext
-   *        The context in which the exception occurred. May neither be
-   *        <code>null</code> nor empty.
+   *        The context in which the exception occurred. May neither be <code>null</code> nor empty.
    * @param aException
    *        The exception that occurred. May not be <code>null</code>.
    */
-  void onException (@NonNull IParticipantIdentifier aParticipantID, @NonNull String sContext, @NonNull Throwable aException);
+  void onException (@NonNull IParticipantIdentifier aParticipantID,
+                    @NonNull String sContext,
+                    @NonNull Throwable aException);
 }

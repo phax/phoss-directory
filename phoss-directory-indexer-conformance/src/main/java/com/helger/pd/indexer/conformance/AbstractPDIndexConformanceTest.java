@@ -307,7 +307,8 @@ public abstract class AbstractPDIndexConformanceTest
     addMockDocuments ();
 
     // The stored owner ID is longer than the queried one
-    assertEquals (2, m_aIndex.getCount (PDField.METADATA_OWNERID.getPrefixQuery (PDConformanceTestData.OWNER_ID_PREFIX)));
+    assertEquals (2,
+                  m_aIndex.getCount (PDField.METADATA_OWNERID.getPrefixQuery (PDConformanceTestData.OWNER_ID_PREFIX)));
     assertEquals (2, m_aIndex.getCount (PDField.METADATA_OWNERID.getPrefixQuery (PDConformanceTestData.OWNER_ID)));
     assertEquals (0, m_aIndex.getCount (PDField.METADATA_OWNERID.getPrefixQuery ("CN=other")));
   }

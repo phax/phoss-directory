@@ -90,8 +90,8 @@ public interface IPDIndex extends Closeable
    * @throws IOException
    *         On index error
    */
-  void updateDocuments (@Nullable PDIndexQueryTerm aDeleteQuery, @NonNull List <PDIndexDocument> aDocs)
-                                                                                                       throws IOException;
+  void updateDocuments (@Nullable PDIndexQueryTerm aDeleteQuery,
+                        @NonNull List <PDIndexDocument> aDocs) throws IOException;
 
   /**
    * Delete all documents matching the provided query. All deletions are applied atomically at the

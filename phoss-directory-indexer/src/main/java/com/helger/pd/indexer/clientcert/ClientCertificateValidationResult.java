@@ -28,9 +28,8 @@ import com.helger.base.state.ISuccessIndicator;
 import jakarta.annotation.Nullable;
 
 /**
- * This class contains the result of a single client certificate validation. Use
- * the factory methods {@link #createSuccess(String)} and
- * {@link #createFailure()} to create objects of this class.
+ * This class contains the result of a single client certificate validation. Use the factory methods
+ * {@link #createSuccess(String)} and {@link #createFailure()} to create objects of this class.
  *
  * @author Philip Helger
  */
@@ -58,9 +57,8 @@ public final class ClientCertificateValidationResult implements ISuccessIndicato
   }
 
   /**
-   * @return The ID of the client that triggered the request. Must be
-   *         <code>null</code> on failure and must not be <code>null</code> on
-   *         success.
+   * @return The ID of the client that triggered the request. Must be <code>null</code> on failure
+   *         and must not be <code>null</code> on success.
    */
   @Nullable
   public String getClientID ()

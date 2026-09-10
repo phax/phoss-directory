@@ -421,8 +421,7 @@ public final class PDStorageManager implements IPDStorageManager
 
     final Integer aTotalHitCount = _timedSearch (() -> Integer.valueOf (m_aIndex.searchAll (aQuery,
                                                                                             nMaxResultCount,
-                                                                                            aConsumer)),
-                                                 aQuery);
+                                                                                            aConsumer)), aQuery);
     return aTotalHitCount.intValue ();
   }
 

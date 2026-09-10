@@ -259,8 +259,8 @@ public final class PDLucene implements Closeable, ILuceneAnalyzerProvider
    * @throws IOException
    *         if there is a low-level IO error
    */
-  public void updateDocument (@Nullable final Term aDelTerm, @NonNull final Iterable <? extends IndexableField> aDoc)
-                                                                                                                      throws IOException
+  public void updateDocument (@Nullable final Term aDelTerm,
+                              @NonNull final Iterable <? extends IndexableField> aDoc) throws IOException
   {
     _checkClosing ();
 

@@ -45,8 +45,8 @@ public class AllDocumentsCollector extends SimpleCollector
    * Constructor
    *
    * @param aConsumer
-   *        The consumer that will take the Lucene {@link Document} objects. May
-   *        not be <code>null</code>.
+   *        The consumer that will take the Lucene {@link Document} objects. May not be
+   *        <code>null</code>.
    */
   public AllDocumentsCollector (@NonNull final ObjIntConsumer <Document> aConsumer)
   {

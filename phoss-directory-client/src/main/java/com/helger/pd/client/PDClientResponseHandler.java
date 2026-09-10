@@ -43,8 +43,7 @@ public class PDClientResponseHandler implements HttpClientResponseHandler <ESucc
   {}
 
   @Nullable
-  public ESuccess handleResponse (@NonNull final ClassicHttpResponse aHttpResponse) throws ClientProtocolException,
-                                                                                    IOException
+  public ESuccess handleResponse (@NonNull final ClassicHttpResponse aHttpResponse) throws ClientProtocolException, IOException
   {
     // Check result
     if (aHttpResponse.getCode () >= 200 && aHttpResponse.getCode () < 300)

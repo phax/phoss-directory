@@ -84,17 +84,15 @@ public final class PDQueryManager
   {}
 
   /**
-   * Split a user provided query string into the terms relevant for querying
-   * using the rules of the provided index. This will e.g. remove ":" from a
-   * word etc.
+   * Split a user provided query string into the terms relevant for querying using the rules of the
+   * provided index. This will e.g. remove ":" from a word etc.
    *
    * @param aIndex
    *        The search index to be used. May not be <code>null</code>.
    * @param sFieldName
    *        Index field name to get split into terms.
    * @param sQueryString
-   *        The user provided query string. Must neither be <code>null</code>
-   *        nor empty.
+   *        The user provided query string. Must neither be <code>null</code> nor empty.
    * @return The non-<code>null</code> list of all terms.
    */
   @NonNull
@@ -153,18 +151,17 @@ public final class PDQueryManager
   }
 
   /**
-   * Convert a query string as entered by the used into an index query. This
-   * methods uses {@link #getSplitIntoTerms(IPDIndex, String, String)} to split
-   * the provided string into pieces and returns a boolean query that includes
-   * all terms (like an AND query).
+   * Convert a query string as entered by the used into an index query. This methods uses
+   * {@link #getSplitIntoTerms(IPDIndex, String, String)} to split the provided string into pieces
+   * and returns a boolean query that includes all terms (like an AND query).
    *
    * @param aIndex
    *        The search index to be used. May not be <code>null</code>.
    * @param sFieldName
    *        The field name to query. May neither be <code>null</code> nor empty.
    * @param sQueryString
-   *        The query string. May not be <code>null</code> and not be empty and
-   *        may not be whitespace only.
+   *        The query string. May not be <code>null</code> and not be empty and may not be
+   *        whitespace only.
    * @return The created {@link IPDIndexQuery}
    */
   @NonNull
@@ -230,7 +227,7 @@ public final class PDQueryManager
   @NonNull
   @ReturnsMutableCopy
   private static ICommonsList <IPDIndexQuery> _createRelevanceQueries (@NonNull @Nonempty final String sFieldName,
-                                                                      @NonNull final List <String> aParts)
+                                                                       @NonNull final List <String> aParts)
   {
     final ICommonsList <IPDIndexQuery> ret = new CommonsArrayList <> ();
     for (final String sPart : aParts)
@@ -306,8 +303,7 @@ public final class PDQueryManager
     // Query both fields in parallel - one of both must match
     final PDIndexQueryBool.Builder aMatchBuilder = new PDIndexQueryBool.Builder ();
     aMatchBuilder.add (_createContainsQuery (PDField.NAME.getFieldName (), aNameParts), EPDIndexQueryOccur.SHOULD);
-    aMatchBuilder.add (_createContainsQuery (PDField.ML_NAME.getFieldName (), aMLNameParts),
-                       EPDIndexQueryOccur.SHOULD);
+    aMatchBuilder.add (_createContainsQuery (PDField.ML_NAME.getFieldName (), aMLNameParts), EPDIndexQueryOccur.SHOULD);
 
     final PDIndexQueryBool.Builder aBuilder = new PDIndexQueryBool.Builder ();
     // This clause decides what matches, but it deliberately does not contribute to the score
@@ -363,7 +359,7 @@ public final class PDQueryManager
       LOGGER.warn ("GeoInfo query string '" + sQueryString + "' is too short!");
       return null;
     }
-    
+
     // Split into pieces
     return convertQueryStringToQuery (aIndex, PDField.GEO_INFO.getFieldName (), sQueryString);
   }
@@ -409,7 +405,7 @@ public final class PDQueryManager
       LOGGER.warn ("Contact query string '" + sQueryString + "' is too short!");
       return null;
     }
-    
+
     final IPDIndexQuery aQuery1 = PDField.CONTACT_TYPE.getContainsQuery (_lowerCase (sQueryString));
     final IPDIndexQuery aQuery2 = PDField.CONTACT_NAME.getContainsQuery (_lowerCase (sQueryString));
     final IPDIndexQuery aQuery3 = PDField.CONTACT_PHONE.getContainsQuery (_lowerCase (sQueryString));
@@ -448,7 +444,7 @@ public final class PDQueryManager
       LOGGER.warn ("Registration date '" + sQueryString + "' is invalid!");
       return null;
     }
-    
+
     return PDField.REGISTRATION_DATE.getExactMatchQuery (sQueryString);
   }
 
@@ -466,7 +462,7 @@ public final class PDQueryManager
       LOGGER.warn ("Failed to convert '" + sQueryString + "' to document type ID!");
       return null;
     }
-    
+
     return PDField.DOCTYPE_ID.getExactMatchQuery (aDTI);
   }
 }

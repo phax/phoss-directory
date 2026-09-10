@@ -216,7 +216,7 @@ public final class PDIndexerManager implements Closeable
     final ICommonsList <? extends IReIndexWorkItem> aReIndexItems = m_aReIndexList.getAllItems ();
     if (aReIndexItems.isNotEmpty ())
     {
-      m_aRWLock.writeLocked ( () -> {
+      m_aRWLock.writeLocked (() -> {
         for (final IReIndexWorkItem aItem : aReIndexItems)
           m_aUniqueItems.add (aItem.getWorkItem ());
       });
@@ -487,10 +487,7 @@ public final class PDIndexerManager implements Closeable
       _removeFromOtherLists (aQueuedItems);
     }
 
-    LOGGER.info ("Finished bulk queueing. Queued " +
-                 aQueued.size () +
-                 "; already in the queue: " +
-                 aNotQueued.size ());
+    LOGGER.info ("Finished bulk queueing. Queued " + aQueued.size () + "; already in the queue: " + aNotQueued.size ());
 
     return new BulkQueueResult (aQueued, aNotQueued);
   }
@@ -603,15 +600,15 @@ public final class PDIndexerManager implements Closeable
     final int nQueue = nQueueBefore - aQueue.size ();
 
     // They are no longer "in progress"
-    m_aRWLock.writeLocked ( () -> m_aUniqueItems.removeIf (x -> aPIDs.contains (x.getParticipantID ()
+    m_aRWLock.writeLocked (() -> m_aUniqueItems.removeIf (x -> aPIDs.contains (x.getParticipantID ()
                                                                                 .getURIEncoded ())));
 
     final int nReIndex = m_aReIndexList.getAndRemoveAllEntries (x -> aPIDs.contains (x.getWorkItem ()
                                                                                       .getParticipantID ()
                                                                                       .getURIEncoded ())).size ();
     final int nDead = m_aDeadList.getAndRemoveAllEntries (x -> aPIDs.contains (x.getWorkItem ()
-                                                                               .getParticipantID ()
-                                                                               .getURIEncoded ())).size ();
+                                                                                .getParticipantID ()
+                                                                                .getURIEncoded ())).size ();
 
     LOGGER.info ("Removed " +
                  nQueue +
@@ -649,7 +646,7 @@ public final class PDIndexerManager implements Closeable
     {
       // Last resort - the item is lost, so at least don't block the participant forever
       LOGGER.error ("Failed to put " + aItem.getLogText () + " back into the re-index list - dropping it", ex);
-      m_aRWLock.writeLocked ( () -> m_aUniqueItems.remove (aItem.getWorkItem ()));
+      m_aRWLock.writeLocked (() -> m_aUniqueItems.remove (aItem.getWorkItem ()));
     }
   }
 

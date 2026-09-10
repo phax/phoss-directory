@@ -41,8 +41,7 @@ import com.helger.web.scope.util.AbstractScopeAwareJob;
 import jakarta.servlet.ServletContext;
 
 /**
- * A Quartz job that is scheduled to re-index existing entries that failed to
- * re-index previously.
+ * A Quartz job that is scheduled to re-index existing entries that failed to re-index previously.
  *
  * @author Philip Helger
  */
@@ -83,8 +82,7 @@ public class ReIndexJob extends AbstractScopeAwareJob
 
   /**
    * @param aScheduleBuilder
-   *        The schedule builder to be used. May not be <code>null</code>.
-   *        Example:
+   *        The schedule builder to be used. May not be <code>null</code>. Example:
    *        <code>SimpleScheduleBuilder.repeatMinutelyForever (1)</code>
    * @return The created trigger key for further usage. Never <code>null</code>.
    */

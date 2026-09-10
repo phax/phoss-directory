@@ -84,7 +84,8 @@ public final class PDMetaManager extends AbstractGlobalSingleton
       m_aStorageMgr = new PDStorageManager (m_aIndex);
       m_aIndexerMgr = new PDIndexerManager (m_aStorageMgr);
 
-      // Initialize shadow event configuration cache (must be called before any shadow event creation)
+      // Initialize shadow event configuration cache (must be called before any shadow event
+      // creation)
       ShadowEventCreator.initializeConfiguration ();
 
       // Initialize shadow event infrastructure if enabled
@@ -152,7 +153,7 @@ public final class PDMetaManager extends AbstractGlobalSingleton
   @Nullable
   public static IPDBusinessCardProvider getBusinessCardProviderOrNull ()
   {
-    return RW_LOCK.readLockedGet ( () -> s_aBCProvider);
+    return RW_LOCK.readLockedGet (() -> s_aBCProvider);
   }
 
   /**
@@ -176,7 +177,7 @@ public final class PDMetaManager extends AbstractGlobalSingleton
   public static void setBusinessCardProvider (@NonNull final IPDBusinessCardProvider aBCProvider)
   {
     ValueEnforcer.notNull (aBCProvider, "BCProvider");
-    RW_LOCK.writeLockedGet ( () -> s_aBCProvider = aBCProvider);
+    RW_LOCK.writeLockedGet (() -> s_aBCProvider = aBCProvider);
   }
 
   /**
@@ -207,8 +208,7 @@ public final class PDMetaManager extends AbstractGlobalSingleton
   }
 
   /**
-   * @return The shadow event list (live queue), or <code>null</code> if
-   *         shadowing is not enabled.
+   * @return The shadow event list (live queue), or <code>null</code> if shadowing is not enabled.
    */
   @Nullable
   public static ShadowEventList getShadowEventList ()
@@ -217,8 +217,7 @@ public final class PDMetaManager extends AbstractGlobalSingleton
   }
 
   /**
-   * @return The failed shadow event list (DLQ), or <code>null</code> if
-   *         shadowing is not enabled.
+   * @return The failed shadow event list (DLQ), or <code>null</code> if shadowing is not enabled.
    */
   @Nullable
   public static FailedShadowEventList getFailedShadowEventList ()

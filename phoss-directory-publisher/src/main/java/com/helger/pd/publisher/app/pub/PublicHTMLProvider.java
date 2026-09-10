@@ -358,8 +358,8 @@ public class PublicHTMLProvider extends AbstractSWECHTMLProvider
   }
 
   @Override
-  protected void fillBody (@NonNull final ISimpleWebExecutionContext aSWEC, @NonNull final HCHtml aHtml)
-                                                                                                         throws ForcedRedirectException
+  protected void fillBody (@NonNull final ISimpleWebExecutionContext aSWEC,
+                           @NonNull final HCHtml aHtml) throws ForcedRedirectException
   {
     final IRequestWebScopeWithoutResponse aRequestScope = aSWEC.getRequestScope ();
     final Locale aDisplayLocale = aSWEC.getDisplayLocale ();

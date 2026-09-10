@@ -181,7 +181,8 @@ public final class S3Helper
     {
       throw new IllegalStateException ("The configured " +
                                        PDServerConfiguration.KEY_S3_SIGNING_PRIVATE_KEY +
-                                       " is not a valid PEM encoded PKCS#8 RSA private key", ex);
+                                       " is not a valid PEM encoded PKCS#8 RSA private key",
+                                       ex);
     }
   }
 

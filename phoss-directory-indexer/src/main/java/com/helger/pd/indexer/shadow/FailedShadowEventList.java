@@ -31,20 +31,18 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 /**
- * Persistent dead-letter queue (DLQ) for failed shadow events. Events in this
- * queue have been rejected by the downstream service with non-retryable errors
- * and require manual investigation.
+ * Persistent dead-letter queue (DLQ) for failed shadow events. Events in this queue have been
+ * rejected by the downstream service with non-retryable errors and require manual investigation.
  * <p>
- * Operators can inspect the failed-shadow-events.xml file to review failures
- * and manually move events back to the live queue (shadow-events.xml) if
- * appropriate.
+ * Operators can inspect the failed-shadow-events.xml file to review failures and manually move
+ * events back to the live queue (shadow-events.xml) if appropriate.
  * </p>
  *
  * @author Mikael Aksamit
  */
 @ThreadSafe
 public final class FailedShadowEventList extends AbstractPhotonMapBasedWALDAO <IShadowEvent, ShadowEvent> implements
-                                          IFailedShadowEventList
+                                         IFailedShadowEventList
 {
   private static final Logger LOGGER = LoggerFactory.getLogger (FailedShadowEventList.class);
 
@@ -56,18 +54,14 @@ public final class FailedShadowEventList extends AbstractPhotonMapBasedWALDAO <I
   public void addFailedEvent (@Nonnull final ShadowEvent aEvent)
   {
     ValueEnforcer.notNull (aEvent, "Event");
-    m_aRWLock.writeLocked ( () -> {
-      internalCreateItem (aEvent);
-    });
+    m_aRWLock.writeLocked (() -> { internalCreateItem (aEvent); });
     LOGGER.warn ("Added shadow event to DLQ (non-retryable failure): " + aEvent.getEventID ());
   }
 
   public void removeFailedEvent (@Nonnull final String sEventID)
   {
     ValueEnforcer.notNull (sEventID, "EventID");
-    m_aRWLock.writeLocked ( () -> {
-      internalDeleteItem (sEventID);
-    });
+    m_aRWLock.writeLocked (() -> { internalDeleteItem (sEventID); });
     if (LOGGER.isDebugEnabled ())
       LOGGER.debug ("Removed failed shadow event from DLQ: " + sEventID);
   }

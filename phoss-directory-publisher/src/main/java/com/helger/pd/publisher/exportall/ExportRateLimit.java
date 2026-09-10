@@ -42,7 +42,8 @@ public final class ExportRateLimit
                                                                                        nRequestsPerDay));
     LOGGER.info ("Installed export rate limiter: max " + nRequestsPerDay + " requests per IP per file per 24 hours");
 
-    // Metadata (HEAD) requests transfer no content and mint no signed URL, so they get a far more generous budget.
+    // Metadata (HEAD) requests transfer no content and mint no signed URL, so they get a far more
+    // generous budget.
     final long nHeadRequestsPerDay = PDServerConfiguration.getExportMaxHeadRequestsPerDay ();
     m_aHeadRateLimiter = new InMemorySlidingWindowRequestRateLimiter (RequestLimitRule.of (Duration.ofHours (24),
                                                                                            nHeadRequestsPerDay));

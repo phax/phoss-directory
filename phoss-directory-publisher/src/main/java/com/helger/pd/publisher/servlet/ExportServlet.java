@@ -33,7 +33,8 @@ public final class ExportServlet extends AbstractXServlet
   {
     handlerRegistry ().registerHandler (EHttpMethod.GET, new ExportDeliveryHttpHandler ());
 
-    // Replace default HEAD handler to return export metadata instead of invoking GET, allowing consumers to check
+    // Replace default HEAD handler to return export metadata instead of invoking GET, allowing
+    // consumers to check
     // for new exports without consuming rate limit.
     handlerRegistry ().unregisterHandler (EHttpMethod.HEAD);
     handlerRegistry ().registerHandler (EHttpMethod.HEAD, new ExportMetadataHttpHandler ());

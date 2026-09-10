@@ -26,8 +26,8 @@ import com.helger.pd.indexer.index.EIndexerWorkItemType;
 import jakarta.annotation.Nonnull;
 
 /**
- * Immutable shadow event representing an indexer operation to be replicated to
- * a downstream service during PD2 migration.
+ * Immutable shadow event representing an indexer operation to be replicated to a downstream service
+ * during PD2 migration.
  *
  * @author Mikael Aksamit
  */

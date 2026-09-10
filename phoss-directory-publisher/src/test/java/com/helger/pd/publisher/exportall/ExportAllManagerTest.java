@@ -68,8 +68,8 @@ public final class ExportAllManagerTest
       return false;
     }
 
-    public void onStart (@NonNull @WillNotClose final OutputStream aOS, @Nonnegative final int nParticipantCount)
-                                                                                                                  throws Exception
+    public void onStart (@NonNull @WillNotClose final OutputStream aOS,
+                         @Nonnegative final int nParticipantCount) throws Exception
     {
       m_aOS = aOS;
       m_aOS.write (("Count: " + nParticipantCount + "\n").getBytes (StandardCharsets.UTF_8));

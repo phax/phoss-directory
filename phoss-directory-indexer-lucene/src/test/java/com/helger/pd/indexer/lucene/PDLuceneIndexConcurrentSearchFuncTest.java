@@ -76,7 +76,7 @@ public final class PDLuceneIndexConcurrentSearchFuncTest
       // Constantly modify the index, so that the index reader is reopened and the internal
       // document IDs are reassigned by the segment merges
       final AtomicBoolean aWriterRunning = new AtomicBoolean (true);
-      final Thread aWriterThread = new Thread ( () -> {
+      final Thread aWriterThread = new Thread (() -> {
         int nIndex = 0;
         while (aWriterRunning.get ())
         {
@@ -100,25 +100,22 @@ public final class PDLuceneIndexConcurrentSearchFuncTest
       for (int nThread = 0; nThread < SEARCH_THREAD_COUNT; ++nThread)
       {
         final int nThreadIndex = nThread;
-        aSearchThreads[nThread] = new Thread ( () -> {
+        aSearchThreads[nThread] = new Thread (() -> {
           for (int i = 0; i < SEARCHES_PER_THREAD; ++i)
           {
-            final IParticipantIdentifier aParticipantID = _createParticipantID ((nThreadIndex * SEARCHES_PER_THREAD + i) %
-                                                                               PARTICIPANT_COUNT);
+            final IParticipantIdentifier aParticipantID = _createParticipantID ((nThreadIndex * SEARCHES_PER_THREAD +
+                                                                                 i) % PARTICIPANT_COUNT);
             try
             {
-              aIndex.searchAll (PDField.PARTICIPANT_ID.getExactMatchQuery (aParticipantID),
-                                MAX_RESULT_COUNT,
-                                aDoc -> {
-                                  final IParticipantIdentifier aFoundID = PDStoredBusinessEntity.create (aDoc)
-                                                                                                .getParticipantID ();
-                                  if (!aParticipantID.equals (aFoundID))
-                                    aErrors.add ("Search for '" +
-                                                 aParticipantID.getURIEncoded () +
-                                                 "' returned the document of '" +
-                                                 (aFoundID == null ? "null" : aFoundID.getURIEncoded ()) +
-                                                 "'");
-                                });
+              aIndex.searchAll (PDField.PARTICIPANT_ID.getExactMatchQuery (aParticipantID), MAX_RESULT_COUNT, aDoc -> {
+                final IParticipantIdentifier aFoundID = PDStoredBusinessEntity.create (aDoc).getParticipantID ();
+                if (!aParticipantID.equals (aFoundID))
+                  aErrors.add ("Search for '" +
+                               aParticipantID.getURIEncoded () +
+                               "' returned the document of '" +
+                               (aFoundID == null ? "null" : aFoundID.getURIEncoded ()) +
+                               "'");
+              });
             }
             catch (final Exception ex)
             {

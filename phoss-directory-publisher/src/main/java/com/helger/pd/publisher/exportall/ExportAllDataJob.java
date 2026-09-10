@@ -262,8 +262,8 @@ public final class ExportAllDataJob extends AbstractScopeAwareJob
   }
 
   @Override
-  protected void onExecute (@NonNull final JobDataMap aJobDataMap, @NonNull final IJobExecutionContext aContext)
-                                                                                                                 throws JobExecutionException
+  protected void onExecute (@NonNull final JobDataMap aJobDataMap,
+                            @NonNull final IJobExecutionContext aContext) throws JobExecutionException
   {
     try
     {

@@ -33,8 +33,8 @@ public interface ILuceneAnalyzerProvider
   /**
    * Get the Lucene Analyzer to use
    *
-   * @return The Analyzer to use. May be <code>null</code> if the underlying
-   *         Analyzer is already closed
+   * @return The Analyzer to use. May be <code>null</code> if the underlying Analyzer is already
+   *         closed
    * @throws IOException
    *         In case of a Lucene error
    */

@@ -77,7 +77,7 @@ public final class ExportAllManager
   private static final String S3_FOLDER_NAME = "export1/";
   public static final String INTERNAL_BUSINESSCARDS_XML_FULL = S3_FOLDER_NAME + "export-all-businesscards.xml";
   public static final String INTERNAL_BUSINESSCARDS_XML_NO_DOC_TYPES = S3_FOLDER_NAME +
-                                                                        "export-all-businesscards-no-doc-types.xml";
+                                                                       "export-all-businesscards-no-doc-types.xml";
   public static final String INTERNAL_BUSINESSCARDS_JSON = S3_FOLDER_NAME + "export-all-businesscards.json";
   public static final String INTERNAL_BUSINESSCARDS_CSV = S3_FOLDER_NAME + "export-all-businesscards.csv";
   public static final String INTERNAL_PARTICIPANTS_XML = S3_FOLDER_NAME + "export-all-participants.xml";

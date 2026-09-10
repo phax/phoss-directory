@@ -24,10 +24,9 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 /**
- * Interface for managing failed shadow events in a dead-letter queue (DLQ).
- * Events in this queue have been rejected by the downstream service with
- * non-retryable errors (typically 4xx HTTP status codes) and require manual
- * investigation.
+ * Interface for managing failed shadow events in a dead-letter queue (DLQ). Events in this queue
+ * have been rejected by the downstream service with non-retryable errors (typically 4xx HTTP status
+ * codes) and require manual investigation.
  *
  * @author Mikael Aksamit
  */

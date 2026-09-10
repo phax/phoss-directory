@@ -39,7 +39,7 @@ public final class CertificateHelper
   private static final Logger LOGGER = LoggerFactory.getLogger (CertificateHelper.class);
 
   // Thread-local cache for MessageDigest to avoid repeated getInstance() calls
-  private static final ThreadLocal <MessageDigest> SHA256_DIGEST = ThreadLocal.withInitial ( () -> {
+  private static final ThreadLocal <MessageDigest> SHA256_DIGEST = ThreadLocal.withInitial (() -> {
     try
     {
       return MessageDigest.getInstance ("SHA-256");
@@ -70,7 +70,7 @@ public final class CertificateHelper
       return null;
     }
 
-    if (!(aValue instanceof X509Certificate[] aRequestCerts))
+    if (!(aValue instanceof X509Certificate [] aRequestCerts))
     {
       LOGGER.error ("Request certificate attribute is not of type X509Certificate[] but of " + aValue.getClass ());
       return null;
@@ -90,8 +90,8 @@ public final class CertificateHelper
    *
    * @param aCert
    *        The certificate. May not be <code>null</code>.
-   * @return The SHA-256 fingerprint as a lowercase hex string, or
-   *         <code>null</code> if computation failed.
+   * @return The SHA-256 fingerprint as a lowercase hex string, or <code>null</code> if computation
+   *         failed.
    */
   @Nullable
   public static String computeSHA256Fingerprint (@Nonnull final X509Certificate aCert)

@@ -26,8 +26,8 @@ import com.helger.base.tostring.ToStringGenerator;
 import com.helger.peppol.businesscard.generic.PDIdentifier;
 
 /**
- * This class represents a single identifier as stored in the search index consisting of a
- * type and a value.
+ * This class represents a single identifier as stored in the search index consisting of a type and
+ * a value.
  *
  * @author Philip Helger
  */

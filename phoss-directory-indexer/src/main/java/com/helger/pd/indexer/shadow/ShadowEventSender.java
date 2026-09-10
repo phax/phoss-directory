@@ -85,8 +85,8 @@ public final class ShadowEventSender
    * @throws IOException
    *         If the HTTP request fails
    */
-  public static int sendEvent (@Nonnull @Nonempty final String sDownstreamURL, @Nonnull final IShadowEvent aEvent)
-                                                                                                                   throws IOException
+  public static int sendEvent (@Nonnull @Nonempty final String sDownstreamURL,
+                               @Nonnull final IShadowEvent aEvent) throws IOException
   {
     final IJsonObject aPayload = _buildEventPayload (aEvent);
     final String sJsonPayload = aPayload.getAsJsonString ();
