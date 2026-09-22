@@ -85,6 +85,7 @@ import jakarta.json.JsonObject;
 import jakarta.json.JsonObjectBuilder;
 import jakarta.json.JsonString;
 import jakarta.json.JsonValue;
+import software.amazon.awssdk.http.apache5.Apache5HttpClient;
 
 /**
  * The AWS OpenSearch based implementation of {@link IPDIndex}. It translates the search engine
@@ -210,7 +211,7 @@ public class PDOpenSearchIndex implements IPDIndex
                      PDOpenSearchConfiguration.getAWSServiceName () +
                      "'");
 
-        return new AwsSdk2Transport (software.amazon.awssdk.http.apache.ApacheHttpClient.builder ().build (),
+        return new AwsSdk2Transport (Apache5HttpClient.builder ().build (),
                                      sHost,
                                      PDOpenSearchConfiguration.getAWSServiceName (),
                                      software.amazon.awssdk.regions.Region.of (sRegion),
