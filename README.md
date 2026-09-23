@@ -170,7 +170,8 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
-v0.18.3 - work in progress
+v0.19.0 - 2026-09-24
+* Updated to peppol-commons 13.0.0
 * The "Re-index all entries now" action of the "Re-Index List" and the "Dead Index List" page now runs as a long running job in the background, instead of in the HTTP thread. Such a list may contain tens of thousands of entries, and queueing them one by one scans the re-index and the dead list for every single entry
     * The entries are grouped by their work item type and are queued with `PDIndexerManager.queueWorkItems (...)` - one bulk operation per type - so that the re-index and the dead list are cleaned up in a single pass instead of once per entry
     * The outcome is shown on the "Long running jobs" page, exactly like the one of the participant import and the participant deletion
