@@ -75,7 +75,7 @@
     <jaxb-plugin.version>4.0.16</jaxb-plugin.version>
     <ph-jaxb-plugin.version>5.1.2</ph-jaxb-plugin.version>
 
-    <awssdk.version>2.55.2</awssdk.version>
+    <awssdk.version>2.55.3</awssdk.version>
     <opensearch.version>3.10.0</opensearch.version>
     <!-- Peppol Directory runs on Lucene v8 -->
     <lucene.version>8.11.4</lucene.version>
@@ -89,7 +89,7 @@
       <dependency>
         <groupId>com.helger.web</groupId>
         <artifactId>ph-web-parent-pom</artifactId>
-        <version>11.4.5</version>
+        <version>11.4.6</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -103,7 +103,7 @@
       <dependency>
         <groupId>com.helger.peppol.ui</groupId>
         <artifactId>peppol-shared-ui-parent-pom</artifactId>
-        <version>0.10.3</version>
+        <version>0.10.4-SNAPSHOT</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>

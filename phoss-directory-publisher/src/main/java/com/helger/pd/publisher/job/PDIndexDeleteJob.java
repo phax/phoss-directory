@@ -83,7 +83,7 @@ public class PDIndexDeleteJob extends AbstractPDParticipantFileJob
 
   @Override
   @NonNull
-  protected LongRunningJobResult createParticipantJobResult ()
+  protected LongRunningJobResult createJobResult ()
   {
     final ReadResult aReadResult = PDParticipantListReader.readParticipantList (getUploadedFile (),
                                                                                 PDMetaManager.getIdentifierFactory ());

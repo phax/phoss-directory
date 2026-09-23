@@ -19,6 +19,8 @@ package com.helger.pd.publisher.app.secure;
 import java.util.Locale;
 
 import org.jspecify.annotations.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.helger.annotation.Nonempty;
 import com.helger.collection.commons.CommonsArrayList;
@@ -40,12 +42,15 @@ import com.helger.pd.indexer.reindex.IReIndexWorkItemList;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
 import com.helger.pd.indexer.storage.CPDStorage;
 import com.helger.pd.publisher.app.PDPMetaManager;
+import com.helger.pd.publisher.job.AbstractPDLongRunningJob;
+import com.helger.pd.publisher.job.PDReIndexAllJob;
 import com.helger.pd.publisher.ui.AbstractAppWebPageForm;
 import com.helger.pd.publisher.ui.PDCommonUI;
 import com.helger.pd.publisher.ui.PDDataTablesOnDemand;
 import com.helger.peppol.sml.ISMLInfo;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.photon.ajax.decl.IAjaxFunctionDeclaration;
+import com.helger.photon.audit.AuditHelper;
 import com.helger.photon.bootstrap5.button.BootstrapButton;
 import com.helger.photon.bootstrap5.buttongroup.BootstrapButtonToolbar;
 import com.helger.photon.bootstrap5.form.BootstrapForm;
@@ -58,6 +63,8 @@ import com.helger.photon.bootstrap5.uictrls.datatables.BootstrapDTColAction;
 import com.helger.photon.core.execcontext.LayoutExecutionContext;
 import com.helger.photon.core.form.FormErrorList;
 import com.helger.photon.core.paging.TableColumnHelper;
+import com.helger.photon.io.PhotonWorkerPool;
+import com.helger.photon.security.lock.SingleRunLock;
 import com.helger.photon.uicore.css.CPageParam;
 import com.helger.photon.uicore.icon.EDefaultIcon;
 import com.helger.photon.uicore.page.EShowList;
@@ -80,6 +87,8 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
   private static final String ACTION_REINDEX_NOW = "reindexnow";
   private static final String ACTION_REINDEX_ALL_NOW = "reindexallnow";
   private static final EReIndexWorkItemColumn [] COLUMNS = EReIndexWorkItemColumn.values ();
+
+  private static final Logger LOGGER = LoggerFactory.getLogger (AbstractPageSecureReIndex.class);
 
   private final boolean m_bDeadIndex;
   /**
@@ -190,41 +199,59 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
                         protected void performAction (final WebPageExecutionContext aWPEC,
                                                       final IReIndexWorkItem aSelectedObject)
                         {
-                          final PDIndexerManager aIndexerMgr = PDMetaManager.getIndexerMgr ();
-                          int nQueued = 0;
-                          int nAlreadyQueued = 0;
-                          for (final IReIndexWorkItem aItem : getReIndexWorkItemList ().getAllItems ())
+                          final IReIndexWorkItemList aWorkItemList = getReIndexWorkItemList ();
+                          if (aWorkItemList.getItemCount () == 0)
+                            aWPEC.postRedirectGetInternal (warn ("Seems like there is no item to be re-indexed."));
+
+                          final String sUserID = aWPEC.getLoggedInUserID ();
+                          final SingleRunLock aLock = _getReIndexAllLock ();
+
+                          // Only a single bulk re-index may run at a time, because it works on a
+                          // lot of participants
+                          if (!aLock.tryAcquire (sUserID))
+                            aWPEC.postRedirectGetInternal (warn ("Another re-indexing of all entries is already running in the background. Please wait until it is finished."));
+
+                          try
                           {
-                            final IIndexerWorkItem aWorkItem = aItem.getWorkItem ();
-                            if (aIndexerMgr.queueWorkItem (aWorkItem.getParticipantID (),
-                                                           aWorkItem.getType (),
-                                                           CPDStorage.OWNER_MANUALLY_TRIGGERED,
-                                                           PDIndexerManager.HOST_LOCALHOST).isChanged ())
-                              nQueued++;
-                            else
-                              nAlreadyQueued++;
+                            PhotonWorkerPool.getInstance ()
+                                            .run (PDReIndexAllJob.JOB_TYPE,
+                                                  new PDReIndexAllJob (aWorkItemList, sName, sUserID, aLock));
+                          }
+                          catch (final Exception ex)
+                          {
+                            // The job was never started, so it cannot release the lock
+                            aLock.release ();
+
+                            // The job never runs, so it cannot audit its own start
+                            AuditHelper.onAuditExecuteFailure (AbstractPDLongRunningJob.getAuditAction (PDReIndexAllJob.JOB_TYPE,
+                                                                                                        AbstractPDLongRunningJob.AUDIT_PHASE_START),
+                                                               sUserID,
+                                                               sName,
+                                                               ex.getMessage ());
+
+                            LOGGER.error ("Failed to start the re-indexing of all entries of the " + sName, ex);
+                            aWPEC.postRedirectGetInternal (error ("Failed to start the re-indexing of all entries: " +
+                                                                  ex.getMessage ()));
                           }
 
-                          if (nQueued == 0 && nAlreadyQueued == 0)
-                            aWPEC.postRedirectGetInternal (warn ("Seems like there is no item to be re-indexed."));
-                          else
-                          {
-                            final HCNodeList aMessages = new HCNodeList ();
-                            if (nQueued > 0)
-                              aMessages.addChild (success ("The re-indexing of " +
-                                                           nQueued +
-                                                           " item(s) was successfully triggered!"));
-                            if (nAlreadyQueued > 0)
-                              aMessages.addChild (warn (nAlreadyQueued +
-                                                        " item(s) are already in the indexing queue!"));
-                            aWPEC.postRedirectGetInternal (aMessages);
-                          }
+                          aWPEC.postRedirectGetInternal (success ("The re-indexing of all entries is now running in the background. " +
+                                                                  "The result is shown on the \"Long running jobs\" page as soon as it is finished."));
                         }
                       });
   }
 
   @NonNull
   protected abstract IReIndexWorkItemList getReIndexWorkItemList ();
+
+  /**
+   * @return The lock that ensures that only a single re-indexing of all entries of this list runs
+   *         at a time. Never <code>null</code>.
+   */
+  @NonNull
+  private SingleRunLock _getReIndexAllLock ()
+  {
+    return m_bDeadIndex ? PDReIndexAllJob.LOCK_DEAD_LIST : PDReIndexAllJob.LOCK_REINDEX_LIST;
+  }
 
   @Override
   protected IReIndexWorkItem getSelectedObject (@NonNull final WebPageExecutionContext aWPEC, final String sID)
@@ -432,6 +459,10 @@ public abstract class AbstractPageSecureReIndex extends AbstractAppWebPageForm <
   {
     final HCNodeList aNodeList = aWPEC.getNodeList ();
     final Locale aDisplayLocale = aWPEC.getDisplayLocale ();
+
+    if (_getReIndexAllLock ().isRunning ())
+      aNodeList.addChild (warn ("A re-indexing of all entries is currently running in the background. " +
+                                "The result is shown on the \"Long running jobs\" page as soon as it is finished."));
 
     // Add toolbar
     {

@@ -170,6 +170,17 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
+v0.18.3 - work in progress
+* The "Re-index all entries now" action of the "Re-Index List" and the "Dead Index List" page now runs as a long running job in the background, instead of in the HTTP thread. Such a list may contain tens of thousands of entries, and queueing them one by one scans the re-index and the dead list for every single entry
+    * The entries are grouped by their work item type and are queued with `PDIndexerManager.queueWorkItems (...)` - one bulk operation per type - so that the re-index and the dead list are cleaned up in a single pass instead of once per entry
+    * The outcome is shown on the "Long running jobs" page, exactly like the one of the participant import and the participant deletion
+    * Only a single such job runs at a time per list, guarded by `PDReIndexAllJob.LOCK_REINDEX_LIST` and `PDReIndexAllJob.LOCK_DEAD_LIST`. While a job is running, the respective page shows a hint
+    * New class `PDReIndexAllJob`
+* The common lifecycle of the long running jobs of the publisher - run in a Web Scope, write an audit item for the job start and the job end and release the lock of the triggering page - was moved from `AbstractPDParticipantFileJob` into the new base class `AbstractPDLongRunningJob`, so that jobs that don't work on an uploaded file can use it as well
+    * The constants `MAX_RESULT_DETAILS`, `AUDIT_PHASE_START` and `AUDIT_PHASE_END` as well as the methods `getAuditAction (...)`, `appendDetails (...)` and `getMaxResultDetails ()` moved from `AbstractPDParticipantFileJob` to `AbstractPDLongRunningJob`
+    * The method `AbstractPDParticipantFileJob.createParticipantJobResult ()` was renamed to `AbstractPDLongRunningJob.createJobResult ()`
+    * The new methods `getAuditArgs ()` and `getAuditStartArgs ()` provide the job specific arguments of the audit items, and the new method `onJobFinished ()` is the hook for the job specific cleanup - it is used to delete the uploaded file
+
 v0.18.2 - 2026-09-09
 * The country selector of the search page offers all countries known to the Java runtime, sorted alphabetically by their display name, instead of only the countries of the country specific Peppol participant identifier schemes. The country that is searched for is the country of a Business Card and is therefore not limited to those schemes
     * The class `HCPeppolCountrySelect` was renamed to `HCCountrySelect` and its method `getAllPeppolCountries ()` to `getAllCountries ()`

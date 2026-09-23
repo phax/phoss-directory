@@ -39,7 +39,7 @@ import com.helger.config.Config;
 import com.helger.config.ConfigFactory;
 import com.helger.config.IConfig;
 import com.helger.config.source.MultiConfigurationValueProvider;
-import com.helger.peppol.sml.ESMPAPIType;
+import com.helger.edelivery.smp.ESMPAPIType;
 import com.helger.peppolid.factory.BDXR1IdentifierFactory;
 import com.helger.peppolid.factory.BDXR2IdentifierFactory;
 import com.helger.peppolid.factory.IIdentifierFactory;
@@ -47,9 +47,9 @@ import com.helger.peppolid.factory.PeppolIdentifierFactory;
 import com.helger.peppolid.factory.SimpleIdentifierFactory;
 import com.helger.scope.singleton.AbstractGlobalSingleton;
 import com.helger.security.keystore.EKeyStoreType;
-import com.helger.smpclient.url.BDXLURLProvider;
 import com.helger.smpclient.url.ISMPURLProvider;
-import com.helger.smpclient.url.PeppolNaptrURLProvider;
+import com.helger.smpclient.url.dns.BDXLURLProvider;
+import com.helger.smpclient.url.dns.PeppolNaptrURLProvider;
 
 import jakarta.annotation.Nullable;
 

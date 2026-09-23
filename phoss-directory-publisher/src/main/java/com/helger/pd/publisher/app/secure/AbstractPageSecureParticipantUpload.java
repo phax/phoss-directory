@@ -28,6 +28,7 @@ import com.helger.annotation.Nonempty;
 import com.helger.base.string.StringHelper;
 import com.helger.html.hc.impl.HCNodeList;
 import com.helger.io.file.FileOperationManager;
+import com.helger.pd.publisher.job.AbstractPDLongRunningJob;
 import com.helger.pd.publisher.job.AbstractPDParticipantFileJob;
 import com.helger.pd.publisher.ui.AbstractAppWebPage;
 import com.helger.photon.audit.AuditHelper;
@@ -196,8 +197,8 @@ public abstract class AbstractPageSecureParticipantUpload extends AbstractAppWeb
       getLock ().release ();
 
       // The job never runs, so it cannot audit its own start
-      AuditHelper.onAuditExecuteFailure (AbstractPDParticipantFileJob.getAuditAction (getJobType (),
-                                                                                      AbstractPDParticipantFileJob.AUDIT_PHASE_START),
+      AuditHelper.onAuditExecuteFailure (AbstractPDLongRunningJob.getAuditAction (getJobType (),
+                                                                                  AbstractPDLongRunningJob.AUDIT_PHASE_START),
                                          aWPEC.getLoggedInUserID (),
                                          aFile.getNameSecure (),
                                          ex.getMessage ());
