@@ -10,8 +10,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Requires Java 25 and Apache Maven 3.x. May also need the latest SNAPSHOT of [ph-oton](https://github.com/phax/ph-oton).
 
-The baseline is split per module: `phoss-directory-client` and `phoss-directory-searchapi` are compiled for Java 17
-(third parties compile against them), every other module for Java 25 (POM property `java.version.server`).
+The baseline is split per module: `phoss-directory-client`, `phoss-directory-searchapi` and
+`phoss-directory-searchclient` are compiled for Java 17 (third parties compile against them), every other module for
+Java 25 (POM property `java.version.server`).
 
 ```bash
 # Build entire project
@@ -29,7 +30,7 @@ mvn test -pl phoss-directory-client -Dtest=PDClientTest#testTestServer
 
 ## Module Architecture
 
-Six Maven modules under the parent POM (`com.helger:phoss-directory-parent-pom`):
+Eight Maven modules under the parent POM (`com.helger:phoss-directory-parent-pom`):
 
 - **phoss-directory-indexer** — REST service that receives indexing requests from SMPs (requires Peppol SMP client certificate). Queries SMP data directly and stores it in a search index. Contains **no** search index implementation itself — it defines the search engine independent `IPDIndex` abstraction (package `com.helger.pd.indexer.searchindex`) and resolves the implementation via the SPI `IPDIndexProviderSPI` and the configuration property `searchindex.type`. Core classes: `PDStorageManager`, `PDStoredBusinessEntity`, `PDIndexFactory`.
 
@@ -43,7 +44,9 @@ Six Maven modules under the parent POM (`com.helger:phoss-directory-parent-pom`)
 
 - **phoss-directory-client** — Java client library for SMP servers to push indexing requests to the PD indexer. Uses Apache HttpClient with client certificate auth. Configured via `ph-config` resolution.
 
-- **phoss-directory-searchapi** — JAXB-based library defining the search REST API data structures. XSD schemas in `src/main/resources/schemas/` for directory export (v1-v3) and search results.
+- **phoss-directory-searchapi** — JAXB-based library defining the search REST API data structures. XSD schemas in `src/main/resources/schemas/` for directory export (v1-v3) and search results. Also holds the REST API constants (`CPDSearchAPI`) and the query parameter names (`EPDSearchAPIField`).
+
+- **phoss-directory-searchclient** — Java client library to query the PD search REST API. Targets arbitrary applications, not SMP servers, so it needs no client certificate and no configuration file. Uses Apache HttpClient. Core classes: `PDSearchClient`, `PDSearchQuery`, `PDSearchResponseHandler`.
 
 ## Key Frameworks & Libraries
 
@@ -66,7 +69,8 @@ All modules use the `com.helger.pd` base package:
 - `com.helger.pd.indexer.*` — indexer (clientcert, searchindex, storage, rest, mgr, reindex, job) plus the separate modules `com.helger.pd.indexer.lucene`, `com.helger.pd.indexer.opensearch` and `com.helger.pd.indexer.conformance`
 - `com.helger.pd.publisher.*` — publisher (servlet, ui, app, search, exportall, aws)
 - `com.helger.pd.client.*` — client (PDClient, PDClientConfiguration)
-- `com.helger.pd.searchapi.*` — search API data types
+- `com.helger.pd.searchapi.*` — search API data types and REST API constants
+- `com.helger.pd.searchclient.*` — search API client (PDSearchClient, PDSearchQuery)
 
 ## CI/CD
 

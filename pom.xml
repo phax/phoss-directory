@@ -172,6 +172,11 @@
         <artifactId>phoss-directory-searchapi</artifactId>
         <version>${project.version}</version>
       </dependency>
+      <dependency>
+        <groupId>com.helger</groupId>
+        <artifactId>phoss-directory-searchclient</artifactId>
+        <version>${project.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -191,6 +196,7 @@
     <module>phoss-directory-publisher</module>
     <module>phoss-directory-client</module>
     <module>phoss-directory-searchapi</module>
+    <module>phoss-directory-searchclient</module>
   </modules>
   
   <build>

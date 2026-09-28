@@ -16,6 +16,7 @@ This project is split into the following sub-projects:
 * `phoss-directory-publisher` - the PD publisher web application (requires Java 25 since v0.17.0)
 * `phoss-directory-client` - a client library to be added to SMP servers to force indexing in the PD (requires Java 17)
 * `phoss-directory-searchapi` - a client library for easier use of the Directory search REST API (since v0.7.2; requires Java 17)
+* `phoss-directory-searchclient` - a client library to query the Directory search REST API (since v0.19.1; requires Java 17)
 
 Previous modules:
 * `phoss-directory-businesscard` - the common Business Card API - until v0.12.3; then moved to com.helger.peppol:peppol-directory-businesscard in https://github.com/phax/peppol-commons 
@@ -31,8 +32,8 @@ Previous modules:
 
 To build the PD software you need at least Java 25 and Apache Maven 3.x.
 
-The two artifacts that are consumed by third parties - `phoss-directory-client` and `phoss-directory-searchapi` -
-  are compiled for Java 17, so that SMP servers running on Java 17 can keep using them.
+The three artifacts that are consumed by third parties - `phoss-directory-client`, `phoss-directory-searchapi` and
+  `phoss-directory-searchclient` - are compiled for Java 17, so that SMP servers running on Java 17 can keep using them.
 All other modules only ever run inside the Directory server itself and are compiled for Java 25.
 
 Additionally to the contained projects you *MAY* need the latest SNAPSHOT of [ph-oton](https://github.com/phax/ph-oton) as part of your build environment.
@@ -92,6 +93,26 @@ pdclient.truststore.password = peppol
 # TLS settings
 https.hostname-verification.disabled = false
 ```
+
+# PD Search Client
+
+The PD Search Client is a small Java library that uses Apache HttpClient to query the search REST API of an arbitrary
+  phoss Directory Publisher.
+Contrary to the PD Client, that pushes indexing requests, the search API is publicly readable, so no client certificate
+  and no configuration file are needed.
+
+```java
+try (final PDSearchClient aClient = new PDSearchClient ("https://directory.peppol.eu/"))
+{
+  final ResultListType aResult = aClient.search (PDSearchQuery.createGeneric ("Helger"));
+  System.out.println (aResult.getTotalResultCount ());
+}
+```
+
+The query fields are the ones of `EPDSearchAPIField` and are combined with "AND".
+A query without a single match is answered with HTTP 200 and an empty result list - it is not an error.
+The server limits the number of results that can be paged through to `CPDSearchAPI.MAX_RESULTS`, and it rate limits the
+  API - an exceeded rate limit results in a `PDSearchRateLimitException` that carries the number of seconds to wait.
 
 # PD Indexer
 
@@ -171,6 +192,13 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 # News and noteworthy
 
 v0.19.1 - work in progress
+* Added the new submodule `phoss-directory-searchclient`, that provides a Java client for the Directory search REST API. It targets a different audience than `phoss-directory-client` - arbitrary applications that want to query the Directory, instead of SMP servers that push indexing requests - so it is a separate artifact without the SMP client certificate configuration
+    * New class `PDSearchClient` performs the HTTP GET on `search/1.0/xml` of a configurable Directory host. It needs no client certificate, because the search API is publicly readable
+    * New class `PDSearchQuery` collects the query terms per search field plus the paging parameters and builds the URL query string. It also parses the "query-terms" attribute of a result list back into a query
+    * New class `PDSearchResponseHandler` unmarshals a response into a `ResultListType`, validated against the shipped XML Schema
+    * New class `PDSearchRateLimitException` is thrown on HTTP 429 and carries the "Retry-After" value of the server, so that a caller can back off
+    * New class `EPDSearchAPIField` in `phoss-directory-searchapi` contains the query parameter names of the search REST API
+    * `CPDSearchAPI` contains the new constants `PATH_SEARCH_10`, `OUTPUT_FORMAT_XML`, `OUTPUT_FORMAT_JSON`, `QUERY_PARAM_RESULT_PAGE_INDEX`, `QUERY_PARAM_RESULT_PAGE_COUNT`, `QUERY_PARAM_BEAUTIFY`, `DEFAULT_RESULT_PAGE_INDEX`, `DEFAULT_RESULT_PAGE_COUNT` and `MAX_RESULTS`
 * Fixed that an `Error` while re-indexing silently dropped all the work items that were not processed yet. `PDIndexerManager.reIndexParticipantDataSynchronously ()` takes all the due items off the re-index list before handling them, but caught a `RuntimeException` per item only - so on an `Error` the remaining items were neither in the re-index list nor in the dead list any more, while they were still counted as "in progress", which blocks the affected participants from ever being indexed again
     * `PDIndexerManager.reIndexParticipantDataSynchronously ()`, `PDIndexerManager.expireOldEntries ()`, `PDIndexerManager._reAddToReIndexListAfterError (...)` and `PDIndexExecutor.executeWorkItem (...)` now catch `Throwable` instead of `RuntimeException` respectively `Exception`
 
