@@ -191,7 +191,8 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
-v0.19.1 - work in progress
+v0.19.1 - 2026-09-28
+* Updated top ph-schedlue to 6.2.1 to improve scheduled Job resilience
 * Added the new submodule `phoss-directory-searchclient`, that provides a Java client for the Directory search REST API. It targets a different audience than `phoss-directory-client` - arbitrary applications that want to query the Directory, instead of SMP servers that push indexing requests - so it is a separate artifact without the SMP client certificate configuration
     * New class `PDSearchClient` performs the HTTP GET on `search/1.0/xml` of a configurable Directory host. It needs no client certificate, because the search API is publicly readable
     * New class `PDSearchQuery` collects the query terms per search field plus the paging parameters and builds the URL query string. It also parses the "query-terms" attribute of a result list back into a query
