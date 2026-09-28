@@ -166,10 +166,12 @@ final class PDIndexExecutor
 
         // else error storing data
       }
-      catch (final Exception ex)
+      catch (final Throwable t)
       {
-        final String sErrorMsg = "Error in executing work item " + aWorkItem.getLogText () + " - " + ex.getMessage ();
-        LOGGER.error (sErrorMsg, ex);
+        // Catch Throwable and not just Exception, so that the failure handler below is invoked in
+        // any case - it is the only thing that puts the work item back into the re-index list
+        final String sErrorMsg = "Error in executing work item " + aWorkItem.getLogText () + " - " + t.getMessage ();
+        LOGGER.error (sErrorMsg, t);
         aErrorMsgs.add (sErrorMsg);
         // Fall through
       }

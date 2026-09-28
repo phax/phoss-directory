@@ -170,6 +170,10 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
+v0.19.1 - work in progress
+* Fixed that an `Error` while re-indexing silently dropped all the work items that were not processed yet. `PDIndexerManager.reIndexParticipantDataSynchronously ()` takes all the due items off the re-index list before handling them, but caught a `RuntimeException` per item only - so on an `Error` the remaining items were neither in the re-index list nor in the dead list any more, while they were still counted as "in progress", which blocks the affected participants from ever being indexed again
+    * `PDIndexerManager.reIndexParticipantDataSynchronously ()`, `PDIndexerManager.expireOldEntries ()`, `PDIndexerManager._reAddToReIndexListAfterError (...)` and `PDIndexExecutor.executeWorkItem (...)` now catch `Throwable` instead of `RuntimeException` respectively `Exception`
+
 v0.19.0 - 2026-09-24
 * Updated to peppol-commons 13.0.0
 * The "Re-index all entries now" action of the "Re-Index List" and the "Dead Index List" page now runs as a long running job in the background, instead of in the HTTP thread. Such a list may contain tens of thousands of entries, and queueing them one by one scans the re-index and the dead list for every single entry

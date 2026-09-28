@@ -642,10 +642,10 @@ public final class PDIndexerManager implements Closeable
       m_aReIndexList.addItem ((ReIndexWorkItem) aItem, false);
       LOGGER.info ("Put " + aItem.getLogText () + " back into the re-index list");
     }
-    catch (final RuntimeException ex)
+    catch (final Throwable t)
     {
       // Last resort - the item is lost, so at least don't block the participant forever
-      LOGGER.error ("Failed to put " + aItem.getLogText () + " back into the re-index list - dropping it", ex);
+      LOGGER.error ("Failed to put " + aItem.getLogText () + " back into the re-index list - dropping it", t);
       m_aRWLock.writeLocked (() -> m_aUniqueItems.remove (aItem.getWorkItem ()));
     }
   }
@@ -673,10 +673,12 @@ public final class PDIndexerManager implements Closeable
           m_aDeadList.addItem ((ReIndexWorkItem) aItem, false);
           LOGGER.info ("Added " + aItem.getLogText () + " to the dead list");
         }
-        catch (final RuntimeException ex)
+        catch (final Throwable t)
         {
-          // Never let a single item stop the expiration of all the other ones
-          LOGGER.error ("Failed to add " + aItem.getLogText () + " to the dead list", ex);
+          // Never let a single item stop the expiration of all the other ones. Catch Throwable and
+          // not just RuntimeException, because the items of this loop were already taken off the
+          // re-index list and an Error would silently drop all the remaining ones.
+          LOGGER.error ("Failed to add " + aItem.getLogText () + " to the dead list", t);
         }
       }
     }
@@ -708,11 +710,13 @@ public final class PDIndexerManager implements Closeable
                                          this::_onReIndexSuccess,
                                          (_, aErrorMsgs) -> _onReIndexFailure (aReIndexItem, aErrorMsgs));
       }
-      catch (final RuntimeException ex)
+      catch (final Throwable t)
       {
         // Never let a single item stop the retry of all the other ones - all of them were already
-        // taken off the re-index list and would be lost otherwise
-        LOGGER.error ("Failed to re-index " + aReIndexItem.getLogText (), ex);
+        // taken off the re-index list and would be lost otherwise. That is also why Throwable is
+        // caught and not just RuntimeException: an Error - like the OutOfMemoryError of a single
+        // oversized business card - must not drop the items that were not processed yet.
+        LOGGER.error ("Failed to re-index " + aReIndexItem.getLogText (), t);
         _reAddToReIndexListAfterError (aReIndexItem);
       }
     }
