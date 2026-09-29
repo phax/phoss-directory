@@ -15,13 +15,14 @@ This project is split into the following sub-projects:
 * `phoss-directory-indexer` - the PD indexer part (requires Java 25 since v0.17.0)
 * `phoss-directory-publisher` - the PD publisher web application (requires Java 25 since v0.17.0)
 
-The Java client libraries for the Directory live in https://github.com/phax/peppol-directory-client
+The Java client libraries for the Directory live in https://github.com/phax/peppol-directory-client - see
+  [PD Client and PD Search Client](#pd-client-and-pd-search-client) for the changed Maven coordinates
 
 Previous modules:
 * `phoss-directory-businesscard` - the common Business Card API - until v0.12.3; then moved to com.helger.peppol:peppol-directory-businesscard in https://github.com/phax/peppol-commons 
-* `phoss-directory-client` - a client library to be added to SMP servers to force indexing in the PD - until v0.19.1; then moved to https://github.com/phax/peppol-directory-client
-* `phoss-directory-searchapi` - a library with the data structures and the constants of the Directory search REST API - until v0.19.1; then moved to https://github.com/phax/peppol-directory-client
-* `phoss-directory-searchclient` - a client library to query the Directory search REST API - until v0.19.1; then moved to https://github.com/phax/peppol-directory-client
+* `phoss-directory-client` - a client library to be added to SMP servers to force indexing in the PD - until v0.19.1; then moved to com.helger.peppol.directory:peppol-directory-client in https://github.com/phax/peppol-directory-client
+* `phoss-directory-searchapi` - a library with the data structures and the constants of the Directory search REST API - until v0.19.1; then moved to com.helger.peppol.directory:peppol-directory-searchapi in https://github.com/phax/peppol-directory-client
+* `phoss-directory-searchclient` - a client library to query the Directory search REST API - until v0.19.1; then moved to com.helger.peppol.directory:peppol-directory-searchclient in https://github.com/phax/peppol-directory-client
   
 * Production version is available at https://directory.peppol.eu (for Peppol)
     * It can only handle participants registered at the SML
@@ -37,6 +38,24 @@ To build the PD software you need at least Java 25 and Apache Maven 3.x.
 All modules only ever run inside the Directory server itself and are compiled for Java 25.
 
 Additionally to the contained projects you *MAY* need the latest SNAPSHOT of [ph-oton](https://github.com/phax/ph-oton) as part of your build environment.
+
+# PD Client and PD Search Client
+
+The Java client libraries were part of this project up to and including v0.19.1 and moved to
+  https://github.com/phax/peppol-directory-client with v0.20.0.
+They are continued there as v1.0.0 with new Maven coordinates - the source code, all package names and all class names
+  are unchanged, so only the POM of a consuming project needs to be touched:
+
+| up to v0.19.1 (this project) | since v1.0.0 (peppol-directory-client) |
+|---|---|
+| `com.helger:phoss-directory-client` | `com.helger.peppol.directory:peppol-directory-client` |
+| `com.helger:phoss-directory-searchapi` | `com.helger.peppol.directory:peppol-directory-searchapi` |
+| `com.helger:phoss-directory-searchclient` | `com.helger.peppol.directory:peppol-directory-searchclient` |
+| `com.helger:phoss-directory-parent-pom` (BOM import) | `com.helger.peppol.directory:peppol-directory-client-parent-pom` |
+
+The old artifacts stay available on Maven Central in their released versions, but they will not receive updates any more.
+The documentation of the PD Client - especially the `pdclient.*` configuration properties - and of the PD Search Client
+  is now contained in the README of https://github.com/phax/peppol-directory-client
 
 # PD Indexer
 
@@ -116,8 +135,8 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 # News and noteworthy
 
 v0.20.0 - work in progress
-* Extracted the client libraries `phoss-directory-client`, `phoss-directory-searchapi` and `phoss-directory-searchclient` into the new repository https://github.com/phax/peppol-directory-client, so that they no longer share the release cycle of the Directory server. They are continued there as v1.0.0, with unchanged Maven group ID and artifact IDs
-    * SMP servers that import `com.helger:phoss-directory-parent-pom` as a BOM to resolve the version of `phoss-directory-client` need to import `com.helger:phoss-directory-client-parent-pom` instead
+* Extracted the client libraries `phoss-directory-client`, `phoss-directory-searchapi` and `phoss-directory-searchclient` into the new repository https://github.com/phax/peppol-directory-client, so that they no longer share the release cycle of the Directory server. They are continued there as v1.0.0, with the new Maven group ID `com.helger.peppol.directory` and renamed to `peppol-directory-client`, `peppol-directory-searchapi` and `peppol-directory-searchclient`. All package and class names are unchanged
+    * SMP servers that import `com.helger:phoss-directory-parent-pom` as a BOM to resolve the version of `phoss-directory-client` need to import `com.helger.peppol.directory:peppol-directory-client-parent-pom` instead
     * This repository now only contains the modules that run inside the Directory server itself, so all of them are compiled for Java 25 and the POM property `java.version.server` was removed
 
 v0.19.1 - 2026-09-28

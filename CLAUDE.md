@@ -42,9 +42,9 @@ Five Maven modules under the parent POM (`com.helger:phoss-directory-parent-pom`
 
 - **phoss-directory-publisher** — WAR web application providing search UI and REST API. Built on **ph-oton** (web framework) with Bootstrap 5. Handles bulk exports (XML/JSON/CSV) streamed to **AWS S3**. Deployed to Tomcat 10.x or Jetty 11.x (Jakarta EE 9 / Servlet 5.0).
 
-The client libraries `phoss-directory-client`, `phoss-directory-searchapi` and `phoss-directory-searchclient` were
-part of this repository up to and including v0.19.1 and now live in https://github.com/phax/peppol-directory-client.
-Nothing in this repository depends on them.
+The client libraries were part of this repository up to and including v0.19.1 and now live in
+https://github.com/phax/peppol-directory-client as `com.helger.peppol.directory:peppol-directory-client`,
+`-searchapi` and `-searchclient`. Nothing in this repository depends on them.
 
 ## Key Frameworks & Libraries
 
