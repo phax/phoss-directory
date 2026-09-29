@@ -22,7 +22,7 @@
   <parent>
     <groupId>com.helger</groupId>
     <artifactId>phoss-directory-parent-pom</artifactId>
-    <version>0.19.2-SNAPSHOT</version>
+    <version>0.20.0-SNAPSHOT</version>
   </parent>
   <artifactId>phoss-directory-indexer-conformance</artifactId>
   <packaging>jar</packaging>
@@ -30,10 +30,6 @@
   <description>The engine independent conformance test suite for implementations of the Peppol Directory search index</description>
   <url>https://github.com/phax/phoss-directory/phoss-directory-indexer-conformance</url>
   <inceptionYear>2026</inceptionYear>
-
-  <properties>
-    <java.version>${java.version.server}</java.version>
-  </properties>
   
   <licenses>
     <license>

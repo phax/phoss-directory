@@ -22,7 +22,7 @@
   <parent>
     <groupId>com.helger</groupId>
     <artifactId>phoss-directory-parent-pom</artifactId>
-    <version>0.19.2-SNAPSHOT</version>
+    <version>0.20.0-SNAPSHOT</version>
   </parent>
   <artifactId>phoss-directory-indexer-opensearch</artifactId>
   <packaging>jar</packaging>
@@ -30,10 +30,6 @@
   <description>The AWS OpenSearch based search index implementation of the Peppol Directory</description>
   <url>https://github.com/phax/phoss-directory/phoss-directory-indexer-opensearch</url>
   <inceptionYear>2026</inceptionYear>
-
-  <properties>
-    <java.version>${java.version.server}</java.version>
-  </properties>
   
   <licenses>
     <license>

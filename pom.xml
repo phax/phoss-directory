@@ -25,7 +25,7 @@
     <version>3.1.0</version>
   </parent>
   <artifactId>phoss-directory-parent-pom</artifactId>
-  <version>0.19.2-SNAPSHOT</version>
+  <version>0.20.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>peppol-directory-parent-pom</name>
   <description>Base POM to build the phoss Directory projects</description>
@@ -62,11 +62,9 @@
   </developers>
   
   <properties>
-    <!-- The baseline of the artifacts that are consumed by third parties (SMP servers embed
-         phoss-directory-client) - do not raise this without a good reason -->
-    <java.version>17</java.version>
-    <!-- The baseline of the modules that only ever run inside the Directory server itself -->
-    <java.version.server>25</java.version.server>
+    <!-- All modules of this project only ever run inside the Directory server itself. The client
+         libraries that are consumed by third parties live in https://github.com/phax/peppol-directory-client -->
+    <java.version>25</java.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
 
@@ -162,21 +160,6 @@
         <artifactId>phoss-directory-publisher</artifactId>
         <version>${project.version}</version>
       </dependency>
-      <dependency>
-        <groupId>com.helger</groupId>
-        <artifactId>phoss-directory-client</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.helger</groupId>
-        <artifactId>phoss-directory-searchapi</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.helger</groupId>
-        <artifactId>phoss-directory-searchclient</artifactId>
-        <version>${project.version}</version>
-      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -194,9 +177,6 @@
     <module>phoss-directory-indexer-lucene</module>
     <module>phoss-directory-indexer-opensearch</module>
     <module>phoss-directory-publisher</module>
-    <module>phoss-directory-client</module>
-    <module>phoss-directory-searchapi</module>
-    <module>phoss-directory-searchclient</module>
   </modules>
   
   <build>

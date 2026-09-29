@@ -14,12 +14,14 @@ This project is part of my Peppol solution stack. See https://github.com/phax/pe
 This project is split into the following sub-projects:
 * `phoss-directory-indexer` - the PD indexer part (requires Java 25 since v0.17.0)
 * `phoss-directory-publisher` - the PD publisher web application (requires Java 25 since v0.17.0)
-* `phoss-directory-client` - a client library to be added to SMP servers to force indexing in the PD (requires Java 17)
-* `phoss-directory-searchapi` - a client library for easier use of the Directory search REST API (since v0.7.2; requires Java 17)
-* `phoss-directory-searchclient` - a client library to query the Directory search REST API (since v0.19.1; requires Java 17)
+
+The Java client libraries for the Directory live in https://github.com/phax/peppol-directory-client
 
 Previous modules:
 * `phoss-directory-businesscard` - the common Business Card API - until v0.12.3; then moved to com.helger.peppol:peppol-directory-businesscard in https://github.com/phax/peppol-commons 
+* `phoss-directory-client` - a client library to be added to SMP servers to force indexing in the PD - until v0.19.1; then moved to https://github.com/phax/peppol-directory-client
+* `phoss-directory-searchapi` - a library with the data structures and the constants of the Directory search REST API - until v0.19.1; then moved to https://github.com/phax/peppol-directory-client
+* `phoss-directory-searchclient` - a client library to query the Directory search REST API - until v0.19.1; then moved to https://github.com/phax/peppol-directory-client
   
 * Production version is available at https://directory.peppol.eu (for Peppol)
     * It can only handle participants registered at the SML
@@ -32,87 +34,9 @@ Previous modules:
 
 To build the PD software you need at least Java 25 and Apache Maven 3.x.
 
-The three artifacts that are consumed by third parties - `phoss-directory-client`, `phoss-directory-searchapi` and
-  `phoss-directory-searchclient` - are compiled for Java 17, so that SMP servers running on Java 17 can keep using them.
-All other modules only ever run inside the Directory server itself and are compiled for Java 25.
+All modules only ever run inside the Directory server itself and are compiled for Java 25.
 
 Additionally to the contained projects you *MAY* need the latest SNAPSHOT of [ph-oton](https://github.com/phax/ph-oton) as part of your build environment.
-
-# PD Client
-
-The PD client is a small Java library that uses Apache HttpClient to connect to an arbitrary phoss Directory Indexer to perform all the allowed operations (get, create/update, delete).
-
-## Client Configuration resolution
-
-The PD client uses `ph-config` to resolve configuration items.
-See https://github.com/phax/ph-commons/wiki/ph-config for the details on the resolution logic.
-
-Note: the old file `pd-client.properties` is not evaluated anymore.
-
-## Client Configuration properties
-
-Note: the configuration properties were heavily renamed in v0.10.0. Previous old names are shown in brackets.
-
-The following configuration items are supported by the PD Client:
-* **`pdclient.keystore.type`** (old: **`keystore.type`**) (since v0.6.0) - the type of the keystore. Can be `JKS` or `PKCS12` (case insensitive). Defaults to `JKS`.
-* **`pdclient.keystore.path`** (old: **`keystore.path`**) - the path to the keystore where the SMP certificate is contained
-* **`pdclient.keystore.password`** (old: **`keystore.password`**) - the password to open the key store
-* **`pdclient.keystore.key.alias`** (old: **`keystore.key.alias`**) - the alias in the key store that denotes the SMP key 
-* **`pdclient.keystore.key.password`** (old: **`keystore.key.password`**) - the password to open the key in the key store
-* **`pdclient.truststore.type`** (old: **`truststore.type`**) (since v0.6.0) - the type of the keystore. Can be `JKS` or `PKCS12` (case insensitive). Defaults to `JKS`.
-* **`pdclient.truststore.path`** (old: **`truststore.path`**) (since v0.5.1) - the path to the trust store, where the public certificates of the phoss Directory servers are contained. Defaults to `truststore/pd-client.truststore.jks`
-* **`pdclient.truststore.password`** (old: **`truststore.password`**) (since v0.5.1) - the password to open the truststore store. Defaults to `peppol`
-* **`http.proxy.host`** (old: **`http.proxyHost`**) - the HTTP proxy host for HTTP connections only. No default.
-* **`http.proxy.port`** (old: **`http.proxyPort`**) - the HTTP proxy port for `http` connections only. No default.
-* Removed in 0.10.0: ~**`https.proxyHost`** - the HTTP proxy host for `https` connections only. No default.~
-* Removed in 0.10.0: ~**`https.proxyPort`** - the HTTP proxy port for `https` connections only. No default.~
-* **`http.proxy.username`** (old: **`proxy.username`**) (since v0.6.0) - the proxy username if http or https proxy is enabled. No default. 
-* **`http.proxy.password`** (old: **`proxy.password`**) (since v0.6.0) - the proxy password if http or https proxy is enabled. No default.
-* **`http.connect.timeout.ms`** (old: **`connect.timeout.ms`**) (since v0.6.0) - the connection timeout in milliseconds to connect to the server. The default value is `5000` (5 seconds). A value of `0` means indefinite. A value of `-1` means using the system default.
-* **`http.response.timeout.ms`** (old: **`http.request.timeout.ms`** or **`request.timeout.ms`**) (since v0.10.3) - the response/request/read timeout in milliseconds to read from the server. The default value is `10000` (10 seconds). A value of `0` means indefinite. A value of `-1` means using the system default.
-* **`https.hostname-verification.disabled`** (since v0.5.1) - a boolean value to indicate if https hostname verification should be disabled (`true`) or enabled (`false`). The default value is `true`.
-
-Example PD Client configuration properties:
-
-```ini
-# Key store with SMP key (required)
-pdclient.keystore.type         = pkcs12
-pdclient.keystore.path         = smp-test.p12
-pdclient.keystore.password     = password
-pdclient.keystore.key.alias    = cert
-pdclient.keystore.key.password = password
-
-# Default trust store (optional)
-pdclient.truststore.type     = pkcs12
-# For Test:
-pdclient.truststore.path     = truststore/2025/smp-test-truststore.p12
-# For production:
-# pdclient.truststore.path     = truststore/2025/smp-prod-truststore.p12
-pdclient.truststore.password = peppol
-
-# TLS settings
-https.hostname-verification.disabled = false
-```
-
-# PD Search Client
-
-The PD Search Client is a small Java library that uses Apache HttpClient to query the search REST API of an arbitrary
-  phoss Directory Publisher.
-Contrary to the PD Client, that pushes indexing requests, the search API is publicly readable, so no client certificate
-  and no configuration file are needed.
-
-```java
-try (final PDSearchClient aClient = new PDSearchClient ("https://directory.peppol.eu/"))
-{
-  final ResultListType aResult = aClient.search (PDSearchQuery.createGeneric ("Helger"));
-  System.out.println (aResult.getTotalResultCount ());
-}
-```
-
-The query fields are the ones of `EPDSearchAPIField` and are combined with "AND".
-A query without a single match is answered with HTTP 200 and an empty result list - it is not an error.
-The server limits the number of results that can be paged through to `CPDSearchAPI.MAX_RESULTS`, and it rate limits the
-  API - an exceeded rate limit results in a `PDSearchRateLimitException` that carries the number of seconds to wait.
 
 # PD Indexer
 
@@ -190,6 +114,11 @@ indexer.shadowing.secret=your-secret-token-here
 The PD Publisher is the publicly accessible web site with listing and search functionality for certain participants.
 
 # News and noteworthy
+
+v0.20.0 - work in progress
+* Extracted the client libraries `phoss-directory-client`, `phoss-directory-searchapi` and `phoss-directory-searchclient` into the new repository https://github.com/phax/peppol-directory-client, so that they no longer share the release cycle of the Directory server. They are continued there as v1.0.0, with unchanged Maven group ID and artifact IDs
+    * SMP servers that import `com.helger:phoss-directory-parent-pom` as a BOM to resolve the version of `phoss-directory-client` need to import `com.helger:phoss-directory-client-parent-pom` instead
+    * This repository now only contains the modules that run inside the Directory server itself, so all of them are compiled for Java 25 and the POM property `java.version.server` was removed
 
 v0.19.1 - 2026-09-28
 * Updated top ph-schedlue to 6.2.1 to improve scheduled Job resilience
