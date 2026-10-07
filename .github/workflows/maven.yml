@@ -43,6 +43,11 @@ jobs:
         server-username: MAVEN_USERNAME
         server-password: MAVEN_PASSWORD
 
+    - name: Set up Maven 3.9.16
+      uses: stCarolas/setup-maven@v5
+      with:
+        maven-version: 3.9.16
+
     - name: Start LocalStack
       uses: LocalStack/setup-localstack@v0.2.3
       with:
