@@ -134,7 +134,7 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 
 # News and noteworthy
 
-v0.20.0 - work in progress
+v0.20.0 - 2026-10-22
 * Extracted the client libraries `phoss-directory-client`, `phoss-directory-searchapi` and `phoss-directory-searchclient` into the new repository https://github.com/phax/peppol-directory-client, so that they no longer share the release cycle of the Directory server. They are continued there as v1.0.0, with the new Maven group ID `com.helger.peppol.directory` and renamed to `peppol-directory-client`, `peppol-directory-searchapi` and `peppol-directory-searchclient`. All package and class names are unchanged
     * SMP servers that import `com.helger:phoss-directory-parent-pom` as a BOM to resolve the version of `phoss-directory-client` need to import `com.helger.peppol.directory:peppol-directory-client-parent-pom` instead
     * This repository now only contains the modules that run inside the Directory server itself, so all of them are compiled for Java 25 and the POM property `java.version.server` was removed
