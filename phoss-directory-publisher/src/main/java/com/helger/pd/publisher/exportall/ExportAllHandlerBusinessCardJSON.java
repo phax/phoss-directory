@@ -164,7 +164,7 @@ public class ExportAllHandlerBusinessCardJSON extends AbstractExportAllHandler
         m_aJsonGen.writeStartObject ()
                   .write ("scheme", aDocTypeID.getScheme ())
                   .write ("value", aDocTypeID.getValue ());
-        final NiceNameEntry aNiceName = NiceNameManager.getDocTypeNiceName (aDocTypeID.getURIEncoded ());
+        final NiceNameEntry aNiceName = NiceNameManager.getPintResolvedNiceNameEntry (aDocTypeID);
         if (aNiceName == null)
           m_aJsonGen.write ("nonStandard", true);
         else

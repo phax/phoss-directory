@@ -108,7 +108,7 @@ final class ExportHelper
                                                                                                               aDocTypeID.getScheme ())
                                                                                                .setAttribute ("value",
                                                                                                               aDocTypeID.getValue ());
-          final NiceNameEntry aNiceName = NiceNameManager.getDocTypeNiceName (aDocTypeID.getURIEncoded ());
+          final NiceNameEntry aNiceName = NiceNameManager.getPintResolvedNiceNameEntry (aDocTypeID);
           if (aNiceName == null)
             eDocTypeID.setAttribute ("non-standard", true);
           else
@@ -202,7 +202,7 @@ final class ExportHelper
         aXSW.writeEmptyElement (XML_EXPORT_NS_URI_V3, "doctypeid");
         aXSW.writeAttribute ("scheme", aDocTypeID.getScheme ());
         aXSW.writeAttribute ("value", aDocTypeID.getValue ());
-        final NiceNameEntry aNiceName = NiceNameManager.getDocTypeNiceName (aDocTypeID.getURIEncoded ());
+        final NiceNameEntry aNiceName = NiceNameManager.getPintResolvedNiceNameEntry (aDocTypeID);
         if (aNiceName == null)
           aXSW.writeAttribute ("non-standard", "true");
         else
