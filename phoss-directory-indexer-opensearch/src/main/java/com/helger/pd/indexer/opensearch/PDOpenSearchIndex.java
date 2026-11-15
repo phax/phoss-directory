@@ -25,6 +25,7 @@ import java.util.function.Consumer;
 
 import org.apache.hc.core5.http.HttpHost;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.opensearch.client.json.JsonData;
 import org.opensearch.client.opensearch.OpenSearchClient;
 import org.opensearch.client.opensearch._types.Conflicts;
@@ -76,7 +77,6 @@ import com.helger.pd.indexer.searchindex.query.PDIndexQueryTerm;
 import com.helger.pd.indexer.storage.CPDStorage;
 import com.helger.pd.indexer.storage.field.PDField;
 
-import jakarta.annotation.Nullable;
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
 import jakarta.json.JsonArrayBuilder;

@@ -17,12 +17,11 @@
 package com.helger.pd.indexer.opensearch;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import com.helger.annotation.Nonempty;
 import com.helger.base.id.IHasID;
 import com.helger.base.lang.EnumHelper;
-
-import jakarta.annotation.Nullable;
 
 /**
  * The way the Peppol Directory authenticates against the OpenSearch endpoint.

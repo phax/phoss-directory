@@ -17,14 +17,13 @@
 package com.helger.pd.indexer.opensearch;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import com.helger.annotation.Nonempty;
 import com.helger.annotation.Nonnegative;
 import com.helger.annotation.concurrent.Immutable;
 import com.helger.config.IConfig;
 import com.helger.pd.indexer.settings.PDServerConfiguration;
-
-import jakarta.annotation.Nullable;
 
 /**
  * This class contains all the OpenSearch specific configuration properties of the Peppol Directory
