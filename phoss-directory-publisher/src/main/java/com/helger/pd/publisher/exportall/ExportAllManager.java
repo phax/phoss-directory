@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import com.helger.annotation.CheckForSigned;
 import com.helger.annotation.Nonempty;
+import com.helger.annotation.WillNotClose;
 import com.helger.annotation.concurrent.ThreadSafe;
 import com.helger.annotation.style.ReturnsMutableCopy;
 import com.helger.annotation.style.VisibleForTesting;
@@ -398,6 +399,80 @@ public final class ExportAllManager
       }
     });
     return ret;
+  }
+
+  /**
+   * Get the URI encoded IDs of all participants that belong to the provided owner. The owner ID is
+   * the certificate subject in the layout <code>CN=...,O=...,C=...</code>, without a serial number.
+   * Participants that were stored with the old owner ID layout (subject, followed by a colon and the
+   * certificate serial number) are contained as well.
+   *
+   * @param sOwnerID
+   *        The owner ID to search. May neither be <code>null</code> nor empty.
+   * @return The sorted set of all matching participant IDs. Never <code>null</code> but maybe empty.
+   * @throws IOException
+   *         On index error
+   * @since 0.20.1
+   */
+  @NonNull
+  @ReturnsMutableCopy
+  public static ICommonsSortedSet <String> getAllStoredParticipantIDsOfOwner (@NonNull @Nonempty final String sOwnerID) throws IOException
+  {
+    ValueEnforcer.notEmpty (sOwnerID, "OwnerID");
+
+    // The prefix query also matches other subjects starting with the same text, so the result
+    // needs to be filtered
+    final String sOwnerIDWithSerial = sOwnerID + ':';
+    final ICommonsSortedSet <String> ret = new CommonsTreeSet <> ();
+    PDMetaManager.getStorageMgr ().searchAll (PDField.METADATA_OWNERID.getPrefixQuery (sOwnerID), -1, doc -> {
+      final String sStoredOwnerID = PDField.METADATA_OWNERID.getDocValue (doc);
+      if (sOwnerID.equals (sStoredOwnerID) || (sStoredOwnerID != null && sStoredOwnerID.startsWith (sOwnerIDWithSerial)))
+      {
+        final IParticipantIdentifier aPID = PDField.PARTICIPANT_ID.getDocValue (doc);
+        if (aPID != null)
+          ret.add (aPID.getURIEncoded ());
+      }
+    });
+    return ret;
+  }
+
+  /**
+   * Export the provided participants with a single export format into the provided output stream.
+   * Only export formats that don't need the Business Entities are supported.
+   *
+   * @param aParticipantIDs
+   *        The URI encoded IDs of all participants to be exported, in ascending order. May not be
+   *        <code>null</code>.
+   * @param aHandler
+   *        The export format to use. May not be <code>null</code>.
+   * @param aOS
+   *        The output stream to write to. It is not closed. May not be <code>null</code>.
+   * @throws Exception
+   *         On error
+   * @since 0.20.1
+   */
+  public static void exportParticipants (@NonNull final ICommonsSortedSet <String> aParticipantIDs,
+                                         @NonNull final IExportAllHandler aHandler,
+                                         @NonNull @WillNotClose final OutputStream aOS) throws Exception
+  {
+    ValueEnforcer.notNull (aParticipantIDs, "ParticipantIDs");
+    ValueEnforcer.notNull (aHandler, "Handler");
+    ValueEnforcer.isFalse (aHandler::isBusinessEntityDataNeeded, "Handler may not need Business Entity data");
+    ValueEnforcer.notNull (aOS, "OS");
+
+    final IIdentifierFactory aIF = PDMetaManager.getIdentifierFactory ();
+    final ICommonsList <PDStoredBusinessEntity> aNoEntities = new CommonsArrayList <> ();
+
+    aHandler.onStart (aOS, aParticipantIDs.size ());
+    for (final String sParticipantID : aParticipantIDs)
+    {
+      final IParticipantIdentifier aParticipantID = aIF.parseParticipantIdentifier (sParticipantID);
+      if (aParticipantID == null)
+        LOGGER.warn ("Failed to parse the participant ID '" + sParticipantID + "' - ignoring it");
+      else
+        aHandler.onParticipant (sParticipantID, aParticipantID, aNoEntities);
+    }
+    aHandler.onEnd ();
   }
 
   // This is only used for the on-demand export of UI search results

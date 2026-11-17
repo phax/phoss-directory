@@ -137,6 +137,7 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 v0.20.1 - work in progress
 * Fixed the nice name display of PINT exact match document types in the UI and in the exports
 * Updated to peppol-shared-ui 0.11.3
+* Added the new secure page "Export participants by owner" that exports the participant IDs of a single owner (certificate subject without serial number) live as XML, JSON or CSV, in the same layout as the export of all participants
 
 v0.20.0 - 2026-10-22
 * Extracted the client libraries `phoss-directory-client`, `phoss-directory-searchapi` and `phoss-directory-searchclient` into the new repository https://github.com/phax/peppol-directory-client, so that they no longer share the release cycle of the Directory server. They are continued there as v1.0.0, with the new Maven group ID `com.helger.peppol.directory` and renamed to `peppol-directory-client`, `peppol-directory-searchapi` and `peppol-directory-searchclient`. All package and class names are unchanged

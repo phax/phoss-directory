@@ -26,6 +26,7 @@ public final class CMenuSecure
   public static final String MENU_PARTICIPANT_COUNT = "participant_count";
   public static final String MENU_PARTICIPANT_LIST = "participant_list";
   public static final String MENU_PARTICIPANT_ACTIONS = "participant_actions";
+  public static final String MENU_PARTICIPANT_EXPORT_BY_OWNER = "participant_export_by_owner";
   public static final String MENU_INDEX_MANUALLY = "index_manually";
   // The value is deliberately kept, so that existing bookmarks keep working
   public static final String MENU_BULK_IMPORT = "index_import";
