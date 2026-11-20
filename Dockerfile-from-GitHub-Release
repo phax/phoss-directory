@@ -65,6 +65,9 @@ RUN BLOCKED="$JAVA_HOME/lib/security/blocked.certs" && \
           '4B2460A466F95FD40113BCDCCA2CEB29B3B093921DE45474DA7DF48874C630B1' \
           '84112972B8E59D14560AE7E7119654474AAD119990CF3722BFC1E3B91615E1FD' >> "$BLOCKED"; }
 
+# Disable the HotSpot Base64 intrinsic as mitigation for CVE-2026-114938 ("Java2Shell")
+ENV CATALINA_OPTS="$CATALINA_OPTS -XX:-UseBASE64Intrinsics"
+
 # Remove unused Tomcat web applications
 RUN rm -rf $CATALINA_HOME/webapps/manager \
            $CATALINA_HOME/webapps/host-manager \

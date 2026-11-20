@@ -135,6 +135,7 @@ The PD Publisher is the publicly accessible web site with listing and search fun
 # News and noteworthy
 
 v0.20.1 - work in progress
+* **Security: the Docker image disables the HotSpot Base64 intrinsic (`-XX:-UseBASE64Intrinsics`) as mitigation for CVE-2026-114938 ("Java2Shell").**
 * Fixed the nice name display of PINT exact match document types in the UI and in the exports
 * Updated to peppol-shared-ui 0.11.3
 * Added the new secure page "Export participants by owner" that exports the participant IDs of a single owner (certificate subject without serial number) live as XML, JSON or CSV, in the same layout as the export of all participants
