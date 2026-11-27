@@ -35,6 +35,7 @@ import com.helger.base.io.stream.StreamHelper;
 import com.helger.base.state.ESuccess;
 import com.helger.collection.commons.ICommonsList;
 import com.helger.datetime.helper.PDTFactory;
+import com.helger.pd.indexer.businesscard.PDExtendedBusinessCard;
 import com.helger.pd.indexer.mgr.PDMetaManager;
 import com.helger.pd.indexer.searchindex.IPDIndex;
 import com.helger.pd.indexer.searchindex.query.IPDIndexQuery;
@@ -45,6 +46,7 @@ import com.helger.pd.indexer.storage.PDStorageManager;
 import com.helger.pd.indexer.storage.PDStoredBusinessEntity;
 import com.helger.pd.indexer.storage.PDStoredMetaData;
 import com.helger.pd.indexer.storage.field.PDField;
+import com.helger.peppol.businesscard.generic.PDIdentifier;
 import com.helger.peppolid.IParticipantIdentifier;
 
 import jakarta.annotation.Nullable;
@@ -343,5 +345,51 @@ public abstract class AbstractPDStorageManagerConformanceTest
     assertEquals ("Sample Company AB", aDocs.get (1).names ().get (0).getName ());
     // The entity only contains the search term inside a word
     assertEquals ("Medical Publications", aDocs.get (2).names ().get (0).getName ());
+  }
+
+  @Test
+  public void testGenericQueryWithParticipantID () throws IOException
+  {
+    // The participant that is looked for
+    _createEntryWithName ("0208:0123456789", "Exact Participant", null);
+    // A different participant, that only contains the value inside a longer value
+    _createEntryWithName ("9925:be0123456789", "Similar Participant", null);
+    // A different participant, whose business entity declares the identifier
+    final IParticipantIdentifier aDeclaringPI = PDMetaManager.getIdentifierFactory ()
+                                                             .createParticipantIdentifier ("iso6523-actorid-upis",
+                                                                                           "9915:declaring");
+    final PDExtendedBusinessCard aDeclaringBC = PDConformanceTestData.createBusinessCardWithName (aDeclaringPI,
+                                                                                                    "Declaring Participant",
+                                                                                                    null);
+    aDeclaringBC.getBusinessCard ()
+                .businessEntities ()
+                .getFirstOrNull ()
+                .identifiers ()
+                .add (new PDIdentifier ("0208", "0123456789"));
+    assertEquals (ESuccess.SUCCESS,
+                  m_aStorageMgr.createOrUpdateEntry (aDeclaringPI,
+                                                     aDeclaringBC,
+                                                     PDConformanceTestData.createMockMetaData ()));
+
+    for (final String sQuery : new String [] { "0208:0123456789",
+                                               "iso6523-actorid-upis::0208:0123456789",
+                                               " 0208:0123456789 " })
+    {
+      final IPDIndexQuery aQuery = PDQueryManager.getGenericQuery (m_aIndex, sQuery);
+      assertEquals (sQuery, 2, m_aStorageMgr.getCount (aQuery));
+
+      final ICommonsList <String> aNames = m_aStorageMgr.getAllDocuments (aQuery, -1)
+                                                        .getAllMapped (x -> x.names ().get (0).getName ());
+      assertTrue (sQuery, aNames.contains ("Exact Participant"));
+      assertTrue (sQuery, aNames.contains ("Declaring Participant"));
+      assertFalse (sQuery, aNames.contains ("Similar Participant"));
+    }
+
+    // A participant identifier that is not in the index finds nothing
+    assertEquals (0, m_aStorageMgr.getCount (PDQueryManager.getGenericQuery (m_aIndex, "0208:0999999999")));
+
+    // A query string that is not a participant identifier is still a "contains" query, that also
+    // finds the value inside a longer value
+    assertEquals (3, m_aStorageMgr.getCount (PDQueryManager.getGenericQuery (m_aIndex, "0123456789")));
   }
 }

@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
@@ -47,6 +49,7 @@ import com.helger.pd.indexer.storage.field.PDField;
 import com.helger.peppolid.IDocumentTypeIdentifier;
 import com.helger.peppolid.IParticipantIdentifier;
 import com.helger.peppolid.factory.IIdentifierFactory;
+import com.helger.peppolid.peppol.PeppolIdentifierHelper;
 
 import jakarta.annotation.Nullable;
 
@@ -241,6 +244,74 @@ public final class PDQueryManager
   }
 
   /**
+   * A participant identifier following POLICY 1 of the "Peppol Policy for use of Identifiers":
+   * <ul>
+   * <li>Optionally prefixed with the only participant identifier scheme
+   * <code>iso6523-actorid-upis</code> and the <code>::</code> separator (case insensitive)</li>
+   * <li>A numeric identifier scheme (ICD) of exactly 4 digits, followed by a colon</li>
+   * <li>The identifier itself, 1 to 130 characters, only letters (a-z, A-Z), digits (0-9), minus
+   * (-), period (.), underscore (_) and tilde (~)</li>
+   * </ul>
+   * Examples: <code>0208:0123456789</code> and <code>iso6523-actorid-upis::0208:0123456789</code>.
+   * Only a generic query string that completely matches this expression is looked up as a
+   * participant identifier.
+   */
+  public static final String REGEX_PARTICIPANT_ID = "^(?:(?i:iso6523-actorid-upis)::)?([0-9]{4}):([A-Za-z0-9\\-._~]{1,130})$";
+  private static final Pattern PATTERN_PARTICIPANT_ID = Pattern.compile (REGEX_PARTICIPANT_ID);
+
+  /**
+   * Create the query of the generic search field for a query string that is a complete participant
+   * identifier. Without this, such a query string is executed as a "contains" query on all fields,
+   * which is a leading wildcard search over the whole index and therefore very expensive, while the
+   * user clearly looks for one specific participant.
+   * <p>
+   * The returned query matches the participant with exactly this identifier, as well as all
+   * business entities that list the identifier scheme and value as one of their identifiers. Its
+   * results are therefore always a subset of the results of the "contains" query. It does not
+   * match entries that merely contain the value inside a longer value (e.g. a participant
+   * <code>9925:be0123456789</code> for the query <code>0208:0123456789</code>).
+   *
+   * @param aIdentifierFactory
+   *        The identifier factory to use. May not be <code>null</code>.
+   * @param sQueryString
+   *        The query string. May not be <code>null</code>.
+   * @return <code>null</code> if the query string does not match {@link #REGEX_PARTICIPANT_ID} or
+   *         is rejected by the identifier factory, so that the regular generic query should be
+   *         used.
+   */
+  @Nullable
+  public static IPDIndexQuery getParticipantIDGenericQuery (@NonNull final IIdentifierFactory aIdentifierFactory,
+                                                            @NonNull final String sQueryString)
+  {
+    ValueEnforcer.notNull (aIdentifierFactory, "IdentifierFactory");
+    ValueEnforcer.notNull (sQueryString, "QueryString");
+
+    final Matcher aMatcher = PATTERN_PARTICIPANT_ID.matcher (sQueryString.trim ());
+    if (!aMatcher.matches ())
+      return null;
+
+    final String sICD = aMatcher.group (1);
+    final String sValue = _lowerCase (aMatcher.group (2));
+
+    // The expression only accepts the iso6523-actorid-upis scheme
+    final IParticipantIdentifier aPI = aIdentifierFactory.createParticipantIdentifier (PeppolIdentifierHelper.PARTICIPANT_SCHEME_ISO6523_ACTORID_UPIS,
+                                                                                       sICD + ':' + sValue);
+    if (aPI == null)
+      return null;
+
+    // The business entity declares the identifier: scheme and value must both match
+    final PDIndexQueryBool.Builder aIdentifierBuilder = new PDIndexQueryBool.Builder ();
+    aIdentifierBuilder.add (PDField.IDENTIFIER_SCHEME.getExactMatchQuery (sICD), EPDIndexQueryOccur.FILTER);
+    aIdentifierBuilder.add (PDField.IDENTIFIER_VALUE.getExactMatchQuery (sValue), EPDIndexQueryOccur.FILTER);
+
+    // Either the participant itself, or a business entity declaring the identifier
+    final PDIndexQueryBool.Builder aBuilder = new PDIndexQueryBool.Builder ();
+    aBuilder.add (PDField.PARTICIPANT_ID.getExactMatchQuery (aPI), EPDIndexQueryOccur.SHOULD);
+    aBuilder.add (aIdentifierBuilder.build (), EPDIndexQueryOccur.SHOULD);
+    return aBuilder.build ();
+  }
+
+  /**
    * Create the query of the generic search field, that queries the "all fields" index field. The
    * matching itself is unchanged, but a match of a whole word is ranked higher than a match inside
    * a word, and a match in the name of the business entity is ranked higher than a match in any
@@ -259,6 +330,16 @@ public final class PDQueryManager
   {
     ValueEnforcer.notEmpty (sQueryString, "QueryString");
     ValueEnforcer.notEmpty (sQueryString.trim (), "QueryString trimmed");
+
+    // A complete participant identifier is looked up exactly instead of with a leading wildcard
+    final IPDIndexQuery aParticipantIDQuery = getParticipantIDGenericQuery (PDMetaManager.getIdentifierFactory (),
+                                                                            sQueryString);
+    if (aParticipantIDQuery != null)
+    {
+      if (LOGGER.isDebugEnabled ())
+        LOGGER.debug ("Generic query string '" + sQueryString + "' is a participant identifier - using an exact match");
+      return aParticipantIDQuery;
+    }
 
     // Split into terms - once per field, because the splitting is field based by definition
     final ICommonsList <String> aAllParts = getSplitIntoTerms (aIndex, CPDStorage.FIELD_ALL_FIELDS, sQueryString);
